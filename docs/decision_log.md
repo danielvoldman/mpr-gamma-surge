@@ -979,3 +979,14 @@ Evidence:        DL-086, DL-089, DL-092; plan 4.3 G1, D8, D31, Table 6.2.
 Test:            none (docs only).
 Status:          done; DL-092 (2) and (3) closed
 Commit/tag:      the commit that adds this entry
+
+## DL-094  User rulings on the MS3 plan: D-2, D-5, D-6, D-7, D-9; network gate; DL-092 status    [ID: D36, D12, T23, T24]
+Date:            2026-10-15        Author:
+Decision:        (1) D-2 accepted: provisional eta_bar path path.eta_start = 2.5 and path.eta_peak = 6.0, from the D12 rule with a placeholder eta_H = 4.0, recorded provisional (UNVERIFIED) until A4 (MS5); the placeholder is not an estimate of eta_H. (2) D-5: the allowance in the 9.2 launch rule is the upper end of the wall-time range of the matching Table 9.1 row, which is stated at 6 workers; launch if the prediction is <= 1.5 x that value and the total is within the D36 cap. (3) D-6: 3600 s per timing repeat (run.wall_limit_s for timing cells). (4) D-7: 6 workers for the extrapolation; the 8 and 10 worker timings are reported as measured. (5) D-9: add an M2 ramp timing cell (m2_ramp) so S2 is extrapolated from its matching family; the cell definition is the default in docs/ms3_plan.md. (6) The network gate is mean-field only until qif_network exists; network rows carry R5 estimates labelled not measured. (7) DL-092: its Status line was not edited. Of its items, (1) and (4) are fixed (commit 5eeaadf), (5) is left as is by ruling (config.hash_view unchanged), (2) and (3) were closed by DL-093, (6) is informational. D-1, D-3, D-4 and D-8 are not ruled; no default of them is applied.
+Reason:          user rulings of 2026-10-15 on docs/ms3_plan.md.
+Options:         see the D table in docs/ms3_plan.md.
+Chosen:          as above   Default from: user ruling
+Evidence:        plan 9.2, 9.3, Table 9.1, D12, D36, T23, T24; DL-092, DL-093.
+Test:            none (docs only).
+Status:          done for items 1 to 7; D-1, D-3, D-4, D-8 open
+Commit/tag:      the commit that adds this entry
