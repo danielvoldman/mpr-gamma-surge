@@ -886,4 +886,4 @@ Chosen:          as above   Default from: user decision 2026-10-15
 Evidence:        DL-071, DL-077, DL-078, DL-081, DL-083; plan 5.2 A1, Table 6.2 note, Table 11.2 G0.
 Test:            none yet (tests are specified in docs/ms2_plan.md, steps 2a to 2e).
 Status:          decided
-Commit/tag:      entry added in the docs-only commit that follows d007378 (see git log)
+Commit/tag:      landed in 2e421c2

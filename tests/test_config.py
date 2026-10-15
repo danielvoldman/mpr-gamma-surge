@@ -58,7 +58,7 @@ def test_int_cast_from_float_string():
 
 
 def test_overrides_are_recorded():
-    cfg = resolve(None, "solver.rtol=1e-12", "model.J=-20")
+    cfg = resolve({"path": {"J0": -20.0}}, "solver.rtol=1e-12", "model.J=-20")
     rec = cfg["_resolved_from"]
     assert rec["overrides"] == {"solver.rtol": "1e-12", "model.J": -20}
     assert rec["base"] == "configs/base.yaml" and rec["run_file"] is None
@@ -73,39 +73,39 @@ def test_derived_keys_cannot_be_set():
 # --- ref_point (DL-054) -----------------------------------------------------------
 
 def test_explicit_override_wins_over_ref_point():
-    cfg = resolve({"model": {"ref_point": "ref_mpr", "J": 14.0}})
+    cfg = resolve({"model": {"ref_point": "ref_mpr", "J": 14.0}, "path": {"J0": 14.0}})
     assert cfg["model"]["J"] == 14.0 and cfg["model"]["eta_bar"] == -5.0
-    cfg = resolve({"model": {"ref_point": "ref_mpr"}}, "model.Delta=0.5")
+    cfg = resolve({"model": {"ref_point": "ref_mpr"}, "path": {"J0": 15.0}}, "model.Delta=0.5")
     assert cfg["model"]["Delta"] == 0.5
 
 
 def test_ref_point_replaces_base_values():
-    m = resolve({"model": {"ref_point": "ref_mpr"}})["model"]
+    m = resolve({"model": {"ref_point": "ref_mpr"}, "path": {"J0": 15.0}})["model"]
     assert (m["type"], m["eta_bar"], m["J"], m["Delta"], m["tau_d_ms"]) == ("M2", -5.0, 15.0, 1.0, None)
 
 
 def test_ref_ceni_needs_explicit_tau_d_in_d11_range():
     with pytest.raises(C.ConfigError, match="tau_d_ms"):
-        resolve({"model": {"ref_point": "ref_ceni"}})
+        resolve({"model": {"ref_point": "ref_ceni"}, "path": {"J0": -20.0}})
     for bad in (0.5, 50.5):
         with pytest.raises(C.ConfigError, match="D11 range"):
-            resolve({"model": {"ref_point": "ref_ceni", "tau_d_ms": bad}})
+            resolve({"model": {"ref_point": "ref_ceni", "tau_d_ms": bad}, "path": {"J0": -20.0}})
     for td in (3.0, 4.95, 8.0):  # the S3 set: no warning
         with warnings.catch_warnings():
             warnings.simplefilter("error")
-            m = resolve({"model": {"ref_point": "ref_ceni", "tau_d_ms": td}})["model"]
+            m = resolve({"model": {"ref_point": "ref_ceni", "tau_d_ms": td}, "path": {"J0": -20.0}})["model"]
         assert (m["eta_bar"], m["J"], m["Delta"], m["tau_d_ms"]) == (1.0, -20.0, 0.05, td)
 
 
 def test_ref_ceni_outside_s3_set_warns_not_errors():
     for td in (1.0, 6.0, 50.0):  # K10/A6 need values up to 50 ms
         with pytest.warns(UserWarning, match="DL-066"):
-            m = resolve({"model": {"ref_point": "ref_ceni", "tau_d_ms": td}})["model"]
+            m = resolve({"model": {"ref_point": "ref_ceni", "tau_d_ms": td}, "path": {"J0": -20.0}})["model"]
         assert m["tau_d_ms"] == td
 
 
 def test_ref_point_null_keeps_base_values():
-    m = resolve({"model": {"ref_point": None, "J": -30.0}})["model"]
+    m = resolve({"model": {"ref_point": None, "J": -30.0}, "path": {"J0": -30.0}})["model"]
     assert m["J"] == -30.0 and m["eta_bar"] == 4.0
 
 
@@ -137,7 +137,7 @@ def test_explicit_eta_path_is_provisional_and_gives_eps():
 
 
 def test_explicit_eta_path_on_m2_is_explicit_not_provisional():
-    cfg = resolve({"model": {"ref_point": "ref_mpr"}}, "path.eta_start=-6", "path.eta_peak=2")
+    cfg = resolve({"model": {"ref_point": "ref_mpr"}, "path": {"J0": 15.0}}, "path.eta_start=-6", "path.eta_peak=2")
     assert cfg["path"]["eta_path_status"] == "explicit"
     C.require_eta_path(cfg)
     m3 = resolve(None, "path.eta_start=-6", "path.eta_peak=2")
@@ -161,8 +161,8 @@ def test_hash_is_sha256_and_short_hash_is_12_hex():
 
 
 def test_hash_independent_of_key_order():
-    a = {"model": {"J": -20.0, "Delta": 0.2}, "solver": {"rtol": 1e-9, "atol": 1e-11}}
-    b = {"solver": {"atol": 1e-11, "rtol": 1e-9}, "model": {"Delta": 0.2, "J": -20.0}}
+    a = {"model": {"J": -20.0, "Delta": 0.2}, "path": {"J0": -20.0}, "solver": {"rtol": 1e-9, "atol": 1e-11}}
+    b = {"path": {"J0": -20.0}, "solver": {"atol": 1e-11, "rtol": 1e-9}, "model": {"Delta": 0.2, "J": -20.0}}
     assert C.config_hash(resolve(a)) == C.config_hash(resolve(b))
 
 
@@ -179,7 +179,7 @@ def test_hash_changes_with_integration_inputs():
     for s in ("model.J=-20", "solver.rtol=1e-8", "path.T_ramp_s=60", "noise.dt_tau=5e-4",
               "durations.hold_s=11", "seeds.root_seed=1", "run.kind=mf_noisy",
               "path.eta_start=0", "network.N=1000"):
-        extra = ["path.eta_peak=5"] if s == "path.eta_start=0" else []
+        extra = {"path.eta_start=0": ["path.eta_peak=5"], "model.J=-20": ["path.J0=-20"]}.get(s, [])
         assert C.config_hash(resolve(None, s, *extra)) != h0, s
 
 
@@ -210,3 +210,38 @@ def test_param_table_lists_every_resolved_key():
     assert expected <= set(PARAM_META)
     md = param_table_markdown(rows)
     assert md.startswith("| Name | Key |") and "model.tau_ms" in md
+
+
+# --- DL-085 item 3: baseline_s and J0 consistency -------------------------------
+
+BASE_HASH = "12eab64876baaad6e02bb512422355c8394bf69a9a7c4f174952a56c9ea4c750"
+
+
+def test_consistent_base_config_keeps_its_hash():
+    assert C.config_hash(resolve()) == BASE_HASH
+
+
+def test_t_on_s_must_equal_baseline_s_on_ramp_paths():
+    with pytest.raises(C.ConfigError) as e:
+        resolve(None, "path.t_on_s=7.0")
+    msg = str(e.value)
+    assert "path.t_on_s" in msg and "durations.baseline_s" in msg
+    assert "7.0" in msg and "5.0" in msg
+    with pytest.raises(C.ConfigError, match="durations.baseline_s"):
+        resolve(None, "durations.baseline_s=10")
+
+
+@pytest.mark.parametrize("name", ["path_hypoxia", "path_drive", "path_delta_up",
+                                  "path_delta_down"])
+def test_J0_must_equal_model_J_on_J0_paths(name):
+    with pytest.raises(C.ConfigError) as e:
+        resolve(None, f"path.name={name}", "path.J0=-15.0")
+    msg = str(e.value)
+    assert "path.J0" in msg and "model.J" in msg and "-15.0" in msg and "-21.0" in msg
+
+
+@pytest.mark.parametrize("name", ["path_eta", "path_updown"])
+def test_unused_J0_mismatch_is_not_rejected(name):
+    cfg = resolve(None, f"path.name={name}", "path.J0=-15.0")
+    assert cfg["path"]["J0"] == -15.0
+    assert C.config_hash(cfg) != BASE_HASH  # the key stays in the hash

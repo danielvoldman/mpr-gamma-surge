@@ -17,11 +17,12 @@ from mprsurge import provenance as P
 from mprsurge import run as R
 
 
-def write_cfg(tmp_path, sweep="x_name: model.Delta, x_values: [0.2, 0.3, 0.4]", extra="", out="out"):
+def write_cfg(tmp_path, sweep="x_name: model.Delta, x_values: [0.2, 0.3, 0.4]", extra="", out="out",
+              path=""):
     f = tmp_path / "T.yaml"
     f.write_text(f"run: {{id: T, kind: mf{extra}}}\n"
                  f"output: {{dir: \"{(tmp_path / out).as_posix()}\"}}\n"
-                 f"sweep: {{{sweep}}}\n")
+                 f"sweep: {{{sweep}}}\n{path}")
     return f
 
 
@@ -95,7 +96,8 @@ def test_real_run_without_task_module_is_reported(tmp_path, capsys, monkeypatch)
 def test_sweep_product_hashes_and_overrides(tmp_path):
     f = write_cfg(tmp_path, sweep="x_name: model.Delta, x_values: [0.1, 0.2], "
                                   "y_name: model.J, y_values: [-20, -10, -5], "
-                                  "T_ramp_values: [10, 120]")
+                                  "T_ramp_values: [10, 120]",
+                  path="path: {name: path_eta}\n")  # J is swept, so a path that ignores J0
     plan = R.build_plan(str(f), ["solver.rtol=1e-9"])
     assert len(plan.cells) == 2 * 3 * 2
     assert len({c["hash12"] for c in plan.cells}) == 12
@@ -267,7 +269,7 @@ def test_pool_survives_a_failing_cell(tmp_path, toy):
 # --- part 2: real tasks (1b-ii) ---------------------------------------------------------------------------
 
 REAL = ("path: {name: path_eta, eta_start: 1.0, eta_peak: 4.0, T_ramp_s: 1.0, t_on_s: 0.5}\n"
-        "durations: {hold_s: 0.5, discard_s: 0.5}\n")
+        "durations: {baseline_s: 0.5, hold_s: 0.5, discard_s: 0.5}\n")
 
 
 def real_cfg(tmp_path, kind="mf", out="out", extra_run="", sweep=None, extra="", path_line=None):

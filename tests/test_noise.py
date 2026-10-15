@@ -9,7 +9,7 @@ from mprsurge import simulate_mf as S
 from mprsurge.errors import RunTimeout
 
 SHORT = {"path.name": "path_eta", "path.eta_start": 1.0, "path.eta_peak": 4.0, "path.T_ramp_s": 1.0,
-         "path.t_on_s": 0.5, "durations.hold_s": 0.5, "durations.discard_s": 0.5,
+         "path.t_on_s": 0.5, "durations.baseline_s": 0.5, "durations.hold_s": 0.5, "durations.discard_s": 0.5,
          "noise.sigma": 0.05, "seeds.spawn_key": [0]}
 
 
@@ -88,7 +88,7 @@ def test_refuses_null_sigma_and_null_spawn_key():
 def test_m2_noisy_runs():
     cfg = C.resolve_config(None, {"model.type": "M2", "model.ref_point": "ref_mpr", "model.J": -5.0, "path.name": "path_eta",
                                   "path.eta_start": -1.0, "path.eta_peak": 0.0, "path.T_ramp_s": 0.5,
-                                  "path.t_on_s": 0.2, "durations.hold_s": 0.2, "durations.discard_s": 0.2,
+                                  "path.t_on_s": 0.2, "durations.baseline_s": 0.2, "durations.hold_s": 0.2, "durations.discard_s": 0.2,
                                   "noise.sigma": 0.05, "seeds.spawn_key": [0]})
     res = S.run_mf_noisy(cfg)["arrays"]
     assert np.all(np.isfinite(res["v"])) and np.array_equal(res["s"], res["r"])

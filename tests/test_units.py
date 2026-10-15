@@ -53,7 +53,7 @@ def test_rb9a_dimensional_and_nondimensional_runs_agree_within_half_a_percent(ta
     # the run divided by the max |value| of that variable (r*tau compared with the tau-unit r).
     cfg = C.resolve_config(None, {"model.tau_ms": tau_ms, "path.name": "path_eta", "path.eta_start": 1.0,
                                   "path.eta_peak": 4.0, "path.T_ramp_s": 1.0, "path.t_on_s": 0.5,
-                                  "durations.hold_s": 0.5})
+                                  "durations.baseline_s": 0.5, "durations.hold_s": 0.5})
     res = S.run_mf(cfg)["arrays"]
     m, p = cfg["model"], cfg["path"]
     tau, tau_d = tau_ms, m["tau_d_ms"]

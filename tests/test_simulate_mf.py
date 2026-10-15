@@ -11,7 +11,7 @@ from mprsurge.models.fixed_points import stable_fixed_point
 from mprsurge.units import hz_to_rate
 
 SHORT = {"path.name": "path_eta", "path.eta_start": 1.0, "path.eta_peak": 4.0, "path.T_ramp_s": 1.0,
-         "path.t_on_s": 0.5, "durations.hold_s": 0.5}
+         "path.t_on_s": 0.5, "durations.baseline_s": 0.5, "durations.hold_s": 0.5}
 
 
 def cfg_d(**extra):

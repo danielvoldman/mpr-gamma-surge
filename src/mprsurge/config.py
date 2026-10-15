@@ -31,6 +31,11 @@ RUN_KINDS = ("mf", "mf_noisy")  # DL-055; "network" is added at MS5
 PATH_NAMES = ("path_eta", "path_hypoxia", "path_drive", "path_delta_up",
               "path_delta_down", "path_updown")  # P1, P2, P3, P4a, P4b, P5
 
+# Path kinds that read path.t_on_s (every ramp path) and path.J0 (P2 and the paths built
+# on it: P3, P4a, P4b; NC2 runs on P3). I_step and I_sin (MS2) are in neither set.
+RAMP_PATHS = PATH_NAMES
+J0_PATHS = ("path_hypoxia", "path_drive", "path_delta_up", "path_delta_down")
+
 # Sections and keys that enter config_hash (DL-057).
 _HASH_SECTIONS = ("model", "path", "solver", "noise", "network", "durations")
 
@@ -334,6 +339,7 @@ def resolve_config(run_file=None, overrides=(), base_file=None) -> dict:
             body[key] = _cast(spec, body[key], f"{section}.{key}")
 
     _check_model(cfg)
+    _check_path_consistency(cfg)
     _derive_eta_path(cfg)
     cfg[_META_KEY] = {"base": to_posix(base_path), "run_file": run_name,
                       "overrides": ov_record}
@@ -355,6 +361,19 @@ def _check_model(cfg: dict) -> None:
             warnings.warn(f"model.tau_d_ms = {m['tau_d_ms']!r} ms is outside the S3 set "
                           f"{list(REF_CENI_TAU_D_MS)} (allowed for K10/A6, DL-066)",
                           UserWarning, stacklevel=3)
+
+
+def _check_path_consistency(cfg: dict) -> None:
+    """DL-085 item 3: both keys stay in the hash, so a mismatch would be a new hash for an
+    identical run. Reject it instead."""
+    p, m, d = cfg["path"], cfg["model"], cfg["durations"]
+    if p["name"] in RAMP_PATHS and p["t_on_s"] != d["baseline_s"]:
+        raise ConfigError(f"path.t_on_s = {p['t_on_s']!r} differs from durations.baseline_s "
+                          f"= {d['baseline_s']!r}; the baseline is path.t_on_s (D27), "
+                          "so the two must be equal")
+    if p["name"] in J0_PATHS and p["J0"] != m["J"]:
+        raise ConfigError(f"path.J0 = {p['J0']!r} differs from model.J = {m['J']!r} on "
+                          f"{p['name']}; J starts at path.J0, so the two must be equal")
 
 
 def _derive_eta_path(cfg: dict) -> None:

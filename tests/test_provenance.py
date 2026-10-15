@@ -143,7 +143,7 @@ def test_find_complete_cases(tmp_path, env):
     assert P.find_complete(tmp_path, cfg) is None
     stem = write_result(tmp_path, cfg, env)
     assert P.find_complete(tmp_path, cfg) == tmp_path / f"{stem}.json"
-    other = C.resolve_config(None, ["model.J=-20"])
+    other = C.resolve_config(None, ["model.J=-20", "path.J0=-20"])
     assert P.find_complete(tmp_path, other) is None
 
 
