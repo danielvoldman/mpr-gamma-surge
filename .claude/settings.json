@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m pytest *)",
+      "Bash(python -m mprsurge.run *)",
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "PowerShell(python -m pytest *)",
+      "PowerShell(python -m mprsurge.run *)",
+      "PowerShell(git status)",
+      "PowerShell(git diff *)"
+    ]
+  }
+}

@@ -1,0 +1,2 @@
+﻿Python 3.11.9
+Source: installed with winget (py -3.11 --version); path C:\Users\Alpha\AppData\Local\Programs\Python\Python311\python.exe
