@@ -934,3 +934,14 @@ Evidence:        DL-076, DL-079, DL-082, DL-085, DL-088; plan 5.2 A2, Table 7.1 
 Test:            tests/test_ring.py (synthetic fit within 2%, tail rule, K4 linearisation, integrated step passes, map units, hash).
 Status:          done; K4-MF pass; readings (1) to (3) UNVERIFIED
 Commit/tag:      the 2d commit (see git log)
+
+## DL-090  A2 hash covers the SHA-256s of the upstream A1 and S1 results    [ID: D34]
+Date:            2026-10-15        Author:
+Decision:        none beyond follow-up to DL-089 (1), which recorded the upstream SHA-256s in the run record but left them out of the hash, so a changed A1 or S1 result with an unchanged A2 config would have been skipped as complete. hash_view now adds a2.upstream_sha256 = {A1, S1} (SHA-256 of the npz of the complete result of configs/A1.yaml and configs/S1.yaml as written; null if absent, in which case run_a2 raises) via analysis.ring.upstream_sha256s (memoised on path, mtime, size). run_a2 also refuses if the hashed view differs from what it read. No config key was added (the plan lists none), no value changed, and hashes of every other run kind are unchanged. The hash of the a2 run changes once (A2_0000_f53757ab91ef superseded by A2_0000_ac3c1fb033cc, same K4-MF result; results/A2 rerun).
+Reason:          requested by the user after DL-089.
+Options:         config keys for the upstream hashes (a schema change; not done).
+Chosen:          as above   Default from: user instruction 2026-10-15
+Evidence:        DL-087 (same pattern for A1), DL-089.
+Test:            tests/test_ring.py: test_a2_hash_covers_the_upstream_result_hashes (a changed upstream file changes the hash, restoring it restores the hash), test_current_a2_result_passes_and_is_found_by_its_hash.
+Status:          done
+Commit/tag:      the 2d fix commit (see git log)

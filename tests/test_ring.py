@@ -107,3 +107,34 @@ def test_a2_kind_and_hash_covers_window_and_band():
         C.A2_WINDOW.update(old)
     other = C.resolve_config(C.repo_root() / "configs/S1.yaml", {})
     assert "a2" not in C.hash_view(other)
+
+
+def test_a2_hash_covers_the_upstream_result_hashes(tmp_path, monkeypatch):
+    cfg = C.resolve_config(C.repo_root() / "configs/A2.yaml", {})
+    view = C.hash_view(cfg)["a2"]["upstream_sha256"]
+    assert set(view) == {"A1", "S1"} and all(len(v) == 64 for v in view.values())
+    real = RG.upstream_npz
+    h = C.config_hash(cfg)
+    copies = {}
+    for name, cfg_path in RG.UPSTREAM.items():
+        copies[cfg_path] = tmp_path / f"{name}.npz"
+        copies[cfg_path].write_bytes(real(cfg_path).read_bytes())
+    monkeypatch.setattr(RG, "upstream_npz", lambda p: copies[p])
+    assert C.config_hash(cfg) == h                      # identical bytes, same hash
+    for p, f in copies.items():
+        f.write_bytes(f.read_bytes() + b"\0")           # a changed upstream file
+        assert C.config_hash(cfg) != h
+        f.write_bytes(f.read_bytes()[:-1])
+        assert C.config_hash(cfg) == h
+
+
+def test_current_a2_result_passes_and_is_found_by_its_hash():
+    from mprsurge import provenance as P
+    from mprsurge import run as R
+    plan = R.build_plan("configs/A2.yaml")
+    rec = P.find_complete(plan.out_dir, plan.cells[0]["cfg"])
+    assert rec is not None, "run scripts/run_A2.py"
+    flags = P.read_run_record(rec)["flags"]
+    assert flags["k4_pass"]
+    assert flags["a1_npz_sha256"] == C.hash_view(plan.cells[0]["cfg"])["a2"]["upstream_sha256"]["A1"]
+    assert flags["s1_npz_sha256"] == C.hash_view(plan.cells[0]["cfg"])["a2"]["upstream_sha256"]["S1"]

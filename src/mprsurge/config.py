@@ -45,7 +45,8 @@ A1_GRID = {"n_eta": 241, "n_J": 201, "eta_range": [-10.0, 2.0], "J_range": [0.0,
            "band_cells": 4, "box_cells": 10}
 
 # A2 constants (plan 5.2 A2; DL-089). The K4 tail fit ends at t = 40 tau (DL-076; the user's instruction of
-# 2026-10-15). Not config keys; hash_view adds them, with the primary band, for run.kind = a2.
+# 2026-10-15). Not config keys; hash_view adds them, with the primary band and the SHA-256s of the upstream
+# A1 and S1 results, for run.kind = a2.
 A2_WINDOW = {"t_end_tau": 40.0}
 
 # Sections and keys that enter config_hash (DL-057).
@@ -447,7 +448,9 @@ def hash_view(cfg: dict) -> dict:
     if cfg["run"]["kind"] == "a1":      # constants outside the schema; other kinds are unchanged
         view["a1_grid"] = copy.deepcopy(A1_GRID)
     if cfg["run"]["kind"] == "a2":
-        view["a2"] = {"window": copy.deepcopy(A2_WINDOW), "band_primary_hz": list(cfg["analysis"]["band_primary_hz"])}
+        from .analysis import ring    # late import: ring imports config
+        view["a2"] = {"window": copy.deepcopy(A2_WINDOW), "band_primary_hz": list(cfg["analysis"]["band_primary_hz"]),
+                      "upstream_sha256": ring.upstream_sha256s()}     # DL-090
     return view
 
 

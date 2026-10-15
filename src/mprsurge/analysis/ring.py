@@ -147,14 +147,43 @@ def ring_map(J_grid, r, label_code, focus_code, tau_ms, band_hz, Delta=1.0):
 
 # --- runner task ----------------------------------------------------------------------------
 
-def _upstream(config_path, name):
-    """(npz path, its SHA-256) of the complete result of an upstream config as written."""
+UPSTREAM = {"A1": "configs/A1.yaml", "S1": "configs/S1.yaml"}
+_SHA_MEMO: dict = {}
+
+
+def upstream_npz(config_path):
+    """Path of the complete result npz of an upstream config as written, or None."""
     from .. import run as R          # late import: run.py resolves tasks by name
     plan = R.build_plan(config_path)
     rec = P.find_complete(plan.out_dir, plan.cells[0]["cfg"])
-    if rec is None:
-        raise C.ConfigError(f"{name}: no complete result for {config_path} in {C.to_posix(plan.out_dir)}; run it first")
-    npz = rec.with_suffix(".npz")
+    return None if rec is None else rec.with_suffix(".npz")
+
+
+def upstream_sha256s():
+    """{'A1': sha, 'S1': sha} of the upstream result files A2 reads (None where absent).
+
+    config.hash_view puts this in the a2 hashed view (DL-090), so a changed upstream result
+    changes the A2 hash. Memoised on (path, mtime, size); hashing is by content.
+    """
+    out = {}
+    for name, cfg_path in UPSTREAM.items():
+        npz = upstream_npz(cfg_path)
+        if npz is None:
+            out[name] = None
+            continue
+        st = npz.stat()
+        key = (str(npz), st.st_mtime_ns, st.st_size)
+        if key not in _SHA_MEMO:
+            _SHA_MEMO[key] = P.sha256_file(npz)
+        out[name] = _SHA_MEMO[key]
+    return out
+
+
+def _upstream(config_path, name):
+    """(npz path, its SHA-256) of the complete result of an upstream config as written."""
+    npz = upstream_npz(config_path)
+    if npz is None:
+        raise C.ConfigError(f"{name}: no complete result for {config_path}; run it first")
     return npz, P.sha256_file(npz)
 
 
@@ -167,13 +196,13 @@ def run_a2(cfg, deadline=None):
     with open(rep_path, "r", encoding="utf-8") as fh:
         mf = yaml.safe_load(fh)["K4"]["mean_field"]
 
-    a1_npz, a1_sha = _upstream("configs/A1.yaml", "A1")
+    a1_npz, a1_sha = _upstream(UPSTREAM["A1"], "A1")
     with np.load(a1_npz) as z:
         eta, Jg, r, lab, names = z["eta_over_Delta"], z["J_over_sqrtDelta"], z["r"], z["label"], list(z["label_names"])
     band = cfg["analysis"]["band_primary_hz"]
     rm = ring_map(Jg, r, lab, names.index("stable_focus"), tau, band, m["Delta"])
 
-    s1_npz, s1_sha = _upstream("configs/S1.yaml", "S1")
+    s1_npz, s1_sha = _upstream(UPSTREAM["S1"], "S1")
     with np.load(s1_npz) as z:
         t_tau, r_t = z["t_ms"] / tau, z["r"]
     y_star, lam = post_step_focus(m["eta_bar"], m["J"], m["Delta"], m["I_drive"] + cfg["path"]["I_amp"])
@@ -189,6 +218,8 @@ def run_a2(cfg, deadline=None):
                "n_g1_nondamped": int(rm["g1_nondamped"].sum()),
                "freq_hz_range": [float(np.nanmin(f_hz)), float(np.nanmax(f_hz))],
                "max_cycles_per_efold_in_G": float(np.nanmax(rm["cycles_per_efold"][in_G])) if in_G.any() else None}
+    if C.hash_view(cfg)["a2"]["upstream_sha256"] != {"A1": a1_sha, "S1": s1_sha}:
+        raise C.ConfigError("A2: an upstream result changed after the config was hashed; rerun")
     flags = {**summary, "k4_pass": k4["pass"], "k4": k4, "a1_npz_sha256": a1_sha, "s1_npz_sha256": s1_sha,
              "replication_yaml_sha256": P.sha256_file(rep_path), "a2_window": dict(C.A2_WINDOW),
              "status_note": "K4 tail fraction 0.1 and the 40 tau window end are UNVERIFIED (DL-076, DL-089)"}
