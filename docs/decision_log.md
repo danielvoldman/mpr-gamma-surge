@@ -700,3 +700,14 @@ Evidence:        plan 6.6 (SeedSequence.spawn(n), spawn key stored), 10.3, 10.4 
 Test:            test_runner part 1, test_provenance.
 Status:          default adopted (to be confirmed by the user at the 1a-ii report)
 Commit/tag:
+
+## DL-069  Seed axis and spawn keys (amends DL-068)    [ID: ]
+Date:            2026-10-14        Author:
+Decision:        (1) the seeds.n_seeds expansion applies to every stochastic run.kind: mf_noisy now, and the network kinds when they are added at MS5. Deterministic mf is one run with spawn_key null. (2) A stochastic run with seed index s (0 to n_seeds-1) gets seeds.spawn_key = [s], the child SeedSequence(root_seed).spawn(n_seeds)[s]. The same seed index therefore gives the same stream in every sweep cell: common random numbers across cells. Different seed indices give independent streams. (3) The streams are identical across cells only as far as the integration consumes them in the same way (same noise.dt_tau and the same order of draws); cells with different durations share a common prefix.
+Reason:          the user chose common random numbers across sweep cells. DL-068 item (2) gave run k the key [k], k being the position in the cell-major list; that makes every cell's stream independent, not common. The code at commit 7f48642 still behaves as DL-068 (2) says; the change to the new rule is made in sub-step 1b-i, with a test. Skip-if-done is unaffected: it matches on config_hash (spawn_key is part of the hash), not on the file index.
+Options:         (a) keep [k]: independent streams per cell; (b) [seed_index]: common random numbers.
+Chosen:          (b)   Default from: new (user choice 2026-10-14)
+Evidence:        plan 6.6 (SeedSequence.spawn(n), spawn key stored), 10.4 (Seeds in Numba), Table 6.2 (seeds as an axis of S5, S11). Amends DL-068 item (2); DL-068 is not edited.
+Test:            test_runner (1b-i): same spawn_key across cells at equal seed index, distinct across seed indices; deterministic mf has spawn_key null.
+Status:          default adopted; code change pending (1b-i)
+Commit/tag:
