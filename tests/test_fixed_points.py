@@ -147,3 +147,131 @@ def test_k2_node_focus_boundary_on_a_coarse_grid():
                 first = eta
                 break
         assert first is not None and abs(first - eta_f) <= step + 1e-9
+
+
+# --- A1 (MS2 step 2b): the grid analysis through the runner, plan 5.2 A1, DL-085 ---------------
+
+import json
+import sys
+from pathlib import Path
+
+from mprsurge import provenance as P
+from mprsurge import run as R
+from mprsurge.analysis import bifurcation as B
+from mprsurge.models.fixed_points import classify_all as _classify_all
+
+
+@pytest.fixture(scope="module")
+def a1(tmp_path_factory):
+    out = tmp_path_factory.mktemp("a1_out").as_posix()
+    assert R.main(["--config", "configs/A1.yaml", "--set", f"output.dir={out}"]) == 0
+    d = Path(out) / "A1"
+    rec_path = next(d.glob("A1_0000_*.json"))
+    return np.load(next(d.glob("A1_0000_*.npz"))), P.read_run_record(rec_path), d
+
+
+def test_a1_runs_through_the_runner_with_a_record(a1):
+    z, rec, d = a1
+    assert rec["status"] == "ok" and rec["config"]["run"]["kind"] == "a1"
+    assert rec["criteria_sha256"] == P.sha256_file(Path("configs/replication.yaml"))   # frozen yaml, DL-084
+    assert rec["flags"]["refinement_widths_status"] == "UNVERIFIED"
+    assert set(rec["outputs"]) >= {next(d.glob("A1_0000_*.npz")).name}
+
+
+def test_a1_base_grid_is_241_by_201_on_the_plan_ranges(a1):
+    z, _, _ = a1
+    assert z["eta_over_Delta"].shape == (241,) and z["J_over_sqrtDelta"].shape == (201,)
+    assert (z["eta_over_Delta"][0], z["eta_over_Delta"][-1]) == (-10.0, 2.0)
+    assert (z["J_over_sqrtDelta"][0], z["J_over_sqrtDelta"][-1]) == (0.0, 20.0)
+    assert z["n_roots"].shape == (241, 201) and z["label"].shape == (241, 201, 3)
+    assert np.allclose(np.diff(z["eta_over_Delta"]), 0.05) and np.allclose(np.diff(z["J_over_sqrtDelta"]), 0.1)
+
+
+def test_a1_refined_lattice_is_nested_and_at_half_spacing(a1):
+    z, _, _ = a1
+    assert np.allclose(np.diff(z["eta_fine"]), 0.025) and np.allclose(np.diff(z["J_fine"]), 0.05)
+    assert np.array_equal(z["eta_fine"][::2], z["eta_over_Delta"]) and np.array_equal(z["J_fine"][::2], z["J_over_sqrtDelta"])
+    ie, je, mask = z["refined_ie"], z["refined_je"], z["refined_mask"]
+    assert mask[ie, je].all() and mask.sum() == len(ie)
+    both_even = (ie % 2 == 0) & (je % 2 == 0)                    # refined nodes that are base nodes agree with the base grid
+    assert both_even.sum() > 100
+    assert np.array_equal(z["refined_n_roots"][both_even], z["n_roots"][ie[both_even] // 2, je[both_even] // 2])
+    assert np.array_equal(z["refined_label"][both_even], z["label"][ie[both_even] // 2, je[both_even] // 2])
+    assert 0 < mask.sum() < 0.2 * mask.size                       # refined only near the fold and the cusp
+
+
+def test_a1_refined_region_is_the_band_around_the_fold_plus_the_cusp_box(a1):
+    z, _, _ = a1
+    eta_f, J_f, mask = z["eta_fine"], z["J_fine"], z["refined_mask"]
+    for j in (300, 330, 380, 400):                                # fine rows with J > J_cusp
+        for e in B.fold_etas(J_f[j]):
+            near = np.abs(eta_f - e) <= 4 * 0.05 + 1e-9
+            if near.any():
+                assert mask[near, j].all()
+    _, eta_c, J_c = B.cusp_point()
+    box = (np.abs(eta_f[:, None] - eta_c) <= 0.5 + 1e-9) & (np.abs(J_f[None, :] - J_c) <= 1.0 + 1e-9)
+    assert mask[box].all()
+    ie, je = np.nonzero(mask)                                     # nothing outside the band and the box
+    for i, j in zip(ie[::7], je[::7]):
+        in_band = any(abs(eta_f[i] - e) <= 0.2 + 1e-9 for e in B.fold_etas(J_f[j]))
+        assert in_band or box[i, j]
+    assert not mask[0, 0] and not mask[-1, -1] and not mask[-1, 0]   # corners away from the fold stay base
+    assert abs(z["cusp_r_eta_J"][0] - R_CUSP) < 1e-12
+
+
+def test_a1_classification_matches_classify_all_at_sample_nodes(a1):
+    z, _, _ = a1
+    rng = np.random.default_rng(5)
+    for _ in range(40):
+        i, j = rng.integers(0, 241), rng.integers(0, 201)
+        ref = _classify_all(z["eta_over_Delta"][i], z["J_over_sqrtDelta"][j], 1.0)
+        assert z["n_roots"][i, j] == len(ref)
+        assert [B.LABELS[c] for c in z["label"][i, j] if c] == [lab for _, lab, _ in ref]
+
+
+def test_a1_k3_point_is_exactly_focus_node_saddle(a1):
+    z, _, _ = a1
+    assert list(z["k3_labels"]) == ["saddle", "stable_focus", "stable_node"] and bool(z["k3_pass"])
+
+
+def test_a1_k1_base_18_of_20_and_half_spacing_20_of_20(a1):
+    # DL-078 (base) and DL-081 (half); the criterion and the cell come from the frozen replication.yaml
+    z, _, _ = a1
+    assert z["k1_pass_base"].sum() == 18 and z["k1_pass_half"].all()
+    assert not z["k1_pass_base"][[3, 4]].any()                    # the two points next to the cusp
+
+
+def test_a1_k2_discriminant_sign_change_within_one_cell_of_the_formula(a1):
+    z, _, _ = a1
+    g = z["k2_in_grid"]
+    assert g.sum() > 150 and z["k2_pass_base"][g].all() and not z["k2_pass_base"][~g].any()
+    assert (z["k2_n_sign_changes_base"][g] == 1).all()
+    assert z["k2_pass_half"].all() and len(z["k2_pass_half"]) > 100
+
+
+def test_a1_c9_node_region_exists_and_needs_excitation(a1):
+    z, _, _ = a1
+    assert bool(z["c9_node_region_exists"]) and int(z["c9_node_count_nodes"]) > 0
+    assert bool(z["c9_nodes_have_J_above_2pi2r"]) and float(z["c9_node_min_J"]) > 0
+
+
+def test_a1_halving_check_is_recorded_not_tested(a1):
+    # Table 6.2 / D31 (DL-085): stored along the fold and at the cusp; no pass/fail threshold here
+    z, _, _ = a1
+    assert z["halving_fold_shift_cells"].shape == (201, 2) and np.isfinite(z["halving_fold_shift_cells"]).sum() > 100
+    names = list(z["halving_cusp_names"])
+    assert {"J_shift_cells", "eta_shift_cells", "J_base", "J_half", "J_formula"} <= set(names)
+    assert np.isfinite(z["halving_cusp_values"]).all()
+
+
+def test_a1_driver_publishes_the_fixed_name(tmp_path):
+    sys.path.insert(0, str(Path("scripts").resolve()))
+    try:
+        import run_A1
+    finally:
+        sys.path.pop(0)
+    assert run_A1.main(["--set", "output.dir=" + (tmp_path / "o").as_posix()]) == 0
+    d = tmp_path / "o" / "A1"
+    pub = d / "a1_fixedpoints_2d.npz"
+    rec = P.read_run_record(next(d.glob("A1_0000_*.json")))
+    assert P.sha256_file(pub) == rec["outputs"][next(d.glob("A1_0000_*.npz")).name]

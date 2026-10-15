@@ -1,0 +1,6 @@
+# A1: M2 fixed points and stability (plan 5.2 A1; MS2 step 2b, DL-085).
+# The grid (241 x 201, Delta = 1) and the refinement widths (UNVERIFIED, DL-085) are fixed in
+# mprsurge/analysis/bifurcation.py; K1 and K2 cells are read from replication.yaml (frozen, DL-084).
+run:      {id: A1, kind: a1, workers: 1}
+model:    {type: M2, ref_point: null, tau_d_ms: null, Delta: 1.0}
+robustness: {criteria_file: configs/replication.yaml}

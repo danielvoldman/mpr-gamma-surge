@@ -27,7 +27,7 @@ ETA_PEAK_OFFSET = 2.0
 
 ETA_STATUSES = ("unresolved", "provisional", "explicit", "A4")  # DL-065, DL-067
 TAU_D_MS_RANGE = (1.0, 50.0)  # D11
-RUN_KINDS = ("mf", "mf_noisy")  # DL-055; "network" is added at MS5
+RUN_KINDS = ("mf", "mf_noisy", "a1")  # DL-055; "a1" is the MS2 analysis task; "network" is added at MS5
 PATH_NAMES = ("path_eta", "path_hypoxia", "path_drive", "path_delta_up",
               "path_delta_down", "path_updown")  # P1, P2, P3, P4a, P4b, P5
 
