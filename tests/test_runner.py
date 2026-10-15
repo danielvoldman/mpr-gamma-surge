@@ -386,3 +386,46 @@ def test_mode_d_record_carries_the_solver_message(tmp_path):
     (rec,) = records(out_dir(tmp_path)).values()
     assert rec["flags"]["solver_messages"] and "solver: " in rec["message"]
     assert all(m in rec["message"] for m in rec["flags"]["solver_messages"])
+
+
+# --- MS2 2c: S1 through the runner (K4, K5; DL-079, DL-082, DL-085, DL-088) ---------------------
+
+def _run_s1(tmp_path, *sets):
+    import numpy as np
+    from pathlib import Path
+    from mprsurge import provenance as P
+    out = (tmp_path / "o").as_posix()
+    argv = ["--config", "configs/S1.yaml", "--set", f"output.dir={out}"]
+    for s in sets:
+        argv += ["--set", s]
+    assert R.main(argv) == 0
+    d = Path(out) / "S1"
+    rec = P.read_run_record(next(d.glob("S1_0000_*.json")))
+    return np.load(next(d.glob("S1_0000_*.npz"))), rec
+
+
+def test_s1_k4_step_runs_from_the_low_rate_node_with_a_record(tmp_path):
+    z, rec = _run_s1(tmp_path)
+    assert rec["status"] == "ok" and rec["config"]["run"]["kind"] == "s1" and rec["config"]["path"]["name"] == "I_step"
+    assert rec["flags"]["start"] == "low_rate_stable_node"
+    assert rec["flags"]["y_start"] == pytest.approx([0.0811, -1.962], abs=5e-4)
+    assert z["r"][0] == pytest.approx(0.0811, abs=5e-4) and z["I"][0] == 3.0 and z["I"][-1] == 3.0
+    assert z["r"].max() > 2.5 and z["r"][-1] == pytest.approx(1.3732, abs=2e-3)      # rings down to the I = 3 focus
+
+
+def test_s1_k5_definition_holds_on_the_runner_output(tmp_path):
+    import numpy as np
+    from test_k5_definition import PERIOD, TOL, crossings
+    from mprsurge.models.fixed_points import classify_all
+    z, rec = _run_s1(tmp_path, "path.name=I_sin", "path.I_period_s=0.4")
+    assert rec["status"] == "ok" and rec["flags"]["start"] == "low_rate_stable_node"
+    st = {label: y for y, label, _ in classify_all(-5.0, 15.0, 1.0, 0.0)}
+    mid = 0.5 * (st["stable_node"][0] + st["stable_focus"][0])
+    t = z["t_ms"] / 10.0
+    assert t[-1] == pytest.approx(7 * PERIOD)
+    up, dn = crossings(t, z["r"], mid)
+    for k in range(5):
+        lo, hi = (2 + k) * PERIOD, (3 + k) * PERIOD
+        assert ((up >= lo) & (up < hi)).sum() == 1 and ((dn >= lo) & (dn < hi)).sum() == 1
+    last = up[up >= 2 * PERIOD]
+    assert len(last) == 5 and np.all(np.abs(np.diff(last) - PERIOD) <= TOL)

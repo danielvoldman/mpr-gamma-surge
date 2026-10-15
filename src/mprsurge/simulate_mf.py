@@ -28,7 +28,7 @@ from scipy.integrate import solve_ivp
 from . import config as C
 from . import provenance as P
 from .errors import RunTimeout
-from .models.fixed_points import stable_fixed_point
+from .models.fixed_points import classify_all, stable_fixed_point
 from .models.mpr2d import rhs_2d
 from .models.mpr3d import rhs_3d
 from .ramps import Path, make_path
@@ -78,8 +78,9 @@ def _start_state(model: str, path: Path, tau_d, y0):
             raise ValueError(f"y0 has shape {y0.shape} for model {model}")
         return y0
     t0 = 0.0
+    I_start = path.meta.get("I_start", float(path.I(t0)))      # forcing paths start before the step
     return np.asarray(stable_fixed_point(float(path.eta(t0)), float(path.J(t0)),
-                                         float(path.Delta(t0)), float(path.I(t0)),
+                                         float(path.Delta(t0)), I_start,
                                          model, tau_d), dtype=float)
 
 
@@ -179,6 +180,27 @@ def run_mf(cfg: dict, deadline=None, y0=None) -> dict:
     msg = "ok" + (" (Radau retry after DOP853 failure)" if flags["retried_with_radau"] else "")
     msg += "; solver: " + " | ".join(solver_messages)
     return {"arrays": _output(path, t, Y, cfg["model"]["tau_ms"]), "message": msg, "flags": flags}
+
+
+def low_rate_node(cfg: dict):
+    """The stable node of M2 at the model's (eta_bar, J, Delta, I_drive): the low-activity start state
+    of S1 (K4, K5; DL-079, DL-082). Raises if there is not exactly one."""
+    m = cfg["model"]
+    if m["type"] != "M2":
+        raise C.ConfigError("run.kind s1 is an M2 run")
+    nodes = [y for y, label, _ in classify_all(m["eta_bar"], m["J"], m["Delta"], m["I_drive"])
+             if label == "stable_node"]
+    if len(nodes) != 1:
+        raise ValueError(f"expected exactly one stable node at the S1 point, found {len(nodes)}")
+    return np.asarray(nodes[0], dtype=float)
+
+
+def run_s1(cfg: dict, deadline=None) -> dict:
+    """Runner task for run.kind = s1 (MS2, DL-088): mode D from the low-rate stable node, which a
+    bistable point does not give to the default start. K8/S3 start-state selection stays at MS5."""
+    out = run_mf(cfg, deadline, y0=low_rate_node(cfg))
+    out["flags"]["start"] = "low_rate_stable_node"
+    return out
 
 
 # --- mode N ----------------------------------------------------------------------------------------

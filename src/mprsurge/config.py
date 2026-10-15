@@ -27,13 +27,15 @@ ETA_PEAK_OFFSET = 2.0
 
 ETA_STATUSES = ("unresolved", "provisional", "explicit", "A4")  # DL-065, DL-067
 TAU_D_MS_RANGE = (1.0, 50.0)  # D11
-RUN_KINDS = ("mf", "mf_noisy", "a1")  # DL-055; "a1" is the MS2 analysis task; "network" is added at MS5
-PATH_NAMES = ("path_eta", "path_hypoxia", "path_drive", "path_delta_up",
-              "path_delta_down", "path_updown")  # P1, P2, P3, P4a, P4b, P5
+RUN_KINDS = ("mf", "mf_noisy", "a1", "s1")  # DL-055; "a1", "s1" are MS2 tasks; "network" is added at MS5
+RAMP_PATH_NAMES = ("path_eta", "path_hypoxia", "path_drive", "path_delta_up",
+                   "path_delta_down", "path_updown")  # P1, P2, P3, P4a, P4b, P5
+FORCING_PATH_NAMES = ("I_step", "I_sin")  # MS2 forcing paths for S1 (DL-085 item 4)
+PATH_NAMES = RAMP_PATH_NAMES + FORCING_PATH_NAMES
 
 # Path kinds that read path.t_on_s (every ramp path) and path.J0 (P2 and the paths built
 # on it: P3, P4a, P4b; NC2 runs on P3). I_step and I_sin (MS2) are in neither set.
-RAMP_PATHS = PATH_NAMES
+RAMP_PATHS = RAMP_PATH_NAMES
 J0_PATHS = ("path_hypoxia", "path_drive", "path_delta_up", "path_delta_down")
 
 # A1 grid and DL-085 refinement widths (plan 5.2 A1; widths UNVERIFIED, the user's). Not config
@@ -57,6 +59,7 @@ class Spec:
     choices: tuple | None = None
     positive: bool = False        # strictly > 0 (scalars only)
     derived: bool = False         # filled by resolve_config, never user-set
+    optional: bool = False        # absent from base.yaml; in the hash only when given (DL-085 item 4)
 
 
 def _s(tag, **kw):
@@ -87,6 +90,7 @@ SCHEMA: dict[str, dict[str, Spec]] = {
         "I_amp": _s("float"), "I_rise_frac": _s("float"),
         "I_plateau_frac": _s("float"), "I_fall_frac": _s("float"),
         "Delta_factor": _s("float", positive=True),
+        "I_period_s": _s("float", positive=True, optional=True),   # I_sin period; required there
     },
     "solver": {
         "method": _s("str", choices=("DOP853", "Radau")),
@@ -340,12 +344,15 @@ def resolve_config(run_file=None, overrides=(), base_file=None) -> dict:
         for key, spec in specs.items():
             if spec.derived:
                 continue
+            if key not in body and spec.optional:
+                continue
             if key not in body:
                 raise ConfigError(f"{section}.{key}: missing (not in base.yaml)")
             body[key] = _cast(spec, body[key], f"{section}.{key}")
 
     _check_model(cfg)
     _check_path_consistency(cfg)
+    _check_forcing_path(cfg)
     _derive_eta_path(cfg)
     cfg[_META_KEY] = {"base": to_posix(base_path), "run_file": run_name,
                       "overrides": ov_record}
@@ -382,6 +389,14 @@ def _check_path_consistency(cfg: dict) -> None:
                           f"{p['name']}; J starts at path.J0, so the two must be equal")
 
 
+def _check_forcing_path(cfg: dict) -> None:
+    p = cfg["path"]
+    if p["name"] == "I_sin" and "I_period_s" not in p:
+        raise ConfigError("path.I_period_s: required for path I_sin (the period of I_amp sin(2 pi t / period))")
+    if p["name"] != "I_sin" and "I_period_s" in p:
+        raise ConfigError(f"path.I_period_s: only used by path I_sin, not {p['name']}")
+
+
 def _derive_eta_path(cfg: dict) -> None:
     """eta_start, eta_peak, status and eps (D12, DL-065). No value of eta_H is entered."""
     p = cfg["path"]
@@ -407,7 +422,11 @@ def _derive_eta_path(cfg: dict) -> None:
 
 
 def require_eta_path(cfg: dict) -> None:
-    """Raise if a ramp run has no eta path (A4 not run, no explicit override)."""
+    """Raise if a ramp run has no eta path (A4 not run, no explicit override).
+
+    The forcing paths I_step and I_sin keep eta_bar = model.eta_bar and need none."""
+    if cfg["path"]["name"] in FORCING_PATH_NAMES:
+        return
     if cfg["path"]["eta_path_status"] == "unresolved":
         raise ConfigError("path.eta_start/eta_peak are unresolved: eta_H comes from A4 "
                           "(MS5); give them explicitly with --set to run provisionally")

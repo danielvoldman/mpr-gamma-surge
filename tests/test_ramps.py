@@ -90,3 +90,47 @@ def test_sigmoid_profile_applies_to_eta_and_unresolved_path_raises():
     assert p.eta(T_ON + T / 2) == pytest.approx(2.5)
     with pytest.raises(C.ConfigError):
         R.make_path(C.resolve_config(None, {"path.name": "path_eta"}))
+
+
+# --- MS2 2c: forcing paths I_step and I_sin (DL-085 item 4; plan Table 7.1 K4, K5) ---------------
+
+def forcing_cfg(name, **path_keys):
+    ov = {"model.type": "M2", "model.eta_bar": -5.0, "model.J": 15.0, "model.Delta": 1.0,
+          "path.name": name, "path.t_on_s": 0.0, "path.I_amp": 3.0}
+    ov.update({f"path.{k}": v for k, v in path_keys.items()})
+    return C.resolve_config(None, ov)
+
+
+def test_i_step_is_zero_before_and_three_from_the_step():
+    c = forcing_cfg("I_step", t_on_s=0.5)
+    p = R.make_path(c)
+    t_on = s_to_tau(0.5)
+    assert p.I(0.0) == 0.0 and p.I(t_on - 1e-9) == 0.0 and p.I(t_on) == 3.0 and p.I(t_on + 100.0) == 3.0
+    assert p.meta["I_start"] == 0.0 and p.t_on == t_on and np.allclose(p.breakpoints, [t_on])
+    assert np.allclose(p.eta(np.array([0.0, 5.0])), -5.0) and np.allclose(p.J(1.0), 15.0)
+
+
+def test_i_step_at_zero_has_i_3_at_t_0_and_start_state_at_i_0():
+    p = R.make_path(forcing_cfg("I_step"))
+    assert p.I(0.0) == 3.0 and p.meta["I_start"] == 0.0
+
+
+def test_i_sin_values_at_t_0_10_20_40():
+    p = R.make_path(forcing_cfg("I_sin", I_period_s=0.4))
+    assert p.I(0.0) == 0.0
+    assert p.I(10.0) == pytest.approx(3.0 * np.sin(np.pi / 2), abs=1e-12)          # 3 sin(pi t / 20)
+    assert p.I(20.0) == pytest.approx(0.0, abs=1e-12) and p.I(40.0) == pytest.approx(0.0, abs=1e-12)
+    assert p.I(30.0) == pytest.approx(-3.0, abs=1e-12)
+
+
+def test_i_sin_needs_its_period_and_only_it():
+    with pytest.raises(C.ConfigError, match="I_period_s"):
+        forcing_cfg("I_sin")
+    with pytest.raises(C.ConfigError, match="I_period_s"):
+        forcing_cfg("I_step", I_period_s=0.4)
+
+
+def test_forcing_paths_need_no_eta_path_and_leave_existing_hashes_alone():
+    c = forcing_cfg("I_step")
+    assert c["path"]["eta_path_status"] == "unresolved" and "I_period_s" not in c["path"]
+    assert "I_period_s" not in C.hash_view(C.resolve_config(None))["path"]

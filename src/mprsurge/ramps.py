@@ -89,6 +89,8 @@ def make_path(cfg: dict) -> Path:
     def Ifixed(t):
         return np.full_like(np.asarray(t, dtype=float), I0)
 
+    if name in C.FORCING_PATH_NAMES:
+        return _forcing_path(cfg, name, t_on)
     eta = lambda t: ramp_param(t, e0, e1, t_on, T, g)
     J, Delta, I = Jfixed, Dfixed, Ifixed
     corners = [t_on, t_on + T]
@@ -114,6 +116,26 @@ def make_path(cfg: dict) -> Path:
         t_end = t_on + 2 * T
     bp = np.unique(np.array(corners, dtype=float))
     return Path(name, eta, J, Delta, I, bp, t_on, t_end, {"profile": p["profile"]})
+
+
+def _forcing_path(cfg: dict, name: str, t_on: float) -> Path:
+    """I_step: I = I_drive for t < t_on, I_drive + I_amp from t_on. I_sin: I = I_drive +
+    I_amp sin(2 pi (t - t_on)/period) from t_on, 0 added before. eta_bar, J, Delta stay at the
+    model values. The start state is the fixed point at I_drive (meta['I_start']), not at I(t_on)."""
+    m, p = cfg["model"], cfg["path"]
+    I0, amp = m["I_drive"], p["I_amp"]
+
+    def const(v):
+        return lambda t: np.full_like(np.asarray(t, dtype=float), v)
+
+    if name == "I_step":
+        I = lambda t: I0 + amp * (np.asarray(t, dtype=float) >= t_on)
+    else:
+        period = s_to_tau(p["I_period_s"], m["tau_ms"])
+        I = lambda t: I0 + amp * np.where(np.asarray(t, dtype=float) >= t_on,
+                                          np.sin(2.0 * np.pi * (np.asarray(t, dtype=float) - t_on) / period), 0.0)
+    return Path(name, const(m["eta_bar"]), const(m["J"]), const(m["Delta"]), I,
+                np.array([t_on]), t_on, t_on, {"profile": None, "I_start": I0})
 
 
 def breakpoints(cfg: dict) -> np.ndarray:

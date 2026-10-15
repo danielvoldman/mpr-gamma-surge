@@ -34,7 +34,7 @@ from .errors import RunTimeout  # noqa: F401  (re-exported for tasks and tests)
 from .params import make_param_table, param_table_markdown
 
 TASKS = {"mf": "mprsurge.simulate_mf:run_mf", "mf_noisy": "mprsurge.simulate_mf:run_mf_noisy",
-         "a1": "mprsurge.analysis.bifurcation:run_a1"}
+         "a1": "mprsurge.analysis.bifurcation:run_a1", "s1": "mprsurge.simulate_mf:run_s1"}
 THREAD_VARS = ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMBA_NUM_THREADS")
 LOG_NAME = "mprsurge.run"
 

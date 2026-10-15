@@ -204,7 +204,7 @@ def test_param_table_lists_every_resolved_key():
     cfg = resolve()
     rows = make_param_table(cfg)
     keys = {r["key"] for r in rows}
-    expected = {f"{s}.{k}" for s, body in C.SCHEMA.items() for k in body}
+    expected = {f"{s}.{k}" for s, body in C.SCHEMA.items() for k, sp in body.items() if not sp.optional}
     assert keys == expected
     assert all(set(r) == {"name", "key", "value", "units", "status"} for r in rows)
     assert expected <= set(PARAM_META)

@@ -44,6 +44,7 @@ PARAM_META: dict[str, tuple[str, str, str]] = {
     "path.I_rise_frac": ("I_rise_frac", "", "R3 (D15)"),
     "path.I_plateau_frac": ("I_plateau_frac", "", "R3 (D15)"),
     "path.I_fall_frac": ("I_fall_frac", "", "R3 (D15)"),
+    "path.I_period_s": ("I_period", "s", "I_sin period (MS2, DL-085); K5: 40 tau (DL-082)"),
     "path.Delta_factor": ("Delta_factor", "", "R3 section 3 (D20)"),
     "solver.method": ("solver", "", "R5 (D25)"),
     "solver.rtol": ("rtol", "", "R5 (D25)"),

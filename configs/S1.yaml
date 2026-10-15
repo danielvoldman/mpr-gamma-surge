@@ -1,0 +1,11 @@
+# S1: M2 validation runs (plan Table 6.2 S1; MS2 step 2c, DL-085). K4 is this file as written; K5 is the same
+# file with  --set path.name=I_sin --set path.I_period_s=0.4  (the run.id stays S1, hashes differ).
+# Point (K4, K5): eta_bar = -5, J = 15, Delta = 1, tau = 10 ms; start = the I = 0 stable node (DL-079, DL-082).
+# K4: I = 0 -> 3 at t = 0 (I_step). K5: I(t) = 3 sin(pi t / 20), period 40 tau = 0.4 s (I_sin; the tau mapping is
+# UNVERIFIED, DL-082). delta0 = 0: the start state is not kicked. hold_s = 2.8 s = 280 tau = 7 K5 periods
+# (2 transient + 5 checked); the K4 length is our choice, A2 (2d) may extend it.
+run:      {id: S1, kind: s1, workers: 1}
+model:    {type: M2, ref_point: null, tau_ms: 10.0, tau_d_ms: null, eta_bar: -5.0, Delta: 1.0, J: 15.0, I_drive: 0.0}
+path:     {name: I_step, t_on_s: 0.0, I_amp: 3.0}
+solver:   {delta0: 0.0}
+durations: {hold_s: 2.8}
