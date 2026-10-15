@@ -129,10 +129,15 @@ def _julia_version() -> str | None:
     return out.stdout.strip() or None if out.returncode == 0 else None
 
 
+def _bifurcationkit_version() -> str | None:
+    from .analysis.continuation.julia_io import pinned_bifurcationkit_version
+    return pinned_bifurcationkit_version()
+
+
 def environment_info(with_julia: bool = True) -> dict:
     """Versions and machine, computed once in the parent and passed to workers.
 
-    bifurcationkit stays null until the Julia smoke test (1d) provides it.
+    bifurcationkit is the version pinned in environment/julia/Manifest.toml (null if absent).
     """
     pk = {}
     for name in PACKAGES:
@@ -144,7 +149,7 @@ def environment_info(with_julia: bool = True) -> dict:
             "python": {"version": platform.python_version(), "executable": sys.executable},
             "packages": pk,
             "julia": {"version": _julia_version() if with_julia else None,
-                      "bifurcationkit": None},
+                      "bifurcationkit": _bifurcationkit_version()},
             "os": platform.platform(),
             "cpu": {"processor": platform.processor(), "machine": platform.machine(),
                     "count": os.cpu_count()}}

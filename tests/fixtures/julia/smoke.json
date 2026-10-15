@@ -1,0 +1,29 @@
+{
+    "equations": "M3 plan 3.1, tau-units; parameter tau_d/tau; eta=1.0, J=-20.0, Delta=0.05, tau=10.0 ms",
+    "n_fixed_branch_points": 52,
+    "fixed_point": {
+        "v": -0.15906004237372232,
+        "r": 0.05002983172793016,
+        "s": 0.05002983172793016
+    },
+    "julia_version": "1.10.11",
+    "hopf_a": 0.3947320683541924,
+    "dirty": false,
+    "periodic_orbit_method": "orthogonal collocation, Collocation(Ntst=40, m=4, meshadapt=true), PALC, started from the Hopf point",
+    "hopf_omega_per_tau": 1.3205922864285748,
+    "written_utc": "2026-10-15T03:57:20.090",
+    "hopf_b": -0.11887691901890689,
+    "hopf_frequency_hz": 21.01787901941358,
+    "n_po_points": 38,
+    "manifest_sha256": "73ac380d3d7d06bbdfa7fea64c85abbb08c74aee489e87625464864cecfd53e5",
+    "hopf_tau_d_ms": 4.120866101940664,
+    "commit": "464f1ec746b4a2f022a75a278db505ed6411944c",
+    "bifurcationkit_version": "0.8.7",
+    "timings_s": {
+        "total": 28.94099998474121,
+        "periodic_orbit": 18.006999969482422,
+        "fixed_point_branch_and_normal_form": 4.039000034332275
+    },
+    "hopf_type": "SuperCritical",
+    "hopf_td_over_tau": 0.4120866101940664
+}

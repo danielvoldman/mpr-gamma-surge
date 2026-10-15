@@ -21,9 +21,8 @@ def rng():
 def ring(f, lam, lead_s=0.0, total_s=4.0, noise=1e-4):
     """exp(-lam t) sin(2 pi f t) from lead_s, amplitude 1, zero before; seeded noise floor.
 
-    Starts at the record start by default: the zero-phase filter smears a step onset over about
-    20 ms (envelope pre-rise and overshoot), and a fit that starts at the threshold crossing then
-    starts inside that transient (measured: rate -3.4 instead of -6.1 per s with lead_s = 1).
+    A step onset (lead_s > 0) is smeared by the zero-phase filter over about 20 ms; the D8 fit
+    window then starts inside that transient (DL-073).
     """
     t = np.arange(int(total_s * FS)) / FS
     tau = np.clip(t - lead_s, 0, None)
@@ -66,12 +65,18 @@ def test_five_cycle_ring_has_negative_growth_and_fewer_than_ten_cycles():
 
 def test_slowly_damped_ring_has_more_than_ten_cycles_and_negative_growth():
     lam = np.log(1.0 / THR) / (15 / 40.0)                      # 15 cycles above THR
-    v = ring(40.0, lam)
+    v = ring(40.0, lam, lead_s=1.0)                            # D8 window: threshold crossing, first 10 cycles
     assert M.count_cycles(v, FS, BAND, THR) > 10
     g = M.envelope_growth(v, FS, BAND, THR)
     assert g["cycles"] == pytest.approx(10.0, abs=0.1)         # the fit uses the first 10 cycles
     assert g["rate"] < -2 * g["se"]                            # damped by the D8 rule
-    assert g["rate"] == pytest.approx(-lam, rel=0.1)           # UNVERIFIED test-level: filter transient
+
+
+@pytest.mark.xfail(strict=True, reason="DL-073: step-onset filter bias, rate -3.4 against -6.1 per s (UNVERIFIED)")
+def test_slowly_damped_ring_rate_matches_true_decay_after_step_onset():
+    lam = np.log(1.0 / THR) / (15 / 40.0)
+    g = M.envelope_growth(ring(40.0, lam, lead_s=1.0), FS, BAND, THR)
+    assert g["rate"] == pytest.approx(-lam, rel=0.1)           # UNVERIFIED test-level
 
 
 def test_pure_trend_has_no_cycles_and_no_gamma_power():
