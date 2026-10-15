@@ -32,7 +32,7 @@ def test_jacobian_matches_central_differences():
 
 def test_m3_with_tiny_tau_d_tracks_m2():
     # tau_d = 1e-3 tau (stiff: Radau). Short run from a displaced state. Tolerance 1e-2 absolute on r and v,
-    # about 1.6x the observed 6e-3 (DL-061; chosen after seeing the value), plus a convergence check:
+    # about 1.6x the observed 6e-3 (DL-061, DL-071; chosen after seeing the value, UNVERIFIED), plus a convergence check:
     # the error at tau_d = 1e-4 is below a fifth of that at 1e-3 (first order in tau_d).
     eta, J, D = -5.0, 15.0, 1.0
     r0, v0 = fixed_points(eta, J, D)[-1]

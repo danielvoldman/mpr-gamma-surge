@@ -1,11 +1,13 @@
-"""Runner, part 1 (plan 10.4, Table 10.1; DL-056, DL-068). Uses toy tasks (tests/toy_task.py);
-the workers-1-vs-6 comparison with the real run_mf is part 2 (sub-step 1b-ii)."""
+"""Runner (plan 10.4, Table 10.1; DL-056, DL-068). Part 1 uses toy tasks (tests/toy_task.py);
+part 2 (sub-step 1b-ii, at the end) uses the real run_mf and run_mf_noisy."""
 import csv
 import json
+import logging
 import os
 import re
 import subprocess
 import sys
+import time
 
 import numpy as np
 import pytest
@@ -261,3 +263,117 @@ def test_pool_survives_a_failing_cell(tmp_path, toy):
     d = out_dir(tmp_path)
     assert sorted(r["status"] for r in records(d).values()) == ["failed", "ok", "ok", "timeout"]
     assert sorted(r["status"] for r in manifest(d)) == ["failed", "ok", "ok", "timeout"]
+
+
+# --- part 2: real tasks (1b-ii) ---------------------------------------------------------------------------
+
+REAL = ("path: {name: path_eta, eta_start: 1.0, eta_peak: 4.0, T_ramp_s: 1.0, t_on_s: 0.5}\n"
+        "durations: {hold_s: 0.5, discard_s: 0.5}\n")
+
+
+def real_cfg(tmp_path, kind="mf", out="out", extra_run="", sweep=None, extra="", path_line=None):
+    sweep = sweep or "x_name: model.Delta, x_values: [0.26, 0.28, 0.30, 0.32, 0.34, 0.36]"
+    f = tmp_path / f"T_{out}.yaml"
+    f.write_text(f"run: {{id: T, kind: {kind}{extra_run}}}\n"
+                 f"output: {{dir: \"{(tmp_path / out).as_posix()}\"}}\n"
+                 f"sweep: {{{sweep}}}\n{path_line or REAL}{extra}")
+    return f
+
+
+def load_all(d):
+    return {p.name: dict(np.load(p)) for p in sorted(d.glob("*.npz"))}
+
+
+@pytest.mark.parametrize("kind,extra", [("mf", ""),
+                                        ("mf_noisy", "noise: {sigma: 0.05}\nseeds: {n_seeds: 3}\n")])
+def test_workers_1_and_6_give_identical_results_with_the_real_tasks(tmp_path, kind, extra):
+    sweep = "x_name: model.Delta, x_values: [0.28, 0.32]" if kind == "mf_noisy" else None
+    res = {}
+    for workers in (1, 6):
+        f = real_cfg(tmp_path, kind=kind, out=f"w{workers}", sweep=sweep, extra=extra)
+        assert R.main(["--config", str(f), "--workers", str(workers)]) == 0
+        res[workers] = load_all(out_dir(tmp_path, f"w{workers}"))
+    assert res[1].keys() == res[6].keys() and len(res[1]) == 6
+    for name in res[1]:
+        for key in res[1][name]:
+            assert np.array_equal(res[1][name][key], res[6][name][key]), (name, key)
+    recs = records(out_dir(tmp_path, "w6"))
+    assert {r["status"] for r in recs.values()} == {"ok"}
+    assert all(r["numba_cache_cleared"] is None for r in recs.values())
+
+
+def test_forced_dop853_failure_is_retried_with_radau_and_flagged_in_the_record(tmp_path, monkeypatch):
+    from mprsurge import simulate_mf as S
+    real = S.solve_ivp
+
+    def flaky(f, span, y0, *a, method="DOP853", **kw):
+        if method == "DOP853":
+            class Failed:
+                status, message = -1, "forced failure"
+            return Failed()
+        return real(f, span, y0, *a, method=method, **kw)
+    monkeypatch.setattr(S, "solve_ivp", flaky)
+    f = real_cfg(tmp_path, sweep="x_name: model.Delta, x_values: [0.3]")
+    assert R.main(["--config", str(f)]) == 0
+    (rec,) = records(out_dir(tmp_path)).values()
+    assert rec["status"] == "ok" and rec["flags"]["retried_with_radau"] is True
+    assert rec["flags"]["solver"] == "Radau" and "forced failure" in rec["flags"]["first_failure"]
+    assert "Radau" in rec["message"] and list(out_dir(tmp_path).glob("*.npz"))
+
+
+@pytest.mark.parametrize("kind,extra,T_ramp", [
+    ("mf", "", 120.0),                                                        # a long solve_ivp
+    ("mf_noisy", "noise: {sigma: 0.05}\nseeds: {n_seeds: 1}\n", 1000.0)])     # a long jitted run
+def test_wall_limit_gives_status_timeout_quickly(tmp_path, kind, extra, T_ramp):
+    path_line = REAL.replace("T_ramp_s: 1.0", f"T_ramp_s: {T_ramp}")
+    f = real_cfg(tmp_path, kind=kind, extra_run=", wall_limit_s: 0.5", extra=extra, path_line=path_line,
+                 sweep="x_name: model.Delta, x_values: [0.3]")
+    t0 = time.monotonic()
+    assert R.main(["--config", str(f)]) == 1
+    assert time.monotonic() - t0 < 30
+    (rec,) = records(out_dir(tmp_path)).values()
+    assert rec["status"] == "timeout" and "wall-time" in rec["message"] and rec["outputs"] == {}
+    assert not list(out_dir(tmp_path).glob("*.npz"))
+
+
+# --- heartbeat (ETA line) ----------------------------------------------------------------------------------------
+
+class _Capture(logging.Handler):
+    def __init__(self):
+        super().__init__()
+        self.lines = []
+
+    def emit(self, record):
+        self.lines.append(record.getMessage())
+
+
+def _heartbeats(tmp_path, n, every, monkeypatch):
+    monkeypatch.setitem(R.TASKS, "mf", "toy_task:run")
+    sweep = f"x_name: model.Delta, x_values: [{', '.join(str(0.1 + 0.01 * k) for k in range(n))}]"
+    plan = R.build_plan(str(write_cfg(tmp_path, sweep=sweep)))
+    jobs = [{"index": c["index"], "name": c["name"], "hash12": c["hash12"], "cfg": c["cfg"],
+             "out_dir": str(plan.out_dir), "task": R.TASKS["mf"], "env": P.environment_info(with_julia=False),
+             "inputs": plan.inputs, "dry_run": False} for c in plan.cells]
+    cap, log = _Capture(), logging.getLogger(R.LOG_NAME)
+    old = (log.handlers[:], log.level, log.propagate)
+    log.handlers[:], log.propagate = [cap], False
+    log.setLevel(logging.INFO)
+    try:
+        R.run_jobs(jobs, 1, plan.out_dir, heartbeat_every=every)
+    finally:
+        log.handlers[:], log.level, log.propagate = old
+    return [m for m in cap.lines if m.startswith("heartbeat")]
+
+
+def test_heartbeat_reports_progress_and_eta_every_n_runs(tmp_path, monkeypatch):
+    beats = _heartbeats(tmp_path, 7, 3, monkeypatch)
+    assert len(beats) == 2                                          # after 3 and 6 of 7; not after the last
+    assert re.fullmatch(r"heartbeat 3/7 done, elapsed \d+ s, ETA \d+ s", beats[0])
+    assert beats[1].startswith("heartbeat 6/7")
+
+
+def test_fewer_runs_than_the_interval_log_no_heartbeat_and_do_not_fail(tmp_path, monkeypatch):
+    # With the default interval of 10, a sweep of fewer than 10 runs never reaches a heartbeat.
+    assert _heartbeats(tmp_path, 4, 10, monkeypatch) == []
+    assert _heartbeats(tmp_path, 1, 10, monkeypatch) == []
+    assert len(_heartbeats(tmp_path, 4, 2, monkeypatch)) == 1       # 2 of 4; none after the last

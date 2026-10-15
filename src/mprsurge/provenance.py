@@ -29,7 +29,7 @@ RECORD_FIELDS = (
     "schema_version", "status", "message", "dry_run", "name", "config", "config_hash",
     "config_hash12", "seed", "git", "python", "packages", "julia", "os", "cpu", "solver",
     "wall_time_s", "warnings", "flags", "inputs", "outputs", "criteria_sha256",
-    "created_utc",
+    "numba_cache_cleared", "created_utc",
 )
 
 
@@ -155,7 +155,7 @@ def environment_info(with_julia: bool = True) -> dict:
 def make_run_record(cfg: dict, env: dict, *, name: str, status: str, message: str = "",
                     wall_time_s: float | None = None, warnings=(), flags: dict | None = None,
                     inputs: dict | None = None, outputs: dict | None = None,
-                    dry_run: bool = False) -> dict:
+                    dry_run: bool = False, numba_cache_cleared: bool | None = None) -> dict:
     """Run record (sections 6.6, 10.4). Hashes of inputs and outputs are SHA-256 hex."""
     allowed = (DRY_STATUS,) if dry_run else STATUSES
     if status not in allowed:
@@ -177,6 +177,7 @@ def make_run_record(cfg: dict, env: dict, *, name: str, status: str, message: st
         "wall_time_s": wall_time_s, "warnings": [str(w) for w in warnings],
         "flags": dict(flags or {}), "inputs": dict(inputs or {}), "outputs": dict(outputs or {}),
         "criteria_sha256": crit_sha,
+        "numba_cache_cleared": numba_cache_cleared,   # null until make_all.ps1 sets it (section 10.4)
         "created_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
 
