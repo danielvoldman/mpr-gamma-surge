@@ -1,0 +1,7 @@
+# Timing cell m2_ramp (DL-094 D-9; plan Table 6.2 S2): M2 mean field, eta_bar ramped (path_eta, J and Delta fixed) from
+# 1 below the lower fold to 1 above the upper fold at J = 15, Delta = 1 (the K4 point of S1 and A2), T_ramp 1000 s,
+# the longest of the 13 S2 values. Fold eta_bar values from the A1 formula, bifurcation.fold_etas(15, 1):
+# -5.743527161657844 and -3.136134086195692 (tests/test_timing_cells.py checks these numbers).
+run:   {kind: mf}
+model: {type: M2, ref_point: null, tau_d_ms: null, Delta: 1.0, J: 15.0, eta_bar: -5.0, I_drive: 0.0}
+path:  {name: path_eta, T_ramp_s: 1000.0, eta_start: -6.743527161657844, eta_peak: -2.136134086195692}

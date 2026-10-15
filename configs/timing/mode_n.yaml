@@ -1,0 +1,4 @@
+# Timing cell one mode-N run (plan 9.2), headline path, stochastic Heun dt 1e-3 tau (base.yaml), 2 s discard.
+# noise.sigma = 1e-3 is a PLACEHOLDER: UNVERIFIED and NOT CALIBRATED (calibration is MS5, plan 6.4; DL-095 D-4).
+run:   {kind: mf_noisy}
+noise: {sigma: 1.0e-3}

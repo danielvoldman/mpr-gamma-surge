@@ -1,0 +1,2 @@
+# Timing cell Delta = 0.6 (DL-095 D-3): headline with only Delta changed. Re-time at MS5.
+model: {Delta: 0.6}

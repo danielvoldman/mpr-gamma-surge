@@ -1,0 +1,2 @@
+# Timing cell Radau at rtol 1e-12 (plan 9.2), on the headline path.
+solver: {method: Radau, rtol: 1.0e-12}

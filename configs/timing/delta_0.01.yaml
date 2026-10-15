@@ -1,0 +1,2 @@
+# Timing cell Delta = 0.01 (DL-095 D-3): headline with only Delta changed. 'Near the Hopf window' is NOT located before A4; re-time at MS5.
+model: {Delta: 0.01}

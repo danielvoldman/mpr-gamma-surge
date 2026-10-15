@@ -1001,3 +1001,14 @@ Evidence:        plan 9.2, 6.4, Table 9.1; DL-094.
 Test:            none (docs only).
 Status:          done
 Commit/tag:      the commit that adds this entry
+
+## DL-096  MS3 3a: configs/S5.yaml, seven timing cells, analysis/timing.py    [ID: D36, T23]
+Date:            2026-10-15        Author:
+Decision:        none beyond implementing 3a of docs/ms3_plan.md with DL-094 and DL-095. configs/S5.yaml is the headline (P2, ref_devalle, T_ramp 120 s, linear, I = 0) with the provisional UNVERIFIED eta path 2.5 and 6.0 (placeholder eta_H = 4.0). configs/timing/ holds headline, delta_0.01, delta_0.6, p5_1000, radau_1e-12, mode_n (noise.sigma = 1e-3, UNVERIFIED, not calibrated) and m2_ramp; analysis/timing.py layers a cell over S5.yaml and reports tau simulated and the eta path status; nothing integrates. m2_ramp check (DL-094 D-9): the existing path_eta with model.type M2 is enough, no new path kind and no code in make_path. Its eta_start and eta_peak are the A1-formula folds at J = 15, Delta = 1 (-5.7435, -3.1361) minus and plus 1, status explicit; both ends have a unique stable fixed point. Cells resolve to tau simulated: headline 16,500; Delta cells 16,500; p5_1000 201,500; radau 16,500; mode_n 16,700; m2_ramp 101,500.
+Reason:          3a of docs/ms3_plan.md.
+Options:         -
+Chosen:          as above   Default from: DL-094, DL-095
+Evidence:        plan 9.2 step 1, 4.4, 6.2, CP14, D12, Table 6.2 S2.
+Test:            tests/test_timing_cells.py.
+Status:          done
+Commit/tag:      the 3a commit
