@@ -109,7 +109,7 @@ def test_a2_kind_and_hash_covers_window_and_band():
     assert "a2" not in C.hash_view(other)
 
 
-def test_a2_hash_covers_the_upstream_result_hashes(tmp_path, monkeypatch):
+def test_a2_hash_covers_the_upstream_result_hashes(upstream_results, tmp_path, monkeypatch):
     cfg = C.resolve_config(C.repo_root() / "configs/A2.yaml", {})
     view = C.hash_view(cfg)["a2"]["upstream_sha256"]
     assert set(view) == {"A1", "S1"} and all(len(v) == 64 for v in view.values())
@@ -128,7 +128,7 @@ def test_a2_hash_covers_the_upstream_result_hashes(tmp_path, monkeypatch):
         assert C.config_hash(cfg) == h
 
 
-def test_current_a2_result_passes_and_is_found_by_its_hash():
+def test_current_a2_result_passes_and_is_found_by_its_hash(upstream_results):
     from mprsurge import provenance as P
     from mprsurge import run as R
     plan = R.build_plan("configs/A2.yaml")

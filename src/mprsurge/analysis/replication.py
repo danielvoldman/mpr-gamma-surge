@@ -169,8 +169,23 @@ def k5_mid(eta_bar, J, Delta):
     return 0.5 * (st["stable_node"][0] + st["stable_focus"][0]), st["stable_node"][0], st["stable_focus"][0]
 
 
-def row_k5(s1, rep, src, tau_ms):
+def check_k5_forcing(k5, path):
+    """The yaml K5 forcing I0 sin(omega t) must be the forcing of the run that produced the series (DL-092 4)."""
+    f = k5["forcing"]
+    err = lambda msg: ProvenanceError(f"A0 K5: {msg}")
+    if path.get("name") != "I_sin" or path.get("t_on_s", 0.0) != 0.0:
+        raise err(f"run path is {path.get('name')} from t_on_s = {path.get('t_on_s')}, yaml says {f['form']}")
+    if not np.isclose(path["I_amp"], f["I0"], rtol=0, atol=1e-12):
+        raise err(f"run amplitude {path['I_amp']} differs from yaml I0 = {f['I0']}")
+    omega = 2 * np.pi * path["tau_ms"] / (1000.0 * path["I_period_s"])
+    if not np.isclose(omega, f["omega"], rtol=1e-9, atol=0):
+        raise err(f"run omega {omega!r} (per tau) differs from yaml omega = {f['omega']!r}")
+
+
+def row_k5(s1, rep, src, tau_ms, path=None):
     k5 = rep["K5"]
+    if path is not None:
+        check_k5_forcing(k5, {**path, "tau_ms": tau_ms})
     pt = k5["point"]
     mid, low, high = k5_mid(pt["eta_bar"], pt["J"], pt["Delta"])
     res = k5_check(s1["t_ms"] / tau_ms, s1["r"], mid, k5["period"], k5["transient_periods"], k5["checked_periods"],
@@ -211,7 +226,7 @@ def run_a0(cfg, deadline=None):
             row_k3(a1, rep, _src("A1", up["A1"][0])),
             row_k4(a2, rep, f"{_src('A2', up['A2'][0])} (from {_src('S1(K4)', up['S1_K4'][0])}, "
                             f"{_src('A1', up['A1'][0])})"),
-            row_k5(s1, rep, _src("S1(K5)", up["S1_K5"][0]), tau_ms)]
+            row_k5(s1, rep, _src("S1(K5)", up["S1_K5"][0]), tau_ms, up["S1_K5"][1]["config"]["path"])]
     arrays = {f"col_{c}": np.array([r[c] for r in rows]) for c in COLUMNS}
     failed = [r["target"] for r in rows if not r["pass"]]
     flags = {"rows_pass": {r["target"]: r["pass"] for r in rows}, "failed": failed, "upstream_npz_sha256": shas,
