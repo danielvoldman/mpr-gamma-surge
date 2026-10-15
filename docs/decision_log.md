@@ -876,3 +876,14 @@ Evidence:        git tag tolerances-frozen; DL-083.
 Test:            -
 Status:          done
 Commit/tag:      tag tolerances-frozen on bd301ce; this entry in the following docs-only commit
+
+## DL-085  MS2 rulings: A1 refinement extent, deferrals, config checks, S1 path kinds    [ID: D31, D34]
+Date:            2026-10-15        Author:
+Decision:        the user ruled on the MS2 questions of docs/ms2_plan.md: (1) A1 refines to half spacing (0.025 in eta_bar/Delta, 0.05 in J/sqrt(Delta)) in a band of +-4 base cells in eta_bar along the whole formula fold curve, plus a box of +-10 base cells in eta_bar and J around the cusp; the widths are UNVERIFIED and the user's. A1 stores the Table 6.2 halving check (boundary shift in cells) along the fold and at the cusp as a recorded field, with no pass/fail test. (2) The K8/S3 start-state selector is deferred to MS5, with a one-line note in the MS2 gate report. (3) Configs with path.t_on_s different from durations.baseline_s, or path.J0 different from model.J, are rejected. (4) New path kinds I_step and I_sin with optional keys, so existing config hashes are unchanged. (5) G0 part 1 follows Table 11.2, with no tolerance change. (6) No FS1 at MS2. (7) The A2 fit goes in analysis/ring.py. (8) The UNVERIFIED values in replication.yaml (K4 tail fraction 0.1, K5 burst midpoint and 0.1 tau tolerance, the tau mapping) are used as written, and results that depend on them are labelled UNVERIFIED.
+Reason:          closes the open questions of the MS2 plan; (1) completes DL-083 item 1, (3) closes DL-077 item 2, (2) carries DL-071 item 7.
+Options:         see docs/ms2_plan.md before this commit.
+Chosen:          as above   Default from: user decision 2026-10-15
+Evidence:        DL-071, DL-077, DL-078, DL-081, DL-083; plan 5.2 A1, Table 6.2 note, Table 11.2 G0.
+Test:            none yet (tests are specified in docs/ms2_plan.md, steps 2a to 2e).
+Status:          decided
+Commit/tag:      entry added in the docs-only commit that follows d007378 (see git log)
