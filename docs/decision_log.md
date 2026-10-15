@@ -990,3 +990,14 @@ Evidence:        plan 9.2, 9.3, Table 9.1, D12, D36, T23, T24; DL-092, DL-093.
 Test:            none (docs only).
 Status:          done for items 1 to 7; D-1, D-3, D-4, D-8 open
 Commit/tag:      the commit that adds this entry
+
+## DL-095  User rulings on the MS3 plan: D-1, D-3, D-4, D-8    [ID: D36, T23, T24]
+Date:            2026-10-15        Author:
+Decision:        (1) D-1: one yaml per timing cell under configs/timing/, each a normal committed run file layered on configs/S5.yaml; --cell headline resolves to configs/timing/headline.yaml. No schema change and no new config key. (2) D-3: default. tau_d = 5 ms, J = -21 and the provisional path as in the headline, only Delta changed; "near the Hopf window" is recorded as not located and re-timed at MS5. (3) D-4: placeholder noise.sigma = 1e-3, recorded UNVERIFIED and labelled not calibrated. (4) D-8: default. Records of kind timing, outside RUN_KINDS, no skip rule, written to results/timing/, each carrying the commit, the dirty flag and the package versions.
+Reason:          user rulings of 2026-10-15 on docs/ms3_plan.md.
+Options:         see the D table in docs/ms3_plan.md.
+Chosen:          as above   Default from: user ruling
+Evidence:        plan 9.2, 6.4, Table 9.1; DL-094.
+Test:            none (docs only).
+Status:          done
+Commit/tag:      the commit that adds this entry
