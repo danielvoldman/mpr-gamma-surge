@@ -1,0 +1,7 @@
+# A2: M2 ring test (plan 5.2 A2; MS2 step 2d). Ring map over the A1 stable-focus branch at tau = 10 ms, and the
+# K4-MF check on the S1 step response (results/S1, configs/S1.yaml as written). The K4 point and step are
+# the S1 ones; tolerances and the tail fraction are read from replication.yaml (frozen, DL-084).
+run:      {id: A2, kind: a2, workers: 1}
+model:    {type: M2, ref_point: null, tau_ms: 10.0, tau_d_ms: null, eta_bar: -5.0, Delta: 1.0, J: 15.0, I_drive: 0.0}
+path:     {name: I_step, t_on_s: 0.0, I_amp: 3.0}
+robustness: {criteria_file: configs/replication.yaml}

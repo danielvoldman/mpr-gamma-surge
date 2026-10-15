@@ -27,7 +27,7 @@ ETA_PEAK_OFFSET = 2.0
 
 ETA_STATUSES = ("unresolved", "provisional", "explicit", "A4")  # DL-065, DL-067
 TAU_D_MS_RANGE = (1.0, 50.0)  # D11
-RUN_KINDS = ("mf", "mf_noisy", "a1", "s1")  # DL-055; "a1", "s1" are MS2 tasks; "network" is added at MS5
+RUN_KINDS = ("mf", "mf_noisy", "a1", "s1", "a2")  # DL-055; "a1", "s1", "a2" are MS2 tasks; "network" is added at MS5
 RAMP_PATH_NAMES = ("path_eta", "path_hypoxia", "path_drive", "path_delta_up",
                    "path_delta_down", "path_updown")  # P1, P2, P3, P4a, P4b, P5
 FORCING_PATH_NAMES = ("I_step", "I_sin")  # MS2 forcing paths for S1 (DL-085 item 4)
@@ -43,6 +43,10 @@ J0_PATHS = ("path_hypoxia", "path_drive", "path_delta_up", "path_delta_down")
 # hash (DL-087). analysis/bifurcation.py reads its constants from here.
 A1_GRID = {"n_eta": 241, "n_J": 201, "eta_range": [-10.0, 2.0], "J_range": [0.0, 20.0],
            "band_cells": 4, "box_cells": 10}
+
+# A2 constants (plan 5.2 A2; DL-089). The K4 tail fit ends at t = 40 tau (DL-076; the user's instruction of
+# 2026-10-15). Not config keys; hash_view adds them, with the primary band, for run.kind = a2.
+A2_WINDOW = {"t_end_tau": 40.0}
 
 # Sections and keys that enter config_hash (DL-057).
 _HASH_SECTIONS = ("model", "path", "solver", "noise", "network", "durations")
@@ -442,6 +446,8 @@ def hash_view(cfg: dict) -> dict:
                      "spawn_key": cfg["seeds"]["spawn_key"]}
     if cfg["run"]["kind"] == "a1":      # constants outside the schema; other kinds are unchanged
         view["a1_grid"] = copy.deepcopy(A1_GRID)
+    if cfg["run"]["kind"] == "a2":
+        view["a2"] = {"window": copy.deepcopy(A2_WINDOW), "band_primary_hz": list(cfg["analysis"]["band_primary_hz"])}
     return view
 
 
