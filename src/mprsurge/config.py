@@ -1,7 +1,7 @@
 """Configuration: load, resolve, validate and hash (plan section 10.3).
 
 resolve_config merges, in this order (DL-054), base < ref_point < run file <
---set overrides, derives eta_start, eta_peak and eps (DL-065), rejects unknown
+--set overrides, derives eta_start, eta_peak and eps (DL-065, DL-067), rejects unknown
 keys and validates every key against a typed schema, casting or rejecting
 values (PyYAML reads 1e-10 as a string). config_hash is the SHA-256 of the
 canonical JSON of the integration inputs (DL-057).
@@ -12,6 +12,7 @@ import copy
 import hashlib
 import json
 import math
+import warnings
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -24,7 +25,8 @@ ETA_START_OFFSET = 1.5  # D12: eta_start = eta_H - 1.5
 ETA_PEAK_FLOOR = 4.0    # D12: eta_peak = max(4, eta_H + 2)
 ETA_PEAK_OFFSET = 2.0
 
-ETA_STATUSES = ("unresolved", "provisional", "A4")
+ETA_STATUSES = ("unresolved", "provisional", "explicit", "A4")  # DL-065, DL-067
+TAU_D_MS_RANGE = (1.0, 50.0)  # D11
 RUN_KINDS = ("mf", "mf_noisy")  # DL-055; "network" is added at MS5
 PATH_NAMES = ("path_eta", "path_hypoxia", "path_drive", "path_delta_up",
               "path_delta_down", "path_updown")  # P1, P2, P3, P4a, P4b, P5
@@ -342,12 +344,17 @@ def _check_model(cfg: dict) -> None:
     m = cfg["model"]
     if m["type"] == "M3" and m["tau_d_ms"] is None:
         raise ConfigError("model.tau_d_ms: required for M3 (ref_ceni needs an "
-                          f"explicit value in {list(REF_CENI_TAU_D_MS)})")
-    if m["ref_point"] == "ref_ceni" and not any(
-            math.isclose(m["tau_d_ms"], v, rel_tol=0, abs_tol=1e-9)
-            for v in REF_CENI_TAU_D_MS):
-        raise ConfigError(f"model.tau_d_ms: ref_ceni needs one of "
-                          f"{list(REF_CENI_TAU_D_MS)} ms (DL-054), got {m['tau_d_ms']!r}")
+                          f"explicit value in {list(TAU_D_MS_RANGE)} ms)")
+    if m["ref_point"] == "ref_ceni":  # DL-066 (supersedes the set in DL-054)
+        lo, hi = TAU_D_MS_RANGE
+        if not lo <= m["tau_d_ms"] <= hi:
+            raise ConfigError(f"model.tau_d_ms: ref_ceni needs a value in the D11 range "
+                              f"[{lo}, {hi}] ms, got {m['tau_d_ms']!r}")
+        if not any(math.isclose(m["tau_d_ms"], v, rel_tol=0, abs_tol=1e-9)
+                   for v in REF_CENI_TAU_D_MS):
+            warnings.warn(f"model.tau_d_ms = {m['tau_d_ms']!r} ms is outside the S3 set "
+                          f"{list(REF_CENI_TAU_D_MS)} (allowed for K10/A6, DL-066)",
+                          UserWarning, stacklevel=3)
 
 
 def _derive_eta_path(cfg: dict) -> None:
@@ -359,7 +366,8 @@ def _derive_eta_path(cfg: dict) -> None:
     if have_start:
         if p["eta_H"] is not None:
             raise ConfigError("give path.eta_H or explicit eta_start/eta_peak, not both")
-        p["eta_path_status"] = "provisional"
+        # M2 paths come from A1 (explicit); M3 paths given before A4 are provisional
+        p["eta_path_status"] = "explicit" if cfg["model"]["type"] == "M2" else "provisional"
     elif p["eta_H"] is not None:
         p["eta_start"] = p["eta_H"] - ETA_START_OFFSET
         p["eta_peak"] = max(ETA_PEAK_FLOOR, p["eta_H"] + ETA_PEAK_OFFSET)

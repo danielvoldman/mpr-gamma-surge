@@ -667,3 +667,25 @@ Evidence:        plan 3.2 (eta row), 4.4 (P1), 9.2, 6.4, Appendix B.
 Test:            test_config.
 Status:          default adopted
 Commit/tag:
+
+## DL-066  ref_ceni tau_d validated against the D11 range (supersedes DL-054 in part)    [ID: D11]
+Date:            2026-10-14        Author:
+Decision:        for model.ref_point = ref_ceni, model.tau_d_ms must still be given explicitly, and is validated against the D11 range 1-50 ms (error outside it). A value outside {3, 4.95, 8} ms gives a warning, not an error.
+Reason:          DL-054 restricted ref_ceni to {3, 4.95, 8}; the user accepted an explicit tau_d_ms, not that restriction. K10 and A6 need ref_ceni values up to 50 ms.
+Options:         keep the set (blocks K10/A6); range check with a warning.
+Chosen:          range 1-50 ms, warning outside the S3 set   Default from: new (user decision 2026-10-14)
+Evidence:        plan 5.2 A6, Table 7.1 K10 (up to 50 ms), D11 (range 1-50 ms), Appendix B. Supersedes the membership rule in DL-054; DL-054 is not edited.
+Test:            test_config.
+Status:          default adopted
+Commit/tag:
+
+## DL-067  eta_path_status value "explicit" (extends DL-065)    [ID: D12]
+Date:            2026-10-14        Author:
+Decision:        path.eta_path_status takes a fourth value, "explicit": explicit eta_start and eta_peak on an M2 model (for example S2, whose values come from the A1 folds). "provisional" stays for M3 paths given explicitly before A4 exists. The derived status is part of the hash, as in DL-065.
+Reason:          DL-065 labelled every explicit path "provisional", which would mislabel M2 paths whose end points come from A1, not from a missing A4.
+Options:         one value for both; separate value.
+Chosen:          separate value   Default from: new (user decision 2026-10-14)
+Evidence:        plan 6.5 (S2), 5.2 A1, 9.2 ("recorded as such"). DL-065 is not edited.
+Test:            test_config.
+Status:          default adopted
+Commit/tag:

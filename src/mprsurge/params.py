@@ -3,7 +3,8 @@ from __future__ import annotations
 
 # Validation points (Table 3.2, Appendix B). ref_mpr is the M2 point; ref_ceni
 # and ref_devalle are M3 points. ref_ceni has no tau_d of its own: S3 uses
-# tau_d in {3, 4.95, 8} ms, and the run must give it explicitly (DL-054).
+# tau_d in {3, 4.95, 8} ms; a run must give it explicitly, in the D11 range,
+# with a warning outside that set (DL-054, DL-066).
 REF_POINTS: dict[str, dict] = {
     "ref_mpr": {"type": "M2", "eta_bar": -5.0, "J": 15.0, "Delta": 1.0,
                 "tau_d_ms": None},

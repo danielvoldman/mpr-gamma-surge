@@ -1,5 +1,6 @@
 """Configuration system (plan 10.3, Table 10.1; DL-054, DL-055, DL-057, DL-065)."""
 import copy
+import warnings
 
 import pytest
 
@@ -83,14 +84,24 @@ def test_ref_point_replaces_base_values():
     assert (m["type"], m["eta_bar"], m["J"], m["Delta"], m["tau_d_ms"]) == ("M2", -5.0, 15.0, 1.0, None)
 
 
-def test_ref_ceni_needs_explicit_tau_d_from_the_set():
+def test_ref_ceni_needs_explicit_tau_d_in_d11_range():
     with pytest.raises(C.ConfigError, match="tau_d_ms"):
         resolve({"model": {"ref_point": "ref_ceni"}})
-    with pytest.raises(C.ConfigError, match="ref_ceni"):
-        resolve({"model": {"ref_point": "ref_ceni", "tau_d_ms": 6.0}})
-    for td in (3.0, 4.95, 8.0):
-        m = resolve({"model": {"ref_point": "ref_ceni", "tau_d_ms": td}})["model"]
+    for bad in (0.5, 50.5):
+        with pytest.raises(C.ConfigError, match="D11 range"):
+            resolve({"model": {"ref_point": "ref_ceni", "tau_d_ms": bad}})
+    for td in (3.0, 4.95, 8.0):  # the S3 set: no warning
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            m = resolve({"model": {"ref_point": "ref_ceni", "tau_d_ms": td}})["model"]
         assert (m["eta_bar"], m["J"], m["Delta"], m["tau_d_ms"]) == (1.0, -20.0, 0.05, td)
+
+
+def test_ref_ceni_outside_s3_set_warns_not_errors():
+    for td in (1.0, 6.0, 50.0):  # K10/A6 need values up to 50 ms
+        with pytest.warns(UserWarning, match="DL-066"):
+            m = resolve({"model": {"ref_point": "ref_ceni", "tau_d_ms": td}})["model"]
+        assert m["tau_d_ms"] == td
 
 
 def test_ref_point_null_keeps_base_values():
@@ -123,6 +134,15 @@ def test_explicit_eta_path_is_provisional_and_gives_eps():
     assert p["eta_path_status"] == "provisional"
     assert p["eps"] == pytest.approx(6.0 / 6000.0, rel=1e-12)  # 60 s = 6000 tau
     C.require_eta_path(cfg)
+
+
+def test_explicit_eta_path_on_m2_is_explicit_not_provisional():
+    cfg = resolve({"model": {"ref_point": "ref_mpr"}}, "path.eta_start=-6", "path.eta_peak=2")
+    assert cfg["path"]["eta_path_status"] == "explicit"
+    C.require_eta_path(cfg)
+    m3 = resolve(None, "path.eta_start=-6", "path.eta_peak=2")
+    assert m3["path"]["eta_path_status"] == "provisional"
+    assert C.config_hash(cfg) != C.config_hash(m3)
 
 
 def test_eta_path_inconsistent_inputs_raise():
