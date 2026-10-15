@@ -899,3 +899,14 @@ Evidence:        DL-064, DL-078, DL-081, DL-085; plan 5.2 A1, Table 6.2 note, Ta
 Test:            tests/test_fixed_points.py (test_a1_*, fast).
 Status:          done; readings (1) to (5) UNVERIFIED; the cusp halving is recorded, not claimed met
 Commit/tag:      the 2b commit (see git log)
+
+## DL-087  A1 grid sizes and refinement widths enter the config hash and the run record    [ID: D31, D34]
+Date:            2026-10-15        Author:
+Decision:        none beyond follow-up to DL-086 (1), which recorded the grid and the DL-085 widths as constants outside the hash. They now live in config.A1_GRID (n_eta 241, n_J 201, eta_range, J_range, band_cells 4, box_cells 10); analysis/bifurcation.py takes its constants from it; hash_view adds them under "a1_grid" when run.kind = a1, and run_a1 writes them to the record flags. No config key was added (the plan lists none), no value changed, and hashes of every other run kind are unchanged. The hash of an a1 run changes once (the old A1 record is superseded, the result is the same; results/A1 was regenerated).
+Reason:          a change of grid or width would otherwise give the same hash and a stale "already complete" skip.
+Options:         config keys (needs a schema change; not done).
+Chosen:          as above   Default from: user instruction 2026-10-15
+Evidence:        DL-085, DL-086.
+Test:            tests/test_fixed_points.py: test_a1_grid_and_widths_change_the_hash_and_other_kinds_are_unchanged, test_a1_record_carries_the_grid_and_widths; the A1 K1 to K3 tests pass unchanged.
+Status:          done
+Commit/tag:      the 2b fix commit (see git log)

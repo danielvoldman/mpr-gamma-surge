@@ -36,6 +36,12 @@ PATH_NAMES = ("path_eta", "path_hypoxia", "path_drive", "path_delta_up",
 RAMP_PATHS = PATH_NAMES
 J0_PATHS = ("path_hypoxia", "path_drive", "path_delta_up", "path_delta_down")
 
+# A1 grid and DL-085 refinement widths (plan 5.2 A1; widths UNVERIFIED, the user's). Not config
+# keys (the plan lists none); hash_view adds them for run.kind = a1, so changing one changes the
+# hash (DL-087). analysis/bifurcation.py reads its constants from here.
+A1_GRID = {"n_eta": 241, "n_J": 201, "eta_range": [-10.0, 2.0], "J_range": [0.0, 20.0],
+           "band_cells": 4, "box_cells": 10}
+
 # Sections and keys that enter config_hash (DL-057).
 _HASH_SECTIONS = ("model", "path", "solver", "noise", "network", "durations")
 
@@ -415,6 +421,8 @@ def hash_view(cfg: dict) -> dict:
     view["run"] = {"kind": cfg["run"]["kind"]}
     view["seeds"] = {"root_seed": cfg["seeds"]["root_seed"],
                      "spawn_key": cfg["seeds"]["spawn_key"]}
+    if cfg["run"]["kind"] == "a1":      # constants outside the schema; other kinds are unchanged
+        view["a1_grid"] = copy.deepcopy(A1_GRID)
     return view
 
 

@@ -275,3 +275,28 @@ def test_a1_driver_publishes_the_fixed_name(tmp_path):
     pub = d / "a1_fixedpoints_2d.npz"
     rec = P.read_run_record(next(d.glob("A1_0000_*.json")))
     assert P.sha256_file(pub) == rec["outputs"][next(d.glob("A1_0000_*.npz")).name]
+
+
+# --- DL-087: the A1 grid and the refinement widths are part of the hash and the record ----------
+
+def test_a1_grid_and_widths_change_the_hash_and_other_kinds_are_unchanged(monkeypatch):
+    from mprsurge import config as C
+    a1_cfg = C.resolve_config(Path("configs/A1.yaml"))
+    mf_cfg = C.resolve_config(Path("configs/base.yaml"))
+    h_a1, h_mf = C.config_hash(a1_cfg), C.config_hash(mf_cfg)
+    assert "a1_grid" in C.hash_view(a1_cfg) and "a1_grid" not in C.hash_view(mf_cfg)
+    for key, new in (("band_cells", 5), ("box_cells", 11), ("n_eta", 242), ("n_J", 202),
+                     ("eta_range", [-10.0, 3.0]), ("J_range", [0.0, 21.0])):
+        with monkeypatch.context() as mp:
+            mp.setitem(C.A1_GRID, key, new)
+            assert C.config_hash(a1_cfg) != h_a1, key
+            assert C.config_hash(mf_cfg) == h_mf, key
+    assert C.config_hash(a1_cfg) == h_a1
+    assert (B.N_ETA, B.N_J, B.BAND_CELLS, B.BOX_CELLS) == (C.A1_GRID["n_eta"], C.A1_GRID["n_J"],
+                                                             C.A1_GRID["band_cells"], C.A1_GRID["box_cells"])
+
+
+def test_a1_record_carries_the_grid_and_widths(a1):
+    from mprsurge import config as C
+    _, rec, _ = a1
+    assert rec["flags"]["a1_grid"] == C.A1_GRID

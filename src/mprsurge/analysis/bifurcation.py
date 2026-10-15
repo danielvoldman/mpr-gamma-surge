@@ -29,11 +29,12 @@ from ..models.fixed_points import classify_all
 PI2 = np.pi ** 2
 
 # A1 grid (plan 5.2 A1) and cell sizes (K1, K2 in replication.yaml use the same cell)
-N_ETA, N_J = 241, 201
-ETA_RANGE, J_RANGE = (-10.0, 2.0), (0.0, 20.0)
+# (the values live in config.A1_GRID, which the config hash covers, DL-087)
+N_ETA, N_J = C.A1_GRID["n_eta"], C.A1_GRID["n_J"]
+ETA_RANGE, J_RANGE = tuple(C.A1_GRID["eta_range"]), tuple(C.A1_GRID["J_range"])
 D_ETA, D_J = 0.05, 0.1                      # base spacing
 # DL-085 refinement widths, in base cells. UNVERIFIED, the user's.
-BAND_CELLS, BOX_CELLS = 4, 10
+BAND_CELLS, BOX_CELLS = C.A1_GRID["band_cells"], C.A1_GRID["box_cells"]
 MAX_ROOTS = 3
 LABELS = ("none", "stable_node", "stable_focus", "unstable_node", "unstable_focus", "saddle")
 CODE = {name: k for k, name in enumerate(LABELS)}
@@ -373,7 +374,7 @@ def run_a1(cfg, deadline):
     """Runner task for run.kind = a1."""
     cells, sha = _load_k_cells(cfg)
     arrays, summary = compute_a1(cfg["model"]["Delta"], deadline, cells)
-    flags = {**summary, "replication_yaml_sha256": sha, "refinement_widths_status": "UNVERIFIED"}
+    flags = {**summary, "a1_grid": dict(C.A1_GRID), "replication_yaml_sha256": sha, "refinement_widths_status": "UNVERIFIED"}
     msg = ("K1 base {k1_base} half {k1_half}; K2 base {k2_base} half {k2_half}; "
            "K3 {k3}; C9 node region {c9_node_region_exists}").format(**summary)
     return {"arrays": arrays, "message": msg, "flags": flags}
