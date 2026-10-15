@@ -854,3 +854,25 @@ Evidence:        plan Table 3.1 and 7.1 K5, C21 (Fig. 2); tests/test_k5_definiti
 Test:            test_k5_definition (fast); test_replication (MS2) will run it through the runner.
 Status:          UNVERIFIED; replication.yaml still a draft, tolerances-frozen not tagged
 Commit/tag:      entry added in the commit that follows 2c14881 (see git log)
+
+## DL-083  Freeze approvals: A1 spacing, DL-073 deferral, replication.yaml as written    [ID: D31, D34]
+Date:            2026-10-15        Author:
+Decision:        the user approved: (1) A1 runs at half grid spacing near the fold curve and the cusp (eta_bar/Delta step 0.025, J/sqrt(Delta) step 0.05 there; the base grid of plan 5.2 A1 elsewhere); the extent of the refined region is not fixed here and is set when A1 is written at MS2 (UNVERIFIED). Basis: DL-078, DL-081. (2) The DL-073 filter-bias fix is deferred to MS7; its strict xfail stays. (3) configs/replication.yaml as written at bd301ce: K1; K2; K3; K4 (tail fraction 0.1, low-rate node start); K5 (DL-082, with the 0.1 tau period tolerance); K7 at 4.12 +/- 0.05 ms with its operational definition (DL-064, DL-075); K10's lower end at the A4 Hopf value; K8, K9, K11 as in Table 7.1. Entries the file marks UNVERIFIED stay UNVERIFIED in the file; the approval fixes the tolerances, not their sources.
+Reason:          closes the open items of DL-076, DL-078, DL-079, DL-081 and DL-082 before the freeze.
+Options:         -
+Chosen:          as above   Default from: user decision 2026-10-15
+Evidence:        DL-073, DL-078, DL-081, DL-082.
+Test:            none.
+Status:          decided
+Commit/tag:      entry added in the docs-only commit that follows the tag tolerances-frozen (tagged commit bd301ce)
+
+## DL-084  Freeze: tag tolerances-frozen, SHA-256 of configs/replication.yaml    [ID: D34]
+Date:            2026-10-15        Author:
+Decision:        the annotated tag tolerances-frozen was created on bd301ce9fd3ca05d67020cb575c055148b3bdabc (the tagged commit; this entry is in a later, docs-only commit). SHA-256 of configs/replication.yaml: 667d3b788d1c7c5aebc716998d09746b685358f326334aae87591924908819a5, taken on the LF text as committed (.gitattributes sets eol=lf; `git show bd301ce:configs/replication.yaml | sha256sum`). On this Windows machine the working copy had been written with CRLF and hashes to 55c049715d9884b57e0c02f0be27c7a55211240c8517070bbeea6e22f42d7ca6; the working copy was converted to LF (no content change) so that it hashes to the frozen value, and a fresh checkout gives LF. Anything that hashes the file (provenance, criteria_sha256) must hash the LF text. Checks before the tag: fast suite 136 passed, 1 xfailed (the DL-073 xfail), run on bd301ce with a clean tree; a real --dry-run (configs/base.yaml, output.dir results/dryrun_freeze) wrote a run record with status dry_run and git.commit bd301ce9fd3ca05d67020cb575c055148b3bdabc, dirty false. K5 is entered (DL-082), so the freeze is not blocked by it. Any later change to the tolerances needs a new entry (plan 7, D34) and a report in the paper.
+Reason:          Table 11.1 MS1 gate and plan section 7: tolerances are frozen at the end of MS1, before the MS2 replication runs.
+Options:         -
+Chosen:          -   Default from: user instruction 2026-10-15
+Evidence:        git tag tolerances-frozen; DL-083.
+Test:            -
+Status:          done
+Commit/tag:      tag tolerances-frozen on bd301ce; this entry in the following docs-only commit
