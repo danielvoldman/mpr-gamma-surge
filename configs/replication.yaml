@@ -1,5 +1,5 @@
 # Replication targets and tolerances, DRAFT (plan Table 7.1, D34; DL-076).
-# NOT FROZEN: K5 is still open; the tag tolerances-frozen is not created. User decisions of 2026-10-15: DL-079.
+# NOT FROZEN: the tag tolerances-frozen is not created (K5 entered at DL-082, UNVERIFIED). User decisions of 2026-10-15: DL-079.
 # Values are copied from plan Table 7.1; entries marked UNVERIFIED are not sourced by the plan.
 status: draft
 units: {tau_d: ms, frequency: Hz, time: tau_unless_stated}
@@ -14,11 +14,23 @@ K4:
   run: [S1, A2]
   mean_field: {tolerance_frequency_rel: 0.02, tolerance_decay_rel: 0.02,
                tail_fit_fraction: 0.1,        # UNVERIFIED value; confirmed by the user (DL-079; count in DL-076)
-               start_state: low_rate_stable_node}  # UNVERIFIED; user decision (DL-079); K4-MF is start-state independent
+               start_state: low_rate_stable_node}  # sourced to MPR 2015 Sec. II.D (single source; DL-079); K4-MF is start-state independent
   network: {tolerance_rel: 0.05, quantities: [first_three_peak_times, final_r],
             blocking: false}                  # until a source gives the M2 network coupling (UNVERIFIED, plan 12.4)
-K5: {run: S1, definition: null,               # open: no operational definition entered (ms1_plan)
-     pass: "one burst per period for 5 periods after a 2-period transient (Table 7.1)"}
+K5:                                           # DL-082; own operational definition, UNVERIFIED
+  run: S1
+  blocking: true
+  source: "MPR 2015 Sec. II.D (single source); the paper gives no burst count or transient length"
+  forcing: {I0: 3.0, omega: 0.15707963267948966, form: "I(t) = I0 sin(omega t), t from 0"}   # omega = pi/20
+  point: {eta_bar: -5.0, J: 15.0, Delta: 1.0}
+  start_state: low_rate_stable_node
+  time_unit_mapping: "paper time unit = nondimensional tau = 1 (UNVERIFIED)"
+  burst: "r crosses the midpoint of the I = 0 low (node) and high (focus) states"   # UNVERIFIED
+  period: 40.0
+  transient_periods: 2
+  checked_periods: 5
+  period_tol: 0.1                             # UNVERIFIED; one output step (1 ms at tau = 10 ms)
+  pass: "one up-crossing and one down-crossing per checked period; successive up-crossings 40 apart within period_tol"
 K6: {optional: true, entered: false}          # Table 7.1: RB-item 1b PARTIAL
 K7:
   run: [A4, A5, S3]

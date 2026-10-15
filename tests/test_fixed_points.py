@@ -96,14 +96,36 @@ def test_k1_formula_points_are_double_roots():
         assert abs(-4 * np.pi**2 * r**3 + 3 * J * r**2 + 2 * eta * r) < 1e-9
 
 
-@pytest.mark.xfail(strict=True, reason="DL-078: near the cusp the fold-to-fold gap is below one A1 cell (UNVERIFIED)")
-def test_k1_all_20_points_have_a_count_change_edge_within_one_cell():
-    rs, (ie, jj) = _k1_points_and_edges()
-    assert all(_k1_has_edge_within_a_cell(r, ie, jj) for r in rs)
+def _k1_has_edge_on_local_grid(r, factor):
+    # grid spacing divided by `factor` near the fold curve (Table 6.2 resolution rule), +-6 base cells around the point
+    de, dJ = CELL[0] / factor, CELL[1] / factor
+    eta, J = _k1_formula(r)
+    eg = np.arange(np.floor(eta / de) * de - 6 * de, eta + 6 * de, de)
+    Jg = np.arange(np.floor(J / dJ) * dJ - 6 * dJ, J + 6 * dJ, dJ)
+    counts = np.array([[len(fixed_points(x, y, D_K1)) for y in Jg] for x in eg])
+    edge = np.zeros_like(counts, dtype=bool)
+    edge[:-1, :] |= counts[:-1, :] != counts[1:, :]
+    edge[:, :-1] |= counts[:, :-1] != counts[:, 1:]
+    ie, jj = np.nonzero(edge)
+    return bool(((np.abs(eg[ie] - eta) <= CELL[0] + 1e-9) & (np.abs(Jg[jj] - J) <= CELL[1] + 1e-9)).any())
+
+
+def test_k1_cusp_points_fail_at_the_base_spacing_and_pass_when_halved():
+    # DL-078, DL-081: the criterion is unchanged (a count-change node within 0.05 x 0.1); only the local spacing is halved
+    rs, _ = _k1_points_and_edges()
+    cusp = [r for r in rs if abs(r - R_CUSP) < 0.05]
+    assert len(cusp) == 2
+    assert not any(_k1_has_edge_on_local_grid(r, 1) for r in cusp)
+    assert all(_k1_has_edge_on_local_grid(r, 2) for r in cusp)
+
+
+def test_k1_all_20_points_pass_on_the_a1_grid_with_halved_spacing_near_the_fold_curve():
+    rs, _ = _k1_points_and_edges()
+    assert all(_k1_has_edge_on_local_grid(r, 2) for r in rs)
 
 
 def test_k1_points_away_from_the_cusp_have_a_count_change_edge_within_one_cell():
-    # UNVERIFIED test-level: points with |r - r_cusp| >= 0.05 (the 20 points are those of DL-064)
+    # UNVERIFIED test-level: the base A1 spacing, points with |r - r_cusp| >= 0.05 (the 20 points are those of DL-064)
     rs, (ie, jj) = _k1_points_and_edges()
     far = [r for r in rs if abs(r - R_CUSP) >= 0.05]
     assert len(far) >= 17
