@@ -898,7 +898,7 @@ Chosen:          as above   Default from: DL-085
 Evidence:        DL-064, DL-078, DL-081, DL-085; plan 5.2 A1, Table 6.2 note, Table 7.1 K1 to K3, C9.
 Test:            tests/test_fixed_points.py (test_a1_*, fast).
 Status:          done; readings (1) to (5) UNVERIFIED; the cusp halving is recorded, not claimed met
-Commit/tag:      the 2b commit (see git log)
+Commit/tag:      165b62f
 
 ## DL-087  A1 grid sizes and refinement widths enter the config hash and the run record    [ID: D31, D34]
 Date:            2026-10-15        Author:
@@ -909,7 +909,7 @@ Chosen:          as above   Default from: user instruction 2026-10-15
 Evidence:        DL-085, DL-086.
 Test:            tests/test_fixed_points.py: test_a1_grid_and_widths_change_the_hash_and_other_kinds_are_unchanged, test_a1_record_carries_the_grid_and_widths; the A1 K1 to K3 tests pass unchanged.
 Status:          done
-Commit/tag:      the 2b fix commit (see git log)
+Commit/tag:      8ec1bde
 
 ## DL-088  MS2 2c (S1): path kinds I_step and I_sin, run kind s1, K4 and K5 runs    [ID: D34]
 Date:            2026-10-15        Author:
@@ -921,7 +921,7 @@ Chosen:          as above   Default from: DL-085
 Evidence:        DL-079, DL-082, DL-085; plan 6.5 (Table 6.2 S1), Table 7.1 K4 and K5.
 Test:            tests/test_ramps.py (step and sinusoid values, key rules), tests/test_runner.py (test_s1_*: K4 run with record and start state, K5 definition on the runner output), tests/test_k5_definition.py unchanged.
 Status:          done; K5 pass on UNVERIFIED definition and tolerance; readings (1) to (5) UNVERIFIED
-Commit/tag:      the 2c commit (see git log)
+Commit/tag:      f0c16fe
 
 ## DL-089  MS2 2d (A2): analysis/ring.py, run kind a2, ring map and K4-MF check    [ID: D34]
 Date:            2026-10-15        Author:
@@ -933,7 +933,7 @@ Chosen:          as above   Default from: DL-085 item 7, DL-076, DL-079
 Evidence:        DL-076, DL-079, DL-082, DL-085, DL-088; plan 5.2 A2, Table 7.1 K4-MF, 4.3 G1, D8, CP17.
 Test:            tests/test_ring.py (synthetic fit within 2%, tail rule, K4 linearisation, integrated step passes, map units, hash).
 Status:          done; K4-MF pass; readings (1) to (3) UNVERIFIED
-Commit/tag:      the 2d commit (see git log)
+Commit/tag:      dad256f
 
 ## DL-090  A2 hash covers the SHA-256s of the upstream A1 and S1 results    [ID: D34]
 Date:            2026-10-15        Author:
@@ -944,7 +944,7 @@ Chosen:          as above   Default from: user instruction 2026-10-15
 Evidence:        DL-087 (same pattern for A1), DL-089.
 Test:            tests/test_ring.py: test_a2_hash_covers_the_upstream_result_hashes (a changed upstream file changes the hash, restoring it restores the hash), test_current_a2_result_passes_and_is_found_by_its_hash.
 Status:          done
-Commit/tag:      the 2d fix commit (see git log)
+Commit/tag:      d353855
 
 ## DL-091  MS2 2e (A0): run kind a0, replication table K1 to K5, test_replication    [ID: D34]
 Date:            2026-10-15        Author:
@@ -956,4 +956,15 @@ Chosen:          as above   Default from: DL-084, DL-085
 Evidence:        DL-064, DL-079, DL-081, DL-082, DL-084, DL-085, DL-086, DL-088, DL-089, DL-090; plan 5.2 A0, Table 7.1, 10.4, 10.5.
 Test:            tests/test_a0.py (fast: hash coverage, frozen-hash refusal, upstream mismatch refusal, K5 logic, csv); tests/test_replication.py (slow).
 Status:          done; rows pass on UNVERIFIED definitions and tolerances as marked
-Commit/tag:      the 2e commit (see git log)
+Commit/tag:      e430923
+
+## DL-092  MS2 2f: fresh-context review of the MS2 diff, findings logged as known    [ID: D31, D34]
+Date:            2026-10-15        Author:
+Decision:        none. A fresh-context subagent reviewed d007378..HEAD against the plan and DL-085..DL-091 (read-only, nothing run). It found no wrong result, no change to the frozen tolerances and no blocking defect; nothing was fixed. Findings, reviewer-reported and not independently re-run: (1) tests/test_a0.py and tests/test_ring.py (fast suite) read git-ignored results/ files (A0, A1, A2, S1), so `pytest -m "not slow"` fails on a fresh clone or CI; fix would be marking them slow, skipping when absent, or tmp_path fixtures; no decision needed; not blocking at MS2, to fix before any CI. (2) The A2 ring map takes lambda from the Jacobian with standard error 0 (ring.py 130-145), so the D8 "negative by more than 2 SE" rule is vacuous there and test_ring_map_units_and_band's assert on g1_nondamped cannot fail; DL-089 says it is not a fit to simulated rings but not that the 2-SE rule is vacuous; user to decide before G1 uses the map: accept the linear ring or fit simulated rings. K4-MF is unaffected (it fits the S1 step response). (3) Table 6.2 / D31 halving is met along the fold and not met at the cusp (DL-086; DL-085 ruled recorded, not tested); the user decides whether that is acceptable under D31. (4) A0 K5 hard-codes path.I_period_s = 0.4 (K5_SETS) and takes I_amp from S1.yaml; the yaml forcing.I0 and forcing.omega are not compared with the run that produced the series (replication.py 21, 172-182); cheap assert, no decision, not live while the files are frozen. (5) config.hash_view reads files and imports analysis modules for kinds a2 and a0 (DL-090, DL-091, user-ruled); the memo key (path, mtime_ns, size) could miss a same-size rewrite within one mtime tick, theoretical. (6) configs/replication.yaml lines 1-3 still say "DRAFT / NOT FROZEN / status: draft"; the file is frozen by tag and hash (DL-084), and editing the header would change the hash, so it stays and the gate report says so.
+Reason:          2f of docs/ms2_plan.md asks for real gaps only; fixing (1) to (5) is not needed for the gate, and (2), (3) need the user.
+Options:         for each: fix in a later commit, or accept.
+Chosen:          none   Default from: -
+Evidence:        subagent report of 2026-10-15; docs/ms2_gate_report.md.
+Test:            none.
+Status:          open for (1) to (5), none blocking; (6) informational
+Commit/tag:      the 2f commit (see git log)
