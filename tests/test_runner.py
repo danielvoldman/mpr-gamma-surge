@@ -376,3 +376,11 @@ def test_fewer_runs_than_the_interval_log_no_heartbeat_and_do_not_fail(tmp_path,
     assert _heartbeats(tmp_path, 4, 10, monkeypatch) == []
     assert _heartbeats(tmp_path, 1, 10, monkeypatch) == []
     assert len(_heartbeats(tmp_path, 4, 2, monkeypatch)) == 1       # 2 of 4; none after the last
+
+
+def test_mode_d_record_carries_the_solver_message(tmp_path):
+    f = real_cfg(tmp_path, sweep="x_name: model.Delta, x_values: [0.3]")
+    assert R.main(["--config", str(f)]) == 0
+    (rec,) = records(out_dir(tmp_path)).values()
+    assert rec["flags"]["solver_messages"] and "solver: " in rec["message"]
+    assert all(m in rec["message"] for m in rec["flags"]["solver_messages"])

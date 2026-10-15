@@ -56,28 +56,59 @@ def test_m3_stable_point_shape():
         stable_fixed_point(4.0, -21.0, 0.3, model="M3", tau_d_tau=0.5)
 
 
-def test_k1_saddle_node_curve_on_a_coarse_grid():
-    # K1: (eta, J)_SN = [-pi^2 r^2 - 3 D^2/(2 pi r)^2, 2 pi^2 r + D^2/(2 pi^2 r^3)]  (MPR Fig. 1)
-    D = 1.0
-    for r in np.linspace(0.25, 1.2, 20):
-        eta = -np.pi**2 * r**2 - 3 * D**2 / (2 * np.pi * r) ** 2
-        J = 2 * np.pi**2 * r + D**2 / (2 * np.pi**2 * r**3)
-        # the quartic and its derivative vanish at r: a double root
-        assert abs(quartic(r, eta, J, D)) < 1e-9
+D_K1 = 1.0
+ETA_G = np.linspace(-10.0, 2.0, 241)                          # A1 grid, D = 1 (plan 5.2 A1)
+J_G = np.linspace(0.0, 20.0, 201)
+CELL = (0.05, 0.1)
+R_CUSP = (3.0 / (4.0 * np.pi**4)) ** 0.25                     # dJ_SN/dr = 0: the cusp of the fold curve
+
+
+def _k1_formula(r):
+    # (eta, J)_SN = [-pi^2 r^2 - 3 D^2/(2 pi r)^2, 2 pi^2 r + D^2/(2 pi^2 r^3)] (MPR Fig. 1)
+    return (-np.pi**2 * r**2 - 3 * D_K1**2 / (2 * np.pi * r) ** 2,
+            2 * np.pi**2 * r + D_K1**2 / (2 * np.pi**2 * r**3))
+
+
+def _k1_points_and_edges():
+    # DL-064: 20 r values uniform on the r-interval where the formula point lies inside the A1 grid
+    fine = np.linspace(0.05, 3.0, 200001)
+    e, J = _k1_formula(fine)
+    inside = (e >= ETA_G[0]) & (e <= ETA_G[-1]) & (J >= J_G[0]) & (J <= J_G[-1])
+    r_lo, r_hi = fine[inside][0], fine[inside][-1]
+    assert np.all(inside[(fine >= r_lo) & (fine <= r_hi)])      # one interval
+    counts = np.array([[len(fixed_points(x, y, D_K1)) for y in J_G] for x in ETA_G])
+    edge = np.zeros_like(counts, dtype=bool)                   # grid nodes whose root count differs from the next node
+    edge[:-1, :] |= counts[:-1, :] != counts[1:, :]
+    edge[:, :-1] |= counts[:, :-1] != counts[:, 1:]
+    return np.linspace(r_lo, r_hi, 20), np.nonzero(edge)
+
+
+def _k1_has_edge_within_a_cell(r, ie, jj):
+    eta, J = _k1_formula(r)
+    return bool(((np.abs(ETA_G[ie] - eta) <= CELL[0] + 1e-9) & (np.abs(J_G[jj] - J) <= CELL[1] + 1e-9)).any())
+
+
+def test_k1_formula_points_are_double_roots():
+    rs, _ = _k1_points_and_edges()
+    for r in rs:
+        eta, J = _k1_formula(r)
+        assert abs(quartic(r, eta, J, D_K1)) < 1e-9
         assert abs(-4 * np.pi**2 * r**3 + 3 * J * r**2 + 2 * eta * r) < 1e-9
-    # coarse (eta, J) grid: at fixed J, the eta grid edge (step 0.05) where the positive-root count changes
-    # lies within one cell of each formula point. Points: r solves 2 pi^2 r^4 - J r^3 + D^2/(2 pi^2) = 0.
-    step = 0.05
-    for J in (10.0, 12.0, 15.0, 18.0):                       # above the cusp (J about 7.8 at D = 1)
-        rs = [z.real for z in np.roots([2 * np.pi**2, -J, 0.0, 0.0, D**2 / (2 * np.pi**2)])
-              if z.real > 0 and abs(z.imag) < 1e-9]
-        eta_sn = sorted(-np.pi**2 * r**2 - 3 * D**2 / (2 * np.pi * r) ** 2 for r in rs)
-        grid = np.arange(-12.0, 2.0, step)
-        counts = np.array([len(fixed_points(e, J, D)) for e in grid])
-        edges = grid[1:][counts[1:] != counts[:-1]]        # first grid point after each change
-        assert len(edges) == len(eta_sn) >= 1
-        for e_grid, e_formula in zip(edges, eta_sn):
-            assert 0 <= e_grid - e_formula <= step + 1e-9
+
+
+@pytest.mark.xfail(strict=True, reason="DL-078: near the cusp the fold-to-fold gap is below one A1 cell (UNVERIFIED)")
+def test_k1_all_20_points_have_a_count_change_edge_within_one_cell():
+    rs, (ie, jj) = _k1_points_and_edges()
+    assert all(_k1_has_edge_within_a_cell(r, ie, jj) for r in rs)
+
+
+def test_k1_points_away_from_the_cusp_have_a_count_change_edge_within_one_cell():
+    # UNVERIFIED test-level: points with |r - r_cusp| >= 0.05 (the 20 points are those of DL-064)
+    rs, (ie, jj) = _k1_points_and_edges()
+    far = [r for r in rs if abs(r - R_CUSP) >= 0.05]
+    assert len(far) >= 17
+    for r in far:
+        assert _k1_has_edge_within_a_cell(r, ie, jj), f"no count-change edge near the K1 point at r = {r:.4f}"
 
 
 def test_k2_node_focus_boundary_on_a_coarse_grid():

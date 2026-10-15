@@ -153,7 +153,7 @@ def _integrate_d(cfg, model, path, tau_d, t_end, dt_out, y0, method, deadline):
         ts.append(grid)
         Ys.append(sol.y[:, :n_rec])
         y = sol.y[:, -1].copy()
-    return np.concatenate(ts), np.concatenate(Ys, axis=1), nfev
+    return np.concatenate(ts), np.concatenate(Ys, axis=1), nfev, msgs
 
 
 def run_mf(cfg: dict, deadline=None, y0=None) -> dict:
@@ -168,14 +168,16 @@ def run_mf(cfg: dict, deadline=None, y0=None) -> dict:
     flags = {"solver": method, "start": "explicit" if y0 is not None else "stable_fixed_point",
              "retried_with_radau": False}
     try:
-        t, Y, nfev = _integrate_d(cfg, model, path, tau_d, t_end, dt_out, y_start, method, deadline)
+        t, Y, nfev, msgs = _integrate_d(cfg, model, path, tau_d, t_end, dt_out, y_start, method, deadline)
     except SolverFailure as exc:
         if method != "DOP853":
             raise
         flags.update(retried_with_radau=True, first_failure=str(exc), solver="Radau")
-        t, Y, nfev = _integrate_d(cfg, model, path, tau_d, t_end, dt_out, y_start, "Radau", deadline)
-    flags.update(nfev=int(nfev), y_start=[float(x) for x in y_start])
+        t, Y, nfev, msgs = _integrate_d(cfg, model, path, tau_d, t_end, dt_out, y_start, "Radau", deadline)
+    solver_messages = list(dict.fromkeys(msgs))                # distinct solver messages of the final solve (10.4)
+    flags.update(nfev=int(nfev), y_start=[float(x) for x in y_start], solver_messages=solver_messages)
     msg = "ok" + (" (Radau retry after DOP853 failure)" if flags["retried_with_radau"] else "")
+    msg += "; solver: " + " | ".join(solver_messages)
     return {"arrays": _output(path, t, Y, cfg["model"]["tau_ms"]), "message": msg, "flags": flags}
 
 

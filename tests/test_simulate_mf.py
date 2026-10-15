@@ -107,3 +107,11 @@ def test_wall_limit_stops_a_long_solve_ivp_and_is_not_retried():
     with pytest.raises(RunTimeout):
         S.run_mf(cfg, deadline=t0 + 0.3)
     assert time.monotonic() - t0 < 5.0
+
+
+def test_solver_messages_are_returned_for_the_record():
+    # plan 10.4: the solver message goes into the record; run_mf collects the distinct segment messages
+    res = S.run_mf(cfg_d())
+    msgs = res["flags"]["solver_messages"]
+    assert msgs and all(isinstance(m, str) and m for m in msgs)
+    assert all(m in res["message"] for m in msgs) and res["message"].startswith("ok")

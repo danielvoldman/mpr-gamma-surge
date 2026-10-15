@@ -534,7 +534,7 @@ Chosen:          raise   Default from: new (user accepted 2026-10-14)
 Evidence:        plan 6.2 (Initial state), 3.1 (bistable wedge). The rule itself is a choice, not from the plan.
 Test:            test_fixed_points (1b-i).
 Status:          default adopted
-Commit/tag:
+Commit/tag:      entry added in 9f27a8f
 
 ## DL-054  ref_point precedence and ref_ceni tau_d    [ID: ]
 Date:            2026-10-14        Author:
@@ -545,7 +545,7 @@ Chosen:          explicit-wins   Default from: new (user confirmed 2026-10-14)
 Evidence:        plan 10.3; Appendix B (ref points, tau_d values). Membership in {3, 4.95, 8} is a restriction of this entry, not of the plan: a ref_ceni run at another tau_d (for example the K10 range up to 50 ms) needs a new entry.
 Test:            test_config.
 Status:          default adopted
-Commit/tag:
+Commit/tag:      entry added in 9f27a8f
 
 ## DL-055  run.kind values    [ID: ]
 Date:            2026-10-14        Author:
@@ -556,7 +556,7 @@ Chosen:          fixed set   Default from: new (user accepted 2026-10-14)
 Evidence:        plan 10.3, 10.1 (simulate_mf: run_mf, run_mf_noisy).
 Test:            test_config.
 Status:          default adopted
-Commit/tag:
+Commit/tag:      entry added in 9f27a8f
 
 ## DL-056  Dry-run record status    [ID: ]
 Date:            2026-10-14        Author:
@@ -567,7 +567,7 @@ Chosen:          separate file and status   Default from: new (user accepted 202
 Evidence:        plan Table 11.1 (MS1 done-when), 10.4 (statuses).
 Test:            test_runner part 1.
 Status:          default adopted
-Commit/tag:
+Commit/tag:      entry added in 9f27a8f
 
 ## DL-057  config_hash key set    [ID: ]
 Date:            2026-10-14        Author:
@@ -578,7 +578,7 @@ Chosen:          integration inputs only   Default from: new (user accepted 2026
 Evidence:        plan 10.3, 10.1, 6.6.
 Test:            test_config (independent of key order, workers, paths).
 Status:          default adopted
-Commit/tag:
+Commit/tag:      entry added in 9f27a8f
 
 ## DL-058  Per-run wall-time limit key    [ID: ]
 Date:            2026-10-14        Author:
@@ -589,7 +589,7 @@ Chosen:          null until MS3   Default from: new (user accepted 2026-10-14)
 Evidence:        plan 10.4, 9.2, Appendix B (budget).
 Test:            test_runner.
 Status:          default adopted
-Commit/tag:
+Commit/tag:      entry added in 9f27a8f
 
 ## DL-059  make_param_table format    [ID: ]
 Date:            2026-10-14        Author:
@@ -600,7 +600,7 @@ Chosen:          plain table   Default from: new (user accepted 2026-10-14)
 Evidence:        plan 6.6, Appendix B.
 Test:            test_config (rows carry every resolved key).
 Status:          default adopted
-Commit/tag:
+Commit/tag:      entry added in 9f27a8f
 
 ## DL-060  Ramp readings (logistic centre, P5 duration, Delta_factor)    [ID: D21]
 Date:            2026-10-14        Author:
@@ -611,7 +611,7 @@ Chosen:          as above   Default from: new (user accepted 2026-10-14)
 Evidence:        plan 4.4 (Paths), 6.2 (Durations), Appendix B.
 Test:            test_ramps (1b-i); A7 profile comparison.
 Status:          default adopted
-Commit/tag:
+Commit/tag:      entry added in 9f27a8f
 
 ## DL-061  Test-level tolerances    [ID: ]
 Date:            2026-10-14        Author:
@@ -622,7 +622,7 @@ Chosen:          per test   Default from: new (user accepted 2026-10-14)
 Evidence:        plan 10.5.
 Test:            test_models_2d, test_models_3d (1b-i).
 Status:          default adopted
-Commit/tag:
+Commit/tag:      entry added in 9f27a8f
 
 ## DL-062  surge_metrics core methods    [ID: D8]
 Date:            2026-10-14        Author:
@@ -633,7 +633,7 @@ Chosen:          as above   Default from: new (user accepted 2026-10-14)
 Evidence:        plan Table 2.1, 5.2 A8. CAVEAT: the 2-standard-error test uses plain OLS standard errors on a smooth, autocorrelated envelope, so the standard error is too small and "damped" is too easily declared. To be revisited at MS7 (A8) before classifying noisy runs.
 Test:            test_surge_metrics (1c); revisit at MS7.
 Status:          default adopted; revisit at MS7
-Commit/tag:
+Commit/tag:      entry added in 9f27a8f
 
 ## DL-063  New files for the Julia smoke test    [ID: D23]
 Date:            2026-10-14        Author:
@@ -644,7 +644,7 @@ Chosen:          new files   Default from: new (user accepted 2026-10-14)
 Evidence:        plan 9.1, 10.1, 10.5.
 Test:            test_julia_io (1d).
 Status:          default adopted
-Commit/tag:
+Commit/tag:      entry added in 9f27a8f
 
 ## DL-064  Operational definitions for Table 7.1 gaps (K1, K5, K7, K8)    [ID: D34]
 Date:            2026-10-14        Author:
@@ -655,7 +655,7 @@ Chosen:          as above   Default from: new
 Evidence:        plan 7.1, 3.1 (K5), 6.2, Table 2.1, 5.2 A2/A4. K7 reuses D8, min_cycles and the S3 duration; none of that is sourced for K7. K4 tail fraction 0.1 (UNVERIFIED) is confirmed at 1e and logged then.
 Test:            test_replication (MS2/MS5).
 Status:          partly open (K5)
-Commit/tag:
+Commit/tag:      entry added in 9f27a8f
 
 ## DL-065  Provisional eta path and sigma placeholders    [ID: D12]
 Date:            2026-10-14        Author:
@@ -666,7 +666,7 @@ Chosen:          null plus explicit override   Default from: new (user chose 202
 Evidence:        plan 3.2 (eta row), 4.4 (P1), 9.2, 6.4, Appendix B.
 Test:            test_config.
 Status:          default adopted
-Commit/tag:
+Commit/tag:      entry added in 9f27a8f
 
 ## DL-066  ref_ceni tau_d validated against the D11 range (supersedes DL-054 in part)    [ID: D11]
 Date:            2026-10-14        Author:
@@ -677,7 +677,7 @@ Chosen:          range 1-50 ms, warning outside the S3 set   Default from: new (
 Evidence:        plan 5.2 A6, Table 7.1 K10 (up to 50 ms), D11 (range 1-50 ms), Appendix B. Supersedes the membership rule in DL-054; DL-054 is not edited.
 Test:            test_config.
 Status:          default adopted
-Commit/tag:
+Commit/tag:      entry added in 5f94fb9
 
 ## DL-067  eta_path_status value "explicit" (extends DL-065)    [ID: D12]
 Date:            2026-10-14        Author:
@@ -688,7 +688,7 @@ Chosen:          separate value   Default from: new (user decision 2026-10-14)
 Evidence:        plan 6.5 (S2), 5.2 A1, 9.2 ("recorded as such"). DL-065 is not edited.
 Test:            test_config.
 Status:          default adopted
-Commit/tag:
+Commit/tag:      entry added in 5f94fb9
 
 ## DL-068  Runner readings (cells, seeds, naming, skip, pool, logging)    [ID: ]
 Date:            2026-10-14        Author:
@@ -699,7 +699,7 @@ Chosen:          as above   Default from: new
 Evidence:        plan 6.6 (SeedSequence.spawn(n), spawn key stored), 10.3, 10.4 (Run engineering), 6.5 (Table 6.2: seeds as an axis of the noisy runs).
 Test:            test_runner part 1, test_provenance.
 Status:          default adopted (to be confirmed by the user at the 1a-ii report)
-Commit/tag:
+Commit/tag:      entry added in 7f48642
 
 ## DL-069  Seed axis and spawn keys (amends DL-068)    [ID: ]
 Date:            2026-10-14        Author:
@@ -710,7 +710,7 @@ Chosen:          (b)   Default from: new (user choice 2026-10-14)
 Evidence:        plan 6.6 (SeedSequence.spawn(n), spawn key stored), 10.4 (Seeds in Numba), Table 6.2 (seeds as an axis of S5, S11). Amends DL-068 item (2); DL-068 is not edited.
 Test:            test_runner (1b-i): same spawn_key across cells at equal seed index, distinct across seed indices; deterministic mf has spawn_key null.
 Status:          default adopted; code change pending (1b-i)
-Commit/tag:
+Commit/tag:      entry added in e7fbbe1
 
 ## DL-070  spawn_key = [seed_index] in the runner (implements DL-069), and the F4 noise-band caveat    [ID: ]
 Date:            2026-10-14        Author:
@@ -721,7 +721,7 @@ Chosen:          (b)   Default from: DL-069 (user choice 2026-10-14)
 Evidence:        DL-068 item (2), DL-069; plan 6.6, Table 6.2 (S5, S11), RB2, F4. No measurement of the correlation exists; the statement is reasoned, not tested.
 Test:            test_runner (1b-i): keys per seed index and per cell, stream equals SeedSequence(root).spawn(n_seeds)[s], hashes stable under an inserted sweep value and a larger n_seeds, deterministic mf null key.
 Status:          default adopted; implemented in 1b-i
-Commit/tag:
+Commit/tag:      entry added in fcb739e
 
 ## DL-071  M3-vs-M2 tolerance of 1e-2 was set after observing the error (UNVERIFIED)    [ID: ]
 Date:            2026-10-14        Author:
@@ -732,7 +732,7 @@ Chosen:          1e-2 kept   Default from: DL-061
 Evidence:        none beyond the observed 6e-3 from the 1b-i run; plan 10.5.
 Test:            test_models_3d (1b-i).
 Status:          UNVERIFIED; recorded at 1b-ii at the user's request
-Commit/tag:
+Commit/tag:      entry added in 2cb7842
 
 ## DL-072  Mean-field driver readings (mode D, mode N, wall limit, retry)    [ID: ]
 Date:            2026-10-14        Author:
@@ -743,7 +743,7 @@ Chosen:          as above   Default from: new
 Evidence:        plan 6.2, 6.4, 6.6, 10.4, 10.5, Table 7.1 (K8).
 Test:            test_noise, test_simulate_mf, test_units (RB9a), test_runner part 2.
 Status:          confirmed by the user at 1c. Item 4 accepted as UNVERIFIED: dv = f dt + sigma dW with t in units of tau, so sigma has units of v per sqrt(tau) (v is dimensionless); sigma is calibrated at MS5. Item 7: the start-state selector is deferred to MS2, when the S3 config is written. Item 10: heartbeat unchanged.
-Commit/tag:
+Commit/tag:      entry added in 2cb7842
 
 ## DL-073  Step-onset filter bias in envelope_growth (OPEN, UNVERIFIED)    [ID: ]
 Date:            2026-10-14        Author:
@@ -754,7 +754,7 @@ Chosen:          none   Default from: -
 Evidence:        tests/test_surge_metrics.py (ring, lead_s = 1.0), measured at 1d. Affects K7 (growth rate near the Hopf point, if read from the envelope) and D8 (Table 2.1 growth-rate rule). Not tested on M3 output.
 Test:            xfail test_slowly_damped_ring_rate_matches_true_decay_after_step_onset.
 Status:          open, UNVERIFIED; awaiting the user's choice
-Commit/tag:
+Commit/tag:      entry added in 538f205
 
 ## DL-074  K7 Hopf value not reproduced at 1d; BifurcationKit works on Windows (OPEN source issue)    [ID: D23]
 Date:            2026-10-15        Author:
@@ -765,7 +765,7 @@ Chosen:          none   Default from: -
 Evidence:        results/A5/smoke (git-ignored; fixture in tests/fixtures/julia); plan Table 7.1 K7, C15, CP1, D23, DL-023. Supercritical check, convention-free: squared amplitude of v on the periodic-orbit branch is linear in tau_d/tau - tau_H/tau over the first 8 points (x up to 0.0098; slope about 53 per unit tau_d/tau, intercept within 1e-3 of zero, max residual 2e-4); at x = 0.030 the linear fit has residual 5e-3. Direct integration of M3 from a perturbed fixed point (DOP853, 1e-10) decays to the fixed point at tau_d = 4.0 ms and settles on a cycle at 4.3 ms with squared peak-to-peak 0.951 against 0.95 predicted by the slope. This is an attracting cycle past the Hopf point with no hysteresis in the two points tried, consistent with a supercritical Hopf given l1 = +0.395 whatever its sign convention. The Floquet multipliers themselves are not in the smoke output (the Julia script did not write them) and were not computed; the stability statement rests on the integration.
 Test:            none; test_replication (K7) at MS5 will fail on the 4.95 ms criterion unless K7 is resolved.
 Status:          open, UNVERIFIED; awaiting the user's ruling on K7 and D23
-Commit/tag:
+Commit/tag:      entry added in 94f0b85
 
 ## DL-075  D23 ruled: BifurcationKit.jl confirmed; K7 source check    [ID: D23]
 Date:            2026-10-15        Author:
@@ -776,7 +776,7 @@ Chosen:          D23 kept   Default from: DL-023 (user ruling 2026-10-15)
 Evidence:        DL-074; user review; item (3) above from the 1e run. Plan Table 7.1 K7, C15, CP1, D23.
 Test:            none.
 Status:          D23 decided; the K7 source issue remains UNVERIFIED and open (arXiv v1 only, PARTIAL)
-Commit/tag:
+Commit/tag:      entry added in b3d914b
 
 ## DL-076  Draft configs/replication.yaml; K7 departure; K4 tail fraction    [ID: D34]
 Date:            2026-10-15        Author:
@@ -787,7 +787,7 @@ Chosen:          drafted as above   Default from: user instruction 2026-10-15 (K
 Evidence:        K4 tail-cycle count, from the 3.1 M2 equations at eta_bar = -5, J = 15, Delta = 1, step I = 0 to 3: the post-step fixed point is a stable focus with lambda = -0.2318 +/- 5.7664i (period 1.090 tau, 3.96 cycles per e-fold). K3 has two stable states at I = 0 (a node at r = 0.0811 and a focus at r = 1.0306), so the start state is open (UNVERIFIED). The first-peak deviation of r from r* is 1.509 from the node and 0.348 from the focus. First peak below the fraction f of the first peak, and the cycles left in the tail to t = 40 tau: from the node, f = 0.05 at t = 15.2 (22.7 cycles), 0.1 at 12.0 (25.7), 0.2 at 8.7 (28.8); from the focus, 0.05 at 13.7 (24.2), 0.1 at 10.4 (27.2), 0.2 at 8.2 (29.2). With the window ending when the envelope reaches 1e-6 of the first peak, the tail holds about 43, 46 and 49 cycles (node) for f = 0.05, 0.1, 0.2. At f = 0.2 the deviation is still 0.07 to 0.3 in r, so nonlinearity may bias the fit; this is reasoned, not tested. The run length of S1 is not stated in the plan, so the window end is an assumption.
 Test:            none at 1e; test_replication (MS2 onward) reads the file.
 Status:          draft, UNVERIFIED, awaiting the user's approval before the freeze
-Commit/tag:
+Commit/tag:      entry added in b3d914b
 
 ## DL-077  1e fresh-context review of the MS1 diff: findings, none fixed    [ID: ]
 Date:            2026-10-15        Author:
@@ -797,5 +797,38 @@ Options:         for each of (1)-(4): fix in a later commit, or log a decision a
 Chosen:          none   Default from: -
 Evidence:        subagent report of 2026-10-15; grep for baseline_s in src; commit history.
 Test:            none.
-Status:          open, awaiting the user's ruling
-Commit/tag:
+Status:          ruled 2026-10-15 by the user: (1) mode D solver messages fixed with tests (flags.solver_messages and the record message; test_simulate_mf, test_runner), (3) K1 test follows DL-064 (see DL-078), (5) fixture regenerated (DL-080). Known and accepted as non-blocking: (2) dead config inputs, to be wired at MS2 (durations.baseline_s, and the model.J / model.eta_bar versus path.J0 inconsistency), (4) a ProvenanceError in find_complete can abort a pool sweep, reachable only by a hash12 collision or a corrupted record.
+Commit/tag:      entry added in b3d914b
+
+## DL-078  K1 test follows DL-064; the cusp points are below one A1 cell (UNVERIFIED)    [ID: D34]
+Date:            2026-10-15        Author:
+Decision:        none beyond implementing DL-064. test_fixed_points now builds the A1 grid (eta_bar/Delta 241 points on [-10, 2], J/sqrt(Delta) 201 points on [0, 20]), takes 20 r values uniform on the r-interval where the K1 formula point lies inside the grid (r from 0.1434 to 1.0028), and asks for a grid node where the positive-root count changes within one cell (0.05, 0.1) of each formula point. Result: 18 of 20 points pass; the two points near the cusp of the fold curve (r = 0.279 and 0.324, J about 7.84 to 7.89, the cusp at r = (3/(4 pi^4))^(1/4) = 0.2965) have their nearest count-change node 2.1 to 2.6 cells away, because the gap between the two folds there is below one cell [reasoned, not tested]. The full 20-point test is therefore a strict xfail pointing here, and a second test covers the points with |r - r_cusp| >= 0.05 (18 points); that 0.05 is a test-level choice made after seeing which points fail (UNVERIFIED).
+Reason:          DL-064 as written cannot pass at the cusp on the 241 x 201 grid. The first K1 test of 1b did not test this (review, DL-077 item 3).
+Options:         (a) keep the split (done); (b) change the K1 definition at the freeze, for example by excluding the cusp neighbourhood; (c) finer grid near the cusp. (b) and (c) need the user's decision.
+Chosen:          (a) for now   Default from: DL-064
+Evidence:        test_fixed_points (K1 tests); plan Table 7.1 K1, A1 (grid sizes).
+Test:            test_k1_all_20_points_... (xfail, strict), test_k1_points_away_from_the_cusp_..., test_k1_formula_points_are_double_roots.
+Status:          open, UNVERIFIED; the K1 criterion in replication.yaml is unchanged
+Commit/tag:      entry added in the commit that follows b3d914b (see git log)
+
+## DL-079  Decisions at 1e: K4 fraction and start state, K10 lower end, K7 departure    [ID: D34]
+Date:            2026-10-15        Author:
+Decision:        the user decided: (1) K4 tail-fit fraction 0.1 confirmed (still UNVERIFIED as a value; DL-076 count). (2) K4 start state = the low-rate stable node (eta_bar = -5, J = 15, Delta = 1, I = 0: r = 0.0811, v = -1.962), UNVERIFIED; K4-MF checks frequency and decay from the post-step linearisation, which does not depend on the start state. (3) K10's lower tau_d end is the A4 Hopf value, not 4.95 ms. (4) K7 tau_d^H = 4.12 +/- 0.05 ms as a documented departure from the paper's 4.95 ms (DL-074, DL-075), and the K7 operational definition of DL-064 are approved. K5 is still open, so the file stays a draft and tolerances-frozen is not tagged.
+Reason:          closes the approval items of DL-076.
+Options:         see DL-076.
+Chosen:          as above   Default from: user decision 2026-10-15
+Evidence:        DL-064, DL-074, DL-075, DL-076.
+Test:            none at 1e.
+Status:          decided; replication.yaml updated; freeze waits for K5
+Commit/tag:      entry added in the commit that follows b3d914b (see git log)
+
+## DL-080  Correction of DL-074's commit reference; Julia smoke fixture regenerated    [ID: D23]
+Date:            2026-10-15        Author:
+Decision:        DL-074 says the smoke test ran "at commit 538f205". That is the commit that added the script; the first run was made at 464f1ec with the new files uncommitted, and its fixture had "dirty" set to false by hand, which was wrong for that run. DL-074 is not edited. The fixture in tests/fixtures/julia was regenerated from a clean committed tree: bk_smoke.jl was run with HEAD = b3d914b and an empty git status, giving commit b3d914b3350c6a7bf41dfcbc4b41d80a7170d9da, dirty false, Julia 1.10.11, BifurcationKit 0.8.7, Manifest SHA-256 73ac380d3d7d06bbdfa7fea64c85abbb08c74aee489e87625464864cecfd53e5 (unchanged), Hopf 4.1209 ms. The fixture files are copied unedited (the CSV files are truncated to their first rows).
+Reason:          review finding 5 (DL-077).
+Options:         -
+Chosen:          -   Default from: user instruction 2026-10-15
+Evidence:        tests/fixtures/julia/smoke.json.
+Test:            test_julia_io.
+Status:          done
+Commit/tag:      entry added in the commit that follows b3d914b (see git log)
