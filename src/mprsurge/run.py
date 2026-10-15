@@ -90,8 +90,9 @@ def build_plan(config_arg: str, sets=(), workers: int | None = None) -> Plan:
 
     Axes: sweep.x, sweep.y (dotted section.key names) and sweep.T_ramp_values; cells
     are their product. For run.kind = mf_noisy each cell is repeated seeds.n_seeds
-    times. Run k (its position in the list) gets seeds.spawn_key = [k], the child
-    SeedSequence(root_seed).spawn(M)[k]; deterministic runs keep spawn_key null.
+    times. A run with seed index s (0 to n_seeds-1) gets seeds.spawn_key = [s], the child
+    SeedSequence(root_seed).spawn(n_seeds)[s], so the same seed index gives the same
+    stream in every sweep cell (DL-069, DL-070); deterministic runs keep spawn_key null.
     """
     path = _config_path(config_arg)
     ov = dict(C.parse_override(s) for s in sets)
@@ -106,11 +107,11 @@ def build_plan(config_arg: str, sets=(), workers: int | None = None) -> Plan:
     out_root = Path(cfg0["output"]["dir"])
     out_dir = (out_root if out_root.is_absolute() else C.repo_root() / out_root) / family
     cells = []
-    for k, (combo, _seed) in enumerate(runs):
+    for k, (combo, seed) in enumerate(runs):
         cell_ov = dict(ov)
         cell_ov.update({n: v for (n, _), v in zip(axes, combo)})
         if noisy:
-            cell_ov["seeds.spawn_key"] = [k]
+            cell_ov["seeds.spawn_key"] = [seed]
         cell = C.resolve_config(path, cell_ov)
         cell["sweep"] = {key: None for key in cell["sweep"]}
         h12 = C.short_hash(C.config_hash(cell))

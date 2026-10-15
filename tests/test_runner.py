@@ -11,6 +11,7 @@ import numpy as np
 import pytest
 
 from mprsurge import config as C
+from mprsurge import provenance as P
 from mprsurge import run as R
 
 
@@ -119,13 +120,51 @@ def test_bad_sweep_axes_raise(tmp_path):
             R.build_plan(str(write_cfg(tmp_path, sweep=sweep)))
 
 
+def noisy_cfg(tmp_path, values, n_seeds=3):
+    f = write_cfg(tmp_path, extra=", workers: 1", sweep=f"x_name: model.Delta, x_values: {values}")
+    f.write_text(f.read_text().replace("kind: mf", "kind: mf_noisy") + f"seeds: {{n_seeds: {n_seeds}}}\n")
+    return f
+
+
 def test_noisy_runs_get_seed_children(tmp_path):
-    f = write_cfg(tmp_path, extra=", workers: 1", sweep="x_name: model.Delta, x_values: [0.2, 0.3]")
-    f.write_text(f.read_text().replace("kind: mf", "kind: mf_noisy") + "seeds: {n_seeds: 3}\n")
-    plan = R.build_plan(str(f))
+    plan = R.build_plan(str(noisy_cfg(tmp_path, "[0.2, 0.3]")))
     assert len(plan.cells) == 6
-    assert [c["cfg"]["seeds"]["spawn_key"] for c in plan.cells] == [[k] for k in range(6)]
     assert len({c["hash12"] for c in plan.cells}) == 6
+    keys = [c["cfg"]["seeds"]["spawn_key"] for c in plan.cells]
+    assert keys == [[0], [1], [2], [0], [1], [2]]          # DL-069: spawn_key = [seed_index]
+
+
+def test_same_seed_index_gives_same_key_in_every_cell_and_the_child_stream(tmp_path):
+    plan = R.build_plan(str(noisy_cfg(tmp_path, "[0.2, 0.25, 0.3]", n_seeds=4)))
+    by_seed = {}
+    for c in plan.cells:
+        by_seed.setdefault(c["cfg"]["seeds"]["spawn_key"][0], []).append(c)
+    assert sorted(by_seed) == [0, 1, 2, 3] and all(len(v) == 3 for v in by_seed.values())
+    root = plan.cells[0]["cfg"]["seeds"]["root_seed"]
+    children = P.seed_sequence(root, 4)
+    streams = set()
+    for s, cells in by_seed.items():
+        draws = {tuple(P.seed_from_key(root, c["cfg"]["seeds"]["spawn_key"]).generate_state(4)) for c in cells}
+        assert draws == {tuple(children[s].generate_state(4))}   # equals SeedSequence(root).spawn(n_seeds)[s]
+        streams |= draws
+    assert len(streams) == 4                               # different seed indices differ
+
+
+def test_inserting_a_sweep_value_or_a_seed_keeps_existing_hashes(tmp_path):
+    def hashes(values, n_seeds=3):
+        plan = R.build_plan(str(noisy_cfg(tmp_path, values, n_seeds)))
+        return {(c["cfg"]["model"]["Delta"], c["cfg"]["seeds"]["spawn_key"][0]): c["hash12"] for c in plan.cells}
+    before = hashes("[0.2, 0.3]")
+    after = hashes("[0.2, 0.25, 0.3]")
+    assert len(before) == 6 and len(after) == 9
+    assert all(after[k] == h for k, h in before.items())
+    grown = hashes("[0.2, 0.3]", n_seeds=5)
+    assert len(grown) == 10 and all(grown[k] == h for k, h in before.items())
+
+
+def test_deterministic_mf_has_null_spawn_key(tmp_path):
+    plan = R.build_plan(str(write_cfg(tmp_path)))
+    assert all(c["cfg"]["seeds"]["spawn_key"] is None for c in plan.cells)
 
 
 def test_workers_flag_is_an_override(tmp_path):
