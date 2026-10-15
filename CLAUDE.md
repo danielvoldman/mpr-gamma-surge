@@ -4,7 +4,8 @@ Plan: `docs/plan.md` (binding). Read only the section for the current milestone.
 - Work one milestone at a time (MS0–MS15, Table 11.1). Stop at each gate and report.
 - Python 3.11 in .venv, CPU only. Do not use PyDSTool.
   Install from environment/requirements-lock.txt.
-- Run `python -m pytest -m "not slow"` before every commit.
+- Plain `python` is NOT the venv (it resolves to 3.12). Always use `.venv\Scripts\python.exe`.
+- Run `.venv\Scripts\python.exe -m pytest -m "not slow"` before every commit.
   Run the full suite before every tag.
 - Drivers only integrate, analysis modules only analyse, figure scripts
   only plot (section 10.1).

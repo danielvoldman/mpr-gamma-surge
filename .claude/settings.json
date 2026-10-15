@@ -8,7 +8,11 @@
       "PowerShell(python -m pytest *)",
       "PowerShell(python -m mprsurge.run *)",
       "PowerShell(git status)",
-      "PowerShell(git diff *)"
+      "PowerShell(git diff *)",
+      "PowerShell(.venv\\Scripts\\python.exe -m pytest *)",
+      "PowerShell(.venv\\Scripts\\python.exe -m mprsurge.run *)",
+      "Bash(.venv/Scripts/python.exe -m pytest *)",
+      "Bash(.venv/Scripts/python.exe -m mprsurge.run *)"
     ]
   }
 }

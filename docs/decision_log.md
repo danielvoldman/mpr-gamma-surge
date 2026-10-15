@@ -502,3 +502,25 @@ Evidence:        Claude Code documentation, Permissions page (PowerShell section
 Test:            at MS0, ask Claude Code to run python -m pytest and check /permissions; adjust to what it shows.
 Status:          default adopted
 Commit/tag:
+
+## DL-051  venv-path allow rules and CLAUDE.md commands    [ID: ]
+Date:            2026-10-14        Author:
+Decision:        settings.json adds four allow rules that use the venv interpreter by path (PowerShell and Bash forms, pytest and mprsurge.run); CLAUDE.md names .venv\Scripts\python.exe for the pytest command and states that plain python is not the venv.
+Reason:          plain python resolves to Python 3.12.10 (no pytest, no project packages) in both the PowerShell and the Bash tool, so the rules of DL-050 allow a command that runs the wrong interpreter.
+Options:         activate the venv (needs Set-ExecutionPolicy; not tested); keep plain python rules only.
+Chosen:          venv-path rules added next to the existing eight; DL-050 rules kept   Default from: new
+Evidence:        MS0 test 6b: python --version gave 3.12.10 in both tools; python -m pytest failed with "No module named pytest"; .venv\Scripts\python.exe -m pytest ran under Python 3.11.9. Links back to DL-050.
+Test:            whether /permissions shows the new rules matching the venv-path commands without a prompt.
+Status:          default adopted
+Commit/tag:
+
+## DL-052  tests/test_smoke.py added                  [ID: ]
+Date:            2026-10-14        Author:
+Decision:        add tests/test_smoke.py (import mprsurge, assert its name) so that pytest collects at least one test.
+Reason:          pytest exits with code 5 on an empty suite, and the MS0 done-when is "pytest collects".
+Options:         no test file (exit 5); a test that asserts a version.
+Chosen:          one import test, no version asserted   Default from: new
+Evidence:        MS0 run: collected 0 items, exit code 5.
+Test:            remove or supersede when real tests exist.
+Status:          default adopted
+Commit/tag:
