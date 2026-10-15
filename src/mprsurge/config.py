@@ -1,0 +1,406 @@
+"""Configuration: load, resolve, validate and hash (plan section 10.3).
+
+resolve_config merges, in this order (DL-054), base < ref_point < run file <
+--set overrides, derives eta_start, eta_peak and eps (DL-065), rejects unknown
+keys and validates every key against a typed schema, casting or rejecting
+values (PyYAML reads 1e-10 as a string). config_hash is the SHA-256 of the
+canonical JSON of the integration inputs (DL-057).
+"""
+from __future__ import annotations
+
+import copy
+import hashlib
+import json
+import math
+from dataclasses import dataclass
+from pathlib import Path
+
+import yaml
+
+from .params import REF_CENI_TAU_D_MS, REF_POINTS
+from .units import s_to_tau
+
+ETA_START_OFFSET = 1.5  # D12: eta_start = eta_H - 1.5
+ETA_PEAK_FLOOR = 4.0    # D12: eta_peak = max(4, eta_H + 2)
+ETA_PEAK_OFFSET = 2.0
+
+ETA_STATUSES = ("unresolved", "provisional", "A4")
+RUN_KINDS = ("mf", "mf_noisy")  # DL-055; "network" is added at MS5
+PATH_NAMES = ("path_eta", "path_hypoxia", "path_drive", "path_delta_up",
+              "path_delta_down", "path_updown")  # P1, P2, P3, P4a, P4b, P5
+
+# Sections and keys that enter config_hash (DL-057).
+_HASH_SECTIONS = ("model", "path", "solver", "noise", "network", "durations")
+
+
+class ConfigError(ValueError):
+    """Invalid configuration: unknown key, wrong type or inconsistent values."""
+
+
+@dataclass(frozen=True)
+class Spec:
+    tag: str                      # float int str bool floats floats2 pairs ints
+    nullable: bool = False
+    choices: tuple | None = None
+    positive: bool = False        # strictly > 0 (scalars only)
+    derived: bool = False         # filled by resolve_config, never user-set
+
+
+def _s(tag, **kw):
+    return Spec(tag, **kw)
+
+
+SCHEMA: dict[str, dict[str, Spec]] = {
+    "model": {
+        "type": _s("str", choices=("M2", "M3")),
+        "ref_point": _s("str", nullable=True, choices=tuple(REF_POINTS)),
+        "tau_ms": _s("float", positive=True),
+        "tau_d_ms": _s("float", nullable=True, positive=True),
+        "eta_bar": _s("float"), "Delta": _s("float", positive=True),
+        "J": _s("float"), "I_drive": _s("float"),
+    },
+    "path": {
+        "name": _s("str", choices=PATH_NAMES),
+        "profile": _s("str", choices=("linear", "sigmoid")),
+        "sigmoid_k": _s("float", positive=True),
+        "T_ramp_s": _s("float", positive=True), "t_on_s": _s("float"),
+        "eta_H": _s("float", nullable=True),
+        "eta_start": _s("float", nullable=True),
+        "eta_peak": _s("float", nullable=True),
+        "eta_path_status": _s("str", choices=ETA_STATUSES, derived=True),
+        "eps": _s("float", nullable=True, derived=True),
+        "J0": _s("float"), "J_end": _s("float"),
+        "J_lag_frac": _s("float"), "J_T_frac": _s("float"),
+        "I_amp": _s("float"), "I_rise_frac": _s("float"),
+        "I_plateau_frac": _s("float"), "I_fall_frac": _s("float"),
+        "Delta_factor": _s("float", positive=True),
+    },
+    "solver": {
+        "method": _s("str", choices=("DOP853", "Radau")),
+        "rtol": _s("float", positive=True), "atol": _s("float", positive=True),
+        "max_step_tau": _s("float", positive=True),
+        "dt_out_ms": _s("float", positive=True), "delta0": _s("float"),
+    },
+    "noise": {
+        "scheme": _s("str", choices=("Heun",)),
+        "sigma": _s("float", nullable=True),
+        "sigma_factor": _s("float", positive=True),
+        "dt_tau": _s("float", positive=True),
+        "floor_levels": _s("floats", nullable=True),
+    },
+    "network": {
+        "N": _s("int", positive=True), "dt_tau": _s("float", positive=True),
+        "V_peak": _s("float", positive=True), "V_reset": _s("float"),
+        "het_dist": _s("str", choices=("lorentzian", "gaussian", "uniform")),
+        "het_sampling": _s("str", choices=("quantile", "random")),
+        "init_V_range": _s("floats2"),
+        "rate_bin_ms": _s("float", positive=True),
+        "n_raster": _s("int", positive=True), "exclude_refractory": _s("bool"),
+    },
+    "durations": {
+        "baseline_s": _s("float", positive=True),
+        "hold_s": _s("float", positive=True),
+        "discard_s": _s("float"),
+    },
+    "analysis": {
+        "band_primary_hz": _s("floats2"), "bands_secondary_hz": _s("pairs"),
+        "total_band_hz": _s("floats2"),
+        "window_rule": _s("str", choices=("D4",)),
+        "window_s": _s("float", positive=True),
+        "taper": _s("str", choices=("hann",)),
+        "rel_factor": _s("float", positive=True),
+        "abs_factor": _s("float", positive=True),
+        "amin_factor": _s("float", positive=True),
+        "min_cycles": _s("int", positive=True),
+        "collapse_r_frac": _s("float", positive=True),
+    },
+    "sweep": {
+        "x_name": _s("str", nullable=True), "x_values": _s("floats", nullable=True),
+        "y_name": _s("str", nullable=True), "y_values": _s("floats", nullable=True),
+        "T_ramp_values": _s("floats", nullable=True),
+    },
+    "seeds": {
+        "root_seed": _s("int"), "n_seeds": _s("int", positive=True),
+        "spawn_key": _s("ints", nullable=True),
+    },
+    "run": {
+        "id": _s("str", nullable=True), "workers": _s("int", positive=True),
+        "kind": _s("str", choices=RUN_KINDS),
+        "wall_limit_s": _s("float", nullable=True, positive=True),
+    },
+    "output": {"dir": _s("str")},
+    "replication": {"tolerances_file": _s("str")},
+    "robustness": {
+        "check_id": _s("str", nullable=True),
+        "criteria_file": _s("str", nullable=True),
+        "criteria_sha256": _s("str", nullable=True),
+    },
+    "budget": {"max_wall_h": _s("float", positive=True)},
+}
+
+_META_KEY = "_resolved_from"
+
+
+def repo_root() -> Path:
+    """Repository root; configs/ is resolved from here, not from the cwd."""
+    return Path(__file__).resolve().parents[2]
+
+
+def to_posix(path) -> str:
+    """POSIX form of a path, relative to the repository root when inside it."""
+    p = Path(path)
+    try:
+        p = p.resolve().relative_to(repo_root())
+    except (ValueError, OSError):
+        pass
+    return p.as_posix()
+
+
+# --- casting -----------------------------------------------------------------
+
+def _cast_scalar(tag: str, value, where: str):
+    if tag == "float":
+        if isinstance(value, bool):
+            raise ConfigError(f"{where}: expected a number, got bool {value!r}")
+        if isinstance(value, (int, float)):
+            out = float(value)
+        elif isinstance(value, str):
+            try:
+                out = float(value.strip())
+            except ValueError:
+                raise ConfigError(f"{where}: cannot read {value!r} as a number") from None
+        else:
+            raise ConfigError(f"{where}: expected a number, got {type(value).__name__}")
+        if not math.isfinite(out):
+            raise ConfigError(f"{where}: value must be finite, got {value!r}")
+        return out
+    if tag == "int":
+        if isinstance(value, bool):
+            raise ConfigError(f"{where}: expected an integer, got bool {value!r}")
+        if isinstance(value, int):
+            return value
+        if isinstance(value, (float, str)):
+            try:
+                f = float(value.strip() if isinstance(value, str) else value)
+            except ValueError:
+                raise ConfigError(f"{where}: cannot read {value!r} as an integer") from None
+            if math.isfinite(f) and f == int(f):
+                return int(f)
+        raise ConfigError(f"{where}: expected an integer, got {value!r}")
+    if tag == "str":
+        if not isinstance(value, str):
+            raise ConfigError(f"{where}: expected a string, got {type(value).__name__}")
+        return value
+    if tag == "bool":
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str) and value.strip().lower() in ("true", "false"):
+            return value.strip().lower() == "true"
+        raise ConfigError(f"{where}: expected true or false, got {value!r}")
+    raise AssertionError(tag)
+
+
+def _cast(spec: Spec, value, where: str):
+    if value is None:
+        if spec.nullable:
+            return None
+        raise ConfigError(f"{where}: null is not allowed")
+    tag = spec.tag
+    if tag in ("float", "int", "str", "bool"):
+        out = _cast_scalar(tag, value, where)
+        if spec.positive and not out > 0:
+            raise ConfigError(f"{where}: must be > 0, got {out!r}")
+    elif tag in ("floats", "floats2", "ints"):
+        if not isinstance(value, (list, tuple)):
+            raise ConfigError(f"{where}: expected a list, got {type(value).__name__}")
+        out = [_cast_scalar("int" if tag == "ints" else "float", v, f"{where}[{i}]")
+               for i, v in enumerate(value)]
+        if tag == "floats2" and (len(out) != 2 or not out[0] < out[1]):
+            raise ConfigError(f"{where}: expected [low, high] with low < high, got {value!r}")
+    elif tag == "pairs":
+        if not isinstance(value, (list, tuple)):
+            raise ConfigError(f"{where}: expected a list of [low, high], got {value!r}")
+        out = [_cast(Spec("floats2"), v, f"{where}[{i}]") for i, v in enumerate(value)]
+    else:
+        raise AssertionError(tag)
+    if spec.choices is not None and out not in spec.choices:
+        raise ConfigError(f"{where}: {out!r} is not one of {list(spec.choices)}")
+    return out
+
+
+# --- loading and merging -----------------------------------------------------
+
+def load_config(path) -> dict:
+    """Read a YAML file into a plain dict (no validation)."""
+    with open(path, "r", encoding="utf-8") as fh:
+        data = yaml.safe_load(fh)
+    if data is None:
+        return {}
+    if not isinstance(data, dict):
+        raise ConfigError(f"{to_posix(path)}: top level must be a mapping")
+    return data
+
+
+def _check_keys(layer: dict, where: str, allow_derived: bool = False) -> None:
+    for section, body in layer.items():
+        if section not in SCHEMA:
+            raise ConfigError(f"{where}: unknown section {section!r}")
+        if not isinstance(body, dict):
+            raise ConfigError(f"{where}: section {section!r} must be a mapping")
+        for key in body:
+            spec = SCHEMA[section].get(key)
+            if spec is None:
+                raise ConfigError(f"{where}: unknown key {section}.{key}")
+            if spec.derived and not allow_derived:
+                raise ConfigError(f"{where}: {section}.{key} is derived and cannot be set")
+
+
+def _deep_merge(dst: dict, src: dict) -> dict:
+    for k, v in src.items():
+        if isinstance(v, dict) and isinstance(dst.get(k), dict):
+            _deep_merge(dst[k], v)
+        else:
+            dst[k] = copy.deepcopy(v)
+    return dst
+
+
+def parse_override(text: str) -> tuple[str, object]:
+    """Split 'section.key=value'; the value is read as YAML, then cast by the schema."""
+    if "=" not in text:
+        raise ConfigError(f"override {text!r}: expected section.key=value")
+    key, raw = text.split("=", 1)
+    key = key.strip()
+    if key.count(".") != 1:
+        raise ConfigError(f"override {text!r}: key must be section.key")
+    try:
+        value = yaml.safe_load(raw)
+    except yaml.YAMLError:
+        value = raw
+    return key, value
+
+
+def _overrides_to_layer(overrides) -> tuple[dict, dict]:
+    pairs = (overrides.items() if isinstance(overrides, dict)
+             else [parse_override(o) for o in (overrides or [])])
+    layer: dict = {}
+    record: dict = {}
+    for key, value in pairs:
+        section, name = key.split(".")
+        layer.setdefault(section, {})[name] = value
+        record[key] = value
+    return layer, record
+
+
+# --- resolution --------------------------------------------------------------
+
+def resolve_config(run_file=None, overrides=(), base_file=None) -> dict:
+    """Merge, expand ref_point, derive, validate. Returns a plain dict.
+
+    run_file may be a path or an already-loaded dict. overrides is a list of
+    'section.key=value' strings or a dict {'section.key': value}.
+    """
+    base_path = Path(base_file) if base_file else repo_root() / "configs" / "base.yaml"
+    base = load_config(base_path)
+    _check_keys(base, to_posix(base_path))
+
+    if run_file is None:
+        run_layer, run_name = {}, None
+    elif isinstance(run_file, dict):
+        run_layer, run_name = copy.deepcopy(run_file), None
+    else:
+        run_layer, run_name = load_config(run_file), to_posix(run_file)
+    _check_keys(run_layer, run_name or "run config")
+    ov_layer, ov_record = _overrides_to_layer(overrides)
+    _check_keys(ov_layer, "--set")
+
+    user = _deep_merge(copy.deepcopy(run_layer), ov_layer)
+    cfg = copy.deepcopy(base)
+
+    ref = user.get("model", {}).get("ref_point", cfg["model"].get("ref_point"))
+    if ref is not None:
+        ref = _cast(SCHEMA["model"]["ref_point"], ref, "model.ref_point")
+        cfg["model"].update(REF_POINTS[ref])        # layer 2: ref_point
+    _deep_merge(cfg, user)                          # layers 3, 4: explicit wins
+
+    for section, specs in SCHEMA.items():
+        body = cfg.setdefault(section, {})
+        for key, spec in specs.items():
+            if spec.derived:
+                continue
+            if key not in body:
+                raise ConfigError(f"{section}.{key}: missing (not in base.yaml)")
+            body[key] = _cast(spec, body[key], f"{section}.{key}")
+
+    _check_model(cfg)
+    _derive_eta_path(cfg)
+    cfg[_META_KEY] = {"base": to_posix(base_path), "run_file": run_name,
+                      "overrides": ov_record}
+    return cfg
+
+
+def _check_model(cfg: dict) -> None:
+    m = cfg["model"]
+    if m["type"] == "M3" and m["tau_d_ms"] is None:
+        raise ConfigError("model.tau_d_ms: required for M3 (ref_ceni needs an "
+                          f"explicit value in {list(REF_CENI_TAU_D_MS)})")
+    if m["ref_point"] == "ref_ceni" and not any(
+            math.isclose(m["tau_d_ms"], v, rel_tol=0, abs_tol=1e-9)
+            for v in REF_CENI_TAU_D_MS):
+        raise ConfigError(f"model.tau_d_ms: ref_ceni needs one of "
+                          f"{list(REF_CENI_TAU_D_MS)} ms (DL-054), got {m['tau_d_ms']!r}")
+
+
+def _derive_eta_path(cfg: dict) -> None:
+    """eta_start, eta_peak, status and eps (D12, DL-065). No value of eta_H is entered."""
+    p = cfg["path"]
+    have_start, have_peak = p["eta_start"] is not None, p["eta_peak"] is not None
+    if have_start != have_peak:
+        raise ConfigError("path.eta_start and path.eta_peak must be given together")
+    if have_start:
+        if p["eta_H"] is not None:
+            raise ConfigError("give path.eta_H or explicit eta_start/eta_peak, not both")
+        p["eta_path_status"] = "provisional"
+    elif p["eta_H"] is not None:
+        p["eta_start"] = p["eta_H"] - ETA_START_OFFSET
+        p["eta_peak"] = max(ETA_PEAK_FLOOR, p["eta_H"] + ETA_PEAK_OFFSET)
+        p["eta_path_status"] = "A4"
+    else:
+        p["eta_path_status"] = "unresolved"
+    if p["eta_start"] is None:
+        p["eps"] = None
+    else:
+        t_ramp_tau = s_to_tau(p["T_ramp_s"], cfg["model"]["tau_ms"])
+        p["eps"] = (p["eta_peak"] - p["eta_start"]) / t_ramp_tau
+
+
+def require_eta_path(cfg: dict) -> None:
+    """Raise if a ramp run has no eta path (A4 not run, no explicit override)."""
+    if cfg["path"]["eta_path_status"] == "unresolved":
+        raise ConfigError("path.eta_start/eta_peak are unresolved: eta_H comes from A4 "
+                          "(MS5); give them explicitly with --set to run provisionally")
+
+
+# --- hash --------------------------------------------------------------------
+
+def hash_view(cfg: dict) -> dict:
+    """The integration inputs that config_hash covers (DL-057)."""
+    view = {s: copy.deepcopy(cfg[s]) for s in _HASH_SECTIONS}
+    view["run"] = {"kind": cfg["run"]["kind"]}
+    view["seeds"] = {"root_seed": cfg["seeds"]["root_seed"],
+                     "spawn_key": cfg["seeds"]["spawn_key"]}
+    return view
+
+
+def canonical_json(obj) -> str:
+    return json.dumps(obj, sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=True, allow_nan=False)
+
+
+def config_hash(cfg: dict) -> str:
+    """Full SHA-256 (hex) of the canonical JSON of hash_view(cfg)."""
+    return hashlib.sha256(canonical_json(hash_view(cfg)).encode("utf-8")).hexdigest()
+
+
+def short_hash(full_hash: str) -> str:
+    """First 12 hex characters; names each output (section 6.6)."""
+    return full_hash[:12]

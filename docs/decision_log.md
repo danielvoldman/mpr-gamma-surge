@@ -524,3 +524,146 @@ Evidence:        MS0 run: collected 0 items, exit code 5.
 Test:            remove or supersede when real tests exist.
 Status:          default adopted
 Commit/tag:
+
+## DL-053  Stable fixed-point selection rule    [ID: ]
+Date:            2026-10-14        Author:
+Decision:        the start state of a run is the stable fixed point at the start parameters; if there is not exactly one stable root, the code raises an error.
+Reason:          section 6.2 says "exact stable fixed point" but not what to do with several stable roots (M2 bistable wedge) or none.
+Options:         pick the stable root with the largest r; add a branch key; raise.
+Chosen:          raise   Default from: new (user accepted 2026-10-14)
+Evidence:        plan 6.2 (Initial state), 3.1 (bistable wedge). The rule itself is a choice, not from the plan.
+Test:            test_fixed_points (1b-i).
+Status:          default adopted
+Commit/tag:
+
+## DL-054  ref_point precedence and ref_ceni tau_d    [ID: ]
+Date:            2026-10-14        Author:
+Decision:        layer order base < ref_point < run file < --set; explicit overrides win over ref_point. ref_mpr is M2 (eta_bar, J, Delta, no tau_d); ref_ceni sets eta_bar, J, Delta and requires an explicit tau_d_ms in {3, 4.95, 8}; ref_devalle sets eta_bar, J, Delta, tau_d_ms = 5.
+Reason:          section 10.3 says resolve_config merges base, run file and --set and then expands ref_point; read literally, the expansion would overwrite run-file values. The user confirmed that explicit overrides win.
+Options:         literal order (expand after merge); explicit-wins.
+Chosen:          explicit-wins   Default from: new (user confirmed 2026-10-14)
+Evidence:        plan 10.3; Appendix B (ref points, tau_d values). Membership in {3, 4.95, 8} is a restriction of this entry, not of the plan: a ref_ceni run at another tau_d (for example the K10 range up to 50 ms) needs a new entry.
+Test:            test_config.
+Status:          default adopted
+Commit/tag:
+
+## DL-055  run.kind values    [ID: ]
+Date:            2026-10-14        Author:
+Decision:        run.kind takes "mf" and "mf_noisy" at MS1; "network" is added at MS5.
+Reason:          section 10.3 lists the key but gives no values.
+Options:         free string; fixed set.
+Chosen:          fixed set   Default from: new (user accepted 2026-10-14)
+Evidence:        plan 10.3, 10.1 (simulate_mf: run_mf, run_mf_noisy).
+Test:            test_config.
+Status:          default adopted
+Commit/tag:
+
+## DL-056  Dry-run record status    [ID: ]
+Date:            2026-10-14        Author:
+Decision:        --dry-run writes <run_id>_<hash12>.dry.json with status "dry_run"; it is never counted as complete by skip-if-done.
+Reason:          the plan allows ok, failed, timeout; a dry-run record with status ok would be skipped as finished.
+Options:         status ok plus a flag; separate file and status.
+Chosen:          separate file and status   Default from: new (user accepted 2026-10-14)
+Evidence:        plan Table 11.1 (MS1 done-when), 10.4 (statuses).
+Test:            test_runner part 1.
+Status:          default adopted
+Commit/tag:
+
+## DL-057  config_hash key set    [ID: ]
+Date:            2026-10-14        Author:
+Decision:        config_hash covers the sections model, path, solver, noise, network, durations, the key run.kind, and seeds.root_seed and seeds.spawn_key. It excludes analysis, sweep, run.workers, run.id, run.wall_limit_s, output, replication, robustness, budget, seeds.n_seeds.
+Reason:          section 10.3 says "cell parameters, seed spawn key, and solver and numerics settings"; I read this as the inputs of an integration, because drivers only integrate (10.1). seeds.root_seed is added to the spawn key because a spawn key alone does not define the random stream.
+Options:         hash the whole resolved config minus the excluded keys of 10.3.
+Chosen:          integration inputs only   Default from: new (user accepted 2026-10-14)
+Evidence:        plan 10.3, 10.1, 6.6.
+Test:            test_config (independent of key order, workers, paths).
+Status:          default adopted
+Commit/tag:
+
+## DL-058  Per-run wall-time limit key    [ID: ]
+Date:            2026-10-14        Author:
+Decision:        new key run.wall_limit_s (seconds, default null = no limit) until MS3 timing gives predicted times.
+Reason:          section 10.4 requires a per-run limit "for example 10x its predicted time"; no prediction exists before MS3. budget.max_wall_h is the total budget (D36), a different key.
+Options:         fixed default; null until MS3.
+Chosen:          null until MS3   Default from: new (user accepted 2026-10-14)
+Evidence:        plan 10.4, 9.2, Appendix B (budget).
+Test:            test_runner.
+Status:          default adopted
+Commit/tag:
+
+## DL-059  make_param_table format    [ID: ]
+Date:            2026-10-14        Author:
+Decision:        make_param_table returns rows (name, config key, value, units, source/status from Appendix B); no claim of Nordlie sectioning.
+Reason:          section 6.6 and handoff (d) name the function and say "Nordlie-format"; the format is not specified.
+Options:         full Nordlie sections; plain table.
+Chosen:          plain table   Default from: new (user accepted 2026-10-14)
+Evidence:        plan 6.6, Appendix B.
+Test:            test_config (rows carry every resolved key).
+Status:          default adopted
+Commit/tag:
+
+## DL-060  Ramp readings (logistic centre, P5 duration, Delta_factor)    [ID: D21]
+Date:            2026-10-14        Author:
+Decision:        (1) the logistic centre is 0.5: g(x) = (L(k(x - 0.5)) - L(-k/2)) / (L(k/2) - L(-k/2)), L the logistic function. This is an UNSOURCED choice: section 4.4 gives k = 10 and the rescaling but no centre. (2) P5 lasts 2 x T_ramp in total (up over T_ramp, down over T_ramp), hold after that. (3) Delta_factor stays 1.0 in base.yaml; the P4a/P4b values 1.5 and 2/3 are set in run configs.
+Reason:          sections 4.4, 6.2, Appendix B and base.yaml (10.3) leave these open.
+Options:         other centres; P5 doubling each leg.
+Chosen:          as above   Default from: new (user accepted 2026-10-14)
+Evidence:        plan 4.4 (Paths), 6.2 (Durations), Appendix B.
+Test:            test_ramps (1b-i); A7 profile comparison.
+Status:          default adopted
+Commit/tag:
+
+## DL-061  Test-level tolerances    [ID: ]
+Date:            2026-10-14        Author:
+Decision:        tolerances not given by section 10.5 (finite-difference Jacobian check, M3 at tau_d = 1e-3 tau tracking M2) are chosen in the test and stated there and in the sub-step report. The 0.5% of RB9a is the plan's.
+Reason:          section 10.5 requires every test to state its tolerance but gives no value for these.
+Options:         -
+Chosen:          per test   Default from: new (user accepted 2026-10-14)
+Evidence:        plan 10.5.
+Test:            test_models_2d, test_models_3d (1b-i).
+Status:          default adopted
+Commit/tag:
+
+## DL-062  surge_metrics core methods    [ID: D8]
+Date:            2026-10-14        Author:
+Decision:        zero-phase Butterworth band-pass (order 4); Hann periodogram per window with linear detrend, bins summed over the band; cycle count = unwrapped analytic phase / 2 pi while the envelope is at or above the threshold; growth = OLS slope of ln(envelope) over the first 10 cycles from the threshold crossing, with the OLS standard error. The threshold is an argument (A_ref exists from MS6/MS7).
+Reason:          Table 2.1 names the quantities (Hann, linear detrend, Hilbert envelope, 10 cycles, 2 standard errors) but not the filter, the estimator or the cycle-counting method.
+Options:         other filters or orders; Welch; zero-crossing cycle count.
+Chosen:          as above   Default from: new (user accepted 2026-10-14)
+Evidence:        plan Table 2.1, 5.2 A8. CAVEAT: the 2-standard-error test uses plain OLS standard errors on a smooth, autocorrelated envelope, so the standard error is too small and "damped" is too easily declared. To be revisited at MS7 (A8) before classifying noisy runs.
+Test:            test_surge_metrics (1c); revisit at MS7.
+Status:          default adopted; revisit at MS7
+Commit/tag:
+
+## DL-063  New files for the Julia smoke test    [ID: D23]
+Date:            2026-10-14        Author:
+Decision:        add src/mprsurge/analysis/continuation/bk_smoke.jl and julia_io.py (not in the section 10.1 tree). Julia is run by hand, not inside pytest; test_julia_io validates fixtures only.
+Reason:          section 9.1 says a Python step validates the Julia output; section 10.1 names bk_cycles.jl (A5) and test_julia_io but no smoke script or reader module.
+Options:         put the smoke test in bk_cycles.jl; new files.
+Chosen:          new files   Default from: new (user accepted 2026-10-14)
+Evidence:        plan 9.1, 10.1, 10.5.
+Test:            test_julia_io (1d).
+Status:          default adopted
+Commit/tag:
+
+## DL-064  Operational definitions for Table 7.1 gaps (K1, K5, K7, K8)    [ID: D34]
+Date:            2026-10-14        Author:
+Decision:        K8: follow Table 7.1 (mean-field runs start from Devalle's Fig. 3 initial values), although section 6.2 says to start from the fixed point; that applies to this replication run only. K1 (approved by the user): 20 r values uniform on the r-interval where the K1 formula point lies inside the A1 grid (computed from the formula at 1e); pass when the grid edge where the positive-root count changes lies within one cell (0.05, 0.1) of the formula point. K7 (UNVERIFIED, approved by the user with one change): "decays" at 3 ms = max Re(lambda) < 0 (A4) and the G1 rule on the S3 run (the fit window starts at the first of the cycles counted in G, no amplitude threshold, because A_ref exists only from A5 at MS6), growth negative by more than 2 standard errors; "holds within +-2%" at 8 ms = peak-to-peak v of each of the last 10 cycles (min_cycles) of the 10 s S3 run within 2% of their mean. K5: OPEN. No definition is entered; the user checks the primary source before the freeze at 1e. If no usable definition exists, the user decides then and a new entry records the departure from G0 (which lists K5 as blocking).
+Reason:          Table 7.1 gives "20 sampled r" without a range, K5 without a forcing form or burst definition, and K7 without an operational test.
+Options:         guess; enter as non-blocking; hold open.
+Chosen:          as above   Default from: new
+Evidence:        plan 7.1, 3.1 (K5), 6.2, Table 2.1, 5.2 A2/A4. K7 reuses D8, min_cycles and the S3 duration; none of that is sourced for K7. K4 tail fraction 0.1 (UNVERIFIED) is confirmed at 1e and logged then.
+Test:            test_replication (MS2/MS5).
+Status:          partly open (K5)
+Commit/tag:
+
+## DL-065  Provisional eta path and sigma placeholders    [ID: D12]
+Date:            2026-10-14        Author:
+Decision:        new keys path.eta_H (null until A4) and path.eta_path_status (unresolved / provisional / A4). eta_start = eta_H - 1.5 and eta_peak = max(4, eta_H + 2) are derived only from a non-null eta_H. Explicit eta_start and eta_peak (--set) give status "provisional", recorded in the record and the hash. A ramp run with an unresolved path raises an error. noise.sigma is null until the MS5 calibration; mode N refuses to run with it null.
+Reason:          D12 derives the path from eta_H, but A4 does not exist until MS5; section 9.2 says the path is "recorded as such" until then. No value of eta_H is entered.
+Options:         invented eta_H; throwaway Hopf solve at MS3; null plus explicit override.
+Chosen:          null plus explicit override   Default from: new (user chose 2026-10-14)
+Evidence:        plan 3.2 (eta row), 4.4 (P1), 9.2, 6.4, Appendix B.
+Test:            test_config.
+Status:          default adopted
+Commit/tag:

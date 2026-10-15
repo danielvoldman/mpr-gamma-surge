@@ -1,0 +1,32 @@
+# Path-neutral (P2) defaults for the handoff (e) keys and the section 10.3 keys.
+# Plan section 10.3 and Appendix B. Derived keys (path.eta_start, path.eta_peak,
+# path.eta_path_status, path.eps) are filled by resolve_config.
+model:    {type: M3, ref_point: ref_devalle, tau_ms: 10.0, tau_d_ms: 5.0,
+           eta_bar: 4.0, Delta: 0.3, J: -21.0, I_drive: 0.0}
+path:     {name: path_hypoxia, profile: linear, sigmoid_k: 10.0, T_ramp_s: 120.0,
+           t_on_s: 5.0, eta_H: null, eta_start: null, eta_peak: null,
+           J0: -21.0, J_end: 0.0, J_lag_frac: 0.25, J_T_frac: 1.0,
+           I_amp: 0.0, I_rise_frac: 0.1, I_plateau_frac: 0.3, I_fall_frac: 0.1,
+           Delta_factor: 1.0}
+solver:   {method: DOP853, rtol: 1.0e-10, atol: 1.0e-12, max_step_tau: 0.05,
+           dt_out_ms: 1.0, delta0: 1.0e-6}
+noise:    {scheme: Heun, sigma: null, sigma_factor: 1.0, dt_tau: 1.0e-3,
+           floor_levels: null}
+network:  {N: 10000, dt_tau: 1.0e-3, V_peak: 100.0, V_reset: -100.0,
+           het_dist: lorentzian, het_sampling: quantile,
+           init_V_range: [-100.0, 100.0], rate_bin_ms: 1.0, n_raster: 300,
+           exclude_refractory: true}
+durations: {baseline_s: 5.0, hold_s: 10.0, discard_s: 2.0}
+analysis: {band_primary_hz: [25.0, 100.0],
+           bands_secondary_hz: [[25.0, 55.0], [80.0, 150.0]],
+           total_band_hz: [1.0, 150.0], window_rule: D4, window_s: 2.0,
+           taper: hann, rel_factor: 2.0, abs_factor: 2.0, amin_factor: 0.1,
+           min_cycles: 10, collapse_r_frac: 0.1}
+sweep:    {x_name: null, x_values: null, y_name: null, y_values: null,
+           T_ramp_values: null}
+seeds:    {root_seed: 20261008, n_seeds: 10, spawn_key: null}
+run:      {id: null, workers: 1, kind: mf, wall_limit_s: null}
+output:   {dir: results}
+replication: {tolerances_file: configs/replication.yaml}
+robustness: {check_id: null, criteria_file: null, criteria_sha256: null}
+budget:   {max_wall_h: 24.0}
