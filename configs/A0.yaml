@@ -1,0 +1,5 @@
+# A0: replication table K1 to K5 (plan 5.2 A0; MS2 step 2e, DL-091). Reads the A1, A2 and S1 results; tolerances from the frozen replication.yaml.
+run:      {id: A0, kind: a0, workers: 1}
+model:    {type: M2, ref_point: null, tau_ms: 10.0, tau_d_ms: null, eta_bar: -5.0, Delta: 1.0, J: 15.0, I_drive: 0.0}
+path:     {name: I_step, t_on_s: 0.0, I_amp: 3.0}
+robustness: {criteria_file: configs/replication.yaml}

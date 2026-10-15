@@ -27,7 +27,7 @@ ETA_PEAK_OFFSET = 2.0
 
 ETA_STATUSES = ("unresolved", "provisional", "explicit", "A4")  # DL-065, DL-067
 TAU_D_MS_RANGE = (1.0, 50.0)  # D11
-RUN_KINDS = ("mf", "mf_noisy", "a1", "s1", "a2")  # DL-055; "a1", "s1", "a2" are MS2 tasks; "network" is added at MS5
+RUN_KINDS = ("mf", "mf_noisy", "a1", "s1", "a2", "a0")  # DL-055; "a1", "s1", "a2", "a0" are MS2 tasks; "network" is added at MS5
 RAMP_PATH_NAMES = ("path_eta", "path_hypoxia", "path_drive", "path_delta_up",
                    "path_delta_down", "path_updown")  # P1, P2, P3, P4a, P4b, P5
 FORCING_PATH_NAMES = ("I_step", "I_sin")  # MS2 forcing paths for S1 (DL-085 item 4)
@@ -451,6 +451,10 @@ def hash_view(cfg: dict) -> dict:
         from .analysis import ring    # late import: ring imports config
         view["a2"] = {"window": copy.deepcopy(A2_WINDOW), "band_primary_hz": list(cfg["analysis"]["band_primary_hz"]),
                       "upstream_sha256": ring.upstream_sha256s()}     # DL-090
+    if cfg["run"]["kind"] == "a0":      # DL-091: the frozen criteria and the upstream results are inputs
+        from .analysis import replication
+        view["a0"] = {"frozen_sha256": replication.FROZEN_SHA256,
+                      "upstream_sha256": replication.upstream_sha256s()}
     return view
 
 
