@@ -1,0 +1,51 @@
+# Replication targets and tolerances, DRAFT (plan Table 7.1, D34; DL-076).
+# NOT FROZEN: awaiting the user's approval; the tag tolerances-frozen is not created.
+# Values are copied from plan Table 7.1; entries marked UNVERIFIED are not sourced by the plan.
+status: draft
+units: {tau_d: ms, frequency: Hz, time: tau_unless_stated}
+
+K1: {run: A1, pass: "numerical fold within one grid cell of the formula at 20 sampled r (DL-064)",
+     cell: {d_eta_bar: 0.05, d_J: 0.1}, n_r: 20}
+K2: {run: A1, pass: "eigenvalue discriminant changes sign within one cell of eta_f(J); record whether a node region exists (C9)",
+     cell: {d_eta_bar: 0.05, d_J: 0.1}}
+K3: {run: A1, point: {eta_bar_over_Delta: -5.0, J_over_sqrtDelta: 15.0},
+     pass: "exactly a focus, a node and a saddle"}
+K4:
+  run: [S1, A2]
+  mean_field: {tolerance_frequency_rel: 0.02, tolerance_decay_rel: 0.02,
+               tail_fit_fraction: 0.1,        # UNVERIFIED; DL-076 (count at 0.05, 0.1, 0.2)
+               start_state: null}             # open: K3 has a stable node and a stable focus at I = 0 (DL-076)
+  network: {tolerance_rel: 0.05, quantities: [first_three_peak_times, final_r],
+            blocking: false}                  # until a source gives the M2 network coupling (UNVERIFIED, plan 12.4)
+K5: {run: S1, definition: null,               # open: no operational definition entered (ms1_plan)
+     pass: "one burst per period for 5 periods after a 2-period transient (Table 7.1)"}
+K6: {optional: true, entered: false}          # Table 7.1: RB-item 1b PARTIAL
+K7:
+  run: [A4, A5, S3]
+  point: {eta_bar: 1.0, Delta: 0.05, J: -20.0, tau_ms: 10.0}
+  tau_d_H_ms: 4.12                            # UNVERIFIED; A4-derived (DL-074, DL-075), pending user approval
+  tau_d_H_tol_ms: 0.05
+  tau_d_H_paper_ms: 4.95                      # departure from the paper (arXiv v1 only, PARTIAL); not reproduced
+  damped_ms: 3.0
+  sustained_ms: 8.0
+  sustained_tol_rel: 0.02
+  pass: "v decays at 3 ms; holds within 2% at 8 ms; squared amplitude linear in tau_d - tau_d_H; no hysteresis"
+K8: {run: [A4, A6, S3], point: ref_devalle, gamma_ms: 5.0, none_ms: 50.0,
+     network_peak_tol_rel: 0.05, band_hz: [25.0, 100.0], band_blocking: false}
+K9:
+  run: A4
+  eta_bar: [1.0, 2.0, 4.0]
+  delta_c: 0.1453                             # Devalle Eq. 8 (plan 7.1)
+  delta_c_tol: 0.002
+  blocking_on: ratio_scaling                  # if the maximum differs, only the scaling across eta_bar blocks
+  tau_d_search_ms: [1.0, 50.0]
+  no_hopf_for_J_positive: true
+K10:
+  run: A6
+  band_hz: [5.0, 30.0]
+  band_slack_rel: 0.10
+  J_range: [-40.0, -5.0]
+  J_change_max_rel: 0.10
+  tau_d_lower_ms: A4_hopf                     # UNVERIFIED; follows the K7 departure (Table 7.1 has 4.95); DL-076
+  blocking: false
+K11: {run: A4, Delta: 1.0e-4, ratio_tol: 0.01, blocking: false}
