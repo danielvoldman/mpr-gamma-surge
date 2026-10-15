@@ -84,9 +84,8 @@ def test_config_error_returns_2(tmp_path, capsys):
     assert R.main(["--config", str(tmp_path / "missing.yaml"), "--dry-run"]) == 2
 
 
-def test_real_run_without_task_module_is_reported(tmp_path, capsys):
-    if R.importlib.util.find_spec("mprsurge.simulate_mf") is not None:
-        pytest.skip("simulate_mf exists")
+def test_real_run_without_task_module_is_reported(tmp_path, capsys, monkeypatch):
+    monkeypatch.setitem(R.TASKS, "mf", "mprsurge.no_such_module:run")
     assert R.main(["--config", str(write_cfg(tmp_path))]) == 2
     assert "not available" in capsys.readouterr().err
 

@@ -742,5 +742,5 @@ Options:         wall limit by a parent hard kill; a chunked solve_ivp (changes 
 Chosen:          as above   Default from: new
 Evidence:        plan 6.2, 6.4, 6.6, 10.4, 10.5, Table 7.1 (K8).
 Test:            test_noise, test_simulate_mf, test_units (RB9a), test_runner part 2.
-Status:          default adopted (to be confirmed by the user at the 1b-ii report)
+Status:          confirmed by the user at 1c. Item 4 accepted as UNVERIFIED: dv = f dt + sigma dW with t in units of tau, so sigma has units of v per sqrt(tau) (v is dimensionless); sigma is calibrated at MS5. Item 7: the start-state selector is deferred to MS2, when the S3 config is written. Item 10: heartbeat unchanged.
 Commit/tag:

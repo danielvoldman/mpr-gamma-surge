@@ -34,6 +34,17 @@ def test_ou_stationary_variance_matches_sigma2_over_2k():
     assert abs(v.mean()) < 5 * np.sqrt(sigma**2 / (2 * k) / (len(v) / 25))   # mean zero, loose
 
 
+def test_validation_drift_kind_is_not_selectable_from_a_config(monkeypatch):
+    # kind 2 (OU drift) is test-only (DL-072 item 6): run_mf_noisy derives kind from model.type.
+    seen = []
+    real = S._run_chunks
+    monkeypatch.setattr(S, "_run_chunks", lambda rng, y, kind, *a, **k: (seen.append(kind), real(rng, y, kind, *a, **k))[1])
+    S.run_mf_noisy(cfg_n())
+    S.run_mf_noisy(C.resolve_config(None, {**SHORT, "model.type": "M2", "model.ref_point": "ref_mpr", "model.J": -5.0,
+                                           "path.eta_start": -1.0, "path.eta_peak": 0.0}))
+    assert sorted(seen) == [0, 1]
+
+
 def test_same_spawn_key_same_stream_and_other_key_differs():
     a = S.run_mf_noisy(cfg_n())["arrays"]
     b = S.run_mf_noisy(cfg_n())["arrays"]
