@@ -968,3 +968,14 @@ Evidence:        subagent report of 2026-10-15; docs/ms2_gate_report.md.
 Test:            none.
 Status:          open for (1) to (5), none blocking; (6) informational
 Commit/tag:      the 2f commit (see git log)
+
+## DL-093  User rulings on DL-092 (2) and (3): D8 2-SE rule scope, cusp halving accepted as a limitation    [ID: D8, D31, D34]
+Date:            2026-10-15        Author:
+Decision:        (a) In the A2 ring map the D8 "damped only if negative by more than 2 SE" rule reduces to Re lambda < 0, because the linearised standard error is 0 (DL-089 (3), DL-092 (2)). The 2-SE rule applies to fitted growth of simulated envelopes (A3, S2, S3); G1 at MS4 uses those. The linear ring map is not used as the G1 growth evidence. (b) The cusp halving (Table 6.2 / D31) is accepted as a recorded limitation (DL-086, DL-092 (3)). The cusp position is known to about 2.5 base J cells and 1.5 eta_bar cells; this is stated in any figure or claim about the cusp. No further refinement now.
+Reason:          user rulings of 2026-10-15 closing DL-092 (2) and (3).
+Options:         fit simulated rings for the map; refine the cusp further (neither chosen).
+Chosen:          as above   Default from: user ruling
+Evidence:        DL-086, DL-089, DL-092; plan 4.3 G1, D8, D31, Table 6.2.
+Test:            none (docs only).
+Status:          done; DL-092 (2) and (3) closed
+Commit/tag:      the commit that adds this entry
