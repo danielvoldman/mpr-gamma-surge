@@ -1253,3 +1253,16 @@ Evidence:        scripts/check_A3_G1.py, results/A3/ (git-ignored), results/A1/a
 Test:            fast suite green (226 passed, 1 xfailed). No new test (script prints from existing functions).
 Status:          done (4e); 4f and the G1 move decision wait for the user
 Commit/tag:      the commit that adds this entry
+
+## DL-111  User ruling after DL-110: gate G1 judged on S2 alone; project moves from M2 to M3, M2 kept as the damped-ring comparison    [ID: D8, D12, T06]
+Date:            2026-10-16        Author:
+Decision:        Gate G1 is judged on S2 alone (DL-107 (c)). S2 gave no non-damped episode in G: all 13 ramps are damped (DL-110). By the plan's own rule (4.3, D8) the project moves from M2 to M3, and M2 is kept as the damped-ring comparison. This is the plan's expected outcome [reasoned, not tested in the plan]. No plan text, D-item, model, surge class, path or control is changed.
+Basis:           One path only (J = 15, Delta = 1, tau = 10 ms, I = 0, linear ramp); other M2 paths were not run. The call rests on our own definitions, UNVERIFIED: the jump definition (DL-108), the G band 25 to 100 Hz and the output sampling (DL-107 (b)), and damped / non_damped as the ring class.
+Caveats:         DL-062: the plain OLS standard error is too small, so damped is declared too easily. DL-073: the step-onset filter bias distorts the rate magnitude, not the sign in the case tried (about 45 percent in that case, ms4_plan.md). The 2, 5, 10 ms window-shift test (DL-110, rate moves up to about 16 percent, sign unchanged) is a window-start sensitivity, not a bound on the DL-073 bias. Both stay open; the fix is deferred to MS7 (DL-083 (2)). The margin (rate/SE at least 45 in magnitude, at least 21.6 under window shifts) is large, but the SE values are not trustworthy as written.
+Reason:          project owner ruling after DL-110.
+Options:         -
+Chosen:          as above   Default from: user ruling; plan 4.3 G1, D8
+Evidence:        DL-107, DL-110, results/A3/a3_sn_ramp.parquet (git-ignored).
+Test:            no code change.
+Status:          done; MS4 gate report and fresh-context review next
+Commit/tag:      the commit that adds this entry
