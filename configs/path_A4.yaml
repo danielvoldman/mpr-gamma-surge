@@ -1,0 +1,5 @@
+# eta_H from A4 (MS5 step 5c, DL-115): the lowest Hopf crossing along eta_bar at ref_devalle (J -21, Delta 0.3, tau_d 5 ms),
+# results/A4/a4_hopf_curves.npz, record A4_0000_4ece63ed731f. Layer over a ref_devalle P1/P2 run file in place of explicit
+# eta_start / eta_peak: resolve_config then sets eta_start = eta_H - 1.5, eta_peak = max(4, eta_H + 2) and status "A4" (D12).
+# Not yet layered into configs/S5.yaml or the timing cells: that is step 5i (their hashes and tests carry "provisional").
+path:     {eta_H: 2.8960461989737856}

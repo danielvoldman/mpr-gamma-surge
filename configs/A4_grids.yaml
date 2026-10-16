@@ -1,0 +1,35 @@
+# A4 grids and K-check protocol (plan 5.2 A4, 7.1; DL-113, DL-114). Read by analysis/hopf.py and hashed into the a4 run
+# (config.hash_view). Not a run config: the run config is configs/A4.yaml.
+# Every spacing and range below is a working value, UNVERIFIED; the plan sets none.
+points:                                       # (eta_bar, Delta, J) of the validation points (plan Table 3.2)
+  ref_ceni:    {eta_bar: 1.0, Delta: 0.05, J: -20.0}
+  ref_devalle: {eta_bar: 4.0, Delta: 0.3,  J: -21.0}
+grids:
+  eta_bar:  {lo: -10.0, hi: 10.0, n: 801}     # scan for the lowest Hopf crossing; spacing 0.025 is the working "A4 grid step" of A7 and RB3(a), UNVERIFIED, fixed at MS7
+  tau_d_ms: {lo: 1.0, hi: 50.0, n: 30, spacing: log}   # D11 range
+  Delta:    {lo: 0.01, hi: 1.0, n: 100, spacing: log}
+  J:        {lo: -40.0, hi: -0.5, n: 80}
+  tau_d_line: {lo: 1.0, hi: 50.0, n: 491}     # ref_ceni tau_d line for K7 and K10 (crossings refined by brentq)
+k9:
+  eta_bar: [1.0, 2.0, 4.0]
+  tau_d_ms_range: [1.0, 50.0]                 # D11
+  J_range: [-40.0, -0.5]                      # working range, UNVERIFIED; widened by the Table 7.1 rule at most twice
+  n_tau: 16
+  n_J: 16
+  n_ratio: 120
+  ratio_max: 0.5
+  max_widen: 2
+  edge_frac: 0.01                             # maximiser within this fraction of a bound counts as on the edge, UNVERIFIED
+jpos:                                         # 'no Hopf for J > 0' (K9); working protocol, UNVERIFIED
+  J: {lo: 0.5, hi: 40.0, n: 20}
+  tau_d_ms: [1.0, 5.0, 10.0, 50.0]
+  Delta: [0.05, 0.3, 1.0]
+k10:                                          # frequency over the oscillatory tau_d interval at ref_ceni; working protocol, UNVERIFIED
+  n_tau: 64
+  J_values: [-40.0, -30.0, -20.0, -10.0, -5.0]
+  tau_d_ms: [8.0, 20.0, 40.0]                 # tau_d values for the J-independence check (used when inside the interval)
+k11:                                          # J -> 0- branch: Hopf along J at each (eta_bar, tau_d); working protocol, UNVERIFIED
+  Delta: 1.0e-4
+  eta_bar: [0.5, 1.0, 2.0, 4.0, 8.0]
+  tau_d_ms: [1.0, 5.0, 10.0, 50.0]
+  absJ: {lo: 1.0e-4, hi: 40.0, n: 400}        # |J|, log spacing

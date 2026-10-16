@@ -1,25 +1,6 @@
-# A4: M3 fixed points and Hopf curves (plan 5.2 A4; MS5 step 5b, DL-113). Grids for analysis/hopf.py; read by scripts/run_A4.py at 5c.
-# Not a run config yet: the a4 run kind is optional (ms5_plan 5b) and is not added.
-# Every spacing below is a working value, UNVERIFIED; the plan sets none.
-run:      {id: A4, kind: a4}
-model:    {tau_ms: 10.0}
-points:                                       # (eta_bar, Delta, J) of the validation points (plan Table 3.2)
-  ref_ceni:    {eta_bar: 1.0, Delta: 0.05, J: -20.0}
-  ref_devalle: {eta_bar: 4.0, Delta: 0.3,  J: -21.0}
-grids:
-  eta_bar:  {lo: -10.0, hi: 10.0, n: 801}     # scan for the lowest Hopf crossing; spacing 0.025 is the working "A4 grid step" of A7 and RB3(a), UNVERIFIED, fixed at MS7
-  tau_d_ms: {lo: 1.0, hi: 50.0, n: 30, spacing: log}   # D11 range
-  Delta:    {lo: 0.01, hi: 1.0, n: 100, spacing: log}
-  J:        {lo: -40.0, hi: -0.5, n: 80}
-k9:
-  eta_bar: [1.0, 2.0, 4.0]
-  tau_d_ms_range: [1.0, 50.0]                 # D11
-  J_range: [-40.0, -0.5]                      # working range, UNVERIFIED; widened by the Table 7.1 rule at most twice
-  n_tau: 16
-  n_J: 16
-  n_ratio: 120
-  ratio_max: 0.5
-  max_widen: 2
-  edge_frac: 0.01                             # maximiser within this fraction of a bound counts as on the edge, UNVERIFIED
-k11: {Delta: 1.0e-4}
+# A4: M3 fixed points and Hopf curves (plan 5.2 A4; MS5 step 5c, DL-114). Run config for the a4 kind.
+# The grids and the K-check protocol are in configs/A4_grids.yaml (working values, UNVERIFIED); config.hash_view
+# adds them to the hash. The model block names the reference point only; A4 scans its own parameters.
+run:      {id: A4, kind: a4, workers: 1}
+model:    {type: M3, ref_point: ref_devalle, tau_ms: 10.0, tau_d_ms: 5.0}
 robustness: {criteria_file: configs/replication.yaml}

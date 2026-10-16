@@ -1292,3 +1292,33 @@ Evidence:        tests/test_hopf.py; docs/ms5_plan.md.
 Test:            fast suite green (234 passed, 1 xfailed).
 Status:          done (5b); 5c waits for the user
 Commit/tag:      the commit that adds this entry
+
+## DL-114  Owner ruling: the a4 run kind; MS5 5c code (analysis/hopf.run_a4, scripts/run_A4.py, configs/A4_grids.yaml)    [ID: D34, T05, CP15, CP26]
+Date:            2026-10-16        Author:
+Decision:        "a4" is added to config.RUN_KINDS (owner ruling), so A4 runs through the runner, the provenance record and the config hash. Run config configs/A4.yaml now holds only schema sections (run, model ref_devalle, robustness); the grids and K-check protocol moved unchanged to configs/A4_grids.yaml, and config.hash_view adds them to the hash for kind a4 (as DL-090 and DL-091 do for a2 and a0). Task: mprsurge.analysis.hopf:run_a4; driver scripts/run_A4.py publishes results/A4/a4_hopf_curves.npz. The grid values are the 5b working values, unchanged (UNVERIFIED).
+Added working protocols (ours, UNVERIFIED; the plan gives none): Hopf planes traced at the ref_devalle values of the other two parameters; K8 'oscillatory' = fixed point unstable with a complex pair at tau_d = 5 ms, 'not at 50 ms' = fixed point stable (the limit cycle itself is S3, step 5d); K9 'no Hopf for J > 0' = no crossing with a1, a3 > 0 on a 20 (J in 0.5..40) x 4 (tau_d 1, 5, 10, 50 ms) x 3 (Delta 0.05, 0.3, 1) set of eta_bar scans; K10 = frequency of the leading complex pair over the oscillatory tau_d interval at ref_ceni (64 points), J dependence as (max - min)/mean over J in {-40, -30, -20, -10, -5} at tau_d 8, 20, 40 ms; K11 = Hopf crossing nearest J = 0- along J at Delta = 1e-4 for eta_bar {0.5, 1, 2, 4, 8} x tau_d {1, 5, 10, 50} ms.
+Reason:          owner ruling; MS5 5c of docs/ms5_plan.md.
+Options:         -
+Chosen:          as above   Default from: owner ruling; plan 5.2 A4
+Evidence:        tests/test_hopf.py (run kind, hash covers grids, toy-grid compute and evaluate).
+Test:            fast suite green (237 passed, 1 xfailed).
+Status:          done
+Commit/tag:      the commit that adds this entry
+
+## DL-115  MS5 5c: A4 run on the full grids, K7 to K11 values, eta_H, path status    [ID: D12, D34, T05, CP15, CP26, K7, K8, K9, K10, K11]
+Date:            2026-10-16        Author:
+Decision:        A4 run on the full configs/A4_grids.yaml grids, record results/A4/A4_0000_4ece63ed731f.json, status ok, wall 75.8 s (git-ignored outputs). No grid was tuned. Numbers:
+  eta_H (ref_devalle, J -21, Delta 0.3, tau_d 5 ms) = 2.896046 (Im lambda 2.011 /tau). This equals the DL-098 scan value, and the scanned values of the map cells checked (Delta 0.01 and 0.6; tau_d 1, 5, 50 ms) agree with A4 to 6 digits. Path status: the headline P2 path is now A4 (configs/path_A4.yaml: eta_H, giving eta_start 1.396046 and eta_peak 4.896046, the numbers already used). configs/S5.yaml and the timing cells still say provisional until 5i (their hashes and tests pin it); the old and new paths are the same to 6 digits, so no verdict moves.
+  K7: tau_d_H at ref_ceni = 4.1209 ms; against the approved 4.12 +/- 0.05 (UNVERIFIED): pass; against the paper's 4.95: -0.829 ms, outside 0.05 (information; the DL-079 departure stands). Fixed point is a stable focus at 3 ms (Re -0.054) and unstable at 8 ms (Re +0.084): linear stability only; the decay and the 2 percent hold are S3 (5d); the amplitude half is not judged (deferred to MS6, DL-113). No upper Hopf crossing up to 50 ms.
+  K8: at ref_devalle the fixed point is unstable with a complex pair at 5 ms (Re +0.214 /tau, linear frequency 36.1 Hz) and stable at 50 ms (Re -0.069); the Hopf crossings along tau_d at eta_bar = 4 are at 1.756 and 36.79 ms; no Hopf for J > 0 in 240 cases. Pass (existence). Band 25 to 100 Hz: 36.1 Hz is inside (non-blocking; linear estimate, the cycle frequency is S3).
+  K9: largest Delta/eta_bar 0.145309 at eta_bar = 1 (maximiser tau_d 10.06 ms, J -5.31), 2 (7.11 ms, -7.52) and 4 (5.03 ms, -10.63); spread 1.7e-15 (tolerance 0.002): ratio scaling passes; maximum matches 0.1453 within 0.002. All maximisers inside the ranges searched (tau_d 1 to 50 ms, J -40 to -0.5): no edge, no widening, none asymptotic. Pass.
+  K11: Im lambda/(2 pi r*) on the J -> 0- branch at Delta = 1e-4: 20 of 20 branches found (J_H from -0.0005 to -0.0064), largest deviation from 1 is 7.1e-4 (tolerance 0.01). Pass (non-blocking).
+  K10 (non-blocking): oscillatory interval 4.12 to 50 ms (end of range, not a Hopf point); frequency 21.0 down to 10.7 Hz, monotone decreasing, inside 5 to 30 Hz +/- 10 percent. J dependence FAILS the 10 percent limit: relative change over J -40 to -5 is 13.4 percent at 8 ms, 25.0 percent at 20 ms, 42.2 percent at 40 ms. By the plan this is non-blocking; K10 is re-checked from A6 at MS6 (DL-113 (c)). The definition of the J change is ours (UNVERIFIED). No debugging was started.
+Basis:           Table 7.1; DL-113 rulings; the K10 and K11 protocols are ours (DL-114).
+Reason:          instruction of the project owner; 5c of docs/ms5_plan.md. All blocking A4 checks (K7 existence parts, K8 existence, K9) pass; no debugging round used.
+Options:         -
+Chosen:          as above   Default from: plan Table 7.1; DL-113
+Evidence:        results/A4/a4_hopf_curves.npz sha256 affbddcac9ae21954a59e4309c13a7caa097397ae38461ba7a15dea7490a5dc4; record A4_0000_4ece63ed731f.json.
+Test:            fast suite green (237 passed, 1 xfailed).
+Status:          done (5c); 5d waits for the user
+Commit/tag:      the commit that adds this entry

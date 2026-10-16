@@ -76,7 +76,45 @@ def test_k9_maximiser_near_0p1453_and_edge_widening():
 
 
 def test_a4_yaml_grids_match_plan_ranges():
-    cfg = yaml.safe_load((C.repo_root() / "configs" / "A4.yaml").read_text())
+    cfg = H.load_a4_params()
     assert cfg["grids"]["tau_d_ms"]["lo"] == 1.0 and cfg["grids"]["tau_d_ms"]["hi"] == 50.0
     assert cfg["k9"]["eta_bar"] == [1.0, 2.0, 4.0] and cfg["k9"]["max_widen"] == 2
+    assert cfg["k9"]["edge_frac"] == H.EDGE_FRAC
     assert cfg["points"]["ref_devalle"] == {"eta_bar": 4.0, "Delta": 0.3, "J": -21.0}
+
+
+def test_a4_run_kind_and_hash_covers_grids(monkeypatch):
+    assert "a4" in C.RUN_KINDS
+    cfg = C.resolve_config(C.repo_root() / "configs" / "A4.yaml", {})
+    h0 = C.config_hash(cfg)
+    params = H.load_a4_params()
+    params["k9"]["n_J"] += 1
+    monkeypatch.setattr(H, "load_a4_params", lambda: params)
+    assert C.config_hash(cfg) != h0
+
+
+def test_compute_a4_toy_grids_and_evaluate():
+    P = H.load_a4_params()
+    P["grids"].update(eta_bar={"lo": -10.0, "hi": 10.0, "n": 81}, tau_d_ms={"lo": 1.0, "hi": 50.0, "n": 4, "spacing": "log"},
+                      Delta={"lo": 0.05, "hi": 0.5, "n": 4, "spacing": "log"}, J={"lo": -40.0, "hi": -5.0, "n": 4},
+                      tau_d_line={"lo": 1.0, "hi": 50.0, "n": 99})
+    P["k9"].update(eta_bar=[1.0], n_tau=6, n_J=6, n_ratio=40)
+    P["jpos"] = {"J": {"lo": 1.0, "hi": 10.0, "n": 2}, "tau_d_ms": [5.0], "Delta": [0.3]}
+    P["k10"].update(n_tau=8)
+    P["k11"].update(eta_bar=[1.0], tau_d_ms=[5.0])
+    arrays, S = H.compute_a4(P, 10.0, 5.0)
+    assert S["eta_H"] == pytest.approx(2.896046, abs=2e-3)       # 81-point eta grid, brentq-refined
+    assert arrays["curve_tau_d_ms"].shape == arrays["curve_tau_d_eta_H"].shape == (4,)
+    assert S["ceni_hopf_tau_d_ms"][0] == pytest.approx(4.12, abs=0.05)
+    assert S["jpos"]["n_hopf"] == 0
+    v = H.evaluate_a4(S, yaml.safe_load((C.repo_root() / "configs" / "replication.yaml").read_text()))
+    assert v["K7"]["pass"] and v["K8"]["pass"] and v["K11"]["pass"] and v["K9"]["maxima"]["1.0"] == pytest.approx(0.1453, abs=0.002)
+
+
+def test_path_A4_fragment_gives_status_A4_and_the_d12_path():
+    frag = yaml.safe_load((C.repo_root() / "configs" / "path_A4.yaml").read_text())
+    cfg = C.resolve_config({"model": {"ref_point": "ref_devalle", "tau_d_ms": 5.0},
+                            "path": {"name": "path_hypoxia", "T_ramp_s": 120.0, **frag["path"]}}, {})
+    assert cfg["path"]["eta_path_status"] == "A4"
+    assert cfg["path"]["eta_start"] == pytest.approx(1.396046, abs=1e-6)     # the DL-098 provisional values
+    assert cfg["path"]["eta_peak"] == pytest.approx(4.896046, abs=1e-6)
