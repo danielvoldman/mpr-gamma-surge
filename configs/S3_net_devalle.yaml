@@ -1,0 +1,10 @@
+# S3 network, ref_devalle cells (plan 6.2 S3, 7.1 K8): N = 1e4, tau_d 5 and 50 ms, 10 s after the 2 s discard. See S3_net_ceni.yaml.
+# Outputs: results/S3/net_devalle/.
+run:      {id: net_devalle, kind: network, workers: 10}
+model:    {type: M3, ref_point: ref_devalle, tau_ms: 10.0, tau_d_ms: 5.0}
+path:     {name: I_step, I_amp: 0.0, t_on_s: 0.0}
+network:  {N: 10000}
+sweep:    {x_name: model.tau_d_ms, x_values: [5.0, 50.0]}
+durations: {hold_s: 10.0}
+seeds:    {n_seeds: 1}
+output:   {dir: results/S3}

@@ -1,0 +1,11 @@
+# S3 network, ref_ceni cells (plan 6.2 S3, 7.1 K7; MS5 step 5g): N = 1e4, tau_d 3, 4.95, 8 ms, 10 s after the 2 s discard.
+# Constant parameters as configs/S3_ceni.yaml (I_step with I_amp 0, t_on 0). One seed (spawn_key [0]); network start V(0) uniform, s(0) = 0.
+# 10 workers = the concurrency measured in DL-118. Outputs: results/S3/net_ceni/.
+run:      {id: net_ceni, kind: network, workers: 10}
+model:    {type: M3, ref_point: ref_ceni, tau_ms: 10.0, tau_d_ms: 4.95}
+path:     {name: I_step, I_amp: 0.0, t_on_s: 0.0}
+network:  {N: 10000}
+sweep:    {x_name: model.tau_d_ms, x_values: [3.0, 4.95, 8.0]}
+durations: {hold_s: 10.0}
+seeds:    {n_seeds: 1}
+output:   {dir: results/S3}

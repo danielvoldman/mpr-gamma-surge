@@ -76,3 +76,44 @@ def judge_k8(cells: dict, delta0: float) -> dict:
             "fixed_point_at_50ms": off["decays"], "v_ptp_final_s_50ms": off["v_ptp_final_s"],
             "f_fft_hz": f, "f_cross_hz": on["f_cross_hz"],
             "in_band": bool(BAND_HZ[0] <= f <= BAND_HZ[1]), "pass": bool(cycle and off["decays"])}
+
+
+# --- network readouts (MS5 step 5g, DL-119). Definitions are ours and UNVERIFIED; the plan gives K8 only
+# 'network peak within 5%' and no network criterion for K7 or K9. ---
+K8_NET_TOL = 0.05        # Table 7.1 K8: 'Network peak within 5%'; 'peak' read as the spectral peak frequency (ours)
+
+
+def sine_fit_ptp(t_ms, x, f_hz, window_s=WINDOW_S):
+    """Peak-to-peak (2 A) of the least-squares sinusoid of frequency f_hz fitted to x over the final window."""
+    seg, ts = _final(t_ms, x, window_s), _final(t_ms, t_ms, window_s) * 1e-3
+    if not np.isfinite(f_hz):
+        return float("nan")
+    M = np.column_stack([np.ones_like(ts), np.cos(2 * np.pi * f_hz * ts), np.sin(2 * np.pi * f_hz * ts)])
+    c = np.linalg.lstsq(M, seg, rcond=None)[0]
+    return float(2.0 * np.hypot(c[1], c[2]))
+
+
+def evaluate_net_cell(t_ms, r, v) -> dict:
+    """Readouts of one network run (r_N per bin in 1/tau): final-window mean and std of r_N, peak frequency
+    (FFT, crossing count), fitted peak-to-peak at the FFT peak, and the plain peak-to-peak (inflated by the
+    finite-N bin noise)."""
+    seg = _final(t_ms, r)
+    f_fft, f_cross = peak_frequency_hz(t_ms, r)
+    return {"r_mean": float(seg.mean()), "r_std": float(seg.std()), "r_ptp": float(np.ptp(seg)),
+            "r_fit_ptp": sine_fit_ptp(t_ms, r, f_fft), "v_mean": float(_final(t_ms, v).mean()),
+            "f_fft_hz": f_fft, "f_cross_hz": f_cross}
+
+
+def compare_to_mf(net: dict, mf: dict) -> dict:
+    """Difference of a network cell to its mean-field cell (both from evaluate_net_cell / evaluate_cell + fit)."""
+    rel = lambda a, b: float((a - b) / b) if b else float("nan")
+    return {"f_net_hz": net["f_fft_hz"], "f_mf_hz": mf["f_fft_hz"], "f_diff_hz": net["f_fft_hz"] - mf["f_fft_hz"],
+            "f_rel_diff": rel(net["f_fft_hz"], mf["f_fft_hz"]),
+            "r_mean_rel_diff": rel(net["r_mean"], mf["r_mean"]),
+            "r_fit_ptp_rel_diff": rel(net["r_fit_ptp"], mf["r_fit_ptp"])}
+
+
+def judge_k8_net(cmp5: dict) -> dict:
+    """K8 network (N = 5e4): spectral peak within K8_NET_TOL of the mean-field peak."""
+    return {"f_net_hz": cmp5["f_net_hz"], "f_mf_hz": cmp5["f_mf_hz"], "rel_diff": cmp5["f_rel_diff"],
+            "tol": K8_NET_TOL, "pass": bool(abs(cmp5["f_rel_diff"]) <= K8_NET_TOL)}

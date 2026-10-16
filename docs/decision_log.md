@@ -1377,3 +1377,29 @@ Evidence:        results/timing/clean/net_*.json, net_*/workers_{6,8,10}.json, l
 Test:            fast suite green (255 passed, 1 xfailed) on the code commit 4726e08; this entry changes docs only.
 Status:          done (5f); 5g waits for the user
 Commit/tag:      the commit that adds this entry
+
+## DL-119  MS5 5g: S3 network runs, K8 at N = 5x10^4, network parts of K7 to K9, K4-net status    [ID: D28, K7, K8, K9, K4, T51]
+Date:            2026-10-16        Author:
+Decision:        Network runs with qif_network (DL-117), kind network, configs/S3_net_ceni.yaml (ref_ceni, tau_d 3, 4.95, 8 ms), configs/S3_net_devalle.yaml (ref_devalle, 5, 50 ms), both N = 1e4, and configs/S3_net_k8.yaml (ref_devalle, 5 ms, N = 5e4). Each 10 s after the 2 s discard, constant parameters (I_step, I_amp 0, t_on 0 as the 5d cells), one seed (spawn_key [0], root 20261008), 10 workers (DL-118); the three configs are launched together by scripts/run_S3.py --network, which writes results/S3/s3_net_summary.json next to s3_mf_summary.json (git-ignored; records net_ceni_0000_3f4561d07a32, _0001_1d7353d4b3fc, _0002_73624487461f, net_devalle_0000_82a8c8cca980, _0001_0bdf9ad62b84, net_k8_0000_6d90ef8de3c5; all status ok). Readouts in analysis/s3.py (ours, UNVERIFIED): final 4 s, FFT peak frequency of r_N (as the mean-field 5d readout), r_N mean, fitted sinusoid peak-to-peak at the FFT peak (the plain peak-to-peak is inflated by bin noise). The same readouts are applied to the mean-field series, and the difference is network minus mean field over mean field. Network start V(0) uniform, s(0) = 0 (5e), not the mean-field 5d start.
+Wall time:       71.0 s for all six runs, run together on 6 processes; the 50000-neuron run took 69 s (6e10 updates, 8.7e8 /s) and sets the wall; the 1e4 runs took 16.5 to 17.4 s. The 5f combined row (471 s) holds S8, S10, S12 and sigma as well and is not comparable; its S3 and K8 parts were 11.9 s each with perfect packing over 10 workers (23.8 s). The measured 71 s is 3 times that, because the single 5e4 run cannot be split. Within the launch rule and the 0.75 h limit by a large margin.
+Numbers (net / mean field; frequency Hz, r_N mean in 1/tau, fitted r peak-to-peak in 1/tau):
+  ref_ceni 8 ms:    f 18.00 / 17.96 (+0.2 percent); mean 0.0915 / 0.0884 (+3.6); ptp 0.278 / 0.261 (+6.8).
+  ref_ceni 4.95 ms: f 20.62 / 20.53 (+0.5); mean 0.0761 / 0.0704 (+8.1); ptp 0.193 / 0.163 (+18.3).
+  ref_ceni 3 ms:    mean 0.05001 / 0.05003 (-0.04); no mean-field oscillation. Network r_N std 0.0067, fitted ptp at the largest FFT line (23.1 Hz) 0.0016 (finite-N noise), 170 times below the 8 ms cycle.
+  ref_devalle 5 ms, N = 1e4: f 36.33 / 36.27 (+0.2); mean 0.2628 / 0.2602 (+1.0); ptp 0.767 / 0.750 (+2.4).
+  ref_devalle 5 ms, N = 5e4: f 36.24 / 36.27 (-0.09); mean 0.2625 / 0.2602 (+0.9); ptp 0.761 / 0.750 (+1.5).
+  ref_devalle 50 ms: mean 0.1786 / 0.1788 (-0.13); fixed point in the mean field; network r_N std 0.0108 (noise).
+Checks:
+  K8 network (blocking, Table 7.1 'network peak within 5%'; N = 5e4): peak 36.24 Hz against 36.27 Hz, difference -0.09 percent, tolerance 5 percent (plan): PASS. 'Peak' is read as the spectral peak frequency, ours, UNVERIFIED. The amplitude differences above are information, not a check. The 25 to 100 Hz band (non-blocking): 36.24 Hz inside. The 50 ms network cell sits at the mean-field rate with noise only: information.
+  K7 network: the plan gives no network criterion (K7's 'decays at 3 ms, holds within 2 percent at 8 ms' is the mean-field reading of 5d; a finite-N run neither decays to zero nor holds to 2 percent). NOT JUDGED. Information as above: the network oscillates at 8 and 4.95 ms with the mean-field frequency within 0.5 percent and is at the fixed-point rate with only noise at 3 ms. A proposed reading, UNVERIFIED and not used: 8 ms fitted ptp above 10 times the 3 ms fitted ptp (here 174 times).
+  K9 network: the plan has no network part (K9 is A4 only, Table 7.1). Nothing run. The A4 verdict of DL-115 stands.
+  K4-net: not run, M2 network coupling unsourced (open item 1, T51); non-blocking (DL-113). No source was supplied.
+  K7 amplitude half: deferred to MS6 (DL-113). Sigma: not judged here (5h).
+  No blocking check failed; no debugging round used.
+Reason:          instruction of the project owner; 5g of docs/ms5_plan.md.
+Options:         one runner call for all six cells (the sweep covers one axis and one N only) against three configs launched together (chosen).
+Chosen:          as above   Default from: plan 6.2 S3, Table 7.1 K8; DL-113, DL-118
+Evidence:        tests/test_s3_config.py (network cells, readouts, K8 judgement on synthetic signals); results/S3/s3_net_summary.json.
+Test:            fast suite green (256 passed, 1 xfailed).
+Status:          done (5g); 5h waits for the user
+Commit/tag:      the commit that adds this entry

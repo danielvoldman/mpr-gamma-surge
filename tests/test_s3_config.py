@@ -52,3 +52,23 @@ def test_readouts_on_synthetic_signals():
     flat = np.full_like(t, 2.0)
     f = s3.evaluate_cell(t, flat, flat, 1e-6)
     assert f["decays"] and not f["grown"] and np.isnan(f["f_fft_hz"])
+
+
+def test_network_cells_and_readouts():
+    """MS5 5g (DL-119): network configs (N, cells, 10 workers) and the network readouts on synthetic signals."""
+    ce, de, k8 = (R.build_plan(f"configs/S3_net_{n}.yaml") for n in ("ceni", "devalle", "k8"))
+    assert [c["cfg"]["model"]["tau_d_ms"] for c in ce.cells] == [3.0, 4.95, 8.0]
+    assert [c["cfg"]["model"]["tau_d_ms"] for c in de.cells] == [5.0, 50.0]
+    assert [(c["cfg"]["network"]["N"], c["cfg"]["model"]["tau_d_ms"]) for c in k8.cells] == [(50000, 5.0)]
+    for p in (ce, de, k8):
+        assert p.cfg["run"]["workers"] == 10 and all(c["cfg"]["run"]["kind"] == "network" for c in p.cells)
+        assert all(c["cfg"]["seeds"]["spawn_key"] == [0] for c in p.cells)
+    t = np.arange(1.0, 10001.0)
+    rng = np.random.default_rng(0)
+    r = lambda f: 0.2 + 0.3 * np.sin(2 * np.pi * f * t / 1e3) + 0.02 * rng.standard_normal(t.size)
+    net, mf = s3.evaluate_net_cell(t, r(37.0), r(37.0)), s3.evaluate_net_cell(t, r(36.0), r(36.0))
+    assert net["r_fit_ptp"] == pytest.approx(0.6, rel=0.02) and net["r_mean"] == pytest.approx(0.2, abs=0.01)
+    j = s3.judge_k8_net(s3.compare_to_mf(net, mf))
+    assert j["rel_diff"] == pytest.approx(37.0 / 36.0 - 1, abs=0.005) and j["pass"] and j["tol"] == 0.05
+    far = s3.evaluate_net_cell(t, r(40.0), r(40.0))
+    assert not s3.judge_k8_net(s3.compare_to_mf(far, mf))["pass"]
