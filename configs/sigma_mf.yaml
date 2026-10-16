@@ -1,0 +1,11 @@
+# Sigma calibration, mean-field noisy runs (plan 6.4; MS5 step 5h, DL-120): same state as sigma_net.yaml, mode N
+# (Heun, dt 1e-3 tau). The sigma axis is overridden by scripts/calibrate_sigma.py (trial values, then the fitted
+# value); the value below is a trial and is not the calibrated sigma. Outputs: results/sigma/sigma_mf/.
+run:      {id: sigma_mf, kind: mf_noisy, workers: 10}
+model:    {type: M3, ref_point: ref_devalle, tau_ms: 10.0, tau_d_ms: 5.0, eta_bar: 1.3960461989737856, J: -21.0, Delta: 0.3}
+path:     {name: I_step, I_amp: 0.0, t_on_s: 0.0}
+noise:    {sigma: 0.001}
+durations: {hold_s: 5.0}
+sweep:    {x_name: noise.sigma, x_values: [0.001, 0.01]}
+seeds:    {n_seeds: 10}
+output:   {dir: results/sigma}

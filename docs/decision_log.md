@@ -1403,3 +1403,21 @@ Evidence:        tests/test_s3_config.py (network cells, readouts, K8 judgement 
 Test:            fast suite green (256 passed, 1 xfailed).
 Status:          done (5g); 5h waits for the user
 Commit/tag:      the commit that adds this entry
+
+## DL-120  MS5 5h: sigma calibration run, N = 1e4 baseline at the P2 start state, sigma NOT committed (waits for ruling)    [ID: D18, CP21, T04, D27, CP14]
+Date:            2026-10-16        Author:
+Decision:        Calibration run and fit done; the number is reported and NOT written into any config: the plan gives the matching target ("baseline std of v matches one N = 1e4 network baseline run") but no tolerance or acceptance rule, so by the instruction for 5h the commit waits for the owner's ruling. noise.sigma stays null in base.yaml. No default changed.
+Runs:            configs/sigma_net.yaml (network, N = 1e4, ref_devalle, eta_bar = eta_H - 1.5 = 1.3960461989737856 from A4, J -21, Delta 0.3, tau_d 5 ms, I_step with I_amp 0 = constant parameters, 2 s discard then 5 s, 10 seeds on 10 workers); configs/sigma_mf.yaml (mode N Heun dt 1e-3 tau, same state, 10 seeds, trial sigma 1e-3 and 1e-2, then the fitted sigma as check); scripts/calibrate_sigma.py; analysis/sigma.py; tests/test_sigma.py. Series in results/sigma/ (git-ignored), summary results/sigma/sigma_summary.json, records in results/sigma/*/ with provenance.
+Method (ours, UNVERIFIED, the plan gives no search method): baseline std of v = sample std (ddof 1) of the 1 ms v series over the 5 s; network v is v_N, the mean over non-refractory neurons per 1 ms bin, the mean-field v is the instantaneous output at 1 ms (the two sampling conventions differ). Mean-field std taken as linear in sigma through the origin and sigma = target std / (std per unit sigma). Target = seed index 0, the plan's single baseline run; seeds 1 to 9 are extra, for the spread. The mean-field std per unit sigma is the mean over 10 seeds of both trial points.
+Results:         Network baseline std of v: seed 0 0.038824; 10 seeds mean 0.038522, seed-to-seed sd 0.000322 (0.8 percent).
+  Mean-field std per unit sigma 0.62229 (trial points 1e-3 and 1e-2 differ by 3e-6 relative: linear to numerical precision; seed sd 3.5 percent of a single mean-field run).
+  sigma (seed 0 target) = 0.06239. sigma (10-seed network mean target) = 0.06190. sigma matched per network seed: mean 0.06190, sd 0.00052 (0.8 percent), range 0.06091 to 0.06251. Units: v-units per sqrt(tau), the dv = f dt + sigma dW convention of DL-072, UNVERIFIED.
+Check:           Mean-field noisy run at sigma = 0.06239, 10 seeds: std of v 0.038852, seed sd 0.001384 (sem 0.00044). Against the network seed 0: +0.07 percent; against the network 10-seed mean: +0.86 percent; both well inside the mean-field seed sd (3.6 percent). This check is nearly circular (the fit uses the same quantity); it confirms linearity and the seed noise, not an independent validation. S8 (MS10) is the independent check (CP21). Nothing was tuned to make the check pass; no debugging round used.
+Wall time:       21.5 s for the calibration script on 10 workers (network 10 seeds, 20 trial and 10 check mean-field runs).
+Reason:          5h of docs/ms5_plan.md; plan 6.4, D18, CP21, T04.
+Options:         (a) commit sigma = 0.06239 (the plan's single seed-0 baseline); (b) commit 0.06190 (10-seed network mean, less sensitive to the one seed; differs by 0.8 percent); (c) a different match statistic (spectrum, band-limited std) or a tolerance rule. All three are inside the seed spread of the mean-field check.
+Chosen:          none; waits for the owner's ruling   Default from: -
+Evidence:        results/sigma/sigma_summary.json (git-ignored); tests/test_sigma.py.
+Test:            fast suite green (260 passed, 1 xfailed).
+Status:          done (5h) except the commit of sigma; waits for the user
+Commit/tag:      the commit that adds this entry

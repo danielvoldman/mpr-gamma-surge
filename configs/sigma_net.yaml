@@ -1,0 +1,11 @@
+# Sigma calibration, network baseline (plan 6.4, D18, CP21; MS5 step 5h, DL-120): N = 1e4 at the P2 start state of
+# ref_devalle: eta_bar = eta_H - 1.5 = 1.3960461989737856 (A4, configs/path_A4.yaml), J -21, Delta 0.3, tau_d 5 ms.
+# Constant parameters (I_step, I_amp 0), 2 s discard then 5 s. Seed 0 is the plan's single baseline run; seeds 1 to 9
+# are ours (UNVERIFIED) for the seed-to-seed spread. Outputs: results/sigma/sigma_net/.
+run:      {id: sigma_net, kind: network, workers: 10}
+model:    {type: M3, ref_point: ref_devalle, tau_ms: 10.0, tau_d_ms: 5.0, eta_bar: 1.3960461989737856, J: -21.0, Delta: 0.3}
+path:     {name: I_step, I_amp: 0.0, t_on_s: 0.0}
+network:  {N: 10000}
+durations: {hold_s: 5.0}
+seeds:    {n_seeds: 10}
+output:   {dir: results/sigma}
