@@ -69,6 +69,23 @@ def extrapolate(rows, workers: int) -> float:
     return sum(float(n) * float(c) for n, c in rows) / workers
 
 
+def worker_summary(n: int, batches) -> dict:
+    """Throughput of N concurrent copies (3d). batches: [{"batch_wall_s", "run_walls_s": [per-copy wall]}], one per repeat.
+    Per-run median is over all copies of all batches; throughput = n runs per median batch wall, in runs per hour."""
+    if n < 1 or not batches:
+        raise ValueError("need n >= 1 and at least one batch")
+    runs = [w for b in batches for w in b["run_walls_s"]]
+    batch = summarise_repeats([b["batch_wall_s"] for b in batches])
+    return {"n": n, "batches": len(batches), "per_run": summarise_repeats(runs), "batch_wall": batch,
+            "throughput_runs_per_h": n * 3600.0 / batch["median_s"]}
+
+
+def parallel_efficiency(throughput_n: float, throughput_1: float, n: int) -> dict:
+    """Speed-up and efficiency of N workers against one: speed-up = throughput_n / throughput_1, efficiency = speed-up / n."""
+    sp = throughput_n / throughput_1
+    return {"speedup": sp, "efficiency": sp / n}
+
+
 def map_grid(n_delta: int = 30, n_taud: int = 30, delta=(0.01, 0.6), taud_ms=(1.0, 50.0)):
     """Map 1 grid (S7): Delta linear (spacing not stated in the plan, UNVERIFIED), tau_d log. Array (n, 2) of (Delta, tau_d_ms)."""
     import numpy as np

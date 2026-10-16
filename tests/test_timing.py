@@ -79,3 +79,26 @@ def test_failed_repeat_is_recorded_not_raised(drv, tmp_path):
     cfg["solver"]["method"] = "NoSuchMethod"
     out = drv.time_cell(cfg, 3, 60.0, say=lambda m: None)
     assert out["status"] == "failed" and out["repeats_done"] == 1
+
+
+def test_worker_summary_and_efficiency_arithmetic():
+    b = [{"batch_wall_s": 100.0, "run_walls_s": [90.0, 100.0]}, {"batch_wall_s": 120.0, "run_walls_s": [110.0, 120.0]}]
+    s = T.worker_summary(2, b)
+    assert s["per_run"]["median_s"] == pytest.approx(105.0) and s["batch_wall"]["median_s"] == pytest.approx(110.0)
+    assert s["throughput_runs_per_h"] == pytest.approx(2 * 3600 / 110.0)
+    e = T.parallel_efficiency(s["throughput_runs_per_h"], 3600 / 100.0, 2)
+    assert e["speedup"] == pytest.approx(100 / 55) and e["efficiency"] == pytest.approx(100 / 110)
+    with pytest.raises(ValueError):
+        T.worker_summary(2, [])
+
+
+def test_worker_mode_runs_n_concurrent_copies_in_the_spawn_pool(drv, tmp_path):
+    assert drv.main(["--cell", "headline", "--workers", "2", "--repeat", "2", "--out-dir", str(tmp_path), "--set", *TOY]) == 0
+    rec = json.loads((tmp_path / "workers_2.json").read_text(encoding="utf-8"))
+    assert rec["kind"] == "timing" and rec["status"] == "ok" and rec["timing"]["workers"] == 2
+    t = rec["timing"]
+    assert len(t["batches"]) == 2
+    for b in t["batches"]:
+        assert b["distinct_pids"] == 2 and len(b["copies"]) == 2 and all(c["status"] == "ok" for c in b["copies"])
+        assert b["batch_wall_s"] >= max(b["run_walls_s"]) - 1e-6
+    assert t["summary"]["throughput_runs_per_h"] == pytest.approx(2 * 3600 / t["summary"]["batch_wall"]["median_s"])

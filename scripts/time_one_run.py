@@ -7,8 +7,10 @@ a repeat that fails or reaches the limit is recorded as such, the remaining repe
 no solver setting is changed. Writes <out-dir>/<cell>.json, a record of kind `timing` (D-8) with the
 provenance fields of 6.6. The wall time is of the integration call only; nothing is saved but the record.
 
-Drivers only integrate: summaries come from mprsurge.analysis.timing. No extrapolation here (3e), no
-worker-count timings (3d).
+--workers N (3d) instead times N concurrent copies of the cell per batch through the runner's spawn pool
+(mprsurge.timing_run), --repeat batches, and writes <out-dir>/workers_<N>.json.
+
+Drivers only integrate: summaries come from mprsurge.analysis.timing. No extrapolation here (3e).
 """
 import os
 
@@ -20,13 +22,13 @@ import json
 import subprocess
 import sys
 import time
-import traceback
 from pathlib import Path
 
 from mprsurge import config as C
 from mprsurge import provenance as P
 from mprsurge import run as R
 from mprsurge import simulate_mf as S
+from mprsurge import timing_run as TR
 from mprsurge.analysis import timing as T
 
 KIND = "timing"
@@ -62,25 +64,7 @@ def machine_state() -> dict:
     return state
 
 
-def run_once(cfg: dict, limit_s: float) -> dict:
-    """One timed repeat: wall time of the integration call, status, step count where the solver reports it."""
-    task = R.resolve_task(R.TASKS[cfg["run"]["kind"]])
-    t0 = time.perf_counter()
-    deadline = time.monotonic() + limit_s
-    status, message, flags = "ok", "", {}
-    try:
-        res = task(cfg, deadline)
-        message, flags = res.get("message", ""), dict(res.get("flags", {}))
-    except R.RunTimeout as exc:
-        status, message = "timeout", str(exc) or "wall-time limit reached"
-    except Exception as exc:                      # recorded, not hidden; solver settings are not changed
-        status, message = "failed", f"{type(exc).__name__}: {exc}"
-        flags["traceback"] = traceback.format_exc(limit=8)
-    wall = time.perf_counter() - t0
-    steps = flags.get("n_steps")
-    nfev = flags.get("nfev")
-    return {"status": status, "wall_s": wall, "message": message, "nfev": nfev, "n_steps": steps,
-            "retried_with_radau": flags.get("retried_with_radau"), "traceback": flags.get("traceback")}
+run_once = TR.run_once
 
 
 def time_cell(cfg: dict, repeat: int, limit_s: float, say=print) -> dict:
@@ -134,6 +118,45 @@ def build_record(cfg: dict, cell: str, timing: dict, state_before: dict, state_a
     return rec
 
 
+def time_workers(cfg: dict, n: int, batches: int, limit_s: float, say=print) -> dict:
+    """3d: `batches` batches of n concurrent copies of the cell; each copy timed on its own."""
+    out = []
+    for i in range(batches):
+        b = TR.run_batch(cfg, n, limit_s)
+        walls = [c["wall_s"] for c in b["copies"]]
+        say(f"  batch {i + 1}/{batches}: {b['status']}  n={n}  copies {min(walls):.1f}-{max(walls):.1f} s  "
+            f"batch wall {b['batch_wall_s']:.1f} s  start spread {b['start_spread_s']:.2f} s  pids {b['distinct_pids']}")
+        b["run_walls_s"] = walls
+        b["machine_state_after"] = machine_state()
+        out.append(b)
+        if b["status"] != "ok":
+            break
+    done = [b for b in out if b["status"] == "ok"]
+    res = {"kind": KIND, "mode": "workers", "workers": n, "status": "ok" if len(done) == len(out) == batches else "not ok",
+           "tau_simulated": T.tau_simulated(cfg), "batches_requested": batches, "limit_s": limit_s, "batches": out}
+    if done:
+        res["summary"] = T.worker_summary(n, done)
+    return res
+
+
+def main_workers(args, cell: str) -> int:
+    out_dir = Path(args.out_dir) if args.out_dir else C.repo_root() / "results" / KIND
+    out_dir.mkdir(parents=True, exist_ok=True)
+    cfg = T.resolve_cell(args.config, cell, args.sets)
+    print(f"{cell}: {args.workers} concurrent copies x {args.repeat} batches, tau simulated {T.tau_simulated(cfg):,.0f}, "
+          f"eta path {cfg['path']['eta_path_status']}", flush=True)
+    before = machine_state()
+    timing = time_workers(cfg, args.workers, args.repeat, args.limit_s, say=lambda m: print(m, flush=True))
+    rec = build_record(cfg, cell, {**timing, "repeats": []}, before, machine_state())
+    rec["status"] = timing["status"]
+    P.atomic_write_json(out_dir / f"workers_{args.workers}.json", rec)
+    if "summary" in timing:
+        s = timing["summary"]
+        print(f"workers {args.workers}: per-run median {s['per_run']['median_s']:.2f} s, batch wall median "
+              f"{s['batch_wall']['median_s']:.2f} s, throughput {s['throughput_runs_per_h']:.1f} runs/h")
+    return 0 if timing["status"] == "ok" else 1
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="time_one_run", description=__doc__.split("\n")[0])
     ap.add_argument("--config", default="configs/S5.yaml")
@@ -141,8 +164,13 @@ def main(argv=None) -> int:
     ap.add_argument("--repeat", type=int, default=3)
     ap.add_argument("--limit-s", type=float, default=DEFAULT_LIMIT_S, help="wall limit per repeat (D-6)")
     ap.add_argument("--out-dir", default=None, help="default: results/timing")
+    ap.add_argument("--workers", type=int, default=None, help="3d: time N concurrent copies of the cell per batch (--repeat batches)")
     ap.add_argument("--set", dest="sets", nargs="+", default=[], metavar="KEY=VALUE", help="config overrides")
     args = ap.parse_args(argv)
+    if args.workers is not None:
+        if args.cell == "all" or args.workers < 1:
+            ap.error("--workers needs one named --cell and N >= 1")
+        return main_workers(args, args.cell)
     out_dir = Path(args.out_dir) if args.out_dir else C.repo_root() / "results" / KIND
     out_dir.mkdir(parents=True, exist_ok=True)
     cells = list(T.CELLS) if args.cell == "all" else [args.cell]
