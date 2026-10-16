@@ -1224,3 +1224,16 @@ Evidence:        src/mprsurge/analysis/sn_ramp.py, tests/test_sn_ramp.py; plan 5
 Test:            tests/test_sn_ramp.py (7 new, seeded synthetic: known jump time and eta_bar; 5-cycle damped; slowly damped over 10 cycles; non-damped; smooth ramp, no jump); S2 not run.
 Status:          done (4c); 4d waits for the user
 Commit/tag:      the commit that adds this entry
+
+## DL-109  User rulings on the 4c definitions; MS4 4d: S2 run (13 ramps) and results/A3/a3_sn_ramp.parquet    [ID: D8, D12, T06]
+Date:            2026-10-16        Author:
+Decision:        (a) The 4c jump definition (largest change of r over any 0.1 s window >= 0.5 of the range of r) stays as a working definition, UNVERIFIED; not tuned. A ramp with no clean jump is recorded as ambiguous; the jump for fractions 0.3 and 0.7 is recorded as information only. (b) Ring class is damped / non_damped / no_jump. (c) The G1 fit window starts at the jump sample, as the plan says; 4e reports a window shifted by a few ms as information only.
+4d build:        scripts/run_A3.py (analysis driver: reads the stored series, applies analysis.sn_ramp, writes the parquet; fold = upper A1 fold from the formula), tests/test_run_A3.py (2 toy runs). S2 run with scripts/run_S2.py --set output.dir=results/A3 --workers 10; series in results/A3/S2/ (git-ignored) so 4e can re-analyse without re-running.
+Produced:        13 of 13 runs ok. Wall 544 s in total (4a estimate: under 10 minutes, UNVERIFIED; 4a per-run estimate for the 1000 s run 12 to 13 min, found 526.9 s = 8.8 min). Per-run wall 13.3 s (T_ramp 1 s) to 526.9 s (1000 s). Parquet: 13 rows. Every ramp has a jump (change_frac 0.949 to 0.974, direction up), none ambiguous; the 0.3 and 0.7 variants give the same jump as 0.5 in all 13. All 13 ring classes are "damped" (rate about -24 to -26 per unit time, SE 0.3 to 0.6, about 10 cycles in window); DL-062 and DL-073 caveats apply to these numbers. Offsets from the upper fold fall from 6.9 steps (T_ramp 1 s) to 0.069 steps (1000 s). Not judged here: the A3 check and G1 are for 4e.
+Reason:          project owner rulings; 4d of docs/ms4_plan.md.
+Options:         -
+Chosen:          as above   Default from: user rulings (a) to (c)
+Evidence:        scripts/run_A3.py, results/A3/ (git-ignored), docs/ms4_plan.md run-time table.
+Test:            tests/test_run_A3.py (1 new); fast suite green (226 passed, 1 xfailed).
+Status:          done (4d); 4e waits for the user
+Commit/tag:      the commit that adds this entry
