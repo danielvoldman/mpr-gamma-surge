@@ -1,0 +1,7 @@
+# Timing cell net_3e4 (MS5 5f, plan 9.2 step 1): M3 network, N = 30000, forward Euler dt 1e-3 tau (base.yaml), 2 s discard,
+# P2 at ref_devalle with T_ramp 10 s (2,950 tau incl. the discard), provisional eta path as the other cells (re-time on the A4 path is 5i).
+# The cost is read per neuron-update (N x steps), so the cell length is a timing convenience, not a plan quantity (ours, UNVERIFIED).
+run:     {kind: network}
+path:    {T_ramp_s: 10.0}
+network: {N: 30000}
+seeds:   {spawn_key: [0]}

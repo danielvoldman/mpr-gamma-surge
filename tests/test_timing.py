@@ -65,6 +65,19 @@ def test_script_on_a_toy_cell_writes_a_timing_record(drv, tmp_path, cell):
         assert t["compile_warmup_s"] is None and t["solver_count_name"] == "nfev"
 
 
+def test_script_on_a_toy_network_cell_records_the_update_count_alone_and_in_workers(drv, tmp_path):
+    assert drv.main(["--cell", "net_1e3", "--repeat", "2", "--out-dir", str(tmp_path), "--set", *TOY]) == 0
+    t = json.loads((tmp_path / "net_1e3.json").read_text(encoding="utf-8"))["timing"]
+    cfg = T.resolve_cell("configs/S5.yaml", "net_1e3", TOY)
+    assert t["repeats_done"] == 2 and t["compile_warmup_s"] is not None
+    assert t["updates"] == pytest.approx(1000 * T.tau_simulated(cfg) / 1e-3) == pytest.approx(T.network_updates(cfg))
+    assert drv.main(["--cell", "net_1e3", "--workers", "2", "--repeat", "1", "--out-dir", str(tmp_path), "--set", *TOY]) == 0
+    w = json.loads((tmp_path / "workers_2.json").read_text(encoding="utf-8"))["timing"]
+    assert w["updates"] == t["updates"] and w["batches"][0]["distinct_pids"] == 2 and w["status"] == "ok"
+    cells = T.load_cells(tmp_path, ["net_1e3"])                       # the alone loader carries the count to the predictor
+    assert cells["net_1e3"]["updates"] == t["updates"]
+
+
 def test_limit_is_recorded_as_timeout_and_stops_the_repeats(drv, tmp_path):
     code = drv.main(["--cell", "headline", "--repeat", "3", "--limit-s", "1e-9", "--out-dir", str(tmp_path),
                      "--set", *TOY, *SLOW_TOY])
@@ -140,5 +153,74 @@ def test_shipped_families_file_loads_and_covers_the_table_rows():
     for r in spec["rows"]:
         assert ("allowance_h" in r) != ("allowance_s" in r) and r["parts"]
         for p in r["parts"]:
-            for cell in ([p["cell"]] if "cell" in p else list(p.get("corners", {}).values())):
+            for cell in T.part_cells(p):
                 assert cell in T.CELLS
+
+
+# ---- 5f: network rows (toy numbers, hand calculation) ----
+
+NET_CELLS = {"n1": {"wall_s": 30.0, "tau": 3000.0, "steps": None, "updates": 3.0e9},       # 1e-8 s per update
+             "n3": {"wall_s": 90.0, "tau": 3000.0, "steps": None, "updates": 6.0e9},       # 1.5e-8 s per update
+             "mf": {"wall_s": 10.0, "tau": 100.0, "steps": None}}
+
+
+def test_p2_updates_matches_the_resolved_path_and_the_hand_count():
+    cfg = T.resolve_cell("configs/S5.yaml", "net_1e4")
+    # discard 2 + baseline 5 + 1.25 x 10 + hold 10 = 29.5 s = 2950 tau, dt 1e-3, N 1e4
+    assert T.tau_simulated(cfg) == pytest.approx(2950.0)
+    assert T.network_updates(cfg) == pytest.approx(2.95e10)
+    assert T.p2_updates(1e4, 10.0) == pytest.approx(T.network_updates(cfg))
+    cfg120 = T.resolve_cell("configs/S5.yaml", "net_1e4", ["path.T_ramp_s=120"])      # the 1.25 factor is the path's
+    assert T.p2_updates(1e4, 120.0) == pytest.approx(T.network_updates(cfg120))
+
+
+def test_network_cells_resolve_to_the_network_kind_and_n():
+    for cell, n in (("net_1e3", 1000), ("net_1e4", 10000), ("net_3e4", 30000)):
+        c = T.resolve_cell("configs/S5.yaml", cell)
+        assert c["run"]["kind"] == "network" and c["network"]["N"] == n and c["seeds"]["spawn_key"] == [0]
+        assert (c["model"]["type"], c["network"]["dt_tau"], c["path"]["name"], c["path"]["T_ramp_s"]) == ("M3", 1e-3, "path_hypoxia", 10.0)
+
+
+def test_network_prediction_arithmetic_on_toy_numbers():
+    spec = {"rule_factor": 1.5, "workers_cap_h": 24.0, "no_cell": [], "rows": [
+        {"id": "net", "allowance_s": 1000.0, "parts": [
+            {"label": "a", "kind": "net", "updates": 2.0e10, "cell": "n1"},                 # 2e10 x 1e-8 = 200 s
+            {"label": "b", "kind": "net", "updates": 2.0e10, "cell": ["n1", "n3"]},         # slowest rate: 300 s
+            {"label": "c", "kind": "net_p2", "runs": [{"n": 2, "N": 1e4, "T_ramp_s": 10, "cell": "n1"}]}]}]}   # 2 x 2.95e10 x 1e-8 = 590 s
+    r = T.evaluate_rows(spec, NET_CELLS, 10.0)[0]
+    assert [p["seconds"] for p in r["parts"]] == pytest.approx([20.0, 30.0, 59.0])           # divided by 10 workers
+    assert r["prediction_s"] == pytest.approx(109.0) and r["verdict"] == "PASS"
+    r1 = T.evaluate_rows(spec, NET_CELLS, 1.0)[0]                                             # 1090 s alone against 1500
+    assert r1["prediction_s"] == pytest.approx(1090.0) and r1["verdict"] == "PASS"
+    assert T.evaluate_rows({**spec, "rows": [{**spec["rows"][0], "allowance_s": 700.0}]}, NET_CELLS, 1.0)[0]["verdict"] == "FAIL"   # 1090 > 1050
+    gap = T.evaluate_rows(spec, {"n1": NET_CELLS["n1"]}, 10.0)[0]
+    assert gap["prediction_s"] is None and gap["verdict"].startswith("no timing cell")
+    nocount = T.evaluate_rows(spec, {"n1": NET_CELLS["n1"], "n3": NET_CELLS["mf"]}, 10.0)[0]
+    assert nocount["verdict"].startswith("no timing cell")                                    # a cell without an update count
+
+
+def test_total_verdict_excludes_flagged_rows_and_reports_bounds():
+    spec = {"workers_cap_h": 1.0, "no_cell": [], "rows": [{"id": "x"}, {"id": "dup", "in_total": False}, {"id": "p"}]}
+    rows = [{"id": "x", "prediction_s": 1800.0, "partial": False, "allowance_s": 100.0},
+            {"id": "dup", "prediction_s": 9e9, "partial": False, "allowance_s": 1.0},
+            {"id": "p", "prediction_s": 600.0, "partial": True, "allowance_s": 3000.0}]
+    t = T.total_verdict(spec, rows)
+    assert t["judged"] is False and t["gaps"] == ["p"]
+    assert t["lower_bound_h"] == pytest.approx(2400 / 3600) and t["conservative_h"] == pytest.approx(4800 / 3600)
+    assert t["fails_on_lower_bound"] is False and t["pass"] is False
+    rows[2].update(partial=False)
+    t = T.total_verdict(spec, rows)
+    assert t["judged"] is True and t["total_h"] == pytest.approx(2400 / 3600) and t["pass"] is True
+
+
+def test_shipped_network_rows_count_the_plan_figures():
+    spec = T.load_families()
+    rows = {r["id"]: r for r in spec["rows"]}
+    assert not rows["single_run"].get("in_total", True) and not rows["sweeps_headline_rate"].get("in_total", True)
+    # S9: 4 N x 10 seeds on P2 60 s: the plan's 4.0e12 updates
+    s9 = sum(r["n"] * T.p2_updates(r["N"], r["T_ramp_s"]) for p in rows["network_s9"]["parts"] for r in p["runs"])
+    assert s9 == pytest.approx(4.0e12, rel=0.02)
+    # S8 + S10 + S12 NC1 + K8 + sigma: the plan's about 2.0e12 (ours includes S3 and 3 seeds on the map cells)
+    net = rows["network_s8_s10_s12_k8_sigma"]["parts"]
+    tot = sum(p["updates"] if p["kind"] == "net" else sum(r["n"] * T.p2_updates(r["N"], r["T_ramp_s"]) for r in p["runs"]) for p in net)
+    assert 1.5e12 < tot < 3.0e12

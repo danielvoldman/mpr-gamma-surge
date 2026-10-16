@@ -46,9 +46,12 @@ def _init(log_queue, barrier) -> None:
 
 def _copy(job: dict) -> dict:
     """One copy in a worker: wait for all copies, then time the run (plain dict in, plain dict out)."""
-    if job["warm_up"]:
+    if job["warm_up"] == "mf_noisy":
         from . import simulate_mf as S
         S.warm_up()
+    elif job["warm_up"] == "network":
+        from . import qif_network as Q
+        Q.warm_up()
     _barrier.wait(BARRIER_TIMEOUT_S)
     t_start = time.time()
     r = run_once(job["cfg"], job["limit_s"])
@@ -61,7 +64,7 @@ def run_batch(cfg: dict, n: int, limit_s: float) -> dict:
     pool_wall_s also includes spawning the pool (reported, not used for throughput)."""
     ctx = mp.get_context("spawn")
     queue, barrier = ctx.Queue(), ctx.Barrier(n)
-    jobs = [{"cfg": cfg, "limit_s": limit_s, "copy": i, "warm_up": cfg["run"]["kind"] == "mf_noisy"} for i in range(n)]
+    jobs = [{"cfg": cfg, "limit_s": limit_s, "copy": i, "warm_up": cfg["run"]["kind"] if cfg["run"]["kind"] in ("mf_noisy", "network") else None} for i in range(n)]
     p0 = time.perf_counter()
     with R.single_thread_env(), ctx.Pool(n, initializer=_init, initargs=(queue, barrier)) as pool:
         copies = pool.map_async(_copy, jobs, chunksize=1).get()

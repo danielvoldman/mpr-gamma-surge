@@ -67,6 +67,11 @@ def machine_state() -> dict:
 run_once = TR.run_once
 
 
+def _updates(cfg: dict):
+    """Neuron-updates of one run of a network cell (N x tau / dt), None for mean-field cells (5f)."""
+    return T.network_updates(cfg) if cfg["run"]["kind"] == "network" else None
+
+
 def time_cell(cfg: dict, repeat: int, limit_s: float, say=print) -> dict:
     """Warm up, then time `repeat` runs. Stops at the first repeat that is not ok."""
     compile_s = None
@@ -75,6 +80,12 @@ def time_cell(cfg: dict, repeat: int, limit_s: float, say=print) -> dict:
         S.warm_up()
         compile_s = time.perf_counter() - t0
         say(f"  warm-up (Numba, mode N): {compile_s:.2f} s, not in the repeats")
+    elif cfg["run"]["kind"] == "network":
+        from mprsurge import qif_network as Q
+        t0 = time.perf_counter()
+        Q.warm_up()
+        compile_s = time.perf_counter() - t0
+        say(f"  warm-up (Numba, network kernel): {compile_s:.2f} s, not in the repeats")
     tau = T.tau_simulated(cfg)
     repeats = []
     for i in range(repeat):
@@ -87,7 +98,7 @@ def time_cell(cfg: dict, repeat: int, limit_s: float, say=print) -> dict:
     ok = [r["wall_s"] for r in repeats if r["status"] == "ok"]
     statuses = {r["status"] for r in repeats}
     status = "failed" if "failed" in statuses else "timeout" if "timeout" in statuses else "ok"
-    out = {"kind": KIND, "status": status, "tau_simulated": tau, "repeats_requested": repeat,
+    out = {"kind": KIND, "status": status, "tau_simulated": tau, "updates": _updates(cfg), "repeats_requested": repeat,
            "repeats_done": len(repeats), "limit_s": limit_s, "compile_warmup_s": compile_s, "repeats": repeats}
     if ok:
         summ = T.summarise_repeats(ok)
@@ -133,7 +144,7 @@ def time_workers(cfg: dict, n: int, batches: int, limit_s: float, say=print) -> 
             break
     done = [b for b in out if b["status"] == "ok"]
     res = {"kind": KIND, "mode": "workers", "workers": n, "status": "ok" if len(done) == len(out) == batches else "not ok",
-           "tau_simulated": T.tau_simulated(cfg), "batches_requested": batches, "limit_s": limit_s, "batches": out}
+           "tau_simulated": T.tau_simulated(cfg), "updates": _updates(cfg), "batches_requested": batches, "limit_s": limit_s, "batches": out}
     if done:
         res["summary"] = T.worker_summary(n, done)
     return res
@@ -195,6 +206,8 @@ def print_table(table) -> None:
     print("\n" + head + "\n" + "-" * len(head))
     for cell, cfg, t in table:
         flag = ("" if cfg["path"]["eta_path_status"] == "explicit" else f"  [eta path {cfg['path']['eta_path_status']}]")
+        if cfg["run"]["kind"] == "network":
+            flag += "  [network, provisional eta path as the mean-field cells]"
         if cfg["run"]["kind"] == "mf_noisy":
             flag += "  [sigma 1e-3 UNVERIFIED, not calibrated]"
         if "summary" in t:

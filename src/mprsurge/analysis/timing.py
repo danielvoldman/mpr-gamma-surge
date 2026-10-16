@@ -13,7 +13,7 @@ from .. import config as C
 from ..ramps import make_path
 from ..units import s_to_tau
 
-CELLS = ("headline", "delta_0.01", "delta_0.6", "delta_0.01_td1", "delta_0.01_td50", "delta_0.6_td1", "delta_0.6_td50", "p5_1000", "radau_1e-12", "radau_1e-12_t10", "radau_1e-10_t10", "mode_n", "m2_ramp")
+CELLS = ("headline", "delta_0.01", "delta_0.6", "delta_0.01_td1", "delta_0.01_td50", "delta_0.6_td1", "delta_0.6_td50", "p5_1000", "radau_1e-12", "radau_1e-12_t10", "radau_1e-10_t10", "mode_n", "m2_ramp", "net_1e3", "net_1e4", "net_3e4")
 
 
 def cell_path(cell: str):
@@ -35,10 +35,21 @@ def tau_simulated(cfg: dict) -> float:
     """Simulated time in tau: ramp end plus hold (6.2, CP14); mode N adds the discard before t = 0."""
     tau = cfg["model"]["tau_ms"]
     t_end = make_path(cfg).t_ramp_end + s_to_tau(cfg["durations"]["hold_s"], tau)
-    if cfg["run"]["kind"] == "mf_noisy":
+    if cfg["run"]["kind"] in ("mf_noisy", "network"):
         t_end += s_to_tau(cfg["durations"]["discard_s"], tau)
     return float(t_end)
 
+
+def network_updates(cfg: dict) -> float:
+    """Neuron-updates of one network run: N x (tau simulated incl. the discard) / dt (9.2 step 2)."""
+    return float(cfg["network"]["N"]) * tau_simulated(cfg) / float(cfg["network"]["dt_tau"])
+
+
+def p2_updates(N: float, T_ramp_s: float, tau_ms: float = 10.0, dt_tau: float = 1e-3, baseline_s: float = 5.0,
+               hold_s: float = 10.0, discard_s: float = 2.0, ramp_factor: float = 1.25) -> float:
+    """Neuron-updates of one network run on P2 (tests check the 1.25 against make_path): N x tau / dt with
+    tau = discard + baseline + 1.25 T_ramp + hold, in seconds converted at tau_ms."""
+    return float(N) * s_to_tau(discard_s + baseline_s + ramp_factor * T_ramp_s + hold_s, tau_ms) / dt_tau
 
 def summarise_repeats(walls) -> dict:
     """Min, median, max and spread of the wall times of the repeats (seconds). Spread = max - min."""
@@ -124,6 +135,23 @@ def load_families(path=None) -> dict:
         return yaml.safe_load(fh)
 
 
+def part_cells(part: dict) -> list:
+    """Every timing cell a part reads (a name, a list of names, the map-1 corners, or the cells of net_p2 runs)."""
+    out = []
+    for c in [part.get("cell"), *[r["cell"] for r in part.get("runs", [])], *part.get("corners", {}).values()]:
+        if c is not None:
+            out += [c] if isinstance(c, str) else list(c)
+    return out
+
+
+def _update_cost(cells: dict, name: str) -> float:
+    """Wall seconds per neuron-update of a network timing cell; KeyError (no cell) if the count is missing."""
+    c = cells[name]
+    if not c.get("updates"):
+        raise KeyError(f"{name}: no neuron-update count")
+    return c["wall_s"] / c["updates"]
+
+
 def part_seconds(part: dict, cells: dict, divisor: float) -> float:
     """Wall time (s) of one part of a row. cells: {cell: {"wall_s", "tau", "steps"}} (per-run walls, tau simulated, solver steps).
     A part whose cell is missing raises KeyError: callers report "no timing cell", never a silent prediction."""
@@ -138,6 +166,18 @@ def part_seconds(part: dict, cells: dict, divisor: float) -> float:
         return extrapolate([(part["steps"], c["wall_s"] / c["steps"])], divisor)
     if kind == "runs":
         return extrapolate([(part["n"], cells[part["cell"]]["wall_s"])], divisor)
+    if kind == "net_p2":
+        # runs: [{n, N, T_ramp_s, cell}]; cell is a name or a list of names (the slowest per-update rate is used)
+        total = 0.0
+        for r in part["runs"]:
+            names = [r["cell"]] if isinstance(r["cell"], str) else list(r["cell"])
+            rate = max(_update_cost(cells, nm) for nm in names)
+            total += r["n"] * p2_updates(r["N"], r["T_ramp_s"]) * rate
+        return total / divisor
+    if kind == "net":
+        # updates: neuron-updates counted directly, for runs that are not on P2 (S3 step, sigma baseline)
+        names = [part["cell"]] if isinstance(part["cell"], str) else list(part["cell"])
+        return extrapolate([(part["updates"], max(_update_cost(cells, nm) for nm in names))], divisor)
     if kind == "map1":
         measured = []
         for key, cell in part["corners"].items():
@@ -184,13 +224,23 @@ def evaluate_rows(spec: dict, cells: dict, divisor: float, alone: dict | None = 
 
 
 def total_verdict(spec: dict, rows: list) -> dict:
-    """The D36 cap is judged only when every row has a prediction and none is partial or lacks a cell; otherwise not judged."""
-    gaps = [r["id"] for r in rows if r["prediction_s"] is None or r["partial"]]
+    """D36 cap. Rows with `in_total: false` (the single-run row, the duplicate headline-rate sweeps row) are left out.
+    Lower bound = sum of the predictions. Conservative = the same with each partial row taken at max(prediction,
+    Table 9.1 allowance), the allowance standing in for the run families without a count or cell. judged is True only
+    when every row has a prediction and none is partial or lacks a cell; otherwise the cap is read off the bounds."""
+    ids = {r["id"] for r in spec["rows"] if r.get("in_total", True)}
+    used = [r for r in rows if r["id"] in ids]
+    gaps = [r["id"] for r in used if r["prediction_s"] is None or r["partial"]]
     gaps += list(spec.get("no_cell", []))
-    if gaps:
-        return {"judged": False, "gaps": gaps}
-    tot = sum(r["prediction_s"] for r in rows if r["id"] != "single_run") / 3600.0
-    return {"judged": True, "total_h": tot, "pass": tot <= float(spec["workers_cap_h"])}
+    cap = float(spec["workers_cap_h"])
+    low = sum(r["prediction_s"] or 0.0 for r in used) / 3600.0
+    cons = sum(max(r["prediction_s"] or 0.0, r["allowance_s"]) if (r["partial"] or r["prediction_s"] is None) else r["prediction_s"]
+               for r in used) / 3600.0
+    out = {"judged": not gaps, "gaps": gaps, "total_h": low, "lower_bound_h": low, "conservative_h": cons, "cap_h": cap,
+           "rows_in_total": sorted(ids)}
+    out["pass"] = (low if not gaps else cons) <= cap
+    out["fails_on_lower_bound"] = low > cap
+    return out
 
 
 def load_cells(results_dir, cells, workers=None, steps_dir=None) -> dict:
@@ -212,7 +262,7 @@ def load_cells(results_dir, cells, workers=None, steps_dir=None) -> dict:
         sp = Path(steps_dir or results_dir) / f"{cell}.json"
         if sp.exists():
             steps = json.loads(sp.read_text(encoding="utf-8"))["timing"].get("solver_count")
-        out[cell] = {"wall_s": float(wall), "tau": float(t["tau_simulated"]), "steps": steps}
+        out[cell] = {"wall_s": float(wall), "tau": float(t["tau_simulated"]), "steps": steps, "updates": t.get("updates")}
     return out
 
 
@@ -230,17 +280,19 @@ def format_report(rows: list, total: dict, label: str, divisor: float) -> str:
             lines.append(f"    not extrapolated (no count or cell): {', '.join(r['missing'])}")
     lines.append("")
     if total["judged"]:
-        lines.append(f"Total {total['total_h']:.2f} h against the D36 cap: {'PASS' if total['pass'] else 'FAIL'}")
+        lines.append(f"Total {total['total_h']:.2f} h against the D36 cap {total['cap_h']:g} h: {'PASS' if total['pass'] else 'FAIL'}")
     else:
-        lines.append("Total: not formed, the D36 cap is not judged. Rows without prediction or incomplete, no timing cell: "
-                     + ", ".join(total["gaps"]))
+        lines.append(f"Total, rows with counts only (lower bound): {total['lower_bound_h']:.2f} h; with each partial row at max(prediction, "
+                     f"Table 9.1 allowance) (conservative): {total['conservative_h']:.2f} h; D36 cap {total['cap_h']:g} h.")
+        lines.append("D36: " + ("FAIL on the lower bound" if total["fails_on_lower_bound"] else
+                                ("PASS on the conservative figure" if total["pass"] else "lower bound within the cap, conservative figure above it")))
+        lines.append("Rows partial or without a cell, or run families with no cell: " + ", ".join(total["gaps"]))
     return "\n".join(lines)
 
 
 def predict_main(args) -> int:
     spec = load_families()
-    names = sorted({p["cell"] for r in spec["rows"] for p in r["parts"] if "cell" in p}
-                   | {c for r in spec["rows"] for p in r["parts"] for c in p.get("corners", {}).values()})
+    names = sorted({c for r in spec["rows"] for p in r["parts"] for c in part_cells(p)})
     root = C.repo_root()
     alone_dir = root / (args.alone_dir or args.results_dir)
     cells = load_cells(root / args.results_dir, names, args.workers, alone_dir)
