@@ -1177,3 +1177,15 @@ Evidence:        results/timing/clean/ (workers_10.json per cell, alone json, lo
 Test:            fast suite green (211 passed, 1 xfailed).
 Status:          done; two row failures open for the user
 Commit/tag:      the commit that adds this entry
+
+## DL-105  User ruling after DL-104: the two failing MS3 rows accepted as logged exceptions; Heun loaded-rate item carried to MS5    [ID: D12, D36, T23, T24]
+Date:            2026-10-16        Author:
+Decision:        Both rows that still fail after the clean re-time (DL-104) are accepted as logged exceptions. No row and no allowance is changed; no default, solver setting or plan text is changed. (a) Single run, delta_0.01, alone: 178.3 s against the 148.5 s limit. Informational: its cells are already inside map 1 (weighted), which passes at 4.44 h against 6.15 h. (b) S5 baseline-only mode N: 121 s against the 108 s limit. The row is small in absolute time, and the clean number is the real rate under 10 concurrent copies. Carried forward to MS5 (network timing): the Heun kernel runs about 4x slower per step under 10 copies than alone (1.51e-7 against 3.65e-8 s per step; 2.34 against 0.61 s per mode-N run), which is about 2.3x above what 3d assumed (alone rate divided by 5.90; 120.6 s against 53.2 s for the mode-N row), so the 3d Heun predictions were understated and the MS5 network rows must be timed under load. The D36 24 h cap stays unjudged until then.
+Context:         DL-104 left two rows failing that no step of section 9.3 covers. Rate under load: 2.34 s per mode-N run against 0.61 s alone; 1.51e-7 against 3.65e-8 s per Heun step (DL-104 note (a)).
+Reason:          project owner ruling on DL-104 of 2026-10-16.
+Options:         accept as exceptions; change the row or its allowance; reduce the work.
+Chosen:          accept as exceptions   Default from: user ruling
+Evidence:        DL-104; results/timing/clean/ (git-ignored); plan 9.2, 9.3, Table 9.1.
+Test:            none (docs only). Fresh-context review of docs/ms3_gate_report.md against the raw outputs: no numeric mismatches; the 'about 4x' wording above corrected (the project owner's ruling text compared the loaded rate with the alone rate divided by 5.90); DL-104 and the report give S11+S16 clean as 21.5 min, raw recomputation gives 21.6 min (report corrected; DL-104 left as committed); DL-104 p5_1000 third batch 2,329 s is 2,329.7 s raw (rounds to 2,330).
+Status:          done; MS3 gate closed with two logged exceptions
+Commit/tag:      the commit that adds this entry

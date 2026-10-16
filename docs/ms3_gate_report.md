@@ -17,11 +17,11 @@ Mean-field cells timed three times (single run alone) or as 10 concurrent copies
 | S7 map 1, weighted | 6.15 h | 5.23 h | 4.44 h | -15.1% | pass |
 | S7 map 2 + noisy subgrid | 3.30 h | 2.57 h | 2.20 h | -14.4% | pass |
 | S5 baseline-only mode N (MS7) | 108 s | 53 s (a) | 121 s | (a) | **fail** (+12%) |
-| S11 + S16 | 60 min | 26.0 min | 21.5 min | -17% | pass, partial |
+| S11 + S16 | 60 min | 26.0 min | 21.6 min | -17% | pass, partial |
 | S2 + S4 (row S1-S4, A1-A6) | 45 min | 4.1 min | 3.4 min | -17% | pass, partial |
 | S13 Radau pass set (indicative) | 1.5 h | 10.1 min | 7.9 min | -22% | pass, partial |
 
-(a) Not like for like. 3d divided the alone Heun rate by 5.90. The clean run measures mode N under 10 copies: 2.34 s per run against 0.61 s alone. A supplementary 1200 s-ramp run (22.67 s) shows the slowdown is a rate (1.51e-7 against 3.65e-8 s per step, offset near zero), not a start-up cost. The 3d Heun parts were therefore low.
+(a) Not like for like. 3d divided the alone Heun rate by 5.90. The clean run measures mode N under 10 copies: 2.34 s per run against 0.61 s alone. A supplementary 1200 s-ramp run (22.67 s) shows the slowdown is a rate (1.51e-7 against 3.65e-8 s per step, offset near zero), not a start-up cost (two loaded points only; the 1200 s run also changes the ramp, and was run from an analysis-code-only edit after 2092b94, tree not clean). The 3d Heun parts were therefore low.
 
 Headline cell under 10 copies: 201.8 s (3d) to 162.8 s (clean), throughput 177.6 to 220.4 runs/h, speed-up 6.2 (3d: 5.90). Partial rows are lower bounds: S1, S3, A1 to A6, S12 mean field and the S13 ladders have no count or timing cell here.
 
@@ -29,16 +29,16 @@ Headline cell under 10 copies: 201.8 s (3d) to 162.8 s (clean), throughput 177.6
 Section 9.3 step 5 (drop the 562 s and 1000 s ramps from P5 and the start-distance runs) was conditional on the P5-rate sweeps still failing (DL-103 (3)). They pass, so nothing is cut (DL-104). Steps 1 to 4, 6 and 7 do not apply to a failing row. No cut-order step covers the two failing rows.
 
 ## Result
-**Not a clean pass.** The gate "all mean-field rows meet the rule, or the cut order is applied until they do" is met for every row except two, and the cut order has no step for either:
+**MS3 passes its gate with two logged exceptions (DL-105).** The gate "all mean-field rows meet the rule, or the cut order is applied until they do" is met for every row except two, and the cut order has no step for either:
 1. Single run at Delta = 0.01 alone, 178.3 s against 148.5 s. It is the edge of map 1, which passes as a family.
 2. S5 baseline-only mode-N runs, 121 s against 108 s, a 2 min stage at MS7.
-Both are for the user to rule on (accept as an exception, change the row or its allowance, or reduce the work). No S-run has started. The 24 h cap (D36) is not judged.
+Both were accepted as exceptions by the project owner (DL-105); no row or allowance is changed. No S-run has started. The 24 h cap (D36) is not judged.
 
 ## Departure from D-7
 D-7 (DL-094) fixed 6 workers for the extrapolation. DL-103 (1) judges the launch rule at the 10 workers actually used. At 6 workers the 3d speed-up was 4.16, and the sweeps, map 1 and map 2 failed; the 6-worker column stays in DL-102. D-7 is otherwise unchanged.
 
 ## Carried forward, still open
-- 24 h cap (D36): not judged until the network rows exist (qif_network, MS5).
+- 24 h cap (D36): not judged until the network rows exist (qif_network, MS5). The network rows must be timed under 10-copy load (Heun about 4x slower per step than alone; DL-105).
 - Paths provisional and UNVERIFIED until A4; the headline is re-timed after A4 (MS5, T23).
 - /permissions check (DL-051).
 - Defender exclusion for the repository and .venv (9.1): not confirmed here.
@@ -49,4 +49,4 @@ D-7 (DL-094) fixed 6 workers for the extrapolation. DL-103 (1) judges the launch
 - Also open from MS3: 20 steps per tau conversion of Table 9.1 step counts, S13 reading of RB6 (DL-100 (3)), sigma 1e-3 not calibrated (D-4).
 
 ## Review
-Fresh-context review of the MS3 diff was not run in this session; it is not part of the 3f gate rows and is left to the user to request.
+Fresh-context review (subagent, reading only this report, DL-102 to DL-105 and the raw timing outputs): no numeric mismatches. Corrections: S11+S16 clean 21.5 to 21.6 min (this report); the '4x' wording in DL-105; supplementary-run caveat added to note (a). Not rechecked by the reviewer: the map 1 weighted 4.44 h and the family-to-cell mapping.
