@@ -245,6 +245,10 @@ def predict_main(args) -> int:
     alone_dir = root / (args.alone_dir or args.results_dir)
     cells = load_cells(root / args.results_dir, names, args.workers, alone_dir)
     alone = load_cells(alone_dir, names) if args.workers else cells
+    counts = load_cells(root / "results" / "timing", names)      # solver step counts do not depend on load or session
+    for cell, c in cells.items():
+        if not c["steps"] and cell in counts:
+            c["steps"] = counts[cell]["steps"]
     divisor = float(args.workers) if args.workers else args.speedup
     rows = evaluate_rows(spec, cells, divisor, alone)
     text = format_report(rows, total_verdict(spec, rows),
