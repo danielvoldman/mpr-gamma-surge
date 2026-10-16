@@ -108,3 +108,23 @@ def test_s5_dry_run_record_carries_the_provisional_status(tmp_path):
     assert R.main(["--config", S5, "--dry-run", "--set", f"output.dir={tmp_path.as_posix()}"]) == 0
     rec = P.read_run_record(next(tmp_path.rglob("*.json")))
     assert rec["config"]["path"]["eta_path_status"] == "provisional" and rec["config"]["path"]["eta_start"] == 1.396046
+
+
+def test_corner_cells_and_weighted_family_estimate():
+    from mprsurge.models.fixed_points import classify_all
+    for cell, Delta, td in (("delta_0.01_td1", 0.01, 1.0), ("delta_0.01_td50", 0.01, 50.0),
+                            ("delta_0.6_td1", 0.6, 1.0), ("delta_0.6_td50", 0.6, 50.0)):
+        c = T.resolve_cell(S5, cell)
+        assert (c["model"]["Delta"], c["model"]["tau_d_ms"], c["path"]["T_ramp_s"]) == (Delta, td, 120.0)
+        assert c["path"]["eta_path_status"] == "provisional"
+        for eta in (c["path"]["eta_start"], c["path"]["eta_peak"]):          # both ends have the stable root (the run can start)
+            assert [l for _, l, _ in classify_all(eta, -21.0, Delta, 0.0, "M3", td / 10.0)].count("stable") <= 1
+        assert [l for _, l, _ in classify_all(c["path"]["eta_start"], -21.0, Delta, 0.0, "M3", td / 10.0)] == ["stable"]
+    # toy: constant cost over the corners gives cost x cells / workers; the grid is 30 x 30
+    grid = T.map_grid()
+    assert grid.shape == (900, 2) and grid[0].tolist() == [0.01, 1.0] and grid[-1].tolist() == pytest.approx([0.6, 50.0])
+    corners = [(0.01, 1, 100.0), (0.01, 50, 100.0), (0.6, 1, 100.0), (0.6, 50, 100.0)]
+    est = T.weighted_family_estimate(corners, grid, 6)
+    assert est["total_s"] == pytest.approx(900 * 100.0 / 6)
+    with pytest.raises(ValueError):
+        T.weighted_family_estimate(corners, [(0.7, 5.0)], 6)

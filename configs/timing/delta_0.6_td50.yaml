@@ -1,0 +1,4 @@
+# Timing cell delta_0.6_td50 (DL-100): map 1 corner, Delta 0.6 and tau_d 50.0 ms, J -21, P2, T_ramp 120 s. No Hopf crossing on [-10, 10]: headline start and peak (CP20, DL-100).
+# PROVISIONAL, UNVERIFIED until A4 (MS5).
+model: {Delta: 0.6, tau_d_ms: 50.0}
+path: {eta_start: 1.396046, eta_peak: 4.896046}

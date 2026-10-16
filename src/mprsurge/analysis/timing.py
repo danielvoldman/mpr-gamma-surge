@@ -13,7 +13,7 @@ from .. import config as C
 from ..ramps import make_path
 from ..units import s_to_tau
 
-CELLS = ("headline", "delta_0.01", "delta_0.6", "p5_1000", "radau_1e-12", "radau_1e-12_t10", "radau_1e-10_t10", "mode_n", "m2_ramp")
+CELLS = ("headline", "delta_0.01", "delta_0.6", "delta_0.01_td1", "delta_0.01_td50", "delta_0.6_td1", "delta_0.6_td50", "p5_1000", "radau_1e-12", "radau_1e-12_t10", "radau_1e-10_t10", "mode_n", "m2_ramp")
 
 
 def cell_path(cell: str):
@@ -67,6 +67,32 @@ def extrapolate(rows, workers: int) -> float:
     if workers < 1:
         raise ValueError("workers must be >= 1")
     return sum(float(n) * float(c) for n, c in rows) / workers
+
+
+def map_grid(n_delta: int = 30, n_taud: int = 30, delta=(0.01, 0.6), taud_ms=(1.0, 50.0)):
+    """Map 1 grid (S7): Delta linear (spacing not stated in the plan, UNVERIFIED), tau_d log. Array (n, 2) of (Delta, tau_d_ms)."""
+    import numpy as np
+    d = np.linspace(delta[0], delta[1], n_delta)
+    t = np.geomspace(taud_ms[0], taud_ms[1], n_taud)
+    return np.array([(a, b) for a in d for b in t])
+
+
+def weighted_family_estimate(measured, grid, workers: int) -> dict:
+    """Wall time of a map family from measured cells (DL-100): cost per grid cell is interpolated piecewise linearly
+    (Delaunay) in (log Delta, log tau_d) on `measured` = [(Delta, tau_d_ms, s_per_run)]; no extrapolation (a grid cell
+    outside the hull of the measured cells raises). Returns total (s, divided by workers), per-run min, mean, max."""
+    import numpy as np
+    from scipy.interpolate import LinearNDInterpolator
+    if workers < 1:
+        raise ValueError("workers must be >= 1")
+    m = np.asarray(measured, float)
+    g = np.asarray(grid, float)
+    f = LinearNDInterpolator(np.log(m[:, :2]), m[:, 2])
+    c = f(np.log(g))
+    if np.isnan(c).any():
+        raise ValueError("grid cells outside the hull of the measured cells")
+    return {"n_cells": len(g), "total_s": float(c.sum()) / workers, "mean_s_per_run": float(c.mean()),
+            "min_s_per_run": float(c.min()), "max_s_per_run": float(c.max())}
 
 
 def describe_cell(config_arg: str, cell: str) -> dict:
