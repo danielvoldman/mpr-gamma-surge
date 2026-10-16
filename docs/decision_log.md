@@ -1036,3 +1036,35 @@ Evidence:        plan D12, CP20, 9.2, Table 6.2 S13; DL-094, DL-096, DL-097; sca
 Test:            none (docs only); the config and test changes follow in the 3c commit.
 Status:          done (decision); the path and cell files follow in the 3c commit
 Commit/tag:      the commit that adds this entry
+
+## DL-099  MS3 3c: re-timing of the cells on the plan-rule paths, extrapolation and launch rule    [ID: D12, D36, T23, T24]
+Date:            2026-10-15        Author:
+Decision:        none; no default and no solver setting changed. Implements DL-098 (3): the cells of DL-098 (1) and (2), 3 repeats each, commit 247c5d2, dirty = false, DOP853 rtol 1e-10 unless named, 6 workers for the extrapolation (D-7), results/timing/*.json and prediction_3c.txt (git-ignored).
+Machine state: power plan High performance, AC (no battery), checked before each cell. Defender exclusion: cannot be read without admin rights, user-reported only. NOT met: a browser (waterfox, Edge webview), VLC, the EA app helper and VS Code were still open throughout; CPU load before each cell 6 to 22%, the busiest process up to 119% of one core (Edge webview) before the headline. The spread below includes this. Cold Numba compile (cache cleared, then fresh process): 0.78 s for warm_up (mode N); 0.16 s in the later mode_n run (cache rebuilt).
+Results (median of 3, s per run; s per 1e4 tau; spread = (max - min)/median; solver count = nfev, mode N Heun steps):
+  headline         117.3 s   71.1   1.9%   nfev 5.28e6
+  delta_0.01       203.6 s  123.4   3.1%   nfev 9.55e6   (path -1.107 to 4.0)
+  delta_0.6        107.5 s   65.2   3.8%   nfev 4.87e6   (path 3.274 to 6.774)
+  p5_1000         1777.3 s   88.2   6.9%   nfev 6.06e7
+  m2_ramp          512.0 s   50.4   6.2%   nfev 2.74e7
+  mode_n            0.61 s    0.365 3.0%   1.67e7 steps (sigma 1e-3 UNVERIFIED, not calibrated)
+  radau_1e-10_t10  143.4 s  521.5   0.8%   (2,750 tau; nfev 3.02e6)
+  radau_1e-12_t10  299.7 s 1089.7   8.2%   (2,750 tau; nfev 6.41e6)
+  radau_1e-12      TIMEOUT at 3600 s (DL-097, old path), at least 30 x headline, lower bound, not re-run.
+Against DL-097 (old path, Balanced plan): headline 119.3 -> 117.3 s, delta_0.6 97.1 -> 107.5 s, p5_1000 1945 -> 1777 s, m2_ramp 602 -> 512 s, mode_n 0.70 -> 0.61 s. The Delta = 0.01 cell now runs (203.6 s, 1.7 x the headline). The rows hold the same order, so the change from the power plan is small next to the path change.
+Extrapolation (analysis/timing.extrapolate, 6 workers, Table 9.1 work counts at 20 steps per tau, so 3.3e5 steps = 16,500 tau; this is not the 3e family table; allowance = upper end of the Table 9.1 row, rule prediction <= 1.5 x allowance):
+  One P2 ramp: headline 117.3 s PASS, delta_0.6 107.5 s PASS, delta_0.01 203.6 s FAIL (limit 148.5 s).
+  S2, S5, S6 sweeps (7e7 MF steps, 3.1e9 Heun): 1.16 h at headline s/tau, PASS (limit 1.42 h; at the P5 s/tau 1.43 h, just over, FAIL).
+  S5 baseline-only mode N: 0.01 h PASS.
+  S7 map 1: 4.94 h at headline, 4.53 h at delta_0.6 PASS (limit 6.15 h); 8.57 h at delta_0.01 FAIL.
+  S7 map 2 and noisy subgrid: 2.53 h PASS (limit 3.30 h).
+  Not extrapolated (no run count, or no cell): S1 to S4/A1 to A6, networks S8 to S10/S12 (R5 estimates, not measured), S11/S12 mean field/S16, S13 numerics, spectrograms, analysis. No total is formed; the D36 cap is not judged.
+  Radau/DOP853 s/tau (Radau at the 10 s ramp, DOP853 at the 120 s headline, so indicative): 7.3 x at 1e-10 and 15.3 x at 1e-12, against the plan's 3 to 10 x.
+Verdict: not all rows meet the launch rule. Rows that fail: the Delta = 0.01 edge for the single run and for map 1, and (marginally, only if all sweep work costs the P5 rate) S2/S5/S6. Whether map 1 is judged on the headline or on the Delta bounds, and the 9.3 cut order, are for the user; nothing is cut and no S-run starts. Paths stay provisional and UNVERIFIED until A4, and the cells are re-timed at MS5.
+Reason:          3c of docs/ms3_plan.md.
+Options:         -
+Chosen:          as above   Default from: DL-094, DL-095, DL-098
+Evidence:        results/timing/*.json, prediction_3c.txt, logs/ (git-ignored); plan 9.2, Table 9.1.
+Test:            fast suite green.
+Status:          done; launch verdict open for the user
+Commit/tag:      the 3c commit
