@@ -1213,3 +1213,14 @@ Evidence:        docs/ms4_plan.md; configs/S2.yaml; scripts/run_S2.py; tests/tes
 Test:            tests/test_s2_config.py (7 new); fast suite green (218 passed, 1 xfailed).
 Status:          done (4b); 4c waits for the user
 Commit/tag:      the commit that adds this entry
+
+## DL-108  User ruling on the S2 fold source; MS4 4c: analysis/sn_ramp.py (A3 jump and G1 fit)    [ID: D8, D12, T06]
+Date:            2026-10-16        Author:
+Decision:        (a) Ruling: the S2 folds are read from the A1 formula (bifurcation.fold_etas), as scripts/run_S2.py does (DL-107). Step 4e also cross-checks them against the stored A1 fixed-point grid (results/A1), within one grid cell. (b) 4c build: src/mprsurge/analysis/sn_ramp.py, pure functions on one stored series (t_ms, r, v, eta) and the fold value passed in. Jump definition, UNVERIFIED (the plan defines none): sliding window 0.1 s; a jump exists if the largest change of r over a window is at least 0.5 of the range of r; jump time = largest single-sample change of r inside that window; eta_bar at the jump = ramp value at that time. Window, fraction and time convention are ours. Ring class: envelope_growth (surge_metrics, MS1) on v from the jump time, G band 25 to 100 Hz, threshold 0 (no amplitude threshold in M2, CP17), first 10 cycles; damped only if rate < -2 SE (D8), else non_damped; no_jump when no jump. Returns offset from the fold in eta_bar and in steps (step 0.05, DL-107 (a)). The plan gives no definition of "ring class"; damped / non_damped is our reading, UNVERIFIED. DL-062 (SE too small) and DL-073 (step-onset bias) apply to the fit.
+Reason:          project owner ruling; 4c of docs/ms4_plan.md.
+Options:         jump by threshold on dr/dt or by crossing of the r midpoint; ruled by us: windowed change relative to range.
+Chosen:          as above   Default from: user ruling (a); (b) our proposal, for the owner to confirm
+Evidence:        src/mprsurge/analysis/sn_ramp.py, tests/test_sn_ramp.py; plan 5.2 A3, 4.3 G1, Table 2.1, D8.
+Test:            tests/test_sn_ramp.py (7 new, seeded synthetic: known jump time and eta_bar; 5-cycle damped; slowly damped over 10 cycles; non-damped; smooth ramp, no jump); S2 not run.
+Status:          done (4c); 4d waits for the user
+Commit/tag:      the commit that adds this entry
