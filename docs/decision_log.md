@@ -1082,3 +1082,28 @@ Evidence:        plan Table 6.2 S7, S13, RB6, CP20, 9.2, 9.3, Table 9.1; DL-098,
 Test:            none (docs only); the cells, tests and timing follow in the next commit.
 Status:          done (decision); timing follows
 Commit/tag:      the commit that adds this entry
+
+## DL-101  MS3 3c (continued): tau_d corner cells, map 1 weighted estimate, remaining rows    [ID: D12, D36, T23, T24]
+Date:            2026-10-16        Author:
+Decision:        none; no default and no solver setting changed; no cut applied (DL-100 (2)). Cells and code at commit 6bd871f (dirty = false), 3 repeats, DOP853 rtol 1e-10, High performance plan; the browser, VLC and Edge webview were still open (CPU load 9 to 31% before each cell), as in DL-099. Paths provisional and UNVERIFIED until A4.
+Results (median s per run; spread):
+  delta_0.01_td1   243.0 s  7.7%   (path -0.662 to 4.0)
+  delta_0.01_td50  127.2 s  4.8%   (-1.249 to 4.0)
+  delta_0.6_td1    125.3 s  0.6%   (6.286 to 9.786)
+  delta_0.6_td50    91.6 s  0.6%   (headline start and peak, no Hopf point, CP20)
+Map 1 (S7), weighted over the 900-cell grid (Delta linear, UNVERIFIED; tau_d log), cost interpolated piecewise linearly in (log Delta, log tau_d) on seven measured cells (the four corners, delta_0.01, headline, delta_0.6 at 5 ms), 6 workers: 5.14 h; per run mean 123.4 s, min 91.6, max 243.0. Allowance 4.1 h, limit 1.5 x = 6.15 h: PASS. Sensitivity (our check, not ruled): with a log-spaced Delta grid the estimate is 6.02 h, still inside but close to the limit; interpolation between only seven cells is coarse, and the cost is not guaranteed smooth. Worst case, all 900 cells at the slowest cell (243 s): 10.13 h, reported as a worst case only, not a verdict.
+Cut order: none applied. Map 1 passes on the weighted estimate and the sweeps are unchanged (1.16 h at the headline rate, 1.43 h at the P5 rate, limit 1.42 h; a tie within the 7% spread of p5_1000, DL-100 (2)).
+Remaining rows extrapolated (6 workers; counts from Table 6.2; indicative where noted):
+  S13 Radau at rtol 1e-10 on P2 at 10, 120, 316 s (tau 2,750, 16,500, 41,000), cost from the 10 s cell (0.0521 s per tau): Radau 143, 861, 2138 s; DOP853 counterpart 20, 117, 292 s; 59.5 min one core, 9.9 min at 6 workers, longest run 35.6 min. Indicative (short-ramp Radau rate applied to long ramps). rtol 1e-12 at 10 s: 5.0 min measured. This reading of RB6 and S13 is UNVERIFIED (DL-100 (3)). The S13 row (< 1 h, limit 1.5 h) also holds the rtol 1e-8 and 1e-12 ladders on other ramps, delta0, the D43 floor ladder and the network dt ladder, which have no cell or count here: the row is not fully extrapolated.
+  S11 (sigma 3 x T_ramp 4 x 10 seeds, 120 mode-N runs, 2 s discard + 5 + 1.25 T + 10 s): 1.93e9 Heun steps, 0.20 min (assumes sigma does not change the cost).
+  S16 (14 + 64 = 78 runs at the headline cost): 25.4 min. Indicative: tau_d and Delta perturbations cost more or less (cells above: 0.7 to 2 x).
+  S11 + S16 = 25.6 min against the row S11, S12 mean field, S16 (< 40 min, limit 60 min); S12 mean field is not included (the NC path durations are not in the text read for this entry), so the row is partial.
+  S2 (M2 ramp, 13 T_ramp 1 to 1000 s, 5 + T + 10 s): 3.5 min; S4 (M3, 122 steps x 2 s at the headline rate): 0.5 min; with S1, S3 and A1 to A6 not extrapolated the row S1 to S4/A1 to A6 (< 30 min, limit 45 min) is partial.
+Workers 6, 8, 10: not done; they are sub-step 3d (DL-100 (4)). The 24 h cap (D36) is not judged: the network rows (S8 to S10, S12, K8) are not measured until qif_network exists (MS5).
+Reason:          DL-100.
+Options:         -
+Chosen:          as above   Default from: DL-100
+Evidence:        results/timing/*.json, prediction_dl101.txt (git-ignored); plan Table 6.2, Table 9.1, 9.2, 9.3.
+Test:            fast suite green (206 passed).
+Status:          done; sub-step 3d and the family table 3e remain
+Commit/tag:      the commit that adds this entry
