@@ -1266,3 +1266,15 @@ Evidence:        DL-107, DL-110, results/A3/a3_sn_ramp.parquet (git-ignored).
 Test:            no code change.
 Status:          done; MS4 gate report and fresh-context review next
 Commit/tag:      the commit that adds this entry
+
+## DL-112  MS5 5a: sub-step plan docs/ms5_plan.md    [ID: D12, D18, D34, D36, T04, T05, T23]
+Date:            2026-10-16        Author:
+Decision:        None; no default, definition, plan text, D-item, model, surge class, path or control is changed. docs/ms5_plan.md lists sub-steps 5a to 5j (plan, A4 module, A4 run with K7/K8/K9/K11 values, S3 mean field, network code, network timing, S3 network with K8 at N = 5x10^4 and the K4-net status, sigma calibration, headline re-time, gate report), run-time expectations from DL-102 to DL-105 (Heun about 4x slower per step under 10 copies; the D36 24 h cap to be judged at 5f; all network figures UNVERIFIED), which runs need the clean machine, and the open items. No A4, S3 or network run was made.
+Open items:      K4-net M2 coupling unsourced (default: recorded not run); K7 4.12 ms against the paper's 4.95 ms, UNVERIFIED, and the amplitude half of K7 assumed deferred to MS6 (UNVERIFIED reading); K10 at MS5 from A4, non-blocking (default); K5 definition; /permissions (DL-051); Defender exclusion; paths provisional until A4; possible private remote backup; sigma search rule and K8 comparison definitions (ours, UNVERIFIED).
+Reason:          instruction of the project owner; 5a of docs/ms5_plan.md.
+Options:         -
+Chosen:          as above   Default from: plan Table 11.1 MS5, Table 7.1, Table 9.1
+Evidence:        docs/plan.md (Table 11.1, 5.2 A4, 6.2, 6.3, 6.4, 7.1, 9.2, Table 9.1), docs/ms4_gate_report.md, docs/ms3_gate_report.md, DL-074 to DL-079, DL-102 to DL-111.
+Test:            fast suite green (226 passed, 1 xfailed).
+Status:          done (5a); 5b waits for the user
+Commit/tag:      the commit that adds this entry
