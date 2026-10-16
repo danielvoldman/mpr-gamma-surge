@@ -1012,3 +1012,16 @@ Evidence:        plan 9.2 step 1, 4.4, 6.2, CP14, D12, Table 6.2 S2.
 Test:            tests/test_timing_cells.py.
 Status:          done
 Commit/tag:      the 3a commit
+
+## DL-097  MS3 3b: scripts/time_one_run.py, timing functions, first run of the seven cells    [ID: D36, T23]
+Date:            2026-10-15        Author:
+Decision:        none; no default changed. Implements 3b of docs/ms3_plan.md with DL-094 and DL-095. The driver layers a cell over configs/S5.yaml, warms the Numba kernel (mode N only; timed apart, not in any repeat), times each repeat on its own (perf_counter around the integration call only), enforces 3600 s per repeat (D-6) through the solver deadline, and writes results/timing/<cell>.json (kind timing, D-8) with commit, dirty flag, package versions, OS, CPU, machine state before and after, eta_path_status and the sigma label. A repeat that is not ok ends the cell (remaining repeats not run); no solver setting is changed. Mode N runs with seeds.spawn_key [0] (seed index 0, as the runner). analysis/timing.py gained summarise_repeats, s_per_tau and extrapolate (arithmetic only, tested on a toy table; no family is extrapolated, 3e).
+Results (median of 3 repeats, s per run / s per 1e4 tau): headline 119.3 / 72.3 (nfev 5.95e6; spread 3.7%); delta_0.6 97.1 / 58.9 (spread 3.3%); p5_1000 1945 / 96.5 (repeats 1822, 1945, 2109 s, rising; spread 14.8%); m2_ramp 602 / 59.3 (spread 5.8%); mode_n 0.70 / 0.42 (16.7e6 steps; spread 14%; warm-up 0.39 s, cache already warm, so a cold compile time was not measured); delta_0.01 FAILED at the start state (FixedPointError: no stable fixed point at eta_bar 2.5, J -21, Delta 0.01), not timed; radau_1e-12 TIMEOUT at 3600 s on repeat 1 (so at least 30 times the headline), not timed, lower bound only. Provisional eta path (UNVERIFIED until A4) on all but m2_ramp; mode_n sigma 1e-3 UNVERIFIED, not calibrated.
+Caveats: records carry dirty = true (the only uncommitted files were the 3b files; commit b09f3f1). The 9.1 machine state was NOT met: Balanced power plan, a browser, VS Code and Defender (MsMpEng up to 88% before m2_ramp) were active; the machine-state fields record this. Treat the numbers as upper-side and re-time in the 9.1 state at 3c. Open for the user (not decided): delta_0.01 as defined cannot start at the provisional path (its start point has no stable fixed point), and Radau at rtol 1e-12 does not finish in the limit; neither cell was altered.
+Reason:          3b of docs/ms3_plan.md.
+Options:         -
+Chosen:          as above   Default from: DL-094, DL-095
+Evidence:        plan 9.2 step 1, D-6, D-8; results/timing/*.json (git-ignored).
+Test:            tests/test_timing.py.
+Status:          done; two cells failed or timed out as recorded
+Commit/tag:      the 3b commit

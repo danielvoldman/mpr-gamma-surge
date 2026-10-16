@@ -6,6 +6,7 @@ A cell is configs/timing/<cell>.yaml, layered on the S5 run file (base.yaml, the
 from __future__ import annotations
 
 import copy
+import statistics
 from pathlib import Path
 
 from .. import config as C
@@ -37,6 +38,35 @@ def tau_simulated(cfg: dict) -> float:
     if cfg["run"]["kind"] == "mf_noisy":
         t_end += s_to_tau(cfg["durations"]["discard_s"], tau)
     return float(t_end)
+
+
+def summarise_repeats(walls) -> dict:
+    """Min, median, max and spread of the wall times of the repeats (seconds). Spread = max - min."""
+    w = [float(x) for x in walls]
+    if not w:
+        raise ValueError("no repeats to summarise")
+    med = statistics.median(w)
+    return {"n": len(w), "min_s": min(w), "median_s": med, "max_s": max(w), "spread_s": max(w) - min(w),
+            "spread_rel": (max(w) - min(w)) / med if med > 0 else float("nan"),
+            "stdev_s": statistics.stdev(w) if len(w) > 1 else 0.0}
+
+
+def s_per_tau(wall_s: float, tau: float) -> float:
+    """Seconds of wall time per tau simulated."""
+    if tau <= 0:
+        raise ValueError("tau simulated must be positive")
+    return float(wall_s) / float(tau)
+
+
+def extrapolate(rows, workers: int) -> float:
+    """Wall time (s) of a run family: sum of work x cost per unit of work, divided by workers (9.2 step 2).
+
+    rows: (work, cost_per_work) pairs; work is tau simulated with s/tau (mean field) or steps with s/step (Heun).
+    Arithmetic only; the families themselves are 3e.
+    """
+    if workers < 1:
+        raise ValueError("workers must be >= 1")
+    return sum(float(n) * float(c) for n, c in rows) / workers
 
 
 def describe_cell(config_arg: str, cell: str) -> dict:
