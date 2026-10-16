@@ -1,8 +1,8 @@
 # S5: ramp-rate sweep (plan Table 6.2 S5), headline cell only at MS3 (plan 9.2, DL-094, DL-095).
 # Headline (D40): P2 (path_hypoxia) at ref_devalle, T_ramp 120 s, linear, I = 0, mode D, DOP853 rtol 1e-10 (base.yaml).
-# eta path: PROVISIONAL and UNVERIFIED until A4 (MS5). eta_start 2.5 and eta_peak 6.0 are the D12 rule
-# (eta_H - 1.5, max(4, eta_H + 2)) with a PLACEHOLDER eta_H = 4.0; this is not an estimate of eta_H (DL-094).
+# eta path: PROVISIONAL and UNVERIFIED until A4 (MS5). eta_start and eta_peak are the D12 rule (eta_H - 1.5,
+# max(4, eta_H + 2)) with eta_H = 2.896046 from a numerical scan (fixed_points + jacobian_3d, J -21, tau_d 5 ms, Delta 0.3; DL-098).
 # The timing cells (configs/timing/*.yaml) are layered on this file by scripts/time_one_run.py (DL-095).
 run:      {id: S5, kind: mf, workers: 1}
 model:    {ref_point: ref_devalle}
-path:     {name: path_hypoxia, profile: linear, T_ramp_s: 120.0, eta_start: 2.5, eta_peak: 6.0}
+path:     {name: path_hypoxia, profile: linear, T_ramp_s: 120.0, eta_start: 1.396046, eta_peak: 4.896046}

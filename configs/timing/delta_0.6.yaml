@@ -1,2 +1,4 @@
-# Timing cell Delta = 0.6 (DL-095 D-3): headline with only Delta changed. Re-time at MS5.
+# Timing cell Delta = 0.6 (DL-095 D-3): headline with Delta changed and the D12 path of this Delta (DL-098).
+# eta_H = 4.774430 (numerical scan, J -21, tau_d 5 ms): eta_start = eta_H - 1.5, eta_peak = max(4, eta_H + 2). PROVISIONAL, UNVERIFIED until A4.
 model: {Delta: 0.6}
+path: {eta_start: 3.27443, eta_peak: 6.77443}

@@ -1,2 +1,4 @@
-# Timing cell Delta = 0.01 (DL-095 D-3): headline with only Delta changed. 'Near the Hopf window' is NOT located before A4; re-time at MS5.
+# Timing cell Delta = 0.01 (DL-095 D-3): headline with Delta changed and the D12 path of this Delta (DL-098).
+# eta_H = 0.393453 (numerical scan, J -21, tau_d 5 ms): eta_start = eta_H - 1.5, eta_peak = max(4, eta_H + 2). PROVISIONAL, UNVERIFIED until A4.
 model: {Delta: 0.01}
+path: {eta_start: -1.106547, eta_peak: 4.0}

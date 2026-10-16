@@ -19,7 +19,7 @@ def test_headline_is_p2_ref_devalle_with_a_provisional_path():
     cfg = T.resolve_cell(S5, "headline")
     assert (cfg["path"]["name"], cfg["path"]["T_ramp_s"], cfg["path"]["profile"]) == ("path_hypoxia", 120.0, "linear")
     assert (cfg["model"]["type"], cfg["model"]["J"], cfg["model"]["Delta"], cfg["model"]["tau_d_ms"]) == ("M3", -21.0, 0.3, 5.0)
-    assert (cfg["path"]["eta_start"], cfg["path"]["eta_peak"]) == (2.5, 6.0)
+    assert (cfg["path"]["eta_start"], cfg["path"]["eta_peak"]) == (1.396046, 4.896046)
     assert cfg["path"]["eta_path_status"] == "provisional"
     assert cfg["model"]["I_drive"] == 0.0 and cfg["run"]["kind"] == "mf" and cfg["solver"]["method"] == "DOP853"
     assert T.tau_simulated(cfg) == pytest.approx(16500.0)           # 5 + 1.25 x 120 + 10 s (CP14)
@@ -35,8 +35,9 @@ def test_eta_path_values_change_the_hash():
 def test_delta_cells_change_only_delta(cell, Delta):
     h, c = T.resolve_cell(S5, "headline"), T.resolve_cell(S5, cell)
     assert c["model"]["Delta"] == Delta
-    for sec in ("path", "solver", "run", "durations"):
+    for sec in ("solver", "run", "durations"):
         assert c[sec] == h[sec]
+    assert {k: v for k, v in c["path"].items() if k not in ("eta_start", "eta_peak", "eps")} ==         {k: v for k, v in h["path"].items() if k not in ("eta_start", "eta_peak", "eps")}   # own D12 path per Delta (DL-098)
     assert {k: v for k, v in c["model"].items() if k != "Delta"} == {k: v for k, v in h["model"].items() if k != "Delta"}
 
 
@@ -67,6 +68,27 @@ def test_m2_ramp_is_path_eta_with_model_m2_between_the_folds_pm_1():
     assert T.tau_simulated(c) == pytest.approx(s_to_tau(5 + 1000 + 10, 10.0))
 
 
+def test_t10_radau_cells_and_plan_rule_delta_paths():
+    for cell, rtol in (("radau_1e-12_t10", 1e-12), ("radau_1e-10_t10", 1e-10)):
+        c = T.resolve_cell(S5, cell)
+        assert (c["solver"]["method"], c["solver"]["rtol"], c["path"]["T_ramp_s"]) == ("Radau", rtol, 10.0)
+        assert T.tau_simulated(c) == pytest.approx(s_to_tau(5 + 12.5 + 10, 10.0))
+    # D12 with eta_H from the scan (DL-098): eta_start = eta_H - 1.5, eta_peak = max(4, eta_H + 2)
+    for cell, eta_H in (("delta_0.01", 0.393453), ("headline", 2.896046), ("delta_0.6", 4.774430)):
+        c = T.resolve_cell(S5, cell)
+        assert c["path"]["eta_start"] == pytest.approx(eta_H - 1.5, abs=1e-6)
+        assert c["path"]["eta_peak"] == pytest.approx(max(4.0, eta_H + 2.0), abs=1e-6)
+        assert c["path"]["eta_path_status"] == "provisional"
+
+
+def test_scanned_eta_H_is_where_the_stable_root_loses_stability():
+    from mprsurge.models.fixed_points import classify_all
+    for Delta, eta_H in ((0.01, 0.393453), (0.3, 2.896046), (0.6, 4.774430)):
+        below = [l for _, l, _ in classify_all(eta_H - 1e-3, -21.0, Delta, 0.0, "M3", 0.5)]
+        above = [l for _, l, _ in classify_all(eta_H + 1e-3, -21.0, Delta, 0.0, "M3", 0.5)]
+        assert below == ["stable"] and "stable" not in above
+
+
 def test_unknown_cell_is_refused():
     with pytest.raises(C.ConfigError):
         T.resolve_cell(S5, "nope")
@@ -85,4 +107,4 @@ def test_s5_dry_run_record_carries_the_provisional_status(tmp_path):
     from mprsurge import run as R
     assert R.main(["--config", S5, "--dry-run", "--set", f"output.dir={tmp_path.as_posix()}"]) == 0
     rec = P.read_run_record(next(tmp_path.rglob("*.json")))
-    assert rec["config"]["path"]["eta_path_status"] == "provisional" and rec["config"]["path"]["eta_start"] == 2.5
+    assert rec["config"]["path"]["eta_path_status"] == "provisional" and rec["config"]["path"]["eta_start"] == 1.396046
