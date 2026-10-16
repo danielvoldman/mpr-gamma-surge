@@ -1278,3 +1278,17 @@ Evidence:        docs/plan.md (Table 11.1, 5.2 A4, 6.2, 6.3, 6.4, 7.1, 9.2, Tabl
 Test:            fast suite green (226 passed, 1 xfailed).
 Status:          done (5a); 5b waits for the user
 Commit/tag:      the commit that adds this entry
+
+## DL-113  User rulings on MS5 open items 1 to 3; MS5 5b: analysis/hopf.py and configs/A4.yaml    [ID: D34, T05, CP1, CP11, CP15, CP26]
+Date:            2026-10-16        Author:
+Decision:        (a) K4-net: no source gives the M2 network coupling, so K4-net is recorded as not run (non-blocking, plan Table 11.1 MS5) unless a source appears. No coupling is entered. (b) K7: the blocking value stays the approved 4.12 ms (UNVERIFIED, DL-074 to DL-079), a documented departure from the paper's 4.95 ms. The amplitude half of K7 (squared amplitude linear in tau_d - tau_d^(H), no hysteresis) is deferred to MS6, where A5 and S4 live, because Table 7.1 lists K7 under A4, A5 and S3. This deferral is the owner's reading of the gate, not stated in the plan: a visible departure, UNVERIFIED, to be re-checked at MS6. (c) K10 is computed at MS5 from the A4 frequency as a non-blocking check and re-checked at MS6 (Table 7.1 assigns it to A6). (d) 5b: analysis/hopf.py takes (a1, a2, a3) numerically from the existing Jacobian (np.poly of jacobian_3d); Hopf where a1 a2 = a3 with a1, a3 > 0 (brentq); Im lambda = sqrt(a2). Ceni Eqs. 11-12 are not used.
+Basis:           Owner ruling on D-1 to D-3 of docs/ms5_plan.md. 5b: plan 5.2 A4, Table 7.1 K7 to K9, K11, CP15, CP26.
+Working values (UNVERIFIED, plan gives none): configs/A4.yaml grids (eta_bar 801 points on [-10, 10], spacing 0.025, the working "A4 grid step", fixed at MS7); J search range [-40, -0.5]; K9 grid 16 x 16 x 120 ratio points then Nelder-Mead; "on the edge" = refined maximiser within 1 percent of a range bound (EDGE_FRAC); widening = tau_d bounds x2 each side, J lower bound x2, at most twice. No run kind a4 is added (optional).
+Checks made in tests, not an A4 run: Hopf at ref_ceni on the tau_d line gives 4.1209 ms (matches DL-074's 4.12); small K9 search at eta_bar = 1 gives 0.1453 at tau_d about 10 ms, J about -5.3, inside the ranges (a reading of the plan's reasoned claim, to be judged at 5c on the full grids).
+Reason:          instruction of the project owner; 5b of docs/ms5_plan.md.
+Options:         -
+Chosen:          as above   Default from: owner ruling; ms5_plan D-1 to D-3
+Evidence:        tests/test_hopf.py; docs/ms5_plan.md.
+Test:            fast suite green (234 passed, 1 xfailed).
+Status:          done (5b); 5c waits for the user
+Commit/tag:      the commit that adds this entry
