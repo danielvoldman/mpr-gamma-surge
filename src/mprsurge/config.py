@@ -27,7 +27,7 @@ ETA_PEAK_OFFSET = 2.0
 
 ETA_STATUSES = ("unresolved", "provisional", "explicit", "A4")  # DL-065, DL-067
 TAU_D_MS_RANGE = (1.0, 50.0)  # D11
-RUN_KINDS = ("mf", "mf_noisy", "a1", "s1", "a2", "a0", "a4")  # DL-055; "a1", "s1", "a2", "a0" are MS2 tasks; "a4" is MS5 (DL-114); "network" is added at MS5
+RUN_KINDS = ("mf", "mf_noisy", "a1", "s1", "a2", "a0", "a4", "s3")  # DL-055; "a1", "s1", "a2", "a0" are MS2 tasks; "a4" is MS5 (DL-114); "s3" is MS5 (5d, DL-116); "network" is added at MS5
 RAMP_PATH_NAMES = ("path_eta", "path_hypoxia", "path_drive", "path_delta_up",
                    "path_delta_down", "path_updown")  # P1, P2, P3, P4a, P4b, P5
 FORCING_PATH_NAMES = ("I_step", "I_sin")  # MS2 forcing paths for S1 (DL-085 item 4)

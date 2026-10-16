@@ -1322,3 +1322,19 @@ Evidence:        results/A4/a4_hopf_curves.npz sha256 affbddcac9ae21954a59e4309c
 Test:            fast suite green (237 passed, 1 xfailed).
 Status:          done (5c); 5d waits for the user
 Commit/tag:      the commit that adds this entry
+
+## DL-116  MS5 5d: S3 mean-field runs, the s3 run kind, K7 and K8 time-series values    [ID: D12, D25, D26, D34, K7, K8, K10]
+Date:            2026-10-16        Author:
+Decision:        "s3" is added to config.RUN_KINDS (task simulate_mf:run_s3), as DL-114 did for a4. Cells: configs/S3_ceni.yaml (ref_ceni, tau_d 3, 4.95, 8 ms) and configs/S3.yaml (ref_devalle, tau_d 5, 50 ms), each 10 s at constant parameters (path I_step with I_amp 0 and t_on 0, hold 10 s; baseline_s stays at 5 s in the hash and is unused), D25/D26 solver settings (DOP853, rtol 1e-10, atol 1e-12, max_step 0.05 tau, delta0 1e-6 on v at t = 0), output every 1 ms. Start state (ours, UNVERIFIED): ref_devalle from Devalle's Fig. 3 state (R(0) = S(0) = 5 Hz, V(0) = 0, Table 7.1 K8); ref_ceni from its single fixed point, stable or not, plus delta0 (stable_fixed_point refuses the unstable 8 ms point). Series in results/S3/ceni and results/S3/devalle (git-ignored), summary results/S3/s3_mf_summary.json, one provenance record per cell. Readout definitions (ours, UNVERIFIED, in analysis/s3.py): final window = last 4 s in four 1 s windows; amplitude = peak-to-peak; 'decays' = final 1 s peak-to-peak of v below delta0; 'holds' = the four window amplitudes within 2 percent of their mean and mean above 1000 delta0; frequency = Hann-windowed FFT peak of r over the final 4 s (zero-padded x8), mean-crossing count as cross-check.
+Numbers (wall 12.5 s for all five runs, three and two in parallel):
+  K7 (ref_ceni): 3 ms: v decays (final-second peak-to-peak 0.0 against delta0 1e-6): pass. 8 ms: sustained oscillation, window amplitudes within 8.3e-6 of their mean (limit 0.02), v peak-to-peak 2.911: pass. Information: 4.95 ms (above our Hopf 4.1209 ms, so oscillating, not marginal): v peak-to-peak 1.995, frequency 20.5 Hz; 8 ms frequency 18.0 Hz (FFT; crossing count 17.97). The Hopf value was judged at 5c. The amplitude half (squared amplitude linear in tau_d - tau_d^(H), no hysteresis) is not judged (DL-113, MS6); the measured v peak-to-peak (4.95 ms 1.994719, 8 ms 2.910826) and r peak-to-peak (0.206636, 0.426567, in 1/tau) are saved in the summary.
+  K8 (ref_devalle): 5 ms: limit cycle, window amplitudes within 9.2e-6 of their mean, v peak-to-peak 5.512, r peak-to-peak 1.262 /tau: pass. 50 ms: fixed point (final-second v peak-to-peak 0.0): pass. Peak frequency 36.27 Hz (FFT; 36.25 crossing count; A4 linear estimate 36.1 Hz): inside 25 to 100 Hz (non-blocking): pass.
+  K10: unchanged from DL-115 (the plan's 5d part is the A4 Im lambda reading, already recorded; the J-dependence failure and its MS6 recheck stand). The 4.95 and 8 ms cycle frequencies above are information, not a K10 judgement.
+  No check failed; no debugging round used. The network half of K8 (peak within 5 percent) is 5g.
+Reason:          instruction of the project owner; 5d of docs/ms5_plan.md.
+Options:         config kind s3 (chosen, as the plan allows 'if needed') against kind mf, which cannot take y0 or an unstable start.
+Chosen:          as above   Default from: plan 6.2 S3, Table 7.1; DL-113
+Evidence:        tests/test_s3_config.py; results/S3/s3_mf_summary.json; records ceni_0000_0de955d7d683, ceni_0001_52277c9529ac, ceni_0002_032f8992d047, devalle_0000_9e49def91dfc, devalle_0001_9a3f46a18b44.
+Test:            fast suite green (241 passed, 1 xfailed).
+Status:          done (5d); 5e waits for the user
+Commit/tag:      the commit that adds this entry

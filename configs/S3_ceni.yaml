@@ -1,0 +1,9 @@
+# S3 mean field, ref_ceni cells (plan 6.2 S3, 7.1 K7; MS5 step 5d, DL-116): tau_d 3, 4.95 and 8 ms, 10 s.
+# Constant parameters as configs/S3.yaml. Start: the single fixed point (stable or not) plus delta0 on v at t = 0.
+# Outputs: results/S3/ceni/.
+run:      {id: ceni, kind: s3, workers: 3}
+model:    {type: M3, ref_point: ref_ceni, tau_ms: 10.0, tau_d_ms: 4.95}
+path:     {name: I_step, I_amp: 0.0, t_on_s: 0.0}
+sweep:    {x_name: model.tau_d_ms, x_values: [3.0, 4.95, 8.0]}
+durations: {hold_s: 10.0}   # baseline_s stays at the base.yaml 5 s and is not used by I_step (t_on 0)
+output:   {dir: results/S3}

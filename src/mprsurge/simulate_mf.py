@@ -203,6 +203,28 @@ def run_s1(cfg: dict, deadline=None) -> dict:
     return out
 
 
+def run_s3(cfg: dict, deadline=None) -> dict:
+    """Runner task for run.kind = s3 (MS5 5d, DL-116): mode D at constant parameters (path I_step with
+    I_amp = 0). ref_devalle starts from Devalle's Fig. 3 state (K8, Table 7.1); any other point starts at
+    its single fixed point whatever its stability, plus delta0 on v at t_on = 0 (D26), because the K7 fixed
+    point is unstable at 8 ms and stable_fixed_point would refuse it."""
+    m = cfg["model"]
+    if cfg["path"]["name"] not in C.FORCING_PATH_NAMES or cfg["path"]["I_amp"] != 0.0:
+        raise C.ConfigError("run.kind s3 is a constant-parameter run: path I_step with I_amp = 0")
+    if m["ref_point"] == "ref_devalle":
+        y0, start = np.asarray(devalle_fig3_state(m["type"]), dtype=float), "devalle_fig3"
+    else:
+        tau_d = ms_to_tau(m["tau_d_ms"], m["tau_ms"])
+        fps = classify_all(m["eta_bar"], m["J"], m["Delta"], m["I_drive"], m["type"], tau_d)
+        if len(fps) != 1:
+            raise ValueError(f"s3: expected one fixed point, found {len(fps)}")
+        y0, start = np.asarray(fps[0][0], dtype=float), "fixed_point_" + fps[0][1]
+    out = run_mf(cfg, deadline, y0=y0)
+    out["flags"]["start"] = start
+    out["flags"]["fixed_point"] = [float(x) for x in y0] if start != "devalle_fig3" else None
+    return out
+
+
 # --- mode N ----------------------------------------------------------------------------------------
 
 @njit(cache=True)
