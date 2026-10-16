@@ -1136,3 +1136,15 @@ Evidence:        results/timing/workers_{1,6,8,10}.json, prediction_3d.txt, logs
 Test:            fast suite green (208 passed, 1 xfailed) on the code commit; tests/test_timing.py worker mode.
 Status:          done; launch verdict open for the user; 3e and 3f remain
 Commit/tag:      the commit that adds this entry
+
+## DL-103  User rulings after DL-102: launch rule judged at 10 workers, single run judged alone, no cut now, clean re-time at 3f    [ID: D12, D36, T23, T24]
+Date:            2026-10-16        Author:
+Decision:        (1) The launch rule (plan 9.2 step 3, <= 1.5 x the Table 9.1 allowance) is judged at the worker count actually used, 10 workers, using the measured speed-up of 5.90 in place of the ideal 6. This is a logged departure from the D-7 ruling (DL-094), which fixed 6 workers for the extrapolation; D-7 is otherwise unchanged and the 6-worker column stays in DL-102 for reference. (2) The single-run row (limit 148.5 s) is judged alone, not under concurrent load: only delta_0.01 (204 s alone) fails it; the headline (117 s) and delta_0.6 (108 s) pass. (3) Nothing is cut now. The cells are re-timed once on a clean machine (VLC and browser closed) at 3f. Section 9.3 step (5) (drop the 562 s and 1000 s ramps from P5 and the start-distance runs) is applied only if the sweeps at the P5 rate still fail after that re-time; the weighted map 1 estimate and map 2 are re-checked in the same pass, and steps (6) and (7) stay as in DL-102.
+Context:         At 6 workers (4.16 x speed-up) the sweeps, map 1 and map 2 fail. At 10 workers the sweeps pass at the headline rate and fail by 2% at the P5 rate (1.45 h against 1.42 h, a tie inside the 7% spread of p5_1000); map 1 passes (5.23 h against 6.15 h) and map 2 passes (2.57 h against 3.30 h). Run alone, only delta_0.01 fails the 148.5 s row. The 24 h cap (D36) cannot be judged until the network rows exist (MS5, qif_network). Paths are provisional and UNVERIFIED until A4. A browser (waterfox, Edge webview) was open during 3d, so the timings are slightly pessimistic.
+Reason:          project owner rulings on DL-102 of 2026-10-16.
+Options:         judge at 6 workers (D-7) or 10; judge the single run alone or under load; cut now or re-time first.
+Chosen:          as above   Default from: user ruling (departs from D-7 / DL-094 for the launch rule only)
+Evidence:        DL-102; results/timing/workers_{1,6,8,10}.json, prediction_3d.txt (git-ignored); plan 9.2, 9.3, Table 9.1.
+Test:            none (docs only).
+Status:          done (decision); re-time at 3f
+Commit/tag:      the commit that adds this entry
