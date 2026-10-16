@@ -1189,3 +1189,15 @@ Evidence:        DL-104; results/timing/clean/ (git-ignored); plan 9.2, 9.3, Tab
 Test:            none (docs only). Fresh-context review of docs/ms3_gate_report.md against the raw outputs: no numeric mismatches; the 'about 4x' wording above corrected (the project owner's ruling text compared the loaded rate with the alone rate divided by 5.90); DL-104 and the report give S11+S16 clean as 21.5 min, raw recomputation gives 21.6 min (report corrected; DL-104 left as committed); DL-104 p5_1000 third batch 2,329 s is 2,329.7 s raw (rounds to 2,330).
 Status:          done; MS3 gate closed with two logged exceptions
 Commit/tag:      the commit that adds this entry
+
+## DL-106  MS4 4a: sub-step plan docs/ms4_plan.md, map 1 weighted figure recomputed    [ID: D8, D12, D36, T06]
+Date:            2026-10-16        Author:
+Decision:        none; no default, solver setting, plan text or ruling changed. Adds docs/ms4_plan.md (MS4 goal and gate as the plan states them, inputs and their locations, sub-steps 4a to 4f, run-time expectations from DL-102 to DL-105, open items, four questions for the user before 4b). No S2 or A3 run. Check made first: the map 1 weighted figure was recomputed from the raw per-copy walls in results/timing/clean/<cell>/workers_10.json (30 copies per cell, median), seven cells at (Delta, tau_d ms) = (0.01,1), (0.01,5), (0.01,50), (0.3,5), (0.6,1), (0.6,5), (0.6,50), Delta linear 30 values and tau_d log 30 values (900 cells), piecewise-linear interpolation in (log Delta, log tau_d), divisor 10: 4.442 h, mean 177.7 s per run. docs/ms3_gate_report.md and DL-104 give 4.44 h: match. The recomputation is independent of mprsurge.analysis.timing but uses the same grid and interpolation choices; Delta linear stays UNVERIFIED (plan gives no spacing). Four corners alone would give 4.83 h (not a plan quantity).
+Open for the user before 4b (docs/ms4_plan.md): D-1 meaning of "within one step" of the saddle-node and the target fold; D-2 S2 baseline, hold, sampling, profile and G band for M2; D-3 G1 scope (S2 is one path); D-4 K5 kept as defined at MS2 (not redefined here). Also flagged: the DL-062/DL-073 growth-estimator caveats apply to G1; the map 1 Delta spacing concerns MS8.
+Reason:          4a of docs/ms4_plan.md; Table 11.1 MS4.
+Options:         -
+Chosen:          defaults listed in docs/ms4_plan.md   Default from: plan Table 11.1, DL-082, DL-085, DL-093
+Evidence:        results/timing/clean/ (git-ignored), docs/ms3_gate_report.md, plan 5.2 A3, 4.3 G1, 6.2 S2.
+Test:            fast suite green (211 passed, 1 xfailed).
+Status:          done; 4b waits for the user
+Commit/tag:      the commit that adds this entry
