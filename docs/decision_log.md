@@ -1107,3 +1107,32 @@ Evidence:        results/timing/*.json, prediction_dl101.txt (git-ignored); plan
 Test:            fast suite green (206 passed).
 Status:          done; sub-step 3d and the family table 3e remain
 Commit/tag:      the commit that adds this entry
+
+## DL-102  MS3 3d: 1, 6, 8, 10 concurrent workers, measured throughput, extrapolations and launch rule re-applied    [ID: D12, D36, T23, T24]
+Date:            2026-10-16        Author:
+Decision:        none; no default, solver setting, plan text or ruling changed; no cut applied; no S-run started. Implements 3d of docs/ms3_plan.md: scripts/time_one_run.py --cell headline --workers N --repeat 3 runs N copies of the cell at once through the spawn pool and run.py initialiser (thread variables 1, plain dicts), a barrier releasing all copies together (start spread 0.00 s, N distinct pids in every batch); each copy is timed on its own. Code commit before this entry, dirty = false, DOP853 rtol 1e-10, High performance plan, AC. Machine state per batch recorded in results/timing/workers_{1,6,8,10}.json (git-ignored): CPU load 8 to 29% before, 0 to 22% after; the browser (waterfox, Edge webview) and Task Manager were still open, as in DL-099 and DL-101, so not the clean 9.1 state. CPU: Ryzen 5 5600, 6 cores / 12 threads, so 8 and 10 workers use SMT siblings.
+Results (3 batches each; per-run median s; batch wall median s; runs/h = N x 3600 / batch wall; speed-up and efficiency against N = 1):
+  N=1    119.51   119.52    30.1   1.00   100%
+  N=6    171.96   172.31   125.4   4.16    69%   (per run 1.44 x slower than alone)
+  N=8    166.52   167.15   172.3   5.72    72%   (1.39 x)
+  N=10   201.84   202.65   177.6   5.90    59%   (1.69 x)
+Best worker count: 10 (highest throughput), only 3% above 8 (batch-wall spread within a cell was 0.5 to 6%, so 8 and 10 are close to a tie; 8 has the better efficiency and shorter per-run time). 10 is used below. Six workers deliver 4.16 x one worker, not 6 x: the "divide by 6" assumption (ideal) is met in effect only at 10 workers (5.90). The D-7 ruling (6 workers in the extrapolation) is not changed by this entry; the 6-worker column is shown for it.
+Extrapolation: DL-099/DL-101 values at "6 ideal workers" recomputed with the measured speed-up S in place of 6 (extrapolate is linear in 1/workers; map 1 re-run through weighted_family_estimate with S). Rates s/tau are those measured alone. Script: results/timing/predict_3d.py, output prediction_3d.txt (git-ignored). Launch rule: <= 1.5 x upper end of the Table 9.1 row (D-5).
+  Row                         limit   S=5.90 (10 w)    S=5.72 (8 w)   S=4.16 (6 w)
+  Sweeps S2/S5/S6, headline   1.42 h   1.18 PASS        1.22 PASS      1.67 FAIL +18%
+  Sweeps, P5 rate             1.42 h   1.45 FAIL +2%    1.50 FAIL +6%  2.06 FAIL +45%
+  S7 map 1 weighted           6.15 h   5.23 PASS        5.39 PASS      7.41 FAIL +21%
+  S7 map 2 + noisy subgrid    3.30 h   2.57 PASS        2.65 PASS      3.65 FAIL +11%
+  S5 baseline mode N          -        0.01 h PASS      0.01 PASS      0.01 PASS
+  S11 + S16 (partial)         60 min   26.0 PASS        26.9 PASS      36.9 PASS
+  S2 + S4 (partial)           45 min   4.1 PASS         4.2 PASS       5.8 PASS
+  S13 Radau pass set (indicative; row limit 1.5 h, row not fully extrapolated): 10.1 / 10.4 / 14.3 min at 6 ideal-equivalent workers; longest run 35.6 min alone, 60 min at 10 concurrent copies.
+Single-run row (limit 148.5 s), one run's wall under N concurrent copies (alone x per-run slowdown): headline 117 alone, 169 (6 w), 164 (8 w), 198 (10 w); delta_0.6 108, 155, 150, 182; delta_0.01 204, 293, 284, 344. Alone only delta_0.01 fails; under any concurrency the headline and delta_0.6 also exceed 148.5 s. Whether the single-run row is judged alone or under load is not stated in the plan text read: left for the user.
+Verdict at the chosen count (10): not all rows meet the launch rule. Failing: the sweeps if all sweep work costs the P5 rate, by 2% (1.45 h against 1.42 h; the tie flagged in DL-100 (2), inside the 7% spread of p5_1000), and the single-run row (delta_0.01 alone; headline and delta_0.6 under load). Map 1 passes (5.23 h against 6.15 h). At 6 workers (D-7) the sweeps, map 1 and map 2 all fail. Next step if the user rules the P5-rate sweeps a fail: 9.3 step (5), drop the 562 s and 1000 s ramps from P5 and the start-distance runs (steps 1 to 4 do not apply or are not measured: Radau is already at the headline T_ramp in the pass set, network dt and S9 seeds have no mean-field cost here, sigmoid for P2 only is a path change). If map 1 or map 2 later fail at 6 workers, step (6) map 1 to 20 x 20 and (7) map 2 to 13 x 13. Nothing is cut. The 24 h cap (D36) is not judged: network rows unmeasured until qif_network (MS5). Paths provisional, UNVERIFIED until A4.
+Reason:          3d of docs/ms3_plan.md; DL-100 (4).
+Options:         -
+Chosen:          as above   Default from: DL-094 (D-7), DL-100
+Evidence:        results/timing/workers_{1,6,8,10}.json, prediction_3d.txt, logs/workers_*.log (git-ignored); plan 9.2 step 1, 9.3, Table 9.1.
+Test:            fast suite green (208 passed, 1 xfailed) on the code commit; tests/test_timing.py worker mode.
+Status:          done; launch verdict open for the user; 3e and 3f remain
+Commit/tag:      the commit that adds this entry
