@@ -1148,3 +1148,32 @@ Evidence:        DL-102; results/timing/workers_{1,6,8,10}.json, prediction_3d.t
 Test:            none (docs only).
 Status:          done (decision); re-time at 3f
 Commit/tag:      the commit that adds this entry
+
+## DL-104  MS3 3f: clean re-time at 10 workers, rows judged under DL-103, section 9.3 step 5 not applied    [ID: D12, D36, T23, T24]
+Date:            2026-10-16        Author:
+Decision:        No default, solver setting, plan text or ruling changed; section 9.3 step (5) is NOT applied and nothing is cut: the sweeps at the P5 rate now pass (1.14 h against the limit of 1.43 h, DL-103 (3)). No S-run started. Implements DL-103 (3): every cell is re-timed once at 10 concurrent copies x 3 batches (pooled per-run median over the 30 copies, as DL-102), the single-run row alone (3 repeats). Judged at 10 workers, divisor 10 on the per-run median measured under 10-way load (DL-103 (1), a logged departure from D-7); the single-run row judged alone (DL-103 (2)). Code: 2092b94 (families, prediction), 2ba28b5 (step-count fallback); tree clean at 2092b94 for every cell (the mode_n x10 supplementary run only after the fallback edit, analysis code only). Raw outputs in results/timing/clean/ next to the 3d ones (git-ignored); report results/timing/clean/prediction.txt, written by python -m mprsurge.analysis.timing --predict --workers 10 --results-dir results/timing/clean.
+Machine state: VLC, waterfox, Edge and Task Manager closed before the run. Residual caveat: six msedgewebview2 processes (VS Code's) stayed open, as the user ruled. High performance plan, sleep after = never on AC (display off 900 s), AC. CPU load before each cell 0 to 19% (0 to 10% for the 10-worker cells), after 0 to 11%. Ryzen 5 5600, 6 cores / 12 threads, so 10 workers use SMT siblings. Limit per repeat 3600 s, raised to 7200 s for p5_1000 (expected about 3000 s under load; measured 2,329 s). Paths provisional and UNVERIFIED until A4.
+Results, per-run median s at 10 concurrent copies (3d, clean, change): headline 201.8, 162.8 (-19.3%); throughput 177.6, 220.4 runs/h (+24%); delta_0.01 343.8*, 285.1; delta_0.6 181.6*, 150.5 (*3d: alone x slowdown). Corner cells (clean only): delta_0.01_td1 330.6, delta_0.01_td50 194.3, delta_0.6_td1 189.9, delta_0.6_td50 139.1. p5_1000 2,329.4 (batches 2,341, 2,333, 2,329 s); m2_ramp 736.8; radau_1e-10_t10 189.1. Alone (3 repeats): headline 117.3, 101.4 s (-13.6%); delta_0.6 107.5, 93.5 (-13.0%); delta_0.01 203.6, 178.3 (-12.4%). Headline alone against 10 copies: 1.61 x slower per run (3d: 1.69 x), speed-up 6.2 (3d: 5.90).
+Rows (launch rule: prediction <= 1.5 x Table 9.1 allowance; 3d from DL-102 at S = 5.90; clean at 10 workers measured):
+  Row                          limit     3d            clean          change   verdict (clean)
+  Single run, alone (headline)  148.5 s   117.3         101.4          -13.6%   PASS
+  Single run, alone (d_0.6)     148.5 s   107.5         93.5           -13.0%   PASS
+  Single run, alone (d_0.01)    148.5 s   203.6         178.3          -12.4%   FAIL (+20% over the limit)
+  Sweeps S2/S5/S6, headline     1.43 h    1.18 h        0.97 h         -17.8%   PASS
+  Sweeps, P5 rate               1.43 h    1.45 h FAIL   1.14 h         -21.4%   PASS
+  S7 map 1 weighted             6.15 h    5.23 h        4.44 h         -15.1%   PASS
+  S7 map 2 + noisy subgrid      3.30 h    2.57 h        2.20 h         -14.4%   PASS
+  S5 baseline-only mode N       108 s     53 s (a)      121 s          (a)      FAIL (+12% over the limit)
+  S11 + S16 (partial)           60 min    26.0 min      21.5 min       -17%     PASS (partial)
+  S2 + S4 (partial)             45 min    4.1 min       3.4 min        -17%     PASS (partial)
+  S13 Radau pass set (indic.)   1.5 h     10.1 min      7.9 min        -22%     PASS (partial, indicative)
+(a) not like for like: 3d took the alone Heun rate (3.65e-8 s per step) divided by 5.90; the clean run measures the mode_n cell under 10 copies directly. Mode N takes 2.34 s per run under 10 copies against 0.61 s alone. A supplementary mode_n run with a 1200 s ramp (151,700 tau, 10 copies x 3 batches, results/timing/clean/mode_n_x10) took 22.67 s; the line through the two points has slope 1.51e-7 s per Heun step and an offset near zero, so the 4 x slowdown is a rate under SMT load, not a start-up cost. This also means the 3d Heun parts (alone rate / S) were too low; in the clean figures they are included at the loaded rate (sweeps 44 s, map 2 533 s, both small against their mean-field parts).
+Map 1 (weighted, 900 cells, Delta linear UNVERIFIED) 4.44 h on the clean per-run medians of the seven cells; the single-run row's failing cell is the Delta = 0.01 edge, which map 1 weights by its 30 values of 900.
+Verdict: all mean-field rows with a complete count pass except two. (1) Single run, delta_0.01 alone, 178.3 s against 148.5 s (the plan's per-run range 33 to 99 s, one core). (2) S5 baseline-only mode-N, 121 s against 108 s, a 2 min row in the MS7 plan. Neither is covered by a step of section 9.3 (steps 1 to 4 and 6, 7 name other rows; step 5 names the P5 and start-distance ramps, which now pass), so nothing is cut and both go to the user. The partial rows are lower bounds. The 24 h cap (D36) is not judged: S8 to S10, S12, K8 have no timing cell (network code is MS5), and S1, S3, A1 to A6, S12 mean field and the S13 ladders have no count here.
+Reason:          3f of docs/ms3_plan.md; DL-103 (3).
+Options:         apply 9.3 step 5 (not needed, P5-rate sweeps pass); cut nothing.
+Chosen:          cut nothing   Default from: DL-103
+Evidence:        results/timing/clean/ (workers_10.json per cell, alone json, logs/, prediction.txt, mode_n_x10), git-ignored; DL-102; plan 9.2, 9.3, Table 9.1.
+Test:            fast suite green (211 passed, 1 xfailed).
+Status:          done; two row failures open for the user
+Commit/tag:      the commit that adds this entry
