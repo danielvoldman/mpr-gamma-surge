@@ -102,3 +102,43 @@ def test_worker_mode_runs_n_concurrent_copies_in_the_spawn_pool(drv, tmp_path):
         assert b["distinct_pids"] == 2 and len(b["copies"]) == 2 and all(c["status"] == "ok" for c in b["copies"])
         assert b["batch_wall_s"] >= max(b["run_walls_s"]) - 1e-6
     assert t["summary"]["throughput_runs_per_h"] == pytest.approx(2 * 3600 / t["summary"]["batch_wall"]["median_s"])
+
+
+# ---- 3e: families, extrapolation and the launch rule (toy table, hand calculation) ----
+
+TOY_CELLS = {"a": {"wall_s": 100.0, "tau": 1000.0, "steps": 1e6}, "b": {"wall_s": 50.0, "tau": 500.0, "steps": None}}
+TOY_SPEC = {"rule_factor": 1.5, "workers_cap_h": 24.0, "no_cell": [], "rows": [
+    {"id": "mf", "allowance_s": 1000.0, "parts": [{"label": "x", "kind": "mf_tau", "tau": 20000.0, "cell": "a"},
+                                                  {"label": "y", "kind": "heun", "steps": 4e6, "cell": "a"},
+                                                  {"label": "z", "kind": "runs", "n": 6, "cell": "b"}]},
+    {"id": "tight", "allowance_s": 10.0, "parts": [{"label": "x", "kind": "mf_tau", "tau": 1000.0, "cell": "a"}]},
+    {"id": "gap", "allowance_s": 10.0, "parts": [{"label": "x", "kind": "mf_tau", "tau": 1.0, "cell": "nope"}]},
+    {"id": "half", "allowance_s": 10.0, "partial": True, "missing": ["S1"], "parts": [{"label": "x", "kind": "runs", "n": 1, "cell": "b"}]},
+    {"id": "one", "allowance_s": 90.0, "parts": [{"label": "a", "kind": "single", "cell": "a"}, {"label": "b", "kind": "single", "cell": "b"}]}]}
+
+
+def test_prediction_equals_hand_calculation_and_rule_is_per_row():
+    rows = {r["id"]: r for r in T.evaluate_rows(TOY_SPEC, TOY_CELLS, 2.0)}
+    # (20000 x 0.1 + 4e6 x 1e-4 + 6 x 50) / 2 = (2000 + 400 + 300) / 2
+    assert rows["mf"]["prediction_s"] == pytest.approx(1350.0) and rows["mf"]["verdict"] == "PASS"   # <= 1500
+    assert rows["tight"]["prediction_s"] == pytest.approx(50.0) and rows["tight"]["verdict"] == "FAIL"   # > 15
+    assert rows["half"]["verdict"] == "FAIL (partial)"
+    assert rows["one"]["prediction_s"] == 100.0 and rows["one"]["verdict"] == "PASS"   # alone, not divided; 100 <= 135
+    assert rows["one"]["parts"][1]["verdict"] == "PASS"
+
+
+def test_family_without_a_cell_is_reported_not_predicted():
+    rows = {r["id"]: r for r in T.evaluate_rows(TOY_SPEC, TOY_CELLS, 2.0)}
+    assert rows["gap"]["prediction_s"] is None and rows["gap"]["verdict"].startswith("no timing cell")
+    assert T.total_verdict(TOY_SPEC, list(rows.values()))["judged"] is False
+
+
+def test_shipped_families_file_loads_and_covers_the_table_rows():
+    spec = T.load_families()
+    ids = [r["id"] for r in spec["rows"]]
+    assert {"single_run", "sweeps_headline_rate", "sweeps_p5_rate", "map1", "map2", "s13"} <= set(ids)
+    for r in spec["rows"]:
+        assert ("allowance_h" in r) != ("allowance_s" in r) and r["parts"]
+        for p in r["parts"]:
+            for cell in ([p["cell"]] if "cell" in p else list(p.get("corners", {}).values())):
+                assert cell in T.CELLS

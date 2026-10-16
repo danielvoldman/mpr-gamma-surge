@@ -112,6 +112,150 @@ def weighted_family_estimate(measured, grid, workers: int) -> dict:
             "min_s_per_run": float(c.min()), "max_s_per_run": float(c.max())}
 
 
+# ---- 3e: run families, extrapolation and the launch rule (plan 9.2 steps 2 and 3) ----
+
+def families_path() -> Path:
+    return C.repo_root() / "configs" / "timing_families.yaml"
+
+
+def load_families(path=None) -> dict:
+    import yaml
+    with open(path or families_path(), encoding="utf-8") as fh:
+        return yaml.safe_load(fh)
+
+
+def part_seconds(part: dict, cells: dict, divisor: float) -> float:
+    """Wall time (s) of one part of a row. cells: {cell: {"wall_s", "tau", "steps"}} (per-run walls, tau simulated, solver steps).
+    A part whose cell is missing raises KeyError: callers report "no timing cell", never a silent prediction."""
+    kind = part["kind"]
+    if kind == "mf_tau":
+        c = cells[part["cell"]]
+        return extrapolate([(part["tau"], s_per_tau(c["wall_s"], c["tau"]))], divisor)
+    if kind == "heun":
+        c = cells[part["cell"]]
+        if not c.get("steps"):
+            raise KeyError(f"{part['cell']}: no solver step count")
+        return extrapolate([(part["steps"], c["wall_s"] / c["steps"])], divisor)
+    if kind == "runs":
+        return extrapolate([(part["n"], cells[part["cell"]]["wall_s"])], divisor)
+    if kind == "map1":
+        measured = []
+        for key, cell in part["corners"].items():
+            d, t = (float(x) for x in key.split(","))
+            measured.append((d, t, cells[cell]["wall_s"]))
+        return weighted_family_estimate(measured, map_grid(), divisor)["total_s"]
+    raise ValueError(f"unknown part kind {kind!r}")
+
+
+def evaluate_rows(spec: dict, cells: dict, divisor: float, alone: dict | None = None) -> list:
+    """Per-row prediction and launch verdict. The rule is prediction <= rule_factor x allowance (plan 9.2 step 3).
+    'single' parts are judged alone (DL-103 (2)) from `alone` (default `cells`). A missing cell gives verdict
+    "no timing cell". A row with partial: true is a lower bound, so its verdict carries "(partial)"."""
+    factor = float(spec.get("rule_factor", 1.5))
+    alone = cells if alone is None else alone
+    out = []
+    for row in spec["rows"]:
+        allow = float(row["allowance_s"]) if "allowance_s" in row else float(row["allowance_h"]) * 3600.0
+        limit = factor * allow
+        res = {"id": row["id"], "s_ids": row.get("s_ids", []), "allowance_s": allow, "limit_s": limit,
+               "partial": bool(row.get("partial")), "missing": row.get("missing", []), "parts": []}
+        try:
+            for part in row["parts"]:
+                if part["kind"] == "single":
+                    wall = alone[part["cell"]]["wall_s"]
+                    res["parts"].append({"label": part["label"], "seconds": wall, "single": True,
+                                         "verdict": "PASS" if wall <= limit else "FAIL"})
+                else:
+                    res["parts"].append({"label": part["label"], "seconds": part_seconds(part, cells, divisor)})
+        except KeyError as e:
+            res.update(prediction_s=None, verdict=f"no timing cell ({e.args[0]})")
+            out.append(res)
+            continue
+        if any(p.get("single") for p in res["parts"]):
+            res["prediction_s"] = max(p["seconds"] for p in res["parts"])
+            res["verdict"] = "FAIL" if any(p["verdict"] == "FAIL" for p in res["parts"]) else "PASS"
+        else:
+            res["prediction_s"] = sum(p["seconds"] for p in res["parts"])
+            res["verdict"] = "PASS" if res["prediction_s"] <= limit else "FAIL"
+        if res["partial"]:
+            res["verdict"] += " (partial)"
+        out.append(res)
+    return out
+
+
+def total_verdict(spec: dict, rows: list) -> dict:
+    """The D36 cap is judged only when every row has a prediction and none is partial or lacks a cell; otherwise not judged."""
+    gaps = [r["id"] for r in rows if r["prediction_s"] is None or r["partial"]]
+    gaps += list(spec.get("no_cell", []))
+    if gaps:
+        return {"judged": False, "gaps": gaps}
+    tot = sum(r["prediction_s"] for r in rows if r["id"] != "single_run") / 3600.0
+    return {"judged": True, "total_h": tot, "pass": tot <= float(spec["workers_cap_h"])}
+
+
+def load_cells(results_dir, cells, workers=None, steps_dir=None) -> dict:
+    """Per-cell walls from timing json. workers=None: <dir>/<cell>.json (median of the repeats, alone). workers=N:
+    <dir>/<cell>/workers_N.json, per-run median pooled over all copies of all batches (DL-102). Solver steps come from
+    <steps_dir>/<cell>.json (a count, independent of load). Cells without a file are left out."""
+    import json
+    out = {}
+    for cell in cells:
+        base = Path(results_dir)
+        p = base / f"{cell}.json" if workers is None else base / cell / f"workers_{workers}.json"
+        if not p.exists():
+            continue
+        t = json.loads(p.read_text(encoding="utf-8"))["timing"]
+        if t.get("status") != "ok":
+            continue
+        wall = t["summary"]["median_s"] if workers is None else t["summary"]["per_run"]["median_s"]
+        steps = None
+        sp = Path(steps_dir or results_dir) / f"{cell}.json"
+        if sp.exists():
+            steps = json.loads(sp.read_text(encoding="utf-8"))["timing"].get("solver_count")
+        out[cell] = {"wall_s": float(wall), "tau": float(t["tau_simulated"]), "steps": steps}
+    return out
+
+
+def format_report(rows: list, total: dict, label: str, divisor: float) -> str:
+    def fmt(s):
+        return "-" if s is None else (f"{s:.1f} s" if s < 600 else f"{s / 3600:.2f} h")
+    lines = [f"Prediction ({label}); divisor {divisor:.2f}; launch rule: prediction <= 1.5 x Table 9.1 allowance", ""]
+    for r in rows:
+        ids = "/".join(r["s_ids"]) or "-"
+        lines.append(f"{r['id']:22s} {ids:10s} prediction {fmt(r['prediction_s']):>9s}  allowance {fmt(r['allowance_s']):>9s}  "
+                     f"limit {fmt(r['limit_s']):>9s}  {r['verdict']}")
+        for p in r["parts"]:
+            lines.append(f"    {p['label']:40s} {fmt(p['seconds']):>9s}" + (f"  {p['verdict']}" if "verdict" in p else ""))
+        if r["partial"]:
+            lines.append(f"    not extrapolated (no count or cell): {', '.join(r['missing'])}")
+    lines.append("")
+    if total["judged"]:
+        lines.append(f"Total {total['total_h']:.2f} h against the D36 cap: {'PASS' if total['pass'] else 'FAIL'}")
+    else:
+        lines.append("Total: not formed, the D36 cap is not judged. Rows without prediction or incomplete, no timing cell: "
+                     + ", ".join(total["gaps"]))
+    return "\n".join(lines)
+
+
+def predict_main(args) -> int:
+    spec = load_families()
+    names = sorted({p["cell"] for r in spec["rows"] for p in r["parts"] if "cell" in p}
+                   | {c for r in spec["rows"] for p in r["parts"] for c in p.get("corners", {}).values()})
+    root = C.repo_root()
+    alone_dir = root / (args.alone_dir or args.results_dir)
+    cells = load_cells(root / args.results_dir, names, args.workers, alone_dir)
+    alone = load_cells(alone_dir, names) if args.workers else cells
+    divisor = float(args.workers) if args.workers else args.speedup
+    rows = evaluate_rows(spec, cells, divisor, alone)
+    text = format_report(rows, total_verdict(spec, rows),
+                         f"{args.results_dir}, " + (f"{args.workers} concurrent copies" if args.workers else "alone"), divisor)
+    print(text)
+    out = root / args.out
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(text + "\n", encoding="utf-8")
+    return 0
+
+
 def describe_cell(config_arg: str, cell: str) -> dict:
     cfg = resolve_cell(config_arg, cell)
     return {"cell": cell, "kind": cfg["run"]["kind"], "model": cfg["model"]["type"], "solver": cfg["solver"]["method"],
@@ -126,7 +270,17 @@ def main(argv=None) -> int:
                                  description="print every timing cell with its tau simulated and eta path status")
     ap.add_argument("--config", default="configs/S5.yaml")
     ap.add_argument("--cell", default=None)
+    ap.add_argument("--predict", action="store_true", help="3e: print and write the per-family prediction and launch verdict")
+    ap.add_argument("--results-dir", default="results/timing", help="--predict: where the cell json are")
+    ap.add_argument("--workers", type=int, default=None,
+                    help="--predict: use <results-dir>/<cell>/workers_N.json (per-run median under N copies), divide by N; "
+                         "default: alone values divided by --speedup")
+    ap.add_argument("--speedup", type=float, default=1.0, help="--predict, alone basis: divisor (measured speed-up)")
+    ap.add_argument("--alone-dir", default=None, help="--predict: dir with the alone cells (single-run row, step counts)")
+    ap.add_argument("--out", default="results/timing/prediction.txt")
     args = ap.parse_args(argv)
+    if args.predict:
+        return predict_main(args)
     for cell in ([args.cell] if args.cell else CELLS):
         d = describe_cell(args.config, cell)
         print(f"{d['cell']:12s} {d['kind']:9s} {d['model']} {d['solver']:7s} rtol {d['rtol']:g} {d['path']:13s} "

@@ -1,0 +1,81 @@
+# Run families for the feasibility gate (plan 9.2 steps 2 and 3; MS3 sub-step 3e; DL-099, DL-101, DL-102, DL-103).
+# Work counts are Table 9.1 / Table 6.2 as read in DL-099 and DL-101. Mean-field steps are converted to tau at
+# 20 steps per tau (the conversion used since DL-099; UNVERIFIED against the plan text). Allowances are the upper end
+# of the Table 9.1 wall-time range, in hours; the launch rule is prediction <= 1.5 x allowance (D-5).
+# part kinds: mf_tau (tau x s/tau of `cell`), heun (steps x s/step of `cell`), runs (n x wall of `cell`),
+#   map1 (weighted over the 900-cell grid, DL-100), single (one run, judged alone, DL-103 (2)).
+# A row with `partial: true` has run families without a count or timing cell (listed in `missing`), so its
+# prediction is a lower bound and the verdict is printed as such, never silently as a full pass.
+rule_factor: 1.5
+workers_cap_h: 24.0          # D36; judged only when every row incl. networks has a prediction (MS5)
+rows:
+  - id: single_run
+    table_row: "One mean-field P2 ramp, T_ramp 120 s"
+    allowance_s: 99.0
+    parts:
+      - {label: headline, kind: single, cell: headline}
+      - {label: delta_0.6, kind: single, cell: delta_0.6}
+      - {label: delta_0.01, kind: single, cell: delta_0.01}
+  - id: sweeps_headline_rate
+    s_ids: [S2, S5, S6]
+    table_row: "S2, S5, S6 (ramp sweeps)"
+    allowance_h: 0.95
+    parts:
+      - {label: mean-field 7e7 steps, kind: mf_tau, tau: 3.5e6, cell: headline}
+      - {label: Heun 3.1e9 steps, kind: heun, steps: 3.1e9, cell: mode_n}
+  - id: sweeps_p5_rate
+    s_ids: [S2, S5, S6]
+    table_row: "S2, S5, S6 (ramp sweeps), all mean-field work at the P5 1000 s rate"
+    allowance_h: 0.95
+    parts:
+      - {label: mean-field 7e7 steps, kind: mf_tau, tau: 3.5e6, cell: p5_1000}
+      - {label: Heun 3.1e9 steps, kind: heun, steps: 3.1e9, cell: mode_n}
+  - id: s5_baseline_mode_n
+    s_ids: [S5]
+    table_row: "S5 baseline-only mode-N runs at MS7"
+    allowance_h: 0.02
+    parts:
+      - {label: Heun 8.6e9 steps, kind: heun, steps: 8.6e9, cell: mode_n}
+  - id: map1
+    s_ids: [S7]
+    table_row: "S7 map 1 (900 cells x 120 s)"
+    allowance_h: 4.1
+    parts:
+      - {label: weighted 900-cell grid, kind: map1,
+         corners: {"0.01,1": delta_0.01_td1, "0.01,5": delta_0.01, "0.01,50": delta_0.01_td50,
+                   "0.3,5": headline, "0.6,1": delta_0.6_td1, "0.6,5": delta_0.6, "0.6,50": delta_0.6_td50}}
+  - id: map2
+    s_ids: [S7]
+    table_row: "S7 map 2 (25 x 13) and noisy subgrid (225 x 10 seeds)"
+    allowance_h: 2.2
+    parts:
+      - {label: mean-field 1.5e8 steps, kind: mf_tau, tau: 7.5e6, cell: headline}
+      - {label: Heun 3.8e10 steps, kind: heun, steps: 3.8e10, cell: mode_n}
+  - id: s11_s16
+    s_ids: [S11, S16]
+    table_row: "S11, S12 mean field, S16"
+    allowance_h: 0.6667
+    partial: true
+    missing: [S12 mean field]
+    parts:
+      - {label: S11 1.929e9 Heun steps, kind: heun, steps: 1.929e9, cell: mode_n}
+      - {label: S16 78 runs at headline cost, kind: runs, n: 78, cell: headline}
+  - id: s1_s4
+    s_ids: [S2, S4]
+    table_row: "S1-S4, A1-A6"
+    allowance_h: 0.5
+    partial: true
+    missing: [S1, S3, A1-A6]
+    parts:
+      - {label: "S2 M2 ramps 247,860 tau", kind: mf_tau, tau: 247860, cell: m2_ramp}
+      - {label: "S4 24,400 tau at the headline rate", kind: mf_tau, tau: 24400, cell: headline}
+  - id: s13
+    s_ids: [S13]
+    table_row: "S13 numerics (Radau pass set on P2 at 10, 120, 316 s; indicative, DL-100 (3))"
+    allowance_h: 1.0
+    partial: true
+    missing: [rtol 1e-8 and 1e-12 ladders on other ramps, delta0, D43 floor ladder, network dt ladder]
+    parts:
+      - {label: Radau 1e-10, kind: mf_tau, tau: 60250, cell: radau_1e-10_t10}
+      - {label: DOP853 counterpart, kind: mf_tau, tau: 60250, cell: headline}
+no_cell: [S8, S9, S10, S12 network, K8, spectrograms, analysis and reclassification]
