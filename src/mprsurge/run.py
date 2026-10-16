@@ -38,7 +38,8 @@ TASKS = {"mf": "mprsurge.simulate_mf:run_mf", "mf_noisy": "mprsurge.simulate_mf:
          "a2": "mprsurge.analysis.ring:run_a2",
          "a0": "mprsurge.analysis.replication:run_a0",
          "a4": "mprsurge.analysis.hopf:run_a4",
-         "s3": "mprsurge.simulate_mf:run_s3"}
+         "s3": "mprsurge.simulate_mf:run_s3",
+         "network": "mprsurge.qif_network:run_network"}
 THREAD_VARS = ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMBA_NUM_THREADS")
 LOG_NAME = "mprsurge.run"
 
@@ -102,7 +103,7 @@ def build_plan(config_arg: str, sets=(), workers: int | None = None) -> Plan:
         ov["run.workers"] = workers
     cfg0 = C.resolve_config(path, ov)
     axes = _axes(cfg0)
-    noisy = cfg0["run"]["kind"] == "mf_noisy"
+    noisy = cfg0["run"]["kind"] in ("mf_noisy", "network")   # seeded kinds: one cell per seed
     combos = list(itertools.product(*[v for _, v in axes])) or [()]
     runs = [(combo, s) for combo in combos for s in range(cfg0["seeds"]["n_seeds"] if noisy else 1)]
     family = cfg0["run"]["id"] or path.stem
