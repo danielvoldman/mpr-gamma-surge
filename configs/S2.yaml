@@ -1,0 +1,18 @@
+# S2: M2 mean-field ramp sweep (plan Table 6.2 S2, 5.2 A3; MS4 step 4b, DL-107).
+# J/sqrt(Delta) = 15 (J = 15, Delta = 1, tau = 10 ms), I = 0. path_eta: linear eta_bar ramp from 1 below the lower
+# fold to 1 above the upper fold. The fold values are those of A1 (bifurcation.fold_etas(15, 1), the formula behind
+# results/A1): -5.743527161657844 and -3.136134086195692, so eta_start = -6.743527161657844 and
+# eta_peak = -2.136134086195692 (same numbers as configs/timing/m2_ramp.yaml). scripts/run_S2.py checks these
+# against fold_etas before it runs or dry-runs; a mismatch stops it.
+# T_ramp: 13 log-spaced values 1 to 1000 s (10^(k/4), k = 0..12). Baseline 5 s, hold 10 s (base.yaml durations),
+# linear profile, D25/D26 solver settings (DOP853 rtol 1e-10, atol 1e-12, max_step 0.05 tau), output every 1 ms
+# (dt_out_ms, as the m2_ramp timing cell), G band 25 to 100 Hz (base.yaml). Baseline, hold, band and sampling are
+# UNVERIFIED (DL-107 (b)).
+run:      {id: S2, kind: mf, workers: 10}
+model:    {type: M2, ref_point: null, tau_ms: 10.0, tau_d_ms: null, eta_bar: -5.0, Delta: 1.0, J: 15.0, I_drive: 0.0}
+path:     {name: path_eta, profile: linear, T_ramp_s: 1000.0, t_on_s: 5.0,
+           eta_start: -6.743527161657844, eta_peak: -2.136134086195692}
+sweep:    {T_ramp_values: [1.0, 1.77827941, 3.16227766, 5.623413252, 10.0, 17.7827941, 31.6227766,
+                           56.23413252, 100.0, 177.827941, 316.227766, 562.3413252, 1000.0]}
+durations: {baseline_s: 5.0, hold_s: 10.0}
+analysis: {band_primary_hz: [25.0, 100.0]}

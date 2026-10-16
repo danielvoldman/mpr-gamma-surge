@@ -1201,3 +1201,15 @@ Evidence:        results/timing/clean/ (git-ignored), docs/ms3_gate_report.md, p
 Test:            fast suite green (211 passed, 1 xfailed).
 Status:          done; 4b waits for the user
 Commit/tag:      the commit that adds this entry
+
+## DL-107  User rulings on DL-106 (D-1 to D-4) and MS4 4b: configs/S2.yaml, scripts/run_S2.py dry run    [ID: D8, D12, T06]
+Date:            2026-10-16        Author:
+Decision:        (a) "Within one step" of the A1 saddle-node value (A3 check) means one A1 grid cell, d_eta_bar = 0.05 (K1's cell). The result is also reported against 0.025, for information only. This reading is UNVERIFIED. The target fold is the one the upward ramp crosses, read from A1 (not assumed). (b) S2 setup: 5 s baseline, the ramp, then a 10 s hold; linear profile; D25/D26 solver settings (DOP853, rtol 1e-10, atol 1e-12, max_step 0.05 tau); G band 25 to 100 Hz; output sampling as the m2_ramp timing cell (dt_out 1 ms). Band and sampling are UNVERIFIED. (c) G1 is judged on S2 alone; "move to M3" is the expected outcome and needs no further paths. (d) K5 is not re-run; the MS2 pass is cited. The K5 definition stays an open item (DL-064, DL-082, DL-088).
+4b build:        configs/S2.yaml (kind mf with a 13-value T_ramp_values family, no new run kind; J = 15, Delta = 1, tau = 10 ms, I = 0; path_eta eta_start -6.743527161657844, eta_peak -2.136134086195692; T_ramp 10^(k/4) s, k = 0..12). The two eta values are typed in the YAML (as in configs/timing/m2_ramp.yaml); scripts/run_S2.py recomputes the folds with bifurcation.fold_etas(15, 1) (the A1 formula, not the stored grid) and stops with exit 2 if the path is not (fold_low - 1, fold_up + 1) to 1e-12. Folds found: lower -5.743527161657844, upper -3.1361340861956917. --dry-run prints the folds and the 13-run list (T_ramp, t_on, ramp end, total tau, hash), checks the ramp breakpoints of every cell (t_on = 500 tau, ramp end = t_on + T, eta at the ends), writes 13 dry-run records, integrates nothing. Total simulated 247,860 tau, equal to the MS3 family count. The run's results/ output is not read from A1's stored npz; the formula is what K1 and K2 check.
+Reason:          project owner rulings on docs/ms4_plan.md D-1 to D-4; 4b of the plan.
+Options:         D-1 half-spacing step (plan default) or the A1 cell; ruled: the A1 cell.
+Chosen:          as above   Default from: user ruling (a), (c), (d); (b) = plan defaults of DL-106 D-2
+Evidence:        docs/ms4_plan.md; configs/S2.yaml; scripts/run_S2.py; tests/test_s2_config.py; plan 5.2 A3, 6.2 S2, 4.3 G1.
+Test:            tests/test_s2_config.py (7 new); fast suite green (218 passed, 1 xfailed).
+Status:          done (4b); 4c waits for the user
+Commit/tag:      the commit that adds this entry
