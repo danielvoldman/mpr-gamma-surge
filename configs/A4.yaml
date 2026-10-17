@@ -1,6 +1,9 @@
 # A4: M3 fixed points and Hopf curves (plan 5.2 A4; MS5 step 5c, DL-114). Run config for the a4 kind.
 # The grids and the K-check protocol are in configs/A4_grids.yaml (working values, UNVERIFIED); config.hash_view
 # adds them to the hash. The model block names the reference point only; A4 scans its own parameters.
+# A4 eta_bar grid step (RB3(a) tolerance, A7): 0.025, owner ruling F-13 (DL-152), UNVERIFIED, draft, not frozen. It is realised by
+# grids.eta_bar (lo -10, hi 10, n 801) in A4_grids.yaml and recorded as a4_eta_bar_grid_step in configs/S13.yaml;
+# tests/test_entry_exit.py checks that they agree. (A new key here would be rejected by the config schema and change the A4 hash.)
 run:      {id: A4, kind: a4, workers: 1}
 model:    {type: M3, ref_point: ref_devalle, tau_ms: 10.0, tau_d_ms: 5.0}
 robustness: {criteria_file: configs/replication.yaml}

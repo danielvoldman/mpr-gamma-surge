@@ -107,3 +107,25 @@ def test_stationary_std_scales_with_sigma_and_grows_towards_the_hopf_point():
     s1 = E.stationary_std_v(2.0, sigma=1.0, **kw)
     assert E.stationary_std_v(2.0, sigma=0.5, **kw) == pytest.approx(0.5 * s1)
     assert E.stationary_std_v(2.8, **kw) > s1 > E.stationary_std_v(1.396, **kw) > 0
+
+
+def test_a4_grid_step_agrees_across_configs():
+    import yaml
+    root = C.repo_root()
+    s13 = yaml.safe_load((root / "configs/S13.yaml").read_text(encoding="utf8"))["ruled_by_owner_7g"]
+    g = yaml.safe_load((root / "configs/A4_grids.yaml").read_text(encoding="utf8"))["grids"]["eta_bar"]
+    assert (g["hi"] - g["lo"]) / (g["n"] - 1) == pytest.approx(s13["a4_eta_bar_grid_step"], rel=1e-12)
+    assert s13["a4_eta_bar_grid_step"] == 0.025
+    assert "a4_eta_bar_grid_step: 0.025" not in (root / "configs/A4.yaml").read_text(encoding="utf8")  # comment only, not a key
+
+
+def test_s13_ruled_values_consistent():
+    import yaml
+    s = yaml.safe_load((C.repo_root() / "configs/S13.yaml").read_text(encoding="utf8"))
+    r = s["ruled_by_owner_7g"]
+    assert r["heun_dt_ladder_tau"][0] == s["stated_by_plan"]["heun_dt_default_tau"] == 1e-3
+    assert r["heun_dt_ladder_tau"] == [1e-3, 5e-4, 2.5e-4, 1e-4]
+    for d0, sf in zip(r["d43_delta0_nominal"], r["d43_floor_levels_sigma_floor"]):
+        assert sf == pytest.approx(d0 / r["d43_std_v_over_sigma_at_start_state"], rel=5e-3)
+    assert max(r["d43_floor_levels_sigma_floor"]) < 0.0624
+    assert "pending_owner_ruling" not in s

@@ -5,7 +5,7 @@ points:                                       # (eta_bar, Delta, J) of the valid
   ref_ceni:    {eta_bar: 1.0, Delta: 0.05, J: -20.0}
   ref_devalle: {eta_bar: 4.0, Delta: 0.3,  J: -21.0}
 grids:
-  eta_bar:  {lo: -10.0, hi: 10.0, n: 801}     # scan for the lowest Hopf crossing; spacing 0.025 is the working "A4 grid step" of A7 and RB3(a), UNVERIFIED, fixed at MS7
+  eta_bar:  {lo: -10.0, hi: 10.0, n: 801}     # scan for the lowest Hopf crossing; spacing 0.025 is the "A4 grid step" of A7 and RB3(a), owner ruling F-13 (DL-152), UNVERIFIED, draft, not frozen
   tau_d_ms: {lo: 1.0, hi: 50.0, n: 30, spacing: log}   # D11 range
   Delta:    {lo: 0.01, hi: 1.0, n: 100, spacing: log}
   J:        {lo: -40.0, hi: -0.5, n: 80}

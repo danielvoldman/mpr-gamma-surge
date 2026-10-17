@@ -1845,3 +1845,31 @@ Chosen:          as above   Default from: ours (plan has no protocol), UNVERIFIE
 Test:            tests/test_solver_floor.py (4 tests)
 Status:          design fixed, run next (result in DL-151).
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-151  MS7 7g: F-11 solver-floor hold run, result    [ID: D43, A7, F-11, DL-148, DL-149, DL-150]
+Date:            2026-10-17        Author:
+Decision:        Ran configs/F11.yaml (python -m mprsurge.run, from the clean tree of commit fda66a4, git.dirty = false, 88.2 s wall against the 86 s projection) and scripts/run_F11.py as fixed in DL-150. Outputs results/F11/F11/F11_0000_855b0538c3fb.{npz,json}, results/F11/f11_floor.json and record F11FLOOR_0000_*.json (git-ignored). No ramp, no noise, no S2 re-run, no criteria file, no tag; D8 not used; 7e records and 7f outputs untouched.
+Results:         165,001 samples (165 s). max |v - v(0)| = 6.661e-16, identical for the second-half maximum and the final value; RMS 6.661e-16; dr_max = 0 and ds_max = 0 exactly. dv_max = 5.04 x eps x |v(0)| (v(0) = -0.5947). The departure is a constant offset of a few ulp in v that appears at the first step and does not grow: no accumulating drift over 16,500 tau. Candidate noise-free solver floor (v units, the unit of delta_0): 6.66e-16, UNVERIFIED, draft, not frozen. The plan-wording ambiguity check of DL-150 held: max, second half and final all give 6.66e-16 (no decade of spread). Limits as in DL-150 (5): this is the floor at rest, a lower bound for a ramp run; the rtol dependence is not measured.
+  Arithmetic effect on RB3(a) (from the exact scaling of DL-149, not a new run): T_max = T ln(delta_0/floor) / (-I_min); for P1 linear, delta_0 1e-6 the 1e-16 row gave 2.36 s, so floor 6.66e-16 gives about 2.36 x ln(1.5e9)/ln(1e10) = 2.16 s, which still holds the 1.78 s ramp (2 of 13 at the boundary, as at 1e-16). The D43 floors (1e-9 and above) are far above this solver floor, so for the D43 runs the noise floor, not the solver, bounds the range.
+Reason:          owner ruling F-11; ms7_plan.md 7g row.
+Options:         -
+Chosen:          candidate floor 6.66e-16 written to configs/S13.yaml (DL-152)   Default from: measured; protocol ours, UNVERIFIED
+Test:            tests/test_solver_floor.py (4 tests)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-152  MS7 7g: owner rulings F-10, F-11 (value), F-13, F-14, F-15, G6 reading; values entered as draft, not frozen; open item 13 closed    [ID: D43, A4, A7, RB3, RB6, G6, F-10 to F-15, CP25, DL-148, DL-149, DL-150, DL-151]
+Date:            2026-10-17        Author:
+Decision:        Entered the owner's 7g rulings. Every value below is UNVERIFIED (no source gives it) and "draft, not frozen"; nothing is frozen until 7j, no criteria file is created, no tag. The plan is not edited. D8 is open (DL-137, DL-140, DL-147); nothing in 7g uses the D8 call.
+  F-10 (D43 levels): delta_0 = 1e-9, 1e-6, 1e-3 (nominal labels); sigma_floor = delta_0 / 0.629 = 1.59e-9, 1.59e-6, 1.59e-3 (v-units per sqrt(tau), the DL-072 convention; all below sigma 0.0624). 0.629 = stationary std of v over sigma at the P2 start state (Lyapunov, noise on v only, DL-149); it rises to 2.44 at eta_H - 0.1 and diverges at eta_H, so delta_0 is a nominal label of the level, not the amplitude along the ramp. Gap to DL-120's 0.622 (0.62229): a 1.1 percent difference, explained as sampling: DL-120's value is an empirical mean over 10 seeds of the sample std of 1 ms values over 5 s, and its single-run seed sd is 3.5 percent (DL-120), so the standard error of the 10-seed mean is about 1.1 percent, the size of the gap; 0.629 is the exact linear value. Not a different model. (Arithmetic from the DL-120 numbers; the DL-120 runs were not repeated.) The sigma = 0.0624 calibration is not touched.
+  F-11 (solver floor): measured in DL-151, candidate 6.66e-16 (v units), UNVERIFIED, draft, not frozen.
+  F-13 (A4 grid step): 0.025 in eta-bar, entered in configs/S13.yaml (a4_eta_bar_grid_step), realised by configs/A4_grids.yaml (801 points on [-10, 10]); configs/A4.yaml carries it as a comment only, because its schema rejects a new key and a new key in A4_grids.yaml values would change the A4 run hash (a deviation from the instruction wording "into configs/A4.yaml"; tests check the three agree). The A4 hash is unchanged.
+  F-14 (Heun ladder): {1e-3, 5e-4, 2.5e-4, 1e-4} tau with coupled Brownian increments across rungs (each finer rung's increments sum to the 1e-3 rung's, per seed); default 1e-3 tau; RB6 compares the default with the finest rung (1e-4); in configs/S13.yaml. The 5 percent statistic is the plan's; the per-seed delay and the median over seeds as the statistic is not stated in the ruling and is not entered (to settle at 7h).
+  F-15 (RB3(b)): the median delay over seeds decreases strictly over the three floor levels, each step lower than the one before, 10 seeds per level; flat or tied fails; no scaling law; no number beyond this. Recorded in configs/S13.yaml (rb3b_form) for the draft criteria.
+  G6 reading, a plan interpretation for the owner's sign-off at 7h (not a change): the headline (120 s) is outside the RB3(a) range (DL-149 (2): I_min about -9.4 per second of T_ramp, e^-1122 of delta_0 at 120 s), and the plan says runs outside the range are reported, not judged. So the RB3(a) clause of G6 is "not judged at the headline"; G6 at the headline rests on RB3(b) and RB6; RB3(a) is reported with its coverage, 0 to 2 of the 13 T_ramp values per path and profile (DL-149 (2), DL-151). Open for 7h sign-off, with the other items 7h already holds (O1 to O16, O4/O5, reachability, A_ref reading). Not ruled here: O1 to O16, O4/O5, reachability, A_ref reading; F-6 and the post-surge rate are not implemented.
+Reason:          owner rulings of the 7g continuation; ms7_plan.md 7g row.
+Options:         -
+Chosen:          as above   Default from: owner ruling; UNVERIFIED
+Test:            tests/test_entry_exit.py (2 new: the A4 step agrees across configs; S13 ruled values consistent); fast suite below.
+Status:          7g done. Open item 13 closed (docs/ms7_plan.md). Next: 7h (criteria file) only on the owner's instruction.
+Commit/tag:      the commit that adds this entry; no tag

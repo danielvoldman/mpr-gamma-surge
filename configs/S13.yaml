@@ -1,7 +1,7 @@
-# S13 numerical checks (plan Table 6.2 S13; 7g, DL-148). NOT a run config yet: no run reads it, no ramp run uses it before criteria-frozen.
-# Part 1: values the plan states (Table 6.2 S13, RB6). Part 2: values the plan marks UNVERIFIED or "set at MS7". They are null
-# on purpose: the plan gives a rule or a range but no value, the candidates and their evidence are in DL-149 and
-# results/A4/a4_rb3a_*, and the choice is the owner's ruling (7g instruction rule 1). Do not fill from memory.
+# S13 numerical checks (plan Table 6.2 S13; 7g, DL-148, DL-152). NOT a run config yet: no run reads it, no ramp run uses it before criteria-frozen.
+# Part 1: values the plan states (Table 6.2 S13, RB6). Part 2: values the plan marks UNVERIFIED or "set at MS7", entered by the
+# owner's 7g rulings (DL-152). Every part-2 value is UNVERIFIED (no source gives it) and DRAFT, NOT FROZEN (frozen only with the
+# criteria at 7j).
 stated_by_plan:
   mean_field_T_ramp_s: [10.0, 120.0, 316.0]            # P2 at ref_devalle; 120 s is the headline
   solvers: [DOP853, Radau]
@@ -12,8 +12,14 @@ stated_by_plan:
   window_factors: [0.5, 2.0]
   heun_dt_default_tau: 1.0e-3                          # mode-N default (6.2); the first rung of the Heun ladder
   rb6_heun_delay_change_max_percent: 5.0               # RB6, between the default step and the finest rung
-pending_owner_ruling:                                  # all UNVERIFIED in the plan; null until ruled
-  heun_dt_ladder_tau_below_default: null               # rungs below 1e-3 tau (RB6, S13)
-  d43_floor_levels: null                               # noise.floor_levels (D43), levels and unit convention
-  solver_floor_noise_free: null                        # noise-free DOP853 floor value (A7)
-  a4_eta_bar_grid_step: null                           # RB3(a) tolerance (A4); configs/A4_grids.yaml holds the working 0.025
+ruled_by_owner_7g:                                     # DL-152; all UNVERIFIED, draft, not frozen
+  heun_dt_ladder_tau: [1.0e-3, 5.0e-4, 2.5e-4, 1.0e-4]  # F-14; default 1e-3 tau; RB6 compares the default with the finest rung (1e-4)
+  heun_ladder_coupled_brownian_increments: true         # F-14; the finer rungs sum to the same Brownian increments of the 1e-3 rung, per seed
+  d43_delta0_nominal: [1.0e-9, 1.0e-6, 1.0e-3]          # F-10; nominal labels of the levels (std of v rises to 2.44 sigma_floor at eta_H - 0.1)
+  d43_std_v_over_sigma_at_start_state: 0.629            # F-10; stationary std of v / sigma at the P2 start state (Lyapunov, DL-149)
+  d43_floor_levels_sigma_floor: [1.59e-9, 1.59e-6, 1.59e-3]   # F-10; sigma_floor = delta_0 / 0.629, v-units per sqrt(tau), below sigma 0.0624
+  solver_floor_noise_free_v: 6.66e-16                   # F-11; MEASURED (DL-151): constant-parameter hold run, max |v - v(0)|, candidate
+  a4_eta_bar_grid_step: 0.025                           # F-13; configs/A4_grids.yaml grids.eta_bar (801 points on [-10, 10]) realises it
+  rb3b_form: strict_decrease_of_median_delay            # F-15; median delay over seeds at each floor level, 10 seeds per level; each step
+                                                        #   lower than the one before; flat or ties fail; no scaling law; no number beyond this
+  rb3b_n_seeds_per_level: 10
