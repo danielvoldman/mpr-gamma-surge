@@ -1,0 +1,189 @@
+# DRAFT, NOT FROZEN. Robustness criteria (plan Table 7.2, D35; gates G5 to G7, Table 11.2) and the MS7 classifier / D43 / A4 values.
+# MS7 sub-step 7h (docs/ms7_plan.md). Nothing here is frozen: no SHA-256 has been computed, no tag exists. The freeze is 7j and only on the
+# owner's instruction. Every ruling the owner still owes is a row of docs/ms7_signoff.md; the `sheet:` field names that row.
+#
+# Status of each value (the three labels the owner asked for):
+#   logged     = written down in the plan (Table 7.2, Table 11.2, Table 2.1, Appendix B) or in a decision-log entry (source given). Plan
+#                numbers marked [needs decision] in the plan (D35) are carried at their plan default and still need the sign-off.
+#   UNVERIFIED = no source gives it: ours, or an owner ruling that no source backs. Carried as ruled, labelled.
+#   open       = not decided anywhere. `value: null` unless a default is named; the sheet row holds the options.
+# Leaf format: key: {value: ..., status: ..., source: ..., sheet: ...}.
+#
+# This file is read by no run yet. configs/A4.yaml and configs/S5.yaml still point robustness.criteria_file at configs/replication.yaml
+# (sheet H-2). The numbers also held in configs/S13.yaml and results/A8/a_ref are checked against it by tests/test_criteria_draft.py.
+
+meta:
+  draft: true
+  frozen: false
+  freeze_sha256: null            # NOT computed (7j only, on the owner's instruction; LF text as DL-084)
+  freeze_tag: null               # criteria-frozen is not created
+  plan: docs/plan.md v0.5
+  decision_log_through: DL-156
+
+# ---------------------------------------------------------------------------------------------------------------------------------
+# Classifier (Table 2.1; analysis/surge_metrics.py). The D-items are at their plan defaults (F-8, sheet F-8).
+classifier:
+  band_primary_hz:       {value: [25.0, 100.0], status: logged, source: "D2, Table 2.1", sheet: F-8}
+  total_band_hz:         {value: [1.0, 150.0], status: logged, source: "D3, Table 2.1; linear detrend", sheet: F-8}
+  spectrogram_taper:     {value: hann, status: logged, source: "D4", sheet: F-8}
+  window_rule:           {value: "W = 2 s, step 1 s for T_ramp >= 60 s; else W = max(0.2 s, T_ramp/30), step W/2", status: logged, source: "D4", sheet: F-8}
+  baseline_s:            {value: 5.0, status: logged, source: "D5, CP14: last 5 s before t_on; 2 s discard before it", sheet: F-8}
+  baseline_discard_s:    {value: 2.0, status: logged, source: "D5, CP14", sheet: F-8}
+  rel_factor:            {value: 2.0, status: logged, source: "D6: P_G/P_non-G >= 2 x baseline (odds, CP18)", sheet: F-8}
+  abs_factor:            {value: 2.0, status: logged, source: "D6: P_G >= 2 x baseline P_G", sheet: F-8}
+  min_cycles:            {value: 10, status: logged, source: "D8", sheet: F-8}
+  collapse_r_frac:       {value: 0.1, status: logged, source: "D9: r < 10 percent of baseline", sheet: F-8}
+  amin_factor:           {value: 0.1, status: logged, source: "D7, F-2: 0.1 x A_ref, one absolute threshold for every cell and path", sheet: F-2}
+  d8_estimator:
+    value: "PlanD8Estimator: fit ln(envelope) from the threshold crossing over the first 10 cycles; damped only if the rate is < -2 SE; zero-phase Butterworth order 4 band-pass; plain OLS SE; nan is non-damped"
+    status: logged
+    source: "Table 2.1 D8 wording (plan); estimator choices per DL-062, DL-140"
+    sheet: D8
+    choice: A                    # owner ruling for MS7 (this step, ruling 1): plan estimator stays the default; B is a sheet choice
+    known_limitation:
+      text: >
+        The plan estimator has documented failures, stated here and not fixed in MS7 (the strict xfail stays):
+        standard errors understated (inflation factor k up to 619, DL-137); step-onset filter bias that turns damped rings into
+        non-damped calls and growing rings into damped calls (DL-073, DL-137); the Hilbert wrap that reads a sustained episode as damped
+        (DL-140 finding 1; false damped 34.5 percent in DL-155 F3); a steady stored limit cycle called damped at one of three t_on values
+        (DL-140 finding 2); on the pre-registered synthetic matrix 26 of 36 cells miss the 95 percent sign match and 5 of 5 zero-growth cells
+        exceed 5 percent false damped (DL-137, reproduced in DL-155). Every class that went through a D8 call is labelled
+        "provisional (D8 open, DL-137)". No candidate fix met the DL-136 numbers (DL-155).
+      source: "DL-062, DL-073, DL-137, DL-140, DL-147, DL-155"
+  a_ref:
+    value: 2.176222              # 2.176221747792915 in results/A8/a_ref/a_ref.json
+    status: UNVERIFIED           # owner-ruled reading (a), DL-139; the 0.1 x A_ref threshold below is derived
+    source: "DL-139: median of the band-passed Hilbert envelope over whole cycles of the stored S3 ref_devalle record, first and last 1 s dropped"
+    sheet: H-1
+    threshold_abs:           {value: 0.217622, status: UNVERIFIED, source: "0.1 x A_ref (D7)", sheet: H-1}
+    source_record:           {value: "results/S3/devalle/devalle_0000_9e49def91dfc.npz", status: logged, source: DL-139}
+    source_record_sha256:    {value: bb12620d7152c50584e3a6b2d22e6703305fa6dc2f29143695fc38547c33748a, status: logged, source: DL-139}
+    a5_cycles_npz_sha256:    {value: 0231a2b74274fe0e84d2cef1afcd44c12dbff56d970cacb3d072ce7203782e4d, status: logged, source: "results/A8/a_ref/a_ref.json"}
+    period_source:           {value: "results/A5/A5_0000_506cf5745380.json", status: logged, source: DL-139}
+    alternates_stored_not_used: {value: {mean: 2.186789, maximum: 3.219102, sqrt2_x_rms: 2.404543, half_peak_to_peak: 2.755908, literal_peak_to_peak: 5.511356}, status: logged, source: "DL-139, results/A8/a8_aref.json"}
+  sigma:                   {value: 0.0624, status: UNVERIFIED, source: "DL-121; frozen with the criteria (6.4, CP21), checked at S8 (MS10)", sheet: F-9}
+  mode_n_conventions:
+    # O1 to O16 (DL-140): working conventions, all open. The code uses the plain reading; the sheet holds the options.
+    status: open
+    sheet: "O1-O16"
+    value: null
+
+# ---------------------------------------------------------------------------------------------------------------------------------
+# Table 7.2 (D35 [needs decision]; numbers at the plan default)
+robustness:
+  RB1:
+    classes_agree_seeds:     {value: "3 of 3", status: logged, source: "Table 7.2 RB1"}
+    classes_agree_cells:     {value: ">= 3 of 4", status: logged, source: "Table 7.2 RB1"}
+    f_pk_rel_tol:            {value: 0.05, status: logged, source: "Table 7.2 RB1"}
+    onset_tol:               {value: "one spectrogram step (1 s for T_ramp >= 60 s, else W/2)", status: logged, source: "Table 7.2 RB1; D4"}
+    n_3e4_no_worse_than_1e4: {value: null, status: open, source: "metric for 'no worse' not defined", sheet: F-16}
+    f_pk_reference:          {value: null, status: open, source: "per seed or mean not defined", sheet: F-16}
+    on_fail: G4
+  RB2:
+    headline_class_kept_min_seeds: {value: "8 of 10 at 0.5 sigma and at sigma", status: logged, source: "Table 7.2 RB2"}
+    noisy_subgrid_agreement_min:   {value: 0.90, status: logged, source: "Table 7.2 RB2, D24"}
+    sigma_factors:                 {value: [0.5, 1.0, 2.0], status: logged, source: "Table 7.2 RB2; 2 sigma reported, no pass rule", sheet: F-17}
+    kept_means:                    {value: "same class as the headline mode-D class under the correspondence", status: UNVERIFIED, source: "ours", sheet: F-17}
+  RB3:
+    a_onset_tol:             {value: "one A4 grid step in eta_bar", status: logged, source: "Table 7.2 RB3(a)"}
+    a_judged_only_inside_range: {value: true, status: logged, source: "Table 7.2 RB3(a); CP25"}
+    a_range_rule:            {value: "delta_0 exp(integral of Re lambda from t_on) stays above the floor until t_pred; t_pred where it reaches 0.1 x A_ref", status: logged, source: "A7, CP25; code analysis/entry_exit.py", sheet: F-12}
+    a_range_reported_coverage: {value: "0 to 2 of 13 T_ramp per path and profile; none at the headline (120 s)", status: UNVERIFIED, source: "DL-149 (2), DL-151; reasoned arithmetic until MS8", sheet: G6}
+    b_form:                  {value: strict_decrease_of_median_delay_over_the_three_floor_levels, status: UNVERIFIED, source: "DL-152 F-15; no scaling law", sheet: F-15}
+    b_seeds_per_level:       {value: 10, status: UNVERIFIED, source: "DL-152 F-15"}
+    c_T_ramp_s:              {value: [56.23, 100.0, 177.8, 316.2], status: logged, source: "Table 7.2 RB3(c): 56, 100, 178, 316 s"}
+    c_holds_means:           {value: "same class as the headline", status: UNVERIFIED, source: "ours", sheet: F-18}
+    d_profile_max_class_changes: {value: 1, status: logged, source: "Table 7.2 RB3(d)"}
+    d_T_ramp_compared:       {value: null, status: open, source: "which of the 4 T_ramp are compared is not stated", sheet: F-18}
+  RB4:
+    one_at_a_time_runs:      {value: 14, status: logged, source: "Table 7.2 RB4, S16"}
+    one_at_a_time_max_class_changes: {value: 2, status: logged, source: "Table 7.2 RB4"}
+    perturbation_rel_box:    {value: 0.10, status: logged, source: "Table 7.2 RB4 (+-10 percent; the plan tags the box [reasoned, not tested])"}
+    latin_hypercube_points:  {value: 64, status: logged, source: "Table 7.2 RB4"}
+    latin_hypercube_min_class_unchanged: {value: 0.80, status: logged, source: "Table 7.2 RB4, G5"}
+    latin_hypercube_seed:    {value: "from root_seed 20261008, spawn key not chosen", status: open, source: "DL-135 F-19", sheet: F-19}
+    on_fail: G5
+  RB5:
+    delta0_ladder:           {value: [1.0e-9, 1.0e-6, 1.0e-3], status: logged, source: "Table 7.2 RB5; S13"}
+    start_distances:         {value: [0.5, 1.5, 3.0], status: logged, source: "Table 7.2 RB5; S5"}
+    criterion:               {value: "class unchanged; delay shifts reported", status: logged, source: "Table 7.2 RB5; G6 reports it, does not gate it"}
+  RB6:
+    heun_delay_change_max:   {value: 0.05, status: logged, source: "Table 7.2 RB6"}
+    heun_dt_ladder_tau:      {value: [1.0e-3, 5.0e-4, 2.5e-4, 1.0e-4], status: UNVERIFIED, source: "DL-152 F-14; configs/S13.yaml"}
+    heun_default_dt_tau:     {value: 1.0e-3, status: logged, source: "6.2, Table 7.2 RB6"}
+    heun_coupled_brownian_increments: {value: true, status: UNVERIFIED, source: "DL-152 F-14"}
+    statistic:
+      value: "median delay over 10 seeds at the default step against the median over the same 10 seeds at the finest rung (1e-4 tau), same seeds, coupled increments; |median(1e-4) - median(1e-3)| / median(1e-3) < 0.05"
+      status: UNVERIFIED
+      source: "DL-154 (owner ruling); the plan's 5 percent only"
+      readings_of_ours_not_ruled: "relative to the default-step median; delay = eta at onset minus eta_H; a seed with no onset is reported and left out of the median with its count; made on the MS8 headline subset"
+      sheet: RB6
+    rtol_ladder:             {value: [1.0e-8, 1.0e-10, 1.0e-12], status: logged, source: "S13; reported, not a pass test"}
+    solvers_agree_onset_ms:  {value: 1.0, status: logged, source: "Table 7.2 RB6 (DOP853 vs Radau)"}
+    solver_pair_list:        {value: "DOP853 vs Radau", status: UNVERIFIED, source: "S13 lists both; pair list not otherwise defined", sheet: F-21}
+    network_dt_f_pk_change_max: {value: 0.02, status: logged, source: "Table 7.2 RB6 (halving dt)"}
+    network_dt_for_f_pk_test: {value: null, status: open, source: "which dt not stated", sheet: F-21}
+  RB7:
+    NC1_surge_class_allowed: {value: false, status: logged, source: "Table 7.2 RB7; G7: NS or D-none at every T_ramp"}
+  RB8:
+    gaussian_uniform_give_lorentzian_class_seeds: {value: 3, status: logged, source: "Table 7.2 RB8"}
+    M4_criteria: {value: null, status: open, source: "written before its runs (D42 open, G2 does not trigger, DL-133)", sheet: F-23}
+  RB9:
+    a_dimensional_vs_nondimensional_rel_tol: {value: 0.005, status: logged, source: "Table 7.2 RB9(a)"}
+    b_spectral_vs_cycle_frequency:           {value: "within 1/W", status: logged, source: "Table 7.2 RB9(b)"}
+    c_band_30_120_max_cell_class_change:     {value: 0.05, status: logged, source: "Table 7.2 RB9(c); D2"}
+    d_tau_pm20_percent:                      {value: "reported only", status: logged, source: "Table 7.2 RB9(d)"}
+  RB10:
+    headline_class_unchanged: {value: true, status: logged, source: "Table 7.2 RB10"}
+    max_map_cell_class_change: {value: 0.10, status: logged, source: "Table 7.2 RB10"}
+    variations:
+      value: {band_hz: [30, 120], factors: [1.5, 4.0], amin_factor: [0.05, 0.2], window_multiplier: [0.5, 2.0], min_cycles: [5, 20]}
+      status: logged
+      source: "Table 7.2 RB10; A8 sensitivity list"
+
+# ---------------------------------------------------------------------------------------------------------------------------------
+gates:
+  G5:
+    surge_class_min_fraction_of_map1_cells: {value: 0.03, status: logged, source: "Table 11.2 G5, D35"}
+    map1_mode_that_counts:   {value: "mode D (S7 map 1); noisy subgrid separate", status: open, source: "default proposed in DL-135 F-26", sheet: F-26}
+    rb4_must_pass:           {value: true, status: logged, source: "Table 11.2 G5"}
+  G6:
+    rb3a_inside_range_pass:  {value: true, status: logged, source: "Table 11.2 G6"}
+    rb3b_pass:               {value: true, status: logged, source: "Table 11.2 G6"}
+    rb6_pass_at_headline:    {value: true, status: logged, source: "Table 11.2 G6"}
+    rb3d_rb5:                {value: "evaluated and reported, not gated", status: logged, source: "Table 11.2 G6; SC-04"}
+    reading:
+      value: "the headline (120 s) is outside the RB3(a) range, so the RB3(a) clause is 'not judged at the headline'; G6 at the headline rests on RB3(b) and RB6; RB3(a) is reported with its coverage"
+      status: open
+      source: "DL-152 (reading offered for sign-off, not a change of the plan)"
+      sheet: G6
+  G7:
+    NC1_no_surge_at_every_T_ramp: {value: true, status: logged, source: "Table 11.2 G7"}
+
+# ---------------------------------------------------------------------------------------------------------------------------------
+# D43 floors, A4 grid, Heun ladder (7g rulings, DL-152). All UNVERIFIED (no source gives them). Same numbers as configs/S13.yaml.
+d43_and_numerics:
+  delta0_ladder:                 {value: [1.0e-9, 1.0e-6, 1.0e-3], status: logged, source: "S13, Table 7.2 RB5"}
+  sigma_floor_levels:            {value: [1.59e-9, 1.59e-6, 1.59e-3], status: UNVERIFIED, source: "DL-152 F-10: delta_0 / 0.629, v-units per sqrt(tau)"}
+  std_v_over_sigma_at_start:     {value: 0.629, status: UNVERIFIED, source: "DL-149 (Lyapunov, noise on v only)"}
+  solver_floor_noise_free_v:     {value: 6.66e-16, status: UNVERIFIED, source: "DL-151 F-11: measured at rest, a lower bound for a ramp run; protocol ours"}
+  a4_eta_bar_grid_step:          {value: 0.025, status: UNVERIFIED, source: "DL-152 F-13; realised by configs/A4_grids.yaml (801 points on [-10, 10])"}
+  rb3a_tolerance_in_time_at_headline_s: {value: 0.857, status: UNVERIFIED, source: "DL-149 (4): one grid step at t_pred"}
+  headline_t_pred_run_clock_s:   {value: 115.22, status: UNVERIFIED, source: "DL-149 (1), delta_0 1e-6, reading (a) of A_ref"}
+
+# ---------------------------------------------------------------------------------------------------------------------------------
+# Baseline-only cell lists (7d, 7e; DL-136 D-4, DL-141, DL-143). They become the MS9 map grid.
+cells:
+  n_cells:                 {value: 1226, status: logged, source: "DL-141: 1 + 900 + 325"}
+  n_runs:                  {value: 12260, status: logged, source: "DL-143: 10 seeds each, 0 failed"}
+  cell_list_sha256:        {value: 8e67bbd2b366e86ffee59e732dd79824bdce82c73c477436cb3b1689b0a328d9, status: logged, source: "DL-141 (not the freeze SHA)"}
+  grid_spacing:            {value: "map 1: Delta linear 0.01 to 0.6 (30), tau_d log 1 to 50 ms (30); map 2: J0 linear -40 to -5 (25), T_ramp log 1 to 1000 s (13)", status: UNVERIFIED, source: "DL-136 D-4 working defaults; configs/S5_cells.yaml", sheet: F-27}
+  start_state:             {value: "eta_start = eta_H - 1.5 from the lowest Hopf crossing of the cell; cells with none use the headline values (D12, CP20)", status: logged, source: "DL-141"}
+  seeds:                   {value: "root_seed 20261008; baseline spawn key [7, 4, s], s = 0 to 9", status: UNVERIFIED, source: "DL-141 (ours; avoids the sigma-calibration keys)", sheet: F-28}
+  storage:                 {value: "one npz and one record per cell (10 seeds); v and r kept", status: logged, source: "DL-136 D-4 ruling", sheet: F-28}
+
+# ---------------------------------------------------------------------------------------------------------------------------------
+# Not implemented, not in this file (owner rulings pending): the S-abs broadband flag (F-6 / O11) and the post-surge rate (O12).
+not_implemented:
+  s_abs_broadband_flag: {value: null, status: open, source: "CP26: no operational test in the plan", sheet: "O11"}
+  post_surge_rate:      {value: null, status: open, source: "no statistic defined in the plan", sheet: "O12"}
