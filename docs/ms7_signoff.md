@@ -54,6 +54,15 @@ Row format: ID, what it is, options, recommendation (ours), evidence. IDs F-n an
 | U-7 | Classifier fix (baseline-window edges in samples) **deferred** | none; classifier unchanged |
 | U-5 | Tests added: relative threshold edges at 1.5, 2, 4 (pass); zero baseline (no exception; the plan wording "undefined" is NOT met by the code: 3 strict xfails, classifier unchanged, see the end of section 8 and DL-158) | `tests/test_surge_classes.py` |
 
+**Rulings of 7i (DL-159), entered after the list above was written:**
+
+| ID | Ruling | Effect |
+|---|---|---|
+| F-19 | Spawn key **[7, 9] confirmed** (design draw [7, 9, 0], point runs [7, 9, 1, k], k = 0 to 63; root_seed 20261008). Still UNVERIFIED: no source gives a key | `RB4.latin_hypercube_seed` still reads "proposed" in the draft file; the source text is corrected in the 7j pre-freeze commit (`docs/ms7_7j_procedure.md`, step 1) |
+| U-5 zero baseline | **Option (a)**: a known difference from Table 2.1 (the code has no "undefined" mode-N class), recorded as the **second MS7 gate departure**; three strict xfails; classifier unchanged. My reading, to confirm (gate report Q2): the same ruling covers the noise-free linear trend giving S-sus | gate report section 3; criteria file departure leaves added at 7j |
+
+Row status after 7i: every row of sections 1 to 7 has a ruling above. Deferred or carried by ruling, not open: F-23 (M4 criteria), O12 (defined at MS8), H-3 (loader at MS8), U-7 (classifier fix), Q3 (plan question), K5, K10, K4-net.
+
 **Rows that were "open, needs user ruling" (state at DL-157; F-16 and F-19 updated above):**
 1. F-16: the tolerance on "not larger" (exact comparison, or a stated margin on a 3-seed comparison). The plan gives no number.
 2. F-19: the spawn key for the 64-point Latin hypercube (seed source is ruled, the key is not).
