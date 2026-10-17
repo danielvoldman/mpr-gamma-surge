@@ -1,0 +1,3 @@
+# MS8 8a timing-gate sample cell (DL-167): layered on configs/S5.yaml by scripts/time_one_run.py. P2 at T_ramp 10 s, DOP853 rtol 1e-12 (S13 rtol ladder; ratio of rtol costs at the same path).
+path: {T_ramp_s: 10.0}
+solver: {rtol: 1.0e-12}

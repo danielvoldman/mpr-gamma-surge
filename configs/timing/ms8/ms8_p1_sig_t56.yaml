@@ -1,0 +1,2 @@
+# MS8 8a timing-gate sample cell (DL-167): layered on configs/S5.yaml by scripts/time_one_run.py. Path path_eta, profile sigmoid, T_ramp 56.23 s (the S5 grid point 10^(7/4); inside the RB3(c) set). Rate per tau for the S5 ramp families of that path and profile.
+path: {name: path_eta, profile: sigmoid, T_ramp_s: 56.23413252}
