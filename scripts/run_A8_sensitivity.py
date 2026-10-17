@@ -30,6 +30,7 @@ RHO_COMBOS = {"rho_V0": (S.DEFAULT["band"], 1.0), "rho_band_30_120": ((30.0, 120
               "rho_window_x0.5": (S.DEFAULT["band"], 0.5), "rho_window_x2": (S.DEFAULT["band"], 2.0)}
 CLASS_COLS = ["dataset", "record", "mode", "T_ramp_s", "variant", "cls", "provisional", "d8_called", "d8_damped", "d8_rate",
               "d8_se", "f_pk_hz", "window_s", "note"]
+N_DRAWS = 500            # DL-146
 A_REF = None
 
 
@@ -127,7 +128,7 @@ def main() -> int:
     out.mkdir(parents=True, exist_ok=True)
     env = P.environment_info(with_julia=False)
     a_ref = AR.load_a_ref(root / AREF_JSON)
-    wk = cfg["white"]
+    wk = {"n_draws": N_DRAWS, "sd": S.WHITE_SD, "baseline_s": S.WHITE_BASE_S, "test_s": S.WHITE_TEST_S}
     P.atomic_write_json(root / "results/A8/a8_aref.json", aref_file(root))
     rows = classify_rows(a_ref)
     write_csv(root / "results/A8/a8_sensitivity.csv", rows, CLASS_COLS)

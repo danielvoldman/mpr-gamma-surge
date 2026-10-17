@@ -3,4 +3,3 @@ run:      {id: A8, kind: a8sens, workers: 10}
 model:    {type: M3, ref_point: ref_devalle, tau_ms: 10.0, tau_d_ms: 5.0}
 output:   {dir: results/A8/sensitivity}
 seeds:    {root_seed: 20261008, spawn_key: [7, 6]}
-white:    {n_draws: 500, sd: 0.04, baseline_s: 5.0, test_s: 20.0}
