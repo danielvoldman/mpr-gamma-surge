@@ -13,7 +13,8 @@ from mprsurge import config as C
 from mprsurge import provenance as P
 from mprsurge.analysis import cycle_check as cc
 
-S4_STEP = 0.1                      # eta_bar step of the S4 grid (DL-127)
+POSTHOC_WINDOW_MS = (0.05, 0.3)    # post hoc near-Hopf window (owner example, DL-130), UNVERIFIED
+S4_STEP = 0.1                     # eta_bar step of the S4 grid (DL-127)
 NPZ = {"a5": "results/A5/a5_cycles.npz", "s4": "results/S4/s4_summary.npz", "net": "results/S4/s4_net_summary.npz",
        "s3": "results/S3/s3_mf_summary.json", "s3net": "results/S3/s3_net_summary.json"}
 
@@ -72,6 +73,10 @@ def k7(d):
     win = param[up][(param[up] - H >= 0.1 - 1e-9) & (param[up] - H <= 1.0 + 1e-9)]
     f5i = cc.amplitude_fit(win, cc.interp_branch(td, am, win), H)
     out["a5_at_s4_window"] = {k: v for k, v in f5i.items() if k not in ("x_ms", "a2")}
+    # POST HOC, exploratory (DL-130): narrower window near the Hopf point on A5's own points, no new simulation; cannot change the verdict
+    ph = cc.amplitude_fit(td, am, H, window=POSTHOC_WINDOW_MS)
+    out["posthoc_near_hopf"] = {"label": "POST HOC exploratory, not pre-registered", "window_ms": POSTHOC_WINDOW_MS,
+                                **{k: v for k, v in ph.items() if k not in ("x_ms", "a2")}}
     out["slope_ratio_s4_up_over_a5_own"] = out["s4_up"]["slope"] / f5["slope"]
     cross = {}
     for t in ("4.95", "8.0"):

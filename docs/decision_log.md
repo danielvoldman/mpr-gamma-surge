@@ -1570,3 +1570,17 @@ Chosen:          as above   Default from: DL-126 D-3 (rules), DL-125
 Test:            fast suite 287 passed, 1 xfailed (281 + 6 new, test_cycle_check.py).
 Status:          done (6e); gate item A5 vs S4 passed; K7 amplitude half: R^2 and hysteresis pass, residual rule fails (reported, not tuned). Code commit 9baf359.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-130  MS6 6f: owner rulings on the DL-129 K7 outcome; post hoc near-Hopf fit (exploratory)    [ID: K7, D23, CP23, DL-126, DL-129]
+Date:            2026-10-17        Author:
+Decision:        (1) Owner rulings (a) to (c) on DL-129, recorded as given. (2) A labelled POST HOC fit added to scripts/run_A5_check.py (no new simulation). No D-item, plan text, window or tolerance changed. No tag, no push.
+Rulings:         (a) The K7 amplitude-half residual miss (2.42 percent against the pre-registered 2 percent, DL-129) stays a REPORTED FAILURE. Window (0.1 to 1.0 ms above tau_d^(H)) and tolerances are not revised. The 2 percent tolerance was our own choice (UNVERIFIED, not in the plan). A^2 is concave in tau_d over the 1 ms window (DL-129 diagnostic look). A5 and S3 agree to about 1e-4 (8.3e-5 and 1.4e-4); R^2 (0.99691), no hysteresis and the existence of the supercritical Hopf (DL-126) pass.
+                 (b) The hysteresis reading (up against down within 2 percent of amplitude, 1e-3 amplitude floor) is accepted as UNVERIFIED.
+                 (c) POST HOC exploratory fit on the A5 branch, no new simulations, to show the near-Hopf linear regime. It does not replace the pre-registered result and cannot change the verdict.
+POST HOC fit:    A^2 = slope (tau_d - tau_d^(H)) + intercept on A5's own points in the window 0.05 to 0.3 ms above tau_d^(H) = 4.120866 ms (window is the owner's example, UNVERIFIED): 11 points, slope 5.2866 per ms, intercept 0.0018, R^2 0.999984, largest residual 0.22 percent of the largest A^2 in the window. For comparison the pre-registered window gave slope 4.60, R^2 0.99691, residual 2.42 percent (DL-129). Exploratory only; the K7 amplitude half stays: R^2 pass, hysteresis pass, residual rule FAIL.
+Reason:          instruction of the project owner; 6f of docs/ms6_plan.md; Table 7.1 K7.
+Options:         -
+Chosen:          as above   Default from: DL-126 D-3, DL-129
+Test:            covered by the fast suite (see DL-131).
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag

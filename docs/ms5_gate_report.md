@@ -92,3 +92,5 @@ Not checked from saved results: test counts, DL-117 unit-test values, the five d
 - Map 1 Delta spacing (linear, UNVERIFIED): MS8 plan.
 
 **MS5 gate: passed with departures.** Reason: K7 (existence, at the approved 4.12 ms), K8 (including the network peak at -0.09 percent) and K9 (ratio scaling and maximum 0.1453) pass as Table 7.1 and the DL-113 rulings define them; K4-net is recorded as not run, non-blocking; sigma is committed; the headline is re-timed with no verdict change. The pass is qualified: K7 differs from the paper's 4.95 ms and its amplitude half is deferred to MS6; K10 J-dependence misses and its review is owed; the K7 pass is not independent; sigma is only weakly checked until MS10; the D36 cap is read from lower bounds. Conditions: definitions marked UNVERIFIED stand as working definitions; no tag, no push.
+
+**Addendum 2026-10-17:** the K7 amplitude half was judged in MS6 (DL-129, DL-130): R^2 and no-hysteresis pass, the pre-registered residual rule fails (2.42 against 2 percent); this verdict and the replication-pass tag are unchanged.
