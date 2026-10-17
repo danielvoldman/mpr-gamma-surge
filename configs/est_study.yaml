@@ -1,0 +1,6 @@
+# 7b estimator study (DL-136): synthetic data only, no model. Run config for scripts/study_envelope_growth.py.
+# Seeds: own spawn_key (7, 2); does not reuse the sigma-calibration indices (DL-123).
+run:      {id: EST7B, kind: est7b, workers: 1}
+model:    {type: M3, ref_point: ref_devalle, tau_ms: 10.0, tau_d_ms: 5.0}
+output:   {dir: results/A8/est_study}
+seeds:    {root_seed: 20261008, spawn_key: [7, 2]}
