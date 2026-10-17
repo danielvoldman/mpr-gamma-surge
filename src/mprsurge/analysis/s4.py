@@ -45,3 +45,22 @@ def branch_pairs(table: dict) -> dict:
     return {"param": up["param"], "v_ptp_up": up["v_ptp"], "v_ptp_down": dn["v_ptp"],
             "f_up_hz": up["f_fft_hz"], "f_down_hz": dn["f_fft_hz"],
             "v_ptp_rel_diff": np.where(up["v_ptp"] > 0, (dn["v_ptp"] - up["v_ptp"]) / np.where(up["v_ptp"] > 0, up["v_ptp"], 1), np.nan)}
+
+
+def net_vs_mf(net: dict, mf: dict, indices) -> dict:
+    """Network step table against the mean-field one at the same parameter values (6d, DL-128; numbers only, no
+    verdict: the 2 percent check is 6e). net: step_table of the network sweep (2n steps); mf: step_table of the
+    mean-field sweep on the full grid (2m steps); indices: the positions in the m-point grid the network used.
+    Returns, per network step in run order, the mean-field step with the same parameter and direction and the
+    relative differences (net - mf) / mf of v and r peak-to-peak and of the FFT frequency."""
+    idx = np.asarray(indices, dtype=int)
+    m = mf["step"].size // 2
+    mf_step = np.concatenate([idx, 2 * m - 1 - idx[::-1]])
+    if not np.allclose(mf["param"][mf_step], net["param"]):
+        raise ValueError("network steps do not match the mean-field steps at the given indices")
+    out = {"mf_step": mf_step}
+    for c in ("v_ptp", "r_ptp", "f_fft_hz"):
+        a, b = net[c], mf[c][mf_step]
+        out[f"mf_{c}"] = b
+        out[f"rel_{c}"] = np.where(b > 0, (a - b) / np.where(b > 0, b, 1.0), np.nan)
+    return out

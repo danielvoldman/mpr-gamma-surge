@@ -1,0 +1,13 @@
+# S4 network steps, ref_devalle (plan 6.2 S4 "network at 15 steps"; MS6 step 6d, DL-128): the S4.yaml sweep on the QIF network at
+# N = 1e4 (plan 6.3 / MS5 default), seed spawn key [0]. 15 of the 61 eta_bar steps by owner ruling: k = 0, 4, 8, ..., 56 (eta_H is
+# k = 20), up then down, the top value run twice (30 steps of 2 s, last 1 s read). eta_H comes from A4 via scripts/run_S4.py --net.
+# State carried; delta0 added to every V at the start of each step (UNVERIFIED). No network tau_d sweep at ref_ceni (owner ruling).
+# Outputs: results/S4/net/.
+run:      {id: net, kind: s4_net, workers: 1}
+model:    {type: M3, ref_point: ref_devalle, tau_ms: 10.0, tau_d_ms: 5.0}
+path:     {name: I_step, I_amp: 0.0, t_on_s: 0.0}
+network:  {N: 10000}
+seeds:    {n_seeds: 1}
+s4:       {param: eta_bar, span: [-2.0, 4.0], n_points: 61, indices: [0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56],
+           step_s: 2.0, read_s: 1.0}
+output:   {dir: results/S4}

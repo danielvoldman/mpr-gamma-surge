@@ -75,3 +75,49 @@ def test_step_table_and_pairs_on_synthetic_series():
     pr = s4.branch_pairs(tab)
     assert np.allclose(pr["param"], [1.0, 2.0]) and np.isclose(pr["v_ptp_down"][1], tab["v_ptp"][2])
     assert pr["v_ptp_down"][0] > 0 and pr["v_ptp_up"][0] == 0.0
+
+
+# --- 6d: network steps (DL-128) ---------------------------------------------------------------------
+
+def test_net_config_is_15_of_61_with_eta_H():
+    c = cell("configs/S4_net.yaml", [f"path.eta_H={ETA_H!r}"])
+    assert c["cfg"]["run"]["kind"] == "s4_net" and R.TASKS["s4_net"] == "mprsurge.qif_network:run_s4_network"
+    v = s4_values(c["cfg"])
+    full = ETA_H + np.linspace(-2, 4, 61)
+    assert v.size == 15 and np.allclose(v, full[0:57:4]) and np.isclose(v[5], ETA_H)   # eta_H is step 20
+    assert c["cfg"]["network"]["N"] == 10000 and c["cfg"]["seeds"]["n_seeds"] == 1
+    assert cell("configs/S4_net.yaml", [f"path.eta_H={ETA_H!r}", "s4.indices=[0,4]"])["hash12"] != c["hash12"]
+
+
+def test_net_toy_sweep_writes_records_and_carries_state(tmp_path):
+    o = tmp_path / "o"
+    sets = ["--set", f"output.dir={o.as_posix()}", "--set", f"path.eta_H={ETA_H!r}", "--set", "network.N=200",
+            "--set", "s4.indices=[0,30]", "--set", "s4.step_s=1", "--set", "s4.read_s=0.5", "--workers", "1"]
+    assert R.main(["--config", "configs/S4_net.yaml", *sets]) == 0
+    rec = next(o.rglob("net_0000_*.json"))
+    d = json.loads(rec.read_text())
+    assert d["flags"]["n_steps"] == 4 and d["flags"]["N"] == 200 and d["git"]["dirty"] in (True, False)
+    z = np.load(next(o.rglob("net_0000_*.npz")))
+    assert list(z["step_up"]) == [1, 1, 0, 0] and np.allclose(z["step_param"][[0, 3]], z["step_param"][0])
+    assert z["r"].size == 4 * 1000 and np.all(np.isfinite(z["r"])) and z["r"].min() >= 0
+    tab = s4.step_table({n: z[n] for n in z.files}, 0.5, 1e-6)
+    assert tab["step"].size == 4 and np.all(tab["r_ptp"] >= 0)
+
+
+def test_net_vs_mf_matches_steps_and_directions():
+    m, idx = 5, [0, 2, 4]
+    par = np.arange(m, dtype=float)
+    mf = {"step": np.arange(2 * m), "param": np.concatenate([par, par[::-1]]),
+          "v_ptp": np.arange(2 * m) + 1.0, "r_ptp": np.arange(2 * m) + 1.0, "f_fft_hz": np.full(2 * m, 20.0)}
+    net_step = [0, 2, 4, 5, 7, 9]                                  # up 0,2,4 then down of value 4,2,0
+    net = {"param": mf["param"][net_step], "v_ptp": mf["v_ptp"][net_step] * 1.1,
+           "r_ptp": mf["r_ptp"][net_step], "f_fft_hz": np.full(6, 22.0)}
+    c = s4.net_vs_mf(net, mf, idx)
+    assert list(c["mf_step"]) == net_step
+    assert np.allclose(c["rel_v_ptp"], 0.1) and np.allclose(c["rel_r_ptp"], 0) and np.allclose(c["rel_f_fft_hz"], 0.1)
+    bad = dict(net, param=net["param"] + 0.5)
+    try:
+        s4.net_vs_mf(bad, mf, idx)
+        raise AssertionError("mismatch not caught")
+    except ValueError:
+        pass

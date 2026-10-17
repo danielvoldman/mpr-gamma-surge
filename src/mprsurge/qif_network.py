@@ -218,3 +218,67 @@ def run_network(cfg: dict, deadline=None, s0: float = 0.0, chunk_bins: int = CHU
              "m2_coupling": "unsourced, not built",
              "memory_estimate_bytes": memory_estimate_bytes(N, n_keep, spb, bin_tau, ridx.size, chunk_bins)}
     return {"arrays": arrays, "message": "ok", "flags": flags}
+
+
+def run_s4_network(cfg: dict, deadline=None, chunk_bins: int = CHUNK_BINS) -> dict:
+    """Runner task for run.kind = s4_net (MS6 6d, DL-128; plan 6.2 S4, network part): the quasi-static sweep of run_s4
+    on the QIF network. s4.param is eta_bar (the network tau_d is fixed). Up through the s4.values (after s4.indices),
+    then down again, the top value run twice; each step s4.step_s long, state (V, refractory, pending spikes, s)
+    carried over. Start: V drawn from the seed child, s = the mean-field stable fixed point s at the first value
+    (UNVERIFIED; the first step's unread part is the transient). delta0 is added to every V at the start of each step
+    (the network analogue of the mean-field per-step kick; UNVERIFIED). Same sigma-free dynamics and kernel as
+    run_network; no raster. Output series as run_s4 (r, v, s per rate bin, step, param) so analysis.s4 reads it."""
+    from .models.fixed_points import stable_fixed_point
+    from .simulate_mf import s4_values
+    m, nw, q, sv = cfg["model"], cfg["network"], cfg["s4"], cfg["solver"]
+    if m["type"] != "M3" or q["param"] != "eta_bar" or m["tau_d_ms"] is None:
+        raise C.ConfigError("run.kind s4_net: M3, s4.param eta_bar and model.tau_d_ms are required")
+    if nw["het_dist"] != "lorentzian":
+        raise C.ConfigError(f"network.het_dist {nw['het_dist']!r}: S10 shapes are not built")
+    tau, dt, N = m["tau_ms"], nw["dt_tau"], nw["N"]
+    bin_tau = ms_to_tau(nw["rate_bin_ms"], tau)
+    spb = int(round(bin_tau / dt))
+    step_tau = s_to_tau(q["step_s"], tau)
+    nb_step = int(round(step_tau / bin_tau))
+    if spb < 1 or abs(spb * dt - bin_tau) > 1e-9 * bin_tau or abs(nb_step * bin_tau - step_tau) > 1e-9 * step_tau:
+        raise C.ConfigError("network.dt_tau must divide the rate bin and the rate bin the step")
+    beta = 1.0 / ms_to_tau(m["tau_d_ms"], tau)
+    vals = s4_values(cfg)
+    order = np.concatenate([vals, vals[::-1]])
+    direction = np.concatenate([np.ones(vals.size, dtype=np.int8), np.zeros(vals.size, dtype=np.int8)])
+    rng = make_rng(cfg["seeds"]["root_seed"], cfg["seeds"]["spawn_key"])
+    lo, hi = nw["init_V_range"]
+    V = lo + (hi - lo) * rng.random(N)
+    qj = lorentzian_offsets(N, nw["het_sampling"], rng)
+    tref, tspk = np.zeros(N), np.zeros(N)
+    slot = np.full(N, -1, dtype=np.int32)                      # no raster
+    y0 = stable_fixed_point(order[0], m["J"], m["Delta"], m["I_drive"], "M3", ms_to_tau(m["tau_d_ms"], tau))
+    s_io = np.array([float(y0[2])])
+    rt, ri, rn = np.empty(1), np.empty(1, dtype=np.int32), np.zeros(1, dtype=np.int64)
+    counts = np.empty(order.size * nb_step, dtype=np.int64)
+    vmean, sout = np.empty_like(counts, dtype=float), np.empty(order.size * nb_step)
+    for k, x in enumerate(order):
+        V += sv["delta0"]
+        b0 = 0
+        while b0 < nb_step:
+            if deadline is not None and time.monotonic() > deadline:
+                raise RunTimeout("wall-time limit reached between kernel chunks")
+            nb = min(chunk_bins, nb_step - b0)
+            n = nb * spb
+            full = lambda c: np.full(n, c, dtype=float)
+            a, z = k * nb_step + b0, k * nb_step + b0 + nb
+            qif_chunk(V, qj, tref, tspk, s_io, slot, full(x), full(m["J"]), full(m["Delta"]), full(m["I_drive"]),
+                      beta, dt, nw["V_peak"], nw["V_reset"], spb, nb, bool(nw["exclude_refractory"]),
+                      (k * nb_step + b0) * spb, 0.0, counts[a:z], vmean[a:z], sout[a:z], rt, ri, rn)
+            b0 += nb
+    n_bins = order.size * nb_step
+    arrays = {"t_ms": np.arange(1, n_bins + 1) * bin_tau * tau, "r": counts / (N * bin_tau), "v": vmean, "s": sout,
+              "param": np.repeat(order, nb_step), "step": np.repeat(np.arange(order.size, dtype=np.int32), nb_step),
+              "step_param": order, "step_up": direction}
+    flags = {"scheme": "forward_euler", "dt_tau": dt, "N": N, "param": q["param"], "n_steps": int(order.size),
+             "step_s": q["step_s"], "read_s": q["read_s"], "V_peak": nw["V_peak"], "V_reset": nw["V_reset"],
+             "het": f"{nw['het_dist']}_{nw['het_sampling']}", "spikes_total": int(counts.sum()),
+             "s_start": float(y0[2]), "kick_per_step": True, "float": "float64", "fastmath": False,
+             "numba": numba.__version__, "numba_threads_env": os.environ.get("NUMBA_NUM_THREADS"),
+             "seed_spawn_key": list(cfg["seeds"]["spawn_key"])}
+    return {"arrays": arrays, "message": f"ok; {order.size} steps of {q['step_s']} s", "flags": flags}

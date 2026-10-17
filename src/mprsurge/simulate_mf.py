@@ -226,15 +226,18 @@ def run_s3(cfg: dict, deadline=None) -> dict:
 
 
 def s4_values(cfg: dict) -> np.ndarray:
-    """Sweep values in up order: s4.values, or path.eta_H + linspace(span, n_points) (eta_H from A4, not typed)."""
+    """Sweep values in up order: s4.values, or path.eta_H + linspace(span, n_points) (eta_H from A4, not typed);
+    s4.indices, if given, keeps those positions of that grid (6d, DL-128)."""
     q = cfg["s4"]
     if q.get("values") is not None:
-        return np.asarray(q["values"], dtype=float)
-    if q.get("span") is None or q.get("n_points") is None or cfg["path"]["eta_H"] is None:
-        raise C.ConfigError("run.kind s4: give s4.values, or s4.span and s4.n_points with path.eta_H")
-    if q["param"] != "eta_bar":
-        raise C.ConfigError("s4.span is an offset from eta_H and needs s4.param = eta_bar")
-    return cfg["path"]["eta_H"] + np.linspace(q["span"][0], q["span"][1], q["n_points"])
+        vals = np.asarray(q["values"], dtype=float)
+    else:
+        if q.get("span") is None or q.get("n_points") is None or cfg["path"]["eta_H"] is None:
+            raise C.ConfigError("run.kind s4: give s4.values, or s4.span and s4.n_points with path.eta_H")
+        if q["param"] != "eta_bar":
+            raise C.ConfigError("s4.span is an offset from eta_H and needs s4.param = eta_bar")
+        vals = cfg["path"]["eta_H"] + np.linspace(q["span"][0], q["span"][1], q["n_points"])
+    return vals if q.get("indices") is None else vals[np.asarray(q["indices"], dtype=int)]
 
 
 def run_s4(cfg: dict, deadline=None) -> dict:
