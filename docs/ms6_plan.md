@@ -48,6 +48,8 @@ MS6 plan, written before any MS6 code. Binding source: `docs/plan.md` (Table 11.
 
 **Addition to the S4 row (DL-126 D-2, UNVERIFIED design, not in plan 6.2):** mean-field tau_d sweep at ref_ceni (eta 1, J -20, Delta 0.05), tau_d = 4.0, 4.3, 4.5, 4.7, 4.9, 5.1, 6.0 ms up then down (14 steps), state carried, 20 s per step with the last 5 s read, run in 6c as a family of `mf` steps or the `s4` kind (decide in 6c, log). Five points fall in the K7 fit window (0.1 to 1.0 ms above 4.1209 ms); 4.0 ms is below the Hopf point. Same 2 percent amplitude rule against A5, exclusion within one step (0.3 ms grid step at the window edge: UNVERIFIED, stated in 6c). About 28,000 tau, a few minutes.
 
+**Superseded in part by DL-127 (owner ruling, 6c):** the ref_ceni grid is the 11-value finer grid of `configs/S4_ceni.yaml` (7 points in the K7 window, 2 below, 2 above), 60 s steps with the last 10 s read; the 14-step grid above is not used.
+
 Order: 6a, 6b, 6c (6b and 6c are independent), 6d, 6e, 6f (6f needs 6b only), 6g, 6h. A failure at 6b (supercritical not confirmed, Hopf points differ from A4) is reported before 6c.
 
 ## Run-time expectations (DL-102 to DL-122)
