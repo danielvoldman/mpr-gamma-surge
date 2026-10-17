@@ -1,0 +1,10 @@
+# S5 baseline-only mode-N runs (plan Table 6.2 S5, MS7 7d; DL-136 D-4). One cell = one task = 10 seeds, one npz and one record per cell.
+# Constant parameters (no ramp, no kick): 2 s discard (before t = 0, not returned) then durations.baseline_s = 5 s kept, 1 kHz, i.e. 7 s
+# integrated (7e5 Heun steps per seed at dt 1e-3 tau). Per-cell values (Delta, tau_d, J0, T_ramp, eta_H) are set by scripts/run_S5_baseline.py
+# from analysis/cells.py (grids in configs/S5_cells.yaml). The values below are the headline cell (P2, ref_devalle, eta_H from A4).
+# Seeds: spawn_key prefix [7, 4]; the task appends the seed index s, so a run has spawn_key [7, 4, s]. Not the sigma-calibration keys [0] to [9].
+run:      {id: S5base, kind: s5base, workers: 1}
+model:    {ref_point: ref_devalle}
+path:     {name: path_hypoxia, profile: linear, T_ramp_s: 120.0, eta_H: 2.8960461989737856}
+output:   {dir: results/S5/baseline}
+seeds:    {root_seed: 20261008, n_seeds: 10, spawn_key: [7, 4]}

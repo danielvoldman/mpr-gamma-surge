@@ -41,6 +41,7 @@ TASKS = {"mf": "mprsurge.simulate_mf:run_mf", "mf_noisy": "mprsurge.simulate_mf:
          "s3": "mprsurge.simulate_mf:run_s3",
          "s4": "mprsurge.simulate_mf:run_s4",
          "s4_net": "mprsurge.qif_network:run_s4_network",
+         "s5base": "mprsurge.simulate_mf:run_s5_baseline",
          "network": "mprsurge.qif_network:run_network"}
 THREAD_VARS = ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMBA_NUM_THREADS")
 LOG_NAME = "mprsurge.run"

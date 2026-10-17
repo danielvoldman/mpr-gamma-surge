@@ -28,9 +28,9 @@ from scipy.integrate import solve_ivp
 from . import config as C
 from . import provenance as P
 from .errors import RunTimeout
-from .models.fixed_points import classify_all, stable_fixed_point
+from .models.fixed_points import classify_all, fixed_points, stable_fixed_point
 from .models.mpr2d import rhs_2d
-from .models.mpr3d import rhs_3d
+from .models.mpr3d import jacobian_3d, rhs_3d
 from .ramps import Path, make_path
 from .units import hz_to_rate, ms_to_tau, s_to_tau
 
@@ -430,3 +430,57 @@ def run_mf_noisy(cfg: dict, deadline=None, y0=None, chunk_samples: int = CHUNK_O
              "start": "explicit" if y0 is not None else "stable_fixed_point",
              "seed_spawn_key": list(cfg["seeds"]["spawn_key"])}
     return {"arrays": _output(path, t, S, cfg["model"]["tau_ms"]), "message": "ok", "flags": flags}
+
+
+def run_s5_baseline(cfg: dict, deadline=None) -> dict:
+    """Runner task for run.kind = s5base (MS7 7d, DL-141; plan Table 6.2 S5, baseline-only mode N).
+
+    One cell, seeds.n_seeds seeds in one call: constant parameters (the path value before t_on: eta_start, J0, Delta,
+    I_drive), no kick, no ramp. Start: the one fixed point at those parameters (the 2 s discard then settles it, so an
+    unstable start is allowed and is recorded in flags, not refused; UNVERIFIED reading). The 2 s discard comes before
+    t = 0 and is not returned; durations.baseline_s is kept, on the 1 ms output grid including t = 0 and t = baseline_s
+    (the same grid as a ramp run up to t_on). Seed s has spawn_key seeds.spawn_key + [s] and the stream does not depend
+    on the cell. Arrays: t_ms, v and r (n_seeds x n_samples), y_start.
+    """
+    n = cfg["noise"]
+    if n["sigma"] is None:
+        raise C.ConfigError("noise.sigma is null: mode N needs it")
+    sigma = n["sigma"] * n["sigma_factor"]
+    model, path, tau_d, _, dt_out = _setup(cfg)
+    if model != "M3":
+        raise C.ConfigError("run.kind s5base is an M3 run")
+    tau = cfg["model"]["tau_ms"]
+    dt = n["dt_tau"]
+    stride = int(round(dt_out / dt))
+    if stride < 1 or abs(stride * dt - dt_out) > 1e-9 * dt_out:
+        raise C.ConfigError(f"noise.dt_tau = {dt} does not divide the output step {dt_out} tau")
+    n_disc = int(round(s_to_tau(cfg["durations"]["discard_s"], tau) / dt_out))
+    n_keep = int(np.floor(s_to_tau(cfg["durations"]["baseline_s"], tau) / dt_out + _EPS)) + 1
+    n_steps = (n_disc + n_keep - 1) * stride
+    eta0, J0, D0, I0 = (float(f(0.0)) for f in (path.eta, path.J, path.Delta, path.I))
+    fp = fixed_points(eta0, J0, D0, I0, model="M3")
+    if len(fp) != 1:
+        raise C.ConfigError(f"{len(fp)} fixed points at eta_bar={eta0}, J={J0}, Delta={D0}: the baseline needs one")
+    y_start = np.asarray(fp[0], dtype=float)
+    ev = np.linalg.eigvals(jacobian_3d(y_start, J0, tau_d))
+    beta = 1.0 / tau_d
+    prefix = list(cfg["seeds"]["spawn_key"])
+
+    def param_fn(idx):
+        k = idx.size
+        return np.full(k, eta0), np.full(k, J0), np.full(k, D0), np.full(k, I0)
+
+    V, R = [], []
+    for s in range(cfg["seeds"]["n_seeds"]):
+        rng = make_rng(cfg["seeds"]["root_seed"], prefix + [s])
+        S = _run_chunks(rng, y_start.copy(), 1, beta, sigma, dt, stride, n_steps, param_fn, -1, 0.0,
+                        CHUNK_OUT_SAMPLES * stride, deadline)
+        S = S[n_disc:].T
+        R.append(S[0]); V.append(S[1])
+    arrays = {"t_ms": np.arange(n_keep) * dt_out * tau, "v": np.array(V), "r": np.array(R), "y_start": y_start}
+    flags = {"scheme": n["scheme"], "dt_tau": dt, "sigma_used": sigma, "n_steps_per_seed": n_steps, "n_seeds": len(V),
+             "seed_spawn_keys": [prefix + [s] for s in range(len(V))], "n_samples": n_keep,
+             "start": {"eta_bar": eta0, "J": J0, "Delta": D0, "r": float(y_start[0]), "v": float(y_start[1]),
+                       "re_max": float(ev.real.max()), "stable": bool(np.all(ev.real < 0)),
+                       "complex_pair": bool(np.any(np.abs(ev.imag) > 1e-12))}}
+    return {"arrays": arrays, "message": f"ok; {len(V)} seeds x {n_keep} samples", "flags": flags}

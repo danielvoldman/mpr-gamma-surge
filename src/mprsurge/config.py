@@ -27,7 +27,7 @@ ETA_PEAK_OFFSET = 2.0
 
 ETA_STATUSES = ("unresolved", "provisional", "explicit", "A4")  # DL-065, DL-067
 TAU_D_MS_RANGE = (1.0, 50.0)  # D11
-RUN_KINDS = ("mf", "mf_noisy", "a1", "s1", "a2", "a0", "a4", "s3", "network", "a5", "a6", "s4", "s4_net", "est7b", "aref7c")  # DL-055; "aref7c" is MS7 (7c, DL-139); "s4" is MS6 (6c, DL-127), "s4_net" is MS6 (6d, DL-128); "a5" is MS6 (6b); "a6" is MS6 (6f); "a1", "s1", "a2", "a0" are MS2 tasks; "a4" is MS5 (DL-114); "s3" is MS5 (5d, DL-116); "network" is MS5 (5e, DL-117)
+RUN_KINDS = ("mf", "mf_noisy", "a1", "s1", "a2", "a0", "a4", "s3", "network", "a5", "a6", "s4", "s4_net", "est7b", "aref7c", "s5base")  # DL-055; "s5base" is MS7 (7d, DL-141); "aref7c" is MS7 (7c, DL-139); "s4" is MS6 (6c, DL-127), "s4_net" is MS6 (6d, DL-128); "a5" is MS6 (6b); "a6" is MS6 (6f); "a1", "s1", "a2", "a0" are MS2 tasks; "a4" is MS5 (DL-114); "s3" is MS5 (5d, DL-116); "network" is MS5 (5e, DL-117)
 RAMP_PATH_NAMES = ("path_eta", "path_hypoxia", "path_drive", "path_delta_up",
                    "path_delta_down", "path_updown")  # P1, P2, P3, P4a, P4b, P5
 FORCING_PATH_NAMES = ("I_step", "I_sin")  # MS2 forcing paths for S1 (DL-085 item 4)
@@ -468,6 +468,8 @@ def hash_view(cfg: dict) -> dict:
     if cfg["run"]["kind"] == "a4":      # DL-114: the grids and the K-check protocol are inputs
         from .analysis import hopf
         view["a4"] = hopf.load_a4_params()
+    if cfg["run"]["kind"] == "s5base":  # DL-141: one cell runs n_seeds seeds, so the count is an input
+        view["s5base"] = {"n_seeds": cfg["seeds"]["n_seeds"]}
     if cfg["run"]["kind"] in ("s4", "s4_net"):      # DL-127, DL-128: the sweep definition is an input
         view["s4"] = copy.deepcopy(cfg["s4"])
     return view

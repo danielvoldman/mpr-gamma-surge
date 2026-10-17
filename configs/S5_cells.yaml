@@ -1,0 +1,14 @@
+# S5 baseline-only cell lists (7d; DL-136 D-4 working defaults, UNVERIFIED): read by analysis/cells.py. Not a run config (that is S5_baseline.yaml).
+# Plan Table 6.2 S5 / S7 and Appendix B ranges. Axis spacing: Delta linear, tau_d log, J0 linear, T_ramp log; both ends included.
+# These cells become the MS9 map grid and are frozen with the criteria tag.
+headline: {J0: -21.0, Delta: 0.3, tau_d_ms: 5.0, T_ramp_s: 120.0}
+map1:                                    # 30 x 30 = 900 cells, P2, T_ramp 120 s, J0 -21
+  J0: -21.0
+  T_ramp_s: 120.0
+  Delta:    {lo: 0.01, hi: 0.6, n: 30}
+  tau_d_ms: {lo: 1.0,  hi: 50.0, n: 30, spacing: log}
+map2:                                    # 25 x 13 = 325 cells, Delta 0.3, tau_d 5 ms
+  Delta: 0.3
+  tau_d_ms: 5.0
+  J0:       {lo: -40.0, hi: -5.0, n: 25}
+  T_ramp_s: {lo: 1.0,   hi: 1000.0, n: 13, spacing: log}    # 10^(k/4), k = 0..12 (as S2)
