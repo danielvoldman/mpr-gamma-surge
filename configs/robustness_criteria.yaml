@@ -1,7 +1,9 @@
-# DRAFT, NOT FROZEN. Robustness criteria (plan Table 7.2, D35; gates G5 to G7, Table 11.2) and the MS7 classifier / D43 / A4 values.
-# MS7 sub-step 7h (docs/ms7_plan.md). Nothing here is frozen: no SHA-256 has been computed, no tag exists. The freeze is 7j and only on the
-# owner's instruction. The owner's rulings on docs/ms7_signoff.md are entered (DL-157); the `sheet:` field names the row of that sheet.
-# Rows still marked `open` below are the "open, needs user ruling" rows: the plan gives no number and none was ruled.
+# FINAL CONTENT for the freeze at tag `criteria-frozen`. Robustness criteria (plan Table 7.2, D35; gates G5 to G7, Table 11.2) and the MS7
+# classifier / D43 / A4 values. MS7 sub-step 7j (docs/ms7_plan.md). The owner's rulings on docs/ms7_signoff.md are entered (DL-157, DL-159,
+# DL-161); the `sheet:` field names the row of that sheet. This is the pre-freeze content commit (DL-161): the tag, the owner's approval entry
+# and the SHA-256 of the LF text of this file come later (a file cannot contain its own hash, so meta.freeze_sha256 stays null; the hash is
+# in the tag message and in the decision-log entry that follows the tag).
+# The one open leaf below (RB8 M4 criteria) is deferred by ruling (F-23); no value was invented for it.
 #
 # Status of each value (the three labels the owner asked for):
 #   logged     = written down in the plan (Table 7.2, Table 11.2, Table 2.1, Appendix B) or in a decision-log entry (source given). Plan
@@ -14,12 +16,12 @@
 # (sheet H-2). The numbers also held in configs/S13.yaml and results/A8/a_ref are checked against it by tests/test_criteria_draft.py.
 
 meta:
-  draft: true
-  frozen: false
-  freeze_sha256: null            # NOT computed (7j only, on the owner's instruction; LF text as DL-084)
-  freeze_tag: null               # criteria-frozen is not created
+  draft: false
+  frozen: true
+  freeze_sha256: null            # stays null on purpose: a file cannot contain its own hash; the SHA-256 of the LF text is in the tag message and the DL entry after it
+  freeze_tag: criteria-frozen    # the tag is created after this commit, on the owner's explicit instruction
   plan: docs/plan.md v0.5
-  decision_log_through: DL-158
+  decision_log_through: DL-161
   rulings_entered: "owner rulings on docs/ms7_signoff.md, DL-157; a ruling that no source backs is labelled UNVERIFIED"
 
 # ---------------------------------------------------------------------------------------------------------------------------------
@@ -62,10 +64,43 @@ classifier:
       source: "owner ruling DL-157 (U-2, X-1); DL-147 (3), DL-155 (2)"
       sheet: U-2
     gate_wording:
-      value: "MS7 gate 'test_surge_metrics passes' reads: pytest exits 0 with the documented xfail (strict xfail test_slowly_damped_ring_rate_matches_true_decay_after_step_onset). The gate passes with a departure: the plan estimator fails 2 of the plan's 8 A8 ring items."
+      value: >
+        MS7 gate 'test_surge_metrics passes' reads: pytest exits 0 with the documented strict xfails, each with raises=AssertionError (9 test
+        cases; no failure, no error, no unexpected pass). tests/test_surge_metrics.py: test_slowly_damped_ring_rate_matches_true_decay_after_step_onset.
+        tests/test_surge_classes.py: test_zero_baseline_exact_zero_has_no_nan_in_outputs;
+        test_zero_baseline_mode_n_class_is_undefined[exact_zero]; test_zero_baseline_mode_n_class_is_undefined[constant];
+        test_a8_ring_class_is_ns_or_d_none[D_ring_slow_-3@T120]; test_a8_slowly_damped_ring_called_damped_in_95_percent_of_draws;
+        test_noise_free_pure_trend_is_ns_in_mode_n[120.0]; test_noise_free_pure_trend_is_ns_in_mode_n[3.0];
+        test_pure_trend_plus_noise_is_ns_in_mode_n_at_t_ramp_3. The gate passes with the four departures listed under gate_departures.
       status: UNVERIFIED
-      source: "owner ruling DL-157 (X-1)"
+      source: "owner ruling DL-157 (X-1); DL-161 (strict xfails with raises=AssertionError, class-level tests, departure 4)"
       sheet: X-1
+  gate_departures:
+    D8:
+      value: "D8: the plan estimator fails 2 of the plan's 8 A8 ring items: the 15-cycle slowly damped ring is called damped in 86.5 percent of 200 draws against the required 95 percent, and D_ring_slow_-3 (mode D, T_ramp 120 s) is classed D-tr where NS or D-none is required. D8 = A is kept; every D8-dependent class is provisional."
+      status: UNVERIFIED
+      source: "owner ruling DL-157 (X-1, U-2); DL-155 F5; DL-147 (3); strict xfails DL-073 and DL-161"
+      sheet: X-1
+    zero_baseline:
+      value: "Zero baseline, including noise-free inputs: Table 2.1 says the power ratios and mode-N classes are undefined; the code has no such class. A constant record gives NS; an exactly zero record gives S-sus with NaN peak_rho; a noise-free pure trend gives S-sus where the plan says NS. Strict xfails: 3 zero-baseline tests (DL-158) and the noise-free pure-trend test (2 cases, DL-161). Classifier unchanged."
+      status: UNVERIFIED
+      source: "owner ruling DL-159 (U-5, option (a)); DL-158; DL-161"
+      sheet: U-5
+    rb3a_not_judged_at_headline:
+      value: "RB3(a) is not judged at the headline (120 s): the headline is outside the RB3(a) range for every floor >= 1e-16; coverage 0 to 2 of 13 T_ramp per path and profile. G6 at the headline rests on RB3(b) and RB6."
+      status: UNVERIFIED
+      source: "owner ruling DL-157 (G6 reading); DL-149, DL-151"
+      sheet: G6
+    pure_trend_plus_noise_short_window:
+      value: "Pure trend plus noise at W = 0.2 s: the plan's 'pure trend -> NS' fails at class level (T_ramp 3 s: S-rel in 14 of 20 seeds; T_ramp 120 s passes, NS). Tied to the short-window false-surge limitation (306 of 500 white-noise records non-NS at W = 0.2 s). Concerns noisy inputs; departure 2 concerns noise-free inputs only. One strict xfail. Classifier unchanged; the paper limits its claim to the windows where the classifier passes."
+      status: UNVERIFIED
+      source: "owner ruling at 7j pre-freeze (option A, departure 4); DL-147; DL-161"
+      sheet: X-1
+  reported_limitation_short_window_false_surges:
+    value: "Not a departure: short-window false surges on seeded white noise (sd 0.04, mode N), non-NS of 500: 306 (W = 0.2 s), 400 (0.333 s), 172 (0.593 s), 24 to 26 (1.054 s), 2 (1.874 s), 0 (2 s). Reported per W in every result."
+    status: UNVERIFIED
+    source: "DL-147, DL-155; gate report section 3"
+    sheet: X-1
   a_ref:
     value: 2.176222              # 2.176221747792915 in results/A8/a_ref/a_ref.json
     status: UNVERIFIED           # owner-ruled reading (a), DL-139; the 0.1 x A_ref threshold below is derived
@@ -132,17 +167,17 @@ robustness:
     a_range_reported_coverage: {value: "0 to 2 of 13 T_ramp per path and profile; none at the headline (120 s)", status: UNVERIFIED, source: "DL-149 (2), DL-151; reasoned arithmetic until MS8", sheet: G6}
     b_form:                  {value: strict_decrease_of_median_delay_over_the_three_floor_levels, status: UNVERIFIED, source: "DL-152 F-15; no scaling law", sheet: F-15}
     b_seeds_per_level:       {value: 10, status: UNVERIFIED, source: "DL-152 F-15"}
-    c_T_ramp_s:              {value: [56.23, 100.0, 177.8, 316.2], status: logged, source: "Table 7.2 RB3(c): 56, 100, 178, 316 s"}
+    c_T_ramp_s:              {value: [56.23, 100.0, 177.8, 316.2], status: logged, source: "Table 7.2 RB3(c): 56, 100, 178, 316 s; the 4-digit values are the S5 grid points 10^(k/4) of configs/S5_cells.yaml (kept exact)"}
     c_holds_means:           {value: "same class as the headline", status: UNVERIFIED, source: "ours; confirmed by owner ruling DL-157 (F-18)", sheet: F-18}
     d_profile_max_class_changes: {value: 1, status: logged, source: "Table 7.2 RB3(d)"}
-    d_T_ramp_compared:       {value: [56.23, 100.0, 177.8, 316.2], status: UNVERIFIED, source: "owner ruling DL-157 (F-18): the four T_ramp of RB3(c); the plan does not say which are compared", sheet: F-18}
+    d_T_ramp_compared:       {value: [56.23, 100.0, 177.8, 316.2], status: UNVERIFIED, source: "owner ruling DL-157 (F-18): the four T_ramp of RB3(c), at the S5 grid values 56.23, 177.8, 316.2 (kept exact); the plan does not say which are compared", sheet: F-18}
   RB4:
     one_at_a_time_runs:      {value: 14, status: logged, source: "Table 7.2 RB4, S16"}
     one_at_a_time_max_class_changes: {value: 2, status: logged, source: "Table 7.2 RB4"}
-    perturbation_rel_box:    {value: 0.10, status: logged, source: "Table 7.2 RB4 (+-10 percent; the plan tags the box [reasoned, not tested])"}
+    perturbation_rel_box:    {value: 0.10, status: logged, source: "Table 7.2 RB4, S16: +-10 percent; a tag [reasoned, not tested] on the box: UNVERIFIED (label not in plan text)"}
     latin_hypercube_points:  {value: 64, status: logged, source: "Table 7.2 RB4"}
     latin_hypercube_min_class_unchanged: {value: 0.80, status: logged, source: "Table 7.2 RB4, G5"}
-    latin_hypercube_seed:    {value: {root_seed: 20261008, spawn_key_prefix: [7, 9], design_draw: [7, 9, 0], point_run_seeds: "[7, 9, 1, k], k = 0 to 63"}, status: UNVERIFIED, source: "proposed in DL-158 (F-19), not yet ruled by the owner; follows the DL-141 convention (first element 7 = MS7, second element the next free index after [7, 8] d8cand; calibration keys [0] to [9] and [7, 4, s] untouched); no collision with any key in the repo (tests/test_criteria_draft.py)", sheet: F-19}
+    latin_hypercube_seed:    {value: {root_seed: 20261008, spawn_key_prefix: [7, 9], design_draw: [7, 9, 0], point_run_seeds: "[7, 9, 1, k], k = 0 to 63"}, status: UNVERIFIED, source: "ruled by the owner at 7i (DL-159, F-19): key [7, 9], design draw [7, 9, 0], point runs [7, 9, 1, k]; no source gives a key; follows the DL-141 convention (first element 7 = MS7, second element the next free index after [7, 8] d8cand; calibration keys [0] to [9] and [7, 4, s] untouched); no collision with any key in the repo (tests/test_criteria_draft.py)", sheet: F-19}
     class_unchanged_means:   {value: "same class as the unperturbed run, per run", status: UNVERIFIED, source: "owner ruling DL-157 (F-19)", sheet: F-19}
     on_fail: G5
   RB5:

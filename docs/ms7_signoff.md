@@ -61,6 +61,31 @@ Row format: ID, what it is, options, recommendation (ours), evidence. IDs F-n an
 | F-19 | Spawn key **[7, 9] confirmed** (design draw [7, 9, 0], point runs [7, 9, 1, k], k = 0 to 63; root_seed 20261008). Still UNVERIFIED: no source gives a key | `RB4.latin_hypercube_seed` still reads "proposed" in the draft file; the source text is corrected in the 7j pre-freeze commit (`docs/ms7_7j_procedure.md`, step 1) |
 | U-5 zero baseline | **Option (a)**: a known difference from Table 2.1 (the code has no "undefined" mode-N class), recorded as the **second MS7 gate departure**; three strict xfails; classifier unchanged. My reading, to confirm (gate report Q2): the same ruling covers the noise-free linear trend giving S-sus | gate report section 3; criteria file departure leaves added at 7j |
 
+**Rulings of 7j pre-freeze (DL-161), entered before the content commit:**
+
+| ID | Ruling | Effect |
+|---|---|---|
+| TRND | Option A: the trend-plus-noise case at T_ramp 3 s (W = 0.2 s) is a strict xfail with `raises=AssertionError`; the T_ramp 120 s case stays a normal passing test. New **departure 4**. Departure 2 stays about noise-free inputs only. Classifier unchanged | tests; criteria file `classifier.gate_departures` |
+| Q1 | Pre-freeze content commit now; the tag later on the commit that holds the final file, the hash in the next docs-only commit (DL-084) | DL-161, then DL-162 (approval), DL-163 (hash) |
+| Q2 | Class-level strict-xfail tests with `raises=AssertionError` for the plan-named A8 items that fail under D8 = A, and on the four existing strict xfails; a noise-free pure-trend strict xfail | tests |
+| Q4 | No empty line-ending commit | none |
+| Q5 | Tag message carries secondary hashes of `configs/S13.yaml`, `configs/A4_grids.yaml`, `configs/S5_cells.yaml` | procedure |
+| RB3(c) | Keep the exact grid values 56.23, 177.8, 316.2 | none |
+| RB4 | Relabel the criteria-file tag "UNVERIFIED (label not in plan text)" | `RB4.perturbation_rel_box` source |
+
+The departures list as it stands for the gate (identical in `docs/ms7_gate_report.md`, `docs/ms7_7j_procedure.md`, `docs/robustness_criteria.md`):
+
+Four departures from the plan at the MS7 gate, and one reported limitation. This list is identical in `docs/ms7_gate_report.md`, `docs/ms7_7j_procedure.md`, `docs/ms7_signoff.md` and this page.
+
+1. **D8 (departure 1).** The plan estimator fails 2 of the plan's 8 A8 ring items: the 15-cycle slowly damped ring is called damped in 86.5 percent of 200 draws against the required 95 percent, and D_ring_slow_-3 (mode D, T_ramp 120 s) is classed D-tr where NS or D-none is required (DL-155, DL-157). D8 = A is kept; 26 of 36 pre-registered F1 cells miss the 95 percent sign match and 5 of 5 zero-growth cells exceed 5 percent false damped (DL-137, DL-155); every class that went through a D8 call is provisional. Strict xfails: `test_slowly_damped_ring_rate_matches_true_decay_after_step_onset` (DL-073), `test_a8_ring_class_is_ns_or_d_none[D_ring_slow_-3@T120]`, `test_a8_slowly_damped_ring_called_damped_in_95_percent_of_draws`.
+2. **Zero baseline, including noise-free inputs (departure 2).** Table 2.1: with no gamma power "the power ratios and the mode-N classes are undefined". The code has no such class: a constant record gives NS, an exactly zero record gives S-sus with a NaN peak_rho and a RuntimeWarning, and a noise-free pure trend gives S-sus where the plan says NS (option (a), DL-159). Strict xfails: the 3 zero-baseline tests (DL-158) and `test_noise_free_pure_trend_is_ns_in_mode_n[120.0]` and `[3.0]`. This departure concerns noise-free inputs only. Deterministic runs use mode D (D-none).
+3. **RB3(a) not judged at the headline (departure 3).** The headline (120 s) is outside the RB3(a) range at every floor >= 1e-16; coverage is 0 to 2 of 13 T_ramp per path and profile; P2 sigmoid has no predicted onset. G6 at the headline rests on RB3(b) and RB6 (DL-149, DL-151, DL-157). Reasoned arithmetic until MS8.
+4. **Pure trend plus noise at W = 0.2 s (departure 4, new at the 7j pre-freeze, DL-161).** The plan's "pure trend -> NS" fails at class level at W = 0.2 s (T_ramp 3 s: S-rel in 14 of 20 seeds). T_ramp 120 s passes (NS). It is tied to the short-window false-surge limitation (306 of 500 white-noise records non-NS at W = 0.2 s). The classifier is not changed; the paper limits its claim to the windows where the classifier passes. Strict xfail: `test_pure_trend_plus_noise_is_ns_in_mode_n_at_t_ramp_3`.
+
+Reported limitation (not a departure): **short-window false surges**, reported per W in every result. On seeded white noise (sd 0.04, mode N) non-NS of 500: 306 (W = 0.2 s), 400 (0.333 s), 172 (0.593 s), 24 to 26 (1.054 s), 2 (1.874 s), 0 (2 s). The rate is set by the power tests on a short PSD and the 10-cycle rule, not by D8. 8 of the 13 map-2 T_ramp have W < 2 s. The real rate on M3 noise is first measured by NC1 (G7).
+
+Strict xfails in the suite: 9 cases (1 in `tests/test_surge_metrics.py`, 8 in `tests/test_surge_classes.py`), all with `raises=AssertionError`.
+
 Row status after 7i: every row of sections 1 to 7 has a ruling above. Deferred or carried by ruling, not open: F-23 (M4 criteria), O12 (defined at MS8), H-3 (loader at MS8), U-7 (classifier fix), Q3 (plan question), K5, K10, K4-net.
 
 **Rows that were "open, needs user ruling" (state at DL-157; F-16 and F-19 updated above):**
@@ -268,17 +293,35 @@ Re-run from a clean tree (HEAD ef552a5, before the O10/O11 edits; the 24 and 26 
 
 Cause (checked, not assumed): the same draws and the same classifier; the two tables passed different T_ramp for the same nominal window. `d8_study.WHITE_T_RAMP` carries 31.62 s (W = 1.054 s), the DL-147 driver 31.6228 s (W = 1.05409 s). The samples are identical (1054-sample window, 527-sample step, same spectrogram), but `baseline_windows` compares window edges in seconds: the first window (samples 0 to 1054, centre 0.527 s) lies wholly inside the 5 s baseline [0, 5] for W = 1.054 s, and not for W = 1.05409 s, whose nominal span starts 0.00005 s before 0. So the baseline has 8 windows in one table and 7 in the other, its mean changes slightly, and 6 of 500 records change class (4 non-NS in the DL-155 setting only, 2 in the DL-147 setting only; net 24 against 26). Other windows agree because their W in seconds equals the sample count exactly (0.2 s, 2 s) or no baseline window sits on a boundary. This is a window-edge tie in the O7/D5 baseline rule (a baseline window that touches the baseline edge), not a seed or code difference. The classifier was not changed (instruction). Both numbers stand as measurements at their W. For the paper: quote W = 1.054 s with 24 to 26 of 500 (4.8 to 5.2 percent) and state that the count at this level depends on whether the edge window counts as baseline. Candidate fix for the owner (not applied): compare the window edges in samples, or take W from the integer sample count; it would make the two tables identical and is a change of the classifier, so it needs a ruling.
 
-### Tag-message draft for `criteria-frozen` (7j, not created)
+### Tag-message draft for `criteria-frozen` (7j, not created; updated at the pre-freeze commit, DL-161)
+
+The hashes and counts are filled only at the freeze, on the owner's separate instruction. `<A>` is the commit that holds the final file.
 
 ```
-criteria-frozen: MS7 robustness criteria and classifier defaults.
-SHA-256 of the LF text of configs/robustness_criteria.yaml: <computed at 7j>.
-Gate: pytest exits 0 with the documented strict xfail (test_slowly_damped_ring_rate_matches_true_decay_after_step_onset).
-The MS7 gate passes with a departure: the D8 plan estimator fails 2 of the plan's 8 A8 ring items
-(15-cycle slowly damped ring called damped in 86.5 percent against 95; D_ring_slow_-3 classed D-tr),
-and 26 of 36 pre-registered F1 cells miss the 95 percent sign match (DL-137, DL-155). Known limitation, D8 = A.
-Short-window false-surge rate on white noise is reported per W (DL-157) and the claim is limited through the G6 route.
-Values with no source are labelled UNVERIFIED in the file. Open at freeze: F-19 spawn key (proposal [7, 9], needs the owner's confirmation), the zero-baseline wording difference (end of section 8, DL-158).
+criteria-frozen: MS7 robustness criteria and classifier defaults (D35, DL-043).
+SHA-256 of the LF text of configs/robustness_criteria.yaml (as committed in <A>): <hash>.
+Secondary: configs/S13.yaml <hash>, configs/A4_grids.yaml <hash>, configs/S5_cells.yaml <hash>.
+Gate: pytest exits 0 with the documented strict xfails (9 cases, each raises=AssertionError):
+test_slowly_damped_ring_rate_matches_true_decay_after_step_onset (metrics); in tests/test_surge_classes.py the three
+zero-baseline tests, test_a8_ring_class_is_ns_or_d_none[D_ring_slow_-3@T120],
+test_a8_slowly_damped_ring_called_damped_in_95_percent_of_draws, test_noise_free_pure_trend_is_ns_in_mode_n[120.0] and [3.0],
+test_pure_trend_plus_noise_is_ns_in_mode_n_at_t_ramp_3. Full suite: <counts, wall time>.
+Gate departures:
+ 1. D8: the plan estimator fails 2 of the plan's 8 A8 ring items (15-cycle slowly damped ring called damped in
+    86.5 percent of 200 draws against 95; D_ring_slow_-3@T120 classed D-tr); 26 of 36 pre-registered F1 cells miss the
+    95 percent sign match (DL-137, DL-155). D8 = A, known limitation; every D8-dependent class is provisional.
+ 2. Zero baseline, including noise-free inputs: no "undefined" mode-N class (Table 2.1); constant record NS, exactly zero
+    record S-sus with NaN peak_rho, noise-free pure trend S-sus (DL-158, DL-159, DL-161).
+ 3. RB3(a) is not judged at the headline (outside the RB3(a) range at every floor >= 1e-16); coverage 0 to 2 of 13 T_ramp
+    per path and profile; G6 at the headline rests on RB3(b) and RB6 (DL-157, DL-149).
+ 4. Pure trend plus noise at W = 0.2 s: the plan's "pure trend -> NS" fails at class level (T_ramp 3 s: S-rel in 14 of 20
+    seeds; T_ramp 120 s passes); tied to the short-window false-surge limitation (DL-161).
+Reported limitation: short-window false surges on white noise, per W (DL-147, DL-155); the claim is limited to the windows
+where the classifier passes.
+Values with no source are labelled UNVERIFIED in the file and are frozen with the label (sigma 0.0624, A_ref 2.176222,
+D43 levels, solver floor, A4 step 0.025, Heun ladder, cell grids, seeds, F-19 key [7, 9]).
+Carried: K5 deferred; K10 and K4-net; M4 criteria (F-23); O12 and the loader at MS8; Q3.
+Owner approval: <date>, DL-162. Hash entry: DL-163. Not pushed.
 ```
 
 ### U-5 follow-up (7h2, DL-158): zero-baseline behaviour against the plan wording

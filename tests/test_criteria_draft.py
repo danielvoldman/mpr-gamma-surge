@@ -1,4 +1,5 @@
-"""7h draft criteria file (DL-156): complete, labelled, still a draft. Reads configs only; no run, no results/ dependence."""
+"""Criteria file (DL-156): complete, labelled; final content for the freeze (7j pre-freeze, DL-161). Reads configs only; no run, no
+results/ dependence."""
 import re
 
 import pytest
@@ -24,10 +25,43 @@ def _leaves(node, path=()):
                 yield from _leaves(v, path + (k,))
 
 
-def test_draft_not_frozen(crit):
+def test_freeze_flags_final(crit):
+    """Final flags at the pre-freeze commit (DL-161). freeze_sha256 stays null: a file cannot contain its own hash (the SHA-256 of
+    the LF text goes in the tag message and in the DL entry that follows the tag)."""
     m = crit["meta"]
-    assert m["draft"] is True and m["frozen"] is False
-    assert m["freeze_sha256"] is None and m["freeze_tag"] is None
+    assert m["draft"] is False and m["frozen"] is True
+    assert m["freeze_tag"] == "criteria-frozen" and m["freeze_sha256"] is None
+
+
+def test_file_is_lf_text_without_bom():
+    b = (C.repo_root() / "configs/robustness_criteria.yaml").read_bytes()
+    assert b"\x0d" not in b and not b.startswith(b"\xef\xbb\xbf")
+
+
+def test_four_gate_departures_and_the_limitation_are_in_the_file(crit):
+    d = crit["classifier"]["gate_departures"]
+    assert list(d) == ["D8", "zero_baseline", "rb3a_not_judged_at_headline", "pure_trend_plus_noise_short_window"]
+    assert "2 of the plan's 8 A8 ring items" in d["D8"]["value"]
+    assert "noise-free" in d["zero_baseline"]["value"]
+    assert "0 to 2 of 13" in d["rb3a_not_judged_at_headline"]["value"]
+    assert "W = 0.2 s" in d["pure_trend_plus_noise_short_window"]["value"] and "306 of 500" in d["pure_trend_plus_noise_short_window"]["value"]
+    assert "short-window false surges" in crit["classifier"]["reported_limitation_short_window_false_surges"]["value"]
+
+
+def test_gate_wording_names_every_strict_xfail(crit):
+    """Every strict xfail in the suite is named in gate_wording (parametrised ids by their bare name)."""
+    root = C.repo_root() / "tests"
+    names = set()
+    for f in sorted(root.glob("test_*.py")):
+        src = f.read_text(encoding="utf8")
+        for m in re.finditer(r"@pytest\.mark\.xfail\(strict=True.*?\ndef (test_\w+)", src, flags=re.S):
+            names.add(m.group(1))
+    names.add("test_a8_ring_class_is_ns_or_d_none")
+    assert len(names) == 7                     # 7 test functions, 9 cases (two are parametrised)
+    wording = crit["classifier"]["d8_estimator"]["gate_wording"]["value"]
+    for n in names:
+        assert n in wording, n
+    assert "raises=AssertionError" in wording
 
 
 def test_every_table_7_2_row_and_gate_present(crit):
@@ -113,10 +147,10 @@ def test_no_config_points_at_the_draft_yet():
             assert "criteria_file: configs/robustness_criteria.yaml" not in p.read_text(encoding="utf8"), p.name
 
 
-def test_open_rows_after_dl158_only_m4_is_open(crit):
+def test_open_rows_after_dl161_only_m4_is_open(crit):
     """After the 7h rulings (DL-157) only three leaves are still open: the RB1 'not larger' tolerance, the RB4 Latin hypercube spawn
     key, and the M4 criteria (deferred by ruling). Each is open because no source or ruling gives it; no number was invented."""
-    assert crit["meta"]["decision_log_through"] == "DL-158"
+    assert crit["meta"]["decision_log_through"] == "DL-161"
     opened = {".".join(path) for path, leaf in _leaves(crit) if leaf["status"] == "open"}
     assert opened == {"robustness.RB8.M4_criteria"}
     for path, leaf in _leaves(crit):
@@ -130,8 +164,8 @@ def test_rulings_o10_o11_o12_and_gate_wording_recorded(crit):
     assert "share a flagged window" in c["O10_episode_and_s_plus"]["value"]
     assert "outside G" in c["O11_s_abs_broadband"]["value"] and "no new threshold" in c["O11_s_abs_broadband"]["value"]
     assert "not a criterion" in c["O12_post_surge_rate"]["value"]
-    assert "documented xfail" in crit["classifier"]["d8_estimator"]["gate_wording"]["value"]
-    assert crit["meta"]["frozen"] is False and crit["meta"]["freeze_sha256"] is None
+    assert "documented strict xfails" in crit["classifier"]["d8_estimator"]["gate_wording"]["value"]
+    assert crit["meta"]["frozen"] is True and crit["meta"]["freeze_sha256"] is None
 
 
 def _key_prefixes_in_repo():
@@ -152,6 +186,11 @@ def _key_prefixes_in_repo():
             for m in pat.finditer(p.read_text(encoding="utf8")):
                 keys.add(tuple(int(x) for x in m.group(1).replace(" ", "").split(",")))
     return keys
+
+
+def test_latin_hypercube_spawn_key_is_ruled_not_proposed(crit):
+    src = crit["robustness"]["RB4"]["latin_hypercube_seed"]["source"]
+    assert "ruled by the owner" in src and "DL-159" in src and "proposed" not in src and "not yet ruled" not in src
 
 
 def test_latin_hypercube_spawn_key_collides_with_no_key_in_the_repo(crit):
