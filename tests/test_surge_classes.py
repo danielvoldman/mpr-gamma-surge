@@ -468,7 +468,7 @@ def test_zero_baseline_constant_gives_ns_with_finite_outputs():
     assert r.cls == "NS" and r.episode is None
 
 
-@pytest.mark.xfail(strict=True, reason="DL-158: exact zero baseline: 0/0 gives NaN odds, the absolute test 0 >= 2 x 0 "
+@pytest.mark.xfail(strict=True, raises=AssertionError, reason="DL-158: exact zero baseline: 0/0 gives NaN odds, the absolute test 0 >= 2 x 0 "
                    "passes and the class is S-sus with NaN peak_rho; the plan wording says 'undefined'")
 def test_zero_baseline_exact_zero_has_no_nan_in_outputs():
     with np.errstate(all="ignore"):
@@ -477,10 +477,93 @@ def test_zero_baseline_exact_zero_has_no_nan_in_outputs():
     assert all(np.isfinite(nums))
 
 
-@pytest.mark.xfail(strict=True, reason="DL-158: the code has no 'undefined' mode-N class (Table 2.1 zero-baseline "
+@pytest.mark.xfail(strict=True, raises=AssertionError, reason="DL-158: the code has no 'undefined' mode-N class (Table 2.1 zero-baseline "
                    "wording); a zero or round-off baseline is classified NS or S-sus")
 @pytest.mark.parametrize("name", ["exact_zero", "constant"])
 def test_zero_baseline_mode_n_class_is_undefined(name):
     with np.errstate(all="ignore"):
         r = M.classify_mode_n(_zero_baseline_signals()[name], FS, T_ON, 120, THR)
     assert r.cls == "undefined"
+
+
+# ---- 7j pre-freeze (DL-161): class-level halves of the plan-named A8 items (section 11, MS7 row) -------------------------
+# Plan wording: 5-cycle ring -> NS or D-none (envelope growth < 0); slowly damped ring with more than 10 cycles above
+# threshold -> NS or D-none (fitted growth negative by more than 2 SE); pure trend -> NS. The plan's 8 A8 ring items are the
+# two draw-level items of scripts/study_d8_candidates.py (5-cycle growth negative, 15-cycle ring called damped, each in at
+# least 95 percent of 200 draws, DL-136) and the six class items of the A8 synthetic set (a8_sensitivity). With D8 = A
+# (plan estimator) two fail: the 15-cycle ring is called damped in 86.5 percent, and D_ring_slow_-3 is classed D-tr
+# (departure 1, DL-155). The failing ones are strict xfails with raises=AssertionError; the others are plain tests.
+from mprsurge.analysis import a8_sensitivity as S8          # noqa: E402
+from mprsurge.analysis import d8_study as D8S               # noqa: E402
+
+A8_DRAWS = 200                                               # DL-136
+_A8_CASES = {c[0]: c for c in S8.synthetic_cases() if c[0] in D8S.A8_RING_CASES}
+_A8_FAIL_DEPARTURE_1 = pytest.mark.xfail(strict=True, raises=AssertionError,
+                                         reason="DL-155/DL-157 departure 1: the plan estimator classes D_ring_slow_-3 D-tr")
+
+
+def _a8_ring_params():
+    out = []
+    for name, (_, mode, _v, _t_on, ts) in _A8_CASES.items():
+        for T in ts:
+            marks = [_A8_FAIL_DEPARTURE_1] if (name, T) == ("D_ring_slow_-3", 120.0) else []
+            out.append(pytest.param(name, T, marks=marks, id=f"{name}@T{T:g}"))
+    return out
+
+
+@pytest.mark.parametrize("name,T", _a8_ring_params())
+def test_a8_ring_class_is_ns_or_d_none(name, T):
+    _, mode, v, t_on, _ = _A8_CASES[name]
+    r = S8.classify(v, mode, t_on, T, A_REF, "V0")
+    assert r["cls"] in ("NS", "D-none"), (r["cls"], r["note"])
+
+
+def test_a8_five_cycle_ring_growth_negative_in_95_percent_of_draws():
+    seqs = np.random.SeedSequence(20261008, spawn_key=(7, 8, 5, 1)).spawn(A8_DRAWS)
+    rates = [M.envelope_growth(D8S.f5_ring5(np.random.default_rng(s)), FS, D8S.BAND, D8S.E.THR)["rate"] for s in seqs]
+    assert np.mean(np.asarray(rates) < 0) >= 0.95
+
+
+def test_a8_five_cycle_ring_class_is_d_none_at_draw_level():
+    v = D8S.f5_ring5(np.random.default_rng(1))
+    r = M.classify_mode_d(v, FS, 0.0, 120, THR)
+    assert r.cls == "D-none"
+
+
+@pytest.mark.xfail(strict=True, raises=AssertionError,
+                   reason="DL-155/DL-157 departure 1: 15-cycle slowly damped ring called damped in 86.5 percent of 200 draws, "
+                          "required 95 (plan estimator, step onset)")
+def test_a8_slowly_damped_ring_called_damped_in_95_percent_of_draws():
+    seqs = np.random.SeedSequence(20261008, spawn_key=(7, 8, 5, 2)).spawn(A8_DRAWS)
+    damped = [M.PLAN_D8(D8S.f5_ring15(np.random.default_rng(s)), FS, D8S.BAND, D8S.E.THR).damped for s in seqs]
+    assert np.mean(damped) >= 0.95
+
+
+# ---- pure trend through the classifier (plan: pure trend -> NS) -----------------------------------------------------------
+def _trend(noise_sd, seed=11):
+    t = np.arange(40000) / FS
+    v = 0.5 * np.clip((t - 12.0) / 8.0, 0, 1)                # as N_trend of the A8 synthetic set
+    return v + (noise_sd * rng(seed).standard_normal(t.size) if noise_sd else 0.0)
+
+
+@pytest.mark.xfail(strict=True, raises=AssertionError,
+                   reason="DL-159 departure 2 (noise-free inputs to mode N, option (a)): a noise-free trend has zero non-trend "
+                          "baseline power; 0/0 odds and 0 >= 2 x 0 give S-sus, not the plan's 'pure trend -> NS'")
+@pytest.mark.parametrize("T", [120.0, 3.0])
+def test_noise_free_pure_trend_is_ns_in_mode_n(T):
+    with np.errstate(all="ignore"):
+        r = M.classify_mode_n(_trend(0.0), FS, 10.0, T, THR)
+    assert r.cls == "NS"
+
+
+def test_pure_trend_plus_noise_is_ns_in_mode_n_at_t_ramp_120():
+    r = M.classify_mode_n(_trend(0.02), FS, 10.0, 120.0, THR)
+    assert r.cls == "NS", r.reason
+
+
+@pytest.mark.xfail(strict=True, raises=AssertionError,
+                   reason="DL-161 departure 4: pure trend plus noise at T_ramp 3 s (W = 0.2 s) is S-rel in 14 of 20 seeds; the "
+                          "short-window false-surge limit (306 of 500 white-noise records non-NS at W = 0.2 s, DL-147)")
+def test_pure_trend_plus_noise_is_ns_in_mode_n_at_t_ramp_3():
+    r = M.classify_mode_n(_trend(0.02), FS, 10.0, 3.0, THR)
+    assert r.cls == "NS", r.reason

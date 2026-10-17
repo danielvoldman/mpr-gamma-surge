@@ -72,7 +72,7 @@ def test_slowly_damped_ring_has_more_than_ten_cycles_and_negative_growth():
     assert g["rate"] < -2 * g["se"]                            # damped by the D8 rule
 
 
-@pytest.mark.xfail(strict=True, reason="DL-073: step-onset filter bias, rate -3.4 against -6.1 per s (UNVERIFIED)")
+@pytest.mark.xfail(strict=True, raises=AssertionError, reason="DL-073: step-onset filter bias, rate -3.4 against -6.1 per s (UNVERIFIED)")
 def test_slowly_damped_ring_rate_matches_true_decay_after_step_onset():
     lam = np.log(1.0 / THR) / (15 / 40.0)
     g = M.envelope_growth(ring(40.0, lam, lead_s=1.0), FS, BAND, THR)
