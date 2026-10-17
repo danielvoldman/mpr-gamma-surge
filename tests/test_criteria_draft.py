@@ -113,12 +113,12 @@ def test_no_config_points_at_the_draft_yet():
             assert "criteria_file: configs/robustness_criteria.yaml" not in p.read_text(encoding="utf8"), p.name
 
 
-def test_rulings_entered_dl157_open_rows_are_the_three_expected(crit):
+def test_open_rows_after_dl158_only_m4_is_open(crit):
     """After the 7h rulings (DL-157) only three leaves are still open: the RB1 'not larger' tolerance, the RB4 Latin hypercube spawn
     key, and the M4 criteria (deferred by ruling). Each is open because no source or ruling gives it; no number was invented."""
-    assert crit["meta"]["decision_log_through"] == "DL-157"
+    assert crit["meta"]["decision_log_through"] == "DL-158"
     opened = {".".join(path) for path, leaf in _leaves(crit) if leaf["status"] == "open"}
-    assert opened == {"robustness.RB1.no_worse_tolerance", "robustness.RB4.latin_hypercube_seed", "robustness.RB8.M4_criteria"}
+    assert opened == {"robustness.RB8.M4_criteria"}
     for path, leaf in _leaves(crit):
         if ".".join(path) in opened:
             assert leaf["value"] is None or isinstance(leaf["value"], str)
@@ -132,3 +132,37 @@ def test_rulings_o10_o11_o12_and_gate_wording_recorded(crit):
     assert "not a criterion" in c["O12_post_surge_rate"]["value"]
     assert "documented xfail" in crit["classifier"]["d8_estimator"]["gate_wording"]["value"]
     assert crit["meta"]["frozen"] is False and crit["meta"]["freeze_sha256"] is None
+
+
+def _key_prefixes_in_repo():
+    """Every spawn key (or prefix) used by a config or written literally in src/, scripts/ or tests/ (calibration keys
+    [0] to [9] included, as the runner gives seed index s the key [s])."""
+    root = C.repo_root()
+    keys = set()
+    for p in sorted((root / "configs").rglob("*.yaml")):
+        d = yaml.safe_load(p.read_text(encoding="utf8")) or {}
+        k = (d.get("seeds") or {}).get("spawn_key") if isinstance(d, dict) else None
+        if k:
+            keys.add(tuple(k))
+    pat = re.compile(r"(?:spawn_key\s*=\s*|rng_for\s*)\(\s*(\d+(?:\s*,\s*\d+)*)")
+    for sub in ("src", "scripts", "tests"):
+        for p in (root / sub).rglob("*.py"):
+            if p.name == "test_criteria_draft.py":
+                continue
+            for m in pat.finditer(p.read_text(encoding="utf8")):
+                keys.add(tuple(int(x) for x in m.group(1).replace(" ", "").split(",")))
+    return keys
+
+
+def test_latin_hypercube_spawn_key_collides_with_no_key_in_the_repo(crit):
+    seed = crit["robustness"]["RB4"]["latin_hypercube_seed"]["value"]
+    assert seed["root_seed"] == 20261008 and seed["spawn_key_prefix"] == [7, 9]
+    used = _key_prefixes_in_repo()
+    calibration = {(s,) for s in range(10)}      # the runner's seed index keys; [7, 4, s] already sits under [7] (DL-141)
+    assert (7, 4) in used and (7, 6, 1) in used and (7, 8, 5, 1) in used       # the scan sees the known keys
+    mine = [tuple(seed["spawn_key_prefix"]), (7, 9, 0)] + [(7, 9, 1, k) for k in range(64)]
+    for m in mine:
+        assert m not in calibration
+        for u in used:
+            n = min(len(m), len(u))
+            assert m[:n] != u[:n], (m, u)                       # equal, or one a prefix of the other, would share a stream

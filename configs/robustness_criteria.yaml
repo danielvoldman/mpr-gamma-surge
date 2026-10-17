@@ -19,7 +19,7 @@ meta:
   freeze_sha256: null            # NOT computed (7j only, on the owner's instruction; LF text as DL-084)
   freeze_tag: null               # criteria-frozen is not created
   plan: docs/plan.md v0.5
-  decision_log_through: DL-157
+  decision_log_through: DL-158
   rulings_entered: "owner rulings on docs/ms7_signoff.md, DL-157; a ruling that no source backs is labelled UNVERIFIED"
 
 # ---------------------------------------------------------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ classifier:
     O7_baseline_statistic:   {value: "mean over the windows wholly inside the last 5 s of P_G/P_non-G and of P_G", status: UNVERIFIED, source: "owner ruling DL-157; DL-140 O7", sheet: O7}
     O8_tested_windows:       {value: "window centre >= t_on", status: UNVERIFIED, source: "owner ruling DL-157; DL-140 O8", sheet: O8}
     O9_d8_scope:             {value: "one D8 call per record on v from t_on; damped means no episode (NS or D-none)", status: UNVERIFIED, source: "owner ruling DL-157 under D8 = A; DL-140 O9", sheet: O9}
-    O10_episode_and_s_plus:  {value: "mode D: first qualifying episode. Mode N: first qualifying episode per test; S-sus if any is unterminated; S+ only if the relative and absolute episodes share a flagged window (time overlap); two qualifying episodes with no shared window give the class of the earlier one", status: UNVERIFIED, source: "owner ruling DL-157 (implemented and tested); the fallback for the non-overlapping pair is ours", sheet: O10}
+    O10_episode_and_s_plus:  {value: "mode D: first qualifying episode. Mode N: first qualifying episode per test; S-sus if any is unterminated; S+ only if the relative and absolute episodes share a flagged window (time overlap); two qualifying episodes with no shared window give the class of the earlier one", status: UNVERIFIED, source: "owner ruling DL-157 (implemented and tested); the fallback for the non-overlapping pair is ours, accepted by the owner as UNVERIFIED (DL-158)", sheet: O10}
     O11_s_abs_broadband:     {value: "S-abs is flagged broadband when the spectrogram argmax of the rise lies outside G; rise = the absolute episode's peak-power window minus the mean baseline spectrum, over 1 to 150 Hz; no new threshold", status: UNVERIFIED, source: "owner ruling DL-157 (implemented and tested; the definition of 'rise' is ours); CP26, F-6", sheet: O11}
     O12_post_surge_rate:     {value: "reported-only metric, not a criterion; not implemented; defined at MS8 with data", status: UNVERIFIED, source: "owner ruling DL-157", sheet: O12}
     O13_collapse_baseline_r: {value: "mean of r over the baseline; marker = first sample with r < 10 percent of it, no smoothing", status: UNVERIFIED, source: "owner ruling DL-157; DL-140 O13", sheet: O13}
@@ -118,7 +118,7 @@ robustness:
     onset_tol:               {value: "one spectrogram step (1 s for T_ramp >= 60 s, else W/2)", status: logged, source: "Table 7.2 RB1; D4"}
     n_3e4_no_worse_than_1e4: {value: "class agreement count not smaller, onset error not larger and f_pk error not larger at N = 3e4 than at N = 1e4 (network v is the mean V of non-refractory neurons)", status: UNVERIFIED, source: "owner ruling DL-157 (F-16, MUST); wording of the metric only", sheet: F-16}
     f_pk_reference:          {value: "per seed", status: UNVERIFIED, source: "owner ruling DL-157 (F-16)", sheet: F-16}
-    no_worse_tolerance:      {value: null, status: open, source: "open, needs user ruling: the plan and the ruling give no tolerance on 'not larger' (zero, or a stated margin on a 3-seed comparison)", sheet: F-16}
+    no_worse_tolerance:      {value: "if N = 1e4 is inside the RB1 pass bands (same class per Table 2.1, f_pk within 5 percent, onset within one spectrogram step), N = 3e4 must also be inside them; the f_pk and onset errors at both N are reported side by side but are not a pass test; no margin is invented", status: UNVERIFIED, source: "owner ruling DL-158 (F-16); an interpretation, no source gives a tolerance", sheet: F-16}
     on_fail: G4
   RB2:
     headline_class_kept_min_seeds: {value: "8 of 10 at 0.5 sigma and at sigma", status: logged, source: "Table 7.2 RB2"}
@@ -142,7 +142,7 @@ robustness:
     perturbation_rel_box:    {value: 0.10, status: logged, source: "Table 7.2 RB4 (+-10 percent; the plan tags the box [reasoned, not tested])"}
     latin_hypercube_points:  {value: 64, status: logged, source: "Table 7.2 RB4"}
     latin_hypercube_min_class_unchanged: {value: 0.80, status: logged, source: "Table 7.2 RB4, G5"}
-    latin_hypercube_seed:    {value: "from root_seed 20261008; spawn key not chosen", status: open, source: "open, needs user ruling: the ruling confirms 'seed from root_seed 20261008' and gives no spawn key; none is invented here", sheet: F-19}
+    latin_hypercube_seed:    {value: {root_seed: 20261008, spawn_key_prefix: [7, 9], design_draw: [7, 9, 0], point_run_seeds: "[7, 9, 1, k], k = 0 to 63"}, status: UNVERIFIED, source: "proposed in DL-158 (F-19), not yet ruled by the owner; follows the DL-141 convention (first element 7 = MS7, second element the next free index after [7, 8] d8cand; calibration keys [0] to [9] and [7, 4, s] untouched); no collision with any key in the repo (tests/test_criteria_draft.py)", sheet: F-19}
     class_unchanged_means:   {value: "same class as the unperturbed run, per run", status: UNVERIFIED, source: "owner ruling DL-157 (F-19)", sheet: F-19}
     on_fail: G5
   RB5:

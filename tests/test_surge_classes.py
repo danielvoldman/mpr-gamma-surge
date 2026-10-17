@@ -416,3 +416,71 @@ def test_o11_flag_is_only_set_for_s_abs_and_adds_no_threshold():
     k = np.sqrt(3.0)
     assert M.classify_mode_n(mixed(on=12, off=18, a0=1.0, low0=3.0, a1=k, low1=3.0 * k), FS, T_ON, 120, THR,
                              d8=NEVER, factor_abs=2.0).cls == "S-abs"
+
+
+# ---- U-5 (DL-158): P_G/P_non-G threshold edges for the relative test -----------------------------------------------
+def rel_only(ratio, noise=0.02):
+    """G power unchanged, non-G power divided by `ratio` during the event: the odds P_G/P_non-G rise by about `ratio`
+    and the absolute test (P_G) does not move."""
+    return mixed(on=12, off=18, a0=1.0, low0=3.0, a1=1.0, low1=3.0 / np.sqrt(ratio), noise=noise)
+
+
+@pytest.mark.parametrize("factor", [1.5, 2.0, 4.0])
+def test_mode_n_relative_threshold_edges(factor):
+    below = M.classify_mode_n(rel_only(0.9 * factor), FS, T_ON, 120, THR, d8=NEVER, factor_rel=factor)
+    above = M.classify_mode_n(rel_only(1.1 * factor), FS, T_ON, 120, THR, d8=NEVER, factor_rel=factor)
+    assert below.cls == "NS" and below.rel is None and below.abs is None
+    assert above.cls == "S-rel" and above.rel is not None and above.abs is None
+
+
+def test_mode_n_relative_default_factor_is_two():
+    assert M.FACTOR_REL == 2.0
+    assert M.classify_mode_n(rel_only(1.8), FS, T_ON, 120, THR, d8=NEVER).cls == "NS"
+    assert M.classify_mode_n(rel_only(2.2), FS, T_ON, 120, THR, d8=NEVER).cls == "S-rel"
+
+
+# ---- U-5 (DL-158): zero baseline (Table 2.1: no gamma power at a stable fixed point, ratios and mode-N classes
+# undefined). The code has no "undefined" class; where it differs from the plan wording the difference is recorded as
+# a strict xfail and the classifier is not changed (owner instruction, DL-158). ---------------------------------------
+N_ZB = 30000
+
+
+def _zero_baseline_signals():
+    return {"exact_zero": np.zeros(N_ZB), "constant": np.full(N_ZB, -0.5)}
+
+
+@pytest.mark.parametrize("name", ["exact_zero", "constant"])
+def test_zero_baseline_raises_nothing_and_returns_a_known_class(name):
+    v = _zero_baseline_signals()[name]
+    with np.errstate(all="ignore"):
+        rn = M.classify_mode_n(v, FS, T_ON, 120, THR)
+        rd = M.classify_mode_d(v, FS, T_ON, 120, THR)
+        rho = M.baseline_rho(v, FS, T_ON, 120) if name == "constant" else None
+    assert rn.cls in M.MODE_N_CLASSES + ("failed",) and rd.cls in M.MODE_D_CLASSES + ("failed",)
+    assert rd.cls == "D-none"
+    if rho is not None:
+        assert np.isfinite(rho)
+
+
+def test_zero_baseline_constant_gives_ns_with_finite_outputs():
+    """A constant (nonzero) record carries only round-off power (about 1e-35): the baseline is not exactly zero."""
+    r = M.classify_mode_n(_zero_baseline_signals()["constant"], FS, T_ON, 120, THR)
+    assert r.cls == "NS" and r.episode is None
+
+
+@pytest.mark.xfail(strict=True, reason="DL-158: exact zero baseline: 0/0 gives NaN odds, the absolute test 0 >= 2 x 0 "
+                   "passes and the class is S-sus with NaN peak_rho; the plan wording says 'undefined'")
+def test_zero_baseline_exact_zero_has_no_nan_in_outputs():
+    with np.errstate(all="ignore"):
+        r = M.classify_mode_n(np.zeros(N_ZB), FS, T_ON, 120, THR)
+    nums = [x for e in (r.episode, r.rel, r.abs) if e is not None for x in (e.peak_p_g, e.peak_rho, e.f_pk_hz)]
+    assert all(np.isfinite(nums))
+
+
+@pytest.mark.xfail(strict=True, reason="DL-158: the code has no 'undefined' mode-N class (Table 2.1 zero-baseline "
+                   "wording); a zero or round-off baseline is classified NS or S-sus")
+@pytest.mark.parametrize("name", ["exact_zero", "constant"])
+def test_zero_baseline_mode_n_class_is_undefined(name):
+    with np.errstate(all="ignore"):
+        r = M.classify_mode_n(_zero_baseline_signals()[name], FS, T_ON, 120, THR)
+    assert r.cls == "undefined"

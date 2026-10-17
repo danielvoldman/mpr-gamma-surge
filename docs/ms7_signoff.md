@@ -44,7 +44,17 @@ Row format: ID, what it is, options, recommendation (ours), evidence. IDs F-n an
 | TAG | Confirmed (section 8 draft) | none |
 | DEF, BAK, PERM | **Closed**, answered by the user: Defender exclusion in place; a backup copy of the repository and `results/` exists; `/permissions` shows no saved rules, with a Deny rule added for `git push` | `housekeeping.closed_by_user` |
 
-**Rows that are "open, needs user ruling":**
+**Rulings of 7h2 (DL-158), entered after the list below was written:**
+
+| ID | Ruling | Effect |
+|---|---|---|
+| F-16 | `RB1.no_worse_tolerance` entered as an interpretation, UNVERIFIED: if N = 1e4 is inside the RB1 pass bands (same class per Table 2.1, f_pk within 5 percent, onset within one spectrogram step), N = 3e4 must also be inside them; the f_pk and onset errors at both N are reported side by side but are not a pass test; no margin is invented | `RB1.no_worse_tolerance` UNVERIFIED (no longer open) |
+| F-19 | Spawn key **proposed** by us, UNVERIFIED, awaiting the owner: prefix [7, 9] (design draw [7, 9, 0], point runs [7, 9, 1, k], k = 0 to 63), root_seed 20261008; test that it collides with no key used by any run kind | `RB4.latin_hypercube_seed` UNVERIFIED (proposal) |
+| O10 fallback | Accepted (earlier episode's class when the two episodes do not overlap), UNVERIFIED | `O10_episode_and_s_plus` source updated |
+| U-7 | Classifier fix (baseline-window edges in samples) **deferred** | none; classifier unchanged |
+| U-5 | Tests added: relative threshold edges at 1.5, 2, 4 (pass); zero baseline (no exception; the plan wording "undefined" is NOT met by the code: 3 strict xfails, classifier unchanged, see the end of section 8 and DL-158) | `tests/test_surge_classes.py` |
+
+**Rows that were "open, needs user ruling" (state at DL-157; F-16 and F-19 updated above):**
 1. F-16: the tolerance on "not larger" (exact comparison, or a stated margin on a 3-seed comparison). The plan gives no number.
 2. F-19: the spawn key for the 64-point Latin hypercube (seed source is ruled, the key is not).
 3. (Deferred, not owed now) F-23: M4 criteria, written before M4 runs.
@@ -259,5 +269,17 @@ The MS7 gate passes with a departure: the D8 plan estimator fails 2 of the plan'
 (15-cycle slowly damped ring called damped in 86.5 percent against 95; D_ring_slow_-3 classed D-tr),
 and 26 of 36 pre-registered F1 cells miss the 95 percent sign match (DL-137, DL-155). Known limitation, D8 = A.
 Short-window false-surge rate on white noise is reported per W (DL-157) and the claim is limited through the G6 route.
-Values with no source are labelled UNVERIFIED in the file. Open at freeze: F-16 tolerance, F-19 spawn key (if not ruled by then).
+Values with no source are labelled UNVERIFIED in the file. Open at freeze: F-19 spawn key (proposal [7, 9], needs the owner's confirmation), the zero-baseline wording difference (end of section 8, DL-158).
 ```
+
+### U-5 follow-up (7h2, DL-158): zero-baseline behaviour against the plan wording
+
+Table 2.1: "A deterministic run at a stable fixed point has no gamma power, so the power ratios and the mode-N classes are undefined." The code has no "undefined" class (`MODE_N_CLASSES` = S+, S-rel, S-abs, S-sus, NS). Observed, classifier untouched:
+
+| Input (30 s, 1 kHz, t_on 5 s) | Mode N | Mode D | Note |
+|---|---|---|---|
+| constant -0.5 | NS | D-none | round-off power (about 1e-35) is not exactly zero; no exception, no NaN; baseline rho 0.036 |
+| exactly 0 | S-sus | D-none | 0/0 gives NaN odds (RuntimeWarning); the absolute test 0 >= 2 x 0 passes; episode peak_rho is NaN; baseline rho raises a RuntimeWarning |
+
+Options: (a) leave as is and record a known difference (deterministic runs use mode D, so the plan sentence is satisfied by never asking mode N there); (b) return "undefined" when the baseline P_G or P_non-G is below a floor or exactly zero (a classifier change; a floor would be a new number, none in the plan); (c) minimal: return `failed` on an exactly zero baseline (no new number). Recommendation: (a) for MS7, (c) if you want the exact-zero NaN gone. Needs your ruling; not done.
+Also seen: a pure linear trend through `classify_mode_n` gives S-sus (the plan row "pure trend gives NS" is tested at core level only; the strict xfails here do not cover it). Same options, same recommendation.
