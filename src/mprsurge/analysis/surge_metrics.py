@@ -239,6 +239,8 @@ class ClassResult:
     label_f: bool = False                 # A9 failure label (f), mode D only
     provisional: Optional[str] = None     # D8_PROVISIONAL when the class depended on the D8 call
     conventions: Conventions = field(default_factory=Conventions)
+    broadband: Optional[bool] = None      # mode N S-abs only: the rise peaks outside G (O11, F-6); None for other classes
+    rise_peak_hz: Optional[float] = None  # the frequency of that argmax (S-abs only)
 
 
 def _finite(v):
@@ -301,6 +303,9 @@ def classify_mode_n(v, fs, t_on, T_ramp_s, threshold, d8: D8Estimator = PLAN_D8,
     running peak frequency, and the run must be non-damped by `d8`. `threshold` is the single absolute
     0.1 x A_ref (D7) and is the only amplitude threshold the D8 fit uses (owner constraint; whether that is right
     in mode N is open, DL-140). The D8 fit runs once per record, on v from t_on. `window` overrides (W, step).
+    O10 (ruled): S+ needs the relative and absolute episodes to share a flagged window; two qualifying episodes
+    that do not overlap give the class of the earlier one. O11 (ruled, F-6): an S-abs result carries `broadband`
+    (the rise peaks outside G) and `rise_peak_hz`; no new threshold.
     """
     if not _finite(v):
         return ClassResult(FAILED, "N", reason="non-finite input", conventions=conv)
@@ -322,6 +327,7 @@ def classify_mode_n(v, fs, t_on, T_ramp_s, threshold, d8: D8Estimator = PLAN_D8,
         return d8_res[0]
 
     def episode(fl):
+        """(Episode, first window, last window) of the first qualifying run, or None."""
         for a, b in _merge_runs(_runs(fl), W, step):
             dur = (b - a + 1) * step
             cyc = dur * float(np.mean(fpk[a:b + 1]))
@@ -331,25 +337,43 @@ def classify_mode_n(v, fs, t_on, T_ramp_s, threshold, d8: D8Estimator = PLAN_D8,
                 return None
             j = a + int(np.argmax(p_g[a:b + 1]))
             on = tc[a] - (W / 2 if conv.onset == "start" else 0.0)
-            return Episode(float(on), float(tc[b] + step / 2), dur, cyc,
-                           (len(tc) - 1 - b) * step >= W - _EPS,
-                           float(fpk[j]), float(p_g[j]), float(p_g[j] / p_tot[j]))
+            ep = Episode(float(on), float(tc[b] + step / 2), dur, cyc,
+                         (len(tc) - 1 - b) * step >= W - _EPS,
+                         float(fpk[j]), float(p_g[j]), float(p_g[j] / p_tot[j]))
+            return ep, a, b, j
         return None
 
-    rel, ab = episode(flags["rel"]), episode(flags["abs"])
+    r_hit, a_hit = episode(flags["rel"]), episode(flags["abs"])
+    rel, ab = (r_hit[0] if r_hit else None), (a_hit[0] if a_hit else None)
     found = [e for e in (rel, ab) if e is not None]
+    reason = "" if found else "no qualifying episode"
     if any(not e.terminated for e in found):
         cls = "S-sus"
     elif rel and ab:
-        cls = "S+"
+        # O10 (ruled): S+ needs the two episodes to share a window; otherwise the earlier one defines the class
+        if max(r_hit[1], a_hit[1]) <= min(r_hit[2], a_hit[2]):
+            cls = "S+"
+        else:
+            cls = "S-rel" if r_hit[1] <= a_hit[1] else "S-abs"
+            reason = "relative and absolute episodes do not overlap in time (O10)"
     elif rel:
         cls = "S-rel"
     elif ab:
         cls = "S-abs"
     else:
         cls = "NS"
+    broadband = rise_hz = None
+    if cls == "S-abs":
+        # O11 (ruled, F-6): broadband when the spectrogram argmax of the rise lies outside G; no new threshold.
+        # Rise = peak-power window of the absolute episode minus the mean baseline spectrum, over the total band.
+        _, f_all, S_all = spectrogram_v(v, fs, W, step)
+        S_all = np.asarray(S_all)
+        rise = S_all[:, a_hit[3]] - S_all[:, bm].mean(axis=1)
+        tot = (f_all >= TOTAL_BAND[0]) & (f_all < TOTAL_BAND[1])
+        rise_hz = float(f_all[tot][np.argmax(rise[tot])])
+        broadband = not (band[0] <= rise_hz < band[1])
     first = min(found, key=lambda e: e.onset_s) if found else None
-    return ClassResult(cls, "N", first, rel, ab, d8_res[0], "" if found else "no qualifying episode",
+    return ClassResult(cls, "N", first, rel, ab, d8_res[0], reason, broadband=broadband, rise_peak_hz=rise_hz,
                        provisional=D8_PROVISIONAL if d8_res[0] is not None else None, conventions=conv)
 
 

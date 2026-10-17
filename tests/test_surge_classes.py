@@ -355,3 +355,64 @@ def test_stored_fixed_point_is_none_with_label_f_when_inside_the_region():
 def test_stored_limit_cycle_stub_d8_class_logic_does_not_depend_on_start_time():
     v = np.load(S3_LC)["v"]
     assert M.classify_mode_d(v, FS, 1.0, 120, THR, d8=NEVER).cls == "D-sus"
+
+
+# ---- owner rulings at 7h: O10 (S+ needs overlap) and O11 (S-abs broadband flag, F-6) ------------------------------
+def two_events(rel_at, abs_at, total=40.0, dur=6.0, seed=5):
+    """40 Hz and 10 Hz sinusoids plus noise with a relative-only event (G x1.7 power, non-G /36: odds x61, absolute
+    power below 2) and an absolute-only event (both bands x3 in power: odds unchanged), starting at rel_at, abs_at (where they coincide
+    the effects multiply)."""
+    t = np.arange(int(total * FS)) / FS
+    ag, al = np.ones(t.size), 3.0 * np.ones(t.size)
+    r = (t >= rel_at) & (t < rel_at + dur)
+    a = (t >= abs_at) & (t < abs_at + dur)
+    ag[r], al[r] = 1.3, 0.5
+    k = np.sqrt(3.0)
+    ag[a], al[a] = ag[a] * k, al[a] * k                                   # multiplies where the events coincide
+    return (ag * np.sin(2 * np.pi * 40 * t) + al * np.sin(2 * np.pi * 10 * t) + 0.02 * rng(seed).standard_normal(t.size))
+
+
+def test_o10_disjoint_relative_and_absolute_episodes_are_not_s_plus():
+    r = M.classify_mode_n(two_events(rel_at=8, abs_at=22), FS, T_ON, 120, THR, d8=NEVER)
+    assert r.rel is not None and r.abs is not None
+    assert r.rel.end_s < r.abs.onset_s                                    # no shared window
+    assert r.cls == "S-rel" and r.episode is r.rel and "overlap" in r.reason
+    r2 = M.classify_mode_n(two_events(rel_at=22, abs_at=8), FS, T_ON, 120, THR, d8=NEVER)
+    assert r2.rel is not None and r2.abs is not None
+    assert r2.cls == "S-abs" and r2.episode is r2.abs
+
+
+def test_o10_overlapping_episodes_are_s_plus_and_adjacent_ones_are_not():
+    assert M.classify_mode_n(two_events(rel_at=8, abs_at=12), FS, T_ON, 120, THR, d8=NEVER).cls == "S+"
+    assert M.classify_mode_n(two_events(rel_at=8, abs_at=14), FS, T_ON, 120, THR, d8=NEVER).cls in ("S-rel", "S-abs")
+
+
+def test_o10_overlap_does_not_depend_on_the_onset_convention():
+    v = two_events(rel_at=8, abs_at=22)
+    for onset in ("centre", "start"):
+        assert M.classify_mode_n(v, FS, T_ON, 120, THR, d8=NEVER, conv=M.Conventions(onset=onset)).cls == "S-rel"
+
+
+def test_o11_s_abs_is_flagged_broadband_when_the_rise_peaks_outside_g():
+    k = np.sqrt(3.0)
+    v = mixed(on=12, off=18, a0=1.0, low0=3.0, a1=k, low1=3.0 * k)       # both bands x3; the larger rise is at 10 Hz
+    r = M.classify_mode_n(v, FS, T_ON, 120, THR, d8=NEVER)
+    assert r.cls == "S-abs" and r.broadband is True
+    assert not (M.G_BAND[0] <= r.rise_peak_hz < M.G_BAND[1]) and r.rise_peak_hz == pytest.approx(10.0, abs=1.0)
+
+
+def test_o11_s_abs_is_band_limited_when_the_rise_peaks_inside_g():
+    k = np.sqrt(3.0)
+    v = mixed(on=12, off=18, a0=3.0, low0=1.0, a1=3.0 * k, low1=k)       # both bands x3; the larger rise is at 40 Hz
+    r = M.classify_mode_n(v, FS, T_ON, 120, THR, d8=NEVER)
+    assert r.cls == "S-abs" and r.broadband is False and r.rise_peak_hz == pytest.approx(40.0, abs=1.0)
+
+
+def test_o11_flag_is_only_set_for_s_abs_and_adds_no_threshold():
+    for r in (M.classify_mode_n(mixed(), FS, T_ON, 120, THR, d8=NEVER),
+              M.classify_mode_n(mixed(on=12, off=18), FS, T_ON, 120, THR, d8=NEVER)):
+        assert r.cls in ("NS", "S+") and r.broadband is None and r.rise_peak_hz is None
+    # the class itself is unchanged by the flag: same record, same class as the O11-free logic (S-abs from the absolute test)
+    k = np.sqrt(3.0)
+    assert M.classify_mode_n(mixed(on=12, off=18, a0=1.0, low0=3.0, a1=k, low1=3.0 * k), FS, T_ON, 120, THR,
+                             d8=NEVER, factor_abs=2.0).cls == "S-abs"

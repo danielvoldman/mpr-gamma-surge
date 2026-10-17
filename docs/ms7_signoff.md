@@ -1,8 +1,55 @@
 # MS7 sign-off sheet (7h): items that need the owner's ruling
 
-Draft, not frozen. Written in 7h (DL-156). Nothing on this sheet is ruled; every "Recommendation" is the author's one-line suggestion, marked ours. The draft criteria file is `configs/robustness_criteria.yaml` (each value labelled logged, UNVERIFIED or open; `sheet:` names the row here). No freeze SHA-256 exists and no tag was created. Plan v0.5 is not edited. D8: ruling for MS7 is option A (plan estimator stays), recorded below with the choice A or B left to you.
+Draft, not frozen. Written in 7h (DL-156); the owner's rulings are entered in section 0 (DL-157). Sections 1 to 7 keep the original rows (options, recommendation of ours, evidence) as the record of what was asked; section 0 is what was ruled. The draft criteria file is `configs/robustness_criteria.yaml` (each value labelled logged, UNVERIFIED or open; `sheet:` names the row here). No freeze SHA-256 exists and no tag was created. Plan v0.5 is not edited. D8 for MS7 is option A (plan estimator stays, strict xfail stays, known limitation stated).
 
 Row format: ID, what it is, options, recommendation (ours), evidence. IDs F-n and O-n are from `docs/ms7_plan.md` and DL-140; H-n, D8, Q3, SW, RHO, REACH, G6, RB6 and U-n are added here.
+
+## 0. Rulings entered (DL-157)
+
+"As recommended" means the recommendation in the row of that ID below. A ruling that no source backs is labelled UNVERIFIED in the criteria file. Rows marked **open, needs user ruling** hold no number in the file and are listed again at the end of this section.
+
+| ID | Ruling | Effect |
+|---|---|---|
+| D8 | A: plan estimator, strict xfail stays, known limitation stated (as recommended) | `classifier.d8_estimator.choice: A`; no change in code |
+| Q3 | As recommended: (a) leave Table 2.1 as written for MS7; (b) or (c) to be considered after MS8 data | Plan question stays open, not acted on |
+| X-1 | (a): gate reads "pytest exits 0 with the documented xfail". **The MS7 gate passes with a departure: the plan estimator fails 2 of the plan's 8 A8 ring items** (the 15-cycle slowly damped ring, damped in 86.5 percent against 95; D_ring_slow_-3 classed D-tr) | `classifier.d8_estimator.gate_wording`; tag-message draft in section 8 |
+| SW | Report only. The paper states the white-noise false-surge rate per W and limits the claim through the plan's G6 "limit the claim" route; no new threshold | `classifier.reading_conventions.short_window_false_surge` |
+| O1 to O7, O9, O13 to O16 | As recommended (the code's plain readings) | `mode_n_conventions`, UNVERIFIED, no code change |
+| O8 | Keep as coded (window centre >= t_on) | as above |
+| O10 | Require time overlap of the relative and absolute episodes for S+. **Implemented and tested** (`classify_mode_n`; 3 tests). Two qualifying episodes that share no flagged window give the class of the earlier one: that fallback is ours, UNVERIFIED | `surge_metrics.py`; `tests/test_surge_classes.py` |
+| O11 (F-6) | Flag S-abs as broadband when the spectrogram argmax of the rise lies outside G; no new threshold. **Implemented and tested** (`ClassResult.broadband`, `rise_peak_hz`; 3 tests). "Rise" = the absolute episode's peak-power window minus the mean baseline spectrum over 1 to 150 Hz: that definition is ours, UNVERIFIED | as above |
+| O12 | Post-surge rate is a reported-only metric, not a criterion. **Not implemented**; defined at MS8 with data | `not_implemented.post_surge_rate` |
+| H-1 | As recommended: A_ref median 2.176222; alternates stored, not run | `a_ref_reading` |
+| F-7, RHO | As recommended: rho reported, odds test, no flag; baseline rho reported per W | `reading_conventions` |
+| REACH | Report only the plan's 0.5 at ratio 2; the 1/ratio levels (0.667 at 1.5, 0.25 at 4) in an appendix, UNVERIFIED | `reachability_levels` |
+| G6 | RB3(a) "not judged at the headline"; G6 at the headline rests on RB3(b) and RB6 | `gates.G6.reading` UNVERIFIED |
+| RB6 | DL-154 statistic with our three readings, confirmed | `RB6.statistic.readings_confirmed_by_owner` |
+| F-26, F-12, F-9, F-8, F-2, F-10, F-11, F-13, F-14, F-15, F-27, F-28 | Confirmed as recommended (F-26: mode D map 1; F-12: one-grid-step tolerance frozen without ramp evidence) | no value changed |
+| S3S4 | Pre-freeze sensitivity only | `s3s4_sensitivity` |
+| F-16 | MUST. Metric: class agreement, and onset and f_pk errors not larger, N = 3e4 against 1e4; f_pk reference per seed. **The tolerance on "not larger" is open, needs user ruling** | `RB1.n_3e4_no_worse_than_1e4`, `f_pk_reference`; `RB1.no_worse_tolerance` null |
+| F-17, F-20, F-22, F-24, F-25 | Confirmed | no value changed |
+| F-18 | (c) as written; (d) compare the four T_ramp of RB3(c): 56.23, 100, 177.8, 316.2 s (the plan's list, the choice is the ruling) | `RB3.d_T_ramp_compared` UNVERIFIED |
+| F-19 | Confirmed; the seed comes from root_seed 20261008. **The spawn key is open, needs user ruling** (no key was given and none is invented) | `RB4.latin_hypercube_seed` open |
+| F-21 | Pair list DOP853 vs Radau; network dt 1e-3 against 5e-4 (both rungs of the S13 network ladder) | `RB6.solver_pair_list`, `network_dt_for_f_pk_test` UNVERIFIED |
+| F-23 | M4 criteria deferred | `RB8.M4_criteria` null, deferred, no ruling owed now |
+| U-1 | Accepted: evaluated by A11 after the freeze | none |
+| U-2 | Unmet A8 items reported as known limitations | `a8_unmet_items_known_limitations` |
+| U-3, U-4, U-6 | Accepted (U-3: NC1/G7 is the check; U-4: none under A; U-6: frozen with the label) | none |
+| U-5 | Check by name now: result in section 8 | section 8 |
+| U-7 | Diagnostic run: result in section 8 (resolved: the two tables passed T_ramp 31.6228 and 31.62 s, a baseline-edge window tie; classifier not changed) | section 8 |
+| H-2 | Leave A4 on `replication.yaml`; set `robustness.criteria_file` on the ramp-run configs at MS8 | `housekeeping.criteria_key_on_configs` |
+| H-3 | The loader is written at MS8. **First step of the loader (MS8 note): refuse to run if the SHA-256 of the criteria file does not match the tag.** | `housekeeping.loader`; `docs/ms7_plan.md` item 16 |
+| H-4 | `docs/robustness_criteria.md` is generated from this sheet at 7i | `housekeeping.readable_companion` |
+| K5, K10, K4-net, CAP | K5 deferred; K10 and K4-net carried; CAP accepted | none |
+| TAG | Confirmed (section 8 draft) | none |
+| DEF, BAK, PERM | **Closed**, answered by the user: Defender exclusion in place; a backup copy of the repository and `results/` exists; `/permissions` shows no saved rules, with a Deny rule added for `git push` | `housekeeping.closed_by_user` |
+
+**Rows that are "open, needs user ruling":**
+1. F-16: the tolerance on "not larger" (exact comparison, or a stated margin on a 3-seed comparison). The plan gives no number.
+2. F-19: the spawn key for the 64-point Latin hypercube (seed source is ruled, the key is not).
+3. (Deferred, not owed now) F-23: M4 criteria, written before M4 runs.
+
+F-18(d) and F-21 were filled from values the plan or S13 already list (the four RB3(c) T_ramp; the network dt rungs) and the owner's ruling; both are UNVERIFIED because no source says which are compared.
 
 ## 1. D8 and the estimator
 
@@ -171,3 +218,46 @@ The code uses the plain reading named below, marked "working convention, UNVERIF
 | CAP | D36 24 h cap: rows without timing cells (S1, S3 mean field, A1 to A6, S4, S12 MF, S13 ladders, network dt ladder, A8, baseline analysis, F11 hold run 88 s); bounds 8.60 h lower and 10.23 h conservative stay; two DL-105 exceptions carried | accept; or build the missing timing cells | accept; fold measured times into the next timing summary | DL-122, ms7_plan item 5 |
 | PERM | `/permissions` check (DL-051): not recorded since MS3; MS7 adds no new external command | run `/permissions` once and tell me whether the venv-path rules match without a prompt; or drop the item | tell me | DL-051, ms7_plan item 2 |
 | TAG | Tag mechanics for 7j: full suite (including slow) green, `criteria-frozen` annotated on the approved commit with the SHA-256 of the LF text of `configs/robustness_criteria.yaml` (DL-084), approval DL entry in the same commit; no push | confirm | confirm | ms7_plan 7j |
+
+## 8. Results of the checks asked with the rulings (DL-157)
+
+### U-5: the plan's test list, checked by name
+
+Plan lists (Table 10.1 `test_surge_metrics`, A8): burst on/off within one step; chirp; 5-cycle ring; slowly damped ring; pure trend; zero baseline; P_G/P_non-G threshold; an S-abs case. All tests below pass in the fast suite.
+
+| Plan item | Test that covers it | Exists | Passes | Remark |
+|---|---|---|---|---|
+| burst on/off within one step | `test_surge_metrics.py::test_burst_on_off_within_one_step`; class level `test_surge_classes.py::test_a8_onset_offset_within_one_window_step_and_frequency_within_1_over_w` | yes | yes | |
+| chirp 20 to 60 Hz | `test_chirp_peak_follows_instantaneous_frequency` | yes | yes | core level |
+| 5-cycle ring (NS or D-none, growth < 0) | `test_five_cycle_ring_has_negative_growth_and_fewer_than_ten_cycles` | yes | yes | growth and cycle count at core level; no class-level NS test by this name (the A8 sensitivity set classifies it, DL-147) |
+| slowly damped ring (NS or D-none) | `test_slowly_damped_ring_has_more_than_ten_cycles_and_negative_growth`; `test_slowly_damped_ring_rate_matches_true_decay_after_step_onset` | yes | first passes; second is the strict xfail | the class-level requirement (NS or D-none) is not met by the plan estimator in mode D (D-tr), U-2 |
+| pure trend -> NS | `test_pure_trend_has_no_cycles_and_no_gamma_power` | yes | yes | core level only; no class-level NS test (mode N at W = 0.2 s gives S-rel, U-2) |
+| **zero baseline** | none | **no** | - | no test by that name or content (a zero-power baseline window is not exercised); `test_baseline_too_short_and_bad_input` covers a baseline shorter than one window only |
+| P_G/P_non-G threshold | `test_mode_n_s_rel_relative_only`; `test_mode_n_factor_edges` | partly | yes | the relative test is exercised for pass and for the S+ case; the factor edges (1.5, 2, 4) are parametrised only on the absolute test (the record leaves the odds unchanged), so the **relative threshold edges are not tested** |
+| S-abs case | `test_mode_n_s_abs_absolute_only` | yes | yes | |
+
+Missing: the zero-baseline test, and relative-threshold edge tests. Not added (report only, as asked).
+
+### U-7: DL-147 (24 of 500) against DL-155 (26 of 500) at W = 1.054 s
+
+Re-run from a clean tree (HEAD ef552a5, before the O10/O11 edits; the 24 and 26 counts reproduced exactly; the six differing records were then identified with the O10/O11 code in place, which does not change them: none is an S-abs or an S+ case; the run used `whitenoise_classes` with the recorded draws, spawn key (7, 6, 2, k), k = 0 to 499, sd 0.04, mode N, t_on 5 s, V0, plan D8, A_ref 2.176222, 500 records).
+
+| T_ramp passed | W | NS | S-rel | S-sus | non-NS |
+|---|---|---|---|---|---|
+| 31.6227766017 s (DL-147's value, 10^(6/4) rounded to 10 places) | 1.0540925534 s | 476 | 22 | 2 | **24** |
+| 31.62 s (DL-155's `WHITE_T_RAMP`, rounded) | 1.054 s | 474 | 23 | 3 | **26** |
+
+Cause (checked, not assumed): the same draws and the same classifier; the two tables passed different T_ramp for the same nominal window. `d8_study.WHITE_T_RAMP` carries 31.62 s (W = 1.054 s), the DL-147 driver 31.6228 s (W = 1.05409 s). The samples are identical (1054-sample window, 527-sample step, same spectrogram), but `baseline_windows` compares window edges in seconds: the first window (samples 0 to 1054, centre 0.527 s) lies wholly inside the 5 s baseline [0, 5] for W = 1.054 s, and not for W = 1.05409 s, whose nominal span starts 0.00005 s before 0. So the baseline has 8 windows in one table and 7 in the other, its mean changes slightly, and 6 of 500 records change class (4 non-NS in the DL-155 setting only, 2 in the DL-147 setting only; net 24 against 26). Other windows agree because their W in seconds equals the sample count exactly (0.2 s, 2 s) or no baseline window sits on a boundary. This is a window-edge tie in the O7/D5 baseline rule (a baseline window that touches the baseline edge), not a seed or code difference. The classifier was not changed (instruction). Both numbers stand as measurements at their W. For the paper: quote W = 1.054 s with 24 to 26 of 500 (4.8 to 5.2 percent) and state that the count at this level depends on whether the edge window counts as baseline. Candidate fix for the owner (not applied): compare the window edges in samples, or take W from the integer sample count; it would make the two tables identical and is a change of the classifier, so it needs a ruling.
+
+### Tag-message draft for `criteria-frozen` (7j, not created)
+
+```
+criteria-frozen: MS7 robustness criteria and classifier defaults.
+SHA-256 of the LF text of configs/robustness_criteria.yaml: <computed at 7j>.
+Gate: pytest exits 0 with the documented strict xfail (test_slowly_damped_ring_rate_matches_true_decay_after_step_onset).
+The MS7 gate passes with a departure: the D8 plan estimator fails 2 of the plan's 8 A8 ring items
+(15-cycle slowly damped ring called damped in 86.5 percent against 95; D_ring_slow_-3 classed D-tr),
+and 26 of 36 pre-registered F1 cells miss the 95 percent sign match (DL-137, DL-155). Known limitation, D8 = A.
+Short-window false-surge rate on white noise is reported per W (DL-157) and the claim is limited through the G6 route.
+Values with no source are labelled UNVERIFIED in the file. Open at freeze: F-16 tolerance, F-19 spawn key (if not ruled by then).
+```

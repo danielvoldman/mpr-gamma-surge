@@ -111,3 +111,24 @@ def test_no_config_points_at_the_draft_yet():
     for p in sorted((C.repo_root() / "configs").glob("*.yaml")):
         if p.name != "robustness_criteria.yaml":
             assert "criteria_file: configs/robustness_criteria.yaml" not in p.read_text(encoding="utf8"), p.name
+
+
+def test_rulings_entered_dl157_open_rows_are_the_three_expected(crit):
+    """After the 7h rulings (DL-157) only three leaves are still open: the RB1 'not larger' tolerance, the RB4 Latin hypercube spawn
+    key, and the M4 criteria (deferred by ruling). Each is open because no source or ruling gives it; no number was invented."""
+    assert crit["meta"]["decision_log_through"] == "DL-157"
+    opened = {".".join(path) for path, leaf in _leaves(crit) if leaf["status"] == "open"}
+    assert opened == {"robustness.RB1.no_worse_tolerance", "robustness.RB4.latin_hypercube_seed", "robustness.RB8.M4_criteria"}
+    for path, leaf in _leaves(crit):
+        if ".".join(path) in opened:
+            assert leaf["value"] is None or isinstance(leaf["value"], str)
+
+
+def test_rulings_o10_o11_o12_and_gate_wording_recorded(crit):
+    c = crit["classifier"]["mode_n_conventions"]
+    assert set(c) == {k for k in c if k[0] == "O"} and len(c) == 16
+    assert "share a flagged window" in c["O10_episode_and_s_plus"]["value"]
+    assert "outside G" in c["O11_s_abs_broadband"]["value"] and "no new threshold" in c["O11_s_abs_broadband"]["value"]
+    assert "not a criterion" in c["O12_post_surge_rate"]["value"]
+    assert "documented xfail" in crit["classifier"]["d8_estimator"]["gate_wording"]["value"]
+    assert crit["meta"]["frozen"] is False and crit["meta"]["freeze_sha256"] is None

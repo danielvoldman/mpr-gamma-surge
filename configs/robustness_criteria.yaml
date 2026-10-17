@@ -1,6 +1,7 @@
 # DRAFT, NOT FROZEN. Robustness criteria (plan Table 7.2, D35; gates G5 to G7, Table 11.2) and the MS7 classifier / D43 / A4 values.
 # MS7 sub-step 7h (docs/ms7_plan.md). Nothing here is frozen: no SHA-256 has been computed, no tag exists. The freeze is 7j and only on the
-# owner's instruction. Every ruling the owner still owes is a row of docs/ms7_signoff.md; the `sheet:` field names that row.
+# owner's instruction. The owner's rulings on docs/ms7_signoff.md are entered (DL-157); the `sheet:` field names the row of that sheet.
+# Rows still marked `open` below are the "open, needs user ruling" rows: the plan gives no number and none was ruled.
 #
 # Status of each value (the three labels the owner asked for):
 #   logged     = written down in the plan (Table 7.2, Table 11.2, Table 2.1, Appendix B) or in a decision-log entry (source given). Plan
@@ -18,7 +19,8 @@ meta:
   freeze_sha256: null            # NOT computed (7j only, on the owner's instruction; LF text as DL-084)
   freeze_tag: null               # criteria-frozen is not created
   plan: docs/plan.md v0.5
-  decision_log_through: DL-156
+  decision_log_through: DL-157
+  rulings_entered: "owner rulings on docs/ms7_signoff.md, DL-157; a ruling that no source backs is labelled UNVERIFIED"
 
 # ---------------------------------------------------------------------------------------------------------------------------------
 # Classifier (Table 2.1; analysis/surge_metrics.py). The D-items are at their plan defaults (F-8, sheet F-8).
@@ -39,7 +41,7 @@ classifier:
     status: logged
     source: "Table 2.1 D8 wording (plan); estimator choices per DL-062, DL-140"
     sheet: D8
-    choice: A                    # owner ruling for MS7 (this step, ruling 1): plan estimator stays the default; B is a sheet choice
+    choice: A                    # owner ruling for MS7 (DL-156, confirmed DL-157): plan estimator stays the default
     known_limitation:
       text: >
         The plan estimator has documented failures, stated here and not fixed in MS7 (the strict xfail stays):
@@ -50,6 +52,20 @@ classifier:
         exceed 5 percent false damped (DL-137, reproduced in DL-155). Every class that went through a D8 call is labelled
         "provisional (D8 open, DL-137)". No candidate fix met the DL-136 numbers (DL-155).
       source: "DL-062, DL-073, DL-137, DL-140, DL-147, DL-155"
+    a8_unmet_items_known_limitations:
+      value: >
+        Of the plan's 8 A8 ring items the plan estimator fails 2 (DL-155 F5, DL-147 (3)): the slowly damped 15-cycle ring is called damped in
+        86.5 percent of draws against the required 95 percent, and the slowly damped mode-D ring (D_ring_slow_-3, T 120 s) is classed D-tr
+        where NS or D-none is required. Also not met on the synthetic set: a pure trend at W = 0.2 s in mode N gives S-rel (mode D gives
+        D-none; mode N at W = 2 s gives NS). Reported as known limitations (ruling U-2); not fixed in MS7.
+      status: UNVERIFIED
+      source: "owner ruling DL-157 (U-2, X-1); DL-147 (3), DL-155 (2)"
+      sheet: U-2
+    gate_wording:
+      value: "MS7 gate 'test_surge_metrics passes' reads: pytest exits 0 with the documented xfail (strict xfail test_slowly_damped_ring_rate_matches_true_decay_after_step_onset). The gate passes with a departure: the plan estimator fails 2 of the plan's 8 A8 ring items."
+      status: UNVERIFIED
+      source: "owner ruling DL-157 (X-1)"
+      sheet: X-1
   a_ref:
     value: 2.176222              # 2.176221747792915 in results/A8/a_ref/a_ref.json
     status: UNVERIFIED           # owner-ruled reading (a), DL-139; the 0.1 x A_ref threshold below is derived
@@ -63,10 +79,34 @@ classifier:
     alternates_stored_not_used: {value: {mean: 2.186789, maximum: 3.219102, sqrt2_x_rms: 2.404543, half_peak_to_peak: 2.755908, literal_peak_to_peak: 5.511356}, status: logged, source: "DL-139, results/A8/a8_aref.json"}
   sigma:                   {value: 0.0624, status: UNVERIFIED, source: "DL-121; frozen with the criteria (6.4, CP21), checked at S8 (MS10)", sheet: F-9}
   mode_n_conventions:
-    # O1 to O16 (DL-140): working conventions, all open. The code uses the plain reading; the sheet holds the options.
-    status: open
-    sheet: "O1-O16"
-    value: null
+    # O1 to O16 (DL-140): ruled by the owner (DL-157). Each is an owner ruling that no source backs: UNVERIFIED.
+    O1_onset_time:           {value: "window centre of the first flagged window (Conventions.onset = centre)", status: UNVERIFIED, source: "owner ruling DL-157; DL-140 O1", sheet: O1}
+    O2_episode_end:          {value: "gap = unflagged windows x step, merged if < W; end = last flagged centre + step/2; duration = flagged windows x step", status: UNVERIFIED, source: "owner ruling DL-157; DL-140 O2", sheet: O2}
+    O3_termination:          {value: "sustained if no gap of W or more follows before the record ends", status: UNVERIFIED, source: "owner ruling DL-157; DL-140 O3", sheet: O3}
+    O4_mode_n_amplitude:     {value: "keep as coded: the D8 fit uses the single 0.1 x A_ref, the mode-N 10-cycle count uses none; the 8 noise-prone cells are reported in the maps, classifier unchanged", status: UNVERIFIED, source: "owner ruling DL-157 (a) plus (c); DL-145, DL-147 (4)", sheet: O4}
+    O5_cycle_count:          {value: "mode N = duration x mean f_pk over the episode windows; mode D = unwrapped analytic phase / 2 pi", status: UNVERIFIED, source: "owner ruling DL-157; DL-140 O5", sheet: O5}
+    O6_peak_frequency:       {value: "argmax of the PSD in G, resolution 1/W, no interpolation", status: UNVERIFIED, source: "owner ruling DL-157; DL-140 O6", sheet: O6}
+    O7_baseline_statistic:   {value: "mean over the windows wholly inside the last 5 s of P_G/P_non-G and of P_G", status: UNVERIFIED, source: "owner ruling DL-157; DL-140 O7", sheet: O7}
+    O8_tested_windows:       {value: "window centre >= t_on", status: UNVERIFIED, source: "owner ruling DL-157; DL-140 O8", sheet: O8}
+    O9_d8_scope:             {value: "one D8 call per record on v from t_on; damped means no episode (NS or D-none)", status: UNVERIFIED, source: "owner ruling DL-157 under D8 = A; DL-140 O9", sheet: O9}
+    O10_episode_and_s_plus:  {value: "mode D: first qualifying episode. Mode N: first qualifying episode per test; S-sus if any is unterminated; S+ only if the relative and absolute episodes share a flagged window (time overlap); two qualifying episodes with no shared window give the class of the earlier one", status: UNVERIFIED, source: "owner ruling DL-157 (implemented and tested); the fallback for the non-overlapping pair is ours", sheet: O10}
+    O11_s_abs_broadband:     {value: "S-abs is flagged broadband when the spectrogram argmax of the rise lies outside G; rise = the absolute episode's peak-power window minus the mean baseline spectrum, over 1 to 150 Hz; no new threshold", status: UNVERIFIED, source: "owner ruling DL-157 (implemented and tested; the definition of 'rise' is ours); CP26, F-6", sheet: O11}
+    O12_post_surge_rate:     {value: "reported-only metric, not a criterion; not implemented; defined at MS8 with data", status: UNVERIFIED, source: "owner ruling DL-157", sheet: O12}
+    O13_collapse_baseline_r: {value: "mean of r over the baseline; marker = first sample with r < 10 percent of it, no smoothing", status: UNVERIFIED, source: "owner ruling DL-157; DL-140 O13", sheet: O13}
+    O14_exit_delay_sign:     {value: "J_exit,run minus J_exit,static", status: UNVERIFIED, source: "owner ruling DL-157; DL-140 O14", sheet: O14}
+    O15_label_f:             {value: "A4-region membership is supplied by the caller", status: UNVERIFIED, source: "owner ruling DL-157; DL-140 O15", sheet: O15}
+    O16_edge_handling:       {value: "none in the classifier; the caller discards transients", status: UNVERIFIED, source: "owner ruling DL-157 under D8 = A; DL-140 O16", sheet: O16}
+  reading_conventions:
+    rho_reported_per_W:      {value: "baseline rho is reported per D4 window W (median 0.754 at W = 0.2 s, 0.588 at W = 2 s)", status: UNVERIFIED, source: "owner ruling DL-157 (RHO); DL-145, DL-147 (5)", sheet: RHO}
+    rho_ge_half:             {value: "rho reported, surge test on the odds (unbounded); no flag, no class", status: UNVERIFIED, source: "owner ruling DL-157 (F-7); DL-145", sheet: F-7}
+    reachability_levels:     {value: "report only the plan's 0.5 at ratio 2; the 1/ratio levels (0.667 at 1.5, 0.25 at 4) in an appendix as information", status: UNVERIFIED, source: "owner ruling DL-157 (REACH); the appendix levels are our arithmetic", sheet: REACH}
+    short_window_false_surge:
+      value: "report only, no new threshold. The paper states the white-noise false-surge rate per W (non-NS of 500 at sd 0.04: 306 at 0.2 s, 400 at 0.333 s, 172 at 0.593 s, 24 at 1.054 s (T_ramp 31.6228 s; 26 at the rounded 31.62 s), 2 at 1.874 s, 0 at 2 s) and limits the claim through the G6 'limit the claim' route"
+      status: UNVERIFIED
+      source: "owner ruling DL-157 (SW); DL-140 finding 4, DL-147 (6), DL-155 (4), DL-157 (U-7)"
+      sheet: SW
+    s3s4_sensitivity:        {value: "stored-record sensitivity (S3 2 to 8 s, t_on 1 s; each S4 hold with t_on at its start) is a pre-freeze sensitivity only; the real RB10 is evaluated by A11 on ramp records", status: UNVERIFIED, source: "owner ruling DL-157; DL-146, DL-147 (2)", sheet: S3S4}
+    a_ref_reading:           {value: "median of the band-passed Hilbert envelope; alternates not run as a sensitivity item", status: UNVERIFIED, source: "owner ruling DL-157 (H-1); DL-139", sheet: H-1}
 
 # ---------------------------------------------------------------------------------------------------------------------------------
 # Table 7.2 (D35 [needs decision]; numbers at the plan default)
@@ -76,32 +116,34 @@ robustness:
     classes_agree_cells:     {value: ">= 3 of 4", status: logged, source: "Table 7.2 RB1"}
     f_pk_rel_tol:            {value: 0.05, status: logged, source: "Table 7.2 RB1"}
     onset_tol:               {value: "one spectrogram step (1 s for T_ramp >= 60 s, else W/2)", status: logged, source: "Table 7.2 RB1; D4"}
-    n_3e4_no_worse_than_1e4: {value: null, status: open, source: "metric for 'no worse' not defined", sheet: F-16}
-    f_pk_reference:          {value: null, status: open, source: "per seed or mean not defined", sheet: F-16}
+    n_3e4_no_worse_than_1e4: {value: "class agreement count not smaller, onset error not larger and f_pk error not larger at N = 3e4 than at N = 1e4 (network v is the mean V of non-refractory neurons)", status: UNVERIFIED, source: "owner ruling DL-157 (F-16, MUST); wording of the metric only", sheet: F-16}
+    f_pk_reference:          {value: "per seed", status: UNVERIFIED, source: "owner ruling DL-157 (F-16)", sheet: F-16}
+    no_worse_tolerance:      {value: null, status: open, source: "open, needs user ruling: the plan and the ruling give no tolerance on 'not larger' (zero, or a stated margin on a 3-seed comparison)", sheet: F-16}
     on_fail: G4
   RB2:
     headline_class_kept_min_seeds: {value: "8 of 10 at 0.5 sigma and at sigma", status: logged, source: "Table 7.2 RB2"}
     noisy_subgrid_agreement_min:   {value: 0.90, status: logged, source: "Table 7.2 RB2, D24"}
     sigma_factors:                 {value: [0.5, 1.0, 2.0], status: logged, source: "Table 7.2 RB2; 2 sigma reported, no pass rule", sheet: F-17}
-    kept_means:                    {value: "same class as the headline mode-D class under the correspondence", status: UNVERIFIED, source: "ours", sheet: F-17}
+    kept_means:                    {value: "same class as the headline mode-D class under the correspondence", status: UNVERIFIED, source: "ours; confirmed by owner ruling DL-157 (F-17)", sheet: F-17}
   RB3:
     a_onset_tol:             {value: "one A4 grid step in eta_bar", status: logged, source: "Table 7.2 RB3(a)"}
     a_judged_only_inside_range: {value: true, status: logged, source: "Table 7.2 RB3(a); CP25"}
-    a_range_rule:            {value: "delta_0 exp(integral of Re lambda from t_on) stays above the floor until t_pred; t_pred where it reaches 0.1 x A_ref", status: logged, source: "A7, CP25; code analysis/entry_exit.py", sheet: F-12}
+    a_range_rule:            {value: "delta_0 exp(integral of Re lambda from t_on) stays above the floor until t_pred; t_pred where it reaches 0.1 x A_ref", status: logged, source: "A7, CP25; code analysis/entry_exit.py; confirmed by owner ruling DL-157 (F-12): the one-grid-step tolerance is frozen without ramp evidence, first test is RB3(a) at MS8", sheet: F-12}
     a_range_reported_coverage: {value: "0 to 2 of 13 T_ramp per path and profile; none at the headline (120 s)", status: UNVERIFIED, source: "DL-149 (2), DL-151; reasoned arithmetic until MS8", sheet: G6}
     b_form:                  {value: strict_decrease_of_median_delay_over_the_three_floor_levels, status: UNVERIFIED, source: "DL-152 F-15; no scaling law", sheet: F-15}
     b_seeds_per_level:       {value: 10, status: UNVERIFIED, source: "DL-152 F-15"}
     c_T_ramp_s:              {value: [56.23, 100.0, 177.8, 316.2], status: logged, source: "Table 7.2 RB3(c): 56, 100, 178, 316 s"}
-    c_holds_means:           {value: "same class as the headline", status: UNVERIFIED, source: "ours", sheet: F-18}
+    c_holds_means:           {value: "same class as the headline", status: UNVERIFIED, source: "ours; confirmed by owner ruling DL-157 (F-18)", sheet: F-18}
     d_profile_max_class_changes: {value: 1, status: logged, source: "Table 7.2 RB3(d)"}
-    d_T_ramp_compared:       {value: null, status: open, source: "which of the 4 T_ramp are compared is not stated", sheet: F-18}
+    d_T_ramp_compared:       {value: [56.23, 100.0, 177.8, 316.2], status: UNVERIFIED, source: "owner ruling DL-157 (F-18): the four T_ramp of RB3(c); the plan does not say which are compared", sheet: F-18}
   RB4:
     one_at_a_time_runs:      {value: 14, status: logged, source: "Table 7.2 RB4, S16"}
     one_at_a_time_max_class_changes: {value: 2, status: logged, source: "Table 7.2 RB4"}
     perturbation_rel_box:    {value: 0.10, status: logged, source: "Table 7.2 RB4 (+-10 percent; the plan tags the box [reasoned, not tested])"}
     latin_hypercube_points:  {value: 64, status: logged, source: "Table 7.2 RB4"}
     latin_hypercube_min_class_unchanged: {value: 0.80, status: logged, source: "Table 7.2 RB4, G5"}
-    latin_hypercube_seed:    {value: "from root_seed 20261008, spawn key not chosen", status: open, source: "DL-135 F-19", sheet: F-19}
+    latin_hypercube_seed:    {value: "from root_seed 20261008; spawn key not chosen", status: open, source: "open, needs user ruling: the ruling confirms 'seed from root_seed 20261008' and gives no spawn key; none is invented here", sheet: F-19}
+    class_unchanged_means:   {value: "same class as the unperturbed run, per run", status: UNVERIFIED, source: "owner ruling DL-157 (F-19)", sheet: F-19}
     on_fail: G5
   RB5:
     delta0_ladder:           {value: [1.0e-9, 1.0e-6, 1.0e-3], status: logged, source: "Table 7.2 RB5; S13"}
@@ -116,18 +158,18 @@ robustness:
       value: "median delay over 10 seeds at the default step against the median over the same 10 seeds at the finest rung (1e-4 tau), same seeds, coupled increments; |median(1e-4) - median(1e-3)| / median(1e-3) < 0.05"
       status: UNVERIFIED
       source: "DL-154 (owner ruling); the plan's 5 percent only"
-      readings_of_ours_not_ruled: "relative to the default-step median; delay = eta at onset minus eta_H; a seed with no onset is reported and left out of the median with its count; made on the MS8 headline subset"
+      readings_confirmed_by_owner: "relative to the default-step median; delay = eta at onset minus eta_H; a seed with no onset is reported and left out of the median with its count; made on the MS8 headline subset (confirmed, DL-157)"
       sheet: RB6
     rtol_ladder:             {value: [1.0e-8, 1.0e-10, 1.0e-12], status: logged, source: "S13; reported, not a pass test"}
     solvers_agree_onset_ms:  {value: 1.0, status: logged, source: "Table 7.2 RB6 (DOP853 vs Radau)"}
-    solver_pair_list:        {value: "DOP853 vs Radau", status: UNVERIFIED, source: "S13 lists both; pair list not otherwise defined", sheet: F-21}
+    solver_pair_list:        {value: "DOP853 vs Radau", status: UNVERIFIED, source: "S13 lists both; pair list confirmed by owner ruling DL-157 (F-21)", sheet: F-21}
     network_dt_f_pk_change_max: {value: 0.02, status: logged, source: "Table 7.2 RB6 (halving dt)"}
-    network_dt_for_f_pk_test: {value: null, status: open, source: "which dt not stated", sheet: F-21}
+    network_dt_for_f_pk_test: {value: {default_tau: 1.0e-3, halved_tau: 5.0e-4}, status: UNVERIFIED, source: "owner ruling DL-157 (F-21): network dt 1e-3 against 5e-4; both are rungs of the S13 network dt ladder", sheet: F-21}
   RB7:
     NC1_surge_class_allowed: {value: false, status: logged, source: "Table 7.2 RB7; G7: NS or D-none at every T_ramp"}
   RB8:
     gaussian_uniform_give_lorentzian_class_seeds: {value: 3, status: logged, source: "Table 7.2 RB8"}
-    M4_criteria: {value: null, status: open, source: "written before its runs (D42 open, G2 does not trigger, DL-133)", sheet: F-23}
+    M4_criteria: {value: null, status: open, source: "deferred by owner ruling DL-157 (F-23): written before M4 runs (D42 open, G2 does not trigger, DL-133); no ruling owed now", sheet: F-23}
   RB9:
     a_dimensional_vs_nondimensional_rel_tol: {value: 0.005, status: logged, source: "Table 7.2 RB9(a)"}
     b_spectral_vs_cycle_frequency:           {value: "within 1/W", status: logged, source: "Table 7.2 RB9(b)"}
@@ -145,7 +187,7 @@ robustness:
 gates:
   G5:
     surge_class_min_fraction_of_map1_cells: {value: 0.03, status: logged, source: "Table 11.2 G5, D35"}
-    map1_mode_that_counts:   {value: "mode D (S7 map 1); noisy subgrid separate", status: open, source: "default proposed in DL-135 F-26", sheet: F-26}
+    map1_mode_that_counts:   {value: "mode D (S7 map 1); noisy subgrid separate", status: UNVERIFIED, source: "owner ruling DL-157 (F-26); default proposed in DL-135 F-26", sheet: F-26}
     rb4_must_pass:           {value: true, status: logged, source: "Table 11.2 G5"}
   G6:
     rb3a_inside_range_pass:  {value: true, status: logged, source: "Table 11.2 G6"}
@@ -154,8 +196,8 @@ gates:
     rb3d_rb5:                {value: "evaluated and reported, not gated", status: logged, source: "Table 11.2 G6; SC-04"}
     reading:
       value: "the headline (120 s) is outside the RB3(a) range, so the RB3(a) clause is 'not judged at the headline'; G6 at the headline rests on RB3(b) and RB6; RB3(a) is reported with its coverage"
-      status: open
-      source: "DL-152 (reading offered for sign-off, not a change of the plan)"
+      status: UNVERIFIED
+      source: "owner ruling DL-157 (G6; reading of DL-152, not a change of the plan)"
       sheet: G6
   G7:
     NC1_no_surge_at_every_T_ramp: {value: true, status: logged, source: "Table 11.2 G7"}
@@ -183,7 +225,16 @@ cells:
   storage:                 {value: "one npz and one record per cell (10 seeds); v and r kept", status: logged, source: "DL-136 D-4 ruling", sheet: F-28}
 
 # ---------------------------------------------------------------------------------------------------------------------------------
-# Not implemented, not in this file (owner rulings pending): the S-abs broadband flag (F-6 / O11) and the post-surge rate (O12).
+# The S-abs broadband flag (F-6 / O11) is implemented (classifier.mode_n_conventions.O11_s_abs_broadband). The post-surge rate (O12) is a
+# reported-only metric, not a criterion, and is not implemented; it is defined at MS8 with data.
 not_implemented:
-  s_abs_broadband_flag: {value: null, status: open, source: "CP26: no operational test in the plan", sheet: "O11"}
-  post_surge_rate:      {value: null, status: open, source: "no statistic defined in the plan", sheet: "O12"}
+  post_surge_rate:      {value: null, status: UNVERIFIED, source: "owner ruling DL-157 (O12): reported only, not a criterion, defined at MS8 with data", sheet: "O12"}
+
+# ---------------------------------------------------------------------------------------------------------------------------------
+# Housekeeping rulings (DL-157)
+housekeeping:
+  criteria_key_on_configs: {value: "configs/A4.yaml stays on configs/replication.yaml (run_a4 reads K tolerances from it); robustness.criteria_file is set on the ramp-run configs at MS8", status: UNVERIFIED, source: "owner ruling DL-157 (H-2)", sheet: H-2}
+  loader:                  {value: "written at MS8; its first step refuses to run if the SHA-256 of this file does not match the tag", status: UNVERIFIED, source: "owner ruling DL-157 (H-3)", sheet: H-3}
+  readable_companion:      {value: "docs/robustness_criteria.md is generated from the sign-off sheet at 7i", status: UNVERIFIED, source: "owner ruling DL-157 (H-4)", sheet: H-4}
+  deferred_or_carried:     {value: "K5 deferred; K10 and K4-net carried; D36 cap rows without timing cells accepted", status: UNVERIFIED, source: "owner ruling DL-157 (K5, K10, K4-net, CAP)"}
+  closed_by_user:          {value: "Defender exclusion in place; backup copy of the repository and results exists; /permissions shows no saved rules and a Deny rule for git push", status: UNVERIFIED, source: "user answers recorded in DL-157 (DEF, BAK, PERM)"}
