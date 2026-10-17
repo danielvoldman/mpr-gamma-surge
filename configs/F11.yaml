@@ -1,0 +1,9 @@
+# 7g F-11 (DL-150): constant-parameter hold run at the P2 start state to measure the noise-free solver error floor.
+# P2 geometry only to get the headline length (t_on 5 s + 1.25 x 120 s + 10 s hold = 165 s = 16,500 tau): eta_start = eta_peak
+# and J0 = J_end, so every parameter is constant. No ramp, no delta_0 (solver.delta0 = 0). Mode D, DOP853 rtol 1e-10, atol 1e-12
+# (base.yaml). The measurement is in scripts/run_F11.py's analysis (analysis/solver_floor.py), not in this run.
+run:      {id: F11, kind: mf, workers: 1}
+model:    {ref_point: ref_devalle}
+path:     {name: path_hypoxia, profile: linear, T_ramp_s: 120.0, eta_start: 1.3960461989737856, eta_peak: 1.3960461989737856, J0: -21.0, J_end: -21.0}
+solver:   {delta0: 0.0}
+output:   {dir: results/F11}
