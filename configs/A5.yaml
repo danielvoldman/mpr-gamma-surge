@@ -1,0 +1,7 @@
+# A5: periodic-orbit continuation of M3 from the A4 Hopf points (plan 5.2 A5; MS6 step 6b). Run config for scripts/run_A5.py.
+# Julia (BifurcationKit, pinned in environment/julia) holds the numerical settings in analysis/continuation/a5_cycles.jl,
+# whose sha256 is recorded as an input. The model block names the reference point only; the two branches are
+# tau_d at ref_ceni (eta 1, J -20, Delta 0.05) and eta_bar at ref_devalle (J -21, Delta 0.3, tau_d 5 ms).
+run:      {id: A5, kind: a5, workers: 1}
+model:    {type: M3, ref_point: ref_devalle, tau_ms: 10.0, tau_d_ms: 5.0}
+output:   {dir: results/A5}

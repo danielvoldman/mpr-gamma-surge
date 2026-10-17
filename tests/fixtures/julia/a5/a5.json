@@ -1,0 +1,93 @@
+{
+    "branches": {
+        "ceni": {
+            "hopf_params_all": [
+                0.4120866101940664
+            ],
+            "hopf_param": 0.4120866101940664,
+            "hopf_b": -0.11887691901890689,
+            "n_po_down": 75,
+            "hopf_frequency_hz": 21.01787901941358,
+            "fixed_point_start": {
+                "v": -0.15906004237372232,
+                "r": 0.05002983172793016,
+                "s": 0.05002983172793016
+            },
+            "n_po_up": 69,
+            "po_special_points": [
+                {
+                    "step": 7,
+                    "param": 0.41238015060369665,
+                    "direction": "down",
+                    "type": "fold"
+                }
+            ],
+            "n_hopf_points": 1,
+            "lens": "(@o _.td)",
+            "base_parameters": {
+                "J": -20,
+                "td": 0.3,
+                "Delta": 0.05,
+                "eta": 1
+            },
+            "hopf_a": 0.3947320683541924,
+            "n_fixed_points": 52,
+            "hopf_type": "SuperCritical",
+            "timings_s": {
+                "periodic_orbit": 21.657999992370605,
+                "fixed_point_branch_and_normal_form": 4.0329999923706055
+            },
+            "hopf_omega_per_tau": 1.3205922864285748
+        },
+        "devalle": {
+            "hopf_params_all": [
+                2.8960463094338835
+            ],
+            "hopf_param": 2.8960463094338835,
+            "hopf_b": -0.20967750938133756,
+            "n_po_down": 243,
+            "hopf_frequency_hz": 32.00929082219569,
+            "fixed_point_start": {
+                "v": -1.0082621379782166,
+                "r": 0.04735522750394121,
+                "s": 0.04735522750394121
+            },
+            "n_po_up": 240,
+            "po_special_points": [
+                {
+                    "step": 6,
+                    "param": 2.8974902485739453,
+                    "direction": "down",
+                    "type": "fold"
+                }
+            ],
+            "n_hopf_points": 1,
+            "lens": "(@o _.eta)",
+            "base_parameters": {
+                "J": -21,
+                "td": 0.5,
+                "Delta": 0.3,
+                "eta": 0
+            },
+            "hopf_a": 0.2408841306186012,
+            "n_fixed_points": 119,
+            "hopf_type": "SuperCritical",
+            "timings_s": {
+                "periodic_orbit": 10.92799997329712,
+                "fixed_point_branch_and_normal_form": 1.5099999904632568
+            },
+            "hopf_omega_per_tau": 2.0112030578725832
+        }
+    },
+    "julia_version": "1.10.11",
+    "commit": "da1be14497aefcfe87e33cbf02023dce6da6344a",
+    "equations": "M3 plan 3.1, tau-units; tau = 10.0 ms; ceni parameter tau_d/tau, devalle parameter eta_bar",
+    "bifurcationkit_version": "0.8.7",
+    "timings_s": {
+        "total": 46.79299998283386
+    },
+    "dirty": true,
+    "manifest_sha256": "73ac380d3d7d06bbdfa7fea64c85abbb08c74aee489e87625464864cecfd53e5",
+    "periodic_orbit_method": "orthogonal collocation, Collocation(Ntst=40, m=4, meshadapt=true), PALC, started from the Hopf point, both directions, Floquet stability detect_bifurcation=1",
+    "written_utc": "2026-10-17T04:33:47.370"
+}
