@@ -1486,3 +1486,15 @@ Chosen:          as above   Default from: plan Gate G0, DL-123
 Test:            fast suite 261 passed, 1 xfailed.
 Status:          done (5k)
 Commit/tag:      the commit that adds this entry; local tag replication-pass
+
+## DL-125  MS6 6a: sub-step plan docs/ms6_plan.md    [ID: D23, D40, K7, K10, CP23, T21, T56, T66]
+Date:            2026-10-17        Author:
+Decision:        docs/ms6_plan.md written: MS6 goal and gate as the plan states them (A5 vs S4 amplitudes within 2 percent, points next to eta_H excluded; frequency map done), inputs from MS5, deferred items (K7 amplitude half, K10 recheck from A6, 3d/5g amplitudes), sub-steps 6a to 6h, run-time expectations, machine state, open items. No default, plan text, ruling or recorded value changed. Nothing run. No tag, no push; 6b not started.
+Basis:           Table 11.1 MS6, 5.2 A5 and A6, 6.2 S4, 4.3 and Table 11.2 G2, 7.2 D40, Table 7.1 K7 and K10; DL-113, DL-115, DL-123, DL-124.
+Working values (UNVERIFIED, plan gives none, in the plan as defaults): exclusion width 1 S4 step = 0.1 in eta_bar; network steps k = 0, 4, ..., 56 plus the last; S4 tau_d sweep at ref_ceni for the K7 amplitude cross-check; K7 fit window and tolerance; D40 "confirmed" test; G2 readings.
+Reason:          instruction of the project owner; 6a.
+Options:         -
+Chosen:          as above   Default from: docs/ms5_plan.md structure; plan Table 11.1
+Test:            fast suite 261 passed, 1 xfailed.
+Status:          done (6a); questions D-1 to D-5 open, D-2 and D-3 before 6c
+Commit/tag:      the commit that adds this entry; no tag
