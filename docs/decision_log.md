@@ -1629,3 +1629,23 @@ Chosen:          as above   Default from: plan 4.3 G2 (c "not rejected", needs d
 Test:            fast suite 304 passed, 1 xfailed (302 + 2 new, test_g2_freq.py).
 Status:          done (6g); D40 confirmed by owner; G2 metrics reported, decision pending with the owner.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-133  MS6 6h: owner ruling, gate G2 judged on the DL-132 readings    [ID: G2, D40, K9, CP23, DL-132]
+Date:            2026-10-17        Author:
+Decision:        Owner ruling, recorded as given. Gate G2 is judged on the DL-132 readings: (a) met; (b) met for the P1/P2 path at ref_devalle (the headline path; the start states of the other 31 A6 slices were not evaluated); (c) not rejected (the plan's default, [needs decision] in Table 11.2; A4 to A6 cannot test it). So no G2 trigger fires: the project stays on M3, and M4 is robustness only, as the plan says. This rests on those readings, which are UNVERIFIED where the plan leaves room (DL-132: "Delta below critical" read as 0.1453 eta_bar and the search as existence or the headline cell; "stable focus" read as a complex pair with Re lambda < 0). If (c) were rejected, G2 would move to M4 regardless of (a) and (b). No D-item, plan text or earlier default changed. No tag, no push.
+Reason:          instruction of the project owner; plan 4.3 G2, Table 11.2.
+Options:         -
+Chosen:          as above   Default from: plan 4.3 G2 (c "not rejected"), DL-132
+Test:            no code change.
+Status:          done
+Commit/tag:      the commit that adds DL-134; no tag
+
+## DL-134  MS6 6h: fresh-context review and gate report, MS6 gate passed with departures    [ID: K7, K10, G2, D40, CP23, DL-125 to DL-133]
+Date:            2026-10-17        Author:
+Decision:        (1) Fresh-context review by a subagent that had not seen the work (read docs/ms6_plan.md, DL-125 to DL-133, the MS6 gate wording, the K7/K8/K9/K10/G2/D40 rows, results/A5, A6, S3, S4, G2). Numbers: all others match, including the A5-vs-S4 check (max 1.84e-3 up, 6.8e-4 down at eta_bar 4.196; 39 judged points per direction; exclusion 2.796, 2.896, 2.996; ref_ceni 1.49e-4), K7 (R^2 0.99691, residual 2.42 vs 2 percent stated as a reported failure; post hoc fit labelled), K10 (not reproduced as worded), the frequency finding (32.01 Hz at eta_H, 36.07 Hz at eta_bar 4) and the G2/D40 statements. Nine text discrepancies, none changing a verdict: DL-129 network v trend shape (right: +13.2 up / +12.4 down at 3.296, zero near 5.7, about -2.4 at 6.496; re-checked against a5_check.json), DL-127 hysteresis 3e-4 (right: 1.2e-3), DL-127 "A5 0.1100 at eta_H" (unsupported), DL-128 network amplitude at eta_H "about 0.05" (right: 0.154/0.159) plus drift and FFT range wording, DL-129 tau_d^(H) label (4.120866 is A5, 4.120858 is A4), DL-132 "damped" for an unstable focus, two cosmetic. Committed entries not edited; docs/ms6_gate_report.md uses the correct values and lists them. (2) docs/ms6_gate_report.md written (structure of the MS5 report). (3) Verdict: MS6 gate passed with departures. Reason: A5 vs S4 within 2 percent (1.84e-3, points next to eta_H excluded) and the frequency map done; D40 confirmed, G2 does not trigger (DL-132, DL-133). Qualified by: K7 amplitude half fails the pre-registered residual rule (reported); K10 not reproduced as worded (non-blocking); G2 (b) checked for one path; UNVERIFIED readings and grids. No D-item, plan text or earlier default changed. No tag, no push; MS7 not started.
+Reason:          instruction of the project owner; 6h of docs/ms6_plan.md; Table 11.1 MS6.
+Options:         -
+Chosen:          as above   Default from: docs/ms5_gate_report.md structure
+Test:            fast suite 304 passed, 1 xfailed.
+Status:          done (6h); MS6 gate passed with departures.
+Commit/tag:      the commit that adds this entry; no tag
