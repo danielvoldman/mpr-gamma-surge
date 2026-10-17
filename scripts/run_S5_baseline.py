@@ -6,6 +6,9 @@ the runner (one task per cell, 10 seeds, one npz and one record per cell) into r
                      counts, start states and stability; integrate nothing, write no run record.
   --cells headline   (default) the headline cell only.   --cells all   every cell.   --cells 0,5,17   by list index.
   --workers N        spawn pool size (default 1).
+  --out-dir DIR      write bundles, records and the cell list here instead of the config output.dir (7e timing sample, DL-142;
+                     the run hash does not cover the output directory).
+  A rerun skips cells whose record is complete (resumable); a cell that raises is recorded with status "failed".
 """
 import argparse
 import csv
@@ -58,13 +61,14 @@ def main(argv=None) -> int:
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--cells", default="headline")
     ap.add_argument("--workers", type=int, default=1)
+    ap.add_argument("--out-dir", default=None)
     args = ap.parse_args(argv)
     t0 = time.monotonic()
     cells = CL.build_cells()
     chosen = select(cells, args.cells)
     cfgs = {c["index"]: cell_config(c) for c in chosen}
     hashes = {i: C.short_hash(C.config_hash(cfg)) for i, cfg in cfgs.items()}
-    out_dir = C.repo_root() / cfgs[chosen[0]["index"]]["output"]["dir"]
+    out_dir = C.repo_root() / (args.out_dir or cfgs[chosen[0]["index"]]["output"]["dir"])
     write_cell_list(cells, out_dir, hashes)
     print(json.dumps(CL.summary(cells), indent=1))
     print(f"cell list {time.monotonic() - t0:.1f} s; selected {len(chosen)} cells")
