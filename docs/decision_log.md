@@ -1438,6 +1438,27 @@ Commit/tag:      the commit that adds this entry
 Date:            2026-10-16        Author:
 Decision:        (part 1, prepared before timing) The eta path status of the S5 headline and the timing cells is A4. configs/S5.yaml now gives path.eta_H = 2.8960461989737856 (A4, DL-115, configs/path_A4.yaml) instead of the explicit 1.396046 / 4.896046; resolve_config derives eta_start = eta_H - 1.5 and eta_peak = max(4, eta_H + 2) (D12) and status "A4". No default of the plan changed; the path numbers move by under 6e-7 (rounding of the old 6-digit entries). Results part: see below once timed.
 Changed:         configs/S5.yaml (explicit start/peak -> eta_H). Cells with their own D12 path (delta_0.01, delta_0.6, delta_0.01_td1, delta_0.01_td50, delta_0.6_td1) now give path.eta_H from hopf.lowest_eta_hopf on the A4 eta_bar grid (0.3934525674725519, 4.7744298595858385, 0.8380331229059412, 0.25099487389417097, 7.786040869518495), each equal to the DL-098/DL-100 scan to 6 digits. delta_0.6_td50 has no Hopf crossing in A4 (returns None): it drops its explicit path and inherits the headline eta_H (CP20, DL-100 rule unchanged). m2_ramp keeps its explicit A1 path (sets eta_H null, status explicit). Cells inheriting from S5 (headline, mode_n, net_1e3/1e4/3e4, p5_1000, radau_*) change status only. Comments updated in configs/timing/*.yaml, configs/path_A4.yaml; scripts/time_one_run.py writes an A4 note into the timing record flags (was provisional only). Hashes: every cell, m2_ramp included, changes config hash (status/eta_H keys, and base sigma from DL-121); the clean (DL-104/118) timing records keep their old hashes and stay untouched in results/timing/clean/. Tests changed deliberately: tests/test_timing_cells.py (provisional -> A4 in five asserts, headline path to 1e-6, eta override test uses path.eta_H, delta-cell comparison also ignores eta_H), tests/test_timing.py (flag A4), tests/test_hopf.py (comment only); new test_cell_paths_equal_the_d12_rule_from_the_a4_eta_H. The 3d numbers (results/timing/*.json) and the clean re-time (results/timing/clean/) are not edited; the A4 re-time goes to results/timing/a4/ (scripts/run_timing_5i.sh).
-Test:            fast suite 261 passed, 1 xfailed before the timing run.
-Status:          prepared; timing waits for the owner to close programs
+Machine state:   Owner reported closed: Epic, EA, LM Studio, NordVPN, WARP, DCv2, Waterfox, Edge, VLC, Steam, Task Manager. By process list before the run: the apps were gone, but background services remained: DCv2 (1 process, still listed; the owner's closing did not take effect or it restarted), warp-svc, nordsec-threatprotection-service, NordUpdateService; six VS Code msedgewebview2 as ruled in DL-118; this Claude session. High performance plan. Defender exclusion: UNKNOWN (as DL-118). List saved in results/timing/a4/machine_state_before.txt. Code commit 342aea3, tree clean (dirty false) in the records.
+Results:         Headline on the A4 path (results/timing/a4/headline.json, headline/workers_10.json, logs/, prediction_5i.txt; git-ignored). Against the provisional-path clean re-time of DL-104 (results/timing/clean/, untouched):
+  alone, median of 3:           99.30 s   against 101.4 s   (-2.1 percent; s per 1e4 tau 60.18)
+  10 copies, per-run median:    158.13 s  against 162.81 s  (-2.9 percent)
+  10 copies, batch wall median: 158.77 s  against 163.32 s
+  throughput at 10 copies:      226.7 runs/h against 220.4 runs/h (+2.9 percent)
+  The paths are identical to 6 digits, so the difference is not the path. It is the same size as run-to-run and machine-state differences (batch spread up to 1.6 percent in the clean run); the machine state differed slightly (the DL-104 run had EA and Epic overlay processes among the top CPU users). Not attributed further.
+  Prediction (10 copies, divisor 10, launch rule 1.5 x allowance), clean (DL-118) -> A4 re-time; only the cells re-timed are the headline, so only rows built on the headline rate move:
+    single_run (max of the cells; delta_0.01)   178.3 s -> 178.3 s    FAIL -> FAIL (accepted exception, DL-105; delta_0.01 not re-timed); headline cell 101.4 -> 99.3 s PASS
+    sweeps_headline_rate S2/S5/S6               0.97 h -> 0.94 h      PASS -> PASS
+    map1 S7 (weighted 900 cells)                4.44 h -> 4.40 h      PASS -> PASS
+    map2 S7                                     2.20 h -> 2.14 h      PASS (at the allowance) -> PASS
+    s11_s16                                     0.36 h -> 0.35 h      PASS (partial) -> PASS (partial)
+    s1_s4                                       204.0 s -> 203.3 s    PASS (partial) -> PASS (partial)
+    s13                                         473.6 s -> 471.9 s    PASS (partial) -> PASS (partial)
+    s5_baseline_mode_n (120.6 s, FAIL, accepted exception DL-105) unchanged: mode_n not re-timed. sweeps_p5_rate, the two network rows and network_s9 unchanged (1.14 h, 471.0 s, 0.22 h; PASS).
+  No row changes verdict. The two failing rows are the two accepted exceptions of DL-105, unchanged. Map-1 weighted figure: re-derived by the prediction, 4.40 h (was 4.44 h); the corner and map cells were not re-timed, since their paths moved by under 6e-7 (their timings carry the old config hashes; the hashes differ only by status and eta_H keys and the DL-121 sigma).
+D36 24 h cap:    Lower bound 8.71 h -> 8.60 h; conservative 10.33 h -> 10.23 h; cap 24 h: PASS (same two bounds and same incompleteness as DL-118).
+Reason:          5i of docs/ms5_plan.md; DL-103 to DL-105 conventions.
+Options:         -
+Chosen:          no cut, nothing changed beyond the path status   Default from: DL-118
+Test:            fast suite 261 passed, 1 xfailed (before the timing run; this entry changes docs only).
+Status:          done (5i); 5j waits for the user
 Commit/tag:      the commit that adds this entry
