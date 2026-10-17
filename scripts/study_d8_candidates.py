@@ -170,7 +170,7 @@ def main(argv=None) -> int:
     P.atomic_write_json(out_dir / names[0], summary)
     for name, rows in zip(names[1:], (summ, cell_rows, lc_rows, a8_rows, wrows)):
         with open(out_dir / name, "w", newline="", encoding="utf-8") as fh:
-            w = csv.DictWriter(fh, fieldnames=list(rows[0]))
+            w = csv.DictWriter(fh, fieldnames=list(dict.fromkeys(k for r in rows for k in r)))
             w.writeheader()
             w.writerows(rows)
     rec = P.make_run_record(cfg, env, name="D8CAND_0000", status="ok", wall_time_s=wall,
