@@ -225,6 +225,69 @@ def run_s3(cfg: dict, deadline=None) -> dict:
     return out
 
 
+def s4_values(cfg: dict) -> np.ndarray:
+    """Sweep values in up order: s4.values, or path.eta_H + linspace(span, n_points) (eta_H from A4, not typed)."""
+    q = cfg["s4"]
+    if q.get("values") is not None:
+        return np.asarray(q["values"], dtype=float)
+    if q.get("span") is None or q.get("n_points") is None or cfg["path"]["eta_H"] is None:
+        raise C.ConfigError("run.kind s4: give s4.values, or s4.span and s4.n_points with path.eta_H")
+    if q["param"] != "eta_bar":
+        raise C.ConfigError("s4.span is an offset from eta_H and needs s4.param = eta_bar")
+    return cfg["path"]["eta_H"] + np.linspace(q["span"][0], q["span"][1], q["n_points"])
+
+
+def run_s4(cfg: dict, deadline=None) -> dict:
+    """Runner task for run.kind = s4 (MS6 6c, DL-127; plan 6.2 S4, mean field): quasi-static sweep of one parameter
+    (eta_bar or tau_d_ms), up through s4.values then down through them again (the top value is run twice, so 2 n steps),
+    each step s4.step_s long. Start: the stable fixed point at the first value. The state is carried from step to step;
+    delta0 is added to v at the start of every step (D26 applied per step, so an unstable fixed point is left; UNVERIFIED
+    reading). Constant parameters inside a step, DOP853 as run_mf. The series is returned whole; step readouts are made
+    by analysis.s4 (UNVERIFIED definitions)."""
+    m, sv, q = cfg["model"], cfg["solver"], cfg["s4"]
+    if m["type"] != "M3":
+        raise C.ConfigError("run.kind s4 is an M3 run")
+    tau = m["tau_ms"]
+    vals = s4_values(cfg)
+    order = np.concatenate([vals, vals[::-1]])
+    direction = np.concatenate([np.ones(vals.size, dtype=np.int8), np.zeros(vals.size, dtype=np.int8)])
+    n_steps = order.size
+    dt_out, step_tau = ms_to_tau(sv["dt_out_ms"], tau), s_to_tau(q["step_s"], tau)
+    n_out = int(round(step_tau / dt_out))
+    method = sv["method"]
+
+    def point(x):
+        eta_bar = x if q["param"] == "eta_bar" else m["eta_bar"]
+        tau_d = ms_to_tau(x if q["param"] == "tau_d_ms" else m["tau_d_ms"], tau)
+        return eta_bar, tau_d
+
+    eta_bar, tau_d = point(order[0])
+    y = np.asarray(stable_fixed_point(eta_bar, m["J"], m["Delta"], m["I_drive"], "M3", tau_d), dtype=float)
+    y_start = [float(x) for x in y]
+    T, R, V, S, X, K = [], [], [], [], [], []
+    nfev = 0
+    for k in range(n_steps):
+        eta_bar, tau_d = point(order[k])
+        f = _guarded(lambda t, y, a=eta_bar, d=tau_d: rhs_3d(t, y, a, m["J"], m["Delta"], d, m["I_drive"]), deadline)
+        y = y.copy()
+        y[1] += sv["delta0"]
+        t0 = k * step_tau
+        grid = t0 + np.arange(1, n_out + 1) * dt_out
+        sol = solve_ivp(f, (t0, t0 + step_tau), y, method=method, t_eval=grid, rtol=sv["rtol"], atol=sv["atol"],
+                        max_step=sv["max_step_tau"])
+        if sol.status != 0:
+            raise SolverFailure(f"step {k}: {method}: {sol.message}")
+        nfev += sol.nfev
+        y = sol.y[:, -1]
+        T.append(grid * tau); R.append(sol.y[0]); V.append(sol.y[1]); S.append(sol.y[2])
+        X.append(np.full(n_out, order[k])); K.append(np.full(n_out, k, dtype=np.int32))
+    arrays = {"t_ms": np.concatenate(T), "r": np.concatenate(R), "v": np.concatenate(V), "s": np.concatenate(S),
+              "param": np.concatenate(X), "step": np.concatenate(K), "step_param": order, "step_up": direction}
+    flags = {"solver": method, "param": q["param"], "n_steps": int(n_steps), "step_s": q["step_s"], "read_s": q["read_s"],
+             "nfev": int(nfev), "y_start": y_start, "kick_per_step": True}
+    return {"arrays": arrays, "message": f"ok; {n_steps} steps of {q['step_s']} s", "flags": flags}
+
+
 # --- mode N ----------------------------------------------------------------------------------------
 
 @njit(cache=True)

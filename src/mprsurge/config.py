@@ -27,7 +27,7 @@ ETA_PEAK_OFFSET = 2.0
 
 ETA_STATUSES = ("unresolved", "provisional", "explicit", "A4")  # DL-065, DL-067
 TAU_D_MS_RANGE = (1.0, 50.0)  # D11
-RUN_KINDS = ("mf", "mf_noisy", "a1", "s1", "a2", "a0", "a4", "s3", "network", "a5")  # DL-055; "a5" is MS6 (6b); "a1", "s1", "a2", "a0" are MS2 tasks; "a4" is MS5 (DL-114); "s3" is MS5 (5d, DL-116); "network" is MS5 (5e, DL-117)
+RUN_KINDS = ("mf", "mf_noisy", "a1", "s1", "a2", "a0", "a4", "s3", "network", "a5", "s4")  # DL-055; "s4" is MS6 (6c, DL-127); "a5" is MS6 (6b); "a1", "s1", "a2", "a0" are MS2 tasks; "a4" is MS5 (DL-114); "s3" is MS5 (5d, DL-116); "network" is MS5 (5e, DL-117)
 RAMP_PATH_NAMES = ("path_eta", "path_hypoxia", "path_drive", "path_delta_up",
                    "path_delta_down", "path_updown")  # P1, P2, P3, P4a, P4b, P5
 FORCING_PATH_NAMES = ("I_step", "I_sin")  # MS2 forcing paths for S1 (DL-085 item 4)
@@ -158,6 +158,15 @@ SCHEMA: dict[str, dict[str, Spec]] = {
         "criteria_sha256": _s("str", nullable=True),
     },
     "budget": {"max_wall_h": _s("float", positive=True)},
+    # S4 quasi-static sweep (MS6 6c, DL-127); all keys optional, read only by run.kind = s4 and in the hash for it.
+    "s4": {
+        "param": _s("str", choices=("eta_bar", "tau_d_ms"), optional=True),
+        "values": _s("floats", nullable=True, optional=True),      # explicit sweep values (up order)
+        "span": _s("floats2", nullable=True, optional=True),       # (lo, hi) offsets from path.eta_H, param eta_bar
+        "n_points": _s("int", positive=True, nullable=True, optional=True),
+        "step_s": _s("float", positive=True, optional=True),
+        "read_s": _s("float", positive=True, optional=True),       # last read_s of each step is read out
+    },
 }
 
 _META_KEY = "_resolved_from"
@@ -458,6 +467,8 @@ def hash_view(cfg: dict) -> dict:
     if cfg["run"]["kind"] == "a4":      # DL-114: the grids and the K-check protocol are inputs
         from .analysis import hopf
         view["a4"] = hopf.load_a4_params()
+    if cfg["run"]["kind"] == "s4":      # DL-127: the sweep definition is an input
+        view["s4"] = copy.deepcopy(cfg["s4"])
     return view
 
 

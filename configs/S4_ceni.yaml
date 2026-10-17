@@ -1,0 +1,11 @@
+# S4 addition (owner ruling DL-126 D-2, grid ruling DL-127): mean-field tau_d sweep at ref_ceni (eta 1, J -20, Delta 0.05), up then down,
+# state carried, delta0 on v at the start of each step. tau_d^(H) = 4.1209 ms (A4). Grid (UNVERIFIED working values, DL-127):
+#   stable side below the Hopf point  3.8, 4.0                          (2)
+#   inside the K7 fit window (0.1 to 1.0 ms above tau_d^(H), 4.2209 to 5.1209 ms)  4.25, 4.35, 4.45, 4.6, 4.75, 4.9, 5.05   (7)
+#   above the window                  5.5, 6.5                          (2)
+# Step 60 s (6000 tau), last 10 s read. Settling basis in DL-127. Outputs: results/S4/ceni/.
+run:      {id: ceni, kind: s4, workers: 1}
+model:    {type: M3, ref_point: ref_ceni, tau_ms: 10.0, tau_d_ms: 4.95}
+path:     {name: I_step, I_amp: 0.0, t_on_s: 0.0}
+s4:       {param: tau_d_ms, values: [3.8, 4.0, 4.25, 4.35, 4.45, 4.6, 4.75, 4.9, 5.05, 5.5, 6.5], step_s: 60.0, read_s: 10.0}
+output:   {dir: results/S4}

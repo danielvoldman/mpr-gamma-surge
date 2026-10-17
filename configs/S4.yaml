@@ -1,0 +1,9 @@
+# S4 mean-field quasi-static sweep, ref_devalle (plan 6.2 S4; MS6 step 6c, DL-127): eta_bar from eta_H - 2 to eta_H + 4,
+# 61 steps up then down (122), 2 s each, the last 1 s read (1 s discarded). eta_H comes from A4 (configs/path_A4.yaml, layered
+# in by scripts/run_S4.py), not typed here. State carried between steps; delta0 on v at the start of each step (UNVERIFIED reading).
+# Constant parameters otherwise: path I_step with I_amp 0 (as S3). Outputs: results/S4/devalle/.
+run:      {id: devalle, kind: s4, workers: 1}
+model:    {type: M3, ref_point: ref_devalle, tau_ms: 10.0, tau_d_ms: 5.0}
+path:     {name: I_step, I_amp: 0.0, t_on_s: 0.0}
+s4:       {param: eta_bar, span: [-2.0, 4.0], n_points: 61, step_s: 2.0, read_s: 1.0}
+output:   {dir: results/S4}
