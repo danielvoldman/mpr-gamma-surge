@@ -1,0 +1,7 @@
+# 7g2 D8 candidate-fix study (DL-153, inserted by owner ruling): synthetic data and stored records only, no model run.
+# Run config for scripts/study_d8_candidates.py. Seeds: F1 reuses the 7b stream (7, 2) so the plan estimator reproduces DL-137;
+# the new families use (7, 8, family). Does not reuse the sigma-calibration indices (DL-123).
+run:      {id: D8CAND, kind: d8cand, workers: 10}
+model:    {type: M3, ref_point: ref_devalle, tau_ms: 10.0, tau_d_ms: 5.0}
+output:   {dir: results/A8/d8_cand}
+seeds:    {root_seed: 20261008, spawn_key: [7, 8]}
