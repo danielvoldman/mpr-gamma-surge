@@ -1473,3 +1473,16 @@ Chosen:          as above   Default from: plan Table 11.1, Gate G0; DL-113
 Test:            fast suite 261 passed, 1 xfailed.
 Status:          done (5j); waits for the owner on the replication-pass tag
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-124  MS5 5k: dirty-tree check, clean-tree re-runs of A4, S3 and sigma (identical), K10 units review (no error)    [ID: K7, K8, K10, D18, DL-115, DL-116, DL-119, DL-120, DL-123]
+Date:            2026-10-17        Author:
+Decision:        No default, plan text, ruling or recorded value changed. docs/ms5_gate_report.md updated (section 5k, items 3 and 6, carried-forward K10 line). Verdict stays "MS5 gate: passed with departures". Local tag replication-pass created on the commit that adds this entry (owner's authorisation for this tag, conditional on no discrepancy; none found). No push; MS6 not started.
+Dirty tree:      Records store only git.dirty = true and the parent commit (no diff hash, no file list). From the history, each run was made before the commit that adds its code: A4 (record f92a691) before b0ff998; S3 mean field (b0ff998) before 6e62da0; S3 network (68f7ede) before 96d40b4; sigma (96d40b4) before 510fe8a. Tracked files were modified in every case (config.py, run.py, simulate_mf.py, hopf.py, analysis/s3.py), besides new untracked files. The exact diffs cannot be recovered, so the results could in principle have differed from a clean-tree run: re-runs done.
+Re-runs:         From HEAD fffb63e, clean tree, same configs and seeds, output.dir overridden to results/rerun (git-ignored, next to the originals, which are untouched). A4 (1), S3 mean field (5), S3 network (6), sigma network (10), sigma mean-field trial (20) and check at sigma 0.06238876981899888 (10). 52 npz outputs: all arrays identical (shape, dtype, values), A4 verdicts equal, sigma refit equal to the stored value, per-seed stds equal. Record config differs only by base noise.sigma (null -> 0.0624, DL-121; unused in these runs) and output.dir, hence new record names/hashes. New records dirty = false. Wall times: about 75 s (A4), minutes for the rest, as announced.
+K10 review:      Units and tau placement checked in analysis/hopf.py, models/mpr3d.py, configs/A4_grids.yaml: tau_d_tau = tau_d_ms / tau_ms, beta = 1/tau_d_tau, f_Hz = Im lambda / (2 pi tau_ms 1e-3), plan 3.3 mapping; at the Hopf point sqrt(a2) equals the eigenvalue Im part (1.32059, 21.018 Hz). No error found. Definition observations (ours, UNVERIFIED, not applied): the J sweep includes stable-focus points (damped frequency) and holds eta_bar fixed so r* moves 0.027 to 0.154; excluding stable points still leaves 13.2 percent (8 ms) and 24 percent (20 ms). K10 value stays as in DL-115, non-blocking, recheck at A6 (MS6).
+Reason:          instruction of the project owner, 5k before the replication-pass tag; DL-123 finding (6) and the G0 review (plan 3.3, Gate G0).
+Options:         -
+Chosen:          as above   Default from: plan Gate G0, DL-123
+Test:            fast suite 261 passed, 1 xfailed.
+Status:          done (5k)
+Commit/tag:      the commit that adds this entry; local tag replication-pass

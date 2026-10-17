@@ -1,6 +1,6 @@
 # MS5 gate report (M3 replication and network: A4, S3, network code and timing, sigma, headline re-time)
 
-Binding source: `docs/plan.md` (Table 11.1 row MS5; Gate G0; Table 7.1 K4, K7 to K11; 5.2 A4; 6.2 S3; 6.4; 9.2, 9.3, Table 9.1; D12, D18, D34, D36). Decisions: DL-112 to DL-122 (this review and gate: DL-123). Numbers are from the saved, git-ignored results (`results/A4`, `results/S3`, `results/sigma`, `results/timing/a4`, `results/timing/clean`) as in the DL entries; nothing was re-run for this report.
+Updated by step 5k (DL-124): dirty-tree check, clean-tree re-runs, K10 units review. Binding source: `docs/plan.md` (Table 11.1 row MS5; Gate G0; Table 7.1 K4, K7 to K11; 5.2 A4; 6.2 S3; 6.4; 9.2, 9.3, Table 9.1; D12, D18, D34, D36). Decisions: DL-112 to DL-122 (this review and gate: DL-123). Numbers are from the saved, git-ignored results (`results/A4`, `results/S3`, `results/sigma`, `results/timing/a4`, `results/timing/clean`) as in the DL entries; nothing was re-run for this report.
 
 ## Gate items
 
@@ -27,7 +27,7 @@ Binding source: `docs/plan.md` (Table 11.1 row MS5; Gate G0; Table 7.1 K4, K7 to
 
 1. **K7 at 4.12 ms, not 4.95 ms.** The blocking value is the approved 4.12 ms (UNVERIFIED, A4-derived), not the paper's 4.95 ms. A4 gives 4.1209 ms; the paper value is 0.829 ms away and was not reproduced. The sign convention and critical-Delta value (0.1453) were matched earlier (DL-075), but the 4.95 ms point and its parameters were not. At 4.95 ms the system is already oscillating in our model (20.5 Hz).
 2. **K7 amplitude half deferred to MS6.** Table 7.1 lists K7 under A4, A5 and S3; the split is the owner's reading of the gate, not stated in the plan. So K7 is judged on existence only (damped at 3 ms, sustained at 8 ms).
-3. **K10 J-dependence misses.** Non-blocking by the plan. Gate G0 also says a K10 or K11 failure "triggers a review of units and tau placement (section 3.3)". That review has **not** been done and is owed (carried forward below).
+3. **K10 J-dependence misses.** Non-blocking by the plan. Gate G0 also says a K10 or K11 failure "triggers a review of units and tau placement (section 3.3)". That review was done at 5k (DL-124, section "5k" below): no error in units or tau placement; the K10 value stays as recorded.
 4. **Two timing exceptions from DL-105, unchanged.** Single-run delta_0.01 at 178.3 s alone against a 148.5 s limit, and the S5 baseline mode-N row at 120.6 s against 108 s. Neither cell was re-timed on the A4 path.
 
 ## Network results and the mean-field comparison
@@ -64,13 +64,21 @@ A subagent that had not seen the work read `docs/ms5_plan.md`, DL-112 to DL-122,
 3. **sigma check more circular than stated** (above).
 4. **K7 "pass" is consistency, not independence** (table above).
 5. **K9 line placement.** The "no Hopf for J > 0" result sits on the K8 line in DL-115; the value is correct and is shown under K9 here. "tau_d > 0" is not tested.
-6. **Provenance.** A4, S3 and sigma records show `git.dirty = true` (A4 at commit f92a691); the 5f and 5i timing records are clean. Results do not depend on the dirty flag as far as known, but it was not examined.
+6. **Provenance.** A4, S3 and sigma records show `git.dirty = true` (A4 at commit f92a691); the 5f and 5i timing records are clean. Examined at 5k: see below. Result: tracked code did differ at run time, re-runs from a clean tree are bit-identical.
 
 Not checked from saved results: test counts, DL-117 unit-test values, the five delta-cell eta_H values in DL-122 (from tests and code).
 
+## 5k: dirty-tree check, clean re-runs, K10 review (DL-124)
+
+**Dirty tree.** The records store only `git.dirty = true` and the parent commit, no diff hash or file list. Reconstructed from the history: every run was made before the commit that adds its code, so the recorded commit is the parent of the code that ran. A4 (record commit f92a691) ran code first committed in b0ff998 (`run_A4.py`, `hopf.py` additions, `config.py` and `run.py` edits, `A4_grids.yaml`). S3 mean field (b0ff998) ran code first committed in 6e62da0 (`s3` run kind in `config.py` and `run.py`, `simulate_mf.py`, `analysis/s3.py`, configs). S3 network (68f7ede) ran code first committed in 96d40b4 (`run_S3.py` and `analysis/s3.py` network parts, configs). Sigma (96d40b4) ran code first committed in 510fe8a (`calibrate_sigma.py`, `analysis/sigma.py`, configs). So **tracked files were modified, not only untracked or ignored ones**, in all four sets. The exact diffs at run time cannot be recovered.
+
+**Re-runs from a clean committed tree (HEAD fffb63e, `git status` clean, record `dirty = false`).** Same configs and seeds, written to `results/rerun/` (git-ignored) next to the originals. A4 (1 cell), S3 mean field (5), S3 network (6), sigma network (10), sigma mean-field trial (20) and check at the fitted sigma (10): **52 `.npz` outputs, all arrays bit-identical** (shape, dtype, values) to the stored ones. The A4 verdicts equal. Sigma refitted from the re-run data: 0.06238876981899888, identical to the stored value; network std per seed and the check std per seed identical. Config differences between old and new records: `noise.sigma` null -> 0.0624 in base (DL-121; unused by the deterministic mean-field and network runs, and replaced by the axis value in the sigma runs), and the output directory. These change the config hash and so the record file names, not the results. The stored results are therefore confirmed; nothing was changed.
+
+**K10 review (units and tau placement, section 3.3).** `analysis/hopf.py`, `models/mpr3d.py`, `configs/A4_grids.yaml`. (1) tau_d enters only as tau_d_tau = tau_d_ms / tau_ms (tau_ms = 10, `configs/A4.yaml`), and the Jacobian uses beta = 1/tau_d_tau; the grid and Hopf search run in tau units. (2) Frequency: Im lambda in 1/tau, f_Hz = Im lambda / (2 pi tau_ms 1e-3), which is the plan 3.3 mapping (f_Hz = 100 f_tau at tau = 10 ms). Cross-check at the Hopf point 4.1209 ms: sqrt(a2) = 1.32059 equals the eigenvalue Im part to 1e-16, 21.018 Hz. (3) The J-change is (max - min)/mean of the leading complex-pair frequency over J in {-40, -30, -20, -10, -5} at eta_bar = 1, Delta = 0.05 fixed, at tau_d 8, 20, 40 ms. **No unit or tau-placement error found.** Two observations on the definition (ours, UNVERIFIED), not errors and not applied: (a) the sweep includes points where the fixed point is a stable focus (J = -40 at all three tau_d, J = -30 at 8 ms), so the frequency there is a damped frequency; (b) eta_bar is held fixed while J moves, so r* varies 0.027 to 0.154, and the J = -5 point carries most of the spread. Restricting to unstable points (Re > 0) still gives 13.2 percent at 8 ms and 24 percent at 20 ms (read from the same calculation), above 10 percent, so the miss does not come from (a). K10 stays recorded as in DL-115 (J-dependence 13.4 / 25.0 / 42.2 percent), non-blocking, recheck at A6.
+
 ## Carried forward (still open)
 
-- K10 J-dependence: units and tau-placement review (section 3.3) owed; recheck from A6 at MS6.
+- K10 J-dependence: units and tau-placement review done at 5k (no error); recheck from A6 at MS6, with the J-sweep definition in view (see 5k).
 - K7 amplitude half at MS6; K7 4.12 ms value UNVERIFIED and A4-derived; 4.95 ms not reproduced.
 - K5 definition and tolerance: UNVERIFIED (DL-064, DL-082); cited, not re-run.
 - `/permissions` check (DL-051): not recorded as done.
