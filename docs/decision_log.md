@@ -1462,3 +1462,14 @@ Chosen:          no cut, nothing changed beyond the path status   Default from: 
 Test:            fast suite 261 passed, 1 xfailed (before the timing run; this entry changes docs only).
 Status:          done (5i); 5j waits for the user
 Commit/tag:      the commit that adds this entry
+
+## DL-123  MS5 5j: fresh-context review and gate report, MS5 gate passed with departures    [ID: K7, K8, K9, K10, K11, K4, D18, D36, DL-112 to DL-122]
+Date:            2026-10-17        Author:
+Decision:        docs/ms5_gate_report.md written. Verdict line: "MS5 gate: passed with departures". No default, plan text or ruling changed; no tag, no push; MS6 not started.
+Review:          A subagent that had not seen the work read docs/ms5_plan.md, DL-112 to DL-122, the K7 to K11 rows, the MS5 gate wording and the saved results. No material numeric mismatch. Findings (committed DL entries not edited; corrected in the report): (1) DL-119 gives 170 and 174 for the 8 ms to 3 ms network noise ratio; saved values give 178 (167 against the mean-field fitted peak-to-peak); information only. (2) The G0 "review of units and tau placement" after the K10 J-dependence miss was not done (DL-115 silent); now carried forward. (3) The sigma check reuses the same ten seed indices as the trial runs, so it is more circular than DL-120/121 say; sigma stays UNVERIFIED until S8 at MS10. (4) K7 pass against 4.12 ms is consistency, not independence (value is A4-derived). (5) K9 "no Hopf for J > 0" sits on the K8 line in DL-115; "tau_d > 0" is not tested. (6) A4, S3 and sigma records have git.dirty true; not examined.
+Reason:          5j of docs/ms5_plan.md; Table 11.1 MS5.
+Options:         -
+Chosen:          as above   Default from: plan Table 11.1, Gate G0; DL-113
+Test:            fast suite 261 passed, 1 xfailed.
+Status:          done (5j); waits for the owner on the replication-pass tag
+Commit/tag:      the commit that adds this entry; no tag
