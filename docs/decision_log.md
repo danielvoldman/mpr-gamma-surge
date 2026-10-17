@@ -2015,3 +2015,21 @@ Chosen:          as above   Default from: owner ruling
 Test:            test_pure_trend_plus_noise_is_ns_in_mode_n_at_t_ramp_3 stays a strict xfail (only its reason string changed).
 Status:          done; this entry is in the content commit A.
 Commit/tag:      the content commit A (see DL-164); tag criteria-frozen is on A
+## DL-163  MS7 7j: owner approval of the criteria file and the four gate departures; conditional freeze instruction    [ID: MS7, D35, D8, X-1, RB3, G6, DL-043, DL-084, DL-161, DL-162]
+Date:            2026-10-17        Author:
+Decision:        Approval by instruction of the project owner, 2026-10-17: the criteria file as committed in dd8330c, the four gate departures (1 D8: the plan estimator fails 2 of the plan's 8 A8 ring items; 2 zero baseline including noise-free inputs; 3 RB3(a) not judged at the headline, coverage 0 to 2 of 13 T_ramp; 4 pure trend plus noise at W = 0.2 s), with the UNVERIFIED values frozen under their labels, and the departure-4 wording correction ruled by the owner (DL-162). Freeze executed on the owner's condition (wording-only diff of the criteria file against d13f0ab, full suite green, secondary hashes equal): both conditions held.
+Reason:          instruction of the project owner (7j).
+Options:         -
+Chosen:          as above   Default from: owner rulings
+Test:            full suite at dd8330c from the clean tree: 488 passed, 9 xfailed, 3 warnings, 230.72 s, 0 failed.
+Status:          approved; frozen (DL-164).
+Commit/tag:      dd8330c; tag criteria-frozen
+## DL-164  MS7 7j: tag criteria-frozen created on dd8330c, SHA-256 recorded    [ID: MS7, D35, DL-043, DL-084, DL-162, DL-163]
+Date:            2026-10-17        Author:
+Decision:        Annotated tag criteria-frozen (tag object 0ad5793c1c64b04f40efba6b121b7e41743dbe83) on dd8330c5eaacd63d21e7b7969430988d00862769, local only, DL-084 style. SHA-256 of the LF text of configs/robustness_criteria.yaml as committed: c7d2f36b74ea611c8777c1b408d5085333e55230834c27e5f0eb839f1162fa05 (30234 bytes). Secondary: configs/S13.yaml 317db87e69afcb09111a33e78640869b3f588e64390d110655aaa3a7cff52388; configs/A4_grids.yaml cf6a60bec781c6f7e53b7f92b747ff745fcc5dc4794c0b83768e0aa4a4e56401; configs/S5_cells.yaml fe8590ce81bc8c537f9c92e2afbee80685aaaa52c757474912b243fe9ed38790 (all three equal the owner's values). Verified: git rev-parse criteria-frozen^{} = dd8330c; hash recomputed from git show criteria-frozen:configs/robustness_criteria.yaml equals the tag message; working file is LF, no BOM, same hash. The old preview hash 180208526ca7... is superseded (departure-4 wording). freeze_sha256 in the file stays null by design. No hashed file is edited after this tag. MS8 not started; no push.
+Reason:          instruction of the project owner (7j).
+Options:         -
+Chosen:          as above   Default from: DL-084 precedent
+Test:            full suite at dd8330c: 488 passed, 9 xfailed, 3 warnings, 230.72 s.
+Status:          frozen. MS8 first step: a loader that refuses to run if the SHA-256 of configs/robustness_criteria.yaml does not match the tag.
+Commit/tag:      tag criteria-frozen on dd8330c; this entry in the following docs-only commit
