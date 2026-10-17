@@ -1997,3 +1997,21 @@ Chosen:          as above   Default from: owner rulings
 Test:            nine strict xfail cases (1 in test_surge_metrics, 8 in test_surge_classes), all raises=AssertionError. Fast suite at d13f0ab: 481 passed, 7 deselected, 9 xfailed. Full suite from the clean tree at d13f0ab: 488 passed, 0 deselected, 9 xfailed, 3 warnings, 231.47 s, exit 0.
 Status:          pre-freeze done; STOP for the owner's separate "freeze" instruction. No tag, no freeze SHA-256 written into any file, no approval entry, no push, no classifier or estimator change, no S2 re-run, no M3 ramp-study run.
 Commit/tag:      the commit that adds this entry (docs-only); no tag
+## DL-162  MS7 7j: departure-4 seed count "14 of 20" not reproducible; wording corrected, six seed sets recorded (addendum to DL-161; history not rewritten)    [ID: MS7, X-1, DL-161]
+Date:            2026-10-17        Author:
+Decision:        The figure "S-rel in 14 of 20 seeds" for the trend-plus-noise case (departure 4, DL-161) could not be reproduced: the original seed set was never recorded. Owner ruling (option 1): replace it everywhere with "S-rel in a majority of tested seeds (12 to 16 of 20 across six recorded 20-seed sets; DL-162 lists the sets)". Places changed: configs/robustness_criteria.yaml (classifier.gate_departures.pure_trend_plus_noise_short_window), docs/robustness_criteria.md, docs/ms7_7j_procedure.md, docs/ms7_signoff.md, docs/ms7_gate_report.md, the xfail reason in tests/test_surge_classes.py. The DL-161 text above keeps the old figure as written. No classifier, estimator or number changed. Approval and hash entries move to DL-163 and DL-164.
+  Method: _trend(0.02, seed) of tests/test_surge_classes.py (default_rng(seed) or a SeedSequence), M.classify_mode_n(x, FS = 1000, 10.0, T_ramp, THR), THR = threshold_abs(A_REF). Re-run by the assistant on 2026-10-17, counts equal the owner's table.
+  T_ramp 3 s (W = 0.2 s):
+    A  seeds 1..20                                           S-rel 16, NS 4
+    B  seeds 0..19                                           S-rel 16, NS 4
+    C  seeds 11..30                                          S-rel 12, NS 7, S-abs 1
+    D  np.random.SeedSequence(20261017).spawn(20)            S-rel 13, NS 6, S-abs 1
+    E  default_rng(20261017 + i), i = 0..19                  S-rel 16, NS 4
+    F  np.random.SeedSequence(20261008, spawn_key=(7, 8, 5, 2)).spawn(20)   S-rel 13, NS 4, S-sus 1, S-abs 1, S+ 1
+  T_ramp 120 s: NS in 20 of 20 for every one of the six sets.
+Reason:          instruction of the project owner (7j, wording correction).
+Options:         -
+Chosen:          as above   Default from: owner ruling
+Test:            test_pure_trend_plus_noise_is_ns_in_mode_n_at_t_ramp_3 stays a strict xfail (only its reason string changed).
+Status:          done; this entry is in the content commit A.
+Commit/tag:      the content commit A (see DL-164); tag criteria-frozen is on A

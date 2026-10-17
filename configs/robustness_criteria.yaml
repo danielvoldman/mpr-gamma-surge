@@ -92,7 +92,7 @@ classifier:
       source: "owner ruling DL-157 (G6 reading); DL-149, DL-151"
       sheet: G6
     pure_trend_plus_noise_short_window:
-      value: "Pure trend plus noise at W = 0.2 s: the plan's 'pure trend -> NS' fails at class level (T_ramp 3 s: S-rel in 14 of 20 seeds; T_ramp 120 s passes, NS). Tied to the short-window false-surge limitation (306 of 500 white-noise records non-NS at W = 0.2 s). Concerns noisy inputs; departure 2 concerns noise-free inputs only. One strict xfail. Classifier unchanged; the paper limits its claim to the windows where the classifier passes."
+      value: "Pure trend plus noise at W = 0.2 s: the plan's 'pure trend -> NS' fails at class level (T_ramp 3 s: S-rel in a majority of tested seeds (12 to 16 of 20 across six recorded 20-seed sets; DL-162 lists the sets); T_ramp 120 s passes, NS). Tied to the short-window false-surge limitation (306 of 500 white-noise records non-NS at W = 0.2 s). Concerns noisy inputs; departure 2 concerns noise-free inputs only. One strict xfail. Classifier unchanged; the paper limits its claim to the windows where the classifier passes."
       status: UNVERIFIED
       source: "owner ruling at 7j pre-freeze (option A, departure 4); DL-147; DL-161"
       sheet: X-1

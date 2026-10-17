@@ -562,7 +562,7 @@ def test_pure_trend_plus_noise_is_ns_in_mode_n_at_t_ramp_120():
 
 
 @pytest.mark.xfail(strict=True, raises=AssertionError,
-                   reason="DL-161 departure 4: pure trend plus noise at T_ramp 3 s (W = 0.2 s) is S-rel in 14 of 20 seeds; the "
+                   reason="DL-161 departure 4: pure trend plus noise at T_ramp 3 s (W = 0.2 s) is S-rel in a majority of tested seeds (12 to 16 of 20, six 20-seed sets, DL-162); the "
                           "short-window false-surge limit (306 of 500 white-noise records non-NS at W = 0.2 s, DL-147)")
 def test_pure_trend_plus_noise_is_ns_in_mode_n_at_t_ramp_3():
     r = M.classify_mode_n(_trend(0.02), FS, 10.0, 3.0, THR)
