@@ -27,6 +27,11 @@ A5_JSON_FIELDS = ("commit", "dirty", "julia_version", "bifurcationkit_version", 
                   "periodic_orbit_method", "equations", "branches", "timings_s", "written_utc")
 A5_BRANCH_FIELDS = ("hopf_param", "hopf_type", "hopf_omega_per_tau", "hopf_a", "hopf_frequency_hz",
                     "n_hopf_points", "po_special_points", "timings_s")
+A6_PO_COLUMNS = ("slice", "param", "vmax", "vmin", "amplitude_v", "period_tau", "frequency_hz", "stable")
+A6_JSON_FIELDS = ("commit", "dirty", "julia_version", "bifurcationkit_version", "manifest_sha256",
+                  "periodic_orbit_method", "equations", "slices", "timings_s", "written_utc")
+A6_SLICE_FIELDS = ("id", "group", "status", "base_parameters", "hopf_param", "hopf_type", "n_hopf_points",
+                   "hopf_params_all", "n_po", "po_special_points", "wall_s")
 
 
 class JuliaOutputError(ValueError):
@@ -87,6 +92,39 @@ def load_a5(outdir, check_manifest: bool = True) -> dict:
             raise JuliaOutputError(f"a5_{name}_po.csv: non-finite values")
         out["po"][name] = po
     return out
+
+
+def load_a6(outdir, check_manifest: bool = True) -> dict:
+    """Load a6.json and a6_po.csv (all slices) from `outdir`; raise JuliaOutputError. Returns record, slices (id -> meta), po."""
+    outdir = Path(outdir)
+    try:
+        rec = json.loads((outdir / "a6.json").read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise JuliaOutputError(f"{outdir / 'a6.json'}: {exc}") from exc
+    _check_record(rec, "a6.json", A6_JSON_FIELDS, check_manifest)
+    slices = {}
+    for s in rec["slices"]:
+        missing = [k for k in A6_SLICE_FIELDS if k not in s]
+        if missing:
+            raise JuliaOutputError(f"a6.json: slice {s.get('id')!r}: missing fields {missing}")
+        if s["id"] in slices:
+            raise JuliaOutputError(f"a6.json: duplicate slice {s['id']!r}")
+        hp = s["hopf_param"]
+        if hp is not None and not (isinstance(hp, (int, float)) and math.isfinite(hp)):
+            raise JuliaOutputError(f"a6.json: slice {s['id']}: hopf_param is not a finite number or null")
+        slices[s["id"]] = s
+    po = pd.read_csv(outdir / "a6_po.csv")
+    if tuple(po.columns) != A6_PO_COLUMNS:
+        raise JuliaOutputError(f"a6_po.csv: columns {tuple(po.columns)}, expected {A6_PO_COLUMNS}")
+    if not set(po["slice"]) <= set(slices):
+        raise JuliaOutputError(f"a6_po.csv: unknown slices {sorted(set(po['slice']) - set(slices))}")
+    if not np.isfinite(po.drop(columns="slice").to_numpy(dtype=float)).all():
+        raise JuliaOutputError("a6_po.csv: non-finite values")
+    counts = po["slice"].value_counts()
+    for sid, s in slices.items():
+        if int(counts.get(sid, 0)) != int(s["n_po"]):
+            raise JuliaOutputError(f"a6: slice {sid}: {int(counts.get(sid, 0))} rows in a6_po.csv, a6.json says {s['n_po']}")
+    return {"record": rec, "slices": slices, "po": po}
 
 
 def load_smoke(outdir, check_manifest: bool = True) -> dict:

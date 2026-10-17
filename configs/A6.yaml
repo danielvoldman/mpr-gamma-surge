@@ -1,0 +1,6 @@
+# A6: limit-cycle frequency map of M3 (plan 5.2 A6; MS6 step 6f, DL-131). Run config for scripts/run_A6.py.
+# Julia (BifurcationKit, pinned in environment/julia) holds the slice grids and numerical settings in
+# analysis/continuation/a6_freq.jl, whose sha256 is recorded as an input. The model block names the reference point only.
+run:      {id: A6, kind: a6, workers: 1}
+model:    {type: M3, ref_point: ref_devalle, tau_ms: 10.0, tau_d_ms: 5.0}
+output:   {dir: results/A6}
