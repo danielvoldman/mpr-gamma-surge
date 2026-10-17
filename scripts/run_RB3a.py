@@ -25,7 +25,8 @@ T_RAMP_S = [float(x) for x in np.round(10 ** (np.arange(13) / 4.0), 10)]       #
 SPACINGS = (0.1, 0.05, 0.025, 0.0125, 0.00625)                                   # measurement grid; 0.025 = the working value
 DELTA0 = (1e-9, 1e-6, 1e-3)                                                      # plan S13 ladder
 FLOORS = tuple(10.0 ** -k for k in range(16, 2, -1))                             # 1e-16 ... 1e-3, a grid to read the bound from
-HEADLINE = ("P2", "linear", 120.0)
+HEADLINE = ("P2", "linear", 120.0)                                              # not on the 13-value list: run as an extra T_ramp
+ALL_T = sorted(T_RAMP_S + [HEADLINE[2]])
 H_WORK = 0.025
 TAU_MS = 10.0
 
@@ -52,7 +53,7 @@ def main() -> int:
     rows, floor_rows = [], []
     for pk, pname in PATHS.items():
         for prof in PROFILES:
-            for T in T_RAMP_S:
+            for T in ALL_T:
                 c = copy.deepcopy(cfg)
                 c["path"].update(name=pname, profile=prof, T_ramp_s=T)
                 for h in SPACINGS:
@@ -101,7 +102,7 @@ def main() -> int:
     summ = {"label": "evidence only: no floor value, grid step or ladder rung is chosen (DL-148); A_ref reading (a) of DL-138/DL-139 "
                      "is for 7h sign-off; the A4 spacing 0.025 is the working value, UNVERIFIED",
             "a_ref": a_ref, "threshold": thr, "h_working": H_WORK, "spacings": list(SPACINGS), "delta0": list(DELTA0),
-            "floors_grid": list(FLOORS), "T_ramp_s": T_RAMP_S, "headline": {"case": list(HEADLINE), "delta0": 1e-6, **hl},
+            "floors_grid": list(FLOORS), "T_ramp_s": T_RAMP_S, "T_ramp_extra_s": [HEADLINE[2]], "headline": {"case": list(HEADLINE), "delta0": 1e-6, **hl},
             "grid_halving_ratio_max_by_h": {str(h): (max(v) if v else None) for h, v in ratios.items()},
             "grid_halving_ratio_median_by_h": {str(h): (float(np.median(v)) if v else None) for h, v in ratios.items()},
             "grid_halving_ratio_n_by_h": {str(h): len(v) for h, v in ratios.items()},
