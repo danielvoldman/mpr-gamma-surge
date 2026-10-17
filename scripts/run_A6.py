@@ -46,6 +46,7 @@ def main(argv=None) -> int:
     julia = julia_io.load_a6(jdir)
     eta_H = float(yaml.safe_load((root / PATH_A4).read_text(encoding="utf-8"))["path"]["eta_H"])
     arrays, summ = freq_map.build_a6(julia, eta_H)
+    summ = freq_map.nan_to_none(summ)
     summ["julia_dirty"] = julia["record"]["dirty"]
     summ["julia_timings_s"] = julia["record"]["timings_s"]
     P.atomic_save_npz(out_dir / TARGET, arrays)

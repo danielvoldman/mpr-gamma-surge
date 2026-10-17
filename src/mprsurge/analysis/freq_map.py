@@ -251,3 +251,14 @@ def build_a6(julia: dict, eta_H: float) -> tuple[dict, dict]:
                    "blocking": False}
     summ["k10"]["pass_all"] = bool(all(summ["k10"]["sub_checks"].values()))
     return arrays, summ
+
+
+def nan_to_none(x):
+    """Recursively replace non-finite floats by None so the summary and the run record are strict JSON."""
+    if isinstance(x, dict):
+        return {k: nan_to_none(v) for k, v in x.items()}
+    if isinstance(x, (list, tuple)):
+        return [nan_to_none(v) for v in x]
+    if isinstance(x, (float, np.floating)):
+        return float(x) if np.isfinite(x) else None
+    return x

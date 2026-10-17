@@ -129,3 +129,9 @@ def test_bad_a6_output_is_rejected(tmp_path, case):
     df.to_csv(d / "a6_po.csv", index=False)
     with pytest.raises(J.JuliaOutputError):
         J.load_a6(d)
+
+
+def test_nan_to_none_gives_strict_json():
+    s = F.nan_to_none({"a": [1.0, float("nan")], "b": {"c": np.float64("inf"), "d": 2}})
+    assert s == {"a": [1.0, None], "b": {"c": None, "d": 2}}
+    json.dumps(s, allow_nan=False)
