@@ -49,7 +49,7 @@ def test_script_on_a_toy_cell_writes_a_timing_record(drv, tmp_path, cell):
     assert drv.main(["--cell", cell, "--repeat", "2", "--out-dir", str(tmp_path), "--set", *TOY]) == 0
     rec = json.loads((tmp_path / f"{cell}.json").read_text(encoding="utf-8"))
     assert rec["kind"] == "timing" and rec["status"] == "ok" and rec["cell"] == cell
-    assert rec["flags"]["eta_path_status"] == "provisional"
+    assert rec["flags"]["eta_path_status"] == "A4"
     for key in ("commit", "dirty"):
         assert key in rec["git"]
     assert rec["packages"]["numpy"] and rec["os"] and rec["cpu"]["count"] and rec["config_hash"]

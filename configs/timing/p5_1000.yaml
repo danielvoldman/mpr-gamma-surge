@@ -1,2 +1,2 @@
-# Timing cell P5 at T_ramp 1000 s (plan 9.2): up then down, J fixed. Duration 5 + 2 x 1000 + 10 s. Provisional eta path (DL-094).
+# Timing cell P5 at T_ramp 1000 s (plan 9.2): up then down, J fixed. Duration 5 + 2 x 1000 + 10 s. A4 eta path (5i, DL-122; provisional before).
 path: {name: path_updown, T_ramp_s: 1000.0}

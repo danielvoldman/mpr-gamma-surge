@@ -117,9 +117,9 @@ def build_record(cfg: dict, cell: str, timing: dict, state_before: dict, state_a
                             message=next((r["message"] for r in timing["repeats"] if r["status"] != "ok"), "ok"),
                             wall_time_s=sum(r["wall_s"] for r in timing["repeats"]),
                             flags={"eta_path_status": cfg["path"]["eta_path_status"],
-                                   "eta_path_note": ("provisional, UNVERIFIED until A4 (MS5), DL-094"
-                                                     if cfg["path"]["eta_path_status"] == "provisional"
-                                                     else "explicit, see config"),
+                                   "eta_path_note": {"provisional": "provisional, UNVERIFIED until A4 (MS5), DL-094",
+                                                    "A4": "A4 (path.eta_H from the A4 run, D12 rule; MS5 5i, DL-122)"}.get(
+                                                        cfg["path"]["eta_path_status"], "explicit, see config"),
                                    "sigma": ({"value": cfg["noise"]["sigma"], "status": "UNVERIFIED, not calibrated (D-4, DL-095)"}
                                              if cfg["run"]["kind"] == "mf_noisy" else None)})
     rec["kind"] = KIND
@@ -207,7 +207,7 @@ def print_table(table) -> None:
     for cell, cfg, t in table:
         flag = ("" if cfg["path"]["eta_path_status"] == "explicit" else f"  [eta path {cfg['path']['eta_path_status']}]")
         if cfg["run"]["kind"] == "network":
-            flag += "  [network, provisional eta path as the mean-field cells]"
+            flag += "  [network, eta path as the mean-field cells]"
         if cfg["run"]["kind"] == "mf_noisy":
             flag += "  [sigma 1e-3 UNVERIFIED, not calibrated]"
         if "summary" in t:

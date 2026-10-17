@@ -116,5 +116,5 @@ def test_path_A4_fragment_gives_status_A4_and_the_d12_path():
     cfg = C.resolve_config({"model": {"ref_point": "ref_devalle", "tau_d_ms": 5.0},
                             "path": {"name": "path_hypoxia", "T_ramp_s": 120.0, **frag["path"]}}, {})
     assert cfg["path"]["eta_path_status"] == "A4"
-    assert cfg["path"]["eta_start"] == pytest.approx(1.396046, abs=1e-6)     # the DL-098 provisional values
+    assert cfg["path"]["eta_start"] == pytest.approx(1.396046, abs=1e-6)     # the DL-098 values (now the S5 headline path, DL-122)
     assert cfg["path"]["eta_peak"] == pytest.approx(4.896046, abs=1e-6)

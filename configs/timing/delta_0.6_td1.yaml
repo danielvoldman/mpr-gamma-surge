@@ -1,4 +1,4 @@
-# Timing cell delta_0.6_td1 (DL-100): map 1 corner, Delta 0.6 and tau_d 1.0 ms, J -21, P2, T_ramp 120 s. D12 path from eta_H = 7.786041 (numerical scan).
-# PROVISIONAL, UNVERIFIED until A4 (MS5).
+# Timing cell delta_0.6_td1 (DL-100): map 1 corner, Delta 0.6 and tau_d 1.0 ms, J -21, P2, T_ramp 120 s.
+# eta_H = 7.786040869518495 from A4 (hopf.lowest_eta_hopf on the A4 eta_bar grid; agrees with the DL-100 scan to 6 digits; DL-122): status A4.
 model: {Delta: 0.6, tau_d_ms: 1.0}
-path: {eta_start: 6.286041, eta_peak: 9.786041}
+path: {eta_H: 7.786040869518495}

@@ -1,4 +1,4 @@
 # Timing cell Delta = 0.01 (DL-095 D-3): headline with Delta changed and the D12 path of this Delta (DL-098).
-# eta_H = 0.393453 (numerical scan, J -21, tau_d 5 ms): eta_start = eta_H - 1.5, eta_peak = max(4, eta_H + 2). PROVISIONAL, UNVERIFIED until A4.
+# eta_H = 0.3934525674725519 from A4 (hopf.lowest_eta_hopf on the A4 eta_bar grid, J -21, tau_d 5 ms; agrees with the DL-098 scan to 6 digits; DL-122): status A4.
 model: {Delta: 0.01}
-path: {eta_start: -1.106547, eta_peak: 4.0}
+path: {eta_H: 0.3934525674725519}
