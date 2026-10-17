@@ -168,6 +168,7 @@ Default: no clean-machine run is required in MS7. Result-producing runs (7d, 7e,
 4. **Possible private remote backup.** No remote exists; `results/` is git-ignored; the tags are local only and the freeze tag would be too. I will not create or push to one unprompted. Needed from you: yes or no, ideally before 7j.
 5. **D36 24 h cap, rows without timing cells.** S1, S3 mean field, A1 to A6, S4, S12 mean field, the S13 ladders beyond the Radau pass set, the network dt ladder, spectrograms and A8 analysis have no cell. MS7 adds A8 and the baseline row (already counted). Not judged; to go into the next timing summary if measured.
 6. **Carried, not MS7:** K4-net (coupling unsourced), sigma until S8 at MS10 (F-9), K10 and K7 residual as failures reported, map 1 Delta spacing (now forced into MS7 by F-27), the two DL-105 timing exceptions, Julia setup outside the pip lockfile (not used in MS7).
+7. **A_ref reading choice, for the 7h sign-off (DL-138, DL-139).** Ruled: reading (a), median of the band-passed Hilbert envelope over whole cycles of the stored S3 record, first and last 1 s dropped, A_ref = 2.1762 (threshold 0.2176). Open for you at 7h: confirm (a), or run the alternates (mean 2.1868, maximum 3.2191, sqrt(2) x RMS 2.4045, half peak-to-peak 2.7559, literal peak-to-peak 5.5114) as an A8 sensitivity item, which this step did not run. Default: (a) stands.
 
 ## Decisions that need you before 7b
 
@@ -179,5 +180,3 @@ Default: no clean-machine run is required in MS7. Result-producing runs (7d, 7e,
 | D-4 | F-27 and F-28: cell lists (Delta, J0 spacing) and the per-cell bundle storage. | As proposed. Needed before 7d |
 
 The rest (F-10 to F-15, F-16 to F-26, K5, /permissions, Defender, remote) are needed before 7g or 7h, not 7b. Of D-1 to D-4, only D-1 and D-2 block 7b; D-3 blocks 7c; D-4 blocks 7d.
-
-7. **A_ref reading choice, for the 7h sign-off (DL-138, DL-139).** Ruled: reading (a), median of the band-passed Hilbert envelope over whole cycles of the stored S3 record, first and last 1 s dropped, A_ref = 2.1762 (threshold 0.2176). Open for you at 7h: confirm (a), or run the alternates (mean 2.1868, maximum 3.2191, sqrt(2) x RMS 2.4045, half peak-to-peak 2.7559, literal peak-to-peak 5.5114) as an A8 sensitivity item, which this step did not run. Default: (a) stands.
