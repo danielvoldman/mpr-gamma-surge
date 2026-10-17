@@ -1,0 +1,5 @@
+# 7f baseline report (DL-144): baseline rho and the O4 noise-envelope measurement on the 7e records. Reads results/S5/baseline; no model run.
+run:      {id: A8, kind: a8base, workers: 1}
+model:    {type: M3, ref_point: ref_devalle, tau_ms: 10.0, tau_d_ms: 5.0}
+output:   {dir: results/A8/baseline}
+seeds:    {root_seed: 20261008, spawn_key: [7, 5]}
