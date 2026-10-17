@@ -1,0 +1,11 @@
+# MS8 8b run config (DL-169; docs/ms8_plan.md; owner rulings M-1 to M-12). Names the FROZEN criteria file, so the runner refuses to start
+# unless the tag criteria-frozen verifies (H-2, DL-165). NO RUN has been made from this file in 8b: the dry run only.
+# Layered on configs/base.yaml (ref_devalle); eta_H as in configs/S5.yaml (A4, DL-115, configs/path_A4.yaml).
+# S5 start-distance runs (M-2, M-7): P1 linear, start distance {0.5, 3} x 13 T_ramp = 26 new runs. The distance 1.5 is the D12 default and is the
+# run of configs/ms8/s5_p1_linear.yaml (reused, not re-run). eta_start = eta_H - d.
+run:        {id: p1_start_distance, kind: mf, workers: 1}
+model:      {ref_point: ref_devalle}
+path:       {name: path_eta, profile: linear, eta_H: 2.8960461989737856}
+sweep:      {x_name: path.start_distance, x_values: [0.5, 3.0], T_ramp_values: [1.0, 1.7782794100389228, 3.1622776601683795, 5.623413251903491, 10.0, 17.78279410038923, 31.622776601683793, 56.23413251903491, 100.0, 177.82794100389228, 316.22776601683796, 562.341325190349, 1000.0]}
+output:     {dir: results/S5/ramp}
+robustness: {criteria_file: configs/robustness_criteria.yaml}

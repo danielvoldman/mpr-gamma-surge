@@ -22,6 +22,12 @@ HEADLINE_T_RAMP_S = 120.0
 HEUN_DT_LADDER = (1.0e-3, 5.0e-4, 2.5e-4, 1.0e-4)             # configs/S13.yaml (F-14)
 FLOOR_LEVELS = (1.59e-9, 1.59e-6, 1.59e-3)                    # sigma_floor, configs/S13.yaml (F-10)
 HEADLINE_N_STEPS_PER_TAU = 1000.0                             # Heun dt 1e-3 tau
+# 8b (DL-169, DL-172): the coupled ladder draws its Brownian increments at 5e-5 tau (configs/ms8/s13_floor_l*.yaml, F-14), whatever the rung:
+# tau / 5e-5 normals per floor run. Cost per normal alone: measured in 8b (numpy PCG64 standard_normal plus the block sum), UNVERIFIED; under
+# load it is scaled by the DL-104 factor of the Heun step (1.51e-7 s under 10 copies over 3.65e-8 s alone), which is an assumption here.
+COUPLING_DT_TAU = 5.0e-5
+COUPLED_DRAW_S_ALONE = {20: 9.1e-9, 10: 9.7e-9, 5: 10.8e-9, 2: 14.0e-9}      # per normal, by draws per step m = dt / 5e-5 (rungs 1e-3, 5e-4, 2.5e-4, 1e-4)
+LOAD_FACTOR_10_COPIES = 1.51e-7 / 3.65e-8
 
 # Each key is a plan wording that leaves a count open. First entry of each tuple is the recommended reading.
 OPTIONS = {
@@ -106,13 +112,23 @@ def s13_headline_runs(opts=None) -> list[dict]:
     else:                                                 # RB3(b): 3 levels at the default rung; RB6: middle level, other rungs
         combos = [(l, HEUN_DT_LADDER[0], s) for l in levels for s in range(N_SEEDS)]
         combos += [(1, dt, s) for dt in HEUN_DT_LADDER[1:] for s in range(N_SEEDS)]
-    runs += [_run("S13_floor", P2, "linear", T, mode="N", solver="Heun", rtol=None, dt_tau=dt, floor_level=l, seed=s)
+    runs += [_run("S13_floor", P2, "linear", T, mode="N", solver="Heun", rtol=None, dt_tau=dt, floor_level=l, seed=s, coupled=True)
              for l, dt, s in combos]
     return runs
 
 
 def heun_steps(run: dict) -> float:
     return run["tau"] / run["dt_tau"]
+
+
+def coupled_draws(run: dict) -> float:
+    """Normals drawn for a coupled floor run (F-14, M-10): tau / 5e-5 whatever the rung; 0 for an uncoupled run."""
+    return run["tau"] / COUPLING_DT_TAU if run.get("coupled") else 0.0
+
+
+def coupled_draw_s(run: dict) -> float:
+    """Seconds per normal of a coupled floor run under 10 copies (alone x the DL-104 load factor)."""
+    return COUPLED_DRAW_S_ALONE[int(round(run["dt_tau"] / COUPLING_DT_TAU))] * LOAD_FACTOR_10_COPIES
 
 
 def summarise(runs: list[dict]) -> dict:
@@ -207,8 +223,8 @@ def predict(cells: dict, workers: int, opts=None) -> list[dict]:
     rd = [x for x in s13 if x["solver"] == "Radau"]
     p13.append(mf_part("Radau rtol 1e-10 at 120 s", rd, RADAU_CELL))
     fl = [x for x in s13 if x["family"] == "S13_floor"]
-    sec = sum(heun_steps(x) * heun_s_per_step(cells, x["dt_tau"]) for x in fl)
-    lng = max(heun_steps(x) * heun_s_per_step(cells, x["dt_tau"]) for x in fl)
+    sec = sum(heun_steps(x) * heun_s_per_step(cells, x["dt_tau"]) + coupled_draws(x) * (coupled_draw_s(x) if x.get("coupled") else 0.0) for x in fl)
+    lng = max(heun_steps(x) * heun_s_per_step(cells, x["dt_tau"]) + coupled_draws(x) * (coupled_draw_s(x) if x.get("coupled") else 0.0) for x in fl)
     p13.append({"label": "D43 floor ladder (Heun)", "runs": len(fl), "cell": f"{HEUN_CELL}, {FLOOR_FINE_CELL}",
                 "steps": sum(heun_steps(x) for x in fl), "sum_s": sec, "longest_s": lng})
     rows.append({"id": "ms8_s13_headline", "s_ids": ["S13"], "allowance_h": ALLOWANCE_H["ms8_s13_headline"], "parts": p13})
@@ -247,7 +263,7 @@ def run_walls(cells: dict, opts=None) -> dict:
     w13 = []
     for r in s13:
         if r["mode"] == "N":
-            w13.append(heun_steps(r) * heun_s_per_step(cells, r["dt_tau"]))
+            w13.append(heun_steps(r) * heun_s_per_step(cells, r["dt_tau"]) + coupled_draws(r) * (coupled_draw_s(r) if r.get("coupled") else 0.0))
         elif r["solver"] == "Radau":
             w13.append(r["tau"] * _s_per_tau(cells[RADAU_CELL]))
         else:

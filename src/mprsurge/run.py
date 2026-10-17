@@ -100,6 +100,9 @@ def build_plan(config_arg: str, sets=(), workers: int | None = None) -> Plan:
     times. A run with seed index s (0 to n_seeds-1) gets seeds.spawn_key = [s], the child
     SeedSequence(root_seed).spawn(n_seeds)[s], so the same seed index gives the same
     stream in every sweep cell (DL-069, DL-070); deterministic runs keep spawn_key null.
+    MS8 8b (M-8, DL-169): seeds.spawn_prefix, when given, is the key prefix, cell key = spawn_prefix + [s]; absent or null keeps
+    [s] (the calibration keys), so no stored hash moves and seeds.spawn_key keeps its old meaning (the runner overwrote it).
+    A noisy config that names the frozen criteria file must give a prefix: no ramp-study cell may use the bare key [s].
     """
     path = _config_path(config_arg)
     ov = dict(C.parse_override(s) for s in sets)
@@ -109,6 +112,10 @@ def build_plan(config_arg: str, sets=(), workers: int | None = None) -> Plan:
     CR.require_frozen_for_config(cfg0)      # MS8 8a: a config that names the frozen criteria runs only if the freeze verifies
     axes = _axes(cfg0)
     noisy = cfg0["run"]["kind"] in ("mf_noisy", "network", "s4_net")   # seeded kinds: one cell per seed
+    prefix = cfg0["seeds"].get("spawn_prefix")
+    if noisy and prefix is None and CR.is_frozen_criteria_path(cfg0["robustness"]["criteria_file"]):
+        raise C.ConfigError("a noisy config that names the frozen criteria needs seeds.spawn_prefix (M-8, DL-169): "
+                            "the bare key [seed] is the calibration key")
     combos = list(itertools.product(*[v for _, v in axes])) or [()]
     runs = [(combo, s) for combo in combos for s in range(cfg0["seeds"]["n_seeds"] if noisy else 1)]
     family = cfg0["run"]["id"] or path.stem
@@ -119,7 +126,7 @@ def build_plan(config_arg: str, sets=(), workers: int | None = None) -> Plan:
         cell_ov = dict(ov)
         cell_ov.update({n: v for (n, _), v in zip(axes, combo)})
         if noisy:
-            cell_ov["seeds.spawn_key"] = [seed]
+            cell_ov["seeds.spawn_key"] = [*(prefix or []), seed]
         cell = C.resolve_config(path, cell_ov)
         cell["sweep"] = {key: None for key in cell["sweep"]}
         h12 = C.short_hash(C.config_hash(cell))
@@ -127,6 +134,31 @@ def build_plan(config_arg: str, sets=(), workers: int | None = None) -> Plan:
     inputs = {cfg0["_resolved_from"]["base"]: P.sha256_file(C.repo_root() / cfg0["_resolved_from"]["base"]),
               C.to_posix(path): P.sha256_file(path)}
     return Plan(cfg0, cells, family, out_dir, inputs)
+
+
+# --- job order ----------------------------------------------------------------------------------------
+
+# Seconds per unit of work from the 8a timing sample under 10 copies (DL-167): DOP853 about 1.1e-2 s per tau, Radau 6.9e-2 s per tau,
+# stochastic Heun 1.555e-7 s per step. Used only to order jobs (M-12); no result depends on it.
+_S_PER_TAU = {"DOP853": 1.1e-2, "Radau": 6.9e-2}
+_S_PER_HEUN_STEP = 1.555e-7
+
+
+def estimated_cost_s(cfg: dict) -> float:
+    """Rough wall time of one cell, for the longest-first order (M-12). Kinds other than mf and mf_noisy cost 0."""
+    kind = cfg["run"]["kind"]
+    if kind not in ("mf", "mf_noisy"):
+        return 0.0
+    from .analysis.timing import tau_simulated        # ramp end + hold (+ discard in mode N), tau
+    tau = tau_simulated(cfg)
+    if kind == "mf":
+        return tau * _S_PER_TAU[cfg["solver"]["method"]]
+    return tau / cfg["noise"]["dt_tau"] * _S_PER_HEUN_STEP
+
+
+def longest_first(jobs: list[dict]) -> list[dict]:
+    """Jobs sorted by estimated cost, largest first, ties in plan order (a stable sort); names and indices are unchanged."""
+    return sorted(jobs, key=lambda j: -estimated_cost_s(j["cfg"]))
 
 
 # --- executing one cell ------------------------------------------------------------------
@@ -289,6 +321,8 @@ def main(argv=None) -> int:
     ap.add_argument("--config", required=True, help="run YAML (relative paths: repository root first)")
     ap.add_argument("--set", dest="sets", action="append", default=[], metavar="section.key=value")
     ap.add_argument("--workers", type=int, default=None)
+    ap.add_argument("--longest-first", action="store_true",
+                    help="submit the cells longest first by estimated cost (M-12); names, hashes and results are unchanged")
     ap.add_argument("--dry-run", action="store_true",
                     help="resolve, hash and write a run record per cell; integrate nothing")
     args = ap.parse_args(argv)
@@ -300,14 +334,14 @@ def main(argv=None) -> int:
 
     handlers = _setup_logging(None if args.dry_run else plan.out_dir)
     try:
-        return _execute(plan, args.dry_run, handlers)
+        return _execute(plan, args.dry_run, handlers, args.longest_first)
     finally:  # release the run.log file handle (Windows locks it)
         logging.getLogger(LOG_NAME).handlers.clear()
         for h in handlers:
             h.close()
 
 
-def _execute(plan: Plan, dry_run: bool, handlers) -> int:
+def _execute(plan: Plan, dry_run: bool, handlers, order_longest_first: bool = False) -> int:
     log = logging.getLogger(LOG_NAME)
     workers = plan.cfg["run"]["workers"]
     env = P.environment_info()
@@ -315,6 +349,8 @@ def _execute(plan: Plan, dry_run: bool, handlers) -> int:
     jobs = [{"index": c["index"], "name": c["name"], "hash12": c["hash12"], "cfg": c["cfg"],
              "out_dir": str(plan.out_dir), "task": task, "env": env, "inputs": plan.inputs,
              "dry_run": dry_run} for c in plan.cells]
+    if order_longest_first:
+        jobs = longest_first(jobs)
     log.info("%s: %d cells, kind %s, workers %d%s", plan.family, len(jobs),
              plan.cfg["run"]["kind"], workers, " (dry-run)" if dry_run else "")
     if not dry_run:

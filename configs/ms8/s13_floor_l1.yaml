@@ -1,0 +1,17 @@
+# MS8 8b run config (DL-169; docs/ms8_plan.md; owner rulings M-1 to M-12). Names the FROZEN criteria file, so the runner refuses to start
+# unless the tag criteria-frozen verifies (H-2, DL-165). NO RUN has been made from this file in 8b: the dry run only.
+# Layered on configs/base.yaml (ref_devalle); eta_H as in configs/S5.yaml (A4, DL-115, configs/path_A4.yaml).
+# S13 headline subset at T_ramp 120 s on P2 (Table 6.2 S13, CP23); the rtol 1e-10, delta0 1e-6 DOP853 run is the S5 headline run (configs/S5_ramp.yaml), not repeated here.
+# D43 floor level l = 1 (F-10): noise.sigma = sigma_floor = 1.59e-6 (v-units per sqrt(tau)), delta0 stays 1e-6 (M-4 (i)), mode N, T_ramp 120 s.
+# Heun ladder dt {1e-3, 5e-4, 2.5e-4, 1e-4} tau (F-14) x 10 seeds = 40 runs. Increments are drawn at 5e-5 tau and summed to each rung
+# (noise.coupling_dt_tau, F-14, M-10): 20, 10, 5 and 2 draws per step. M-10's wording (draw at 1e-4, sum 10, 5, 2) cannot give the 2.5e-4 rung
+# (2.5 draws); 5e-5 is the largest step that divides all four rungs. The four rungs of one seed share a Brownian path. Seed key = prefix + [s] = [8, 2, 1, s] (M-9):
+# the four rungs of one (l, s) share the key.
+run:        {id: floor_l1, kind: mf_noisy, workers: 1}
+model:      {ref_point: ref_devalle}
+path:       {name: path_hypoxia, profile: linear, T_ramp_s: 120.0, eta_H: 2.8960461989737856}
+noise:      {sigma: 1.59e-6, sigma_factor: 1.0, dt_tau: 1.0e-3, coupling_dt_tau: 5.0e-5}
+sweep:      {x_name: noise.dt_tau, x_values: [1.0e-3, 5.0e-4, 2.5e-4, 1.0e-4]}
+seeds:      {n_seeds: 10, spawn_prefix: [8, 2, 1]}
+output:     {dir: results/S13}
+robustness: {criteria_file: configs/robustness_criteria.yaml}

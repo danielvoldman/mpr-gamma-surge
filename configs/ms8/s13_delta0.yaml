@@ -1,0 +1,10 @@
+# MS8 8b run config (DL-169; docs/ms8_plan.md; owner rulings M-1 to M-12). Names the FROZEN criteria file, so the runner refuses to start
+# unless the tag criteria-frozen verifies (H-2, DL-165). NO RUN has been made from this file in 8b: the dry run only.
+# Layered on configs/base.yaml (ref_devalle); eta_H as in configs/S5.yaml (A4, DL-115, configs/path_A4.yaml).
+# S13 headline subset at T_ramp 120 s on P2 (Table 6.2 S13, CP23); the rtol 1e-10, delta0 1e-6 DOP853 run is the S5 headline run (configs/S5_ramp.yaml), not repeated here.
+run:        {id: delta0, kind: mf, workers: 1}
+model:      {ref_point: ref_devalle}
+path:       {name: path_hypoxia, profile: linear, T_ramp_s: 120.0, eta_H: 2.8960461989737856}
+sweep:      {x_name: solver.delta0, x_values: [1.0e-9, 1.0e-3]}
+output:     {dir: results/S13}
+robustness: {criteria_file: configs/robustness_criteria.yaml}

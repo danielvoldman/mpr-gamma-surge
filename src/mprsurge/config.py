@@ -96,6 +96,9 @@ SCHEMA: dict[str, dict[str, Spec]] = {
         "I_plateau_frac": _s("float"), "I_fall_frac": _s("float"),
         "Delta_factor": _s("float", positive=True),
         "I_period_s": _s("float", positive=True, optional=True),   # I_sin period; required there
+        # MS8 (8b, DL-169; M-7): start distance d of D12, eta_start = eta_H - d. Null or absent keeps D12's 1.5 and stays out of
+        # the hash view, so no stored hash moves; a given value is in the hash.
+        "start_distance": _s("float", nullable=True, positive=True, optional=True),
     },
     "solver": {
         "method": _s("str", choices=("DOP853", "Radau")),
@@ -109,6 +112,9 @@ SCHEMA: dict[str, dict[str, Spec]] = {
         "sigma_factor": _s("float", positive=True),
         "dt_tau": _s("float", positive=True),
         "floor_levels": _s("floats", nullable=True),
+        # MS8 (8b, DL-169; F-14, M-10): draw the Brownian increments at this finer step and sum them to dt_tau, so the rungs of
+        # one seed share a path. Null or absent: one draw per step, as before; left out of the hash view while null.
+        "coupling_dt_tau": _s("float", nullable=True, positive=True, optional=True),
     },
     "network": {
         "N": _s("int", positive=True), "dt_tau": _s("float", positive=True),
@@ -144,6 +150,9 @@ SCHEMA: dict[str, dict[str, Spec]] = {
     "seeds": {
         "root_seed": _s("int"), "n_seeds": _s("int", positive=True),
         "spawn_key": _s("ints", nullable=True),
+        # MS8 (8b, DL-169; M-8): prefix of the sweep's seed keys, cell key = spawn_prefix + [s]. Read by run.build_plan only; the hash
+        # view carries the cell's spawn_key, not this key, so no hash depends on it.
+        "spawn_prefix": _s("ints", nullable=True, optional=True),
     },
     "run": {
         "id": _s("str", nullable=True), "workers": _s("int", positive=True),
@@ -424,11 +433,15 @@ def _derive_eta_path(cfg: dict) -> None:
         # M2 paths come from A1 (explicit); M3 paths given before A4 are provisional
         p["eta_path_status"] = "explicit" if cfg["model"]["type"] == "M2" else "provisional"
     elif p["eta_H"] is not None:
-        p["eta_start"] = p["eta_H"] - ETA_START_OFFSET
+        sd = p.get("start_distance")
+        p["eta_start"] = p["eta_H"] - (ETA_START_OFFSET if sd is None else sd)
         p["eta_peak"] = max(ETA_PEAK_FLOOR, p["eta_H"] + ETA_PEAK_OFFSET)
         p["eta_path_status"] = "A4"
     else:
         p["eta_path_status"] = "unresolved"
+    if p.get("start_distance") is not None and not (p["eta_H"] is not None and not have_start):
+        raise ConfigError("path.start_distance is the distance below path.eta_H (D12): give path.eta_H and no explicit "
+                          "eta_start/eta_peak")
     if p["eta_start"] is None:
         p["eps"] = None
     else:
@@ -452,6 +465,9 @@ def require_eta_path(cfg: dict) -> None:
 def hash_view(cfg: dict) -> dict:
     """The integration inputs that config_hash covers (DL-057)."""
     view = {s: copy.deepcopy(cfg[s]) for s in _HASH_SECTIONS}
+    for section, key in (("path", "start_distance"), ("noise", "coupling_dt_tau")):    # MS8 8b: null stays out (M-7)
+        if view[section].get(key) is None:
+            view[section].pop(key, None)
     view["run"] = {"kind": cfg["run"]["kind"]}
     view["seeds"] = {"root_seed": cfg["seeds"]["root_seed"],
                      "spawn_key": cfg["seeds"]["spawn_key"]}

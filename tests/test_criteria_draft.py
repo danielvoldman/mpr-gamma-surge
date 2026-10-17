@@ -179,7 +179,8 @@ def _key_prefixes_in_repo():
     keys = set()
     for p in sorted((root / "configs").rglob("*.yaml")):
         d = yaml.safe_load(p.read_text(encoding="utf8")) or {}
-        k = (d.get("seeds") or {}).get("spawn_key") if isinstance(d, dict) else None
+        sd = (d.get("seeds") or {}) if isinstance(d, dict) else {}
+        k = sd.get("spawn_key") or sd.get("spawn_prefix")           # MS8 8b: a sweep config gives its seed-key prefix as spawn_prefix
         if k:
             keys.add(tuple(k))
     pat = re.compile(r"(?:spawn_key\s*=\s*|rng_for\s*)\(\s*(\d+(?:\s*,\s*\d+)*)")

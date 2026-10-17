@@ -109,7 +109,7 @@ def test_proposed_ms8_seed_keys_collide_with_no_key_in_the_repo():
     literally in src/scripts/tests (including [7, 9] and the calibration keys [0] to [9], compared by equality only)."""
     mine = M.proposed_seed_keys()
     assert len(mine) == 10 + 3 * 10 and len(set(mine)) == len(mine)
-    used = _key_prefixes_in_repo()
+    used = {u for u in _key_prefixes_in_repo() if u[0] != 8}      # 8b (DL-169): the MS8 configs now hold the [8, ...] prefixes; they are tested in test_ms8_runlist.py
     assert (7, 4) in used and (7, 6, 1) in used and (7, 8, 5, 1) in used
     calibration = {(s,) for s in range(10)}
     for m in mine:

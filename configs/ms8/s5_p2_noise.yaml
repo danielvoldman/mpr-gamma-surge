@@ -1,0 +1,12 @@
+# MS8 8b run config (DL-169; docs/ms8_plan.md; owner rulings M-1 to M-12). Names the FROZEN criteria file, so the runner refuses to start
+# unless the tag criteria-frozen verifies (H-2, DL-165). NO RUN has been made from this file in 8b: the dry run only.
+# Layered on configs/base.yaml (ref_devalle); eta_H as in configs/S5.yaml (A4, DL-115, configs/path_A4.yaml).
+# S5 P2 noise seeds (M-1, M-9): mode N, 13 T_ramp x 10 seeds, linear = 130 runs. sigma 0.0624 (base.yaml, UNVERIFIED until S8), Heun dt 1e-3 tau,
+# 2 s discard. Seed key = prefix + [s] = [8, 1, s], s = 0..9 (runner, M-8): seed index s gives the same stream in every T_ramp cell (DL-069).
+run:        {id: p2_noise, kind: mf_noisy, workers: 1}
+model:      {ref_point: ref_devalle}
+path:       {name: path_hypoxia, profile: linear, eta_H: 2.8960461989737856}
+sweep:      {T_ramp_values: [1.0, 1.7782794100389228, 3.1622776601683795, 5.623413251903491, 10.0, 17.78279410038923, 31.622776601683793, 56.23413251903491, 100.0, 177.82794100389228, 316.22776601683796, 562.341325190349, 1000.0]}
+seeds:      {n_seeds: 10, spawn_prefix: [8, 1]}
+output:     {dir: results/S5/ramp_noise}
+robustness: {criteria_file: configs/robustness_criteria.yaml}

@@ -1,0 +1,10 @@
+# MS8 8b run config (DL-169; docs/ms8_plan.md; owner rulings M-1 to M-12). Names the FROZEN criteria file, so the runner refuses to start
+# unless the tag criteria-frozen verifies (H-2, DL-165). NO RUN has been made from this file in 8b: the dry run only.
+# Layered on configs/base.yaml (ref_devalle); eta_H as in configs/S5.yaml (A4, DL-115, configs/path_A4.yaml).
+# S5 deterministic ramp grid: path_updown x 13 T_ramp (10^(k/4) s, configs/S5_cells.yaml map2) x profile linear; mode D, DOP853 rtol 1e-10, delta0 1e-6.
+run:        {id: p5_linear, kind: mf, workers: 1}
+model:      {ref_point: ref_devalle}
+path:       {name: path_updown, profile: linear, eta_H: 2.8960461989737856}
+sweep:      {T_ramp_values: [1.0, 1.7782794100389228, 3.1622776601683795, 5.623413251903491, 10.0, 17.78279410038923, 31.622776601683793, 56.23413251903491, 100.0, 177.82794100389228, 316.22776601683796, 562.341325190349, 1000.0]}
+output:     {dir: results/S5/ramp}
+robustness: {criteria_file: configs/robustness_criteria.yaml}

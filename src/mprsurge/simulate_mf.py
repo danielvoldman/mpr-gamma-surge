@@ -339,6 +339,52 @@ def heun_chunk(y, eta, J, Delta, I, beta, kind, sigma, dt, rng, stride, g0, out)
     y[2] = s
 
 
+@njit(cache=True)
+def heun_chunk_z(y, eta, J, Delta, I, beta, kind, sigma, dt, z, stride, g0, out):
+    """heun_chunk with the standard-normal draws supplied: step i uses amp * z[i], amp = sigma sqrt(dt) (len(z) = len(eta) - 1).
+
+    The arithmetic is that of heun_chunk line for line, so z = rng.standard_normal(n) from the same generator reproduces it bit for
+    bit (tests/test_ms8_coupling.py). Used by the coupled Heun ladder (F-14, MS8 8b); kind 2 (OU) is not supported."""
+    n = eta.shape[0] - 1
+    amp = sigma * np.sqrt(dt)
+    r = y[0]
+    v = y[1]
+    s = y[2]
+    k = 0
+    for i in range(n):
+        if (g0 + i) % stride == 0:
+            out[k, 0] = r
+            out[k, 1] = v
+            out[k, 2] = s
+            k += 1
+        dw = amp * z[i]
+        fr1 = Delta[i] / np.pi + 2.0 * r * v
+        fv1 = v * v + eta[i] + I[i] + J[i] * s - np.pi * np.pi * r * r
+        fs1 = (r - s) * beta
+        rp = r + dt * fr1
+        vp = v + dt * fv1 + dw
+        sp = s + dt * fs1 if kind == 1 else rp
+        fr2 = Delta[i + 1] / np.pi + 2.0 * rp * vp
+        fv2 = vp * vp + eta[i + 1] + I[i + 1] + J[i + 1] * sp - np.pi * np.pi * rp * rp
+        fs2 = (rp - sp) * beta
+        r = r + 0.5 * dt * (fr1 + fr2)
+        v = v + 0.5 * dt * (fv1 + fv2) + dw
+        s = s + 0.5 * dt * (fs1 + fs2) if kind == 1 else r
+    y[0] = r
+    y[1] = v
+    y[2] = s
+
+
+def coupled_normals(rng, n: int, m: int) -> np.ndarray:
+    """n standard normals for steps of dt that are m times the base step dt_f = dt / m (F-14, M-10).
+
+    Draws n*m normals z_j for the base step, in stream order, and returns the sum of each block of m divided by sqrt(m): the
+    Brownian increment of a coarse step is the sum of the m fine increments inside it, sqrt(dt_f) * sum z_j = sqrt(dt) * result.
+    For m = 1 this is rng.standard_normal(n). The stream consumed depends only on the number of fine steps, not on the chunking."""
+    z = rng.standard_normal(n * m)
+    return z if m == 1 else z.reshape(n, m).sum(axis=1) / np.sqrt(m)
+
+
 def warm_up() -> None:
     """Compile and cache the kernel in the parent before the worker pool starts (10.4)."""
     y = np.array([0.1, -1.0, 0.1])
@@ -347,6 +393,7 @@ def warm_up() -> None:
     rng = np.random.Generator(np.random.PCG64(0))
     for kind in (0, 1, 2):
         heun_chunk(y, a, a, a, a, 1.0, kind, 0.0, 1e-3, rng, 4, 0, out)
+    heun_chunk_z(y, a, a, a, a, 1.0, 1, 0.0, 1e-3, np.zeros(4), 4, 0, out)
 
 
 def make_rng(root_seed: int, spawn_key) -> np.random.Generator:
@@ -358,12 +405,13 @@ def make_rng(root_seed: int, spawn_key) -> np.random.Generator:
 
 
 def _run_chunks(rng, y, kind, beta, sigma, dt, stride, n_steps, param_fn, kick_step,
-                kick_value, chunk_steps, deadline):
+                kick_value, chunk_steps, deadline, couple_m=None):
     """Drive heun_chunk over steps [0, n_steps]; returns samples at steps 0, stride, ...
 
     param_fn(t_index_array) -> (eta, J, Delta, I) at those step indices. A kick is added
     to v at step kick_step, before the sample of that step is taken. The deadline is
-    checked between chunks (RunTimeout).
+    checked between chunks (RunTimeout). couple_m (F-14): each step's normal is the scaled sum of couple_m draws of a step
+    dt / couple_m (coupled_normals), so rungs of one stream share their Brownian path.
     """
     edges = sorted({0, n_steps} | ({kick_step} if 0 < kick_step < n_steps else set()))
     rows = []
@@ -378,7 +426,10 @@ def _run_chunks(rng, y, kind, beta, sigma, dt, stride, n_steps, param_fn, kick_s
             idx = np.arange(g, g + n + 1)
             eta, J, Delta, I = param_fn(idx)
             out = np.empty(((g + n + stride - 1) // stride - (g + stride - 1) // stride, 3))
-            heun_chunk(y, eta, J, Delta, I, beta, kind, sigma, dt, rng, stride, g, out)
+            if couple_m is None:
+                heun_chunk(y, eta, J, Delta, I, beta, kind, sigma, dt, rng, stride, g, out)
+            else:
+                heun_chunk_z(y, eta, J, Delta, I, beta, kind, sigma, dt, coupled_normals(rng, n, couple_m), stride, g, out)
             rows.append(out)
             g += n
     rows.append(y[None, :].copy())                       # state at step n_steps
@@ -414,6 +465,11 @@ def run_mf_noisy(cfg: dict, deadline=None, y0=None, chunk_samples: int = CHUNK_O
     kind = 1 if model == "M3" else 0
     beta = 0.0 if tau_d is None else 1.0 / tau_d
     kick_step = int(round((path.t_on - t0) / dt))
+    couple_m = None
+    if n.get("coupling_dt_tau") is not None:                      # F-14, MS8 8b: dt_tau must be a whole multiple of the fine step
+        couple_m = int(round(dt / n["coupling_dt_tau"]))
+        if couple_m < 1 or abs(couple_m * n["coupling_dt_tau"] - dt) > 1e-9 * dt:
+            raise C.ConfigError(f"noise.dt_tau = {dt} is not a whole multiple of noise.coupling_dt_tau = {n['coupling_dt_tau']}")
 
     def param_fn(idx):
         t = t0 + idx * dt
@@ -423,10 +479,10 @@ def run_mf_noisy(cfg: dict, deadline=None, y0=None, chunk_samples: int = CHUNK_O
     rng = make_rng(cfg["seeds"]["root_seed"], cfg["seeds"]["spawn_key"])
     chunk_steps = max(1, int(chunk_samples)) * stride
     S = _run_chunks(rng, y, kind, beta, sigma, dt, stride, n_steps, param_fn, kick_step,
-                    cfg["solver"]["delta0"], chunk_steps, deadline)
+                    cfg["solver"]["delta0"], chunk_steps, deadline, couple_m)
     S = S[n_disc:].T
     t = np.arange(n_keep) * dt_out
-    flags = {"scheme": n["scheme"], "dt_tau": dt, "sigma_used": sigma, "n_steps": n_steps,
+    flags = {"scheme": n["scheme"], "dt_tau": dt, "coupling_dt_tau": n.get("coupling_dt_tau"), "sigma_used": sigma, "n_steps": n_steps,
              "start": "explicit" if y0 is not None else "stable_fixed_point",
              "seed_spawn_key": list(cfg["seeds"]["spawn_key"])}
     return {"arrays": _output(path, t, S, cfg["model"]["tau_ms"]), "message": "ok", "flags": flags}
