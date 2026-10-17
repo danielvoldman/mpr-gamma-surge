@@ -1,0 +1,19 @@
+# S13 numerical checks (plan Table 6.2 S13; 7g, DL-148). NOT a run config yet: no run reads it, no ramp run uses it before criteria-frozen.
+# Part 1: values the plan states (Table 6.2 S13, RB6). Part 2: values the plan marks UNVERIFIED or "set at MS7". They are null
+# on purpose: the plan gives a rule or a range but no value, the candidates and their evidence are in DL-149 and
+# results/A4/a4_rb3a_*, and the choice is the owner's ruling (7g instruction rule 1). Do not fill from memory.
+stated_by_plan:
+  mean_field_T_ramp_s: [10.0, 120.0, 316.0]            # P2 at ref_devalle; 120 s is the headline
+  solvers: [DOP853, Radau]
+  rtol_ladder: [1.0e-8, 1.0e-10, 1.0e-12]
+  delta0_ladder: [1.0e-9, 1.0e-6, 1.0e-3]
+  network_dt_ladder_tau: [1.0e-3, 5.0e-4, 2.5e-4, 1.0e-4]   # network, 10 s ramp
+  network_V_peak: [100.0, 200.0]                       # the 200 check also at dt 1e-4
+  window_factors: [0.5, 2.0]
+  heun_dt_default_tau: 1.0e-3                          # mode-N default (6.2); the first rung of the Heun ladder
+  rb6_heun_delay_change_max_percent: 5.0               # RB6, between the default step and the finest rung
+pending_owner_ruling:                                  # all UNVERIFIED in the plan; null until ruled
+  heun_dt_ladder_tau_below_default: null               # rungs below 1e-3 tau (RB6, S13)
+  d43_floor_levels: null                               # noise.floor_levels (D43), levels and unit convention
+  solver_floor_noise_free: null                        # noise-free DOP853 floor value (A7)
+  a4_eta_bar_grid_step: null                           # RB3(a) tolerance (A4); configs/A4_grids.yaml holds the working 0.025

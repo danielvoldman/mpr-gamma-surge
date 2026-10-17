@@ -1,0 +1,8 @@
+# 7g RB3(a) range, entry-exit prediction and A4 grid-step evidence (DL-148): analysis along the S5 paths, no integration.
+# Same ref_devalle point, eta_H and start distance as configs/S5.yaml (eta_start = eta_H - 1.5, eta_peak = max(4, eta_H + 2), D12).
+# Every floor value, A4 grid spacing and delta_0 in scripts/run_RB3a.py is a measurement grid, not a choice (DL-148).
+run:      {id: RB3A, kind: rb3a, workers: 1}
+model:    {type: M3, ref_point: ref_devalle, tau_ms: 10.0, tau_d_ms: 5.0}
+path:     {name: path_hypoxia, profile: linear, T_ramp_s: 120.0, eta_H: 2.8960461989737856}
+output:   {dir: results/A4/rb3a}
+seeds:    {root_seed: 20261008, spawn_key: [7, 7]}
