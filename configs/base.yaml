@@ -10,7 +10,8 @@ path:     {name: path_hypoxia, profile: linear, sigmoid_k: 10.0, T_ramp_s: 120.0
            Delta_factor: 1.0}
 solver:   {method: DOP853, rtol: 1.0e-10, atol: 1.0e-12, max_step_tau: 0.05,
            dt_out_ms: 1.0, delta0: 1.0e-6}
-noise:    {scheme: Heun, sigma: null, sigma_factor: 1.0, dt_tau: 1.0e-3,
+# sigma 0.0624: network seed-0 baseline match at N = 1e4 (DL-120 fit 0.06239), committed by owner ruling, DL-121. UNVERIFIED until S8 (MS10).
+noise:    {scheme: Heun, sigma: 0.0624, sigma_factor: 1.0, dt_tau: 1.0e-3,
            floor_levels: null}
 network:  {N: 10000, dt_tau: 1.0e-3, V_peak: 100.0, V_reset: -100.0,
            het_dist: lorentzian, het_sampling: quantile,

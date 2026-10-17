@@ -1421,3 +1421,15 @@ Evidence:        results/sigma/sigma_summary.json (git-ignored); tests/test_sigm
 Test:            fast suite green (260 passed, 1 xfailed).
 Status:          done (5h) except the commit of sigma; waits for the user
 Commit/tag:      the commit that adds this entry
+
+## DL-121  MS5 5i: owner ruling on sigma, sigma = 0.0624 committed to configs/base.yaml    [ID: D18, CP21, T04, DL-120]
+Date:            2026-10-16        Author:
+Decision:        noise.sigma = 0.0624 in configs/base.yaml (was null). This is option (a) of DL-120: the match to the plan's single baseline run (network seed 0, N = 1e4, P2 start state of ref_devalle). The fitted value was 0.06239; the owner's ruling is the rounded 0.0624 (0.02 percent above the fit, far inside the mean-field seed spread of 3.6 percent). 0.5 sigma and 2 sigma are derived by noise.sigma_factor, not calibrated. Units: v-units per sqrt(tau), the dv = f dt + sigma dW convention of DL-072, UNVERIFIED.
+Recorded:        (1) The 10-seed network mean target (option (b), sigma 0.06190, network std 0.038522 +/- 0.000322 seed-to-seed sd) differs from the committed value by 0.8 percent (committed value 0.8 percent above it). (2) The DL-120 mean-field check (std of v 0.038852 at sigma 0.06239, +0.07 percent against seed 0) is nearly circular: it uses the same quantity as the fit. It confirms linearity and the seed noise, not the value. (3) The independent check of sigma is S8 at MS10 (CP21); sigma stays UNVERIFIED until then. The matching rule (sample std ddof 1 of the 1 ms v series over 5 s; mean-field std linear in sigma) is ours, UNVERIFIED (DL-120).
+Changed:         configs/base.yaml noise.sigma null -> 0.0624. The pinned base-config hash in tests/test_config.py (BASE_HASH) changes with it, deliberately: 12eab64876ba... -> 754230ce4ee3... . configs/timing/mode_n.yaml keeps its timing-only placeholder sigma 1e-3 (timing does not depend on sigma; scripts/time_one_run.py still flags it as not calibrated). configs/sigma_mf.yaml and sigma_net.yaml are unchanged (calibration inputs).
+Reason:          instruction of the project owner after DL-120; 5i/5h of docs/ms5_plan.md.
+Options:         -
+Chosen:          as above   Default from: owner ruling on DL-120 option (a)
+Test:            fast suite green with the BASE_HASH update (see DL-122 for the final count).
+Status:          done
+Commit/tag:      the commit that adds this entry

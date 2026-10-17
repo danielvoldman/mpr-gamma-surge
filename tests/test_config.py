@@ -214,7 +214,7 @@ def test_param_table_lists_every_resolved_key():
 
 # --- DL-085 item 3: baseline_s and J0 consistency -------------------------------
 
-BASE_HASH = "12eab64876baaad6e02bb512422355c8394bf69a9a7c4f174952a56c9ea4c750"
+BASE_HASH = "754230ce4ee31e56274b04e8d2ac2f74500b6287bdaa2288cce6c2ea9980da62"
 
 
 def test_consistent_base_config_keeps_its_hash():
