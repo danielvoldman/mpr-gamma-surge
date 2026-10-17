@@ -170,7 +170,9 @@ def make_run_record(cfg: dict, env: dict, *, name: str, status: str, message: st
     crit_sha = None
     if crit is not None:
         p = Path(crit) if Path(crit).is_absolute() else repo_root() / crit
-        crit_sha = sha256_file(p) if p.exists() else None
+        from .criteria import is_frozen_criteria_path, lf_sha256     # late import: criteria imports config
+        if p.exists():     # the frozen file is hashed as LF text (DL-084, DL-164); the other criteria files as bytes
+            crit_sha = lf_sha256(p.read_bytes()) if is_frozen_criteria_path(crit) else sha256_file(p)
     return {
         "schema_version": SCHEMA_VERSION, "status": status, "message": message,
         "dry_run": dry_run, "name": name, "config": cfg, "config_hash": full,

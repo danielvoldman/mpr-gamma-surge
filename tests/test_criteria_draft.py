@@ -137,14 +137,18 @@ def test_d8_choice_a_with_known_limitation(crit):
     assert re.search(r"2 SE", d8["value"])
 
 
-def test_no_config_points_at_the_draft_yet():
-    """Repointing is a sheet row (H-2): run_a4 reads the K tolerances from robustness.criteria_file (A4 keeps replication.yaml);
-    S5 inherits null from base.yaml."""
+RAMP_RUN_CONFIGS = {"S5_ramp.yaml"}       # H-2 at MS8 (8a, DL-165): only ramp-run configs name the frozen file
+
+
+def test_only_ramp_run_configs_point_at_the_frozen_file():
+    """H-2: run_a4 reads the K tolerances from robustness.criteria_file (A4 keeps replication.yaml); S5.yaml inherits null from
+    base.yaml; from MS8 the ramp-run configs name configs/robustness_criteria.yaml (the runner then verifies the freeze)."""
     a4 = yaml.safe_load((C.repo_root() / "configs/A4.yaml").read_text(encoding="utf8"))
     assert a4["robustness"]["criteria_file"] == "configs/replication.yaml"
-    for p in sorted((C.repo_root() / "configs").glob("*.yaml")):
-        if p.name != "robustness_criteria.yaml":
-            assert "criteria_file: configs/robustness_criteria.yaml" not in p.read_text(encoding="utf8"), p.name
+    named = {p.name for p in sorted((C.repo_root() / "configs").glob("*.yaml"))
+             if p.name != "robustness_criteria.yaml"
+             and "criteria_file: configs/robustness_criteria.yaml" in p.read_text(encoding="utf8")}
+    assert named == RAMP_RUN_CONFIGS
 
 
 def test_open_rows_after_dl161_only_m4_is_open(crit):

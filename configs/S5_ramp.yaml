@@ -1,0 +1,10 @@
+# S5 ramp-run config (plan Table 6.2 S5; MS8 8a, sheet row H-2, DL-165). Ramp runs name the FROZEN criteria file: the runner refuses to
+# start unless the tag criteria-frozen verifies (src/mprsurge/criteria.py: tag present, SHA-256 of the LF text equal to the tag message,
+# no hashed file dirty). robustness.criteria_file is not part of the config hash, so S5.yaml, the timing cells and every stored
+# hash are unchanged. A4 and the S1/S2 configs stay on configs/replication.yaml (H-2).
+# Values are the headline cell as in configs/S5.yaml (D40: P2, ref_devalle, T_ramp 120 s, linear, I = 0, mode D, DOP853 rtol 1e-10).
+# Sweeps, profiles, start distances, noise seeds and spawn keys are not set here: they are the 8b to 8d decisions (docs/ms8_plan.md).
+run:        {id: S5ramp, kind: mf, workers: 1}
+model:      {ref_point: ref_devalle}
+path:       {name: path_hypoxia, profile: linear, T_ramp_s: 120.0, eta_H: 2.8960461989737856}
+robustness: {criteria_file: configs/robustness_criteria.yaml}

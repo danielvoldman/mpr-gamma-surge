@@ -29,6 +29,7 @@ from pathlib import Path
 import numpy as np
 
 from . import config as C
+from . import criteria as CR
 from . import provenance as P
 from .errors import RunTimeout  # noqa: F401  (re-exported for tasks and tests)
 from .params import make_param_table, param_table_markdown
@@ -105,6 +106,7 @@ def build_plan(config_arg: str, sets=(), workers: int | None = None) -> Plan:
     if workers is not None:
         ov["run.workers"] = workers
     cfg0 = C.resolve_config(path, ov)
+    CR.require_frozen_for_config(cfg0)      # MS8 8a: a config that names the frozen criteria runs only if the freeze verifies
     axes = _axes(cfg0)
     noisy = cfg0["run"]["kind"] in ("mf_noisy", "network", "s4_net")   # seeded kinds: one cell per seed
     combos = list(itertools.product(*[v for _, v in axes])) or [()]
