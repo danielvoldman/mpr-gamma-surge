@@ -46,6 +46,8 @@ MS6 plan, written before any MS6 code. Binding source: `docs/plan.md` (Table 11.
 | 6g (G2 evaluation and D40 check) | `scripts/run_G2.py` (analysis only) or a section of the gate report; no new model code | test where code exists | 4.3 G2, Table 11.2, 7.2 D40, F1 rule | G2 (a), (b), (c) each stated as a metric from A4 to A6 with the plan's wording; (c) per D22 default "not rejected" (open item 1). D40: headline P2 frequency along the path from A6 against 25 Hz; confirm or propose re-selection (logged). The decision to confirm or to move to M4 is the owner's; nothing is changed by Claude. |
 | 6h (review, gate report) | `docs/ms6_gate_report.md`; fresh-context review of the MS6 diff (real gaps only) as 2f to 5j | none | Table 11.1 MS6 | Report: A5 vs S4 table, K7 amplitude half, K10 recheck, G2 metrics, D40 evidence, UNVERIFIED items per row, carried forward. Verdict line. Then stop; MS7 not started. No tag. |
 
+**Addition to the S4 row (DL-126 D-2, UNVERIFIED design, not in plan 6.2):** mean-field tau_d sweep at ref_ceni (eta 1, J -20, Delta 0.05), tau_d = 4.0, 4.3, 4.5, 4.7, 4.9, 5.1, 6.0 ms up then down (14 steps), state carried, 20 s per step with the last 5 s read, run in 6c as a family of `mf` steps or the `s4` kind (decide in 6c, log). Five points fall in the K7 fit window (0.1 to 1.0 ms above 4.1209 ms); 4.0 ms is below the Hopf point. Same 2 percent amplitude rule against A5, exclusion within one step (0.3 ms grid step at the window edge: UNVERIFIED, stated in 6c). About 28,000 tau, a few minutes.
+
 Order: 6a, 6b, 6c (6b and 6c are independent), 6d, 6e, 6f (6f needs 6b only), 6g, 6h. A failure at 6b (supercritical not confirmed, Hopf points differ from A4) is reported before 6c.
 
 ## Run-time expectations (DL-102 to DL-122)
