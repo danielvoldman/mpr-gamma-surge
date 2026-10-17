@@ -1682,3 +1682,13 @@ Chosen:          as above   Default from: DL-136 pre-registration
 Test:            fast suite 311 passed, 1 xfailed (304 + 7 new tests in tests/test_estimator_study.py).
 Status:          done (7b); acceptance numbers not met; stopped for an owner ruling before 7c.
 Commit/tag:      study code b0c33af; the commit that adds this entry; no tag
+
+## DL-138  MS7 7c: A_ref "envelope-scale" level is not fully defined by D-1; candidate readings listed, none chosen    [ID: D7, F-1, DL-126, DL-136]
+Date:            2026-10-17        Author:
+Decision:        No A_ref value stored and no code written. D-1 (DL-136) fixes the scale (the detector's own band-passed Hilbert envelope, same band 25 to 100 Hz and filter, Butterworth order 4 zero-phase) but not (1) the statistic that turns the envelope into one "level", and (2) the source waveform: results/A5/a5_cycles.npz holds only vmax, vmin, period (A_ref = 5.51136 peak-to-peak, record A5_0000_506cf5745380.json, kept as recorded value only), not a waveform. The stored ref_devalle limit-cycle time series is results/S3/devalle/devalle_0000_9e49def91dfc.npz (eta_bar 4, tau_d 5 ms, 1 kHz, 10 s; S3 peak-to-peak 5.5118 agrees with A5 5.5114). Read-only look, code SHA 7e75fbc, all UNVERIFIED readings. On that record (t >= 7 s; t >= 9 s in brackets), envelope within the cycle runs 1.027 to 3.299, so the statistic matters: median 2.169 (2.155); mean 2.185 (2.184); maximum 3.299; minimum 1.027; sqrt(2) x RMS of the mean-removed v 2.406 (2.409); half peak-to-peak 2.756 (not the detector scale). Resulting 0.1 x A_ref threshold: 0.215 (median) to 0.330 (max), against 0.551 for the literal value. Options for the owner: (a) median of the envelope over whole cycles (F-1(c); my recommendation: robust to the filter edge, matches "level"); (b) mean; (c) maximum; (d) the A5 branch point re-simulated as an exact periodic orbit (needs a run, not done). Edge handling (drop the first and last 1 s of the record) also needs confirming. Table 2.1 wording used only; plan, D8 fit start, 2-SE rule, strict xfail unchanged.
+Reason:          instruction of the project owner (stop if "envelope-scale" is ambiguous); 7c.
+Options:         (a) median, (b) mean, (c) max, (d) re-simulated orbit
+Chosen:          none; stopped for an owner ruling   Default from: none
+Test:            docs only; no tests added, no run.
+Status:          open; 7c blocked on this ruling
+Commit/tag:      the commit that adds this entry; no tag
