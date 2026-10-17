@@ -131,3 +131,13 @@ def test_no_key_starting_with_8_is_used_outside_the_proposal():
     for u in _key_prefixes_in_repo():
         if len(u) >= 2 and u[0] == 8:
             assert any(u[: len(p)] == p for p in pre), u
+
+
+def test_longest_first_schedule():
+    assert M.lpt_makespan([5, 4, 3, 3, 3], 2) == 10           # LPT gives 10 (the optimum is 9): a heuristic, not a bound
+    assert M.lpt_makespan([10], 4) == 10 and M.lpt_makespan([1.0] * 20, 10) == 2.0
+    cells = _cells(0.01)
+    w = M.run_walls(cells)
+    assert len(w["ms8_s5"]) == 105 + 130 and len(w["ms8_s13_headline"]) == 125
+    row = [r for r in M.predict(cells, 10) if r["id"] == "ms8_s5"][0]
+    assert row["prediction_s"] <= M.lpt_makespan(w["ms8_s5"], 10) <= row["sum_s"] / 10 + max(w["ms8_s5"])

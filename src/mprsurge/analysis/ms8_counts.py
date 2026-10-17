@@ -226,6 +226,35 @@ def predict(cells: dict, workers: int, opts=None) -> list[dict]:
     return rows
 
 
+def lpt_makespan(walls, workers: int) -> float:
+    """Wall time of a longest-first list schedule of independent runs on `workers` workers (the order recommended as M-12).
+    Arithmetic only: run walls are the per-run medians under load, so the result is a prediction, not a guarantee."""
+    import heapq
+    free = [0.0] * workers
+    heapq.heapify(free)
+    for w in sorted(walls, reverse=True):
+        heapq.heappush(free, heapq.heappop(free) + w)
+    return max(free)
+
+
+def run_walls(cells: dict, opts=None) -> dict:
+    """Predicted wall of every new run, by row id (mode D: tau x slowest candidate s/tau; Heun: steps x s/step; S13 DOP853/Radau
+    runs at the headline or Radau rate)."""
+    d, n, s13 = s5_mode_d_runs(opts), s5_mode_n_runs(opts), s13_headline_runs(opts)
+    w5 = [r["tau"] * _s_per_tau(cells[slowest(cells, RATE_CELLS[(r["path"], r["profile"])])]) if r["family"] != "S5_headline"
+          else r["tau"] * _s_per_tau(cells["headline"]) for r in d]
+    w5 += [heun_steps(r) * heun_s_per_step(cells, r["dt_tau"]) for r in n]
+    w13 = []
+    for r in s13:
+        if r["mode"] == "N":
+            w13.append(heun_steps(r) * heun_s_per_step(cells, r["dt_tau"]))
+        elif r["solver"] == "Radau":
+            w13.append(r["tau"] * _s_per_tau(cells[RADAU_CELL]))
+        else:
+            w13.append(r["tau"] * _s_per_tau(cells["headline"]))
+    return {"ms8_s5": w5, "ms8_s13_headline": w13}
+
+
 # --- disk and memory ---------------------------------------------------------------------
 
 ARRAYS_PER_RUN = 8           # t_ms, r, v, s, eta, J, Delta, I (simulate_mf._output), float64
@@ -272,6 +301,8 @@ def format_report(cells: dict, workers: int, opts=None, probe: dict | None = Non
                      f"  allowance {_fmt(row['allowance_s'])}  limit {_fmt(row['limit_s'])}  {row['verdict']}")
         for p in row["parts"]:
             lines.append(f"    {p['label']:44s} {p['runs']:4d} runs  cell {p['cell']:34s} sum {_fmt(p['sum_s']):>9s}  wall {_fmt(p['wall_s']):>9s}")
+        row_lpt = lpt_makespan(run_walls(cells, o)[row["id"]], workers)
+        lines.append(f"    longest-first schedule on {workers} workers: {_fmt(row_lpt)}")
         if row["parts_over_one_hour"]:
             lines.append(f"    PARTS OVER ONE HOUR (stop for a ruling): {row['parts_over_one_hour']}")
     lines.append("")
