@@ -1,0 +1,5 @@
+# 7c A_ref (DL-138 ruling, DL-139): computed from the stored S3 record at ref_devalle; no model run.
+run:      {id: AREF, kind: aref7c, workers: 1}
+model:    {type: M3, ref_point: ref_devalle, tau_ms: 10.0, tau_d_ms: 5.0}
+output:   {dir: results/A8/a_ref}
+seeds:    {root_seed: 20261008, spawn_key: [7, 3]}
