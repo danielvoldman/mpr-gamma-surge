@@ -45,6 +45,23 @@ MS8 plan, written before any MS8 ramp run. Binding source: `docs/plan.md` (Table
 | M-11 | **Storage per run** | The writer stores 8 float64 arrays at 1 kHz (t_ms, r, v, s, eta, J, Delta, I). (a) keep (measured size below); (b) float32 for r, v, s only; (c) drop s and the three path columns (recomputable from the config) | (a) if the measured total is a few GB; the plan's under 20 GB is not threatened | 8b |
 | M-12 | **Job order** | The runner runs cells in index order. With 10 workers the P5 1000 s runs (up to 49 min each under load, P5 sigmoid) should start first, or the makespan grows by the length of the last long run | longest first (a sort in the driver, no result change) | 8b |
 
+### Status of M-1 to M-12 (updated in 8c; rulings as recorded in DL-169; the table above is the 8a text and is not edited)
+
+- M-1: ruled (a), P2 noise at 13 T_ramp, linear, 10 seeds = 130 runs.
+- M-2: ruled, start distance {0.5, 1.5, 3} on P1, 13 T_ramp, linear only, 1.5 reused = 26 new runs.
+- M-3: NOT adopted (no extra headline start-distance runs); headline RB5 = delta0 ladder (S13) plus the P1 start-distance runs (S5).
+- M-4: ruled, floor = 3 levels x 4 Heun rungs x 10 seeds at delta0 1e-6 = 120 runs.
+- M-5: ruled, one Radau run, 120 s, rtol 1e-10.
+- M-6: ruled, S5 judged against the whole shared Table 9.1 row (57 min, limit 85.5 min).
+- M-7: ruled, null start distance stays out of the hash view; no stored hash moved (8b).
+- M-8: ruled, seed-key prefix in the runner (seeds.spawn_prefix); done in 8b.
+- M-9: confirmed, keys [8, 1, s] and [8, 2, l, s].
+- M-10: ruled with one departure of wording, coupled increments drawn at 5e-5 tau (DL-169); CONFIRMED by the reviewer in 8c (DL-173); stays on the list of method details to report in the paper.
+- M-11: ruled as recommended, 8 float64 arrays at 1 kHz kept.
+- M-12: ruled as recommended, longest first; for a multi-config list this needs one pooled launch (scripts/run_ms8_list.py, DL-173).
+
+Sub-step numbering note: the owner's 8c prompt runs the S5 ramp list; the 8c row below (A7 code, no run) and the 8d to 8g rows (separate headline, S13, deterministic grid and noise launches) are not followed as written for the S5 part. Whether the A7 code is a later sub-step is not decided here.
+
 ## Sub-steps
 
 One commit each; code is committed before it is run, so records show `dirty = false`. Before every run sub-step: the loader verifies the freeze, the launch rule of 9.2 is re-applied with the then-current sample, and a part projected over one hour stops for your ruling.

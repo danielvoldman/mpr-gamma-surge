@@ -341,14 +341,19 @@ def main(argv=None) -> int:
             h.close()
 
 
+def jobs_for(plan: Plan, env: dict, dry_run: bool) -> list[dict]:
+    """One job per cell of the plan, in plan order (also used by scripts/run_ms8_list.py to pool several plans)."""
+    task = TASKS[plan.cfg["run"]["kind"]]
+    return [{"index": c["index"], "name": c["name"], "hash12": c["hash12"], "cfg": c["cfg"],
+             "out_dir": str(plan.out_dir), "task": task, "env": env, "inputs": plan.inputs,
+             "dry_run": dry_run} for c in plan.cells]
+
+
 def _execute(plan: Plan, dry_run: bool, handlers, order_longest_first: bool = False) -> int:
     log = logging.getLogger(LOG_NAME)
     workers = plan.cfg["run"]["workers"]
-    env = P.environment_info()
+    jobs = jobs_for(plan, P.environment_info(), dry_run)
     task = TASKS[plan.cfg["run"]["kind"]]
-    jobs = [{"index": c["index"], "name": c["name"], "hash12": c["hash12"], "cfg": c["cfg"],
-             "out_dir": str(plan.out_dir), "task": task, "env": env, "inputs": plan.inputs,
-             "dry_run": dry_run} for c in plan.cells]
     if order_longest_first:
         jobs = longest_first(jobs)
     log.info("%s: %d cells, kind %s, workers %d%s", plan.family, len(jobs),
