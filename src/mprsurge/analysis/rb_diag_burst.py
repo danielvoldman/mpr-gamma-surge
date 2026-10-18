@@ -94,6 +94,12 @@ def seed_prediction(cfg, path, t, re, I, t_seed_s, amp, threshold, h):
             "eta_const_at_t_pred": bool(rate <= 1e-12)}
 
 
+def effective_seed(threshold, dI):
+    """Seed amplitude at t_on that reaches the threshold at the observed crossing given net gain dI = I(t_c) - I(t_on): threshold exp(-dI).
+    With threshold = 0.1 A_ref this is 0.1 x A_ref x exp(-integral of Re lambda from t_on to t_c)."""
+    return threshold * math.exp(-dI)
+
+
 def bit_equal_arrays(a, b):
     """Per-key np.array_equal of two npz dicts; (all equal, {key: bool}); keys must be the same set."""
     if set(a) != set(b):

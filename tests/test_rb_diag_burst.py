@@ -45,3 +45,10 @@ def test_bit_equal_arrays():
     ok, per = B.bit_equal_arrays(a, {"v": np.array([1.0, np.nextafter(2.0, 3.0)]), "t": a["t"]})
     assert not ok and per == {"t": True, "v": False}
     assert not B.bit_equal_arrays(a, {"v": a["v"]})[0]
+
+
+def test_effective_seed():
+    import math
+    assert B.effective_seed(0.217622, 0.0) == 0.217622
+    assert math.isclose(B.effective_seed(0.217622, math.log(10.0)), 0.0217622)
+    assert B.effective_seed(0.217622, -1.0) > 0.217622
