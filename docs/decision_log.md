@@ -2445,3 +2445,43 @@ Chosen:          -   Default from: DL-200
 Test:            numbers from results/A7/rb_diag_atol_seed.json (scripts/run_rb_diag_atol_seed.py); tests/test_rb_diag_burst.py (effective_seed).
 Status:          finding recorded. Reviewer to rule.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-203  MS8 8g: three reviewer rulings (diagnostics closed, P5 extrapolation stays UNVERIFIED, O12 to be defined with data)    [ID: MS8, 8g, RB3, RB6, O12, DL-189, DL-198, DL-201, DL-202]
+Date:            2026-10-18        Author:
+Decision:        Rulings of the reviewer (8g prompt, agreed by the user). (1) The diagnostics are closed by ruling. The 181 ms DOP853-vs-Radau onset difference is carried as unexplained (seed, burst, atol and ulp checks all negative: DL-192, DL-193, DL-198, DL-199, DL-201). The frozen RB6 solver clause stays a miss as literally read (DL-186 ruling 4, DL-189). No frozen criterion or evaluation rule changes. (2) The P5 1.778 s burst-seeded prediction (DL-202, extrapolated burst amplitude) stays labelled UNVERIFIED and is not cited as evidence. (3) O12 (post-surge rate, reported only) is defined at MS8 with data: the data and candidate definitions are presented in words, none is chosen, the reviewer is asked (DL-206). The frozen file still carries post_surge_rate: null, UNVERIFIED.
+Reason:          instruction of the reviewer (8g rulings 1 to 3).
+Options:         -
+Chosen:          as ruled   Default from: the 8g prompt
+Test:            -
+Status:          recorded. Not a change of a frozen criterion.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-204  MS8 8g: independent recomputation of the key RB numbers from the raw stored records agrees exactly    [ID: MS8, 8g, RB3, RB5, RB6, DL-182 to DL-186, DL-203]
+Date:            2026-10-18        Author:
+Decision:        none; no status changes. scripts/recompute_ms8_independent.py does not import rb_eval, rb_tables or a7; it reads the 360 npz/json records, surge_metrics (classifier, envelope, onset_delay), the A4 grid step 0.025 (configs/A4_grids.yaml, equal to the frozen value) and the threshold and solver floor from the tag blob. Exception, stated: t_pred and eta_pred for RB3(a) come from entry_exit (existing code; the eigenvalue integral is not in the npz series). Compared with rb_eval_ms8.json (96e9e51c...): 126 numbers and flags (headline, S13 rtol, delta0 and Radau onset/class/delay; RB3(b) medians at three floor levels, default rung, both onsets, and the strict-decrease flag; RB6 Heun relative change per level; RB3(c) classes at 56.23, 100, 177.8, 316.2 s and mode-N counts; RB3(a) in-range count, eta_pred, eta_const flags, the 6 testable errors in A4 steps (33.148, 20.598, 12.679, 7.567, 4.405, 25.066) and 6 of 6 outside one step; class counts per path and profile; P2 surge counts inside and outside 56 to 316 s): 126 agree exactly (bit-equal floats), 0 differ. Run-level cross-check against the stored parquet: 1800 fields (360 runs x class, onset, raw crossing, two delays), 0 differences. Output results/A7/recompute_ms8_independent.json sha256 4d91aab379c98c88f649802b9f38e59e41b849c33c47a029139c6360983cfd50. Test: tests/test_recompute_independent.py.
+Reason:          instruction of the reviewer (8g step 2).
+Options:         -
+Chosen:          -   Default from: the 8g prompt
+Test:            scripts/recompute_ms8_independent.py (run once, 47 s); tests/test_recompute_independent.py.
+Status:          done; no difference, no stop.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-205  MS8 8g: G6 evidence sheet written; no verdict    [ID: MS8, 8g, G6, RB3, RB5, RB6, DL-163, DL-186, DL-203, DL-204]
+Date:            2026-10-18        Author:
+Decision:        none. docs/ms8_g6_evidence.md, sections A (G6 row quoted exactly), B (items against the frozen bounds, status as the frozen text reads, reading, source and hash), C (findings), D (the eight 8f2 clarifications and where used), E (supplementary and exploratory items with labels), F (the four frozen departures and the MS8 evidence touching each), G (facts for each Fail clause). Facts and statuses only; no pass or fail for G6 as a whole; no frozen criterion or evaluation rule changed. The sheet states, not as a verdict, that Fail-clause facts are: class does not depend on solver, rtol or Heun step; floored delay does not depend on the Heun step at the 1 ms grid; noise-free onset depends on the method by 181 ms (unexplained); surge classes exist inside 56 to 316 s in both modes.
+Reason:          instruction of the reviewer (8g step 3).
+Options:         -
+Chosen:          -   Default from: the 8g prompt
+Test:            numbers traced to rb_eval_ms8.json and the recomputation (DL-204).
+Status:          done. Reviewer to rule.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-206  MS8 8g: O12 post-surge rate, data package and candidate definitions (UNVERIFIED); none chosen    [ID: MS8, 8g, O12, D9, DL-140, DL-157, DL-203]
+Date:            2026-10-18        Author:
+Decision:        none; stored data only (scripts/o12_data_package.py; results/A7/o12_data_package.json sha256 e59f7e64da73cc8a366362224ce9f2a5f3eef0cfb97bbbd8891095dafefe08a4; 157 P2-based S5 runs. J_exit,static is a working reading, UNVERIFIED (J at the last positive-to-non-positive crossing of the leading Re lambda along the path; headline -2.5303). Headline (P2 linear 120 s): J_exit,run -2.2930, exit delay +0.2373, baseline r0 0.08029, r at J_exit,run 0.5636, minimum after 0.5343, mean over 1 s after 0.6017, over 5 s after 0.6171, to run end 0.6735, last 1 s 0.7047; r never falls below 10 percent of baseline. Noise-free linear: 13 of 13 J_exit,run defined; sigmoid 12 of 13 (T_ramp 1 s D-none); mode N 116 of 130 (7 NS, 7 episodes unterminated); r falls below 10 percent of baseline in none of the 157 runs. In mode N, J_exit,run of the earliest episode lies at J0 (-21) in 70 of 116 runs (the episode ends before the J ramp starts) and at 0 in 4. Candidate definitions in words and the question are in the 8g report; none chosen.
+Reason:          instruction of the reviewer (8g step 4, ruling 3).
+Options:         (i) mean r over a fixed window after J_exit,run (1 s or 5 s); (ii) mean r from J_exit,run to the end of the run; (iii) mean r over the last second of the run (the last two are the DL-140 options).
+Chosen:          -   Default from: none (UNVERIFIED, reviewer to rule)
+Test:            -
+Status:          open, awaiting the reviewer.
+Commit/tag:      the commit that adds this entry; no tag
