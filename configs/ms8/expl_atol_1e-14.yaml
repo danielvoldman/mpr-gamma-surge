@@ -1,0 +1,9 @@
+# MS8 8f6 (DL-200): EXPLORATORY run, post-hoc, not in the pre-registered S5 list, not in S13, in no manifest used by rb_eval.
+# Headline cell of configs/S5_ramp.yaml (P2, ref_devalle, T_ramp 120 s, linear, I = 0, noise-free DOP853 rtol 1e-10, delta0 1e-6) with ONLY
+# solver.atol set to 1e-14. This atol value is the reviewer's diagnostic choice, NOT a plan value (the default 1e-12 is the existing headline run).
+# Feeds no gate; no criterion changed.
+run:        {id: expl_atol, kind: mf, workers: 1}
+model:      {ref_point: ref_devalle}
+path:       {name: path_hypoxia, profile: linear, T_ramp_s: 120.0, eta_H: 2.8960461989737856}
+solver:     {atol: 1e-14}
+robustness: {criteria_file: configs/robustness_criteria.yaml}
