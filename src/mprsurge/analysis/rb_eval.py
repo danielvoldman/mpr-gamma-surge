@@ -6,6 +6,9 @@ It makes no G6 statement. Where the frozen file does not state a rule, every ava
 the label UNVERIFIED; nothing here chooses between them. Two onsets are carried everywhere: "class" (the classifier episode onset,
 column delay_eta, the A7 delay column) and "cross" (the raw first envelope crossing, column delay_eta_cross).
 
+8f2 (DL-186): the reviewer's rulings are applied as labelled primary readings ("primary" keys, RULINGS_8F2); every other reading stays beside
+them, labelled. No stored number changes. Rulings are clarifications of rules the frozen file does not state, not changes of a criterion.
+
 Statuses: MEETS / DOES NOT MEET are against a bound the frozen file states; REPORTED where the frozen file asks for a report only;
 NOT JUDGED where the frozen file says so; UNDETERMINED where the bound exists but a rule needed to apply it is not in the frozen file.
 """
@@ -23,6 +26,18 @@ ONSET_TIME = {"class": "onset_s", "cross": "onset_cross_s"}
 FAMILIES_DET = ("p1_linear", "p1_sigmoid", "p2_linear", "p2_sigmoid", "p5_linear", "p5_sigmoid")
 SURGE_MODE_D = ("D-tr",)
 SURGE_MODE_N = ("S+", "S-rel", "S-abs")
+PRIMARY_ONSET = "cross"        # ruling 1: raw first crossing of 0.1 x A_ref is the primary onset for RB3(b) and RB6 delays
+
+RULINGS_8F2 = {
+    "1": "RB3(b) and RB6 delays: the raw first-crossing onset (envelope first reaching 0.1 x A_ref) is primary (A7 defines the onset to compare as the time the amplitude reaches 0.1 x A_ref; RB3(a) names the threshold-crossing onset). The classifier-onset reading is kept, labelled, with its verdict. The paper reports both.",
+    "2": "RB3(a): judge the testable in-range runs only; all must be within one A4 step (the plan gives no fraction). For runs where eta is constant at t_pred: time errors in seconds, no verdict.",
+    "3": "P1 linear start distance 0.5 has 5 in-range T_ramp against the frozen statement '0 to 2 of 13' (that statement was reasoned at start distance 1.5).",
+    "4": "RB6 DOP853 vs Radau: the frozen text is applied literally (a difference above 1 ms is a miss). Diagnosis first; any amendment is a new departure the user must agree.",
+    "5": "RB3(c): the gating input is the headline path (P2 linear, noise-free) at 56.23, 100, 177.8, 316.2 s against the headline class. Readings A and B stay beside it as information.",
+    "6": "RB3(d) and RB5: reported per path and per T_ramp. No pooled verdict.",
+    "7": "RB6 Heun exact 0 is a limit of the 1 ms output grid, not extra evidence.",
+    "8": "Floor-run delays are signed (negative = onset advance). The sign is kept everywhere.",
+}
 
 
 def frozen_values(root=None):
@@ -90,11 +105,19 @@ def rb3a(df, fv):
             "class": r.cls, "eta_pred": _num(r.eta_pred), "eta_onset_cross": _num(r.eta_onset_cross), "eta_onset_class": _num(r.eta_onset),
             "match_err_steps_cross": _num(r.match_err_steps), "match_err_steps_class": _num(r.match_err_steps_cls),
             "eta_const_at_t_pred": bool(r.eta_const_at_t_pred), "within_one_step_cross": bool(r.match_err_steps <= 1.0),
+            "eta_err_cross_signed": None if pd.isna(r.eta_onset_cross) else float(r.eta_onset_cross - r.eta_pred),
+            "time_err_cross_s_signed": _num(r.onset_cross_minus_t_pred_s), "t_pred_s": _num(r.t_pred_s), "onset_cross_s": _num(r.onset_cross_s),
             "within_one_step_class": None if pd.isna(r.match_err_steps_cls) else bool(r.match_err_steps_cls <= 1.0)})
     testable = [x for x in runs if not x["eta_const_at_t_pred"]]
     grp = {}
     for x in runs:
         grp.setdefault((x["path"], x["profile"], x["start_distance"]), []).append(x["T_ramp_s"])
+    primary = {"ruling": "2", "judged": "the testable in-range runs, onset = raw first crossing, tolerance one A4 grid step, all must be within",
+               "n_judged": len(testable), "n_within_one_step": sum(x["within_one_step_cross"] for x in testable),
+               "status": "MEETS" if all(x["within_one_step_cross"] for x in testable) else "DOES NOT MEET",
+               "constant_eta_runs_no_verdict": [{"family": x["family"], "T_ramp_s": x["T_ramp_s"], "start_distance": x["start_distance"],
+                                                 "time_err_cross_s_signed": x["time_err_cross_s_signed"], "eta_err_cross_signed": x["eta_err_cross_signed"],
+                                                 "verdict": None} for x in runs if x["eta_const_at_t_pred"]]}
     allgrp = det.groupby(["path", "profile", "start_distance"]).size()
     coverage = []
     for (p, pr, sd), n_total in allgrp.items():
@@ -103,7 +126,7 @@ def rb3a(df, fv):
                          "in_range_T_ramp_s": sorted(grp.get((p, pr, float(sd)), [])), "above_2": n_in > 2})
     head = det[det.family == "S5ramp"].iloc[0]
     return {
-        "n_in_range": len(runs), "runs": runs,
+        "n_in_range": len(runs), "primary": primary, "runs": runs,
         "tolerance_steps": 1.0, "tolerance_source": f"frozen RB3.a_onset_tol: {fv['a_onset_tol_text']}; A4 grid step {fv['grid_step']}",
         "n_testable": len(testable), "n_eta_const_trivial": len(runs) - len(testable),
         "pass_counts": {
@@ -164,6 +187,9 @@ def rb3b(df, fv):
         res["by_onset"][on]["_verdicts_seen"] = sorted(str(s) for s in vs)
     res["status_by_onset"] = {on: _status_b(res["by_onset"][on]) for on in ONSETS}
     res["verdict_flips_between_onsets"] = res["status_by_onset"]["class"] != res["status_by_onset"]["cross"]
+    res["primary"] = {"ruling": "1", "onset": PRIMARY_ONSET, "status": res["status_by_onset"][PRIMARY_ONSET],
+                      "secondary": {"onset": "class", "status": res["status_by_onset"]["class"], "label": "classifier-onset reading, reported with its verdict"},
+                      "delay_sign": "signed, negative = onset advance (ruling 8)"}
     return res
 
 
@@ -205,6 +231,10 @@ def rb6_heun(df, fv):
         out["intermediate_rungs_rel_change_vs_default"][on] = rr
     out["status_by_onset"] = {on: ("MEETS" if all(r["status"] == "MEETS" for r in out["by_onset"][on]) else "DOES NOT MEET") for on in ONSETS}
     out["verdict_flips_between_onsets"] = out["status_by_onset"]["class"] != out["status_by_onset"]["cross"]
+    out["primary"] = {"ruling": "1", "onset": PRIMARY_ONSET, "status": out["status_by_onset"][PRIMARY_ONSET],
+                      "secondary": {"onset": "class", "status": out["status_by_onset"]["class"], "label": "classifier-onset reading"},
+                      "note_ruling_7": "an exact 0 relative change is a limit of the 1 ms output grid, not extra evidence; see the resolution check (rb_diag)",
+                      "delay_sign": "signed, negative = onset advance (ruling 8); rel_change uses |median_default| as denominator"}
     return out
 
 
@@ -234,6 +264,7 @@ def rb6_solvers(df, fv):
                             "output_sample_interval_ms": 1.0},
     }
     d = out["dop853_vs_radau"]
+    d["ruling_4"] = "frozen text applied literally: a difference above the bound is DOES NOT MEET; diagnosis in rb_diag; any amendment is a new departure for the user"
     d["status"] = ("MEETS" if d["class_agree"] and abs(d["onset_diff_ms_class"]) <= fv["solver_onset_ms"] and abs(d["onset_diff_ms_cross"]) <= fv["solver_onset_ms"]
                    else "DOES NOT MEET")
     return out
@@ -254,6 +285,10 @@ def rb3c(df, fv):
         res["by_family"][fam] = {"T_ramp_s": fv["c_T_ramp_s"], "classes": cl, "A_all_equal_headline": bool(all(c == head for c in cl)),
                                  "B_all_four_equal": bool(len(set(cl)) == 1), "n_equal_headline": int(sum(c == head for c in cl))}
     res["C_P2_linear"] = res["by_family"]["p2_linear"]["A_all_equal_headline"]
+    pl = res["by_family"]["p2_linear"]
+    res["primary"] = {"ruling": "5", "gating_input": "P2 linear, noise-free (the headline path) at the four T_ramp against the headline class",
+                      "T_ramp_s": pl["T_ramp_s"], "classes": pl["classes"], "n_equal_headline": pl["n_equal_headline"],
+                      "status": "MEETS" if pl["A_all_equal_headline"] else "DOES NOT MEET", "A_and_B_below": "information only"}
     res["summary"] = {"A": {f: v["A_all_equal_headline"] for f, v in res["by_family"].items()},
                       "B": {f: v["B_all_four_equal"] for f, v in res["by_family"].items()}, "C": res["C_P2_linear"]}
     noise = {}
@@ -269,15 +304,13 @@ def rb3d(df, fv):
                    "(Table 11.2 G6)", "bound": fv["d_max_changes"],
            "UNVERIFIED": "how the three paths aggregate (per path, sum over paths, or P2 only) is not in the frozen file; per-path counts are given",
            "by_path": {}}
-    tot = 0
     for p, (lin, sig) in {"P1": ("p1_linear", "p1_sigmoid"), "P2": ("p2_linear", "p2_sigmoid"), "P5": ("p5_linear", "p5_sigmoid")}.items():
         cl_l = [_cls_at(df, lin, T) for T in fv["d_T_ramp_s"]]
         cl_s = [_cls_at(df, sig, T) for T in fv["d_T_ramp_s"]]
         n = sum(a != b for a, b in zip(cl_l, cl_s))
-        tot += n
-        res["by_path"][p] = {"T_ramp_s": fv["d_T_ramp_s"], "linear": cl_l, "sigmoid": cl_s, "n_class_changes": int(n), "within_bound": bool(n <= fv["d_max_changes"])}
-    res["sum_over_paths"] = int(tot)
-    res["status"] = "REPORTED (not gated)"
+        res["by_path"][p] = {"T_ramp_s": fv["d_T_ramp_s"], "linear": cl_l, "sigmoid": cl_s, "n_class_changes": int(n), "within_bound": bool(n <= fv["d_max_changes"]),
+                             "changed_at_T_ramp_s": [T for T, a, b in zip(fv["d_T_ramp_s"], cl_l, cl_s) if a != b]}
+    res["status"] = "REPORTED per path and per T_ramp (ruling 6); no pooled verdict, no sum over paths"
     return res
 
 
@@ -315,8 +348,8 @@ def rb5(df, fv):
     sd = {"rows": sd_rows, "n_T_ramp": len(sd_rows), "n_class_changes": int(sum(not c["class_unchanged"] for c in sd_rows)),
           "T_ramp_with_change_s": [c["T_ramp_s"] for c in sd_rows if not c["class_unchanged"]],
           "UNVERIFIED": "how the 13 T_ramp aggregate into 'class unchanged' is not in the frozen file: per-T_ramp results are given",
-          "status": "MEETS at every T_ramp" if all(c["class_unchanged"] for c in sd_rows) else "DOES NOT MEET at some T_ramp (count given)"}
-    return {"rule": "frozen RB5.criterion: class unchanged; delay shifts reported (G6 reports it, does not gate it)", "delta0_headline": delta,
+          "status": "REPORTED per T_ramp (ruling 6); no pooled verdict"}
+    return {"ruling": "6", "rule": "frozen RB5.criterion: class unchanged; delay shifts reported (G6 reports it, does not gate it)", "delta0_headline": delta,
             "start_distance_P1_linear": sd}
 
 
@@ -385,5 +418,5 @@ def no_t_pred_split(df, fi, records):
 
 
 def evaluate(df, fv):
-    return {"frozen_inputs": fv, "no_t_pred": no_t_pred(df), "RB3a": rb3a(df, fv), "RB3b": rb3b(df, fv), "RB3c": rb3c(df, fv), "RB3d": rb3d(df, fv),
+    return {"rulings_8f2": RULINGS_8F2, "frozen_inputs": fv, "no_t_pred": no_t_pred(df), "RB3a": rb3a(df, fv), "RB3b": rb3b(df, fv), "RB3c": rb3c(df, fv), "RB3d": rb3d(df, fv),
             "RB5": rb5(df, fv), "RB6_heun": rb6_heun(df, fv), "RB6_solvers": rb6_solvers(df, fv), "P2_surge_class_counts": p2_surge_counts(df, fv)}

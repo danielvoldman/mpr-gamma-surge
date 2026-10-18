@@ -51,7 +51,8 @@ def test_rb3d_counts_class_changes_per_path():
         rows += [{"family": fam, "T_ramp_s": T, "cls": c} for T, c in zip(FV["d_T_ramp_s"], cls)]
     r = R.rb3d(pd.DataFrame(rows), FV)
     assert {p: v["n_class_changes"] for p, v in r["by_path"].items()} == {"P1": 2, "P2": 0, "P5": 0}
-    assert r["by_path"]["P1"]["within_bound"] is False and r["sum_over_paths"] == 2
+    assert r["by_path"]["P1"]["within_bound"] is False and "sum_over_paths" not in r
+    assert r["by_path"]["P1"]["changed_at_T_ramp_s"] == [56.23, 177.8]
 
 
 def test_p2_surge_counts_window_membership():
@@ -59,3 +60,26 @@ def test_p2_surge_counts_window_membership():
     out = R.p2_surge_counts(pd.DataFrame(rows), FV)["rows"]["mode D, P2 linear"]
     assert (out["n_surge_inside_window"], out["n_runs_inside_window"], out["n_surge_outside_window"], out["n_runs_outside_window"]) == (1, 1, 2, 3)
     assert out["T_ramp_with_no_surge_run"] == [1.0]
+
+
+def test_primary_readings_follow_rulings():
+    r = R.rb3b(floor_df([-1.5, -1.5, -1.0], cross=[-0.001, -0.04, -0.1]), FV)
+    assert r["primary"]["onset"] == "cross" and r["primary"]["status"] == "MEETS" and r["primary"]["secondary"]["status"] == "DOES NOT MEET"
+    h = R.rb6_heun(floor_df([-1.0, -2.0, -3.0]), FV)
+    assert h["primary"]["onset"] == "cross" and h["primary"]["status"] == "MEETS"
+    assert R.RULINGS_8F2.keys() == {str(i) for i in range(1, 9)}
+
+
+def test_rb3a_primary_judges_testable_only_and_keeps_signed_time_errors():
+    rows = [{"list": "S5", "mode": "D", "in_range": True, "family": "p1_linear", "path": "P1", "profile": "linear", "start_distance": 1.5, "T_ramp_s": T,
+             "cls": "D-sus", "eta_pred": 1.0, "eta_onset_cross": 1.0 + e, "eta_onset": float("nan"), "match_err_steps": abs(e) / 0.025,
+             "match_err_steps_cls": float("nan"), "eta_const_at_t_pred": c, "onset_cross_minus_t_pred_s": ts, "t_pred_s": 10.0, "onset_cross_s": 10.0 + ts}
+            for T, e, c, ts in ((1.0, 0.01, False, -0.5), (2.0, 0.0, True, 3.0), (3.0, 0.05, False, 0.7))]
+    rows.append({"list": "S5", "mode": "D", "in_range": False, "family": "S5ramp", "path": "P2", "profile": "linear", "start_distance": 1.5, "T_ramp_s": 120.0,
+                 "cls": "D-tr", "eta_pred": 1.0, "eta_onset_cross": 1.0, "eta_onset": 1.0, "match_err_steps": 0.0, "match_err_steps_cls": 0.0, "eta_const_at_t_pred": False,
+                 "onset_cross_minus_t_pred_s": 0.0, "t_pred_s": 1.0, "onset_cross_s": 1.0, "I_min": 0.0})
+    df = pd.DataFrame(rows)
+    fv = FV | {"grid_step": 0.025, "a_onset_tol_text": "one step", "coverage_text": "0 to 2 of 13"}
+    a = R.rb3a(df, fv)["primary"]
+    assert (a["n_judged"], a["n_within_one_step"], a["status"]) == (2, 1, "DOES NOT MEET")
+    assert a["constant_eta_runs_no_verdict"][0]["time_err_cross_s_signed"] == 3.0 and a["constant_eta_runs_no_verdict"][0]["verdict"] is None
