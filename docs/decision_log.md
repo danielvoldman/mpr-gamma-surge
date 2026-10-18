@@ -2358,3 +2358,13 @@ Chosen:          -   Default from: the 8f4 prompt
 Test:            tests/test_supp_startdist_configs.py (headline hash 240de3ef73be unchanged; the new configs differ from the headline only in path.start_distance and the keys derived from it).
 Status:          rulings recorded; runs follow (results in the next entry).
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-195  MS8 8f4: supplementary start-distance runs, result; rb_diag_startdist.json sha256    [ID: MS8, 8f4, RB5, DL-194]
+Date:            2026-10-18        Author:
+Decision:        none; supplementary reading, no gate, no G6 verdict. Runs (DL-194) at git 813421b, git dirty = false, 104.9 s and 100.4 s: start distance 0.5 config hash 81507c04abe6, start distance 3 hash ae1357b49c9f; config file sha256 ad2ea4e2... (d0p5), d9e4c2b6... (d3). Headline (1.5, 240de3ef73be) / 0.5 / 3, T_ramp 120 s, linear, mode D: class D-tr / D-tr / D-tr (provisional, D8 open). Raw first-crossing onset 58.698 / 37.260 / 75.448 s; eta at onset 2.962238 / 3.068130 / 2.831380; delay (eta_on - eta_H, signed) +0.066192 / +0.172083 / -0.064667; delay shift against the headline 0 / +0.105892 / -0.130858 (classifier onset equals the raw crossing in all three); duration 83.200 / 104.639 / 66.449 s; peak power (abs) 3.8724 / 3.9987 / 3.7217; f_pk 49 / 49 / 49 Hz. A7 code: t_pred 115.225 s (in run, in_range false) / 52.823 s (in run, in_range false) / no t_pred (the entry-exit integral never reaches the threshold; I_min -3786.7); onset minus t_pred -56.5 s / -15.6 s / -. RB5 text as frozen, "class unchanged; delay shifts are reported": class unchanged at both other start distances; delay shifts +0.1059 (0.5) and -0.1309 (3) in eta units. File results/A7/rb_diag_startdist.json (new; rb_eval_ms8.json 96e9e51c..., rb_diag_ms8.json 3fb10f13..., rb_diag_exploratory.json 8a388a55... unchanged) sha256 e16808ccad9949b6572ceb8c0fe9a9e3aa29a9eaa9893783f28ece25ee2fadd5.
+Reason:          instruction of the reviewer (8f4 step 6).
+Options:         -
+Chosen:          -   Default from: DL-194
+Test:            tests/test_supp_startdist_configs.py; numbers from results/A7/rb_diag_startdist.json (scripts/run_rb_diag_startdist.py).
+Status:          finding recorded. Reviewer to rule.
+Commit/tag:      the commit that adds this entry; no tag
