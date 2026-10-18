@@ -45,7 +45,7 @@ def base_report(jp, thr):
     i_on = int(round(cfg["path"]["t_on_s"] * fs))
     hit = np.flatnonzero(env[i_on:] >= thr)
     ic = int(i_on + hit[0]) if hit.size else None
-    onset = float(t_s[ic]) if ic is not None else None
+    onset = float(ic / fs) if ic is not None else None       # as a7.first_crossing
     path = ramps.make_path(cfg)
     bps = B.breakpoints_s(path, tau)
     segs = B.classify_segments(B.segments(env, t_s), onset if onset is not None else math.inf, bps)
@@ -57,9 +57,14 @@ def seg_view(s):
 
 
 def kink_table(b):
-    """Per breakpoint: the segment containing it (view) or None; plus segments with no breakpoint inside."""
-    per = [{"breakpoint_s": x, "segment": seg_view(B.segment_at(b["segs"], x))} for x in b["bps"]]
-    orphan = [seg_view(s) for s in b["segs"] if s["kind"] != "post" and not s["breakpoints_inside_s"]]
+    """Per breakpoint: the segment containing it (view) or None, the peak times T_ramp for a lone pre-onset burst; plus segments with no breakpoint inside."""
+    T = float(b["cfg"]["path"]["T_ramp_s"])
+    per = []
+    for x in b["bps"]:
+        sg = B.segment_at(b["segs"], x)
+        lone = sg is not None and sg["kind"] == "pre" and len(sg["breakpoints_inside_s"]) == 1
+        per.append({"breakpoint_s": x, "segment": seg_view(sg), "lone_pre_onset_burst": lone, "peak_times_T_ramp_s": sg["peak"] * T if lone else None})
+    orphan = [seg_view(s) for s in b["segs"] if s["kind"] == "pre" and not s["breakpoints_inside_s"]]      # pre-onset bursts at no breakpoint
     return per, orphan
 
 
@@ -71,7 +76,7 @@ def family_rows(files, thr, parquet):
         per, orphan = kink_table(b)
         p = b["cfg"]["path"]
         row = {"run_id": jp.stem, "family": jp.parent.name, "T_ramp_s": float(p["T_ramp_s"]), "profile": p["profile"], "t_on_s": float(p["t_on_s"]),
-               "onset_cross_s": b["onset"], "breakpoints_s": b["bps"], "by_breakpoint": per, "pre_or_growth_segments_without_breakpoint": orphan}
+               "onset_cross_s": b["onset"], "growth_segment": seg_view(next((q for q in b["segs"] if q["kind"] == "growth"), None)), "breakpoints_s": b["bps"], "by_breakpoint": per, "pre_onset_segments_without_breakpoint": orphan}
         if p["name"] == "path_hypoxia":
             row["J_start_expected_s"] = float(p["t_on_s"] + p["J_lag_frac"] * p["T_ramp_s"])
         if parquet is not None and jp.stem in parquet.index:
