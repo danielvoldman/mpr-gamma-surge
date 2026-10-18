@@ -126,3 +126,24 @@ Other readings (S5 row, same method): noise at the headline only 50.0 min; noise
 7. **Reported limitations that act on MS8 results:** every D8-dependent class is provisional; short-window false surges per W; sigma 0.0624 UNVERIFIED until S8 at MS10; the A_ref reading (a), 2.1762; the four gate departures.
 8. **Defender exclusion.** User-reported only (closed by the user at 7h, `docs/ms7_signoff.md`); affects wall times and the file-writing share of the 360 files. Noted in each timing figure.
 9. **Tags and pushes.** None. The tag `criteria-frozen` is local only; no remote exists.
+
+## 8e: A7 quantity-to-source mapping (written before coding; DL-179)
+
+Binding text: plan 5.2 A7 (Inputs and method, Expected, Check), Table 2.1 (Metrics row, thresholds), Table 7.2 RB3(a), CP25, SC-01, SC-02. "Frozen" = `configs/robustness_criteria.yaml` read from the tag blob, or the three frozen secondary files. Reused = existing code, not re-tuned.
+
+| Quantity | Source | Status |
+|---|---|---|
+| run id, config hash, path, profile, T_ramp, delta0, solver, rtol, Heun dt, coupling dt, sigma, spawn key, start distance | the stored record JSON (`config`, `config_hash`) | given |
+| class, onset time, duration, cycles, terminated, f_pk, peak absolute power (`peak_p_g`), peak relative power (`peak_rho`) | `surge_metrics.classify_mode_d` (kind `mf`) / `classify_mode_n` (kind `mf_noisy`), threshold 0.217622 and A_ref 2.176222 from the frozen file, defaults of the classifier, D8 estimator `PLAN_D8` | reused; S13 floor runs (Heun) go to mode N by kind (reading, see Q3) |
+| eta at onset, delay eta_on - eta_H | `surge_metrics.onset_delay` on the stored eta(t); eta_H from the record config | Table 2.1, given |
+| t_on | `ramps.make_path(cfg).t_on` (5 s on the run clock) | given |
+| lambda along the path, I(t) = int Re lambda dt', t_pred | `entry_exit.path_gain` / `entry_exit` (leading eigenvalue at the fixed point of M3 at (eta(t), J(t)); trapezoid on the A4 grid nodes and path corners; named in the frozen `a_range_rule`; DL-149 shows it converged under grid halving) | reused; A4 evaluator works at arbitrary (eta, J) |
+| t_pred condition | delta0 exp(I(t_pred)) = 0.1 x A_ref = 0.217622, each run's own delta0, no eigenvector scaling | A7 Expected, as written |
+| eta at t_pred (eta_pred) | `path.eta(t_pred)` | given |
+| in-range flag | `entry_exit.inside_range(delta0, I_min, floor)`, I_min over [t_on, t_pred]; floor `solver_floor_noise_free_v` 6.66e-16 for noise-free runs | given for noise-free runs |
+| match error in grid steps | abs(eta_onset - eta_pred) / 0.025 (`a4_eta_bar_grid_step`) | Table 7.2 RB3(a), given |
+| floor for floored (D43) runs | frozen `sigma_floor_levels` (1.59e-9, 1.59e-6, 1.59e-3) or the stationary std of v at the start state (0.629 x sigma = 1e-9, ...) | UNVERIFIED, Q1 |
+| floor for the S5 P2 noise runs (sigma 0.0624) | none named | UNVERIFIED, Q2 |
+| onset used for the match | classifier episode onset (first qualifying run of envelope >= threshold) versus "the envelope first reaching 0.1 x A_ref" | UNVERIFIED, Q3 |
+| P5 offset on the way down, hysteresis width | the plan names both, defines neither | UNVERIFIED, Q4 |
+| relative peak power | `peak_rho` (P_G / P_total of the episode window), as the classifier returns it; "relative to baseline" is undefined in mode D (zero baseline) | reading, Q3 |

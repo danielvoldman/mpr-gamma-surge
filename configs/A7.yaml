@@ -1,0 +1,7 @@
+# 8e A7 per-run ramp metrics (DL-179): analysis of the stored S5 (235) and S13 headline-subset (125) records, no integration.
+# Thresholds, floors, A_ref and the A4 grid step are read from the frozen criteria (tag criteria-frozen), not from this file.
+# No random numbers are used (no spawn key); the freeze is verified by the A7 module itself and its hash is in the run record flags.
+run:      {id: A7, kind: a7, workers: 1}
+model:    {type: M3, ref_point: ref_devalle, tau_ms: 10.0, tau_d_ms: 5.0}
+path:     {name: path_hypoxia, profile: linear, T_ramp_s: 120.0, eta_H: 2.8960461989737856}
+output:   {dir: results/A7}
