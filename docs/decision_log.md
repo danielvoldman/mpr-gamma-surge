@@ -2212,3 +2212,53 @@ Chosen:          -   Default from: DL-179
 Test:            driver check (check_reasons) and tests/test_a7.py.
 Status:          done; STOP for 8f. Code frozen except bug fixes.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-181  MS8 8f: 8e loose ends closed; the 48 runs with no t_pred split by reason; evaluation code    [ID: MS8, 8f, A7, RB3, DL-179, DL-180]
+Date:            2026-10-18        Author:
+Decision:        (1) Closed: fast suite 560 passed, 7 deselected, 9 xfailed, exit 0 (before the 8f code); tree clean at b2fc3a1 (DL-180); parquet SHA-256 b3732bbb77cf97d0296148f4b8b5265921eb6db1388482f647a4fe24c0f269fa as expected; four frozen hashes equal the tag criteria-frozen (c7d2f36b..., 317db87e..., cf6a60be..., fe8590ce...). (2) The 48 runs with no t_pred, re-evaluated from the stored path (eigenvalues only, no integration; rb_eval.no_t_pred_split): 48 "integral never reaches the threshold", 0 evaluator failures, 0 other. In all 48, lambda and I are finite on every node and the final Re lambda is negative (P2 -0.13552, P5 -0.50981), so the analytic extension does not reach ln(threshold/delta0) = 12.2905 either. By path and profile: P2 linear 33 (T_ramp 1, 1.778, 3.162 s: 10 noise seeds + 1 mode D run each; max I 2.365, 4.206, 7.479), P2 sigmoid 13 (all 13 T_ramp, all mode D; max I = 0.0, i.e. I never rises above its value at t_on; unchanged with the A4 grid step divided by 4), P5 linear 1 and P5 sigmoid 1 (T_ramp 1 s; max I 11.690 and 10.388). The brief's "all 13 S5 P2 sigmoid, 33 of S5 P2 linear" is the same set. (3) Code: src/mprsurge/analysis/rb_eval.py (evaluators), rb_tables.py (text table), scripts/run_rb_eval.py (driver), tests/test_rb_eval.py (5 tests); commit 258c5ab; fast suite 565 passed, 7 deselected, 9 xfailed, exit 0. Bounds, grids and ladders are read from the frozen file at run time.
+Reason:          instruction of the reviewer (8f prompt, steps 1 and 2).
+Options:         -
+Chosen:          -   Default from: 8f prompt
+Test:            tests/test_rb_eval.py; the split is recomputed by the driver at every run.
+Status:          done. No evaluator failure, so no stop on that item. Frozen files untouched.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-182  MS8 8f: RB3 status numbers (a to d); which onset feeds the delay; UNVERIFIED rules listed    [ID: MS8, 8f, RB3, F-12, F-15, F-18, DL-179, DL-181]
+Date:            2026-10-18        Author:
+Decision:        Output results/A7/rb_eval_ms8.json SHA-256 e426cf122bdf571aba3ab7c3c714fbbda2fbcbea4c4f1f83ae8b19193be020c8; table file results/A7/rb_eval_ms8_table.txt SHA-256 26bc7ea735f92000f6e4a01acefe7b68a07c616cfb4b3a0e780708d84b96c644 (scripts/run_rb_eval.py at 258c5ab, git.dirty false; a rerun gave the same hashes; input parquet b3732bbb...). The delay column delay_eta uses the classifier episode onset; delay_eta_cross uses the raw first envelope crossing; every RB3(b) and RB6 number is computed with both. RB3(a): 9 in range (S5 deterministic: P1 linear 7, P1 sigmoid 1, P5 linear 1); 6 testable, 3 with eta constant at t_pred (error 0 by construction). Match error with the raw crossing, P1 linear start distance 0.5, T_ramp 1, 1.778, 3.162, 5.623, 10 s: 33.15, 20.60, 12.68, 7.57, 4.40 steps; P5 linear T_ramp 1.778: 25.07 steps; against the frozen one step: 0 of 6 testable within one step (3 of 9 counting the constant-eta ones). The classifier-onset error exists for 3 of the 9 (33.15, 25.07 and one constant-eta 0). In-range counts per 13 T_ramp: P1 linear start distance 1.5: 2; P1 sigmoid 1.5: 1; P5 linear 1.5: 1; P1 linear start distance 0.5: 5 (above the frozen "0 to 2"); all other groups 0. Headline and the 120 S13 floor runs: out of range (RB3(a) not judged at the headline, departure 3). RB3(b): median delay over 10 seeds at 120 s for floor levels 1.59e-9, 1.59e-6, 1.59e-3: raw crossing -0.000760, -0.042323, -0.105060 (strictly decreasing); classifier onset -1.5, -1.5, -1.0917 (tie at levels 0 and 1; the classifier onset of those runs is 5.000 s = t_on, an absolute-power episode with peak P_G 1.5e-11, envelope about 2e-5 against the threshold 0.2176). The two onsets give different RB3(b) verdicts: reported, STOP for a ruling. All four Heun rungs give identical medians. RB3(c): P2 linear, P2 sigmoid, P5 linear, P5 sigmoid: D-tr at 56.23, 100, 177.8, 316.2 s; P1 linear D-sus, D-sus, D-sus, D-none; P1 sigmoid D-none, D-sus, D-none, D-none; headline class D-tr. RB3(d): linear against sigmoid class changes at the four points: P1 2, P2 0, P5 0 (frozen bound 1; reported, not gated). UNVERIFIED rules (not in the frozen file; none chosen): which Heun rung enters RB3(b); how a NaN seed enters a median (none occur in the S13 floor runs); how per-run RB3(a) results aggregate; what "class holds" compares against for paths other than P2 linear; how the three paths aggregate in RB3(d); the denominator sign of the RB6 statistic.
+Reason:          instruction of the reviewer (8f prompt, steps 3 to 5).
+Options:         the alternatives are computed side by side in the JSON
+Chosen:          none   Default from: 8f prompt (do not choose)
+Test:            tests/test_rb_eval.py (strict decrease, flip between onsets, class-change count).
+Status:          done; reviewer rulings owed (list in the report). No G6 statement.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-183  MS8 8f: RB5 status numbers    [ID: MS8, 8f, RB5, DL-181, DL-182]
+Date:            2026-10-18        Author:
+Decision:        delta0 {1e-9, 1e-6, 1e-3} at the headline (noise-free, DOP853 rtol 1e-10): class D-tr at all three; onset 58.698 s and delay 0.066192 at all three (shift 0.0 at the stored 1 kHz output). Start distance {0.5, 1.5, 3} on P1 linear, 13 T_ramp: the class changes with start distance at 9 of 13 T_ramp (1.0, 3.162, 5.623, 10.0, 17.78, 56.23, 100.0, 177.8, 562.3 s) and is unchanged at 1.778, 31.62, 316.2, 1000 s. Delay shifts per cell are in the JSON (delay_eta_cross_shift_vs_1.5). Frozen criterion: class unchanged, delay shifts reported; G6 reports it and does not gate it. UNVERIFIED: how the 13 T_ramp aggregate into "class unchanged" (the JSON gives per-T_ramp results).
+Reason:          instruction of the reviewer (8f step 5).
+Options:         -
+Chosen:          -   Default from: 8f prompt
+Test:            numbers from the stored table; tests/test_rb_eval.py covers the class-change counting.
+Status:          done; reported. Only the aggregation needs a ruling.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-184  MS8 8f: RB6 status numbers    [ID: MS8, 8f, RB6, F-14, F-21, DL-181, DL-182]
+Date:            2026-10-18        Author:
+Decision:        Heun, default 1e-3 tau against 1e-4 tau, same 10 seeds, each floor level, both onsets: the median delay is identical at the two rungs at every level (relative change 0 against the 5 percent bound); all 30 seed pairs per onset are identical to float precision (the stored onset is on the 1 ms output grid; the stored v itself differs between rungs: max |dv| 0.29 for seed 0 at level 0). Status MEETS with either onset; no flip. This is a statement at the 1 ms output resolution. rtol 1e-8, 1e-10, 1e-12 at the headline: onset 58.698 s and delay 0.066192 at all three (difference 0.0; reported, not a pass test). DOP853 (rtol 1e-10) against Radau (rtol 1e-10), same config except solver.method: class D-tr and D-tr (agree); onset 58.698 s against 58.879 s, difference 181 ms with both onsets, against the frozen bound of 1 ms: DOES NOT MEET. The cause of the 181 ms is not investigated (UNVERIFIED).
+Reason:          instruction of the reviewer (8f step 5).
+Options:         -
+Chosen:          -   Default from: 8f prompt
+Test:            tests/test_rb_eval.py (relative change against the bound at 4 and 6 percent).
+Status:          done; the solver-pair result is reported for the reviewer's ruling. No G6 statement.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-185  MS8 8f: P2 surge-class counts across T_ramp (counts only)    [ID: MS8, 8f, G6, DL-181, DL-182]
+Date:            2026-10-18        Author:
+Decision:        Window 56.23 to 316.2 s (the four RB3(c) points). Mode D P2 linear: D-tr at all 13 T_ramp (inside 4 of 4, outside 9 of 9). Mode D P2 sigmoid: D-tr at 12 of 13 (inside 4 of 4, outside 8 of 9; D-none at 1 s). Mode N P2 linear, 10 seeds per T_ramp: surge class (S+, S-rel, S-abs) in 26 of 40 runs inside the window and 53 of 90 outside; per-T_ramp class counts are in the JSON and the table file. No interpretation. The G6 clause "surge only outside 56 to 316 s" is for the reviewer.
+Reason:          instruction of the reviewer (8f step 6).
+Options:         -
+Chosen:          -   Default from: 8f prompt
+Test:            tests/test_rb_eval.py (window membership).
+Status:          done; STOP for the reviewer's rulings.
+Commit/tag:      the commit that adds this entry; no tag
