@@ -2318,3 +2318,33 @@ Chosen:          -   Default from: DL-186
 Test:            tests/test_rb_diag.py (rb6_resolution_row).
 Status:          done.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-191  MS8 8f3: three reviewer rulings; two EXPLORATORY diagnostic run sets (label and reason)    [ID: MS8, 8f3, RB3, RB6, DL-188, DL-189]
+Date:            2026-10-18        Author:
+Decision:        Rulings: (1) Set A, RB3(a) kick test: P1, start distance 0.5, linear, noise-free DOP853 rtol 1e-10, T_ramp 1 s and 10 s, delta0 1e-9 and 1e-3 (4 runs; the delta0 1e-6 runs exist in S5); each config is the S5 cell config (configs/ms8/s5_p1_start_distance.yaml cells 0 and 4, hashes db99ad2873e9, 9696033c76cb) with solver.delta0 changed and nothing else. (2) Set B, Radau / roundoff: headline cell (P2, ref_devalle, 120 s, linear, I = 0), DOP853 rtol 1e-10, start v moved by +1 ulp and -1 ulp (2 runs) through run_mf(cfg, y0=...); run_mf already takes y0, so no src change and no schema change. (3) RB6 level 0 is recorded as "1 ms or less, limited by the output grid", with no claim of 5 percent resolution (restates the DL-190 reading; no number changes). Label: EXPLORATORY. Reason: they are post-hoc, run after the 8f2 findings (DL-188, DL-189) to separate a kick effect from roundoff; they are not in the S5 or S13 lists nor in any manifest used by rb_eval, feed no gate, and change no frozen criterion or evaluation rule. No G6 verdict. Outputs: results/ms8_diag/setA and setB (git-ignored); every record carries flags.label = "exploratory", its config hash and the git hash. The two Set B records carry the headline config hash 240de3ef73be because y0 is not a config key; flags.perturbation and flags.y_start tell them apart. Set A config hashes: T 1 s delta0 1e-9 d8177c7000759131, 1e-3 62b6225512c28089; T 10 s delta0 1e-9 ae3c1a933d3a1c42, 1e-3 c1e60192fa3feb5c. Records say git dirty = true: the only uncommitted files were the new 8f3 scripts, module and test (committed with this entry).
+Reason:          instruction of the reviewer (8f3).
+Options:         -
+Chosen:          -   Default from: the 8f3 prompt
+Test:            tests/test_rb_diag_expl.py; scripts/run_ms8_diag_runs.py (integrates), scripts/run_rb_diag_exploratory.py (analyses).
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-192  MS8 8f3: Set A result (exploratory), the onset does not follow the delta0 kick    [ID: MS8, 8f3, RB3, DL-188, DL-191]
+Date:            2026-10-18        Author:
+Decision:        none; exploratory reading, no gate. Raw first-crossing onset (s) and eta at onset, P1 start distance 0.5 linear. T 1 s: delta0 1e-9 5.625, 3.958546; 1e-6 (S5) 5.625, 3.958546; 1e-3 5.632, 3.976046. T 10 s: 1e-9 9.609, 3.548296; 1e-6 (S5) 9.609, 3.548296; 1e-3 9.669, 3.563296. Shift against the 1e-6 run (s) and the kick-dominated prediction -ln(delta0/1e-6)/mean Re lambda over the last growth decade of the 1e-6 run (mean Re lambda 0.18248 per tau, window 5.503 to 5.625 s at T 1 s; 0.13373, 9.441 to 9.609 s at T 10 s): T 1 s 1e-9 observed 0.000, predicted +0.3785, ratio 0.000; 1e-3 observed +0.007, predicted -0.3785, ratio -0.018. T 10 s 1e-9 observed 0.000, predicted +0.5165, ratio 0.000; 1e-3 observed +0.060, predicted -0.5165, ratio -0.116. Pattern (exploratory): the onset does not follow the kick; it is identical for 1e-9 and 1e-6 and moves 7 ms and 60 ms later (not earlier) at 1e-3. The word thresholds in the script (|ratio| below 0.25 reads as not following, 0.5 to 1.5 as following) are ours, for description only. Not tested: why the larger kick gives a slightly later onset.
+Reason:          instruction of the reviewer (8f3 step 4).
+Options:         -
+Chosen:          -   Default from: DL-191
+Test:            tests/test_rb_diag_expl.py (predicted_shift_s, pattern); numbers from results/A7/rb_diag_exploratory.json.
+Status:          finding recorded. Reviewer to rule.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-193  MS8 8f3: Set B result (exploratory), ulp perturbation of the headline start state; rb_diag_exploratory.json sha256    [ID: MS8, 8f3, RB6, DL-189, DL-191]
+Date:            2026-10-18        Author:
+Decision:        none; exploratory, not a pass test. Headline DOP853 rtol 1e-10 raw-crossing onset: unperturbed (stored S5 run) 58.698 s; v +1 ulp 58.698 s; v -1 ulp 58.698 s; spread 0.0 ms (output step 1 ms) against the 181 ms DOP853-vs-Radau difference (DL-189). Pre-onset envelope floor, 10 to 48 s, median / p90: unperturbed 1.786e-15 / 3.654e-15; +1 ulp 1.799e-15 / 3.670e-15; -1 ulp 1.799e-15 / 3.671e-15 (the three runs do differ at the 3rd digit, so the perturbation took effect; start v 0.5946822489284792 changed in the last digit). Observation: in all three runs the envelope has a burst above 1e-12 from 34.575 to 36.053 s (1479 samples) with peak 2.23e-5, identical to 8 digits, so it is deterministic and not roundoff; it makes the p99 of the window 3.1e-7 and was not in the DL-189 plateau description (6 to 50 s, p99 5.0e-15, which holds for 6 to 30 s). Cause of the burst not diagnosed. Reading [reasoned, not tested]: the 1-ulp spread of DOP853 is below the grid, far under 181 ms, so roundoff of the start state does not by itself move the DOP853 onset by the Radau difference. File results/A7/rb_diag_exploratory.json (new; rb_diag_ms8.json 3fb10f13... and rb_eval_ms8.json 96e9e51c... unchanged) sha256 8a388a556a93fc4a0330a2905c095e084b627e1b01e7487dbd00802c53ea2edf.
+Reason:          instruction of the reviewer (8f3 step 5, step 6).
+Options:         -
+Chosen:          -   Default from: DL-191
+Test:            tests/test_rb_diag_expl.py (perturb_v, plateau_floor); numbers from results/A7/rb_diag_exploratory.json.
+Status:          finding recorded. Reviewer to rule.
+Commit/tag:      the commit that adds this entry; no tag
