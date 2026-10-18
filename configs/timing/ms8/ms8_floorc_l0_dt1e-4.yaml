@@ -1,0 +1,3 @@
+# MS8 8d timing cell (DL-177): finest rung of the coupled floor group at level l = 0 (sigma_floor 1.59e-9); level check against l = 2. Layered on configs/S5.yaml.
+run: {kind: mf_noisy}
+noise: {sigma: 1.59e-9, dt_tau: 1.0e-4, coupling_dt_tau: 5.0e-5}

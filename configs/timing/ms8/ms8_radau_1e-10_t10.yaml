@@ -1,0 +1,3 @@
+# MS8 8d timing cell (DL-177): P2 at T_ramp 10 s, Radau rtol 1e-10 (S13 scope); scaled to 120 s by simulated time (plan 9). Layered on configs/S5.yaml.
+path: {T_ramp_s: 10.0}
+solver: {method: Radau, rtol: 1.0e-10}

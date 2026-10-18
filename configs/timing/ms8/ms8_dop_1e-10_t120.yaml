@@ -1,0 +1,2 @@
+# MS8 8d timing cell (DL-177): the noise-free DOP853 run at T_ramp 120 s (the headline run), rtol 1e-10. Layered on configs/S5.yaml.
+solver: {rtol: 1.0e-10}
