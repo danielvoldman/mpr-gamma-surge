@@ -55,8 +55,10 @@ def test_start_distance_and_floor_readings():
 
 def test_sample_cells_resolve_and_stay_outside_the_cell_list():
     files = sorted(p.stem for p in (C.repo_root() / "configs" / "timing" / "ms8").glob("*.yaml"))
-    assert files == sorted(M.SAMPLE_CELLS) and not set(files) & set(T.CELLS)
-    for c in M.SAMPLE_CELLS:
+    cells_8d = ["ms8_dop_1e-10_t120", "ms8_floorc_l0_dt1e-4", "ms8_floorc_l2_dt1e-3", "ms8_floorc_l2_dt1e-4", "ms8_floorc_l2_dt2.5e-4",
+                "ms8_floorc_l2_dt5e-4", "ms8_radau_1e-10_t10"]               # 8d re-time cells (DL-177), not part of the 8a prediction
+    assert files == sorted([*M.SAMPLE_CELLS, *cells_8d]) and not set(files) & set(T.CELLS)
+    for c in [*M.SAMPLE_CELLS, *cells_8d]:
         cfg = T.resolve_cell("configs/S5.yaml", c)
         assert cfg["path"]["eta_path_status"] == "A4"
     fine = T.resolve_cell("configs/S5.yaml", M.FLOOR_FINE_CELL)
