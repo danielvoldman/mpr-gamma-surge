@@ -2348,3 +2348,13 @@ Chosen:          -   Default from: DL-191
 Test:            tests/test_rb_diag_expl.py (perturb_v, plateau_floor); numbers from results/A7/rb_diag_exploratory.json.
 Status:          finding recorded. Reviewer to rule.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-194  MS8 8f4: reviewer rulings; two SUPPLEMENTARY headline runs at other start distances (label and reason)    [ID: MS8, 8f4, RB5, M-3, M-7, DL-181]
+Date:            2026-10-18        Author:
+Decision:        Rulings: two runs of the headline cell (P2, ref_devalle, T_ramp 120 s, linear, I = 0), noise-free DOP853 rtol 1e-10, delta0 1e-6, at start distance 0.5 and 3 (the default 1.5 is the existing headline run, S5ramp_0000_240de3ef73be). Each config is configs/S5_ramp.yaml with only path.start_distance set (M-7, the key the S5 start-distance runs use): configs/ms8/supp_startdist_headline_d0p5.yaml and _d3.yaml. No src change. RB5 text applied as frozen: "class unchanged; delay shifts are reported". Label: SUPPLEMENTARY ("supplementary, not in the pre-registered S5 list"). Reason: post-hoc; P1 changes class with start distance at 9 of 13 T_ramp (8f, RB5) and the headline path has never been run at other start distances (M-3 was not adopted). Kept out of the S5 and S13 lists and out of every manifest used by rb_eval; feeds no gate; no frozen criterion or evaluation rule changes. No G6 verdict. Outputs results/ms8_diag/startdist (git-ignored), each record flags.label = "supplementary". Scripts and configs committed before any run so the records carry git dirty = false. Driver scripts/run_ms8_supp_startdist.py (integrates), analysis scripts/run_rb_diag_startdist.py (analyses, writes the new results/A7/rb_diag_startdist.json; existing rb_eval and rb_diag files untouched).
+Reason:          instruction of the reviewer (8f4).
+Options:         -
+Chosen:          -   Default from: the 8f4 prompt
+Test:            tests/test_supp_startdist_configs.py (headline hash 240de3ef73be unchanged; the new configs differ from the headline only in path.start_distance and the keys derived from it).
+Status:          rulings recorded; runs follow (results in the next entry).
+Commit/tag:      the commit that adds this entry; no tag
