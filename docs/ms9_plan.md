@@ -185,3 +185,7 @@ The rulings below close the choices M9-1 to M9-21 above. The "Recommendation" an
 | M9-21 | Seed keys [9, 1, s], [9, 2, 0], [9, 3, s] confirmed (UNVERIFIED); [9, 4, s] added by M9-4 (UNVERIFIED) |
 
 Standing rulings of the 9b prompt: the 9a timing records (git.dirty = true) stay as timing-only records, labelled; map 1 and then map 2 + subgrid are each ONE pooled, restartable, detached launch started by the reviewer, never by the assistant (`scripts/run_ms9_list.py` supports it: resumable by `find_complete`, `--cells A:B` for a split); the NC1 family is run by the assistant at 9b with a stop rule (any pre-registered NC1 run that is not NS or D-none stops everything: report, no diagnostics, G7 / A8 review comes to the reviewer first).
+
+## Status after 9b (DL-216 to DL-220)
+
+Run: the NC1 family only (149 runs: 19 pre-registered + 130 supplementary), 149 ok. Classified (DL-220): mean-field NC1 D-none at 13 of 13 T_ramp and at the 5 map cells; the NC1 network run is S+ (provisional): STOP RULE triggered, no diagnostics run, G7 / A8 review to the reviewer. Map-1 re-timing on a clean tree (DL-217): 4.38 h weighted, 4.69 h index interpolation, 7.54 h worst case, limit 6.15 h; map 1 not launched. Classification and A9 labelling cost 265 s for all 3,618 runs (DL-218). Not run: S16, S6, map 1, map 2, subgrid, NC2, NC3.
