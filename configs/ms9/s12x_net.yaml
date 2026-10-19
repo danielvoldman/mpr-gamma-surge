@@ -1,0 +1,10 @@
+# MS9 9c EXPLORATORY run config ("S12x"; outside the pre-registered lists, feeds no gate). Copy of configs/ms9/nc1_net.yaml; the per-run values
+# (seed key [9, 5, s] or [9, 6, s], eta_peak) are in configs/ms9/runlists/runlist_S12x_*.csv. Names the FROZEN criteria file (the runner's gate applies).
+# S12x_NC1_net: NC1 network (headline cell, N = 1e4, T_ramp 120 s) at nine more seeds, keys [9, 5, 0..8] (UNVERIFIED); the pre-registered run [9, 2, 0] is the 10th.
+# S12x_const_net: same network, eta_peak = eta_start (constant parameters at the NC1 / P2 start state of ref_devalle), same durations (5 s + 120 s + 10 s), keys [9, 6, 0..9] (UNVERIFIED).
+run:        {id: S12x, kind: network, workers: 1}
+model:      {ref_point: ref_devalle}
+path:       {name: path_eta, profile: linear, T_ramp_s: 120.0, eta_H: null}
+network:    {N: 10000}
+output:     {dir: results/S12x}
+robustness: {criteria_file: configs/robustness_criteria.yaml}

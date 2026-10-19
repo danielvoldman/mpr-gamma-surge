@@ -39,6 +39,8 @@ SEED_KEY_PREFIXES = {
     "s7_noisy_subgrid": (9, 1),     # [9, 1, s], s = 0..9: mode-N seed s of every subgrid cell (same stream per cell, DL-069 convention)
     "s12_nc1_network": (9, 2),      # [9, 2, 0]: the NC1 network run, 1 seed
     "s12_nc_mode_n": (9, 3),        # [9, 3, s]: reserved, confirmed (M9-21) and unused
+    "s12x_nc1_net_seeds": (9, 5),   # [9, 5, s], s = 0..8: S12x EXPLORATORY, NC1 network at nine more seeds (9c); the original [9, 2, 0] is the 10th
+    "s12x_const_net": (9, 6),       # [9, 6, s], s = 0..9: S12x EXPLORATORY, the network held at the NC1 start state (9c)
     "s12_nc1_mode_n_supp": (9, 4),  # [9, 4, s]: SUPPLEMENTARY NC1 in mode N (M9-4, 9b), same stream at every T_ramp, outside the pre-registered counts
 }
 
@@ -50,6 +52,12 @@ def proposed_seed_keys(include_reserved: bool = True) -> list[tuple[int, ...]]:
     if include_reserved:
         keys += [SEED_KEY_PREFIXES["s12_nc_mode_n"] + (s,) for s in range(N_SEEDS)]
     return keys
+
+
+def exploratory_seed_keys() -> list[tuple[int, ...]]:
+    """S12x (9c) keys, kept apart from proposed_seed_keys: exploratory, outside the pre-registered lists, UNVERIFIED until confirmed."""
+    return ([SEED_KEY_PREFIXES["s12x_nc1_net_seeds"] + (s,) for s in range(9)]
+            + [SEED_KEY_PREFIXES["s12x_const_net"] + (s,) for s in range(N_SEEDS)])
 
 
 def subgrid_indices(n: int = 30, m: int = 15) -> np.ndarray:

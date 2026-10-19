@@ -42,6 +42,8 @@ NC1_MAP_CELLS = ((0, 0), (0, 29), (29, 0), (29, 29), (14, 12))   # M9-5: the fou
 SUBGRID_N, MAP1_N = 15, 30
 N_SEEDS = 10
 SEED_SUBGRID, SEED_NC1_NET, SEED_NC1_MODE_N = (9, 1), (9, 2), (9, 4)
+SEED_S12X_NET, SEED_S12X_CONST = (9, 5), (9, 6)                   # 9c EXPLORATORY (S12x)
+S12X_NET_NEW_SEEDS, S12X_CONST_SEEDS = 9, 10
 RB4_PARAMETERS = ("eta_start", "eta_peak", "J0", "Delta", "tau_d_ms", "J_lag_frac", "J_T_frac")
 RB4_REL_BOX = 0.10
 LHS_DRAW_KEY, LHS_POINT_KEY = (7, 9, 0), (7, 9, 1)               # F-19, DL-159 (settled)
@@ -50,7 +52,8 @@ LHS_DESIGN_FILE = f"{RUNLIST_DIR}/s16_lhs_design.csv"
 
 PRE_REGISTERED = ("NC1", "NC2", "NC3", "S6", "S16", "S7_map1", "S7_map2", "S7_subgrid")
 SUPPLEMENTARY = ("SUPP_P2ref", "SUPP_NC1_modeN")
-ALL_LISTS = PRE_REGISTERED + SUPPLEMENTARY
+EXPLORATORY = ("S12x_NC1_net", "S12x_const_net")                  # 9c: outside the counts and the supplementary lists, feed no gate
+ALL_LISTS = PRE_REGISTERED + SUPPLEMENTARY + EXPLORATORY
 COLUMNS = ("list", "pre_registered", "family", "config", "index", "name", "hash", "kind", "path", "T_ramp_s", "spawn_key", "out_dir", "overrides")
 
 
@@ -224,6 +227,13 @@ def entries(name: str) -> list[dict]:
     elif name == "SUPP_NC1_modeN":
         out += [_e(name, "NC1_modeN", "nc1_modeN.yaml", _nc1_overrides(h, T), "results/S12/supp", SEED_NC1_MODE_N + (s,))
                 for T in GRID13 for s in range(N_SEEDS)]
+    elif name == "S12x_NC1_net":
+        out += [_e(name, "S12x_NC1_net", "s12x_net.yaml", _nc1_overrides(h, 120.0), "results/S12x", SEED_S12X_NET + (s,))
+                for s in range(S12X_NET_NEW_SEEDS)]
+    elif name == "S12x_const_net":
+        ov = _nc1_overrides(h, 120.0)
+        ov["path.eta_peak"] = ov["path.eta_start"]                  # constant parameters at the NC1 start state, by configuration alone
+        out += [_e(name, "S12x_const_net", "s12x_net.yaml", ov, "results/S12x", SEED_S12X_CONST + (s,)) for s in range(S12X_CONST_SEEDS)]
     else:
         raise RunListError(f"unknown list {name!r}")
     return out
@@ -293,7 +303,7 @@ def seed_keys(rows: list[dict]) -> list[tuple[int, ...]]:
     return [tuple(r["spawn_key"]) for r in rows if r["spawn_key"] is not None]
 
 
-def write_manifest(out_dir=None, names=ALL_LISTS) -> dict:
+def write_manifest(out_dir=None, names=PRE_REGISTERED + SUPPLEMENTARY, json_name="ms9_runlists.json") -> dict:
     """One CSV per list plus ms9_runlists.json (counts, list hashes, subgrid and design hashes) under configs/ms9/runlists/ (committed)."""
     gate = CR.verify_frozen_criteria()
     out = Path(out_dir) if out_dir else C.repo_root() / RUNLIST_DIR
@@ -311,7 +321,7 @@ def write_manifest(out_dir=None, names=ALL_LISTS) -> dict:
                                   "sha256": list_sha256(rows), "duplicate_hashes": duplicates(rows)}
     summary["pre_registered_total"] = sum(v["runs"] for v in summary["lists"].values() if v["pre_registered"])
     summary["supplementary_total"] = sum(v["runs"] for v in summary["lists"].values() if not v["pre_registered"])
-    (out / "ms9_runlists.json").write_text(json.dumps(summary, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+    (out / json_name).write_text(json.dumps(summary, indent=1, sort_keys=True) + "\n", encoding="utf-8")
     return summary
 
 
@@ -320,7 +330,12 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="python -m mprsurge.analysis.ms9_runlist", description="MS9 9b run lists: counts, hashes, manifest")
     ap.add_argument("--write", action="store_true", help="write configs/ms9/runlists/ (cells file must exist; design file is written first)")
     ap.add_argument("--build-cells", action="store_true", help="slow: rewrite configs/ms9/runlists/cells_1226.csv from analysis.cells")
+    ap.add_argument("--write-s12x", action="store_true", help="write the 9c exploratory lists (S12x) and ms9_s12x_runlists.json")
     args = ap.parse_args(argv)
+    if args.write_s12x:
+        s = write_manifest(names=EXPLORATORY, json_name="ms9_s12x_runlists.json")
+        for n, v in s["lists"].items():
+            print(f"{n:16s} EXPLORATORY {v['runs']:5d} runs {v['by_family']}  SHA-256 {v['sha256'][:16]}  duplicates {len(v['duplicate_hashes'])}")
     if args.build_cells:
         print("cell-list SHA-256", build_cells_file())
     if args.write:

@@ -2625,3 +2625,53 @@ Chosen:          as above   Default from: the 9b prompt
 Test:            tests/test_ms9_9b_analysis.py (stop-rule set); results/ms9/nc1_classes.csv.
 Status:          STOP; waits for the reviewer (A8 review first, G7).
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-221  MS9 9c: G7 TRIGGERED by the NC1 network run (S+); A8 review before any result is used; the 18 mean-field NC1 runs are D-none    [ID: MS9, 9c, G7, A10, RB7, A8, NC1, DL-220]
+Date:            2026-10-19        Author:
+Decision:        (1) G7 is TRIGGERED by the pre-registered NC1 network run (N = 1e4, mode N, 120 s, key [9, 2, 0]), class S+ (provisional: the class depended on the D8 call, DL-137). The plan's consequence (G7: "Any NC1 surge -> review A8 before any result is used"; A10 check; RB7) is a review of A8 before any MS9 result is used. (2) The 18 mean-field NC1 runs (13 T_ramp at the headline cell, 5 map cells at T_ramp 120 s) are D-none (DL-220): D-none, no trigger. (3) The reviewer's ruling reads: the network run is the trigger; the mean-field set is not. (4) This entry makes no verdict on A8 and changes no threshold and no frozen criterion; the facts of the review are in DL-226 and DL-227.
+Reason:          instruction of the reviewer (9c prompt, step 2a).
+Options:         -
+Chosen:          as above   Default from: plan 2.4, 5.2 A10, Table 11.2 G7, the 9c prompt
+Test:            results/ms9/nc1_classes.csv (sha256 77055e82...).
+Status:          done; the A8 review is the reviewer's.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-222  MS9 9c: map 1 launch held until the 9c report    [ID: MS9, 9c, S7, G7, DL-217, DL-221]
+Date:            2026-10-19        Author:
+Decision:        The map-1 launch (python scripts/run_ms9_list.py --list S7_map1 --workers 10 --journal-dir results/ms9/launch_map1; 4.38 to 4.69 h projected, DL-217) is held. Nothing is launched from S16, S6, map 1, map 2, the subgrid, NC2 or NC3 at 9c. The hold ends with the reviewer's ruling after the 9c report.
+Reason:          instruction of the reviewer (9c prompt, step 2b).
+Options:         -
+Chosen:          as above   Default from: the 9c prompt
+Test:            -
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-223  MS9 9c: M9-16 float64 storage accepted; total about 20 GB against the plan's "under 20 GB" float32 estimate    [ID: MS9, 9c, D37, M9-16, DL-215, DL-219]
+Date:            2026-10-19        Author:
+Decision:        The float64 storage of M9-16 (the MS8 writer unchanged; v and r in the dtype MS8 used) is ACCEPTED. The total stays at about 20 GB (the 9a estimate for the new families is 17.1 GB, subgrid 2,250 x 167 s x 28 B = 10.5 GB; measured per record in DL-219) against the plan's "under 20 GB" which assumed float32. This is a LOGGED KNOWN DIFFERENCE from the plan default; D37 (the storage decision) is decided at MS15. 151 GB were free on C: (DL-219).
+Reason:          instruction of the reviewer (9c prompt, step 2c).
+Options:         -
+Chosen:          as above   Default from: the 9c prompt
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-224  MS9 9c: S6 P3 I_amp 1 at T_ramp 10 s and NC2 at T_ramp 10 s share a config hash; both lists keep it; count stays 3,618    [ID: MS9, 9c, S6, NC2, DL-215]
+Date:            2026-10-19        Author:
+Decision:        The two pre-registered entries S6_P3_0004_85e6fd6795d0 (list S6) and NC2_0004_85e6fd6795d0 (list NC2), config hash 85e6fd6795d0..., are the same configuration. Both lists keep the entry; the count stays 3,618 (DL-215 (7)). How the launcher treats the pair is in DL-225 (3).
+Reason:          instruction of the reviewer (9c prompt, step 2d).
+Options:         -
+Chosen:          as above   Default from: the 9c prompt
+Test:            tests/test_ms9_runlist.py (duplicate hashes of the lists).
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-225  MS9 9c: S12x exploratory runs prepared and committed before any run; read-only launcher check on repeated config hashes    [ID: MS9, 9c, S12, S12x, NC1, D36, DL-215, DL-220, DL-221, DL-224]
+Date:            2026-10-19        Author:
+Decision:        (1) READ-ONLY CHECK (step 3), scripts/run_ms9_list.py and run.execute_job: the config hash excludes run.id and output.dir (the two entries differ only there), the out_dir is results/<out_root>/<family>, and execute_job skips a job only when P.find_complete(out_dir, cfg) finds a complete record IN THAT job's out_dir. Result: the S6 entry (results/S6/S6_P3) and the NC2 entry (results/S12/NC2) are two jobs with two out_dirs. The launcher does NOT run the configuration once: it runs it twice (in one pool or in two launches), writes two records under two names (S6_P3_0004_85e6fd6795d0.*, NC2_0004_85e6fd6795d0.*) in two directories, and the two lists do not point at the same record. There is no collision on an output file, no skip across directories, and no deduplication in build_jobs. Cost of the second run: one mean-field run at T_ramp 10 s (seconds). Because the run is deterministic mode D, the two records should agree to the bit (a free consistency check, not yet made). NOT FIXED, as ordered. (2) S12x, EXPLORATORY, labelled, outside the pre-registered lists and the supplementary lists, feeding no gate, no diagnostics beyond the report: (i) S12x_NC1_net, the NC1 network run (headline cell, N = 1e4, 120 s, config as nc1_net.yaml) at nine more seeds, keys [9, 5, 0..8] (the pre-registered key [9, 2, 0] is the 10th seed); (ii) S12x_const_net, the same network held at the NC1 start state (eta = eta_start = 1.396046, J = -21, Delta = 0.3, tau_d = 5 ms, I = 0; the P2 start state of ref_devalle) for the same duration (5 s + 120 s + 10 s), by configuration alone: path_eta with eta_peak = eta_start gives a constant path (checked by test: eta, J, Delta and I do not vary), 10 seeds, keys [9, 6, 0..9]. No new integration code. New files: configs/ms9/s12x_net.yaml, configs/ms9/runlists/runlist_S12x_NC1_net.csv (SHA-256 ddc79f22...), runlist_S12x_const_net.csv (56dc70c2...), ms9_s12x_runlists.json (written beside, not into, ms9_runlists.json, so the pre-registered and supplementary manifest is unchanged: 3,618 and 132), ms9_runlist.EXPLORATORY, ms9_counts.SEED_KEY_PREFIXES [9, 5] and [9, 6] and exploratory_seed_keys() (19 keys; UNVERIFIED), src/mprsurge/analysis/ms9_nc1_decomp.py, scripts/analyse_nc1_net.py, tests/test_ms9_9c.py (collision test extended: the 19 keys equal to or a prefix of no key in use, proposed or each other). Output: results/S12x (git-ignored). (3) PREDICTION before the launch: 19 network runs at 10 workers, 278 s per run at 10 copies (9a, DL-211; 262 s measured in the NC1 family pool, DL-219): two waves, 10 + 9 runs, 2 x 278 s = 556 s, 9.3 min; the constant-parameter runs cost the same (same N, same number of updates). Far below one hour; no stop. Disk 3.9 MB per run, 74 MB. D36 is not affected (exploratory, outside the 24 h budget). (4) Fast suite before this commit: see the 9c report (pytest's own exit code).
+Reason:          instruction of the reviewer (9c prompt, steps 3 and 5).
+Options:         -
+Chosen:          as above   Default from: the 9c prompt
+Test:            tests/test_ms9_9c.py; tests/test_ms9_seed_keys.py.
+Status:          done; committed before the run.
+Commit/tag:      the commit that adds this entry; no tag
