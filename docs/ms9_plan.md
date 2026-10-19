@@ -189,3 +189,7 @@ Standing rulings of the 9b prompt: the 9a timing records (git.dirty = true) stay
 ## Status after 9b (DL-216 to DL-220)
 
 Run: the NC1 family only (149 runs: 19 pre-registered + 130 supplementary), 149 ok. Classified (DL-220): mean-field NC1 D-none at 13 of 13 T_ramp and at the 5 map cells; the NC1 network run is S+ (provisional): STOP RULE triggered, no diagnostics run, G7 / A8 review to the reviewer. Map-1 re-timing on a clean tree (DL-217): 4.38 h weighted, 4.69 h index interpolation, 7.54 h worst case, limit 6.15 h; map 1 not launched. Classification and A9 labelling cost 265 s for all 3,618 runs (DL-218). Not run: S16, S6, map 1, map 2, subgrid, NC2, NC3.
+
+## Status after 9c (DL-221 to DL-227)
+
+G7 triggered by the NC1 network run (S+); map 1 held (DL-222); M9-16 float64 accepted (DL-223); S6 P3 I_amp 1 at 10 s and NC2 at 10 s share a config hash and the launcher runs it twice (DL-224, DL-225). 9c PART 1 (DL-226): the S+ rests on two flagged windows (centres 14 and 16 s, rel 2.09 and 2.29) bridged by one unflagged window; 4 baseline windows; D8 undefined (the envelope never reaches 0.2176) so "non-damped"; 9 of 10 A8 variants still give a surge class. PART 2 (DL-227, S12x, exploratory, outside the lists): 10 of 10 ramp seeds and 10 of 10 constant-parameter seeds are not NS. Nothing else run. STOP: A8 options (a) to (h) await the reviewer.
