@@ -2695,3 +2695,73 @@ Chosen:          none   Default from: the 9c prompt
 Test:            results/ms9/9c/s12x_table.csv (ac7297e6...), results/ms9/launch_s12x/manifest.csv (f77a7d45...).
 Status:          STOP; waits for the reviewer's ruling.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-228  MS9 9d: G7 NOT PASSED (triggered by the NC1 network run); A8 and every frozen criterion UNCHANGED (option a)    [ID: MS9, 9d, G7, A8, NC1, DL-221, DL-226, DL-227]
+Date:            2026-10-19        Author:
+Decision:        G7 is NOT PASSED: it was triggered by the NC1 network run (S+, DL-220, DL-221). The A8 review is done (DL-226, DL-227). Option (a) of DL-227 is adopted: A8 and every frozen criterion are UNCHANGED. Options (b) to (h) are not adopted; (h) is rejected because it contradicts DL-221.
+Reason:          ruling of the reviewer (9d prompt, step 2a).
+Options:         (a) to (h) of DL-227
+Chosen:          (a)   Default from: the 9d prompt
+Test:            -
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-229  MS9 9d: claim limits that follow from G7 not passed (Table 11.2: G5 to G7 limit claims)    [ID: MS9, 9d, G7, NC1, S12, DL-220, DL-227, DL-228]
+Date:            2026-10-19        Author:
+Decision:        (1) Network-record surge classes at N = 1e4 under the frozen mode-N criteria are NOT used as evidence of a ramp-driven surge: the constant-parameter control is flagged 10 of 10 seeds, the ramp runs 10 of 10 (DL-227). (2) Mean-field NC1: mode D 18 of 18 D-none (pre-registered list, DL-220). Supplementary mode N: 124 of 130 NS; the 6 non-NS are all S-rel, 0 of 40 at W = 0.2 s; reported per window W (DL-220).
+Reason:          ruling of the reviewer (9d prompt, step 2b).
+Options:         -
+Chosen:          as above   Default from: the 9d prompt
+Test:            results/ms9/nc1_classes.csv; results/ms9/9c/s12x_table.csv (ac7297e6...).
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-230  MS9 9d: limitations carried to the paper (NC1 network run)    [ID: MS9, 9d, A8, D8, NC1, DL-226]
+Date:            2026-10-19        Author:
+Decision:        (1) One flagged window at W = 2 s passes the 10-cycle minimum by construction. (2) D8 is undefined in mode N and filters nothing. (3) The network baseline has 4 windows with max/min 1.92 (DL-226).
+Reason:          ruling of the reviewer (9d prompt, step 2c).
+Options:         -
+Chosen:          as above   Default from: the 9d prompt
+Test:            results/ms9/9c/nc1_net_windows.csv (207e5876...).
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-231  MS9 9d: MS10 note (NOT decided): constant-parameter control at each network configuration    [ID: MS9, 9d, MS10, RB1, S8, DL-227]
+Date:            2026-10-19        Author:
+Decision:        NOT DECIDED; a note. Network class statements (RB1, S8) need a constant-parameter control at each network configuration. To be planned at the start of MS10 and labelled a POST-HOC AMENDMENT.
+Reason:          ruling of the reviewer (9d prompt, step 2d).
+Options:         -
+Chosen:          none   Default from: the 9d prompt
+Test:            -
+Status:          open; for MS10.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-232  MS9 9d: launcher duplicate-hash behaviour accepted, no fix    [ID: MS9, 9d, S6, NC2, DL-224, DL-225]
+Date:            2026-10-19        Author:
+Decision:        The behaviour of DL-225 (3) is accepted: the S6 P3 I_amp 1 / T_ramp 10 s entry and the NC2 entry with the same config hash 85e6fd6795d0 are each run in their own out_dir, one extra 10 s run. No change to the launcher.
+Reason:          ruling of the reviewer (9d prompt, step 2e).
+Options:         -
+Chosen:          as above   Default from: the 9d prompt
+Test:            tests/test_ms9_9c.py.
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-233  MS9 9d: map-1 hold lifted for launch after 9d; the user launches it    [ID: MS9, 9d, S7, DL-222, DL-228]
+Date:            2026-10-19        Author:
+Decision:        The hold of DL-222 on the map-1 launch is lifted for a launch after the 9d report. The user, not the assistant, launches map 1. At 9d map 1, map 2, the subgrid, NC2 and NC3 are not launched.
+Reason:          ruling of the reviewer (9d prompt, step 2f).
+Options:         -
+Chosen:          as above   Default from: the 9d prompt
+Test:            -
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-234  MS9 9d: S16 and S6 launch prepared; report script committed before the run    [ID: MS9, 9d, S16, S6, RB4, DL-215, DL-220]
+Date:            2026-10-19        Author:
+Decision:        (1) Pre-checks passed: criteria gate against the tag criteria-frozen (four hashes c7d2f36b..., S13 317db87e..., A4_grids cf6a60be..., S5_cells fe8590ce...); tree clean; 9c result hashes (s12x_table ac7297e6, launch_s12x manifest f77a7d45, nc1_net_variants cac69254, nc1_net_windows 207e5876) equal the logged ones; fast suite 668 passed, 11 deselected, 9 xfailed, pytest exit code 0 (202.5 s). (2) Launch: python scripts/run_ms9_list.py --list S16 --list S6 --list SUPP_P2ref --workers 10 --journal-dir results/ms9/launch_s16_s6 (one pool, longest first); dry run lists 100 runs = 78 + 20 + 2 (the two P2 references keep their own list SUPP_P2ref). Predicted wall about 25 min (S16) + about 10 min (S6) from the 9a timing; stop and report if the pool projects over one hour. (3) scripts/report_ms9_9d.py (analysis only) and tests/test_ms9_9d.py: RB4 facts with the pre-registered numbers (M9-15: at most 2 of 14 one-at-a-time changed; at least 52 of 64 hypercube points unchanged); nominal class = class of the S5 P2 linear 120 s mode-D run; failed counts as changed, reported separately. No diagnostics.
+Reason:          instruction of the reviewer (9d prompt, steps 1, 3, 4).
+Options:         -
+Chosen:          as above   Default from: the 9d prompt
+Test:            tests/test_ms9_9d.py.
+Status:          done; committed before the run.
+Commit/tag:      the commit that adds this entry; no tag
