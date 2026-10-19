@@ -2525,3 +2525,23 @@ Chosen:          as above   Default from: the 9a prompt, plan 9.2
 Test:            tests/test_ms9_seed_keys.py (4), tests/test_ms9_counts.py (12 including the sample cells); fast suite at the end of 9a.
 Status:          done; the proposed keys wait for the reviewer's confirmation (M9 list).
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-211  MS9 9a: timing sample (8a method), predictions per S-ID, launch rule, D36; two parts over one hour not launched    [ID: MS9, 9a, D36, S6, S7, S12, S16, DL-210]
+Date:            2026-10-19        Author:
+Decision:        (1) Sample: eight cells, each 10 concurrent copies x 1 batch, per-run medians, scripts/run_timing_ms9.sh at commit 07e028e. Per-run medians: map 1 Delta 0.01 312.1 s, Delta 0.6 161.0 s (16,500 tau); map-2 cell J0 -40, T_ramp 316.2 s 475.9 s (41,028 tau); P3 I_amp 2, 120 s 248.9 s (1.57 x the headline 158.1 s); noisy seed run 2.36 s (1.67e7 Heun steps); S16 J_T_frac x 1.1 193.3 s; NC1 mean-field proxy 106.2 s; NC1 network proxy N = 1e4 278.0 s. Memory poll 1.38 to 1.65 GB, 2.25 GB for the map-2 cell. (2) DEVIATION: every record shows git.dirty = true although the tree was clean at the start (git_status_before.txt empty); likely cause the untracked docs/ms9_plan.md written during the run (not verified). Reported for a ruling; not re-run. (3) Prediction at 10 workers against Table 9.1 and the 1.5 x rule: S6 9.8 min vs 57 min (limit 85.5), PASS; S7 map 1 4.45 h weighted (4.77 h scaled corners; 7.80 h bound) vs 4.1 h (limit 6.15), PASS on the weighted figure; S7 map 2 + noisy subgrid 2.60 h vs 2.2 h (limit 3.3), PASS; S12 MF + S16 42.4 min vs 40 min (limit 60), PASS; NC1 network 4.6 min vs 30 min, PASS. Shared rows judged whole (M9-20, UNVERIFIED reading). (4) Parts over one hour: S7 map 1 (4.45 h) and S7 map 2 (2.46 h). NOT launched; reported for a ruling. (5) D36 conservative sum 13.42 h against 24 h (recorded S5 52.9 min, S13 26.3 min, S5 baseline 147.8 s; Table 9.1 upper bounds for earlier and later families without a recorded wall; MS9 predictions); UNVERIFIED mixed-basis sum, analysis time not included. (6) Cell-list SHA-256 recomputed: 1,226 cells, 8e67bbd2b366e86ffee59e732dd79824bdce82c73c477436cb3b1689b0a328d9, equal to the frozen value. No launch, no cut applied.
+Reason:          9a prompt steps 4 to 6.
+Options:         -
+Chosen:          as above   Default from: plan 9.2
+Test:            results/timing/ms9/ (git-ignored), prediction_9a.txt; tests/test_ms9_counts.py.
+Status:          done; waits for rulings.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-212  MS9 9a: docs/ms9_plan.md written; M9-1 to M9-21 open, nothing chosen    [ID: MS9, 9a, G3, G5, G7, RB2, RB4, RB7, A7, A9, A10, D24, D31]
+Date:            2026-10-19        Author:
+Decision:        docs/ms9_plan.md written in the layout of docs/ms8_plan.md: state, plan quantities with sections, 21 open choices (NC1 to NC3 definitions and cells, S6 schedules and T_ramp subset, subgrid selection, hypercube bounds, A9 labels and region test, agreement rule, run order and G5 inputs, storage, G3 reading, D31 refinement, A7 S6 reference, allowance shares, seed keys) each with options and a recommendation, a proposed sub-step table, counts with derivations (3,618 runs), timing, predictions, D36 check, disk. Every plan quantity not given is marked UNVERIFIED. The plan, the frozen file and all settled items are unchanged.
+Reason:          9a prompt steps 2 and 3.
+Options:         -
+Chosen:          none chosen   Default from: the 9a prompt
+Test:            -
+Status:          9a done; STOP for the rulings on M9-1 to M9-21 and on the two over-one-hour parts.
+Commit/tag:      the commit that adds this entry; no tag
