@@ -1,0 +1,8 @@
+# MS9 9b run config (DL-213 to DL-215; docs/ms9_plan.md "Rulings"). Names the FROZEN criteria file: the runner refuses to start unless the tag criteria-frozen verifies.
+# Layered on configs/base.yaml (ref_devalle). Per-run values (cell, T_ramp, eta_start/peak, seed key, perturbation) are in configs/ms9/runlists/*.csv (overrides column).
+# SUPPLEMENTARY, labelled (M9-4): NC1 in mode N at the headline cell, 13 T_ramp x 10 seeds, key [9, 4, s] (UNVERIFIED), reported per window W. Feeds NO gate, no diagnostics. Outside the pre-registered lists.
+run:        {id: NC1_modeN, kind: mf_noisy, workers: 1}
+model:      {ref_point: ref_devalle}
+path:       {name: path_eta, profile: linear, T_ramp_s: 120.0, eta_H: null}
+output:     {dir: results/S12/supp}
+robustness: {criteria_file: configs/robustness_criteria.yaml}

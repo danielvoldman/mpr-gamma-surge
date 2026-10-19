@@ -155,3 +155,33 @@ Memory (polled total python working set, 10 copies): 1.38 to 1.65 GB, 2.25 GB fo
 ## Open items that touch MS9
 
 1. **K5** (DL-064, DL-082) own reading, UNVERIFIED, deferred. 2. **K10** (DL-131 to DL-133) definition kept, single-source claim UNVERIFIED. 3. **K4-net coupling (MC-03)** unsourced; the NC1 network run uses the M3 network, not the M2 coupling. 4. **F-16** (RB1 at N = 3e4) is MS10. 5. **sigma 0.0624** UNVERIFIED until S8 (MS10): the subgrid classes depend on it. 6. **Reported limitations that act on MS9:** every D8-dependent class is provisional; the A_ref reading (a) 2.176222; G6-D1 to G6-D3 for any statement about onset against the entry-exit prediction; the P3 cost is 1.57 x the headline, which is why the S6 and NC2 predictions use the P3 rate. 7. **Defender exclusion** user-reported only (DL-142). 8. **Tags and pushes:** none.
+
+## Rulings (9b, DL-213, DL-214; the reviewer's 9b prompt, step 2)
+
+The rulings below close the choices M9-1 to M9-21 above. The "Recommendation" and "nothing is chosen" wording of the sections above is the 9a state and is superseded by this section; those sections are left unchanged. The technical plan (`docs/plan.md`) is not edited. Wherever the plan gives no number, the ruling states the criterion; every reading that is ours is marked UNVERIFIED. Implementation: `configs/ms9/`, `src/mprsurge/analysis/ms9_runlist.py`, `configs/ms9/runlists/` (DL-215).
+
+| ID | Ruling |
+|---|---|
+| M9-1 | NC1: eta falls from eta_start by (eta_peak - eta_start) of that cell (the D12 fallback, eta_H of the headline, for cells with no Hopf point), linear, same t_on, T_ramp and durations (5 s + T_ramp + 10 s on an eta-only path); J, Delta, tau_d fixed; I = 0. At the headline eta runs from 1.396046 to -2.103954 |
+| M9-2 | NC2: I_amp = 1; the I = 0 arm reuses the S5 P2 linear mode-D runs (`results/S5/ramp/p2_linear`, no re-run) |
+| M9-3 | NC3: J goes linearly from J0 to -40 over the same T_ramp as the eta fall, starting at t_on (`J_lag_frac` 0, `J_T_frac` 1, `J_end` -40). -40 is the lower edge of the map-2 J0 range (Table 6.2). UNVERIFIED, exploratory, feeds no gate |
+| M9-4 | The pre-registered NC runs are mode D (the network run is mode N by kind). ADDED, labelled SUPPLEMENTARY: NC1 in mode N at the headline cell, 13 T_ramp x 10 seeds, own run list (`runlist_SUPP_NC1_modeN.csv`, 130 runs), own seed key [9, 4, s] (UNVERIFIED), reported per window W, feeds NO gate, no diagnostics. Reading ours: the key is [9, 4, s] as proposed in the ruling; [9, 3, s] (confirmed in M9-21 as reserved) stays reserved and unused |
+| M9-5 | NC1 map cells: the four map-1 corners (indices (0,0), (0,29), (29,0), (29,29)) plus the cell nearest the headline, index (14, 12) (Delta 0.29483, tau_d 5.0469 ms; checked by a test) |
+| M9-6 | Those five cells at T_ramp 120 s only |
+| M9-7 | The NC1 network run: headline cell, N = 1e4, 120 s, 1 seed, key [9, 2, 0] |
+| M9-8 | S6 at the headline cell, linear. P4a/P4b as coded in `ramps.py` (DL-060): Delta goes from model Delta at t_on to Delta x factor at t_on + T_ramp (factor 1.5 for P4a, 2/3 for P4b), same profile as eta; eta and J as P2 (J lag 0.25, duration T_ramp); constant I |
+| M9-9 | S6 = P3 (I_amp 0.5, 1, 2), P4a, P4b x T_ramp {10, 30, 120, 300} s (20 runs), PLUS two SUPPLEMENTARY P2 reference runs at 30 s and 300 s (`runlist_SUPP_P2ref.csv`), labelled, for the A7 comparison only, outside the pre-registered list |
+| M9-10 | Noisy subgrid indices round(linspace(0, 29, 15)) = 0, 2, 4, 6, 8, 10, 12, 15, 17, 19, 21, 23, 25, 27, 29 on both axes (SHA-256 of the canonical JSON of the list e4466a1d...) |
+| M9-11 | Hypercube: +-10% of nominal on all seven parameters (multiplicative box, uniform, `scipy.stats.qmc.LatinHypercube(d=7)` scrambled, no optimisation, generator seeded from the key [7, 9, 0]); eta_start and eta_peak held at the nominal values when Delta, tau_d or J0 is perturbed; J0 perturbs `model.J` and `path.J0` together |
+| M9-12 | A9 labels from A4 and plan numbers only: (a) Delta above the largest Delta with an A4 Hopf point at that tau_d; (b) tau_d outside the A4 Hopf tau_d interval at that Delta; (c) A4 Hopf frequency (Im lambda) below 25 Hz; (d) time inside the oscillatory region x that frequency below 10 cycles; (e) D-sus or S-sus; (f) as in the plan. All labels that apply are recorded; primary = first in order a to f. Implemented at 9j (a preliminary version only for the 9b timing) |
+| M9-13 | A4-region test: leading Re lambda > 0 somewhere along the path |
+| M9-14 | Subgrid agreement = modal class over the 10 seeds, a tie counts as disagreement; per-run agreement and the count of cells with >= 8/10 seeds agreeing are reported beside |
+| M9-15 | Order: NC1, S16, S6, map 1, map 2 + subgrid, NC2, NC3. G5 needs >= 27 of 900 map-1 cells with a surge class (failed cells stay in the 900) and RB4 pass: all but <= 2 of the 14 one-at-a-time runs unchanged and >= 52 of 64 hypercube points unchanged |
+| M9-16 | v and r are stored in the dtype MS8 used for S5/S13. Found: float64 (all eight arrays t_ms, r, v, s, eta, J, Delta, I of every run, `np.savez_compressed`-style npz, 4.10 MB for a 165,001-sample S5 run). The existing writer is therefore used unchanged (no float32 option, no new writer). The plan default float32 is NOT used: the ruling is read as "the MS8 dtype", UNVERIFIED reading |
+| M9-17 | G3: not triggered if any P2 surge class (D-tr) exists, because "every onset S-sus or D-sus" already fails; "termination by J -> 0 rejected" means P2-based runs that keep oscillating after J = 0 with no end. Class tables are provided at the gate |
+| M9-18 | D31 boundary refinement is its own sub-step after map 1; its extra run count and timing come to the reviewer before launch |
+| M9-19 | A7 delay on P3/P4 measured from the nominal eta_H (2.896046) |
+| M9-20 | S12 + S16 judged against the shared Table 9.1 row (S11 joins at MS11); S6 against the whole row "S2, S5, S6" |
+| M9-21 | Seed keys [9, 1, s], [9, 2, 0], [9, 3, s] confirmed (UNVERIFIED); [9, 4, s] added by M9-4 (UNVERIFIED) |
+
+Standing rulings of the 9b prompt: the 9a timing records (git.dirty = true) stay as timing-only records, labelled; map 1 and then map 2 + subgrid are each ONE pooled, restartable, detached launch started by the reviewer, never by the assistant (`scripts/run_ms9_list.py` supports it: resumable by `find_complete`, `--cells A:B` for a split); the NC1 family is run by the assistant at 9b with a stop rule (any pre-registered NC1 run that is not NS or D-none stops everything: report, no diagnostics, G7 / A8 review comes to the reviewer first).

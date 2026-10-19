@@ -38,13 +38,15 @@ DEFAULTS = {k: v[0] for k, v in OPTIONS.items()}
 SEED_KEY_PREFIXES = {
     "s7_noisy_subgrid": (9, 1),     # [9, 1, s], s = 0..9: mode-N seed s of every subgrid cell (same stream per cell, DL-069 convention)
     "s12_nc1_network": (9, 2),      # [9, 2, 0]: the NC1 network run, 1 seed
-    "s12_nc_mode_n": (9, 3),        # [9, 3, s]: reserved, used only if a ruling adds mode-N NC runs (M9-3 option); not in the default counts
+    "s12_nc_mode_n": (9, 3),        # [9, 3, s]: reserved, confirmed (M9-21) and unused
+    "s12_nc1_mode_n_supp": (9, 4),  # [9, 4, s]: SUPPLEMENTARY NC1 in mode N (M9-4, 9b), same stream at every T_ramp, outside the pre-registered counts
 }
 
 
 def proposed_seed_keys(include_reserved: bool = True) -> list[tuple[int, ...]]:
     keys = [SEED_KEY_PREFIXES["s7_noisy_subgrid"] + (s,) for s in range(N_SEEDS)]
     keys.append(SEED_KEY_PREFIXES["s12_nc1_network"] + (0,))
+    keys += [SEED_KEY_PREFIXES["s12_nc1_mode_n_supp"] + (s,) for s in range(N_SEEDS)]
     if include_reserved:
         keys += [SEED_KEY_PREFIXES["s12_nc_mode_n"] + (s,) for s in range(N_SEEDS)]
     return keys

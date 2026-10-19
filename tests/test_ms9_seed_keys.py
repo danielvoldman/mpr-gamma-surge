@@ -28,7 +28,7 @@ def test_the_scan_sees_the_keys_the_proposal_must_avoid():
 def test_proposed_keys_collide_with_no_key_in_use():
     used = _key_prefixes_in_repo() | set(KNOWN)
     mine = M.proposed_seed_keys()
-    assert len(mine) == len(set(mine)) == 21
+    assert len(mine) == len(set(mine)) == 31      # 10 subgrid + 1 network + 10 supplementary NC1 mode N (9b) + 10 reserved
     for m in mine:
         assert m not in CALIBRATION
         for u in used:
@@ -45,6 +45,16 @@ def test_the_proposed_prefixes_do_not_overlap_each_other():
 def test_the_f19_key_is_untouched():
     """[7, 9], [7, 9, 0] and [7, 9, 1, k] are settled (DL-159, F-19); no proposed key shares their first two elements."""
     assert all(k[:2] != (7, 9) for k in M.proposed_seed_keys())
+
+
+def test_the_9b_supplementary_key_is_new_and_collides_with_nothing():
+    """[9, 4, s] (supplementary NC1 in mode N, M9-4) is not a key of the first 9a proposal and is related to no key in use or proposed."""
+    supp = [(9, 4, s) for s in range(10)]
+    assert all(k in M.proposed_seed_keys() for k in supp)
+    others = [k for k in M.proposed_seed_keys() if k not in supp] + sorted(_key_prefixes_in_repo() | set(KNOWN))
+    for k in supp:
+        for u in others:
+            assert not _related(k, u), (k, u)
 
 
 def test_the_collision_rule_has_teeth():

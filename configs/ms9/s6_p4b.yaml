@@ -1,0 +1,8 @@
+# MS9 9b run config (DL-213 to DL-215; docs/ms9_plan.md "Rulings"). Names the FROZEN criteria file: the runner refuses to start unless the tag criteria-frozen verifies.
+# Layered on configs/base.yaml (ref_devalle). Per-run values (cell, T_ramp, eta_start/peak, seed key, perturbation) are in configs/ms9/runlists/*.csv (overrides column).
+# S6 P4b (plan 4.4; M9-8): P2 with Delta x 2/3, coded as P4a (ramps.py, DL-060).
+run:        {id: S6_P4b, kind: mf, workers: 1}
+model:      {ref_point: ref_devalle}
+path:       {name: path_delta_down, profile: linear, T_ramp_s: 120.0, eta_H: 2.8960461989737856, Delta_factor: 0.6666666666666666}
+output:     {dir: results/S6}
+robustness: {criteria_file: configs/robustness_criteria.yaml}

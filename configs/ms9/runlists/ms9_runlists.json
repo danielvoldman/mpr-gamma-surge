@@ -1,0 +1,131 @@
+{
+ "cell_list_sha256": "8e67bbd2b366e86ffee59e732dd79824bdce82c73c477436cb3b1689b0a328d9",
+ "gate": {
+  "commit": "dd8330c5eaacd63d21e7b7969430988d00862769",
+  "path": "configs/robustness_criteria.yaml",
+  "secondary": {
+   "configs/A4_grids.yaml": "cf6a60bec781c6f7e53b7f92b747ff745fcc5dc4794c0b83768e0aa4a4e56401",
+   "configs/S13.yaml": "317db87e69afcb09111a33e78640869b3f588e64390d110655aaa3a7cff52388",
+   "configs/S5_cells.yaml": "fe8590ce81bc8c537f9c92e2afbee80685aaaa52c757474912b243fe9ed38790"
+  },
+  "sha256": "c7d2f36b74ea611c8777c1b408d5085333e55230834c27e5f0eb839f1162fa05",
+  "tag": "criteria-frozen"
+ },
+ "lists": {
+  "NC1": {
+   "by_family": {
+    "NC1": 13,
+    "NC1_cells": 5,
+    "NC1_net": 1
+   },
+   "duplicate_hashes": [],
+   "pre_registered": true,
+   "runs": 19,
+   "sha256": "b91df073756a9cb080f1ca134c8491afbaed582e3d781e1e26629e6ca969bf8d"
+  },
+  "NC2": {
+   "by_family": {
+    "NC2": 13
+   },
+   "duplicate_hashes": [],
+   "pre_registered": true,
+   "runs": 13,
+   "sha256": "2aecfe03527459df0f754fec9dc01ba3235aaae51047d69fc83892a41e042d44"
+  },
+  "NC3": {
+   "by_family": {
+    "NC3": 13
+   },
+   "duplicate_hashes": [],
+   "pre_registered": true,
+   "runs": 13,
+   "sha256": "f51e714d5a22e18fdcdbea607850a08bee8b33eaa729e4c7ba331969cb4c7d8c"
+  },
+  "S16": {
+   "by_family": {
+    "S16_lhs": 64,
+    "S16_oat": 14
+   },
+   "duplicate_hashes": [],
+   "pre_registered": true,
+   "runs": 78,
+   "sha256": "45670112ffbe0852606444cc9271ec861d0ef3b6c0bd4464c6e2a90345e27267"
+  },
+  "S6": {
+   "by_family": {
+    "S6_P3": 12,
+    "S6_P4a": 4,
+    "S6_P4b": 4
+   },
+   "duplicate_hashes": [],
+   "pre_registered": true,
+   "runs": 20,
+   "sha256": "3169fd83a4a32f71bd4356819dc0a66277ed8647558403024e31b2bb26255554"
+  },
+  "S7_map1": {
+   "by_family": {
+    "S7_map1": 900
+   },
+   "duplicate_hashes": [],
+   "pre_registered": true,
+   "runs": 900,
+   "sha256": "00ae3cfefe0b92d920d68ef0593fe0275ebee38b9b4793b0bd9f0b10a83264c3"
+  },
+  "S7_map2": {
+   "by_family": {
+    "S7_map2": 325
+   },
+   "duplicate_hashes": [],
+   "pre_registered": true,
+   "runs": 325,
+   "sha256": "c2c75c44b318c6797d721c842e69f564a727faaa6e111827588666b927da89f0"
+  },
+  "S7_subgrid": {
+   "by_family": {
+    "S7_subgrid": 2250
+   },
+   "duplicate_hashes": [],
+   "pre_registered": true,
+   "runs": 2250,
+   "sha256": "11bc2a7752272990a7ed230109178ecad64b110cbd2297d8df88da5f3c19a096"
+  },
+  "SUPP_NC1_modeN": {
+   "by_family": {
+    "NC1_modeN": 130
+   },
+   "duplicate_hashes": [],
+   "pre_registered": false,
+   "runs": 130,
+   "sha256": "fe546a3d165b44fc1734c0a334d01f4165e0e01f39b2a7f2ce44f5b639a27e3c"
+  },
+  "SUPP_P2ref": {
+   "by_family": {
+    "S6_P2ref": 2
+   },
+   "duplicate_hashes": [],
+   "pre_registered": false,
+   "runs": 2,
+   "sha256": "b0e78cfb89f15e54c1ab5ca1a7884c16e161ef3e4677abdc012a9d32956a75dd"
+  }
+ },
+ "pre_registered_total": 3618,
+ "subgrid_indices": [
+  0,
+  2,
+  4,
+  6,
+  8,
+  10,
+  12,
+  15,
+  17,
+  19,
+  21,
+  23,
+  25,
+  27,
+  29
+ ],
+ "subgrid_indices_sha256": "e4466a1dfcf58837b7f92421f0c221c74db2d28c6b6c9bd47975e3e4f9a4cf68",
+ "supplementary_total": 132
+}
