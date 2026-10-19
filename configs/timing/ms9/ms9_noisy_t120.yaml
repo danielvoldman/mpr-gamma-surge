@@ -1,0 +1,4 @@
+# MS9 9a timing-gate sample cell (DL-210): one mode-N seed run of the noisy subgrid of map 1 (S7), P2 at the headline cell, T_ramp 120 s, stochastic Heun dt 1e-3 tau, 2 s discard,
+# sigma 0.0624 from base.yaml (UNVERIFIED until S8). The cost per Heun step does not depend on the cell parameters, so the headline cell stands for a subgrid cell (ours, UNVERIFIED).
+# One copy = one seed (spawn key [0] set by time_one_run.py). A subgrid cell is 10 seeds.
+run: {kind: mf_noisy}

@@ -1,0 +1,6 @@
+# MS9 9a timing-gate sample cell (DL-210): the NC1 network run (S12: "NC1 network 1 seed, 120 s"), M3 network N = 10^4, forward Euler dt 1e-3 tau, 2 s discard, same NC1 timing proxy as ms9_nc1_t120
+# (open definition M9-1, UNVERIFIED). Layered on configs/S5.yaml; the network settings are those of configs/timing/net_1e4.yaml.
+run:     {kind: network}
+path:    {name: path_eta, T_ramp_s: 120.0, eta_H: null, eta_start: 1.3960461989737856, eta_peak: -2.1039538010262144}
+network: {N: 10000}
+seeds:   {spawn_key: [0]}
