@@ -193,3 +193,7 @@ Run: the NC1 family only (149 runs: 19 pre-registered + 130 supplementary), 149 
 ## Status after 9c (DL-221 to DL-227)
 
 G7 triggered by the NC1 network run (S+); map 1 held (DL-222); M9-16 float64 accepted (DL-223); S6 P3 I_amp 1 at 10 s and NC2 at 10 s share a config hash and the launcher runs it twice (DL-224, DL-225). 9c PART 1 (DL-226): the S+ rests on two flagged windows (centres 14 and 16 s, rel 2.09 and 2.29) bridged by one unflagged window; 4 baseline windows; D8 undefined (the envelope never reaches 0.2176) so "non-damped"; 9 of 10 A8 variants still give a surge class. PART 2 (DL-227, S12x, exploratory, outside the lists): 10 of 10 ramp seeds and 10 of 10 constant-parameter seeds are not NS. Nothing else run. STOP: A8 options (a) to (h) await the reviewer.
+
+## Status after 9e (DL-236)
+
+Map 1 complete: 900 ok, 4.10 h, clean tree. Classes D-tr 760, D-none 140, D-sus 0, failed 0 (G5 fact 760 of 900 against 27; verdict the reviewer's). A9: 0 ramp artefacts; 140 non-surge cells labelled a 48, c 32, f 8 (primary), 52 unlabelled. Map 2 + subgrid launch package prepared, not launched. M9-22 listed, none chosen. STOP.
