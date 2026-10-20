@@ -2765,3 +2765,13 @@ Chosen:          as above   Default from: the 9d prompt
 Test:            tests/test_ms9_9d.py.
 Status:          done; committed before the run.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-235  MS9 9d: S16 and S6 run; RB4 evaluated (PASS); S6 table; facts only, no diagnostics    [ID: MS9, 9d, S16, S6, RB4, G5, A7, DL-234]
+Date:            2026-10-19        Author:
+Decision:        FACTS. (1) Launch at commit 5cc2584, tree clean (git.dirty = false and commit 5cc2584 in all 100 records): S16 (78) + S6 (20) + SUPP_P2ref (2), one pool, 10 workers, longest first: 100 ok, 0 failed, wall 1734.4 s (28.9 min) against about 35 min predicted (25 + 10). The launcher's first heartbeat (10 of 100 done at 418 s) extrapolated linearly to 3,759 s because the pool is longest-first; the ETA fell to 1,765 s at 30 of 100 and the run was not stopped (the 9a-timing projection was 35 min, under one hour). (2) RB4 (M9-15; numbers pre-registered): nominal class = class of the S5 headline run S5ramp_0000_240de3ef73be (P2 linear, 120 s, mode D) = D-tr (onset 58.698 s, f_pk 49 Hz). One-at-a-time: 0 of 14 changed, 0 failed (pass: at most 2). Latin hypercube: 64 of 64 unchanged, 0 failed (pass: at least 52 of 64). RB4 PASS on both numbers. All 78 runs are D-tr. (3) S6: all 24 runs in the table (20 pre-registered, 2 supplementary P2 references, 2 S5 comparators) are D-tr; onset, f_pk, duration in results/ms9/9d/s6_table.csv. The S5 grid has no 120 s point (13 log-spaced T_ramp); the 120 s comparator is the S5 headline run, the 10 s comparator is p2_linear. The S6 P3 I_amp 1 / 10 s entry ran in its own out_dir (DL-232). No A7 per-run table, no further diagnostics. (4) Files: results/ms9/9d/ (rb4_runs.csv dc385c86, rb4_summary.json 22b58a9e, s16_classes.csv 1b61b864, s6_classes.csv 581aa1cd, s6_table.csv 590ec604, s5 comparators 6d82d43e and 67e19cc6), results/ms9/launch_s16_s6/manifest.csv 7cccad8f. Report script fix after the run (analysis only, no record touched): --s5 is the headline class table, --p2 the p2_linear table, label bug for P4. (5) Fast suite 670 passed, 11 deselected, 9 xfailed, pytest exit 0 (193.6 s).
+Reason:          instruction of the reviewer (9d prompt, steps 3 to 5).
+Options:         -
+Chosen:          as above   Default from: the 9d prompt
+Test:            tests/test_ms9_9d.py; results/ms9/9d/.
+Status:          done; STOP.
+Commit/tag:      the commit that adds this entry; no tag

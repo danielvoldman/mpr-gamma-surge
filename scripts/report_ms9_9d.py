@@ -1,6 +1,6 @@
 """MS9 9d report: RB4 facts (S16) and the S6 table, from class tables written by scripts/classify_ms9.py (DL-228). Analysis only.
 
-  report_ms9_9d.py --s16 CLASSES.csv --s5 CLASSES.csv [--s6 CLASSES.csv] --out-dir results/ms9/9d
+  report_ms9_9d.py --s16 CLASSES.csv --s5 HEADLINE.csv --p2 P2_LINEAR.csv [--s6 CLASSES.csv] --out-dir results/ms9/9d
 
 RB4 (frozen, configs/robustness_criteria.yaml): nominal class = the S5 headline class (P2 linear, T_ramp 120 s, mode D). "Unchanged" = the same
 class string; a run that failed counts as changed and is listed separately. Pass: at most 2 of the 14 one-at-a-time runs changed AND at least
@@ -82,7 +82,7 @@ def s6_table(s6_rows, p2_rows, ref_rows) -> list[dict]:
     out = []
     for r in s6_rows:
         a = r["run"].split("_")[1]
-        label = {"P3": f"P3 I_amp {json.loads(_over(r['run']))['path.I_amp']}", "P4a": "P4a", "P4b": "P4b"}[a]
+        label = f"P3 I_amp {json.loads(_over(r['run']))['path.I_amp']}" if a == "P3" else a
         out.append((label, float(r["T_ramp_s"]), "pre-registered", r))
     for r in p2_rows:
         if r["path_name"] == "path_hypoxia" and r["mode"] == "D" and round(float(r["T_ramp_s"])) in (10, 120):
@@ -113,7 +113,8 @@ def write_csv(path: Path, rows: list[dict]) -> None:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="report_ms9_9d")
     ap.add_argument("--s16", required=True)
-    ap.add_argument("--s5", required=True, help="class table of results/S5/ramp/p2_linear")
+    ap.add_argument("--s5", required=True, help="class table of the S5 headline run (results/S5/ramp/S5ramp, P2 linear, 120 s)")
+    ap.add_argument("--p2", required=True, help="class table of results/S5/ramp/p2_linear (13 T_ramp; the 10 s comparator)")
     ap.add_argument("--s6", default=None, help="class table of results/S6 (pre-registered and supplementary)")
     ap.add_argument("--out-dir", required=True)
     args = ap.parse_args(argv)
@@ -142,7 +143,7 @@ def main(argv=None) -> int:
         s6 = read(args.s6)
         pre = [r for r in s6 if r["run"].startswith(("S6_P3", "S6_P4"))]
         ref = [r for r in s6 if r["run"].startswith("S6_P2ref")]
-        tab = s6_table(pre, s5, ref)
+        tab = s6_table(pre, read(args.p2) + s5, ref)
         write_csv(out / "s6_table.csv", tab)
         print("\nS6 table (class, onset s, f_pk Hz, duration s):")
         for t in tab:
