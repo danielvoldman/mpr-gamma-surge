@@ -2895,3 +2895,13 @@ Chosen:          as above   Default from: the 9g prompt
 Test:            tests/test_ms9_9g.py.
 Status:          done; committed before the run.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-248  MS9 9g: M9-22 control, NC2, NC3 run; facts only (no verdicts, no diagnostics)    [ID: MS9, 9g, M9-22, NC2, NC3, A9, A10, D24, DL-244, DL-245, DL-246, DL-247]
+Date:            2026-10-21        Author:
+Decision:        FACTS (scripts/report_ms9_9g.py, committed 3a837b4 before the run; output results/ms9/9g_report.txt and results/ms9/9g/). (1) Launch at commit 3a837b4, tree clean (git.dirty = false in all 2,276 records): 2,276 ok, 0 failed, one launch, wall 1,432.8 s (23.9 min) against about 39 min predicted. (2) Control (2,250 runs, EXPLORATORY): classes NS 1,104, S+ 28, S-abs 21, S-rel 1,095, S-sus 2. By deterministic class, fraction NS / surge (S+, S-rel, S-abs) / S-sus: D-tr 188 cells: control 53.46% / 46.44% / 0.11%, ramp subgrid 2.50% / 58.78% / 38.72%; D-none 37 cells: control 26.76% / 73.24% / 0.00%, ramp 3.78% / 68.92% / 27.30%. Cells with at least 8 of 10 control seeds NS: 12 (all D-tr); of these the ramp runs have fewer than 8 of 10 NS in 12 (reading ours), and no NS run at all in 8. Cells with at least 8 of 10 ramp seeds NS: 0. Per-cell counts: results/ms9/9g/control_cells.csv. (3) Ramp subgrid baseline: 4 baseline windows in all 2,250 runs (W 2 s); max/min of the baseline odds P_G / P_non-G: median 1.917, 90th percentile 2.689, min 1.039, max 9.934, fraction at or above 2.0: 0.436 (981 of 2,250). (4) NC2: D-tr at 13 of 13 T_ramp for I = 1, as for I = 0 (S5 P2 linear, D-tr 13 of 13); onset, delay, duration per T_ramp in results/ms9/9g/nc2_table.csv (at T_ramp 100 s: I = 0 onset 50.418 s, delay 0.090, duration 68.806 s; I = 1 onset 25.311 s, delay -0.789, duration 93.910 s). NC3: D-none at 13 of 13 T_ramp ("envelope never reaches the threshold"). A10 facts only, no verdict. (5) A9 g and h (DL-244; reading ours for g and h as in DL-244): map 1, 140 non-surge cells, 52 unlabelled under a to f: g any 70 (51 of the 52 unlabelled); h any 4 (1 of the unlabelled, cell (11, 14)); g and h together 0; no cell remains unlabelled under a to h; map 2, 29 non-surge cells, 13 unlabelled: g any 13 (all 13), h 0. (6) D31 refinement proposal in the 9g report; nothing run. (7) Fast suite 682 passed, 11 deselected, 9 xfailed, pytest exit 0 (281 s) before the run commit.
+Reason:          instruction of the reviewer (9g prompt, steps 4 and 5).
+Options:         -
+Chosen:          none   Default from: the 9g prompt
+Test:            tests/test_ms9_9g.py; results/ms9/9g/.
+Status:          done; STOP.
+Commit/tag:      the commit that adds this entry; no tag
