@@ -2785,3 +2785,53 @@ Chosen:          none   Default from: the 9e prompt
 Test:            results/ms9/9e/map1_classes.csv.
 Status:          done; STOP.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-237  MS9 9f: G5 recommendation recorded: CONTINUE    [ID: MS9, 9f, G5, S7, RB4, DL-235, DL-236]
+Date:            2026-10-21        Author:
+Decision:        RECORDED. The G5 recommendation is CONTINUE: 760 of 900 map-1 cells have a surge class (D-tr) against the 27 needed (3%), and RB4 passed in 9d (DL-235). The "narrow window" branch of G5 (Table 11.2) does not apply.
+Reason:          ruling of the reviewer (9f prompt, step 2a).
+Options:         -
+Chosen:          as above   Default from: the 9f prompt
+Test:            results/ms9/9e/map1_classes.csv (d16d85e4).
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-238  MS9 9f: the 52 unlabelled map-1 cells stay unlabelled; a new A9 label needs the reviewer's ruling    [ID: MS9, 9f, A9, M9-12, DL-236]
+Date:            2026-10-21        Author:
+Decision:        The 52 map-1 cells without an A9 label (DL-236 (4)) stay unlabelled. No new label is added. A new A9 label needs the reviewer's ruling. The 9f diagnostic (DL-241) is facts only and adds none.
+Reason:          ruling of the reviewer (9f prompt, step 2b).
+Options:         -
+Chosen:          as above   Default from: the 9f prompt
+Test:            -
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-239  MS9 9f: M9-22 deferred    [ID: MS9, 9f, M9-22, D24, DL-236]
+Date:            2026-10-21        Author:
+Decision:        M9-22 (constant-parameter mean-field mode-N control at the 225 subgrid cells x 10 seeds, 2,250 runs) is deferred: run only if the D24 agreement is below 90% or unclear. Not run at 9f.
+Reason:          ruling of the reviewer (9f prompt, step 2c).
+Options:         -
+Chosen:          deferred   Default from: the 9f prompt
+Test:            -
+Status:          open; the D24 facts of DL-241 go to the reviewer, who decides.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-240  MS9 9f: map 2 and the noisy subgrid were launched by the user    [ID: MS9, 9f, S7, DL-233, DL-236]
+Date:            2026-10-21        Author:
+Decision:        FACT. Map 2 + subgrid (2,575 runs = 325 + 2,250) were launched by the user as one pooled launch (scripts/run_ms9_list.py, journal results/ms9/launch_map2_subgrid), not by the assistant, from commit 86a5e18 (DL-233, DL-236).
+Reason:          ruling of the reviewer (9f prompt, step 2d).
+Options:         -
+Chosen:          as above   Default from: the 9f prompt
+Test:            results/ms9/launch_map2_subgrid/manifest.csv.
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-241  MS9 9f: map 2 + subgrid completed; map-2 classes and A9; D24 facts; stored-record diagnostic of the unlabelled map-1 cells (facts only, no verdicts, nothing run)    [ID: MS9, 9f, S7, A9, D24, RB2, M9-12, M9-13, M9-14, DL-236]
+Date:            2026-10-21        Author:
+Decision:        FACTS (scripts/report_ms9_9f.py, committed b2ec8b5 before it was run; analysis only, no simulation; outputs in results/ms9/9f/). (1) Completion: 2,575 ok, 0 failed, 0 missing (journal 2,575 unique names = the run lists; 2,575 records on disk); one launch, 0 restarts; wall 7,648.8 s = 2.12 h against 2.60 h predicted (limit 3.3 h); all records commit 86a5e18, git.dirty = false. (2) Map 2 (J0 25 x T_ramp 13, Delta 0.3, tau_d 5 ms): D-tr 296, D-sus 0, D-none 29, failed 0. The D-none cells form a triangle at weak inhibition and short T_ramp: D-tr per J0 row 13 (rows 0 to 19), then 12, 11, 8, 5, 0 (rows 20 to 24). A9 under M9-12 (all labels recorded, primary first of a to f): f 16 (primary and any), none 13 (the whole J0 = -5 row: Re lambda <= 0 along the path, time inside 0 s). The A4 Hopf frequency at Delta 0.3, tau_d 5 ms is 30.5 to 35.5 Hz in every J0 row (above 25 Hz) and a Hopf point exists in every row, so (a), (b), (c) did not apply. With Delta and tau_d fixed, (a) and (b) can still apply in the rule as coded, because they test whether an A4 Hopf point exists at the cell's own J0 (map-1 axes used for the comparison); (c) to (f) can apply as for map 1 ((d) depends on T_ramp, (e) on a D-sus); only (f) occurred. A9 check: 0 of 296 surge-class cells lack Re lambda > 0 along the path. (3) D24 (M9-14; Table 2.1 correspondence; 225 subgrid cells x 10 seeds; deterministic classes from map1_classes.csv: D-tr 188, D-none 37): class counts over the 2,250 runs NS 61, S+ 475, S-abs 507, S-rel 378, S-sus 829. Cell agreement (modal class, tie = disagreement): 97 of 225 = 43.1% against 90% (at least 203 of 225); 24 ties; the same rule on the mode of the three categories (surge, S-sus, NS), reading ours, UNVERIFIED: 118 of 225. Per-run agreement 1,119 of 2,250 = 49.7%. Cells with at least 8 of 10 seeds agreeing: 84 of 225. By deterministic class: D-tr 188 cells, 96 agree, 84 with at least 8 of 10, 1,105 of 1,880 runs agree; D-none 37 cells, 1 agrees, 0 with at least 8 of 10, 14 of 370 runs agree. 128 disagreeing cells, listed with their seed class counts in results/ms9/9f_report.txt and subgrid_cells.csv. In the disagreeing D-tr cells the commonest noisy class is S-sus (10 of 10 in many cells at tau_d index 17 and above); in the disagreeing D-none cells the noisy classes are S-sus, S-abs, S-rel and S+, with NS in at most 1 or 2 runs. The verdict is the reviewer's; M9-22 is the reviewer's decision (DL-239). (4) Diagnostic on the stored map-1 records and A4 (the rerun classifier equals the stored class in 55 of 55 cells). The 52 unlabelled cells by the clause that left them D-none: threshold ("envelope never reaches the threshold") 51: A4 Hopf frequency 25.0 to 40.3 Hz (none below 25), time inside the oscillatory region 0.00 s in all 51 (Re lambda <= 0 along the whole path, so (d), which needs time inside > 0, and (f), which needs the path to enter the region, cannot apply), max envelope in G over A_ref 2.3e-5 to 5.6e-5 (total band 7.1e-5 to 1.2e-4; the threshold is 0.1 x A_ref), Delta 0.2948 to 0.6, tau_d 14.8 to 50 ms; 10-cycle minimum 0; band G not the clause (the envelope is also tiny in the total band, and the spectral peak of v after t_on is the 1 Hz lowest bin in 45 of the 51, i.e. drift, which carries no information); ordering 0; damped (D8) 1: cell (11, 14), Delta 0.2338, tau_d 6.610 ms, A4 f 27.4 Hz, 90.3 s inside, max envelope 1.63 x A_ref, v peak 33.8 Hz, unlabelled (not (c): f >= 25 Hz; not (d): about 90 s x 27 Hz is far above 10 cycles; not (f): the envelope reached the threshold). The 4 isolated interior D-none cells (2, 20), (3, 18), (3, 20), (11, 14) are all D-none by "damped (D8)": the envelope reached 1.6 to 2.3 x A_ref, time inside 90 to 107 s. (2, 20) Delta 0.0507, tau_d 14.85 ms, A4 f 14.3 Hz, label c; (3, 18) Delta 0.0710, tau_d 11.34 ms, f 17.0 Hz, label c; (3, 20) Delta 0.0710, tau_d 14.85 ms, f 15.6 Hz, label c; (11, 14) unlabelled. Scheme facts, not proposals: (a) to (f) have no clause for "damped (D8)" (the four cells are D8-dependent, so provisional, gate departure 1); the 51 threshold cells have an A4 Hopf point that the path never reaches, which none of (a) to (f) names. No label added (DL-238). (5) Files (first 8 hex of SHA-256): map2_classes.csv 7eee10e1, subgrid_classes.csv f907c9fd, subgrid_cells.csv fd1025e1, map1_unlabelled_diag.csv 5c1f0cf9, launch manifest 5efb4c01. (6) Pre-checks: criteria gate against the tag criteria-frozen passes (c7d2f36b, S13 317db87e, A4_grids cf6a60be, S5_cells fe8590ce); tree clean before the run; 9e hashes equal (map1_classes d16d85e4, S7_map2 list c2c75c44, subgrid list 11bc2a77, cell list 8e67bbd2, subgrid indices e4466a1d). (7) Fast suite 674 passed, 11 deselected, 9 xfailed, pytest exit 0 (196 s). Nothing launched or simulated.
+Reason:          instruction of the reviewer (9f prompt, steps 1 to 6).
+Options:         -
+Chosen:          none   Default from: the 9f prompt
+Test:            tests/test_ms9_9f.py; results/ms9/9f/.
+Status:          done; STOP.
+Commit/tag:      the commit that adds this entry; no tag
