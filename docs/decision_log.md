@@ -2835,3 +2835,63 @@ Chosen:          none   Default from: the 9f prompt
 Test:            tests/test_ms9_9f.py; results/ms9/9f/.
 Status:          done; STOP.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-242  MS9 9g: D24 / RB2 subgrid agreement FAILED (97 of 225 cells, 43.1% on raw classes; 118 of 225, 52.4% on the three categories; 203 needed); claim limit    [ID: MS9, 9g, D24, RB2, A11, G5, DL-241]
+Date:            2026-10-21        Author:
+Decision:        RULED (reviewer). D24 / RB2 noisy-subgrid agreement FAILED: 97 of 225 cells (43.1%) on raw classes, 118 of 225 (52.4%) on the three Table 2.1 categories, against 203 needed (90%). Reported, not dropped (A11). Claim limit: no claim that the regime map is robust to noise; the map-1 and map-2 statements are mode D; mode-N classes at map cells are not evidence either way pending the M9-22 control. G5 is unaffected (mode D, DL-237).
+Reason:          ruling of the reviewer (9g prompt, step 2a).
+Options:         -
+Chosen:          as above   Default from: the 9g prompt
+Test:            results/ms9/9f/subgrid_cells.csv (fd1025e1).
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-243  MS9 9g: M9-14 corrected: the cell class is the modal category over the 10 seeds on the three Table 2.1 categories    [ID: MS9, 9g, M9-14, D24, DL-241, DL-242]
+Date:            2026-10-21        Author:
+Decision:        RULED (reviewer). The cell class under M9-14 is the modal category over the 10 seeds on the three Table 2.1 categories (surge class = S+, S-rel or S-abs; S-sus; NS); a tie counts as disagreement; the raw-class rule is reported beside it. The category rule is the headline figure; both numbers are in DL-242 (118 of 225 on categories, 97 of 225 on raw classes). Neither reaches 203.
+Reason:          ruling of the reviewer (9g prompt, step 2b).
+Options:         -
+Chosen:          as above   Default from: the 9g prompt
+Test:            tests/test_ms9_9f.py (cell_agreement, cat_agrees).
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-244  MS9 9g: A9 post-hoc descriptors g and h (a to f not renumbered)    [ID: MS9, 9g, A9, M9-12, DL-236, DL-238, DL-241]
+Date:            2026-10-21        Author:
+Decision:        RULED (reviewer). Two A9 descriptor labels beyond the plan's a to f, post hoc, reported separately, a to f not renumbered: g = an A4 Hopf point exists at the cell's J0 but the path spends no time in the oscillatory region (time inside = 0); h = the episode is rejected by the damped (D8) clause. They are applied to map 1 and map 2 and the new counts are reported (scripts/report_ms9_9g.py, part 5: any-label counts and counts among the cells unlabelled under a to f). Reading ours, UNVERIFIED: the Hopf point uses the cell's own (J0, Delta, tau_d) as in the a to f rule; g and h are evaluated on non-surge cells; h is read from the classifier reason of the stored record (map 1: re-run of the frozen classifier on the stored record, same arguments; map 2: the stored reason column). This supersedes the "no new label" of DL-238 for g and h only; no other label is added.
+Reason:          ruling of the reviewer (9g prompt, step 2c).
+Options:         -
+Chosen:          as above   Default from: the 9g prompt
+Test:            results/ms9/9g/a9_gh.csv (written by the report script after the run).
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-245  MS9 9g: M9-22 approved (D24 below 90%); exploratory S12x control, outside the pre-registered lists, feeds no gate    [ID: MS9, 9g, M9-22, S12, DL-236, DL-239, DL-242]
+Date:            2026-10-21        Author:
+Decision:        RULED (reviewer). M9-22 is approved because D24 is below 90% (the condition of DL-239). Labelled S12x, exploratory, outside the pre-registered lists, feeds no gate. Definition: the 225 subgrid cells x 10 seeds, mean-field mode N, each cell's start state held constant (eta_start, J0, Delta, tau_d), with the same record structure as the subgrid runs (2 s discard, 5 s baseline, the 120 s ramp period, the same hold) and the same sigma. Implemented by configuration alone (list S12x_ctrl_mf, configs/ms9/s12x_ctrl_mf.yaml with eta_H null; per run: path.eta_start = path.eta_peak = the cell's eta_start, path.J_end = path.J0 = model.J = the cell's J0, the cell's Delta and tau_d; J_lag_frac, J_T_frac and t_on unchanged, so the time grid equals the subgrid's); no new code beyond the list entry. Seed key [9, 7, s], s = 0..9 (proposed by the assistant, UNVERIFIED); the collision test (tests/test_ms9_9g.py; tests/test_ms9_9c.py count extended to 29 exploratory keys) shows [9, 7, s] equal to, or a prefix of, no key in the repo, the calibration keys, or the proposed and exploratory keys. List SHA-256 bb1e3084..., 2,250 runs, no duplicate hashes, none equal to a hash in another list. Output results/S12x/S12x_ctrl_mf/.
+Reason:          ruling of the reviewer (9g prompt, steps 2d and 3).
+Options:         key [9, 7, s] (assistant proposal).
+Chosen:          [9, 7, s]   Default from: the 9g prompt (key proposed, UNVERIFIED)
+Test:            tests/test_ms9_9g.py; configs/ms9/runlists/ms9_9g_runlists.json, runlist_S12x_ctrl_mf.csv.
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-246  MS9 9g: NC2 and NC3 run now    [ID: MS9, 9g, NC2, NC3, S12, M9-2, M9-3, M9-15]
+Date:            2026-10-21        Author:
+Decision:        RULED (reviewer). NC2 and NC3 run now, in the same pool as the M9-22 control. NC2 = P3 with I_amp 1 x 13 T_ramp at the headline cell, mode D (the I = 0 arm is the existing S5 P2 linear mode-D runs, not re-run, M9-2). NC3 = M9-3 as logged (J from J0 to -40, linear, same T_ramp and t_on as the eta fall, J_lag_frac 0, J_T_frac 1) x 13 T_ramp, mode D, exploratory in the plan (2.4), feeds no gate. Both are the existing pre-registered lists NC2 and NC3 (13 runs each), unchanged. A10 facts only; no verdict.
+Reason:          ruling of the reviewer (9g prompt, steps 2e and 3).
+Options:         -
+Chosen:          as above   Default from: the 9g prompt
+Test:            configs/ms9/runlists/runlist_NC2.csv, runlist_NC3.csv.
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-247  MS9 9g: launch prepared (control + NC2 + NC3, 2,276 runs); report script committed before the run; D31 refinement is a proposal only    [ID: MS9, 9g, M9-22, NC2, NC3, D31, DL-245, DL-246]
+Date:            2026-10-21        Author:
+Decision:        (1) Pre-checks passed: criteria gate against the tag criteria-frozen (c7d2f36b, S13 317db87e, A4_grids cf6a60be, S5_cells fe8590ce); tree clean at 7227021; 9f result hashes equal (map2_classes 7eee10e1, subgrid_classes f907c9fd, subgrid_cells fd1025e1, map1_unlabelled_diag 5c1f0cf9, launch manifest 5efb4c01); fast suite before the changes 674 passed, 11 deselected, 9 xfailed, pytest exit 0 (215 s). (2) Launch: python scripts/run_ms9_list.py --list S12x_ctrl_mf --list NC2 --list NC3 --workers 10 --journal-dir results/ms9/launch_9g (one pool, 10 workers, longest first); dry run lists 2,276 runs. (3) Prediction: control 2,250 runs at the measured subgrid cost (journal of the 9f launch: sum of per-run wall 4,406 s, mean 1.96 s, max 2.80 s; same step count, Heun scheme and sigma) = 4,406 s / 10 = 7.3 min; NC2 + NC3 (26 runs) at the 9a prediction of 31.8 min (a bound: sum of run walls / 10); total about 39 min against the one-hour rule: under, launch. (4) scripts/report_ms9_9g.py (analysis only) and tests/test_ms9_9g.py committed before the run. (5) The D31 refinement (halving the grid spacing near the map-1 D-tr / D-none boundary) is a proposal in the 9g report; nothing of it is run or listed.
+Reason:          instruction of the reviewer (9g prompt, steps 1, 3, 4, 6).
+Options:         -
+Chosen:          as above   Default from: the 9g prompt
+Test:            tests/test_ms9_9g.py.
+Status:          done; committed before the run.
+Commit/tag:      the commit that adds this entry; no tag

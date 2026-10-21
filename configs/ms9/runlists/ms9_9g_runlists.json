@@ -1,0 +1,45 @@
+{
+ "cell_list_sha256": "8e67bbd2b366e86ffee59e732dd79824bdce82c73c477436cb3b1689b0a328d9",
+ "gate": {
+  "commit": "dd8330c5eaacd63d21e7b7969430988d00862769",
+  "path": "configs/robustness_criteria.yaml",
+  "secondary": {
+   "configs/A4_grids.yaml": "cf6a60bec781c6f7e53b7f92b747ff745fcc5dc4794c0b83768e0aa4a4e56401",
+   "configs/S13.yaml": "317db87e69afcb09111a33e78640869b3f588e64390d110655aaa3a7cff52388",
+   "configs/S5_cells.yaml": "fe8590ce81bc8c537f9c92e2afbee80685aaaa52c757474912b243fe9ed38790"
+  },
+  "sha256": "c7d2f36b74ea611c8777c1b408d5085333e55230834c27e5f0eb839f1162fa05",
+  "tag": "criteria-frozen"
+ },
+ "lists": {
+  "S12x_ctrl_mf": {
+   "by_family": {
+    "S12x_ctrl_mf": 2250
+   },
+   "duplicate_hashes": [],
+   "pre_registered": false,
+   "runs": 2250,
+   "sha256": "bb1e30848c3d053b358c53ed74a5f5f6998bd19d76b2209ba596dc32bbcecc8f"
+  }
+ },
+ "pre_registered_total": 0,
+ "subgrid_indices": [
+  0,
+  2,
+  4,
+  6,
+  8,
+  10,
+  12,
+  15,
+  17,
+  19,
+  21,
+  23,
+  25,
+  27,
+  29
+ ],
+ "subgrid_indices_sha256": "e4466a1dfcf58837b7f92421f0c221c74db2d28c6b6c9bd47975e3e4f9a4cf68",
+ "supplementary_total": 2250
+}

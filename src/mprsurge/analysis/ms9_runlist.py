@@ -43,6 +43,7 @@ SUBGRID_N, MAP1_N = 15, 30
 N_SEEDS = 10
 SEED_SUBGRID, SEED_NC1_NET, SEED_NC1_MODE_N = (9, 1), (9, 2), (9, 4)
 SEED_S12X_NET, SEED_S12X_CONST = (9, 5), (9, 6)                   # 9c EXPLORATORY (S12x)
+SEED_S12X_CTRL_MF = (9, 7)                                        # 9g EXPLORATORY (M9-22 control), UNVERIFIED
 S12X_NET_NEW_SEEDS, S12X_CONST_SEEDS = 9, 10
 RB4_PARAMETERS = ("eta_start", "eta_peak", "J0", "Delta", "tau_d_ms", "J_lag_frac", "J_T_frac")
 RB4_REL_BOX = 0.10
@@ -53,7 +54,8 @@ LHS_DESIGN_FILE = f"{RUNLIST_DIR}/s16_lhs_design.csv"
 PRE_REGISTERED = ("NC1", "NC2", "NC3", "S6", "S16", "S7_map1", "S7_map2", "S7_subgrid")
 SUPPLEMENTARY = ("SUPP_P2ref", "SUPP_NC1_modeN")
 EXPLORATORY = ("S12x_NC1_net", "S12x_const_net")                  # 9c: outside the counts and the supplementary lists, feed no gate
-ALL_LISTS = PRE_REGISTERED + SUPPLEMENTARY + EXPLORATORY
+EXPLORATORY_9G = ("S12x_ctrl_mf",)                                # 9g: M9-22 control (2,250 mode-N mean-field runs), same status
+ALL_LISTS = PRE_REGISTERED + SUPPLEMENTARY + EXPLORATORY + EXPLORATORY_9G
 COLUMNS = ("list", "pre_registered", "family", "config", "index", "name", "hash", "kind", "path", "T_ramp_s", "spawn_key", "out_dir", "overrides")
 
 
@@ -234,6 +236,15 @@ def entries(name: str) -> list[dict]:
         ov = _nc1_overrides(h, 120.0)
         ov["path.eta_peak"] = ov["path.eta_start"]                  # constant parameters at the NC1 start state, by configuration alone
         out += [_e(name, "S12x_const_net", "s12x_net.yaml", ov, "results/S12x", SEED_S12X_CONST + (s,)) for s in range(S12X_CONST_SEEDS)]
+    elif name == "S12x_ctrl_mf":
+        idx = subgrid_indices()
+        for i in idx:
+            for j in idx:
+                c = map1_cell(i, j)
+                ov = {"model.Delta": c["Delta"], "model.tau_d_ms": c["tau_d_ms"], "model.J": c["J0"], "path.J0": c["J0"], "path.J_end": c["J0"],
+                      "path.eta_start": c["eta_start"], "path.eta_peak": c["eta_start"], "path.T_ramp_s": c["T_ramp_s"]}   # start state held constant
+                for s in range(N_SEEDS):
+                    out.append(_e(name, "S12x_ctrl_mf", "s12x_ctrl_mf.yaml", ov, "results/S12x", SEED_S12X_CTRL_MF + (s,)))
     else:
         raise RunListError(f"unknown list {name!r}")
     return out
@@ -330,10 +341,15 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="python -m mprsurge.analysis.ms9_runlist", description="MS9 9b run lists: counts, hashes, manifest")
     ap.add_argument("--write", action="store_true", help="write configs/ms9/runlists/ (cells file must exist; design file is written first)")
     ap.add_argument("--build-cells", action="store_true", help="slow: rewrite configs/ms9/runlists/cells_1226.csv from analysis.cells")
+    ap.add_argument("--write-9g", action="store_true", help="write the 9g exploratory control list (S12x_ctrl_mf) and ms9_9g_runlists.json")
     ap.add_argument("--write-s12x", action="store_true", help="write the 9c exploratory lists (S12x) and ms9_s12x_runlists.json")
     args = ap.parse_args(argv)
     if args.write_s12x:
         s = write_manifest(names=EXPLORATORY, json_name="ms9_s12x_runlists.json")
+        for n, v in s["lists"].items():
+            print(f"{n:16s} EXPLORATORY {v['runs']:5d} runs {v['by_family']}  SHA-256 {v['sha256'][:16]}  duplicates {len(v['duplicate_hashes'])}")
+    if args.write_9g:
+        s = write_manifest(names=EXPLORATORY_9G, json_name="ms9_9g_runlists.json")
         for n, v in s["lists"].items():
             print(f"{n:16s} EXPLORATORY {v['runs']:5d} runs {v['by_family']}  SHA-256 {v['sha256'][:16]}  duplicates {len(v['duplicate_hashes'])}")
     if args.build_cells:

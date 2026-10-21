@@ -20,7 +20,7 @@ LISTS_DIR = C.repo_root() / RL.RUNLIST_DIR
 
 def test_exploratory_keys_collide_with_nothing_in_use_or_proposed():
     mine = M.exploratory_seed_keys()
-    assert len(mine) == len(set(mine)) == 19 and (9, 5, 8) in mine and (9, 5, 9) not in mine and (9, 6, 9) in mine
+    assert len(mine) == len(set(mine)) == 29 and (9, 5, 8) in mine and (9, 5, 9) not in mine and (9, 6, 9) in mine and (9, 7, 9) in mine
     others = M.proposed_seed_keys() + sorted(_key_prefixes_in_repo() | set(KNOWN))
     for k in mine:
         assert k not in CALIBRATION

@@ -1,0 +1,10 @@
+# MS9 9g run config (DL-242 to DL-246). Names the FROZEN criteria file: the runner refuses to start unless the tag criteria-frozen verifies.
+# Layered on configs/base.yaml (ref_devalle). M9-22 control, EXPLORATORY (S12x), outside the pre-registered lists, feeds no gate.
+# Mean-field mode N at the 225 subgrid cells x 10 seeds with the cell's start state held constant (eta_start, J0, Delta, tau_d): the same record as the
+# subgrid runs (2 s discard, 5 s baseline, T_ramp 120 s ramp period, same hold) and the same sigma. Per-run values (cell, eta_start = eta_peak, J_end = J0,
+# seed key) are in the run list overrides; eta_H is null because the start state is given explicitly (config.resolve: eta_H or explicit eta_start/eta_peak).
+run:        {id: S12x_ctrl_mf, kind: mf_noisy, workers: 1}
+model:      {ref_point: ref_devalle}
+path:       {name: path_hypoxia, profile: linear, T_ramp_s: 120.0, eta_H: null}
+output:     {dir: results/S12x}
+robustness: {criteria_file: configs/robustness_criteria.yaml}
