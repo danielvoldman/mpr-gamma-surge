@@ -2905,3 +2905,53 @@ Chosen:          none   Default from: the 9g prompt
 Test:            tests/test_ms9_9g.py; results/ms9/9g/.
 Status:          done; STOP.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-249  MS9 9h: readings accepted (ramp runs "not NS"; A9 g and h; no cell unlabelled)    [ID: MS9, 9h, A9, M9-12, M9-22, DL-244, DL-248]
+Date:            2026-10-22        Author:
+Decision:        RULED (reviewer). Accepted as read in DL-248: (1) "ramp runs not NS" = fewer than 8 of 10 NS seeds in the cell (the stricter count, no NS run at all, is reported beside it); (2) A9 descriptors g and h as in DL-244; (3) no map-1 or map-2 cell remains unlabelled under a to h.
+Reason:          ruling of the reviewer (9h prompt, step 2a).
+Options:         -
+Chosen:          as above   Default from: the 9h prompt
+Test:            results/ms9/9g_report.txt; results/ms9/9g/a9_gh.csv.
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-250  MS9 9h: post-hoc claim limit on mode-N evidence (ramp-linked classes)    [ID: MS9, 9h, D24, RB2, M9-22, DL-242, DL-245, DL-248]
+Date:            2026-10-22        Author:
+Decision:        RULED (reviewer). POST HOC, to be reported as post-hoc in the paper. Mode-N evidence rests on the ramp-linked classes S+, S-abs and S-sus: control rates 1.2%, 0.9% and 0.1% against 21%, 22.5% and 37% in the ramp runs. S-rel is reported but not counted as evidence (1,095 of 2,250 control runs, 378 of 2,250 ramp runs). No frozen criterion is changed; the frozen D24 stays FAILED (DL-242).
+Reason:          ruling of the reviewer (9h prompt, step 2b).
+Options:         -
+Chosen:          as above   Default from: the 9h prompt
+Test:            results/ms9/9g/control_classes.csv; results/ms9/9f/subgrid_classes.csv.
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-251  MS9 9h: MS11 note (not decided): constant-parameter control for RB2 and S11    [ID: MS9, 9h, MS11, RB2, S11, M9-22, DL-245]
+Date:            2026-10-22        Author:
+Decision:        NOTE, NOT DECIDED (reviewer). RB2 and S11 need a constant-parameter control at the headline cell for each sigma. To be planned at the start of MS11. Nothing is run or listed now.
+Reason:          ruling of the reviewer (9h prompt, step 2c).
+Options:         -
+Chosen:          none   Default from: the 9h prompt
+Test:            -
+Status:          open; for the start of MS11.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-252  MS9 9h: NC2 and NC3 facts logged for A10 (no verdict)    [ID: MS9, 9h, NC2, NC3, A10, DL-246, DL-248]
+Date:            2026-10-22        Author:
+Decision:        FACTS (reviewer instruction; values from DL-248, results/ms9/9g/nc2_table.csv and nc3_table.csv). NC2: D-tr at all 13 T_ramp with and without I (I = 0 and I = 1); the onset is earlier and the surge longer with I = 1 (T_ramp 100 s: onset 25.311 s against 50.418 s, duration 93.910 s against 68.806 s; the same direction at the other T_ramp in the table). NC3: D-none at all 13 T_ramp. No verdict.
+Reason:          ruling of the reviewer (9h prompt, step 2d).
+Options:         -
+Chosen:          none   Default from: the 9h prompt
+Test:            results/ms9/9g/nc2_table.csv; results/ms9/9g/nc3_table.csv.
+Status:          in force (facts).
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-253  MS9 9h: D31 option B approved (178 new runs); list, cells, report script and tests committed before the run    [ID: MS9, 9h, D31, M9-18, DL-247]
+Date:            2026-10-22        Author:
+Decision:        RULED (reviewer): D31 option B, 178 new runs, a supplementary list OUTSIDE the frozen 1,226 cells (cell-list SHA-256 8e67bbd2... unchanged, tested), exploratory, feeds no gate. Every mixed 2 x 2 block of the map-1 D-tr / D-none classes (45 blocks, from results/ms9/9e/map1_classes.csv) is fully halved: the new nodes of the 3 x 3 lattices, shared nodes once, are 178; Delta at the linear midpoint, tau_d at the geometric midpoint (the map axes are linear in Delta, log in tau_d). Implementation: src/mprsurge/analysis/ms9_d31.py (new module: block and node selection, a function that calls the existing cell builder analysis.cells._cell for each node, so every node has its own A4 Hopf scan for eta_H at its own J0, Delta, tau_d, CP20 fallback as for the 1,226) and a list entry D31_half in ms9_runlist.py (config s7_map.yaml, output results/D31); this is a small amount of new code beyond a list extension. Cells file configs/ms9/runlists/cells_d31.csv (SHA-256 b7ade8fb...), list SHA-256 87558e73..., 178 runs, no duplicate hashes, none equal to a hash in another list. Prediction: the 91 map-1 cells in the mixed blocks had mean wall 144.1 s per run in the map-1 launch; 178 x 144.1 s / 10 workers = 42.8 min, under the one-hour rule: launch. Launch: python scripts/run_ms9_list.py --list D31_half --workers 10 --journal-dir results/ms9/launch_9h (one pool, 10 workers, longest first). Report script scripts/report_ms9_9h.py and tests/test_ms9_9h.py committed before the run.
+Reason:          ruling of the reviewer (9h prompt, steps 2e and 3).
+Options:         option B (chosen by the reviewer).
+Chosen:          B   Default from: the 9h prompt
+Test:            tests/test_ms9_9h.py.
+Status:          done; committed before the run.
+Commit/tag:      the commit that adds this entry; no tag

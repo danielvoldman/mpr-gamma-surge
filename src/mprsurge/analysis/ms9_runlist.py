@@ -55,7 +55,8 @@ PRE_REGISTERED = ("NC1", "NC2", "NC3", "S6", "S16", "S7_map1", "S7_map2", "S7_su
 SUPPLEMENTARY = ("SUPP_P2ref", "SUPP_NC1_modeN")
 EXPLORATORY = ("S12x_NC1_net", "S12x_const_net")                  # 9c: outside the counts and the supplementary lists, feed no gate
 EXPLORATORY_9G = ("S12x_ctrl_mf",)                                # 9g: M9-22 control (2,250 mode-N mean-field runs), same status
-ALL_LISTS = PRE_REGISTERED + SUPPLEMENTARY + EXPLORATORY + EXPLORATORY_9G
+EXPLORATORY_9H = ("D31_half",)                                   # 9h: D31 boundary refinement (option B), cells outside the frozen 1,226, same status
+ALL_LISTS = PRE_REGISTERED + SUPPLEMENTARY + EXPLORATORY + EXPLORATORY_9G + EXPLORATORY_9H
 COLUMNS = ("list", "pre_registered", "family", "config", "index", "name", "hash", "kind", "path", "T_ramp_s", "spawn_key", "out_dir", "overrides")
 
 
@@ -245,6 +246,9 @@ def entries(name: str) -> list[dict]:
                       "path.eta_start": c["eta_start"], "path.eta_peak": c["eta_start"], "path.T_ramp_s": c["T_ramp_s"]}   # start state held constant
                 for s in range(N_SEEDS):
                     out.append(_e(name, "S12x_ctrl_mf", "s12x_ctrl_mf.yaml", ov, "results/S12x", SEED_S12X_CTRL_MF + (s,)))
+    elif name == "D31_half":
+        from . import ms9_d31 as D31
+        out += [_e(name, "D31_half", "s7_map.yaml", _cell_overrides(c), "results/D31") for c in D31.load_d31_cells()]
     else:
         raise RunListError(f"unknown list {name!r}")
     return out
@@ -342,6 +346,7 @@ def main(argv=None) -> int:
     ap.add_argument("--write", action="store_true", help="write configs/ms9/runlists/ (cells file must exist; design file is written first)")
     ap.add_argument("--build-cells", action="store_true", help="slow: rewrite configs/ms9/runlists/cells_1226.csv from analysis.cells")
     ap.add_argument("--write-9g", action="store_true", help="write the 9g exploratory control list (S12x_ctrl_mf) and ms9_9g_runlists.json")
+    ap.add_argument("--write-9h", action="store_true", help="write the 9h D31 list (D31_half) and ms9_9h_runlists.json")
     ap.add_argument("--write-s12x", action="store_true", help="write the 9c exploratory lists (S12x) and ms9_s12x_runlists.json")
     args = ap.parse_args(argv)
     if args.write_s12x:
@@ -350,6 +355,10 @@ def main(argv=None) -> int:
             print(f"{n:16s} EXPLORATORY {v['runs']:5d} runs {v['by_family']}  SHA-256 {v['sha256'][:16]}  duplicates {len(v['duplicate_hashes'])}")
     if args.write_9g:
         s = write_manifest(names=EXPLORATORY_9G, json_name="ms9_9g_runlists.json")
+        for n, v in s["lists"].items():
+            print(f"{n:16s} EXPLORATORY {v['runs']:5d} runs {v['by_family']}  SHA-256 {v['sha256'][:16]}  duplicates {len(v['duplicate_hashes'])}")
+    if args.write_9h:
+        s = write_manifest(names=EXPLORATORY_9H, json_name="ms9_9h_runlists.json")
         for n, v in s["lists"].items():
             print(f"{n:16s} EXPLORATORY {v['runs']:5d} runs {v['by_family']}  SHA-256 {v['sha256'][:16]}  duplicates {len(v['duplicate_hashes'])}")
     if args.build_cells:
