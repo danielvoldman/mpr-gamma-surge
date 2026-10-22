@@ -2955,3 +2955,23 @@ Chosen:          B   Default from: the 9h prompt
 Test:            tests/test_ms9_9h.py.
 Status:          done; committed before the run.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-254  MS9 9h: D31 option B run; facts only (no verdict)    [ID: MS9, 9h, D31, M9-18, DL-253]
+Date:            2026-10-22        Author:
+Decision:        FACTS (scripts/report_ms9_9h.py, committed decc43f before the run; output results/ms9/9h_report.txt, results/ms9/9h/d31_classes.csv, d31_boundary_cells.csv). (1) Launch at decc43f, tree clean (git.dirty = false in all 178 records): 178 ok, 0 failed, one launch, wall 2,740.7 s (45.7 min) against 42.8 min predicted. (2) Classes at the 178 new nodes: D-tr 112, D-none 66, no D-sus, no failed; edge midpoints in Delta D-tr 43 / D-none 29, edge midpoints in tau_d 40 / 21, block centres 29 / 16; Hopf point found at all 178. (3) On the 46 coarse boundary edges (D-tr / D-none neighbours) the edge midpoint is D-tr on 27 and D-none on 19. (4) BOUNDARY DEFINITION used, UNVERIFIED, reading ours: the boundary is the set of edges between 4-neighbouring nodes of different class, each placed at its edge midpoint, in units of one original cell (node (p, q) at (p/2, q/2)); coarse = 46 edges between original cells, refined = 85 half-edges inside the mixed blocks. "The boundary moves by less than one cell" at a boundary-touching cell = every coarse boundary edge of the cell has a refined half-edge midpoint within distance < 1 cell. (5) Result: 62 of 62 boundary-touching cells; the per-cell maximum distance is 0.25 cell in all 62; no refined half-edge lies 1 cell or more from a coarse edge midpoint (largest 0.9014). Note: with two classes the 0.25 value follows from the definition (the new midpoint always equals one of its two neighbours), so it carries no information beyond "no refined half-edge farther than 0.9014 cell"; the informative facts are (2) to (3) and the 0.9014 maximum. The D31 verdict is the reviewer's.
+Reason:          instruction of the reviewer (9h prompt, steps 3 and 4).
+Options:         -
+Chosen:          none   Default from: the 9h prompt
+Test:            tests/test_ms9_9h.py; results/ms9/9h/.
+Status:          done; facts only.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-255  MS9 9h: post-hoc view P-1 (ramp-linked = S+, S-abs, S-sus), facts only; feeds no gate; frozen D24 FAILED unchanged    [ID: MS9, 9h, P-1, D24, M9-22, DL-242, DL-243, DL-250]
+Date:            2026-10-22        Author:
+Decision:        FACTS, POST HOC (stored classes, no simulation; inputs subgrid_classes f907c9fd, control_classes 55bfe77c). (i) Ramp-linked fraction by deterministic class, subgrid against control: D-tr (188 cells, 1,880 runs) 1,516 = 80.64% against 21 = 1.12%; D-none (37 cells, 370 runs) 295 = 79.73% against 30 = 8.11%. (ii) Agreement with D-tr matched to ramp-linked and D-none to not ramp-linked, cell class = modal of the two categories over 10 seeds (5/5 tie = disagreement): cell agreement 173 of 225 (76.9%) against 203 needed, 16 ties; D-tr 171 of 188 cells, D-none 2 of 37 cells; per-run agreement 1,591 of 2,250 (70.7%), D-tr 1,516 of 1,880, D-none 75 of 370. The frozen D24 (97 of 225 raw, 118 of 225 categories) is unchanged beside it. Post hoc, to be reported as such; no verdict.
+Reason:          instruction of the reviewer (9h prompt, step 5).
+Options:         -
+Chosen:          none   Default from: the 9h prompt
+Test:            results/ms9/9h/p1_cells.csv; results/ms9/9h_report.txt.
+Status:          done; STOP.
+Commit/tag:      the commit that adds this entry; no tag
