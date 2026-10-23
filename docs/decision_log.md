@@ -3025,3 +3025,53 @@ Chosen:          none   Default from: the 9i prompt
 Test:            tests/test_ms9_9i.py; results/ms9/9i/consistency.txt.
 Status:          done; STOP.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-261  MS9 9j: G3 clause 2 read with the M9-17 ruling; G3 recommended NOT TRIGGERED; mode-N S-sus is a caveat, not a trigger    [ID: MS9, 9j, G3, M9-17, DL-259, DL-260]
+Date:            2026-10-23        Author:
+Decision:        RULED (reviewer, 9j prompt step 2a). The G3 clause 2 "termination by J -> 0 rejected" is read as in M9-17: P2-based runs that keep oscillating after J = 0 with no end (D-sus in mode D). Facts from DL-260 / docs/ms9_g3_facts.md: mode D has no D-sus on P2, S6, map 1 or map 2 (S5 P2 mode D D-tr 26 / D-none 1; S6 D-tr 20 of 20 pre-registered; map 1 D-tr 760 / D-none 140; map 2 D-tr 296 / D-none 29), so clause 2 is not met. Clause 1 ("every onset is S-sus or D-sus") also fails: 26 of 27 mode-D P2 runs and 760 of 900 map-1 cells are D-tr. RECOMMENDATION: G3 NOT TRIGGERED (the plan's expectation, Table 4.2). Mode-N S-sus (44 of 130 S5 P2 mode-N runs, 829 of 2,250 subgrid runs) is a reported caveat and cannot trigger G3 (reviewer's ruling; no further reading is added here). The statement "G3 not triggered" is made at the MS9 close.
+Reason:          ruling of the reviewer (9j prompt, step 2a).
+Options:         -
+Chosen:          clause 2 per M9-17; G3 NOT TRIGGERED (recommendation)   Default from: the 9j prompt
+Test:            docs/ms9_g3_facts.md; results/A10/g3_facts.csv.
+Status:          in force; formal statement at the close.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-262  MS9 9j: the A7 S6 file keeps 24 rows    [ID: MS9, 9j, A7, M9-9, DL-259, DL-260]
+Date:            2026-10-23        Author:
+Decision:        RULED (reviewer, 9j prompt step 2b). results/A7/a7_s6_metrics.parquet keeps its 24 rows (20 pre-registered, 2 supplementary P2 references, 2 S5 comparators). The 2 supplementary P2 reference runs (30 s and 300 s, M9-9) serve as the 30 s and 300 s comparators; the S5 comparators are the 10 s and 120 s ones. No row is added or removed.
+Reason:          ruling of the reviewer (9j prompt, step 2b).
+Options:         -
+Chosen:          24 rows   Default from: the 9j prompt
+Test:            results/A7/a7_s6_metrics.parquet (SHA-256 9f384fdf..., DL-260).
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-263  MS9 9j: J_exit,static on P3 and P4 accepted as a labelled, UNVERIFIED extension    [ID: MS9, 9j, A7, O12, DL-209, DL-259, DL-260]
+Date:            2026-10-23        Author:
+Decision:        RULED (reviewer, 9j prompt step 2c). The J_exit,static extension on P3 and P4 (DL-259 (d): the last positive-to-non-positive crossing of the leading Re lambda along the run's own path, with the fixed point at eta + I(t) and Delta(t)) is accepted as a labelled, UNVERIFIED extension of the S5 reading (DL-209). It is ours, not the plan's. Fact carried with it (DL-260 (3)): J_exit,static is the same on all P3 runs (-2.5303, equal to the P2 value) because the drive trapezoid has ended before the last crossing. Any statement that uses it carries the label.
+Reason:          ruling of the reviewer (9j prompt, step 2c).
+Options:         -
+Chosen:          accepted, labelled UNVERIFIED   Default from: the 9j prompt
+Test:            results/A7/a7_s6_metrics.parquet; tests/test_ms9_9i.py.
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-264  MS9 9j: the map-1 Hopf frequency is filled from the A4 solver, no simulation    [ID: MS9, 9j, A9, M9-12, DL-259, DL-260]
+Date:            2026-10-23        Author:
+Decision:        RULED (reviewer, 9j prompt step 2d). The A9 column hopf_f_hz (empty on the 900 map-1 cells and the headline row in the 9i table, DL-260 (2)) is filled from the A4 tables, no simulation. READING, ours, UNVERIFIED: the stored A4 files (results/A4/a4_hopf_curves.npz, results/A6/a6_freq_map.npz) hold one-dimensional curves, not a per-cell table; the per-cell value is therefore the A4 Hopf solver (analysis.a9.hopf_point -> analysis.hopf.lowest_eta_hopf, Im lambda at the lowest Hopf crossing along eta_bar, A4 grid) evaluated at each cell's (J0, Delta, tau_d), the same function that filled map 2 and that the label (c) rule uses. The map-2 stored values are re-evaluated beside as a check. The new table is a new file (DL-265); the stored table is not overwritten.
+Reason:          ruling of the reviewer (9j prompt, step 2d).
+Options:         -
+Chosen:          fill from the A4 solver   Default from: the 9j prompt
+Test:            tests/test_ms9_9j.py; results/ms9/9j/a9_v2_report.txt.
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-265  MS9 9j: pre-checks; readings for the A9 table v2, the independent recomputation and the hash list; scripts committed before they are run    [ID: MS9, 9j, A9, A10, G5, RB4, D24, D31, D36, DL-260, DL-261, DL-262, DL-263, DL-264]
+Date:            2026-10-23        Author:
+Decision:        (1) Pre-checks at 9j start: verify_frozen_criteria passes against the tag criteria-frozen (commit dd8330c, criteria SHA-256 c7d2f36b...fa05; S13 317db87e, A4_grids cf6a60be, S5_cells fe8590ce); tree clean at f19cf3c; the seven 9i files have the SHA-256 of DL-260; fast suite at f19cf3c: 700 passed, 11 deselected, 9 xfailed, pytest exit 0 (361 s); with the new code: 706 passed, 11 deselected, 9 xfailed, pytest exit 0 (339 s), after the first run failed one config-schema test (run.kind a9 is not a known kind; 9j_tables.yaml now uses kind a7 as 9i_tables.yaml does, a label only). (2) New code, all analysis, committed before it is run: src/mprsurge/analysis/ms9_9j.py (A9 v2 builder), scripts/write_ms9_9j.py (driver, refuses if the stored 9i table has another hash), configs/ms9/9j_tables.yaml, tests/test_ms9_9j.py; scripts/recompute_ms9_independent.py; scripts/hash_ms9_results.py. No existing file, stored table or result is edited. (3) READINGS, ours, UNVERIFIED: (a) A9 v2 columns: struct_flags = the stored flags a to f (stored column labels_a_f_all) for every cell, surge-class or not; failure_label set ONLY on non-surge cells: 'failed' if the run is not ok (A9, 10.4), else the primary of a to f (first by the order a to f), else the first of the post-hoc descriptors g, h (DL-244) that holds, else empty (unlabelled); failure_labels_all = every label a to h that applies, non-surge cells only; the 9i columns label_a_f_primary and labels_a_h_all are replaced by these. (b) Structural flags on surge-class cells are counted as facts per map, per letter and per class; no interpretation. (c) hopf_f_hz per DL-264. (d) The independent recomputation reads the stored json / npz records, the launch journals (manifest.csv, run.log) and the cell and run lists directly; it imports no function from the report scripts of 9d to 9i, from ms9_classify.py or from ms9_9i.py; it calls only the frozen classifier primitives (surge_metrics.classify_mode_d / classify_mode_n, unchanged) and the criteria gate (a7.frozen_inputs); the D24, P-1, control and D31 numbers are re-derived from the definitions logged in DL-243, DL-254 and DL-255. Differences are reported, not fixed. (e) The hash list covers every file under results/S12, S12x, S16, S6, S7, D31, results/ms9, the A7 / A9 / A10 tables and configs/ms9; per-group digests, not per-file entries, go in the evidence sheet.
+Reason:          instruction of the reviewer (9j prompt, steps 1 to 5).
+Options:         -
+Chosen:          as above   Default from: the 9j prompt
+Test:            tests/test_ms9_9j.py.
+Status:          done; committed before the run.
+Commit/tag:      the commit that adds this entry; no tag

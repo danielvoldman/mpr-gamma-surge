@@ -1,0 +1,7 @@
+# 9j MS9 second version of the A9 regime-map table (DL-261 to DL-266): analysis of the stored 9i table and the A4 Hopf solver, no integration.
+# Thresholds and the A4 grid step are read from the frozen criteria (tag criteria-frozen), not from this file. No random numbers are used.
+run:      {id: MS9_9j, kind: a7, workers: 1}
+model:    {type: M3, ref_point: ref_devalle, tau_ms: 10.0, tau_d_ms: 5.0}
+path:     {name: path_hypoxia, profile: linear, T_ramp_s: 120.0, eta_H: 2.8960461989737856}
+output:   {dir: results/ms9/9j}
+robustness: {criteria_file: configs/robustness_criteria.yaml}
