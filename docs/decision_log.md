@@ -3105,3 +3105,33 @@ Chosen:          none   Default from: the 9j prompt
 Test:            docs/ms9_g_evidence.md; results/ms9/9j/recompute_report.txt.
 Status:          done; STOP (further diagnostics come to the reviewer first).
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-269  MS9 9k: 9j rulings logged (Hopf-frequency source, failure_label precedence, headline row in the A9 check)    [ID: MS9, 9k, A9, M9-12, DL-244, DL-264, DL-265, DL-266]
+Date:            2026-10-23        Author:
+Decision:        RULED (reviewer, 9k prompt step 2a). (1) The Hopf-frequency source for A9 hopf_f_hz is hopf.lowest_eta_hopf (Im lambda at the lowest Hopf crossing along eta_bar, A4 grid), the same solver that filled map 2; accepted (DL-264). (2) failure_label precedence: the labels a to f first (first by the order a to f); g or h only if none of a to f applies (DL-265 (3a)). (3) NOTE: the headline row has no stored inside_a4_region, so the A9 check "surge-class cell without Re lambda > 0 along its path" covers 1,056 of the 1,057 surge-class cells (map 1 760 + map 2 296 = 1,056; the headline row is the 1,057th). 0 of the 1,056 lack Re lambda > 0.
+Reason:          ruling of the reviewer (9k prompt, step 2a).
+Options:         -
+Chosen:          as above   Default from: the 9k prompt
+Test:            results/ms9/9j/a9_v2_report.txt (5df64035...); results/A9/a9_regime_map_v2.parquet (5ce4b181...).
+Status:          in force; no label or number changed.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-270  MS9 9k: limitation of the A9 label (c): the A4 Hopf frequency is the first estimate at onset, not the episode frequency    [ID: MS9, 9k, A9, M9-12, DL-264, DL-266]
+Date:            2026-10-23        Author:
+Decision:        RULED (reviewer, 9k prompt step 2b). LIMITATION, to be carried to the paper. Label (c) uses the A4 Hopf frequency, the first estimate at onset. On the 260 D-tr map-1 cells that carry the flag c it is 6.57 to 24.95 Hz, while the episode peak frequency f_pk of the same cells is 25.0 to 97.5 Hz. Of the 292 map-1 cells with Hopf frequency below 25 Hz, only 32 are D-none (260 D-tr). Label (c) on a non-surge cell is therefore a flag, not a demonstrated cause. No label is changed. (Figures re-read from results/A9/a9_regime_map_v2.parquet at 9k: 292 cells, D-tr 260, D-none 32; flag-c D-tr cells 260, hopf_f_hz 6.5732 to 24.9502, f_pk_hz 25.0 to 97.5.)
+Reason:          ruling of the reviewer (9k prompt, step 2b).
+Options:         -
+Chosen:          as above   Default from: the 9k prompt
+Test:            results/A9/a9_regime_map_v2.parquet (5ce4b181...).
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-271  MS9 9k: MS9 closed on paper; gate verdicts as logged; hash list copied to docs/ms9_file_hashes.csv    [ID: MS9, 9k, G5, G7, G3, RB4, RB2, D24, D31, DL-235, DL-242, DL-256, DL-258, DL-261, DL-267, DL-268]
+Date:            2026-10-23        Author:
+Decision:        RULED (reviewer, 9k prompt step 2c). MS9 is CLOSED ON PAPER. Verdicts as logged: G5 PASSED (continue; DL-258); G7 NOT PASSED with the logged claim limits (DL-228, DL-229, DL-258); G3 NOT TRIGGERED (DL-261); RB4 PASS (DL-235, recomputed DL-267); RB2 / D24 FAILED, P-1 post hoc and feeding no gate (DL-242, DL-255, DL-257); D31 PASS under the logged boundary definition (DL-256). The MS9 gate "NC1 classified; RB4 evaluated" (Table 11.1) is met. No tag, no push, no simulation at 9k. Hash list: results/ms9/9j/file_hashes.csv copied byte-for-byte to docs/ms9_file_hashes.csv (24,876 file entries), SHA-256 53201f91af504ac10f7b441c8ede593c7a069007e8f6df5b1b0054c3c68e6a61 (equal to the DL-267 value of the source).
+Reason:          ruling of the reviewer (9k prompt, steps 2c and 3).
+Options:         -
+Chosen:          as above   Default from: the 9k prompt
+Test:            docs/ms9_g_evidence.md (85d8a3fc...); docs/ms9_file_hashes.csv.
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
