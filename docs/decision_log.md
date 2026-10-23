@@ -3145,3 +3145,44 @@ Chosen:          none   Default from: the 9k prompt
 Test:            sha256sum of the committed files.
 Status:          done; STOP.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-273  MS10 10a: pre-checks and the MS10 plan (docs/ms10_plan.md)    [ID: MS10, 10a, S8, S9, S10, RB1, RB8, G4, CP21, DL-231]
+Date:            2026-10-23        Author:
+Decision:        FACT. Pre-checks at HEAD 868001c, tree clean: (1) the criteria loader (verify_frozen_criteria against tag criteria-frozen, commit dd8330c5eaacd63d21e7b7969430988d00862769) passes; (2) the four frozen hashes equal the values given (criteria file c7d2f36b..., S13 317db87e..., A4_grids cf6a60be..., S5_cells fe8590ce...); (3) git dirty false; (4) all 24,876 files of docs/ms9_file_hashes.csv hash to their listed values (0 mismatches, 0 missing), the CSV is 53201f91af504ac10f7b441c8ede593c7a069007e8f6df5b1b0054c3c68e6a61, docs/ms9_close.md 11f8b1eb2ab6d6860565020e9bc30a25d3038eea16f5a78e063b3d4a97cde3c2. docs/ms10_plan.md written in the layout of docs/ms9_plan.md: every plan quantity quoted with its section or table; facts from DL-120, DL-121, DL-186, DL-226 to DL-231, DL-258 and the MS9 stored records; run counts with arithmetic; the timing gate; the UNVERIFIED and inconsistent items. docs/ms10_plan.md SHA-256 8482e7ea515fb317ada8973bba5cd0da0fea208dfa5afa6c71c53d3c5e20300b (LF file; a document cannot contain its own hash). It changes no plan text, no frozen file and no earlier ruling and holds no decision.
+Reason:          instruction of the reviewer (10a prompt, pre-checks and steps 1, 2).
+Options:         -
+Chosen:          none   Default from: the 10a prompt
+Test:            tests/test_ms10_counts.py (run counts, update counts and the launch-rule arithmetic).
+Status:          done; the open choices are DL-274.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-274  MS10 10a: open choices M10-1 to M10-16 listed, none chosen    [ID: MS10, 10a, M10-1, M10-16, S8, S9, S10, RB1, RB8, G4, DL-231]
+Date:            2026-10-23        Author:
+Decision:        OPEN, for the reviewer. The plan gives no number or rule for: M10-1 which 4 map cells for S8; M10-2 seeds per map cell (1, 3 or 10: S8 = 10, 18 or 46 runs); M10-3 the mean-field reference for the map cells (map 1 is stored at T_ramp 120 s, S8 uses 30 s); M10-4 the sigma-check statistic and criterion (CP21; candidates, no threshold); M10-5 how a network class is read (DL-229, DL-258 limits; 4 baseline windows, odds max/min 1.924); M10-6 how RB1 "same class" is applied (mode D against mode N, 3/3 seeds, cell rule); M10-7 how f_pk and onset are measured for RB1 (resolution 3 Hz at W = 0.333 s against 5 percent of 48 to 49 Hz); M10-8 the network null control of DL-231 (scopes C0 to C3, 3 or 10 seeds: 0, 9/30, 36/120, 67 runs); M10-9 sharing of records between S8, S9, S10 (S10 = 9 or 6 runs); M10-10 RB1 quantities and S9/S10 observables; M10-11 the seed scheme; M10-12 order of runs and launch grouping; M10-13 Gaussian and uniform offset construction (not built in qif_network.py); M10-14 the Table 9.1 allowance share for S8 and S10 (UNVERIFIED); M10-15 the G4 evaluation rule ("misses the surge", "rerun RB6"); M10-16 the RB8 comparator. Options and costs are in docs/ms10_plan.md; none is chosen and none is recommended. The DL-231 control, if ruled, is a POST-HOC AMENDMENT.
+Reason:          instruction of the reviewer (10a prompt, step 2b, step 5).
+Options:         see docs/ms10_plan.md "Decisions that need you"
+Chosen:          none   Default from: -
+Test:            -
+Status:          open.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-275  MS10 10a: PROPOSED seed keys [10, ...] and the collision test    [ID: MS10, 10a, S8, S9, S10, M10-11, DL-141, DL-210]
+Date:            2026-10-23        Author:
+Decision:        PROPOSED, not frozen, UNVERIFIED until the reviewer confirms them (M10-11). root_seed 20261008, first element 10 = MS10 (DL-141 convention). [10, 1, s], s = 0..2: S8 headline (the same stream at T_ramp 10 and 120 s); [10, 2, c, s], c = 0..3 map cell, s = 0..9 (keys reserved for the maximum of M10-2); [10, 3, n, s], n = 0..3 index into N {1e3, 3e3, 1e4, 3e4}, s = 0..9: S9; [10, 4, l, s], l = 0..2 index into {lorentzian, gaussian, uniform}, s = 0..2: S10; [10, 5, k, s], k = 0..15, s = 0..9: null controls, reserved and unused unless M10-8 rules one. 3 + 40 + 40 + 9 + 160 = 252 keys. Collision test tests/test_ms10_counts.py: none is equal to, or a prefix of, or has as prefix, any key found by the repository scan, any key of tests/test_ms9_seed_keys.py (KNOWN), or any MS9 key written out there ([9,1,s], [9,2,0], [9,3,s], [9,4,s], [9,5,0..8], [9,6,0..9], [9,7,s]); none equals a calibration key [0] to [9]; the five prefixes do not overlap; the written-out MS9 keys equal ms9_counts.proposed_seed_keys plus exploratory_seed_keys. Passes.
+Reason:          instruction of the reviewer (10a prompt, step 4).
+Options:         M10-11 (a) to (d)
+Chosen:          none   Default from: the 10a prompt
+Test:            tests/test_ms10_counts.py (9 tests, green).
+Status:          proposed.
+Commit/tag:      586a423 (module and test), 0e56045 (launch-rule arithmetic); this entry is added with docs/ms10_plan.md
+
+## DL-276  MS10 10a: network timing measurement and timing-gate outcome (9.2)    [ID: MS10, 10a, D36, S8, S9, S10, M10-14]
+Date:            2026-10-23        Author:
+Decision:        FACT; not a result run, feeds no gate. Version check (9.2 step 4): src/mprsurge/qif_network.py has no commit since 07e028e (MS9 9a, the last network timing); pip freeze equals results/timing/ms9/logs/pip_freeze.txt; re-timed regardless. Sample: scripts/run_timing_ms10.sh at 586a423, tree clean (git.dirty false in all 16 records); cells net_1e3, net_3e3 (new), net_1e4, net_3e4 (P2, T_ramp 10 s, 2,950 tau, dt 1e-3 tau), alone x 3 repeats and at 6, 8, 10 copies x 3 batches. Per-run median s (alone / 6 / 8 / 10): N 1e3 3.33 / 3.79 / 4.63 / 5.70; 3e3 9.77 / 11.29 / 13.85 / 17.06; 1e4 32.44 / 37.01 / 45.97 / 56.80; 3e4 96.48 / 147.16 (batch spread 39 percent, not used) / 174.94 / 190.80. At 10 copies 1.925e-9 s per update (1e4), 2.156e-9 (3e4). Predictions at 10 workers (wall; allowance; 1.5 x limit): S8 (3 seeds per map cell, 18 runs) 5.4 min; S10 (9 runs) 3.0 min; S8 + S10 6.6 min against the row "< 30 min" (limit 45 min): PASS, 0.22 x; S9 (40 runs) 14.1 min against 2 h (limit 3 h): PASS, 0.12 x, inside the computed 11 to 23 min. Other readings and the control options: see docs/ms10_plan.md; the largest row reading (S8 with 10 seeds per cell, S10, C2 controls at 10 seeds) is 44.8 min = 1.49 x, with 0.2 min of margin. D36: 13.595 h + 0.345 h = 13.94 h on top (11.44 h with the networks and S9 placeholders replaced) against 24 h; cut order 9.3 not triggered. Facts, no ruling: N = 3e4 at 10 copies runs 12.7 percent slower than at 5f (169.27 s); 0.46e9 updates/s at 3e4 is 7 percent below the R5 lower bound of 0.5e9; the R5 2 to 5 min per 1e4 tau run holds (110 s alone, 192 s at 10 copies for N = 1e4). Memory: polled total python working set 1.47 to 1.48 GB at 10 copies (lower bound, UNVERIFIED), kernel estimate 14 MB per N = 3e4 run. Machine as found (Waterfox 72 percent and VS Code 44 percent of a core), power plan not recorded (powercfg failed under bash), Defender exclusion unknown.
+Parts over one hour: none (largest single run 9.9 min; largest launch over all options 58.9 min). Launch decision: none taken; every launch is by the reviewer in PowerShell, not before the 10b rulings.
+Reason:          instruction of the reviewer (10a prompt, step 3, step 5).
+Options:         -
+Chosen:          none   Default from: the 10a prompt (9.2 method of 8a and 9a)
+Test:            results/timing/ms10/ (git-ignored), results/timing/ms10/prediction_10a.txt; tests/test_ms10_counts.py.
+Status:          done; STOP (further diagnostics come to the reviewer first).
+Commit/tag:      the commit that adds this entry; no tag

@@ -13,7 +13,7 @@ from .. import config as C
 from ..ramps import make_path
 from ..units import s_to_tau
 
-CELLS = ("headline", "delta_0.01", "delta_0.6", "delta_0.01_td1", "delta_0.01_td50", "delta_0.6_td1", "delta_0.6_td50", "p5_1000", "radau_1e-12", "radau_1e-12_t10", "radau_1e-10_t10", "mode_n", "m2_ramp", "net_1e3", "net_1e4", "net_3e4")
+CELLS = ("headline", "delta_0.01", "delta_0.6", "delta_0.01_td1", "delta_0.01_td50", "delta_0.6_td1", "delta_0.6_td50", "p5_1000", "radau_1e-12", "radau_1e-12_t10", "radau_1e-10_t10", "mode_n", "m2_ramp", "net_1e3", "net_3e3", "net_1e4", "net_3e4")
 
 
 def cell_path(cell: str):
