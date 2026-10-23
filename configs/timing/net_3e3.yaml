@@ -1,0 +1,6 @@
+# Timing cell net_3e3 (MS10 10a, plan 9.2 step 1): as net_1e4 (MS5 5f) at N = 3000, for S9's N = 3e3. Ours, UNVERIFIED as a plan cell
+# (in MS5 5f the N = 3e3 rate was taken from the slower of net_1e3 and net_1e4). Cost is read per neuron-update.
+run:     {kind: network}
+path:    {T_ramp_s: 10.0}
+network: {N: 3000}
+seeds:   {spawn_key: [0]}
