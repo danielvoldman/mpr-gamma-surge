@@ -50,6 +50,15 @@ def test_prediction_is_sum_over_workers_bounded_by_the_longest_run():
     assert math.isclose(p["longest_s"], 3e4 * 9.2e6 * 2e-9)
 
 
+def test_launch_rule_and_d36_arithmetic():
+    v = M.verdict(2700.0, M.ALLOWANCE_ROW_S)
+    assert v["limit_s"] == 2700.0 and v["ok"] and not M.verdict(2701.0, M.ALLOWANCE_ROW_S)["ok"]
+    assert M.verdict(600.0, M.ALLOWANCE_ROW_S)["ratio"] == pytest.approx(1 / 3)
+    t = M.d36_totals(3600.0)
+    assert t["on_top_h"] == pytest.approx(14.595) and t["replaced_h"] == pytest.approx(12.095) and t["within_cap"]
+    assert not M.d36_totals(11 * 3600.0)["within_cap"]
+
+
 def test_proposed_keys_are_unique_first_element_10_and_collide_with_nothing_in_use():
     mine = M.proposed_seed_keys()
     assert len(mine) == len(set(mine)) == 3 + 40 + 40 + 9 + 160 == 252

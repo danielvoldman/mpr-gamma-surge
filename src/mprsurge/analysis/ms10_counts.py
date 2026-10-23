@@ -125,6 +125,29 @@ def rates(timing_dir, workers: int | None) -> dict:
     return out
 
 
+# --- launch rule (9.2 step 3) and the D36 cap ----------------------------------------------------------------------------------------------
+
+ALLOWANCE_ROW_S = 30 * 60.0                 # Table 9.1 "S8, S10, S12 networks, ..." row: "< 30 min" (the share left for S8 and S10: M10-14, UNVERIFIED)
+ALLOWANCE_S9_S = 2 * 3600.0                 # Table 9.1 S9 row: "allowance 2 h"
+RULE_FACTOR = 1.5                           # 9.2 step 3
+D36_CAP_H = 24.0                            # D36
+MS9_D36_TOTAL_H = 13.595                    # DL-268: sum of mixed bases, conservative, UNVERIFIED
+D36_PLACEHOLDERS_H = 0.5 + 2.0              # of that total: networks row at its upper bound 0.5 h and S9 at its 2.0 h allowance (DL-268)
+
+
+def verdict(pred_s: float, allowance_s: float, factor: float = RULE_FACTOR) -> dict:
+    return {"pred_s": pred_s, "allowance_s": allowance_s, "ratio": pred_s / allowance_s, "limit_s": factor * allowance_s,
+            "ok": pred_s <= factor * allowance_s}
+
+
+def d36_totals(pred_s: float) -> dict:
+    """Two readings of the running total in hours with an MS10 prediction: added on top of the MS9 total (the networks and S9 placeholders
+    stay in it, a double count that errs high) and with those placeholders replaced by the prediction."""
+    h = pred_s / 3600.0
+    on_top, replaced = MS9_D36_TOTAL_H + h, MS9_D36_TOTAL_H - D36_PLACEHOLDERS_H + h
+    return {"on_top_h": on_top, "replaced_h": replaced, "margin_on_top_h": D36_CAP_H - on_top, "within_cap": on_top <= D36_CAP_H}
+
+
 def fmt(s: float) -> str:
     return f"{s:.0f} s" if s < 120 else (f"{s / 60:.1f} min" if s < 7200 else f"{s / 3600:.2f} h")
 
@@ -146,6 +169,14 @@ def report(timing_dir, seeds_per_cell: int = 3, control_seeds: int = 3) -> str:
             runs = control_runs(sc, control_seeds, ramp["S8"] + ramp["S9"] + ramp["S10"])
             p = predict_s(runs, r, w)
             L.append(f"control {sc} ({control_seeds} seeds): {n_runs(runs)} runs, {total_updates(runs):.3e} updates, wall {fmt(p['wall_s'])}")
+        row = predict_s(ramp["S8"] + ramp["S10"], r, w)["wall_s"]
+        v, v9 = verdict(row, ALLOWANCE_ROW_S), verdict(predict_s(ramp["S9"], r, w)["wall_s"], ALLOWANCE_S9_S)
+        L.append(f"launch rule: S8 + S10 {fmt(v['pred_s'])} against 30 min x 1.5 = {fmt(v['limit_s'])} ({v['ratio']:.2f} x allowance, "
+                 f"{'PASS' if v['ok'] else 'FAIL'}); S9 {fmt(v9['pred_s'])} against 2 h x 1.5 = {fmt(v9['limit_s'])} ({v9['ratio']:.2f} x, "
+                 f"{'PASS' if v9['ok'] else 'FAIL'})")
+        t = d36_totals(predict_s(ramp["S8"] + ramp["S9"] + ramp["S10"], r, w)["wall_s"])
+        L.append(f"D36: MS9 total {MS9_D36_TOTAL_H} h + MS10 ramp runs = {t['on_top_h']:.2f} h on top "
+                 f"({t['replaced_h']:.2f} h with the networks and S9 placeholders replaced) against {D36_CAP_H:g} h")
     return "\n".join(L)
 
 
