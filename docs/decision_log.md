@@ -3135,3 +3135,13 @@ Chosen:          as above   Default from: the 9k prompt
 Test:            docs/ms9_g_evidence.md (85d8a3fc...); docs/ms9_file_hashes.csv.
 Status:          done.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-272  MS9 9k: SHA-256 of docs/ms9_close.md    [ID: MS9, 9k, DL-269, DL-270, DL-271]
+Date:            2026-10-23        Author:
+Decision:        FACT. docs/ms9_close.md, committed 50afb7a (LF file; the document does not contain its own hash): SHA-256 11f8b1eb2ab6d6860565020e9bc30a25d3038eea16f5a78e063b3d4a97cde3c2. docs/ms9_file_hashes.csv, same commit: SHA-256 53201f91af504ac10f7b441c8ede593c7a069007e8f6df5b1b0054c3c68e6a61 (DL-271). The hash of docs/ms9_g_evidence.md is unchanged (85d8a3fc...). No tag, no push.
+Reason:          instruction of the reviewer (9k prompt, step 5).
+Options:         -
+Chosen:          none   Default from: the 9k prompt
+Test:            sha256sum of the committed files.
+Status:          done; STOP.
+Commit/tag:      the commit that adds this entry; no tag
