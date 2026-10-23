@@ -1,0 +1,7 @@
+# 9i MS9 data files for A7 (S6 part), A9, A10 and the G3 facts table (DL-256 to DL-260): analysis of stored records and class tables, no integration.
+# Thresholds and the A4 grid step are read from the frozen criteria (tag criteria-frozen), not from this file. No random numbers are used.
+run:      {id: MS9_9i, kind: a7, workers: 1}
+model:    {type: M3, ref_point: ref_devalle, tau_ms: 10.0, tau_d_ms: 5.0}
+path:     {name: path_hypoxia, profile: linear, T_ramp_s: 120.0, eta_H: 2.8960461989737856}
+output:   {dir: results/ms9/9i}
+robustness: {criteria_file: configs/robustness_criteria.yaml}

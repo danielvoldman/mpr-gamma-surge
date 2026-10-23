@@ -2975,3 +2975,43 @@ Chosen:          none   Default from: the 9h prompt
 Test:            results/ms9/9h/p1_cells.csv; results/ms9/9h_report.txt.
 Status:          done; STOP.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-256  MS9 9i: D31 accepted (pass) under the logged boundary definition; no new runs    [ID: MS9, 9i, D31, M9-18, DL-253, DL-254]
+Date:            2026-10-23        Author:
+Decision:        RULED (reviewer). D31 is accepted as a pass under the boundary definition logged in DL-254 (UNVERIFIED, reading ours): every refined boundary segment lies within 0.9014 original cells of a coarse boundary edge (the informative number, 85 refined half-edges against 46 coarse edges), and every coarse edge lies within 0.25 cell of a refined one (built in by the definition with two classes, DL-254 note, so it carries no information beyond the first number). The 178 D31 nodes stay a supplementary list outside the frozen 1,226 cells and feed no gate. No new runs.
+Reason:          ruling of the reviewer (9i prompt, step 2a).
+Options:         -
+Chosen:          pass   Default from: the 9i prompt
+Test:            results/ms9/9h/d31_classes.csv; results/ms9/9h/d31_boundary_cells.csv; results/ms9/9h_report.txt.
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-257  MS9 9i: P-1 stays a post-hoc view; frozen D24 stays FAILED; no further agreement views    [ID: MS9, 9i, P-1, D24, DL-242, DL-250, DL-255]
+Date:            2026-10-23        Author:
+Decision:        RULED (reviewer). P-1 (ramp-linked = S+, S-abs, S-sus matched to D-tr, the rest to D-none) stays a post-hoc view: cell agreement 173 of 225 (76.9%) against 203 needed (90% of 225), 16 ties. It feeds no gate. The frozen D24 stays FAILED (97 of 225 raw, 118 of 225 by category, DL-242, DL-243). No further agreement views are computed.
+Reason:          ruling of the reviewer (9i prompt, step 2b).
+Options:         -
+Chosen:          as above   Default from: the 9i prompt
+Test:            results/ms9/9h/p1_cells.csv; results/ms9/9f/subgrid_cells.csv.
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-258  MS9 9i: G5 CONTINUE recorded; G7 NOT PASSED with the claim limits already logged    [ID: MS9, 9i, G5, G7, RB4, M9-15, DL-229, DL-235, DL-236]
+Date:            2026-10-23        Author:
+Decision:        RULED (reviewer). G5: CONTINUE. Map 1 has 760 of 900 cells with a surge class (D-tr; threshold 27 of 900, M9-15), RB4 passed with all 78 of 78 classes unchanged (0 of 14 one-at-a-time runs changed, 64 of 64 hypercube points unchanged). G7: NOT PASSED (the NC1 network run is S+, DL-228), with the claim limits already logged in DL-229; nothing is added or removed.
+Reason:          ruling of the reviewer (9i prompt, step 2c).
+Options:         -
+Chosen:          G5 CONTINUE; G7 NOT PASSED   Default from: the 9i prompt
+Test:            results/ms9/9d/rb4_summary.json; results/ms9/9e/map1_classes.csv; results/ms9/nc1_classes.csv.
+Status:          in force.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-259  MS9 9i: readings for the data files; scripts committed before the run    [ID: MS9, 9i, A7, A9, A10, G3, M9-19, O12, DL-179, DL-207, DL-209, DL-244]
+Date:            2026-10-23        Author:
+Decision:        (1) Pre-checks at 9i start: verify_frozen_criteria passes against the tag criteria-frozen (commit dd8330c, criteria SHA-256 c7d2f36b...fa05; secondary S13 317db87e..., A4_grids cf6a60be..., S5_cells fe8590ce...); tree clean at 6ae6501; 9h result files unchanged (d31_classes a490fefa, d31_boundary_cells 8bcf5ef5, p1_cells 479d8941, 9h_report 1d33230d, subgrid_classes f907c9fd, control_classes 55bfe77c); fast suite at 6ae6501: 687 passed, 11 deselected, 9 xfailed, pytest exit 0 (348 s). (2) Code, all new, committed before the run: src/mprsurge/analysis/ms9_9i.py (builders; reuses a7.frozen_inputs, a7.classify_run, surge_metrics.onset_delay and j_exit_metrics, entry_exit.node_times, ms9_classify.supplementary_per_window unchanged), scripts/write_ms9_9i.py (driver, run record), configs/ms9/9i_tables.yaml, tests/test_ms9_9i.py. The MS8 A7 module is not edited. (3) READINGS, ours, UNVERIFIED: (a) the S6 file has one row per run: 20 pre-registered, the 2 supplementary P2 references (flagged supplementary) and the 2 S5 comparator rows (p2_linear at 10 s, the headline at 120 s), 24 rows; the "P2 comparator rows at 30 and 300 s" are the 2 supplementary references, not extra runs. (b) eta_H is the nominal eta_H of the path block (M9-19), the same on every row. (c) No entry-exit prediction for S6. (d) J_exit,static on P3 and P4 extends the S5 reading (last positive-to-non-positive crossing of the leading Re lambda along the path, DL-209) by taking the fixed point at eta + I(t) and Delta(t) of the run's own path; the extension is ours. (e) Post-surge rate: mean r over 1 s and over 5 s after J_exit,run, both columns, as ruled in O12 (DL-207). (f) A9: one row per cell of the 1,226-cell list: map 1 (900), map 2 (325) and the headline cell as its own row (map "headline"; no map cell has the headline parameters); the labels a to f are copied as stored; g and h (DL-244) are defined on non-surge cells only; "unlabelled" = a non-surge cell with no label under a to h. (g) A10: one long CSV; the G7 status field is on every row. (h) G3 facts table: class counts only; the plan's G3 clause "termination by J -> 0 is rejected" has no operational test in the plan and is not computed. (i) Inconsistencies between stored files are reported in results/ms9/9i/consistency.txt, never fixed.
+Reason:          instruction of the reviewer (9i prompt, steps 1, 3 and 4).
+Options:         -
+Chosen:          as above   Default from: the 9i prompt
+Test:            tests/test_ms9_9i.py.
+Status:          done; committed before the run.
+Commit/tag:      the commit that adds this entry; no tag
