@@ -1,0 +1,16 @@
+# status: FROZEN   (MS10 10d, DL-308; evaluators src/mprsurge/analysis/ms10_eval.py, scripts/evaluate_ms10.py)
+# Evaluation choices that the plan and rulings R1 to R24 leave unspecified (E-n of docs/ms10_eval_rules.md). NONE is chosen here: every value is null and every
+# evaluator that needs one raises MissingChoice until the reviewer fills it. Allowed values are in ms10_eval.CHOICE_VALUES. Reading these choices is analysis only.
+status: FROZEN
+choices:
+  network_onset_definition:   null     # E-1: classifier_centre | classifier_start | raw_crossing
+  not_evaluable_counts_as:    null     # E-2: not_met | vacuous (a seed with no f_pk or onset to compare)
+  tolerance_boundary:         null     # E-3: inclusive | strict (f_pk within 5 percent, onset within one spectrogram step)
+  baseline_sample_convention: null     # E-4: half_open | closed (samples of the 5 s sigma-check window)
+  sigma_range_bounds:         null     # E-5: inclusive | strict ("lies inside the range", R16)
+  s9_metrics:                 null     # E-6: list of names from ms10_eval.METRIC_NAMES
+  rb8_comparator:             null     # E-7: paired_by_seed_index | modal_lorentzian_class
+  rb8_class_equality:         null     # E-8: exact_label | surge_correspondence
+  g4_source_lists:            null     # E-9: subset of [S8, S9, S10] whose records count for "the network at N" (R24)
+  mf_baseline_std:            null     # E-10 (R21): mean-field mode-N baseline std of v; NOT confirmed at 10d (stored value is at sigma 0.0623888, not 0.0624)
+  mf_baseline_std_source:     null     # E-10: run ids and file hashes of that value

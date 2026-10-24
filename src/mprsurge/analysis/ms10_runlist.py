@@ -13,6 +13,7 @@ the T_ramp of their ramp run, so duration and start state are those of the ramp 
 from __future__ import annotations
 
 import csv
+import re
 from functools import lru_cache
 from pathlib import Path
 
@@ -51,9 +52,19 @@ def params() -> dict:
     return _read(LISTS_FILE)
 
 
+STATUS_YAML = (LISTS_FILE, CELLS_FILE, REFS_FILE, f"{CONFIG_DIR}/ms10_eval.yaml")
+STATUS_COMMENT = (f"{CONFIG_DIR}/ms10_net.yaml", f"{CONFIG_DIR}/ms10_mf.yaml")      # the config schema has no status key: first comment line "# STATUS: ..."
+
+
+def _comment_status(rel: str) -> str:
+    first = (C.repo_root() / rel).read_text(encoding="utf-8").splitlines()[0]
+    m = re.match(r"#\s*STATUS:\s*(\w+)", first)
+    return m.group(1) if m else "MISSING"
+
+
 def status() -> dict:
-    """Status field of each data file (DRAFT until frozen)."""
-    return {f: _read(f)["status"] for f in (LISTS_FILE, CELLS_FILE, REFS_FILE)}
+    """Status of each data file (DRAFT until frozen): the status field of the yaml data files, the first comment line of the two run configs."""
+    return {**{f: _read(f)["status"] for f in STATUS_YAML}, **{f: _comment_status(f) for f in STATUS_COMMENT}}
 
 
 def is_draft() -> bool:

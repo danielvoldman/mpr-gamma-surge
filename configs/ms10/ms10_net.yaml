@@ -1,7 +1,7 @@
-# STATUS: DRAFT (MS10 10c, DL-299; nothing frozen, nothing launched). Names the FROZEN criteria file: the runner refuses to start unless the tag criteria-frozen verifies.
+# STATUS: FROZEN (MS10 10d, DL-308; was DRAFT at 10c, DL-299; nothing launched). Names the FROZEN criteria file: the runner refuses to start unless the tag criteria-frozen verifies.
 # Layered on configs/base.yaml (ref_devalle). M3 network, N = 1e4 unless the run list overrides it, P2 (path_hypoxia, linear), forward Euler dt 1e-3 tau,
 # 2 s discard, 5 s baseline, hold 10 s (CP14). Per-run values (cell, T_ramp, N, het_dist, eta_H or eta_start = eta_peak, J_end, seed key) are in the run lists
-# of src/mprsurge/analysis/ms10_runlist.py (parameters in configs/ms10/ms10_lists.yaml; the four S8 cells in configs/ms10/s8_cells.yaml, TO_BE_CHOSEN).
+# of src/mprsurge/analysis/ms10_runlist.py (parameters in configs/ms10/ms10_lists.yaml; the four S8 cells in configs/ms10/s8_cells.yaml, R20).
 # Controls (C2, R17): eta_start = eta_peak and J_end = J0 by override, same T_ramp, so the same duration and start state as the ramp run.
 run:        {id: MS10_net, kind: network, workers: 1}
 model:      {ref_point: ref_devalle}

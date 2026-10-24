@@ -1,7 +1,7 @@
-# status: DRAFT   (MS10 10c, DL-299, R13, DL-291)
+# status: FROZEN   (MS10 10d, DL-308; was DRAFT at 10c, DL-299, R13, DL-291)
 # Stored mode-D mean-field records used as the references of the S8 headline at T_ramp 10 s and 120 s (P2 at ref_devalle, headline cell). Read only; the
 # loader checks the SHA-256 of each file. Not used: the stored S6_P2ref 30 s record, S12x_ctrl_mf (a control, not a reference), any mode-N record.
-status: DRAFT
+status: FROZEN
 references:
   - T_ramp_s: 10.0
     run_id: p2_linear_0004_4f4756348cd8

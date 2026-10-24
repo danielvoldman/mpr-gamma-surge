@@ -3426,3 +3426,83 @@ Chosen:          -   Default from: -
 Test:            scripts/predict_ms10_10c.py; results/timing/ms10/prediction_10c.txt (git-ignored)
 Status:          done; the reviewer launches
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-301  MS10 10d R20: the four S8 map cells    [ID: MS10, 10d, R20, M10-1, S8]
+Date:            2026-10-23        Author:
+Decision:        RULED. The 4 S8 cells are candidates 1, 5, 9, 11 of the 10c table (docs/ms10_10c_s8_proposals.csv): (i,j) = (7,4) D-tr below the median (Delta 0.1524, tau_d 1.715 ms, stored 120 s class D-tr, f_pk 49.5 Hz, boundary distance 10.54 cells), (22,10) D-tr above (Delta 0.4576, tau_d 3.853 ms, D-tr, 49.5 Hz, 10.54), (13,29) D-none below (Delta 0.2745, tau_d 50 ms, D-none, 2.70), (24,26) D-none above (Delta 0.4983, tau_d 33.36 ms, D-none, 4.85). Basis: the R14 stratification (2 D-tr, 2 D-none, one below and one above the Delta median in each class, each more than one cell from the refined boundary). WEAKNESS recorded: both D-tr cells have short tau_d (1.715 and 3.853 ms), so the D-tr part of the cell test does not cover tau_d near the headline 5 ms or above. Skipped: candidate 8 (its stored mode-N result at 120 s is S-sus 10 of 10 in the noisy subgrid); candidate 2 (Hopf frequency 24.53 Hz, below 25 Hz, the label (c) flag). Cell (24,26) has no Hopf point (hopf_found False): its start state (eta_start 1.3960, eta_H 2.8960) is taken from the stored map-1 record, not recomputed. configs/ms10/s8_cells.yaml is filled; the loader checks stratum and boundary distance against docs/ms10_10b_s8_candidates.csv.
+Reason:          instruction of the reviewer (10d prompt, ruling R20).
+Options:         -
+Chosen:          as ruled   Default from: -
+Test:            tests/test_ms10_counts.py (cells, list SHA-256)
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-302  MS10 10d R21: the sigma reference value is NOT confirmed (that part stopped)    [ID: MS10, 10d, R21, M10-4, CP21]
+Date:            2026-10-23        Author:
+Decision:        FACT; the part is stopped as instructed. The stored value 0.038852 (0.03885163682411162) is check_mf_std.mean in results/sigma/sigma_summary.json (DL-120): the mean over 10 mean-field mode-N runs of configs/sigma_mf.yaml, records results/sigma/sigma_mf/sigma_mf_0000_12bea1aaf0a4 to sigma_mf_0009_149c114c2457 (.json and .npz; digest of the 20 file hashes 67c99d791f48ba62bacde37a27abbc0c66ae7af4336729ef5835bed93912279f = SHA-256 of the concatenated 'path + file sha256' strings in sorted order, our digest). NOT confirmed as asked: (1) these runs are at sigma 0.06238876981899888 (the DL-120 fit), not the frozen 0.0624 (DL-121); (2) the records show git dirty = true (commit 96d40b49303b775dbae7e61094d51ff87b976c5b); (3) the state is the constant-parameter hold of configs/sigma_mf.yaml (I_step with I_amp 0, eta_bar 1.3960461989737856, J -21, Delta 0.3, tau_d 5 ms, 2 s discard, 5 s hold), numerically the P2 start state of ref_devalle, not a run of the P2 path. The ratio 0.0624 / 0.0623888 is 1.00018 and DL-120 found the std linear in sigma (1e-6 relative), so the value at the frozen sigma would be about 0.03886; that is arithmetic of ours, UNVERIFIED, and no value was substituted. The sigma-check evaluator requires mf_baseline_std and its source as E-10 (null; it stops with MissingChoice). The reviewer rules how R21 is met (accept the DL-120 value with this record stated, or order a mean-field baseline run at the frozen sigma, which needs its own run list).
+Reason:          instruction of the reviewer (10d prompt, ruling R21 and its stop clause).
+Options:         -
+Chosen:          none   Default from: -
+Test:            tests/test_ms10_eval.py (sigma_check stops without E-10)
+Status:          stopped; waits for the reviewer
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-303  MS10 10d R22: accepted as reported at 10c    [ID: MS10, 10d, R22, S9, S10, C2]
+Date:            2026-10-23        Author:
+Decision:        RULED (accepted as reported). (1) The shared Lorentzian N = 1e4 control at T_ramp 60 s (control k = 8) serves S9 and S10. (2) The DRAFT status was in the first comment line of ms10_net.yaml and ms10_mf.yaml (the config schema has no status key); at 10d that line says FROZEN and ms10_runlist.status() reads it. (3) The companion mode-D count of 5,250 tau at 30 s. (4) The cost per update of Gaussian and uniform offsets is unmeasured (UNVERIFIED; the prediction margin is large).
+Reason:          instruction of the reviewer (10d prompt, ruling R22).
+Options:         -
+Chosen:          as ruled   Default from: -
+Test:            tests/test_ms10_counts.py
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-304  MS10 10d R23: the RB1 reading (per seed, both headline T_ramp)    [ID: MS10, 10d, R23, RB1, Table 7.2]
+Date:            2026-10-23        Author:
+Decision:        RULED, as a READING (ours, UNVERIFIED as a plan reading: the plan gives no seed counts for f_pk and onset). The RB1 criteria are applied per seed, all 3 seeds, at each of the two headline T_ramp (10 s and 120 s): same class under the Table 2.1 correspondence; f_pk within 5 percent of the stored mode-D mean-field f_pk; onset (raw crossing, primary) within one spectrogram step of the mean-field onset. A cell agrees only if all 3 seeds are in the matching class (R15); RB1 needs at least 3 of 4 cells. N = 3e4 no worse than 1e4 per R18. A median-based f_pk and onset reading is reported as post hoc and feeds no gate. The frozen RB1 leaves are unchanged. Note (E-1): the plan defines the raw crossing for the noise-free mode-D envelope; for a noisy network record it is not defined, so the evaluator carries three onset readings and uses the one set in the choices file.
+Reason:          instruction of the reviewer (10d prompt, ruling R23).
+Options:         -
+Chosen:          as ruled   Default from: -
+Test:            tests/test_ms10_eval.py (seed assessment, headline, cells, N rule, post-hoc median)
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-305  MS10 10d R24: G4 evaluation    [ID: MS10, 10d, R24, G4, RB8, R8]
+Date:            2026-10-23        Author:
+Decision:        RULED. "The network misses the surge" at an N means: no seed at that N falls in a surge class (S+, S-rel, S-abs) under the primary reading. G4 is evaluated as in plan Tables 4.2 and 11.2 and is report-only for the run order. The RB8 comparator is as R8 (the Lorentzian network class at the same N and seeds; Gaussian and uniform must each give it in 3 of 3 seeds). The evaluator prints the three plan consequences as text with the truth of each condition (finite-size limitation; rerun RB6, whose network parts sit at MS11; affected results as mean-field-only, the last our reading, UNVERIFIED).
+Reason:          instruction of the reviewer (10d prompt, ruling R24).
+Options:         -
+Chosen:          as ruled   Default from: -
+Test:            tests/test_ms10_eval.py (g4_summary, rb8)
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-306  MS10 10d: cells filled, dry-run counts and list hashes, timing gate on the final lists    [ID: MS10, 10d, S8, S9, S10, C2, 9.2, D36]
+Date:            2026-10-23        Author:
+Decision:        FACT. Pre-checks passed: criteria loader gate on tag criteria-frozen (dd8330c5eaacd63d21e7b7969430988d00862769); the four frozen hashes equal the given values (criteria c7d2f36b, S13 317db87e, A4_grids cf6a60be, S5_cells fe8590ce); git status empty at HEAD 5bb9244; all 24,876 entries of docs/ms9_file_hashes.csv hash to their values (0 missing, 0 mismatch); docs/ms10_plan.md SHA-256 ccde1d99 before the append; fast suite 738 passed, 11 deselected, 9 xfailed, exit code 0 taken from pytest itself. Dry-run (list only): S8 18, S9 40, S10 9, C2_S8 18, C2_S9 12, C2_S10 6, MF_COMPANION 5 (108 runs); list SHA-256 values are in docs/ms10_plan.md 'Rulings after 10c' and equal the 10c values for S9, S10, C2_S9, C2_S10. Timing gate: git diff HEAD on src/ and scripts/ empty at the gate, pip freeze equal to the 10a file; predictions re-stated from the 10a rates (no new timing): S8 + C2_S8 + S10 + C2_S10 12.4 min (0.41 x the 30 min row, limit 45), S9 + C2_S9 18.3 min (0.15 x 2 h, limit 3 h), longest run 9.9 min, nothing over one hour, D36 14.11 h (11.61 h replaced reading) against 24 h. Cost per update of Gaussian and uniform offsets stays unmeasured (UNVERIFIED).
+Reason:          instruction of the reviewer (10d prompt, pre-checks, steps 1 and 2).
+Options:         -
+Chosen:          -   Default from: -
+Test:            scripts/run_ms10_list.py --dry-run; scripts/predict_ms10_10c.py
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-307  MS10 10d: evaluation rules, evaluators, tests; unspecified choices E-1 to E-10 left open    [ID: MS10, 10d, RB1, RB8, G4, R16, R18, R23, R24]
+Date:            2026-10-23        Author:
+Decision:        FACT. docs/ms10_eval_rules.md (words), src/mprsurge/analysis/ms10_eval.py, scripts/evaluate_ms10.py, configs/ms10/ms10_eval.yaml, tests/test_ms10_eval.py (25 tests, synthetic fixtures only). The evaluators read stored records only; they refuse a record with git dirty not false, a dry-run record, a config hash or name that differs from the frozen list, a foreign criteria hash, an unlisted record in a family folder, and any DRAFT data file. Evaluation choices the plan and rulings leave open: E-1 network onset definition, E-2 treatment of a seed with no f_pk or onset, E-3 inclusive or strict tolerance boundary, E-4 samples of the 5 s sigma window, E-5 inclusive or strict sigma range, E-6 the metric list of S9, E-7 RB8 comparator when the Lorentzian classes differ, E-8 RB8 class equality, E-9 the lists counted for G4, E-10 the mean-field baseline std and its source (R21 stopped). None is chosen: each is null in the choices file and the evaluator raises MissingChoice. ms10_runlist.status() now also reads the eval choices file and the first comment line of ms10_net.yaml and ms10_mf.yaml. For the sigma check, the baseline of a seed is expected equal at T_ramp 10 s and 120 s (parameters constant before t_on); UNVERIFIED, the evaluator reports the number of distinct values.
+Reason:          instruction of the reviewer (10d prompt, step 3).
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_ms10_eval.py
+Status:          done (the evaluators cannot run on real records until the choices are set)
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-308  MS10 10d: pre-registration FROZEN (lists, configs, evaluators); hashes    [ID: MS10, 10d, S8, S9, S10, C2, RB1, RB8, G4]
+Date:            2026-10-23        Author:
+Decision:        The status of configs/ms10/ms10_lists.yaml, s8_cells.yaml, mf_references.yaml, ms10_eval.yaml, and the first-line status of ms10_net.yaml and ms10_mf.yaml, changed from DRAFT to FROZEN; no value other than the status and comments changed in the lists, and the seed keys are those of DL-299. No tag. Commit before any run. SHA-256 (working-tree bytes at the freeze). Run lists (list_sha256 of [family, config, index, config hash, spawn key], 10c definition): S8 7f409c15cffa37c0462684f67d2b82fe5ba0fa305ea53fad8861197bc5647854; S9 b429cff50ae112f1ac131ee42cac124a1a3a6a3a8aee900cf0fdbc85d7ed65bb; S10 79f72a123467ccb0e79c327b7f82b0bd599dc5277cb37dc94466d0409eea94f3; C2_S8 172280421c9e2577f4029091e9b75511a17b18b8595e5e56256eed8b534a72e1; C2_S9 5745e197a662b9af2411c8444b4450d85e17b41c48b38b6f8acfa5b4254e0de4; C2_S10 d1047ee1f6dc35442a59b17e6b2df233360ebcdccb6abdf26f021d95946b925d; MF_COMPANION c22eca68e3231d64d8d7bc68d6bc6e284e8b22d4951522f0d9111979e30466a9. Configs: ms10_lists.yaml 0fc0586eb952c1fa3536b73dd72ef6e389185ad562dc9e11fd609826837a3c58; s8_cells.yaml dfe82a4b07c49ec3c6e5d1bcb9fd333bf0d6744619ad8e0bd5b4eca61d605259; mf_references.yaml 5f7d456b67eed9cc3fdf325db1989cc4b4c77f52f74f56d318eb32fda7e1800f; ms10_eval.yaml 22e11c083912b06b8781e3733b1ae4c8cb33f05b4e3477371912691569057ba4; ms10_net.yaml 564920e077b23a93a8bddce47babccfecefea629643c79ad0aa04c59b4ba80be; ms10_mf.yaml 2d563836c0c7b79481102e8db406ab5804009fa9c01599151a1468775cddc083. Code: src/mprsurge/analysis/ms10_eval.py b1b97c4f584ef710799c9e045aa6a5bb97b90605e9eed02af82ea505cc04ae89; src/mprsurge/analysis/ms10_runlist.py d7c1295dd7006e21f2736499a41212a7fcb988d75435121a31cbcd14a1361ab1; scripts/evaluate_ms10.py 1038677720d73994a1bd399f0a509d8afffa79334466ba73e262413963bde1e9; scripts/run_ms10_list.py c1d4069a540385db5d4b34f85def8f79e8125a20fdcde09b778af4325562f4e7; tests/test_ms10_eval.py 4208a2aba30ffc43ba8c9b107e3e427a607110c1418eb646fbb0e088df5d413b; tests/test_ms10_counts.py 2acd62153990774591e2b235bef048bd30286d270b446c41319696975401358f. Docs: docs/ms10_eval_rules.md ddd3c12273b976e93701f7b9bf9f108baed81eba76cae85c24c5ce3d587e4154. The E-n values in ms10_eval.yaml are null; filling them is a later reviewer ruling and a new decision-log entry, made before any network record is read.
+Reason:          instruction of the reviewer (10d prompt, step 4).
+Options:         -
+Chosen:          as ruled   Default from: -
+Test:            fast suite before the commit; tests/test_ms10_counts.py pins the list hashes
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag

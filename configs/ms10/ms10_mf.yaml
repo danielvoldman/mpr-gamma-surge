@@ -1,6 +1,6 @@
-# STATUS: DRAFT (MS10 10c, DL-299; nothing frozen, nothing launched). Names the FROZEN criteria file: the runner refuses to start unless the tag criteria-frozen verifies.
+# STATUS: FROZEN (MS10 10d, DL-308; was DRAFT at 10c, DL-299; nothing launched). Names the FROZEN criteria file: the runner refuses to start unless the tag criteria-frozen verifies.
 # Companion mean-field runs (R13, DL-277): mode D (kind mf), P2 at ref_devalle, deterministic. 4 S8 map cells at T_ramp 30 s (each cell's own Delta, tau_d,
-# J0, eta_H; cells TO_BE_CHOSEN in configs/ms10/s8_cells.yaml) and the headline at T_ramp 60 s: 5 runs. Same form as configs/ms9/s7_map.yaml.
+# J0, eta_H; cells in configs/ms10/s8_cells.yaml, R20) and the headline at T_ramp 60 s: 5 runs. Same form as configs/ms9/s7_map.yaml.
 run:        {id: MS10_mf, kind: mf, workers: 1}
 model:      {ref_point: ref_devalle}
 path:       {name: path_hypoxia, profile: linear, T_ramp_s: 120.0, eta_H: 2.8960461989737856}

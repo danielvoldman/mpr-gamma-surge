@@ -119,14 +119,33 @@ def test_control_yaml_matches_the_counts_module_configuration_for_configuration(
     assert ym == [(N, t) for _, N, t in M.control_configs()]
 
 
-def test_draft_status_and_placeholders_stop_the_cell_lists():
-    assert RL.is_draft() and set(RL.status().values()) == {"DRAFT"}
+FROZEN_LIST_SHA256 = {       # 10d (DL-306, DL-308): the lists with the four S8 cells of R20
+    "S8": "7f409c15cffa37c0462684f67d2b82fe5ba0fa305ea53fad8861197bc5647854", "S9": "b429cff50ae112f1ac131ee42cac124a1a3a6a3a8aee900cf0fdbc85d7ed65bb",
+    "S10": "79f72a123467ccb0e79c327b7f82b0bd599dc5277cb37dc94466d0409eea94f3", "C2_S8": "172280421c9e2577f4029091e9b75511a17b18b8595e5e56256eed8b534a72e1",
+    "C2_S9": "5745e197a662b9af2411c8444b4450d85e17b41c48b38b6f8acfa5b4254e0de4", "C2_S10": "d1047ee1f6dc35442a59b17e6b2df233360ebcdccb6abdf26f021d95946b925d",
+    "MF_COMPANION": "c22eca68e3231d64d8d7bc68d6bc6e284e8b22d4951522f0d9111979e30466a9"}
+
+
+def test_the_data_files_are_frozen_and_the_four_cells_are_those_of_r20():
+    assert not RL.is_draft() and set(RL.status().values()) == {"FROZEN"} and len(RL.status()) == 6
+    assert [(c["ij"][0], c["ij"][1]) for c in RL.chosen_cells()] == [(7, 4), (22, 10), (13, 29), (24, 26)]
+    s = RL.summary()
+    assert {n: v["runs"] for n, v in s.items()} == RL.EXPECTED_COUNTS
+    assert {n: v["sha256"] for n, v in s.items()} == FROZEN_LIST_SHA256
+
+
+def test_a_placeholder_cell_still_stops_the_cell_lists(monkeypatch):
+    doc = RL._read(RL.CELLS_FILE)
+    doc["cells"][0]["i"] = RL.PLACEHOLDER
+    monkeypatch.setattr(RL, "_read", lambda rel, _r=RL._read: doc if rel == RL.CELLS_FILE else _r(rel))
     for name in RL.NEEDS_CELLS:
         with pytest.raises(RL.RunListError, match="TO_BE_CHOSEN"):
             RL.expand(name)
-    s = RL.summary()
-    assert all(s[n]["sha256"] is None for n in RL.NEEDS_CELLS) and all(s[n]["sha256"] for n in ("S9", "S10", "C2_S9", "C2_S10"))
-    assert {n: v["runs"] for n, v in s.items()} == RL.EXPECTED_COUNTS
+
+
+def test_a_draft_comment_line_or_status_field_makes_the_set_draft(monkeypatch):
+    monkeypatch.setattr(RL, "_comment_status", lambda rel: "DRAFT")
+    assert RL.is_draft()
 
 
 def test_lists_without_cells_have_the_final_keys_and_no_duplicates():

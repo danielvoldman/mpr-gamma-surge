@@ -299,3 +299,25 @@ companion MF (5 mode-D runs, 4 x 5250 tau + 9000 tau): sum of run walls at (0.00
 ```
 
 Reading: the row S8/S10/S12 networks is 30 min (limit 45 min at 1.5 x); S8 + controls and S10 + controls together are predicted at 12.4 min (0.41 x). S9 + controls against 2 h (limit 3 h): 18.3 min (0.15 x). No launch and no single run reaches one hour. D36 on the conservative reading of DL-268 (MS9 total 13.595 h plus the MS10 ramp runs and controls added on top): 14.11 h (11.61 h with the networks and S9 placeholders replaced), against 24 h. The companion mean-field runs are outside the D36 reading above (about 5 to 9 min of run walls, a few minutes of wall at 5 workers); the mode-D time per tau for these cells is from the MS9 sample and the runner's order estimate (UNVERIFIED for these cells).
+
+## Rulings after 10c (10d; DL-301 to DL-305)
+
+Appended at 10d. Everything above is unchanged. Rulings are the reviewer's (10d prompt); readings that are ours are marked UNVERIFIED.
+
+| Ruling | Item | Content | DL |
+|---|---|---|---|
+| R20 | M10-1 | The 4 S8 cells are candidates 1, 5, 9, 11 of the 10c table: (i,j) = (7,4) D-tr below the median, (22,10) D-tr above, (13,29) D-none below, (24,26) D-none above. Weakness: both D-tr cells have short tau_d (1.715 and 3.853 ms). Candidate 8 was skipped (its stored mode-N result at 120 s is S-sus 10 of 10); candidate 2 was skipped (its Hopf frequency, 24.53 Hz, is below 25 Hz, the label (c) flag). Cell (24,26) has no Hopf point: its start state is the stored map-1 value (eta_start 1.3960, the headline value), not recomputed | 301 |
+| R21 | M10-4 | The sigma check uses the stored mean-field mode-N baseline std of v, 0.038852. Run ids and hashes to be found and the production at the frozen sigma and the P2 start state of ref_devalle confirmed, else STOP that part. **Result at 10d: NOT confirmed** (the runs are at sigma 0.0623888, not 0.0624; git dirty = true; constant-state hold, not a P2 path run). The part is stopped; no value was substituted | 302 |
+| R22 | 10c | Accepted as reported: the shared Lorentzian N = 1e4 control (serves S9 and S10); DRAFT status in the first comment line of the YAML; companion mode-D tau 5,250 at 30 s; Gaussian and uniform cost per update unmeasured (UNVERIFIED, the margin is large) | 303 |
+| R23 | RB1 | Reading of the RB1 criteria (ours, UNVERIFIED as a plan reading: the plan gives no seed counts for f_pk and onset): per seed, all 3 seeds, at each of the two headline T_ramp (10 s and 120 s): same class under the Table 2.1 correspondence; f_pk within 5 percent of the stored mode-D mean-field f_pk; onset (raw crossing, primary) within one spectrogram step of the mean-field onset. A cell agrees only if all 3 seeds are in the matching class (R15); RB1 needs at least 3 of 4 cells. N = 3e4 no worse than 1e4 per R18. A median-based f_pk and onset reading is post hoc and feeds no gate | 304 |
+| R24 | G4 | "The network misses the surge" at an N means: no seed at that N falls in a surge class under the primary reading. G4 is evaluated as in plan Tables 4.2 and 11.2 and is report-only for the run order. The RB8 comparator is as R8 | 305 |
+
+### 10d: cells, lists, evaluators, freeze (DL-306 to DL-308)
+
+*Cells and lists.* `configs/ms10/s8_cells.yaml` holds R20. Dry-run (list only) counts and list SHA-256: S8 18, 7f409c15cffa37c0462684f67d2b82fe5ba0fa305ea53fad8861197bc5647854; S9 40, b429cff50ae112f1ac131ee42cac124a1a3a6a3a8aee900cf0fdbc85d7ed65bb; S10 9, 79f72a123467ccb0e79c327b7f82b0bd599dc5277cb37dc94466d0409eea94f3; C2_S8 18, 172280421c9e2577f4029091e9b75511a17b18b8595e5e56256eed8b534a72e1; C2_S9 12, 5745e197a662b9af2411c8444b4450d85e17b41c48b38b6f8acfa5b4254e0de4; C2_S10 6, d1047ee1f6dc35442a59b17e6b2df233360ebcdccb6abdf26f021d95946b925d; MF_COMPANION 5, c22eca68e3231d64d8d7bc68d6bc6e284e8b22d4951522f0d9111979e30466a9. The lists that need no cell are unchanged from 10c.
+
+*Timing gate.* No file in `src/` or `scripts/` changed since 10c at the time of the gate (git diff HEAD empty for both); `pip freeze` equals `results/timing/ms10/logs/pip_freeze.txt` (CRLF normalised). The 10c prediction was re-stated from the 10a rates (no new timing): S8 + C2_S8 + S10 + C2_S10 12.4 min against 30 min (limit 45); S9 + C2_S9 18.3 min against 2 h (limit 3 h); longest run 9.9 min; no launch over one hour; D36 14.11 h (11.61 h replaced reading) against 24 h. The companion mean-field wall at 5 workers is 88 s to 2.8 min (UNVERIFIED rates for these cells).
+
+*Evaluators.* `docs/ms10_eval_rules.md` says in words what `src/mprsurge/analysis/ms10_eval.py` and `scripts/evaluate_ms10.py` compute and lists the ten unspecified evaluation choices E-1 to E-10; none is chosen, each is a null field of `configs/ms10/ms10_eval.yaml` that the evaluator rejects when missing. Tests (`tests/test_ms10_eval.py`) use synthetic fixtures only and include the refusal of a dirty record and of a record whose config hash differs from the frozen list.
+
+*Freeze.* The status of the lists, cells, references, eval choices and the two run configs is FROZEN (DL-308 has the SHA-256 values). The seed keys are those of DL-299. No tag.
