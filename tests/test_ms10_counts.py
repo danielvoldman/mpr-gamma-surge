@@ -1,7 +1,9 @@
 """MS10 10a: run counts of docs/ms10_plan.md and the proposed seed keys (DL-275; UNVERIFIED until confirmed). Nothing integrates."""
 import math
 
+import pandas as pd
 import pytest
+import yaml
 
 from mprsurge.analysis import ms10_counts as M
 
@@ -61,7 +63,7 @@ def test_launch_rule_and_d36_arithmetic():
 
 def test_proposed_keys_are_unique_first_element_10_and_collide_with_nothing_in_use():
     mine = M.proposed_seed_keys()
-    assert len(mine) == len(set(mine)) == 3 + 40 + 40 + 9 + 160 == 252
+    assert len(mine) == len(set(mine)) == 3 + 12 + 40 + 9 + 36 == 100      # FINAL patterns (10c): 3 seeds per map cell (R15), 12 controls x 3 seeds (R17)
     assert all(k[0] == 10 for k in mine)
     used = _key_prefixes_in_repo() | set(KNOWN) | set(MS9_KEYS)
     assert (9, 6, 0) in used and (8, 1) in used          # the scan and the written-out lists see the earlier keys
@@ -85,3 +87,93 @@ def test_the_ms9_keys_written_out_here_equal_the_ms9_proposal():
 
 def test_the_collision_rule_has_teeth():
     assert _related((10, 3, 2, 4), (10, 3)) and not _related((10, 1, 0), (9, 1))
+
+
+# --- 10c: the final key patterns, the run lists and the controls (DRAFT; DL-299) -----------------------------------------------------------------
+
+from mprsurge.analysis import ms10_runlist as RL      # noqa: E402
+
+
+def _fixture_cells(tmp_path, monkeypatch):
+    """TEST FIXTURE ONLY (not a choice): the first proposal of each stratum written to a temporary cells file, to exercise the loader."""
+    prop = pd.read_csv("docs/ms10_10c_s8_proposals.csv")
+    first = prop.groupby("stratum", sort=False).head(1)
+    doc = yaml.safe_load(open(RL.CELLS_FILE, encoding="utf-8"))
+    for e, (_, r) in zip(doc["cells"], first.iterrows()):
+        e["i"], e["j"] = int(r["i"]), int(r["j"])
+    p = tmp_path / "s8_cells.yaml"
+    p.write_text(yaml.safe_dump(doc), encoding="utf-8")
+    monkeypatch.setattr(RL, "_read", lambda rel, _r=RL._read: _r(rel) if rel != RL.CELLS_FILE else yaml.safe_load(p.read_text(encoding="utf-8")))
+
+
+def test_nominal_counts_are_those_of_the_10c_prompt():
+    n = RL.nominal_counts()
+    assert n == {"S8": 18, "S9": 40, "S10": 9, "C2_S8": 18, "C2_S9": 12, "C2_S10": 6, "MF_COMPANION": 5}
+    assert RL.control_total() == 36 == M.n_runs(M.control_runs("C2_every_configuration", 3, [])) == RL.EXPECTED_CONTROLS
+    assert M.N_CONTROL_CONFIGS == RL.N_CONTROL_CONFIGS == len(RL.params()["controls"]["configs"]) == 12
+
+
+def test_control_yaml_matches_the_counts_module_configuration_for_configuration():
+    ym = [(c["N"], c["T_ramp_s"]) for c in RL.params()["controls"]["configs"]]
+    assert [c["k"] for c in RL.params()["controls"]["configs"]] == list(range(12))
+    assert ym == [(N, t) for _, N, t in M.control_configs()]
+
+
+def test_draft_status_and_placeholders_stop_the_cell_lists():
+    assert RL.is_draft() and set(RL.status().values()) == {"DRAFT"}
+    for name in RL.NEEDS_CELLS:
+        with pytest.raises(RL.RunListError, match="TO_BE_CHOSEN"):
+            RL.expand(name)
+    s = RL.summary()
+    assert all(s[n]["sha256"] is None for n in RL.NEEDS_CELLS) and all(s[n]["sha256"] for n in ("S9", "S10", "C2_S9", "C2_S10"))
+    assert {n: v["runs"] for n, v in s.items()} == RL.EXPECTED_COUNTS
+
+
+def test_lists_without_cells_have_the_final_keys_and_no_duplicates():
+    keys = []
+    for name in ("S9", "S10", "C2_S9", "C2_S10"):
+        rows = RL.expand(name)
+        assert not RL.duplicates(rows) and len(rows) == RL.EXPECTED_COUNTS[name]
+        keys += RL.seed_keys(rows)
+    assert len(keys) == len(set(keys))
+    assert set(keys) <= set(M.proposed_seed_keys())
+
+
+def test_with_cells_filled_the_whole_registered_set_is_the_proposed_key_set(tmp_path, monkeypatch):
+    _fixture_cells(tmp_path, monkeypatch)
+    keys, total = [], 0
+    for name in RL.ALL_LISTS:
+        rows = RL.expand(name)
+        total += len(rows)
+        assert not RL.duplicates(rows)
+        keys += RL.seed_keys(rows)
+    assert total == 18 + 40 + 9 + 36 + 5 == 108
+    assert len(keys) == 103 and set(keys) == set(M.proposed_seed_keys()) and len(set(keys)) == 100      # MF companion has no key
+    twice = sorted(k for k in set(keys) if keys.count(k) == 2)
+    assert twice == [(10, 1, 0), (10, 1, 1), (10, 1, 2)] and all(keys.count(k) == 1 for k in set(keys) - set(twice))   # R4: same stream at T_ramp 10 and 120 s
+    ctrl = [r for n in RL.CONTROL_LISTS for r in RL.expand(n)]
+    assert len(ctrl) == 36 and len({tuple(r["spawn_key"][:3]) for r in ctrl}) == 12
+
+
+def test_a_control_has_the_duration_and_start_state_of_its_ramp_run(tmp_path, monkeypatch):
+    from mprsurge.analysis import timing as T
+    _fixture_cells(tmp_path, monkeypatch)
+    ramp = {(r["cfg"]["network"]["N"], r["cfg"]["path"]["T_ramp_s"], r["cfg"]["network"]["het_dist"]): r["cfg"] for n in RL.RAMP_LISTS for r in RL.expand(n)}
+    for r in (r for n in RL.CONTROL_LISTS for r in RL.expand(n)):
+        c = r["cfg"]
+        assert c["path"]["eta_peak"] == c["path"]["eta_start"] and c["path"]["J_end"] == c["path"]["J0"] == c["model"]["J"]
+        w = ramp.get((c["network"]["N"], c["path"]["T_ramp_s"], c["network"]["het_dist"]))
+        assert w is not None
+        assert T.network_updates(c) == T.network_updates(w)
+        if c["model"]["Delta"] == w["model"]["Delta"] and c["model"]["tau_d_ms"] == w["model"]["tau_d_ms"]:
+            assert c["path"]["eta_start"] == w["path"]["eta_start"]
+
+
+def test_the_stored_mf_references_verify_and_the_cell_loader_rejects_a_wrong_stratum(tmp_path, monkeypatch):
+    assert [(v["T_ramp_s"], v["files"]) for v in RL.verify_references()] == [(10.0, 2), (120.0, 2)] or pytest.skip("results/ not present")
+    _fixture_cells(tmp_path, monkeypatch)
+    bad = RL._read(RL.CELLS_FILE)
+    bad["cells"][0]["stratum"] = "D-none below median"
+    monkeypatch.setattr(RL, "_read", lambda rel: bad)
+    with pytest.raises(RL.RunListError, match="stratum"):
+        RL.chosen_cells()

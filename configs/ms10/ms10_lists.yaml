@@ -1,0 +1,27 @@
+# status: DRAFT   (MS10 10c, DL-299; nothing frozen, nothing launched; the seed keys freeze with the lists at the launch decision)
+# Parameters of the MS10 run lists (src/mprsurge/analysis/ms10_runlist.py). Plan Table 6.2 S8, S9, S10; rulings R1 to R9 (DL-277 to DL-287), R13 to R17 (DL-291 to DL-295).
+# Seed keys: root_seed 20261008, first element 10 = MS10; tests/test_ms10_counts.py is the authority (DL-280).
+status: DRAFT
+lists:
+  S8:
+    headline: {T_ramp_s: [10.0, 120.0], seeds: 3, key: [10, 1]}          # [10, 1, s]: the same stream at both T_ramp (initial V only; offsets are deterministic)
+    cells:    {T_ramp_s: 30.0, n_cells: 4, seeds: 3, key: [10, 2]}       # [10, 2, c, s]; cells in configs/ms10/s8_cells.yaml
+  S9:  {N: [1000, 3000, 10000, 30000], seeds: 10, T_ramp_s: 60.0, key: [10, 3]}          # [10, 3, n, s]
+  S10: {het_dist: [lorentzian, gaussian, uniform], seeds: 3, N: 10000, T_ramp_s: 60.0, key: [10, 4]}   # [10, 4, l, s]
+  MF_COMPANION: {cells_T_ramp_s: 30.0, headline_T_ramp_s: 60.0}          # R13: 4 + 1 mode-D runs, no seed
+controls:
+  seeds: 3
+  key: [10, 5]                                                           # [10, 5, k, s], k = 0..11 in the order below
+  configs:                                                               # R17: 12 configurations; accompanies = the S-ID the control counts under
+    - {k: 0,  label: "headline N=1e4 T10",       accompanies: S8,  N: 10000, T_ramp_s: 10.0,  het_dist: lorentzian, start: headline}
+    - {k: 1,  label: "headline N=1e4 T120",      accompanies: S8,  N: 10000, T_ramp_s: 120.0, het_dist: lorentzian, start: headline}
+    - {k: 2,  label: "map cell 0 N=1e4 T30",     accompanies: S8,  N: 10000, T_ramp_s: 30.0,  het_dist: lorentzian, start: {cell: 0}}
+    - {k: 3,  label: "map cell 1 N=1e4 T30",     accompanies: S8,  N: 10000, T_ramp_s: 30.0,  het_dist: lorentzian, start: {cell: 1}}
+    - {k: 4,  label: "map cell 2 N=1e4 T30",     accompanies: S8,  N: 10000, T_ramp_s: 30.0,  het_dist: lorentzian, start: {cell: 2}}
+    - {k: 5,  label: "map cell 3 N=1e4 T30",     accompanies: S8,  N: 10000, T_ramp_s: 30.0,  het_dist: lorentzian, start: {cell: 3}}
+    - {k: 6,  label: "headline N=1e3 T60",       accompanies: S9,  N: 1000,  T_ramp_s: 60.0,  het_dist: lorentzian, start: headline}
+    - {k: 7,  label: "headline N=3e3 T60",       accompanies: S9,  N: 3000,  T_ramp_s: 60.0,  het_dist: lorentzian, start: headline}
+    - {k: 8,  label: "headline N=1e4 T60",       accompanies: S9,  N: 10000, T_ramp_s: 60.0,  het_dist: lorentzian, start: headline}   # also the S10 Lorentzian control (same configuration)
+    - {k: 9,  label: "headline N=3e4 T60",       accompanies: S9,  N: 30000, T_ramp_s: 60.0,  het_dist: lorentzian, start: headline}
+    - {k: 10, label: "headline Gaussian T60",    accompanies: S10, N: 10000, T_ramp_s: 60.0,  het_dist: gaussian,   start: headline}
+    - {k: 11, label: "headline uniform T60",     accompanies: S10, N: 10000, T_ramp_s: 60.0,  het_dist: uniform,    start: headline}

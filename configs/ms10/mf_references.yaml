@@ -1,0 +1,19 @@
+# status: DRAFT   (MS10 10c, DL-299, R13, DL-291)
+# Stored mode-D mean-field records used as the references of the S8 headline at T_ramp 10 s and 120 s (P2 at ref_devalle, headline cell). Read only; the
+# loader checks the SHA-256 of each file. Not used: the stored S6_P2ref 30 s record, S12x_ctrl_mf (a control, not a reference), any mode-N record.
+status: DRAFT
+references:
+  - T_ramp_s: 10.0
+    run_id: p2_linear_0004_4f4756348cd8
+    stage: S5
+    stored_class: {class: D-tr, onset_s: 10.604, f_pk_hz: 48.05}
+    files:
+      results/S5/ramp/p2_linear/p2_linear_0004_4f4756348cd8.json: 3f94a9056a83b746770c64dd17c3d7b656282ac70fbe236a57e428ae6c57a33e
+      results/S5/ramp/p2_linear/p2_linear_0004_4f4756348cd8.npz: 06be66b6c6584b22263ee50da8fbec3df32550ef57e6298d31e823842c28bd44
+  - T_ramp_s: 120.0
+    run_id: S5ramp_0000_240de3ef73be
+    stage: S5
+    stored_class: {class: D-tr, onset_s: 58.698, f_pk_hz: 49.0}
+    files:
+      results/S5/ramp/S5ramp/S5ramp_0000_240de3ef73be.json: 31bb428655b030e8784cbb47d3567f9dda08913d56315eb36327b9fb28ea2b27
+      results/S5/ramp/S5ramp/S5ramp_0000_240de3ef73be.npz: 4bd489422196d68b440bed1a6655f9becc916614e0fd73a9b274938dc53e7b02

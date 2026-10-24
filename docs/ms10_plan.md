@@ -227,3 +227,75 @@ Also stored at 120 s, not P2 headline references: map-1 mode D (900 cells), the 
 ### 10b: candidate S8 cells (stored map 1, T_ramp 120 s, P2, mode D)
 
 Full table of the 900 cells with class, onset, f_pk, Hopf frequency, eta_start, baseline rate and v of the stored record, labels, the stored mode-N subgrid result where the cell is in the subgrid (225 cells), and the distance to the D31 refined boundary: `docs/ms10_10b_s8_candidates.csv` (produced by `scripts/inventory_ms10_10b.py`). Distance = Euclidean distance in original cell units from the cell node to the nearest refined half-edge midpoint, boundary as in `report_ms9_9h.py` (UNVERIFIED, reading ours). 73 cells lie within one original cell of the refined boundary: 44 D-tr and 29 D-none; the smallest distance is 0.25. D-none cells: 140, of which 48 have no Hopf point (none of those is within one cell of the boundary). Nothing is chosen.
+
+## Rulings after 10b (10c; DL-288 to DL-297)
+
+Appended at 10c. Everything above is unchanged. Rulings are the reviewer's (10c prompt); readings that are ours are marked UNVERIFIED.
+
+| Ruling | Item | Content | DL |
+|---|---|---|---|
+| R10 | R6 | Uniform offsets: max abs q = (N-1)/(N+1) is correct (R6 stands); the 10b prompt text was wrong | 288 |
+| R11 | R6 | Gaussian "random" sampling stays unsupported (ConfigError) and is not needed: S10 uses deterministic quantiles. The quantile Gaussian lacks the tails beyond u = 1/(N+1); its sample sd is 0.08 percent below Delta/sqrt(2 ln 2) at N = 1e4. Reported as a limitation, not fixed | 289 |
+| R12 | 10b | The boundary-distance definition of 10b (Euclidean distance in original cell units to the nearest refined half-edge midpoint, 9h geometry) is accepted as a selection aid only; it feeds no gate | 290 |
+| R13 | M10-3 | Mean-field references: the headline at T_ramp 10 s and 120 s uses the stored mode-D records (run ids and file hashes in configs/ms10/mf_references.yaml). New companion runs, mode D: the 4 S8 cells at T_ramp 30 s and the headline at T_ramp 60 s (5 runs). The stored S6_P2ref 30 s record is not used; S12x_ctrl_mf is not a reference | 291 |
+| R14 | M10-1 | S8 cell rule: 2 D-tr and 2 D-none cells; each more than one original cell from the refined boundary; one cell below and one above the median of the 30 map-1 Delta values within each class. Claude Code proposes three candidates per stratum (12 in all) with facts and chooses none; the reviewer chooses | 292 |
+| R15 | M10-2, M10-6 | 3 seeds per S8 map cell. A cell agrees only if all 3 seeds fall in the class matching the mean-field class under the Table 2.1 correspondence | 293 |
+| R16 | M10-4 | Sigma check: sigma passes if the mean-field mode-N baseline std of v at the frozen sigma lies inside the range of the network baseline std of v over the 6 S8 headline baselines (same 5 s window as the classifier baseline). If not, it is reported as a limitation and sigma stays frozen (MS7) | 294 |
+| R17 | M10-8 | Null control scope C2: one constant-parameter network control per distinct configuration (12), 3 seeds each = 36 runs, each with the same duration and start state as its ramp run. Controls count under the S-ID they accompany. Control classes are reported beside the ramp classes as a claim-limiting qualification; RB1 is evaluated as written | 295 |
+| R18 | M10-6, M10-10 | RB1 "N = 3e4 no worse than 1e4" is read as: at least as many seeds in the MF-matching class at 3e4 as at 1e4 (class-based, primary); f_pk and onset differences are reported. At T_ramp 10 s the 5 percent f_pk test is applied as written and the frequency-bin width is reported beside it | 296 |
+| R19 | note | The stored mean-field mode-N headline at T_ramp 10 s is mainly S-sus (8 of 10) while mode D is D-tr. A network S-sus at 10 s counts as disagreement under the Table 2.1 correspondence; the pre-registered reading stays as written and the result is reported either way | 297 |
+
+### 10c: proposed S8 cells (DL-298; nothing chosen)
+
+Three candidates per stratum from `docs/ms10_10b_s8_candidates.csv`, produced by `scripts/propose_ms10_10c.py` into `docs/ms10_10c_s8_proposals.csv`. Classes are the stored ones (map 1, T_ramp 120 s, P2, mode D), not recomputed. Eligible: boundary distance more than 1 original cell. Strata sides use the median of the 30 map-1 Delta values, 0.305 (reading ours, UNVERIFIED: one median of the axis for both classes). Presentation rule for the three per stratum (ours, UNVERIFIED, mechanical, not a recommendation): eligible cells sorted by (tau_d index j, Delta index i), the cells at positions round(n(2k+1)/6), k = 0, 1, 2. Eligible per stratum: D-tr below 402, D-tr above 314, D-none below 10, D-none above 101.
+
+| # | Stratum | i, j | Delta | tau_d (ms) | Stored class | Onset (s) | f_pk (Hz) | Hopf f (Hz) | eta_start | Start rate (Hz) | Boundary dist. (cells) | Mode-N subgrid, 120 s |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | D-tr below median | 7, 4 | 0.1524 | 1.715 | D-tr | 59.641 | 49.5 | 36.64 | 1.2361 | 6.38 | 10.54 | - |
+| 2 | D-tr below median | 6, 13 | 0.1321 | 5.776 | D-tr | 55.630 | 48.0 | 24.53 | 0.1456 | 3.00 | 4.85 | - |
+| 3 | D-tr below median | 9, 23 | 0.1931 | 22.257 | D-tr | 61.182 | 30.0 | 18.33 | 0.5985 | 4.74 | 4.25 | - |
+| 4 | D-tr above median | 22, 3 | 0.4576 | 1.499 | D-tr | 58.579 | 70.0 | 52.17 | 4.0079 | 18.27 | 15.38 | - |
+| 5 | D-tr above median | 22, 10 | 0.4576 | 3.853 | D-tr | 58.447 | 49.5 | 39.17 | 2.5655 | 12.94 | 10.54 | - |
+| 6 | D-tr above median | 22, 17 | 0.4576 | 9.907 | D-tr | 60.633 | 40.0 | 30.09 | 2.3737 | 12.27 | 4.04 | - |
+| 7 | D-none below median | 12, 28 | 0.2541 | 43.690 | D-none | - | - | 19.62 | 2.1148 | 10.30 | 1.35 | - |
+| 8 | D-none below median | 10, 29 | 0.2134 | 50.000 | D-none | - | - | 17.60 | 1.6461 | 8.31 | 1.25 | S-sus {"S-sus": 10} |
+| 9 | D-none below median | 13, 29 | 0.2745 | 50.000 | D-none | - | - | 22.96 | 3.3044 | 15.07 | 2.70 | - |
+| 10 | D-none above median | 19, 24 | 0.3966 | 25.471 | D-none | - | - | 25.07 | 3.0176 | 14.33 | 1.25 | - |
+| 11 | D-none above median | 24, 26 | 0.4983 | 33.359 | D-none | - | - | none | 1.3960 | 9.52 | 4.85 | - |
+| 12 | D-none above median | 28, 28 | 0.5797 | 43.690 | D-none | - | - | none | 1.3960 | 10.12 | 8.05 | - |
+
+Facts only. Start rate = mean rate of the stored mode-D record over its first 5 s. Cells 11 and 12 have no Hopf point (`hopf_found` False): their eta_start 1.3960 is the headline value in the cell list, so the P2 start state has no A4 anchor there (how MS9 built it was not re-read, UNVERIFIED). Only cell 8 lies in the 15 x 15 subgrid (mode N, 10 seeds, sigma 0.0624, T_ramp 120 s: S-sus 10 of 10). Stratum D-none below the median has only 10 eligible cells, so its three candidates are spread over 10.
+
+### 10c: drafts (DL-299; DRAFT, nothing frozen, nothing launched)
+
+Files: `configs/ms10/ms10_lists.yaml` (parameters, status DRAFT), `ms10_net.yaml` and `ms10_mf.yaml` (run configs; the config schema has no status key and rejects unknown keys, so these carry `STATUS: DRAFT` in their first comment line and the loader treats the three data files as draft), `s8_cells.yaml` (four entries TO_BE_CHOSEN, status DRAFT), `mf_references.yaml` (R13 stored records with SHA-256, status DRAFT); `src/mprsurge/analysis/ms10_runlist.py` (lists S8, S9, S10, C2_S8, C2_S9, C2_S10, MF_COMPANION; refuses S8, C2_S8 and MF_COMPANION while a cell is TO_BE_CHOSEN, and checks a filled cell against the 10b table and the R14 rule); `scripts/run_ms10_list.py` (one pool, 10 workers, longest first, restartable; `--dry-run` is list only; a real launch is refused while any data file says DRAFT, on a dirty tree, or with an unchosen cell). Seed keys (final patterns, root_seed 20261008): S8 headline [10,1,s] (s 0..2, the same stream at T_ramp 10 and 120 s, R4); S8 cells [10,2,c,s] (c 0..3, s 0..2); S9 [10,3,n,s] (n 0..3, s 0..9); S10 [10,4,l,s] (l 0..2, s 0..2); controls [10,5,k,s] (k 0..11, s 0..2; 36 keys); companion MF: none (deterministic). 100 distinct keys; the 10a reservation (252 keys: 10 seeds per cell, 16 x 10 controls) is replaced by these. Control order k: 0 headline T10, 1 headline T120, 2 to 5 map cells 0 to 3 at 30 s, 6 to 9 headline N = 1e3, 3e3, 1e4, 3e4 at 60 s, 10 Gaussian, 11 uniform at 60 s. A control sets eta_peak = eta_start and J_end = J0 with the T_ramp of its ramp run. Controls accompany: S8 k 0..5 (18 runs), S9 k 6..9 (12), S10 k 10..11 (6); the k = 8 control (Lorentzian N = 1e4 at 60 s) also stands for the S10 Lorentzian configuration. Counts: S8 18, S9 40, S10 9, controls 36, companion MF 5 (108 runs).
+
+Dry-run (list only), status at the commit: S9 40 runs, list SHA-256 b429cff50ae112f1ac131ee42cac124a1a3a6a3a8aee900cf0fdbc85d7ed65bb; S10 9, 79f72a123467ccb0e79c327b7f82b0bd599dc5277cb37dc94466d0409eea94f3; C2_S9 12, 5745e197a662b9af2411c8444b4450d85e17b41c48b38b6f8acfa5b4254e0de4; C2_S10 6, d1047ee1f6dc35442a59b17e6b2df233360ebcdccb6abdf26f021d95946b925d; S8 18, C2_S8 18, MF_COMPANION 5: UNRESOLVED (TO_BE_CHOSEN).
+
+### 10c: timing gate on the final list (DL-300)
+
+Version comparison first (9.2 step 4), 10a sample (commit 586a423) against HEAD at 10c: `git diff 586a423 HEAD -- src/` changes `qif_network.py` (10b: `heterogeneity_offsets` added, called from `run_network` and `run_s4_network`; the two `S10 shapes are not built` guards removed), `analysis/timing.py` (net_3e3 added to the cell tuple) and `analysis/ms10_counts.py`. The Numba kernel `qif_chunk` (lines 95 to 151) has no changed line; the hunks lie outside it (offset construction before the kernel call). `pip freeze` equals `results/timing/ms10/logs/pip_freeze.txt` (CRLF normalised). Solver, kernel and package versions are unchanged, so the 10a rates are used and nothing was re-timed. Not tested (UNVERIFIED): the cost per update for Gaussian and uniform offsets (the kernel is the same; spike counts differ with the shape and could change the cost slightly).
+
+Prediction (`scripts/predict_ms10_10c.py`, output `results/timing/ms10/prediction_10c.txt`, git-ignored; 10-copy per-run medians of 10a; wall = max(sum of run walls / 10, longest run)):
+
+```
+10c timing gate, rate = per-run median under 10 copies of the 10a sample (s per update x1e-9): N=1000: 1.932, N=3000: 1.928, N=10000: 1.925, N=30000: 2.156
+S8       18 runs  1.2435e+12 updates  alone-pool wall 5.4 min (sum 39.9 min, longest 5.4 min)
+C2_S8    18 runs  1.2435e+12 updates  alone-pool wall 5.4 min (sum 39.9 min, longest 5.4 min)
+S10       9 runs  8.2800e+11 updates  alone-pool wall 3.0 min (sum 26.6 min, longest 3.0 min)
+C2_S10    6 runs  5.5200e+11 updates  alone-pool wall 3.0 min (sum 17.7 min, longest 3.0 min)
+S9       40 runs  4.0480e+12 updates  alone-pool wall 14.1 min (sum 2.34 h, longest 9.9 min)
+C2_S9    12 runs  1.2144e+12 updates  alone-pool wall 9.9 min (sum 42.2 min, longest 9.9 min)
+S8 + C2_S8 (one launch): 36 runs, 2.4870e+12 updates, wall 8.0 min (sum 79.8 min, longest 5.4 min)
+S10 + C2_S10 (one launch): 15 runs, 1.3800e+12 updates, wall 4.4 min (sum 44.3 min, longest 3.0 min)
+S8 + C2_S8 + S10 + C2_S10 (one pool, the row reading): 51 runs, 3.8670e+12 updates, wall 12.4 min (sum 2.07 h, longest 5.4 min)
+S9 + C2_S9 (one launch): 52 runs, 5.2624e+12 updates, wall 18.3 min (sum 3.04 h, longest 9.9 min)
+S8 and S10 launches one after the other (R5): 12.4 min in all
+RULE row S8/S10/S12 networks (30 min, limit 45 min): one pool 12.4 min = 0.41 x, PASS; two launches 12.4 min = 0.41 x, PASS
+RULE S9 + controls (2 h, limit 3 h): 18.3 min = 0.15 x, PASS
+longest single network run 9.9 min; largest launch 18.3 min; launches over 1 h: none
+D36: all ramp runs and controls, S8 + S10 launches then S9: 30.7 min; MS9 total 13.595 h + this = 14.11 h on top (replaced reading 11.61 h) against 24 h
+companion MF (5 mode-D runs, 4 x 5250 tau + 9000 tau): sum of run walls at (0.00976, 0.011, 0.0189) s per tau = 4.9 min, 5.5 min, 9.4 min; at 5 workers the wall is the longest run, 88 s to 2.8 min
+```
+
+Reading: the row S8/S10/S12 networks is 30 min (limit 45 min at 1.5 x); S8 + controls and S10 + controls together are predicted at 12.4 min (0.41 x). S9 + controls against 2 h (limit 3 h): 18.3 min (0.15 x). No launch and no single run reaches one hour. D36 on the conservative reading of DL-268 (MS9 total 13.595 h plus the MS10 ramp runs and controls added on top): 14.11 h (11.61 h with the networks and S9 placeholders replaced), against 24 h. The companion mean-field runs are outside the D36 reading above (about 5 to 9 min of run walls, a few minutes of wall at 5 workers); the mode-D time per tau for these cells is from the MS9 sample and the runner's order estimate (UNVERIFIED for these cells).

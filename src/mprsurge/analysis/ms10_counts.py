@@ -36,21 +36,22 @@ OPTIONS = {
 # Proposed spawn keys (DL-275, UNVERIFIED): first element 10 = MS10 (DL-141 convention), root_seed 20261008. Used keys: tests/test_ms9_seed_keys.py.
 SEED_KEY_PREFIXES = {
     "s8_headline": (10, 1),     # [10, 1, s], s = 0..2: S8 P2 headline, the same stream at T_ramp 10 and 120 s (initial V only; q_j is deterministic)
-    "s8_map_cells": (10, 2),    # [10, 2, c, s], c = 0..3 map cell, s = 0..9 (the count per cell is M10-2; keys reserved for the maximum)
+    "s8_map_cells": (10, 2),    # [10, 2, c, s], c = 0..3 map cell, s = 0..2 (3 seeds per cell, R15)
     "s9_finite_size": (10, 3),  # [10, 3, n, s], n = 0..3 index into S9_N, s = 0..9
     "s10_shapes": (10, 4),      # [10, 4, l, s], l = 0..2 index into S10_SHAPES, s = 0..2
-    "controls": (10, 5),        # [10, 5, k, s], k = 0..15 control configuration (M10-8), s = 0..9; reserved, used only if a control is ruled
+    "controls": (10, 5),        # [10, 5, k, s], k = 0..11 control configuration (R17, order of control_configs), s = 0..2
 }
-N_CONTROL_CONFIGS = 16
+N_CONTROL_CONFIGS = 12          # R17
+MAP_CELL_SEEDS, CONTROL_SEEDS = 3, 3     # R15, R17 (the FINAL key patterns; 10a reserved 10 per cell and 16 x 10 controls)
 
 
 def proposed_seed_keys() -> list[tuple[int, ...]]:
     P = SEED_KEY_PREFIXES
     keys = [P["s8_headline"] + (s,) for s in range(S8_HEADLINE_SEEDS)]
-    keys += [P["s8_map_cells"] + (c, s) for c in range(S8_MAP_CELLS) for s in range(10)]
+    keys += [P["s8_map_cells"] + (c, s) for c in range(S8_MAP_CELLS) for s in range(MAP_CELL_SEEDS)]
     keys += [P["s9_finite_size"] + (n, s) for n in range(len(S9_N)) for s in range(S9_SEEDS)]
     keys += [P["s10_shapes"] + (l, s) for l in range(len(S10_SHAPES)) for s in range(S10_SEEDS)]
-    keys += [P["controls"] + (k, s) for k in range(N_CONTROL_CONFIGS) for s in range(10)]
+    keys += [P["controls"] + (k, s) for k in range(N_CONTROL_CONFIGS) for s in range(CONTROL_SEEDS)]
     return keys
 
 
@@ -72,12 +73,13 @@ def s10_runs(shared_with_s9: bool = False) -> list[tuple]:
 
 
 def control_configs() -> list[tuple]:
-    """Distinct network configurations used for class reading (DL-231): (label, N, T_ramp_s). The start state is the headline's except the
-    four map cells, each at its own start state. 12 configurations."""
-    c = [(f"headline N={N_REF} T{t:g}", N_REF, t) for t in (10.0, S9_T_RAMP_S, 120.0)]
-    c += [(f"headline N={n} T60", n, S9_T_RAMP_S) for n in S9_N if n != N_REF]
-    c += [(f"headline {s} N=1e4 T60", S10_N, S10_T_RAMP_S) for s in S10_SHAPES[1:]]
+    """The 12 distinct network configurations of the C2 controls (R17, DL-295): (label, N, T_ramp_s), in the order of the control key k of
+    configs/ms10/ms10_lists.yaml: headline T 10 and 120 s; the four map cells at 30 s; N = 1e3, 3e3, 1e4, 3e4 at 60 s; Gaussian and uniform at 60 s.
+    The Lorentzian N = 1e4 control at 60 s is the S9 N = 1e4 control and also stands for the S10 Lorentzian configuration."""
+    c = [(f"headline N={N_REF} T{t:g}", N_REF, t) for t in S8_HEADLINE_T_RAMP_S]
     c += [(f"map cell {k} N=1e4 T30", N_REF, S8_MAP_T_RAMP_S) for k in range(S8_MAP_CELLS)]
+    c += [(f"headline N={n} T60", n, S9_T_RAMP_S) for n in S9_N]
+    c += [(f"headline {s} N=1e4 T60", S10_N, S10_T_RAMP_S) for s in S10_SHAPES[1:]]
     return c
 
 
@@ -85,7 +87,7 @@ def control_runs(scope: str, seeds: int, ramp_runs: list[tuple]) -> list[tuple]:
     if scope == "C0_none_new":
         return []
     if scope == "C1_headline_N1e4":
-        return [(f"control {l}", N, t, seeds) for l, N, t in control_configs()[:3]]
+        return [(f"control {l}", N, t, seeds) for l, N, t in (control_configs()[i] for i in (0, 1, 8))]
     if scope == "C2_every_configuration":
         return [(f"control {l}", N, t, seeds) for l, N, t in control_configs()]
     if scope == "C3_twin_of_every_ramp_run":

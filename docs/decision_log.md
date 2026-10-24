@@ -3296,3 +3296,133 @@ Chosen:          none   Default from: -
 Test:            scripts/inventory_ms10_10b.py
 Status:          done; waits for the reviewer's choice of cells
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-288  MS10 10c R10: uniform offsets, max |q| = (N-1)/(N+1)    [ID: MS10, 10c, R10, R6, M10-13, S10]
+Date:            2026-10-23        Author:
+Decision:        RULED. R6 stands: for the uniform shape max |q| = (N-1)/(N+1) = 1 - 2/(N+1); the 10b prompt text (1 - 1/(N+1)) was wrong. DL-286 already used the R6 value; no change of code or test.
+Reason:          instruction of the reviewer (10c prompt, ruling R10).
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_qif_network.py (DL-286)
+Status:          ruled
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-289  MS10 10c R11: Gaussian random sampling unsupported; quantile limitation    [ID: MS10, 10c, R11, R6, M10-13, S10]
+Date:            2026-10-23        Author:
+Decision:        RULED. Gaussian (and uniform) with het_sampling random stays a ConfigError and is not needed: S10 uses deterministic quantiles. The quantile Gaussian lacks the tails beyond u = 1/(N+1); its sample sd is 0.08 percent below Delta/sqrt(2 ln 2) at N = 1e4 (DL-286). Reported as a limitation, not fixed.
+Reason:          instruction of the reviewer (10c prompt, ruling R11).
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_qif_network.py (DL-286)
+Status:          ruled
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-290  MS10 10c R12: boundary distance is a selection aid only    [ID: MS10, 10c, R12, M10-1, D31]
+Date:            2026-10-23        Author:
+Decision:        RULED. The 10b boundary-distance definition (Euclidean distance in original cell units to the nearest refined half-edge midpoint, 9h geometry; UNVERIFIED reading ours, DL-287) is accepted as a selection aid only. It feeds no gate.
+Reason:          instruction of the reviewer (10c prompt, ruling R12).
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          ruled
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-291  MS10 10c R13: mean-field references and companion runs    [ID: MS10, 10c, R13, M10-3, S8, RB1]
+Date:            2026-10-23        Author:
+Decision:        RULED. The headline at T_ramp 10 s and 120 s uses the stored mode-D records p2_linear_0004_4f4756348cd8 (S5) and S5ramp_0000_240de3ef73be (S5); run ids and SHA-256 of their json and npz files are in configs/ms10/mf_references.yaml and are checked by the loader. New companion runs, mode D (kind mf): the 4 S8 cells at T_ramp 30 s and the headline at T_ramp 60 s (5 runs; list MF_COMPANION). The stored S6_P2ref 30 s record is not used; S12x_ctrl_mf is not a reference. Supersedes the 'configs built at 10c' line of DL-277.
+Reason:          instruction of the reviewer (10c prompt, ruling R13).
+Options:         M10-3 (a) to (c)
+Chosen:          (a), as ruled   Default from: -
+Test:            tests/test_ms10_counts.py
+Status:          ruled; drafted at 10c
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-292  MS10 10c R14 (M10-1): S8 cell rule    [ID: MS10, 10c, R14, M10-1, S8, RB1]
+Date:            2026-10-23        Author:
+Decision:        RULED. 2 D-tr and 2 D-none cells; each more than one original cell from the refined boundary; within each class one cell below and one above the median of the 30 map-1 Delta values. Claude Code proposes three candidates per stratum (12 in all) with facts and chooses none; the reviewer chooses. Reading ours (UNVERIFIED): the median is that of the 30 values of the Delta axis, 0.305, for both classes (cells with Delta 0.2948 and below are 'below', 0.3152 and above are 'above').
+Reason:          instruction of the reviewer (10c prompt, ruling R14).
+Options:         M10-1 (a) to (f)
+Chosen:          rule as ruled; cells not chosen   Default from: -
+Test:            -
+Status:          ruled; the four cells wait for the reviewer
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-293  MS10 10c R15 (M10-2): 3 seeds per S8 map cell; cell agreement    [ID: MS10, 10c, R15, M10-2, M10-6, RB1]
+Date:            2026-10-23        Author:
+Decision:        RULED. 3 seeds per S8 map cell (keys [10,2,c,s], s 0..2). A cell agrees only if all 3 seeds fall in the class matching the mean-field class under the Table 2.1 correspondence. The mean-field class of a cell is the mode-D companion run at T_ramp 30 s (R13).
+Reason:          instruction of the reviewer (10c prompt, ruling R15).
+Options:         M10-2: 1, 3, 10
+Chosen:          3   Default from: -
+Test:            -
+Status:          ruled
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-294  MS10 10c R16 (M10-4): sigma check criterion    [ID: MS10, 10c, R16, M10-4, CP21, S8]
+Date:            2026-10-23        Author:
+Decision:        RULED, criterion in words. Sigma passes if the mean-field mode-N baseline std of v at the frozen sigma (0.0624) lies inside the range of the network baseline std of v over the 6 S8 headline baselines (same 5 s window as the classifier baseline). If it does not pass, it is reported as a limitation and sigma stays frozen (MS7). No run at 0.5 sigma or 2 sigma (S11, MS11). The mean-field mode-N baseline std source (stored 10-seed value 0.038852 or a new run) is not stated by the ruling and is not decided here; it is settled at the evaluation sub-step (UNVERIFIED).
+Reason:          instruction of the reviewer (10c prompt, ruling R16).
+Options:         M10-4 (i) to (v)
+Chosen:          as ruled   Default from: -
+Test:            -
+Status:          ruled
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-295  MS10 10c R17 (M10-8): null control scope C2    [ID: MS10, 10c, R17, M10-8, DL-231, RB1]
+Date:            2026-10-23        Author:
+Decision:        RULED. One constant-parameter network control per distinct configuration, 12 configurations (headline T_ramp 10 and 120 s; the 4 cells at 30 s; N = 1e3, 3e3, 1e4, 3e4 at 60 s; Gaussian and uniform at 60 s; the Lorentzian N = 1e4 control at 60 s is the S9 N = 1e4 control and the same configuration as the S10 Lorentzian), 3 seeds each = 36 runs, each with the same duration and start state as its ramp run (eta_peak = eta_start, J_end = J0, same T_ramp). Controls count under the S-ID they accompany: S8 18 (k 0..5), S9 12 (k 6..9), S10 6 (k 10..11). Keys [10,5,k,s]. Control classes are reported beside the ramp classes as a claim-limiting qualification; RB1 is evaluated as written. The control for the Lorentzian N = 1e4 at 60 s is a single set of runs for both S9 and S10 (reading ours, UNVERIFIED). POST-HOC AMENDMENT label of DL-231 applies.
+Reason:          instruction of the reviewer (10c prompt, ruling R17).
+Options:         M10-8 C0 to C3
+Chosen:          C2, 3 seeds   Default from: -
+Test:            tests/test_ms10_counts.py
+Status:          ruled; drafted at 10c
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-296  MS10 10c R18 (M10-6, M10-10): RB1 N = 3e4 no worse than 1e4; f_pk at T_ramp 10 s    [ID: MS10, 10c, R18, RB1, M10-6, M10-10]
+Date:            2026-10-23        Author:
+Decision:        RULED. 'N = 3e4 no worse than 1e4' is read as: at least as many seeds in the mean-field-matching class at 3e4 as at 1e4 (class-based, primary); the f_pk and onset differences are reported. At T_ramp 10 s the 5 percent f_pk test is applied as written and the frequency-bin width (3 Hz at W = 0.333 s) is reported beside it. The frozen RB1 leaves are unchanged.
+Reason:          instruction of the reviewer (10c prompt, ruling R18).
+Options:         -
+Chosen:          as ruled   Default from: -
+Test:            -
+Status:          ruled
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-297  MS10 10c R19: note on the T_ramp 10 s mean-field mode-N headline    [ID: MS10, 10c, R19, RB1, Table 2.1]
+Date:            2026-10-23        Author:
+Decision:        NOTE for the paper. The stored mean-field mode-N headline at T_ramp 10 s is mainly S-sus (8 of 10) while mode D is D-tr. A network S-sus at 10 s counts as disagreement under the Table 2.1 correspondence (D-tr meets S+, S-rel, S-abs). The pre-registered reading stays as written and the result is reported either way.
+Reason:          instruction of the reviewer (10c prompt, ruling R19).
+Options:         -
+Chosen:          none   Default from: -
+Test:            -
+Status:          noted
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-298  MS10 10c: S8 map-cell proposals (nothing chosen)    [ID: MS10, 10c, R14, M10-1, S8]
+Date:            2026-10-23        Author:
+Decision:        FACT. docs/ms10_10c_s8_proposals.csv and the table in docs/ms10_plan.md 'Rulings after 10b' list three candidates per stratum (D-tr below, D-tr above, D-none below, D-none above the median 0.305), from docs/ms10_10b_s8_candidates.csv (stored classes, not recomputed), by scripts/propose_ms10_10c.py. Eligible cells per stratum: 402, 314, 10, 101. The three per stratum are a mechanical spread (sorted by j, i; positions round(n(2k+1)/6)), UNVERIFIED rule ours, not a recommendation. Facts noted: candidates 11 and 12 have no Hopf point (no A4 anchor for the P2 start state; eta_start 1.3960 is the headline value); only candidate 8 is in the 15 x 15 subgrid (S-sus 10 of 10 at 120 s). No cell is chosen; configs/ms10/s8_cells.yaml holds TO_BE_CHOSEN.
+Reason:          instruction of the reviewer (10c prompt, ruling R14). Step 1.
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_ms10_counts.py (loader checks)
+Status:          done; waits for the reviewer's choice of cells
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-299  MS10 10c: drafts of the configs, run lists, launcher, seed keys    [ID: MS10, 10c, S8, S9, S10, C2, R3, R4, R5, R13, R15, R17]
+Date:            2026-10-23        Author:
+Decision:        FACT. DRAFT, nothing frozen, nothing launched. configs/ms10/{ms10_lists,s8_cells,mf_references}.yaml carry status DRAFT; ms10_net.yaml and ms10_mf.yaml carry STATUS: DRAFT in the first comment line (the config schema rejects an unknown key, config.py untouched). src/mprsurge/analysis/ms10_runlist.py builds S8 (18), S9 (40), S10 (9), C2_S8 (18), C2_S9 (12), C2_S10 (6), MF_COMPANION (5) = 108 runs; S8, C2_S8 and MF_COMPANION raise RunListError while a cell is TO_BE_CHOSEN. scripts/run_ms10_list.py: one pool, 10 workers, longest first, restartable, same pattern as run_ms9_list.py; --dry-run is list only (counts and list SHA-256, nothing built for the pool, nothing written); a real launch is refused while a data file is DRAFT, on a dirty tree, or with an unchosen cell. Seed keys, final patterns (replace the 10a reservation of 252 by 100; DL-275 changed in count only, prefixes unchanged): [10,1,s] 3; [10,2,c,s] 12; [10,3,n,s] 40; [10,4,l,s] 9; [10,5,k,s] 36. The S8 headline keys are used at both T_ramp (R4), so the 103 keyed runs use 100 distinct keys. src/mprsurge/analysis/ms10_counts.py: control_configs reordered to the k order of the yaml, N_CONTROL_CONFIGS 12 (was 16), seed counts 3 and 3. Freeze of the lists and keys waits for the cells and the launch decision.
+Reason:          instruction of the reviewer (10c prompt, step 2).
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_ms10_counts.py (collision test over the final key patterns, control key and count of controls, cell placeholder gate, control duration and start state)
+Status:          done (draft)
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-300  MS10 10c: timing gate on the final list    [ID: MS10, 10c, 9.2, R7, R17, D36, G4]
+Date:            2026-10-23        Author:
+Decision:        FACT, measured at 10a, applied at 10c (no re-time). Versions: git diff 586a423 HEAD on src/ changes qif_network.py (10b offsets, outside the kernel qif_chunk, which has no changed line), analysis/timing.py (net_3e3 in the cell tuple) and analysis/ms10_counts.py; pip freeze equals results/timing/ms10/logs/pip_freeze.txt. Rates: 10a per-run medians under 10 copies. Predictions (wall = max(sum/10, longest)): S8 + C2_S8 36 runs 8.0 min; S10 + C2_S10 15 runs 4.4 min; both together 51 runs 12.4 min = 0.41 x the row S8/S10/S12 networks (30 min), limit 45 min (1.5 x): PASS. S9 + C2_S9 52 runs 18.3 min = 0.15 x 2 h, limit 3 h: PASS. Longest single network run 9.9 min (N = 3e4, T_ramp 60 s); no launch or part over one hour. D36 (DL-268 conservative reading, MS9 13.595 h): 14.11 h with these on top (11.61 h with the placeholders replaced), under 24 h. Companion MF (5 mode-D runs, 4 x 5,250 tau + 9,000 tau, 9.76e-3 to 18.9e-3 s per tau, UNVERIFIED for these cells): sum of run walls 4.9 to 9.4 min, wall 1.5 to 2.8 min at 5 workers. UNVERIFIED: cost per update for Gaussian and uniform offsets was not measured. N = 3e4 under 10 copies was 12.7 percent slower at 10a than at 5f (DL-276); the prediction uses the 10a value.
+Reason:          instruction of the reviewer (10c prompt, step 3; R7 DL-283).
+Options:         -
+Chosen:          -   Default from: -
+Test:            scripts/predict_ms10_10c.py; results/timing/ms10/prediction_10c.txt (git-ignored)
+Status:          done; the reviewer launches
+Commit/tag:      the commit that adds this entry; no tag

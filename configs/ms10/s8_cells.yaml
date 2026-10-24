@@ -1,0 +1,11 @@
+# status: DRAFT   (MS10 10c, DL-299; R14 = DL-292; proposals DL-298)
+# The four S8 map cells (map 1, J0 = -21, Delta x tau_d grid indices i, j of configs/S5_cells.yaml). To be chosen by the reviewer; the run-list loader
+# refuses to build S8, C2_S8 and MF_COMPANION while any entry is TO_BE_CHOSEN. Candidates: docs/ms10_10c_s8_proposals.csv (three per stratum).
+# R14: 2 D-tr and 2 D-none cells; each more than one original cell from the refined boundary (dist_refined > 1); within each class one cell below and one
+# above the median of the 30 map-1 Delta values (0.305). The loader checks a filled entry against docs/ms10_10b_s8_candidates.csv.
+status: DRAFT
+cells:
+  - {c: 0, stratum: "D-tr below median", i: TO_BE_CHOSEN, j: TO_BE_CHOSEN}
+  - {c: 1, stratum: "D-tr above median", i: TO_BE_CHOSEN, j: TO_BE_CHOSEN}
+  - {c: 2, stratum: "D-none below median", i: TO_BE_CHOSEN, j: TO_BE_CHOSEN}
+  - {c: 3, stratum: "D-none above median", i: TO_BE_CHOSEN, j: TO_BE_CHOSEN}
