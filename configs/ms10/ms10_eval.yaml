@@ -1,16 +1,35 @@
-# status: FROZEN   (MS10 10d, DL-308; evaluators src/mprsurge/analysis/ms10_eval.py, scripts/evaluate_ms10.py)
-# Evaluation choices that the plan and rulings R1 to R24 leave unspecified (E-n of docs/ms10_eval_rules.md). NONE is chosen here: every value is null and every
-# evaluator that needs one raises MissingChoice until the reviewer fills it. Allowed values are in ms10_eval.CHOICE_VALUES. Reading these choices is analysis only.
+# status: FROZEN   (MS10 10d, DL-308; AMENDED at 10e by DL-314: E-1 to E-10 ruled by R25 to R28; before the amendment sha256 22e11c083912b06b8781e3733b1ae4c8cb33f05b4e3477371912691569057ba4)
+# Evaluation choices that the plan and rulings R1 to R24 left unspecified (E-n of docs/ms10_eval_rules.md), ruled at 10e (R25 to R28, DL-310 to DL-313). A null or absent
+# value still makes the evaluator raise MissingChoice. Allowed values are in ms10_eval.CHOICE_VALUES. Reading these choices is analysis only; no network record was read.
 status: FROZEN
 choices:
-  network_onset_definition:   null     # E-1: classifier_centre | classifier_start | raw_crossing
-  not_evaluable_counts_as:    null     # E-2: not_met | vacuous (a seed with no f_pk or onset to compare)
-  tolerance_boundary:         null     # E-3: inclusive | strict (f_pk within 5 percent, onset within one spectrogram step)
-  baseline_sample_convention: null     # E-4: half_open | closed (samples of the 5 s sigma-check window)
-  sigma_range_bounds:         null     # E-5: inclusive | strict ("lies inside the range", R16)
-  s9_metrics:                 null     # E-6: list of names from ms10_eval.METRIC_NAMES
-  rb8_comparator:             null     # E-7: paired_by_seed_index | modal_lorentzian_class
-  rb8_class_equality:         null     # E-8: exact_label | surge_correspondence
-  g4_source_lists:            null     # E-9: subset of [S8, S9, S10] whose records count for "the network at N" (R24)
-  mf_baseline_std:            null     # E-10 (R21): mean-field mode-N baseline std of v; NOT confirmed at 10d (stored value is at sigma 0.0623888, not 0.0624)
-  mf_baseline_std_source:     null     # E-10: run ids and file hashes of that value
+  network_onset_definition:   classifier_centre      # E-1 (R27): centre of the first flagged spectrogram window (Conventions.onset default); the raw-crossing reading is secondary, post hoc
+  not_evaluable_counts_as:    not_met                # E-2 (R26): a seed whose f_pk or onset is undefined fails that test (reported "undefined")
+  tolerance_boundary:         inclusive              # E-3 (R26): within 5 percent and within one spectrogram step are <=; margins reported
+  sigma_window:                                      # E-4 (R28): one common window for the reference and every network baseline
+    start_sample: 0
+    stop_sample: 5000                                #   samples [0, 5000) of v = the 5 s baseline at 1 kHz
+    ddof: 1
+  sigma_range_bounds:         inclusive              # E-5 (R26): min <= x <= max; position in the range reported
+  s9_metrics:                                        # E-6 (R26): the Table 2.1 Metrics row; median and range over seeds, undefined entries counted, not imputed
+    - onset_s
+    - eta_onset
+    - delay_eta
+    - duration_ms
+    - duration_cycles
+    - duration_frac_ramp
+    - peak_power_abs
+    - peak_power_rel
+    - f_pk_hz
+    - J_exit_run
+    - J_exit_static
+    - exit_delay
+    - r_post_1s
+    - r_post_5s
+  rb8_comparator:             common_lorentzian_class   # E-7 (R26): compare only if the 3 Lorentzian seeds share one Table 2.1 correspondence class, else "not evaluable"
+  rb8_class_equality:         surge_correspondence      # E-8 (R26): surge-class membership, S-sus, NS; exact labels reported beside
+  g4_pools:                                          # E-9 (R26): "the network at N" for G4 (R24); per-list counts reported too
+    "10000": ["S8:headline", "S9", "S10:lorentzian"]
+    "30000": ["S9"]
+  mf_baseline_std:            0.039522               # E-10 (R25): mean over 10 seeds of std(v[0:5000], ddof 1)
+  mf_baseline_std_source: "R25: results/S5/baseline/S5base_0000_1fe2ceaa1659 (MS7 baseline-only record, headline cell, 7 s, 2 s discard, 10 seeds, spawn keys [7,4,0] to [7,4,9], sigma_used 0.0624, git dirty false, commit 87af6c19c602ac928fd5ae1c3a402e285d18f203); json sha256 2329991bbd6b1d1f05d677b1d41d62fd22037da1fa362f13993f92c7f2242e83; npz sha256 af8f3262043bb65d6a60591e410d243e6152005ab2a9a077bc7a7a6d9816a50c; per-seed std 0.037612, 0.039453, 0.038128, 0.041724, 0.038170, 0.040356, 0.040579, 0.038343, 0.040930, 0.039922; DL-120 value 0.038852 not used"

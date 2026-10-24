@@ -3516,3 +3516,63 @@ Chosen:          -   Default from: -
 Test:            the record check of tests/test_ms10_eval.py applied to the real records (read_record)
 Status:          done
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-310  MS10 10e R25: the sigma reference is the MS7 baseline-only record, 0.039522 (E-10)    [ID: MS10, 10e, R21, R25, E-10, CP21, D18]
+Date:            2026-10-24        Author:
+Decision:        FACT AND RULING. The sigma reference is the MS7 baseline-only record results/S5/baseline/S5base_0000_1fe2ceaa1659 (headline cell, 7 s, 2 s discard, 10 seeds, spawn keys [7,4,0] to [7,4,9], sigma_used 0.0624, git dirty false, commit 87af6c19c602ac928fd5ae1c3a402e285d18f203; json sha256 2329991bbd6b1d1f05d677b1d41d62fd22037da1fa362f13993f92c7f2242e83, npz sha256 af8f3262043bb65d6a60591e410d243e6152005ab2a9a077bc7a7a6d9816a50c, both re-hashed at 10e). Reference = mean over the 10 seeds of the std of v over samples [0, 5000), ddof 1, re-computed at 10e from the stored npz (v shape 10 x 5001, t_ms 0 to 5000): 0.039522 (0.03952171666266689); per seed 0.037612, 0.039453, 0.038128, 0.041724, 0.038170, 0.040356, 0.040579, 0.038343, 0.040930, 0.039922 (range 0.037612 to 0.041724); every number equals the reviewer's. The DL-120 value 0.038852 is not used (runs at sigma 0.0623888, git dirty true, DL-302). No MF_SIGMA_REF list is built; no run was made.
+Reason:          instruction of the reviewer (10e prompt, R25).
+Options:         -
+Chosen:          as ruled   Default from: -
+Test:            tests/test_ms10_eval.py::test_the_shipped_choices_are_the_ruled_ones_and_a_blanked_field_still_errors
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-311  MS10 10e R26: evaluation choices E-2, E-3, E-5 to E-10 ruled    [ID: MS10, 10e, R26, E-2, E-3, E-5, E-6, E-7, E-8, E-9, E-10, RB1, RB8, G4]
+Date:            2026-10-24        Author:
+Decision:        RULING (the 10d answer, recorded). E-2: a seed whose f_pk or onset is undefined for the comparison fails that test (reported "undefined"). E-3: "within 5 percent" and "within one spectrogram step" are inclusive (<=); margins reported. E-5: "inside the range" is inclusive (min <= x <= max); position in the range reported. E-6: S9 tabulates the Table 2.1 Metrics row (class, onset, eta_bar at onset, delay, duration in ms, cycles and fraction of ramp, peak absolute and relative power, peak frequency, and for P2 J_exit,run, exit delay, post-surge rate); median and range over seeds; undefined entries counted, not imputed. E-7: RB8 compares each Gaussian and uniform seed with the Lorentzian reference only if the 3 Lorentzian seeds share one Table 2.1 correspondence class; otherwise RB8 is "not evaluable" with the per-seed table and no pass/fail. E-8: "gives the class" is read at the Table 2.1 correspondence level (surge-class membership, S-sus, NS); exact labels reported beside. E-9: "the network at N = 1e4" pools the Lorentzian records at N = 1e4 (S8 headline, S9, S10 Lorentzian); "at N = 3e4" is S9 at 3e4; G4 "misses" (R24) fires only if no pooled seed at that N is in a surge class under the primary reading; per-list counts reported too. E-10: mean-field baseline std = 0.039522, source R25. Our readings added when implementing (UNVERIFIED as plan readings, listed in docs/ms10_plan.md "Rulings after 10d"): a reference without f_pk or onset gives "n/a" (counts as met); a G4 pool with a missing record and no surge seed is "not evaluable"; both O12 post-surge windows (1 s, 5 s) are kept; numerical slack 1e-9 in the tolerance comparisons.
+Reason:          instruction of the reviewer (10e prompt, R26).
+Options:         -
+Chosen:          as ruled   Default from: -
+Test:            tests/test_ms10_eval.py (boundary inclusivity, undefined f_pk or onset, E-7 not evaluable, E-8 levels, E-9 pooling, undefined counted in S9 metrics)
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-312  MS10 10e R27: the network onset is the classifier onset; time-origin check (amends R2 and R23 for network records)    [ID: MS10, 10e, R27, E-1, R2, R23, RB1]
+Date:            2026-10-24        Author:
+Decision:        RULING AND FACT. R2 and R23 assumed a raw-crossing onset field for network records; the frozen mode-N classifier outputs only ClassResult.episode.onset_s (centre of the first flagged spectrogram window; the earlier of the relative and absolute episodes after the minimum-cycle and D8 tests). For RB1 the network onset is that classifier onset (window centre, Conventions.onset default), compared with the stored mode-D mean-field raw-crossing onset; tolerance one spectrogram step (Table 2.1), inclusive (E-3). The evaluator's own raw-crossing reading (first time the band-passed Hilbert envelope of the network v reaches 0.1 x A_ref) is secondary and post hoc: reported, feeds no gate, "undefined" allowed. Mode-D classification and RB3 readings unchanged. TIME ORIGINS (stated before any network record was read; check_time_origin, origin_check_all): classifier onset of a network record = window centre in seconds of sample index / 1000, v starting at path time 0 with the 2 s discard removed (qif_network.run_network), sample i = mean over the 1 ms bin [i, i+1) ms stamped at the bin end (first stamp 1 ms, path time of sample 0 = 0 ms). Mean-field onset (stored raw crossing, mode D) = sample index / 1000 in a record whose t_ms starts at 0 ms (sample i = state at i ms; path time of sample 0 = 0 ms). Both: t_on 5 s, interval 1 ms, the same path clock; stamp offset 1 ms (bin end against instant), reported, below every tolerance in use (smallest step 1/6 s). Checked against the 2 stored references (T_ramp 10 s and 120 s) and the 5 companion records, for the network configs of S8, S9, S10 and the controls: shared = true in all 7 comparisons. The evaluator stops (EvalRefused, "STOP (R27)") on a mismatch of t_on, sample interval or path time of sample 0, and when a network record's t_ms does not start at one bin.
+Reason:          instruction of the reviewer (10e prompt, R27).
+Options:         -
+Chosen:          as ruled   Default from: -
+Test:            tests/test_ms10_eval.py (onset tests, raw crossing secondary, time-origin tests incl. the stop on a mismatch and the real mean-field files)
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-313  MS10 10e R28: one common sigma-check window, samples [0, 5000), ddof 1 (E-4)    [ID: MS10, 10e, R28, E-4, R16]
+Date:            2026-10-24        Author:
+Decision:        RULING. The sigma check uses one common window for the reference and for every network baseline: samples [0, 5000), the 5 s baseline of Table 2.1 at 1 kHz, std with ddof 1. The classifier's own baseline windows are not used for this check (at T_ramp 10 s they end at sample 4842). The evaluator refuses (MissingChoice) any other window in the choices file. It reports the number of distinct baseline values overall and per seed across the two T_ramp (expected equal at 10 s and 120 s, UNVERIFIED), the position of the reference in the range and the margin to the nearest end.
+Reason:          instruction of the reviewer (10e prompt, R28).
+Options:         -
+Chosen:          as ruled   Default from: -
+Test:            tests/test_ms10_eval.py (common window, distinct values, inclusive bounds)
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-314  MS10 10e: ms10_eval.yaml AMENDED (old and new hash), evaluators and tests updated, eval rules text    [ID: MS10, 10e, R25, R26, R27, R28, E-1 to E-10]
+Date:            2026-10-24        Author:
+Decision:        AMENDMENT of a FROZEN file (DL-308) by the rulings R25 to R28, made before any network record was read. configs/ms10/ms10_eval.yaml: sha256 before 22e11c083912b06b8781e3733b1ae4c8cb33f05b4e3477371912691569057ba4, after 29820b066d048c435c3deacf4f07c17f59555d4f377527c8da585bb6a900cabb (working-tree bytes, LF). No frozen result is affected: the six run lists keep the DL-308 list hashes, ms10_lists.yaml, s8_cells.yaml, mf_references.yaml, ms10_net.yaml, ms10_mf.yaml, ms10_runlist.py, run_ms10_list.py, test_ms10_counts.py are byte-unchanged (hashes of DL-308 re-checked). Changed choice keys: baseline_sample_convention replaced by sigma_window (E-4); g4_source_lists replaced by g4_pools (E-9); allowed values narrowed to the ruled ones for E-1, E-7, E-8 (alternatives for E-2, E-3, E-5 remain as code). Evaluator changes (src/mprsurge/analysis/ms10_eval.py): classifier onset primary and raw crossing secondary (R27); time-origin check before any network record is read; common sigma window (R28); undefined f_pk or onset fails and is reported, boundaries inclusive with margins (E-2, E-3); sigma position in range (E-5); Table 2.1 Metrics row with undefined counted (E-6); RB8 common-class rule and not evaluable (E-7, E-8); G4 pools (E-9); missing-record dicts now carry N, shape, T_ramp, seed and group. SHA-256 of the new files: src/mprsurge/analysis/ms10_eval.py 3d65f3ab626b0c697c92436d3e30bbf604ef50e1af77d3c829cb56b3d2bbd3e8 (was b1b97c4f...); scripts/evaluate_ms10.py 29a6b93521bf82197739c53bad895d2e3851bfc0a69ea7451b8972e0702c769d (was 10386777...); tests/test_ms10_eval.py bfe8964f5f19c88d3656876e7a9b92945541b34b97a155551d4e04615b7e991c (was 4208a2ab...); tests/test_ms10_launcher.py (new) f60296f968f95a1bcfc8d29080144b89f05f97317275ac640e35cb9b7af5436e; docs/ms10_eval_rules.md d75d1edb6de9af67d25f077807f2cdec2b47a966aed7d4295f4d5abffc60c6b0 (was ddd3c122...). End-to-end run of scripts/evaluate_ms10.py on SYNTHETIC records for all six lists (one S9 record left missing on purpose): completed, no error, the missing record gave INCOMPLETE for the N rule and RB1; the verdicts of that run are meaningless (synthetic) and are not recorded. Real mean-field files were read only for the references and the time origins.
+Reason:          instruction of the reviewer (10e prompt, steps 1 and 2).
+Options:         -
+Chosen:          as ruled   Default from: -
+Test:            tests/test_ms10_eval.py, tests/test_ms10_launcher.py
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-315  MS10 10e: launch readiness (no launch)    [ID: MS10, 10e, S8, S9, S10, C2, R5, D36]
+Date:            2026-10-24        Author:
+Decision:        FACT. Dry run of every list (scripts/run_ms10_list.py --dry-run), counts and list SHA-256 equal DL-308: S8 18 (7f409c15...), C2_S8 18 (17228042...), S10 9 (79f72a12...), C2_S10 6 (d1047ee1...), S9 40 (b429cff5...), C2_S9 12 (5745e197...), MF_COMPANION 5 (c22eca68..., already run, DL-309). Predicted walls at 10 workers, alone-pool, from the 10a rates (scripts/predict_ms10_10c.py re-run, nothing re-timed): S8 5.4 min, C2_S8 5.4 min, S10 3.0 min, C2_S10 3.0 min, S9 14.1 min (longest run 9.9 min), C2_S9 9.9 min; S8 + S10 and their controls one after the other 12.4 min, S9 + C2_S9 18.3 min. Disk: records at the NC1 rate of 3.87 MB for 135 s (28.7 kB per s) times the simulated seconds of the list (t_on + 1.25 T_ramp + hold, controls the same duration as their ramp run, UNVERIFIED): S8 1207.5 s = 35 MB, C2_S8 35 MB, S10 810 s = 23 MB, C2_S10 540 s = 15 MB, S9 3600 s = 103 MB, C2_S9 1080 s = 31 MB, total about 0.24 GB; the 10a figure of 5 MB per run gives 0.52 GB for 103 runs; free space on C: 81.4 GB (92 percent used; 137 GB at 9a). Memory (N = 3e4, 10 workers): qif_network.memory_estimate_bytes 8.6 MB per run at T_ramp 60 s, 14.0 MB at 120 s (0.09 and 0.14 GB for ten); measured python working set at 10 copies of N = 3e4 1.48 GB (10a, a lower bound, UNVERIFIED), against 16 GB and the Table 9.1 limit of 2 GB for S9. The launcher refuses a real launch on a dirty tree (exit 3) and while any MS10 data file is DRAFT (exit 4) and without a journal dir (exit 2); until now no test covered this, tests/test_ms10_launcher.py (new) does, with a tripwire in place of job building. Launch commands for the reviewer (PowerShell, R5), in this order: S8, C2_S8, S10, C2_S10, S9, C2_S9, each as `.venv\Scripts\python.exe scripts/run_ms10_list.py --list <ID> --workers 10 --journal-dir results/ms10/launch_<name>`. Claude Code launched nothing.
+Reason:          instruction of the reviewer (10e prompt, step 3).
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_ms10_counts.py (list hashes), tests/test_ms10_launcher.py
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
