@@ -186,3 +186,44 @@ Other readings (10 workers; wall of the ramp runs; counts in "Run counts"): S8 w
 ## Status after 10a (DL-273 to DL-276)
 
 10a: this plan, the run counts, the timing sample and prediction, the proposed seed keys (PROPOSED, not frozen) and the sixteen open choices M10-1 to M10-16 are written. No MS10 family launched, no diagnostic run beyond the timing sample (which feeds no gate), no ruling made, no plan text or frozen file changed. Waits for the reviewer: the M10 list, then 10b.
+
+## Rulings after 10a (10b; DL-277 to DL-287)
+
+Appended at 10b. The 10a content above is unchanged. Rulings are the reviewer's (10b prompt); readings that are ours are marked UNVERIFIED.
+
+| Ruling | Item | Content | DL |
+|---|---|---|---|
+| R1 | M10-3 | Mode-D mean-field companion runs, "S8/S9 companion MF runs": the 4 S8 cells at T_ramp 30 s (P2, each cell's own parameters) and the headline at T_ramp 60 s. Pre-registered, committed and run before any network run; not part of the S5/S7 lists; configs built at 10c | 277 |
+| R2 | M10-5, 6, 7, 10 | Frozen mode-N classifier and frozen Table 2.1 metrics, unchanged. Primary reading = Table 2.1 correspondence (D-tr meets S+, S-rel or S-abs; D-sus meets S-sus; D-none meets NS). Second reading = S-rel not counted (DL-258 b), post hoc, feeds no gate. Onset = raw crossing, primary; tolerance one spectrogram step (W = 2 s, step 1 s if T_ramp >= 60 s; else W = max(0.2 s, T_ramp/30), step W/2). DL-229 and DL-258 b limits apply to every network class | 278 |
+| R3 | M10-9 | S8, S9, S10 use separate records | 279 |
+| R4 | M10-11 | Seed keys [10,1,s], [10,2,c,s], [10,3,n,s], [10,4,l,s], [10,5,k,s]; frozen at 10c; tests/test_ms10_counts.py is the authority | 280 |
+| R5 | M10-12 | Order S8, then S10, then S9, each a separate pooled launch (scripts/run_ms10_list.py), launched by the reviewer | 281 |
+| R6 | M10-13 | Offsets from u_j = j/(N+1): Lorentzian tan(pi(u_j - 1/2)) (unchanged); uniform 2u_j - 1; Gaussian Phi^-1(u_j)/sqrt(2 ln 2). [reasoned, not tested]; numerical checks at 10b (DL-286) | 282 |
+| R7 | M10-14 | 1.5 x timing test at 10c against the whole Table 9.1 row S8/S10/S12 networks (30 min, so 45 min); the 2.0e12 figure is informational, the measured time is the gate | 283 |
+| R8 | M10-15, 16 | G4 evaluated as in Tables 4.2 and 11.2, report-only for the run order. RB8 comparator = the Lorentzian network class at the same N and seeds; Gaussian and uniform must each give it in 3 of 3 seeds | 284 |
+| R9 | notes | RB6 rerun named in G4 sits at MS11. Power plan not recorded at 10a; the reviewer checks it before any launch | 285 |
+
+Not ruled and therefore still open: M10-1 (which 4 cells), M10-2 (seeds per cell), M10-4 (sigma-check statistic), M10-8 (network null control; DL-231).
+
+### 10b: heterogeneity shapes (DL-286)
+
+`heterogeneity_offsets(N, dist, sampling, rng)` in `qif_network.py` (outside the Numba kernel; `qif_chunk` untouched; no re-time). Lorentzian path unchanged (offsets bit-identical, SHA-256 for N = 1e3 and 1e4). Gaussian and uniform exist for `het_sampling` quantile only; `random` raises `ConfigError` for them (the plan's random variant is stated for the Lorentzian only; not ruled). Facts: uniform max |q| = (N-1)/(N+1) = 1 - 2/(N+1) (the 10b prompt wrote 1 - 1/(N+1); R6 gives the former); the quantile Gaussian's sample sd is 0.08 percent below Delta/sqrt(2 ln 2) at N = 1e4 (tails beyond u = 1/(N+1) are absent).
+
+### 10b: stored mean-field references for P2 at ref_devalle (read only; none used)
+
+Headline cell (Delta 0.3, tau_d 5 ms, J0 -21, eta_start 1.396). Classes from `results/ms9/9d/*.csv` (mode D) and `results/A7/a7_ramp_metrics.parquet` (mode N, sigma 0.0624, 10 seeds).
+
+| T_ramp | Mode D record | Mode D class, onset, f_pk | Mode N (10 seeds) |
+|---|---|---|---|
+| 10 s | p2_linear_0004_4f4756348cd8 (S5) | D-tr, 10.604 s, 48.05 Hz (W 0.333 s) | S-sus 8, S-rel 1, S-abs 1; onset 5.51 to 7.35 s; f_pk 27 to 48 Hz (S5/ramp_noise/p2_noise) |
+| 30 s | S6_P2ref_0000_21382d54068d (S6 supplementary) | D-tr, 20.627 s, 49.0 Hz (W 1.0 s) | none |
+| 31.62 s | p2_linear_0006_57ca204abf55 (S5) | D-tr, 21.326 s, 49.34 Hz | S+ 3, S-sus 6, NS 1 |
+| 56.23 s | p2_linear_0007_3e0bd35985ef (S5) | D-tr, 32.307 s, 49.09 Hz | S+ 2, S-sus 6, NS 2 |
+| 60 s | none | none | none |
+| 120 s | S5ramp_0000_240de3ef73be (S5) | D-tr, 58.698 s, 49.0 Hz (W 2 s) | none for the headline cell (the 13-value T_ramp grid has no 120 s) |
+
+Also stored at 120 s, not P2 headline references: map-1 mode D (900 cells), the 15 x 15 map-1 subgrid (225 cells x 10 seeds, mode N), the S12x control family `S12x_ctrl_mf` (225 cells x 10 seeds, mode N; named control, not read as a reference), the S13 floor/rtol/radau/delta0 checks, the S16 variants, and the MS8 diagnostic reruns of the headline. Map 2 (`S7_map2`, J0 x T_ramp, Delta 0.3, tau_d 5 ms) has J0 = -21.04 as the nearest value to -21, not -21. No stored record of any map cell at T_ramp 30 s, 60 s or 10 s exists.
+
+### 10b: candidate S8 cells (stored map 1, T_ramp 120 s, P2, mode D)
+
+Full table of the 900 cells with class, onset, f_pk, Hopf frequency, eta_start, baseline rate and v of the stored record, labels, the stored mode-N subgrid result where the cell is in the subgrid (225 cells), and the distance to the D31 refined boundary: `docs/ms10_10b_s8_candidates.csv` (produced by `scripts/inventory_ms10_10b.py`). Distance = Euclidean distance in original cell units from the cell node to the nearest refined half-edge midpoint, boundary as in `report_ms9_9h.py` (UNVERIFIED, reading ours). 73 cells lie within one original cell of the refined boundary: 44 D-tr and 29 D-none; the smallest distance is 0.25. D-none cells: 140, of which 48 have no Hopf point (none of those is within one cell of the boundary). Nothing is chosen.

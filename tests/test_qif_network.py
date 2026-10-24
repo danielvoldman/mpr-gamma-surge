@@ -111,9 +111,77 @@ def test_largest_n_shape_dtype_memory():
     assert res["flags"]["fastmath"] is False and res["flags"]["float"] == "float64"
 
 
-def test_refuses_m2_and_unbuilt_shapes():
+def test_refuses_m2_and_random_non_lorentzian():
     with pytest.raises(C.ConfigError, match="M2"):
         Q.run_network(cfg_n(**{"model.type": "M2", "model.ref_point": "ref_mpr", "model.J": -5.0,
                                "model.tau_d_ms": None, "network.N": 10}))
-    with pytest.raises(C.ConfigError, match="S10"):
-        Q.run_network(cfg_n(**{"network.het_dist": "gaussian", "network.N": 10}))
+    with pytest.raises(C.ConfigError, match="lorentzian only"):
+        Q.run_network(cfg_n(**{"network.het_dist": "gaussian", "network.het_sampling": "random", "network.N": 10}))
+
+
+# --- S10 shapes (MS10 10b, DL-277, R6 / M10-13) ----------------------------------------------------------------
+
+# SHA-256 of lorentzian_offsets(N).tobytes() taken before the 10b change (same machine, numpy tan)
+LOR_SHA = {1000: "7274d9208f65b5b1ed5d560d1ff6302b5508b2178d0bd2e4c47f242dad77af1a",
+           10000: "a104bc97036bd6814a8feb38bc567178b847b19fa227490796bec2edddfca786"}
+
+
+@pytest.mark.parametrize("N", [1000, 10000])
+def test_lorentzian_offsets_bit_identical_to_pre_change(N):
+    import hashlib
+    for fn in (Q.lorentzian_offsets, lambda n: Q.heterogeneity_offsets(n, "lorentzian")):
+        assert hashlib.sha256(fn(N).tobytes()).hexdigest() == LOR_SHA[N]
+
+
+@pytest.mark.parametrize("dist", ["lorentzian", "gaussian", "uniform"])
+@pytest.mark.parametrize("N", [7, 1000, 10001])
+def test_offsets_sorted_symmetric(dist, N):
+    q = Q.heterogeneity_offsets(N, dist)
+    assert q.shape == (N,) and np.all(np.diff(q) > 0)
+    np.testing.assert_allclose(q, -q[::-1], rtol=1e-12, atol=1e-12)          # symmetric about 0
+    assert abs(q.sum()) < 1e-9 * max(1.0, np.abs(q).max())
+
+
+def test_gaussian_hwhm_and_uniform_half_range():
+    N = 100_000
+    qg = Q.heterogeneity_offsets(N, "gaussian")
+    # quantile independent of the construction: the HWHM is the point where the cdf is Phi(sqrt(2 ln 2) * 1 / ...) ;
+    # directly: q at u = 1/2 + erf-based half width. Pdf at q = 1 over pdf at 0 for sd = 1/sqrt(2 ln 2) is exactly 1/2.
+    sd = qg.std()
+    assert abs(sd * np.sqrt(2 * np.log(2)) - 1.0) < 2e-4                      # sd = Delta/sqrt(2 ln 2), sample value
+    pdf = lambda x: np.exp(-0.5 * (x / sd) ** 2)
+    assert abs(pdf(1.0) / pdf(0.0) - 0.5) < 5e-4                              # half maximum at q = 1 (relative error < 5e-4)
+    # histogram estimate of the density ratio at q = 1 and 0 (independent of sd)
+    h = 0.05
+    d = lambda c: np.sum(np.abs(qg - c) < h) / (2 * h * N)
+    assert abs(d(1.0) / d(0.0) - 0.5) < 0.02
+    qu = Q.heterogeneity_offsets(N, "uniform")
+    # u_N = N/(N+1) gives max |q| = (N-1)/(N+1) = 1 - 2/(N+1) (the 10b prompt wrote 1 - 1/(N+1); see DL-277)
+    assert abs(np.abs(qu).max() - (1 - 2 / (N + 1))) < 1e-15 and 1 - np.abs(qu).max() < 2.1e-5   # -> half-range 1
+    assert np.allclose(np.diff(qu), 2 / (N + 1))                              # equally spaced, so uniform density
+
+
+def test_delta_ramp_keeps_offsets_fixed():
+    """eta_j(t) = eta_bar(t) + Delta(t) q_j with q_j fixed: the kernel takes q once, Delta(t) as a series."""
+    for dist in ("gaussian", "uniform"):
+        q = Q.heterogeneity_offsets(50, dist)
+        q0 = q.copy()
+        for D in (0.1, 0.3, 0.6):
+            eta = 1.0 + D * q
+            np.testing.assert_allclose((eta - 1.0) / D, q0, rtol=1e-14, atol=1e-14)
+        np.testing.assert_array_equal(q, q0)
+
+
+@pytest.mark.parametrize("dist", ["lorentzian", "gaussian", "uniform"])
+def test_tiny_network_runs_all_shapes(dist):
+    N = 200
+    cfg = cfg_n(**{"network.het_dist": dist, "network.N": N, "durations.discard_s": 0.02, "durations.hold_s": 0.05})
+    assert cfg["network"]["het_dist"] == dist
+    res = Q.run_network(cfg)
+    arr, fl = res["arrays"], res["flags"]
+    assert fl["het"] == f"{dist}_quantile" and np.all(np.isfinite(arr["v"])) and fl["spikes_total"] >= 0
+    q = Q.heterogeneity_offsets(N, dist)
+    eta_bar, Delta = 1.5, cfg["model"]["Delta"]
+    eta_j = eta_bar + Delta * q
+    tol = {"lorentzian": 1e-12, "gaussian": 1e-12, "uniform": 1e-12}[dist]     # the mean of the symmetric offsets is 0
+    assert abs(eta_j.mean() - eta_bar) < tol * max(1.0, Delta)

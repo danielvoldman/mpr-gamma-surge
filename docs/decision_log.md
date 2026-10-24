@@ -3186,3 +3186,113 @@ Chosen:          none   Default from: the 10a prompt (9.2 method of 8a and 9a)
 Test:            results/timing/ms10/ (git-ignored), results/timing/ms10/prediction_10a.txt; tests/test_ms10_counts.py.
 Status:          done; STOP (further diagnostics come to the reviewer first).
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-277  MS10 10b R1 (M10-3): mean-field references for S8 and S9 are companion runs    [ID: MS10, 10b, M10-3, S8, S9, RB1]
+Date:            2026-10-23        Author:
+Decision:        RULED. The S8 map cells are at T_ramp 30 s, map 1 is stored at 120 s, S9 is at T_ramp 60 s; RB1 'same class' needs mean-field references at those durations. Mode-D mean-field companion runs are planned: the 4 S8 cells at T_ramp 30 s (P2 path, each cell's own parameters) and the headline at T_ramp 60 s. Label: 'S8/S9 companion MF runs'. Pre-registered, cheap, committed before any network run, and run before any network run. They are not part of the S5/S7 lists. Configs are built at 10c, not at 10b.
+Reason:          instruction of the reviewer (10b prompt, ruling R1).
+Options:         M10-3 (a) to (c)
+Chosen:          (a), mode D, as ruled   Default from: -
+Test:            -
+Status:          ruled; configs at 10c
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-278  MS10 10b R2 (M10-5, 6, 7, 10): how network records are read    [ID: MS10, 10b, M10-5, M10-6, M10-7, M10-10, RB1, DL-229, DL-258]
+Date:            2026-10-23        Author:
+Decision:        RULED. Network records are classified by the frozen mode-N classifier and the frozen Table 2.1 metrics, unchanged. Primary reading = Table 2.1 correspondence (D-tr meets S+, S-rel or S-abs; D-sus meets S-sus; D-none meets NS). Second reading = the same with S-rel not counted (DL-258 b), labelled post hoc, feeding no gate. Onset = raw crossing, primary; the onset tolerance is one spectrogram step per Table 2.1 (W = 2 s, step 1 s if T_ramp >= 60 s; else W = max(0.2 s, T_ramp/30), step W/2). The DL-229 and DL-258 b claim limits apply to every network class.
+Reason:          instruction of the reviewer (10b prompt, ruling R2).
+Options:         M10-5 to M10-7, M10-10 options
+Chosen:          as ruled   Default from: -
+Test:            -
+Status:          ruled
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-279  MS10 10b R3 (M10-9): no sharing of records between S8, S9, S10    [ID: MS10, 10b, M10-9]
+Date:            2026-10-23        Author:
+Decision:        RULED. S8, S9 and S10 use separate records; no sharing across S-IDs (S10: 9 runs).
+Reason:          instruction of the reviewer (10b prompt, ruling R3).
+Options:         M10-9 (a), (b)
+Chosen:          (a)   Default from: -
+Test:            -
+Status:          ruled
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-280  MS10 10b R4 (M10-11): seed keys accepted as proposed    [ID: MS10, 10b, M10-11, DL-275]
+Date:            2026-10-23        Author:
+Decision:        RULED. Seed keys accepted as proposed in 10a (DL-275): [10,1,s], [10,2,c,s], [10,3,n,s], [10,4,l,s], [10,5,k,s]. They are frozen at 10c; tests/test_ms10_counts.py (collision test) is the authority.
+Reason:          instruction of the reviewer (10b prompt, ruling R4).
+Options:         M10-11 (a) to (d)
+Chosen:          (a)   Default from: -
+Test:            tests/test_ms10_counts.py
+Status:          ruled; freeze at 10c
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-281  MS10 10b R5 (M10-12): run order    [ID: MS10, 10b, M10-12, S8, S9, S10]
+Date:            2026-10-23        Author:
+Decision:        RULED. Order: S8 first, then S10, then S9, each a separate pooled launch (scripts/run_ms10_list.py, same pattern as run_ms9_list.py), launched by the reviewer.
+Reason:          instruction of the reviewer (10b prompt, ruling R5).
+Options:         M10-12 (a) to (d)
+Chosen:          one launch per S-ID in the order S8, S10, S9   Default from: -
+Test:            -
+Status:          ruled
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-282  MS10 10b R6 (M10-13): Gaussian and uniform offsets    [ID: MS10, 10b, M10-13, D28, D29, S10]
+Date:            2026-10-23        Author:
+Decision:        RULED, marked [reasoned, not tested]. Same even-quantile construction as the Lorentzian: u_j = j/(N+1), j = 1..N (equal to the angle argument of the existing Lorentzian formula). Fixed offsets q_j with eta_j(t) = eta_bar(t) + Delta(t) q_j. Lorentzian q_j = tan(pi(u_j - 1/2)) (existing, unchanged). Uniform q_j = 2u_j - 1 (half-range = Delta, D29). Gaussian q_j = Phi^-1(u_j)/sqrt(2 ln 2) (HWHM = Delta, D29; sd = Delta/sqrt(2 ln 2)). Verified numerically at 10b (DL-286).
+Reason:          instruction of the reviewer (10b prompt, ruling R6).
+Options:         M10-13 (a) to (c)
+Chosen:          (a)   Default from: -
+Test:            tests/test_qif_network.py (DL-286)
+Status:          ruled; built at 10b
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-283  MS10 10b R7 (M10-14): timing test against the whole Table 9.1 row    [ID: MS10, 10b, M10-14, 9.2]
+Date:            2026-10-23        Author:
+Decision:        RULED. The 1.5 x timing test is applied at 10c to the final list against the whole Table 9.1 row S8/S10/S12 networks (30 min, so 45 min). The Table 9.1 '2.0e12 updates' figure is informational; the measured time is the gate.
+Reason:          instruction of the reviewer (10b prompt, ruling R7).
+Options:         M10-14 (a) to (d)
+Chosen:          (a)   Default from: -
+Test:            -
+Status:          ruled; applied at 10c
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-284  MS10 10b R8 (M10-15, 16): G4 evaluation and RB8 comparator    [ID: MS10, 10b, M10-15, M10-16, G4, RB8]
+Date:            2026-10-23        Author:
+Decision:        RULED. G4 is evaluated exactly as in plan Tables 4.2 and 11.2; it is report-only for the run order. The RB8 heterogeneity comparator is the Lorentzian network class at the same N and seeds; Gaussian and uniform must each give that class in 3 of 3 seeds.
+Reason:          instruction of the reviewer (10b prompt, ruling R8).
+Options:         M10-15, M10-16 options
+Chosen:          as ruled   Default from: -
+Test:            -
+Status:          ruled
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-285  MS10 10b R9: notes, no action    [ID: MS10, 10b, RB6, G4]
+Date:            2026-10-23        Author:
+Decision:        NOTE. The RB6 rerun named in G4 sits at MS11. The power plan was not recorded at 10a (powercfg failed under bash); the reviewer checks it before any launch.
+Reason:          instruction of the reviewer (10b prompt, ruling R9).
+Options:         -
+Chosen:          none   Default from: -
+Test:            -
+Status:          noted
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-286  MS10 10b: Gaussian and uniform heterogeneity built; tests    [ID: MS10, 10b, M10-13, D28, D29, S10, DL-282]
+Date:            2026-10-23        Author:
+Decision:        FACT. heterogeneity_offsets(N, dist, sampling, rng) added to src/mprsurge/qif_network.py (scipy.special.ndtri, outside the Numba kernel); lorentzian_offsets unchanged and called for het_dist lorentzian; the two ConfigError guards 'S10 shapes are not built' removed; gaussian/uniform with het_sampling random raise ConfigError (the random variant is stated for the Lorentzian only; not ruled). The Numba kernel qif_chunk is untouched (git diff shows no line of it), so no re-time is needed (9.2 step 4). Tests: (a) SHA-256 of the Lorentzian offsets for N 1e3 and 1e4 equal the pre-change values (7274d920..., a104bc97...); (b) sorted and symmetric (N 7, 1000, 10001, all three shapes); (c) Gaussian: sd*sqrt(2 ln 2) - 1 = -1.04e-4 at N 1e5 (-8.2e-4 at 1e4), pdf(1)/pdf(0) - 0.5 = -7.2e-5 at N 1e5 (relative error 1.4e-4), histogram density ratio at q = 1 over q = 0 is 0.5004; uniform: max |q| = (N-1)/(N+1) = 1 - 2/(N+1) (0.99998 at N 1e5), spacing 2/(N+1); (d) a Delta ramp keeps q fixed; (e) N = 200 networks run for all three shapes, mean of eta_j equals eta_bar to 1e-12. INCONSISTENCY in the 10b prompt: it states max |q| = 1 - 1/(N+1); R6 gives u_N = N/(N+1), so q_N = 2u_N - 1 = 1 - 2/(N+1). The test uses the R6 value. Finite-N bias: the quantile Gaussian lacks the tails beyond u = 1/(N+1), so its sample sd is 0.08 percent below the continuous value at N 1e4.
+Reason:          instruction of the reviewer (10b prompt, step 1).
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_qif_network.py (new tests)
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-287  MS10 10b: inventory of stored mean-field references and candidate S8 cells    [ID: MS10, 10b, M10-1, M10-3, S8, RB1]
+Date:            2026-10-23        Author:
+Decision:        FACT; stored records read, nothing run, nothing chosen. Inventory and candidate lists are in docs/ms10_plan.md 'Rulings after 10a' and docs/ms10_10b_s8_candidates.csv (900 map-1 cells; scripts/inventory_ms10_10b.py). No stored mean-field P2 record at ref_devalle exists for the headline at T_ramp 60 s or for any map cell at 30 s; the headline P2 mode-D record at 30 s exists (S6_P2ref, supplementary). 73 map-1 cells lie within one original cell of the D31 refined boundary (44 D-tr, 29 D-none); the nearest is 0.25 cell. Distance definition (UNVERIFIED, reading ours): Euclidean distance in original cell units from the cell node to the nearest refined half-edge midpoint of the 9h boundary definition. The four S8 cells are chosen by the reviewer.
+Reason:          instruction of the reviewer (10b prompt, step 2).
+Options:         M10-1 (a) to (f)
+Chosen:          none   Default from: -
+Test:            scripts/inventory_ms10_10b.py
+Status:          done; waits for the reviewer's choice of cells
+Commit/tag:      the commit that adds this entry; no tag

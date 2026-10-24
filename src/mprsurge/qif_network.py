@@ -23,6 +23,7 @@ import time
 
 import numba
 import numpy as np
+from scipy.special import ndtri
 from numba import njit
 
 from . import config as C
@@ -47,6 +48,24 @@ def lorentzian_offsets(N: int, sampling: str = "quantile", rng=None) -> np.ndarr
     if sampling == "random":
         return np.tan(np.pi * (rng.random(N) - 0.5))
     raise C.ConfigError(f"network.het_sampling {sampling!r}")
+
+
+def heterogeneity_offsets(N: int, dist: str = "lorentzian", sampling: str = "quantile", rng=None) -> np.ndarray:
+    """q_j = (eta_j - eta_bar)/Delta for the three shapes of Table 6.1 (DL-277, ruling R6 / M10-13). Deterministic
+    even quantiles u_j = j/(N+1), j = 1..N (the angle argument of the Lorentzian formula). lorentzian: lorentzian_offsets,
+    unchanged. uniform: 2u - 1 (half-range = Delta, D29). gaussian: Phi^-1(u)/sqrt(2 ln 2) (HWHM = Delta, D29; sd =
+    Delta/sqrt(2 ln 2)) [reasoned, not tested against a source]. Gaussian and uniform exist for sampling 'quantile' only
+    (the plan's random variant is stated for the Lorentzian)."""
+    if dist == "lorentzian":
+        return lorentzian_offsets(N, sampling, rng)
+    if dist not in ("gaussian", "uniform"):
+        raise C.ConfigError(f"network.het_dist {dist!r}")
+    if sampling != "quantile":
+        raise C.ConfigError(f"network.het_sampling {sampling!r} is built for het_dist lorentzian only")
+    u = np.arange(1, N + 1, dtype=float) / (N + 1.0)
+    if dist == "uniform":
+        return 2.0 * u - 1.0
+    return ndtri(u) / np.sqrt(2.0 * np.log(2.0))
 
 
 def raster_indices(N: int, n_raster: int) -> np.ndarray:
@@ -152,8 +171,6 @@ def run_network(cfg: dict, deadline=None, s0: float = 0.0, chunk_bins: int = CHU
                             "(open item 1, section 12.4, UNVERIFIED)")
     if m["tau_d_ms"] is None:
         raise C.ConfigError("model.tau_d_ms is required for the network")
-    if nw["het_dist"] != "lorentzian":
-        raise C.ConfigError(f"network.het_dist {nw['het_dist']!r}: S10 shapes are not built")
     tau = m["tau_ms"]
     path = make_path(cfg)
     dt, N = nw["dt_tau"], nw["N"]
@@ -173,7 +190,7 @@ def run_network(cfg: dict, deadline=None, s0: float = 0.0, chunk_bins: int = CHU
     rng = make_rng(cfg["seeds"]["root_seed"], cfg["seeds"]["spawn_key"])
     lo, hi = nw["init_V_range"]
     V = lo + (hi - lo) * rng.random(N)
-    q = lorentzian_offsets(N, nw["het_sampling"], rng)
+    q = heterogeneity_offsets(N, nw["het_dist"], nw["het_sampling"], rng)
     tref, tspk = np.zeros(N), np.zeros(N)
     ridx = raster_indices(N, nw["n_raster"])
     slot = np.full(N, -1, dtype=np.int32)
@@ -233,8 +250,6 @@ def run_s4_network(cfg: dict, deadline=None, chunk_bins: int = CHUNK_BINS) -> di
     m, nw, q, sv = cfg["model"], cfg["network"], cfg["s4"], cfg["solver"]
     if m["type"] != "M3" or q["param"] != "eta_bar" or m["tau_d_ms"] is None:
         raise C.ConfigError("run.kind s4_net: M3, s4.param eta_bar and model.tau_d_ms are required")
-    if nw["het_dist"] != "lorentzian":
-        raise C.ConfigError(f"network.het_dist {nw['het_dist']!r}: S10 shapes are not built")
     tau, dt, N = m["tau_ms"], nw["dt_tau"], nw["N"]
     bin_tau = ms_to_tau(nw["rate_bin_ms"], tau)
     spb = int(round(bin_tau / dt))
@@ -249,7 +264,7 @@ def run_s4_network(cfg: dict, deadline=None, chunk_bins: int = CHUNK_BINS) -> di
     rng = make_rng(cfg["seeds"]["root_seed"], cfg["seeds"]["spawn_key"])
     lo, hi = nw["init_V_range"]
     V = lo + (hi - lo) * rng.random(N)
-    qj = lorentzian_offsets(N, nw["het_sampling"], rng)
+    qj = heterogeneity_offsets(N, nw["het_dist"], nw["het_sampling"], rng)
     tref, tspk = np.zeros(N), np.zeros(N)
     slot = np.full(N, -1, dtype=np.int32)                      # no raster
     y0 = stable_fixed_point(order[0], m["J"], m["Delta"], m["I_drive"], "M3", ms_to_tau(m["tau_d_ms"], tau))
