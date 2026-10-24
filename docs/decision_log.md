@@ -3506,3 +3506,13 @@ Chosen:          as ruled   Default from: -
 Test:            fast suite before the commit; tests/test_ms10_counts.py pins the list hashes
 Status:          done
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-309  MS10 10d: the five mean-field companion runs (R1, MF_COMPANION), results    [ID: MS10, 10d, R1, R13, M10-3, S8]
+Date:            2026-10-23        Author:
+Decision:        FACT. Launched by Claude Code on the instruction of the 10d prompt, after the freeze commit d42f4fc, git dirty = false (all five records show dirty = false; the evaluator's record check passed for each, so name and full config hash equal the frozen list row): scripts/run_ms10_list.py --list MF_COMPANION --workers 5 --journal-dir results/ms10/launch_mf. 5 ok, 0 failed, launch wall 69.7 s (predicted 88 s to 2.8 min); run walls 37.6 to 68.9 s. Classes by the frozen mode-D classifier (analysis.ms10_eval.read_record, W by rule D4): cell 0 (7,4) T_ramp 30 s D-tr, onset 21.034 s, f_pk 49.0 Hz (stored 120 s class D-tr); cell 1 (22,10) D-tr, onset 20.676 s, f_pk 49.0 Hz (stored D-tr); cell 2 (13,29) D-none, envelope never reaches the threshold (stored D-none); cell 3 (24,26) D-none, same reason (stored D-none); headline T_ramp 60 s D-tr, onset 33.698 s, f_pk 49.0 Hz (headline 120 s: D-tr, 58.698 s, 49.0 Hz). Every companion class equals the stored 120 s class: the stop rule did not trigger. Records in results/S8/mf/ (git-ignored): S8_mf_cells_0000_081b77a5f999 (json d099828e938c106f8c7334aee5e4a0c48e5e6e436748cbdc7ba10edbcdbae9c1, npz 4f7e0cfe8646f1679b188c4af9dcc6f704c6d4cb98ebce304121cc24412a0345); S8_mf_cells_0001_908ef5a1c420 (json cc5c5e5861e7c5b3872ea43c661bf52a030e318f9423cc4b64d07800931f5bd8, npz 030069a5d1d0bda333d2e8b8dc6b5425cc9a8d5990f2f64cf0104a3d3ee81dea); S8_mf_cells_0002_8cf8eb1029e6 (json 6334e488ad2fcd3abce8112f640c52876258847ec059a96b0c6e1f52097ced61, npz 3a1055c98141ab091b15a955b2c594ef8cef97187a83ee118ef6dba8ae060347); S8_mf_cells_0003_1474ff58c0a4 (json a04d4ca14202534bf68e4cf75612b4da6a4d868b7cef7caf949b02bc137074eb, npz 98458a9718ca132e25e67111a485c511e30b27b4430738613c25887f93b6c171); S8_mf_head60_0000_0080d385accd (json ce1077309bf7d13450ceb7b003c1148ae898b79acf4245cd7ee8b5864b2e6c78, npz 7a6615f180812204bf97a5974c80b50c9676eb5f8dd1344ad36e244c15444ff8). No network run, no S8/S9/S10/control launch, no diagnostic beyond the classification.
+Reason:          instruction of the reviewer (10d prompt, step 5).
+Options:         -
+Chosen:          -   Default from: -
+Test:            the record check of tests/test_ms10_eval.py applied to the real records (read_record)
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
