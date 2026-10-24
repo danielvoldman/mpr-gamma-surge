@@ -3576,3 +3576,83 @@ Chosen:          -   Default from: -
 Test:            tests/test_ms10_counts.py (list hashes), tests/test_ms10_launcher.py
 Status:          done
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-316  MS10 10f R29: readings of 10e accepted    [ID: MS10, 10f, R29, E-2, E-3, E-9, O12]
+Date:            2026-10-24        Author:
+Decision:        RULING. Accepted as reported at 10e: a reference with no f_pk or onset (not D-tr) gives "n/a" and counts as met; a G4 pool with a missing record and no surge seed is "not evaluable", not a miss; tolerance comparisons carry 1e-9 floating-point slack; both post-surge windows (1 s and 5 s) are kept (O12); J_exit,static and the exit-delay sign still follow the 9i reading (UNVERIFIED, no gate); control record sizes assume the ramp-run duration (UNVERIFIED). Appended to docs/ms10_plan.md as "Rulings after 10e". Pre-checks at 10f, all passed: criteria-loader gate against tag criteria-frozen (dd8330c5eaacd63d21e7b7969430988d00862769, criteria file c7d2f36b...fa05); the four frozen hashes (criteria, S13, A4_grids, S5_cells) equal; git dirty false, HEAD 324a8d82b61a3df0507889ffa939603bc8e64a73; the seven list hashes equal DL-308 (re-derived by the launcher dry run, list only); ms10_eval.yaml 29820b06...cabb and ms10_eval_rules.md d75d1edb...c6b0 equal; the 24876 files of docs/ms9_file_hashes.csv re-hashed, 0 differences.
+Reason:          instruction of the reviewer (10f prompt).
+Options:         -
+Chosen:          as ruled   Default from: -
+Test:            -
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-317  MS10 10f: launch verification of the six lists, file-hash table    [ID: MS10, 10f, S8, S9, S10, C2]
+Date:            2026-10-24        Author:
+Decision:        FACT. Read from stored records and journals only; nothing was run. Every list: journal complete ("finished: n ok"), record count as expected, status ok in every record, git dirty false, commit 324a8d8 in every record, config hash and record name equal to the frozen list row, spawn key (seed.spawn_key and flags.seed_spawn_key) equal to the frozen seed key, criteria SHA-256 frozen, no warnings in any record. S8 18/18 ok, wall 333.6 s = 5.56 min (predicted 5.4); C2_S8 18/18, 320.3 s = 5.34 min (5.4); S10 9/9, 192.9 s = 3.22 min (3.0); C2_S10 6/6, 157.4 s = 2.62 min (3.0); S9 40/40, 825.0 s = 13.75 min (14.1); C2_S9 12/12, 326.7 s = 5.44 min (9.9). Files: 321 (103 records x json, npz, params.md, plus manifest.csv and run.log of the six journals), 450.9 MB (the 10e disk estimate was 0.24 GB from the NC1 rate, so the estimate was low by about a factor 1.9; free space was ample; UNVERIFIED sizes). Table results/ms10/10f/file_hashes.csv (path, bytes, sha256) sha256 d1f57f0d0b0187a50a427c15216fa7db0af88b1d4405cee6c43cf4eb43b51904; digest (SHA-256 of the sorted 'path<TAB>sha256' lines, the 9j convention) d1b98f05b1b147437ed19ef3dc4ee84c1dda61693c9e9cc3a9de41f4ba572a52. No record dirty, missing, failed or from another commit; all six lists evaluated. The evaluator re-checks these refusals itself on every record.
+Reason:          instruction of the reviewer (10f prompt, step 1).
+Options:         -
+Chosen:          -   Default from: -
+Test:            scripts/evaluate_ms10.py (check_record refusals)
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-318  MS10 10f: evaluators run exactly as frozen; sigma check result    [ID: MS10, 10f, R16, R25, R28, E-4, E-5]
+Date:            2026-10-24        Author:
+Decision:        FACT AND VERDICT. scripts/evaluate_ms10.py (frozen choices, no argument changed) ran on the 103 stored records: no MissingChoice, no inconsistency, no missing record; time-origin check shared = true in 7 of 7 (stamp offset 1 ms). Output results/ms10/eval/ms10_eval.json sha256 d9e8d71624c96253eae7bfdecfdb30b009f6b27c68a7bffd5df3a95bfd63cc85; docs/ms10_results.md written by scripts/write_ms10_results.py (sha256 of the script c087f139...d4a8) from that file only. Sigma check: reference 0.039522; the 6 S8 headline baselines over samples [0, 5000), ddof 1: 0.038920, 0.037989, 0.038455 (seeds 0 to 2 at 10 s) and the same three values at 120 s; 3 distinct values, one per seed, so the 10 s and 120 s baselines of one seed ARE identical (the UNVERIFIED expectation holds). Range 0.037989 to 0.038920, mean 0.038455. The reference is NOT inside the range: position 1.6465 (above the maximum), margin to the nearest end -0.000602; reference / network mean 1.0278. Verdict (pre-registered wording): NOT INSIDE (limitation; sigma stays frozen, MS7). sigma not changed.
+Reason:          instruction of the reviewer (10f prompt, step 2a).
+Options:         -
+Chosen:          as frozen   Default from: -
+Test:            -
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-319  MS10 10f: RB1 headline result    [ID: MS10, 10f, RB1, R17, R18, R23, R27]
+Date:            2026-10-24        Author:
+Decision:        FACT AND VERDICT. Primary reading (Table 2.1 correspondence against the stored mode-D D-tr references; f_pk within 5 percent; classifier onset within one spectrogram step, inclusive). T_ramp 10 s (reference f_pk 48.05 Hz, onset 10.604 s; bin 3 Hz, step 1/6 s): seed 0 S-abs (class met, f_pk 93.09 Hz, 15.0 bins off, onset 5.18 s, not met); seed 1 S-rel (class met, f_pk 60.06 Hz, 4.0 bins off, onset 6.18 s, not met); seed 2 S-sus (class not met, f_pk 48.05 Hz met, onset 8.68 s not met). 0 of 3 pass; C2 controls at 10 s: S-abs 2, S-rel 1. T_ramp 120 s (reference f_pk 49.0 Hz, onset 58.698 s; bin 0.5 Hz, step 1 s): seeds 0 to 2 all S-sus (class not met), f_pk 49.0, 48.5, 49.0 Hz (met), classifier onset 12.0 s in all three (not met, 46.7 s early). 0 of 3 pass; C2 controls at 120 s: S-sus 3. Post hoc without S-rel: 0 of 3 at both. Post-hoc median reading: 10 s f_pk median 60.06 Hz not met, onset median 6.18 s not met, classes do not all match; 120 s f_pk median 49 Hz met, onset median 12 s not met, classes do not all match. Evaluator raw-crossing onsets (post hoc, feed no gate): 10 s 9.77, 9.59, 9.56 s (each 0.84 to 1.05 s before the reference, not within a step); 120 s 50.92, 50.17, 50.86 s (7.8 to 8.5 s early). Verdicts: headline T_ramp 10 s FAIL; headline T_ramp 120 s FAIL. Limits DL-229 and DL-258 b apply to every network class.
+Reason:          instruction of the reviewer (10f prompt, step 2b).
+Options:         -
+Chosen:          as frozen   Default from: -
+Test:            -
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-320  MS10 10f: RB1 cells, N rule, RB1 verdict    [ID: MS10, 10f, RB1, R15, R18, S8, S9]
+Date:            2026-10-24        Author:
+Decision:        FACT AND VERDICT. Cells (30 s, companion mode-D class; a cell agrees only if 3 of 3 seeds match): (7, 4) D-tr, network S-abs, S-abs, S-rel: agrees (3 of 3; without S-rel 2 of 3); (22, 10) D-tr, S-sus, S-abs, S-abs: 2 of 3, does not agree; (13, 29) D-none, S-abs, S-rel, S-abs: 0 of 3; (24, 26) D-none, S-sus, S-sus, S-abs: 0 of 3. C2 control classes: (7, 4) S-sus 2, S-abs 1; (22, 10) S-sus 2, S-abs 1; (13, 29) NS 2, S-rel 1; (24, 26) S-abs 1, S-rel 1, S+ 1. Cells agreeing 1 of 4 (need 3; without S-rel 0): cells part FAIL. N rule (60 s, companion class D-tr): seeds in the matching class N = 1e4 2, N = 3e4 5 (same without S-rel); 3e4 no worse than 1e4: PASS. RB1 verdict (pre-registered wording): FAIL (headline 10 s FAIL, headline 120 s FAIL, cells FAIL, N rule PASS). Failing RB1 is G4.
+Reason:          instruction of the reviewer (10f prompt, step 2b).
+Options:         -
+Chosen:          as frozen   Default from: -
+Test:            -
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-321  MS10 10f: S9 Table 2.1 metrics    [ID: MS10, 10f, S9, E-6]
+Date:            2026-10-24        Author:
+Decision:        FACT (no threshold, no verdict). Classes per N over 10 seeds: N = 1e3 S-sus 6, S-abs 4 (controls NS 3); 3e3 S+ 6, S-sus 3, S-abs 1 (controls NS, S+, S-abs); 1e4 S-sus 7, S-abs 2, NS 1 (controls S-sus 2, S+ 1); 3e4 S-sus 5, S-abs 5 (controls S-sus 2, S-abs 1). Median and range of the Table 2.1 metrics per N, with defined and undefined counts and the reasons, are in docs/ms10_results.md. Undefined entries: J_exit,run, exit delay and both post-surge rates are undefined where the episode is unterminated at the record end (1e3: 4, 3e3: 1, 1e4: 7, 3e4: 5 seeds); at N = 1e4 one seed has no episode (all metrics undefined). The 1e4 control S+ and the 3e3 control classes are listed beside, not interpreted.
+Reason:          instruction of the reviewer (10f prompt, step 2c).
+Options:         -
+Chosen:          as frozen   Default from: -
+Test:            -
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-322  MS10 10f: S10 and RB8 heterogeneity part    [ID: MS10, 10f, S10, RB8, R8, E-7, E-8]
+Date:            2026-10-24        Author:
+Decision:        FACT AND VERDICT. Lorentzian classes (3 seeds) S-sus, S-abs, S-sus: two correspondence levels (S-sus, surge), so the 3 Lorentzian seeds do not share one Table 2.1 correspondence class. Gaussian S-abs x3, uniform S-abs x3. C2 control classes for the Lorentzian (N = 1e4, 60 s): S-sus 2, S+ 1; Lorentzian seeds in the mean-field-matching class 1 of 3. Verdict (E-7, pre-registered wording): RB8 heterogeneity part NOT EVALUABLE (the per-seed table is recorded, no pass or fail). M4 and adaptation parts of RB8 are MS12.
+Reason:          instruction of the reviewer (10f prompt, step 2d).
+Options:         -
+Chosen:          as frozen   Default from: -
+Test:            -
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-323  MS10 10f: G4 summary    [ID: MS10, 10f, G4, R24, E-9]
+Date:            2026-10-24        Author:
+Decision:        FACT (report-only). Pools, primary reading (surge seeds / records): N = 1e4 5 of 19 (S8 headline 2 of 6, S9 2 of 10, S10 Lorentzian 1 of 3; without S-rel 4); N = 3e4 5 of 10 (S9; without S-rel 5); no record missing. Plan consequences (Tables 4.2 and 11.2): (1) network misses the surge at N = 1e4 and 3e4: no, so no finite-size limitation from this condition; (2) disagreement in 2 or more of the 4 cells: YES (3 of 4 cells disagree), so the plan's consequence is a rerun of RB6, whose network parts are S13 runs at MS11 (R9); caveats from the plan: OA attraction with synaptic kinetics unproven, shot noise causes metastability; (3) report the affected results as mean-field-only: applies, since (2) holds (our reading, UNVERIFIED). RB1 FAIL, so G4 is triggered. G4 stops nothing in the run order. No RB6 rerun, diagnostic or exploratory run was made; any such run comes to the reviewer first.
+Reason:          instruction of the reviewer (10f prompt, step 2e and stop rule).
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag

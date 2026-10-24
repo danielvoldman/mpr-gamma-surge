@@ -340,3 +340,15 @@ Appended at 10e (second part). Everything above is unchanged. Rulings are the re
 *Time origins (R27).* Both onsets are classifier times, sample index over the sampling rate, v starting at t = 0 with the 2 s discard removed. Mean field: `t_ms` starts at 0 ms (sample i = state at i ms; stored records and the five companion records checked). Network: sample i is the mean over the 1 ms bin ending at the stamp (i + 1) ms (`qif_network.run_network`: "stamped at the bin end", first stamp 1 ms), so the bin starts at i ms. Same path clock, same t_on (5 s), same 1 ms interval; the stamp convention differs by one sample (1 ms), reported. The check passed for 7 mean-field records against the frozen network configs. This offset is below every tolerance in use (the smallest spectrogram step is 1/6 s).
 
 *Our readings in the evaluators (UNVERIFIED as plan readings).* (a) A reference without an f_pk or onset (not D-tr) leaves nothing to compare: the test is "n/a" and counts as met; it does not arise for the headline references, all D-tr. (b) A G4 pool with a missing record and no surge seed among the present ones is "not evaluable", not a miss. (c) Floating-point slack 1e-9 in the tolerance comparisons. (d) The post-surge rate keeps both O12 windows (1 s, 5 s). (e) J_exit,static and the sign of the exit delay are as in 9i (DL-209, UNVERIFIED).
+
+## Rulings after 10e (10f; DL-316 to DL-323)
+
+Appended at 10f. Everything above is unchanged. The ruling is the reviewer's (10f prompt). No run of any kind was made at 10f; the six lists S8, C2_S8, S10, C2_S10, S9, C2_S9 were launched by the reviewer at commit 324a8d8 and only their stored records were read.
+
+| Ruling | Item | Content | DL |
+|---|---|---|---|
+| R29 | 10e readings | Accepted as reported at 10e: a reference with no f_pk or onset (not D-tr) gives "n/a" and counts as met; a G4 pool with a missing record and no surge seed is "not evaluable", not a miss; tolerance comparisons carry 1e-9 floating-point slack; both post-surge windows (1 s and 5 s) are kept (O12); J_exit,static and the exit-delay sign still follow the 9i reading (UNVERIFIED, no gate); control record sizes assume the ramp-run duration (UNVERIFIED) | 316 |
+
+### 10f: verification and evaluation (DL-317 to DL-323)
+
+All 103 records verified (status ok, dirty false, commit 324a8d8, hashes and spawn keys equal to the frozen lists, no warnings). The pre-registered evaluators ran as frozen; tables and verdicts are in `docs/ms10_results.md`. Verdicts in the pre-registered wording: sigma check NOT INSIDE (limitation; sigma stays frozen); RB1 FAIL (headline 10 s FAIL, 120 s FAIL, cells FAIL with 1 of 4 agreeing, N rule PASS); RB8 heterogeneity part NOT EVALUABLE; G4 triggered (cells disagree in 3 of 4; network does not miss the surge at 1e4 or 3e4). No RB6 rerun, diagnostic or exploratory run was made.
