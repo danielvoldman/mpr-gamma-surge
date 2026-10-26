@@ -15,6 +15,10 @@ from .. import config as C
 EVAL_FILE = "configs/ms11/ms11_eval.yaml"
 
 
+# Items that are not required fields and block nothing but the list they belong to (11c): the question is with the reviewer.
+PENDING = ("rb9d_parameter_spec",)
+
+
 class MissingChoice(Exception):
     """A required evaluation field is absent, null or not an allowed value."""
 
@@ -50,24 +54,24 @@ REQUIRED: dict[str, tuple | None] = {
     "rb10_window_line_of_s13": ("same_computation",),
     "a11_mode": ("recompute_and_compare",),        # M11-10 (c)
     "a11_row_unit": ("criterion_leaf",),
-    "a11_status_vocabulary": None,
+    "a11_status_vocabulary": None,                 # ruling 13 narrows the 11b vocabulary of six words to the four status words (DL-358); checked in tests
     "a11_new_thresholds": ("none",),
     "d36_basis": ("B",),
-    # --- OPEN (null until the reviewer rules; reading one raises MissingChoice) ------------------------------------------------------------------------
-    "rb2_failed_run_counts_as": ("not_kept", "excluded"),
-    "rb5_updown_source": ("P5_only", "P5_and_S4_quasi_static", "P5_with_S4_reported_beside"),
-    "rb6_network_fpk_no_episode": ("undefined_fails", "not_evaluable"),
-    "rb6_network_vp_comparison": ("reported_only", "fpk_2pct_applied"),
-    "within_boundary": ("inclusive", "strict"),
-    "rb9a_source": ("unit_test_level", "new_run", "left_open"),
-    "rb9b_cells": ("headline_and_all_dtr_cells_map1_map2", "headline_and_dtr_cells_map1"),
-    "rb9b_comparison_window": ("classifier_episode", "fixed_window"),
-    "gate_cell_set": ("pooled_map1_map2", "map1", "each_alone_both_must_pass"),
-    "not_run_cells_count_as": ("excluded_from_denominator", "changed", "unchanged"),
-    "s13_floor_other_T_ramp_form": ("reported_only", "rb3b_form_applied_not_gated"),
-    "rb9d_runs": ("not_run_reported_open", "separate_post_hoc_list"),
-    "a11_logged_verdict_map": None,
-    "a11_extra_columns": None,
+    # --- ruled at 11c (DL-345 to DL-358; the 14 fields that were open at 11b) -------------------------------------------------------------------------
+    "rb2_failed_run_counts_as": ("not_kept",),                       # ruling 1: denominator stays 10, failed runs reported
+    "rb5_updown_source": ("P5_with_S4_reported_beside",),            # ruling 2
+    "rb6_network_fpk_no_episode": ("not_evaluable",),                # ruling 3: listed by seed, neither passes nor fails
+    "rb6_network_vp_comparison": ("reported_only",),                 # ruling 4
+    "within_boundary": ("inclusive",),                               # ruling 5: "within X" is at most X; "<" and ">" strict as the plan writes them
+    "rb9a_source": ("unit_test_level",),                             # ruling 6
+    "rb9b_cells": ("headline_gate_map_cells_reported",),             # ruling 7
+    "rb9b_comparison_window": ("classifier_episode",),               # ruling 8
+    "gate_cell_set": ("map1",),                                      # ruling 9
+    "not_run_cells_count_as": ("excluded_with_worst_case_flag",),    # ruling 10
+    "s13_floor_other_T_ramp_form": ("rb3b_form_reported_only",),     # ruling 11
+    "rb9d_runs": ("separate_post_hoc_list",),                        # ruling 12 (YES; the parameter specification is pending, see PENDING)
+    "a11_logged_verdict_map": None,                                  # ruling 13: table word -> PASS / FAIL / NOT EVALUABLE / REPORTED
+    "a11_extra_columns": None,                                       # ruling 14
 }
 
 

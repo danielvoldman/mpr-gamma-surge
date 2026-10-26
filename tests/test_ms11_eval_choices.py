@@ -18,16 +18,11 @@ def test_every_required_field_is_in_the_file_with_a_meta_entry_and_nothing_else(
     assert all(m["status"] in ("ruled", "plan", "frozen", "OPEN") for m in META.values())
 
 
-def test_open_fields_are_exactly_the_null_ones_and_the_open_status():
-    openf = EC.open_fields()
-    assert set(openf) == {k for k, v in CH.items() if v is None} == {k for k, m in META.items() if m["status"] == "OPEN"}
-    assert len(openf) == 14
-    for k in openf:
-        assert "proposal" in META[k]
-        with pytest.raises(EC.MissingChoice):
-            EC.choice(CH, k)
-    with pytest.raises(EC.MissingChoice):
-        EC.check_all(CH)
+def test_no_required_field_is_open_after_11c_and_the_pending_item_is_not_a_required_field():
+    assert EC.open_fields() == [] and all(v is not None for v in CH.values())
+    assert all(m["status"] != "OPEN" for m in META.values())
+    assert len(EC.check_all(CH)) == len(EC.REQUIRED) == 45
+    assert EC.PENDING == ("rb9d_parameter_spec",) and "rb9d_parameter_spec" not in EC.REQUIRED and "rb9d_parameter_spec" in FILE["pending"]
 
 
 def test_a_missing_empty_or_disallowed_value_raises_and_nothing_is_defaulted():
@@ -40,22 +35,13 @@ def test_a_missing_empty_or_disallowed_value_raises_and_nothing_is_defaulted():
     del ch["rb2_judged_T_ramp_s"]
     with pytest.raises(EC.MissingChoice):
         EC.choice(ch, "rb2_judged_T_ramp_s")
-    ch["within_boundary"] = "maybe"
+    ch["within_boundary"] = "strict"                      # ruling 5 allows only the inclusive reading
     with pytest.raises(EC.MissingChoice):
         EC.choice(ch, "within_boundary")
     ch["within_boundary"] = "inclusive"
     assert EC.choice(ch, "within_boundary") == "inclusive"
     with pytest.raises(EC.MissingChoice):
         EC.choice(ch, "not_a_field")
-
-
-def test_filling_every_open_field_with_an_allowed_value_leaves_none_open():
-    ch = copy.deepcopy(CH)
-    for k in EC.open_fields(ch):
-        allowed = EC.REQUIRED[k]
-        ch[k] = allowed[0] if allowed else ["x"]
-    assert EC.open_fields(ch) == []
-    assert set(EC.check_all(ch)) == set(EC.REQUIRED)
 
 
 def test_ruled_values_equal_their_sources():

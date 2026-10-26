@@ -224,6 +224,11 @@ def test_check_launch_refuses_a_draft_data_file(monkeypatch):
     assert any("not FROZEN" in w for w in RL.check_launch(("MS11_CTRL",)))
 
 
-def test_with_the_open_required_fields_a_real_launch_is_refused_today():
-    """The shipped eval file still has open required fields (DL-343): the unmocked rule says so."""
-    assert EC.open_fields() and any("required evaluation fields still open" in w for w in RL.check_launch(("MS11_CTRL",)))
+def test_the_shipped_eval_file_has_no_open_required_field_and_a_blanked_field_refuses_a_launch(monkeypatch):
+    """11c (DL-345 to DL-364): all 14 fields of 11b are ruled, so the shipped file leaves none open; a field set back to null still refuses a real launch."""
+    assert EC.open_fields() == []
+    monkeypatch.setattr(P, "environment_info", lambda with_julia=True: {"git": {"dirty": False, "commit": "x"}})
+    ch = copy.deepcopy(EC.load_choices())
+    ch["within_boundary"] = None
+    monkeypatch.setattr(EC, "load_choices", lambda path=None: ch)
+    assert any("required evaluation fields still open" in w and "within_boundary" in w for w in RL.check_launch(("MS11_CTRL",)))

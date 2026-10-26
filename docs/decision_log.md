@@ -3866,3 +3866,203 @@ Chosen:          -   Default from: -
 Test:            tests/test_ms11_runlist.py (16 tests); dry run of all four lists; fast suite after 11b: 815 passed, 11 deselected, 9 xfailed, pytest exit code 0 (taken from pytest itself, output to a file, not a pipe)
 Status:          frozen; not launched.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-345  MS11 11c: pre-checks all PASS before any 11c change; nothing run    [ID: MS11, 11c, R33, DL-344]
+Date:            2026-10-26        Author:
+Decision:        FACT. (1) Criteria-loader gate against tag criteria-frozen (dd8330c5eaacd63d21e7b7969430988d00862769): verify_frozen_criteria() returned the tag, the commit and all hashes. (2) Frozen hashes equal the prompt values: configs/robustness_criteria.yaml c7d2f36b74ea611c8777c1b408d5085333e55230834c27e5f0eb839f1162fa05; configs/S13.yaml 317db87e69afcb09111a33e78640869b3f588e64390d110655aaa3a7cff52388; configs/A4_grids.yaml cf6a60bec781c6f7e53b7f92b747ff745fcc5dc4794c0b83768e0aa4a4e56401; configs/S5_cells.yaml fe8590ce81bc8c537f9c92e2afbee80685aaaa52c757474912b243fe9ed38790. (3) Working tree clean (git status empty); HEAD 4a085fbba201053fc79c308acd8c3455e0ffa870 (the named start; git merge-base --is-ancestor 4a085fb HEAD true). (4) MS10 result files: docs/ms10_close.md 29b2cab8be79804c847908a0bbb0482ede1bde2f23a698ae42e59f957f2e2517; docs/ms10_g_evidence.md 8ffc2858e70c0e2288ac13554f2dc8412b6194ea559765cfb454d41a731b45c4; docs/ms10_file_hashes.csv 053c63916ab536a5a3672dd6c1a5c7797a79fa20e2b419840c1d94019949ca10; docs/ms10_results.md 55a7d1af44bee7f390e0705388dd503f0e2112e9f8f12c7f88450cc512e4a98b; the 10f digest d1b98f05b1b147437ed19ef3dc4ee84c1dda61693c9e9cc3a9de41f4ba572a52 re-verified (321 files of results/ms10/10f/file_hashes.csv rehashed, 0 mismatches, digest of the sorted path-TAB-sha256 lines with a trailing newline equal). (5) The four MS11 list definition files hash to the values recorded in DL-344 (f403a204..., fb88958a..., 8158e036..., dd7853ea...). No check failed.
+Reason:          instruction of the reviewer (11c prompt, step 1)
+Options:         -
+Chosen:          -   Default from: -
+Test:            read-only checks (python in the session, nothing written)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-346  MS11 11c: ruling 1: rb2_failed_run_counts_as = not_kept    [ID: MS11, 11c, RB2, S11, rb2_failed_run_counts_as]
+Date:            2026-10-26        Author:
+Decision:        RULED (reviewer, 11c ruling 1). A failed run among the 10 seeds counts as NOT kept; the denominator stays 10; the number of failed runs is reported. Written in configs/ms11/ms11_eval.yaml and docs/ms11_eval_rules.md section 1. A record absent from the lists is not a failed run: that cell is NOT EVALUABLE and nothing replaces it (our reading, the rule for missing records of 11b).
+Reason:          instruction of the reviewer (11c prompt, step 2)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_ms11_eval.py::test_failed_run_counts_as_not_kept_with_denominator_ten_and_is_reported, test_missing_record_makes_the_cell_not_evaluable_and_is_not_replaced
+Status:          ruled; written in configs/ms11/ms11_eval.yaml and docs/ms11_eval_rules.md.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-347  MS11 11c: ruling 2: rb5_updown_source = P5_with_S4_reported_beside    [ID: MS11, 11c, RB5, S4, P5, rb5_updown_source, DL-340]
+Date:            2026-10-26        Author:
+Decision:        RULED (reviewer, 11c ruling 2). P5 is the classified up-versus-down result; S4 is reported beside it, labelled "no class", as supporting amplitude evidence only. The A11 row is REPORTED (the plan gives no pass number beyond "class unchanged"; none invented); S4 does not count toward "class unchanged".
+Reason:          instruction of the reviewer (11c prompt, step 2)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_ms11_eval.py::test_rb5_delta0_class_unchanged_is_the_exact_label_and_delay_shift_is_reported (rb5_updown part)
+Status:          ruled; written in configs/ms11/ms11_eval.yaml and docs/ms11_eval_rules.md.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-348  MS11 11c: ruling 3: rb6_network_fpk_no_episode = not_evaluable    [ID: MS11, 11c, RB6, network, rb6_network_fpk_no_episode]
+Date:            2026-10-26        Author:
+Decision:        RULED (reviewer, 11c ruling 3). A seed with no episode at dt 1e-3 has no f_pk; it is reported as NOT EVALUABLE, listed by seed, and neither passes nor fails the 2 percent bound. If changing dt creates or removes an episode, it is reported as a class change. Implementation readings, UNVERIFIED: a seed whose episode exists at dt 1e-3 but not at the other dt is also NOT EVALUABLE for the bound (f_pk undefined at one dt) and carries the class change; the verdict per f_pk reading is FAIL if any evaluable seed fails, PASS if at least one passes and none fails, NOT EVALUABLE if none is evaluable.
+Reason:          instruction of the reviewer (11c prompt, step 2)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_ms11_eval.py::test_seed_without_an_episode_is_not_evaluable_listed_by_seed_and_neither_passes_nor_fails, test_all_seeds_without_an_episode_gives_not_evaluable_not_pass, test_dt_that_creates_or_removes_an_episode_is_reported_as_a_class_change
+Status:          ruled; written in configs/ms11/ms11_eval.yaml and docs/ms11_eval_rules.md.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-349  MS11 11c: ruling 4: rb6_network_vp_comparison = reported_only    [ID: MS11, 11c, RB6, network, V_p, rb6_network_vp_comparison]
+Date:            2026-10-26        Author:
+Decision:        RULED (reviewer, 11c ruling 4). V_p +-100 against +-200 is REPORTED ONLY (the plan gives no pass number for it); the f_pk difference is shown as information, not as a test. The other dt rungs are printed the same way.
+Reason:          instruction of the reviewer (11c prompt, step 2)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_ms11_eval.py::test_vp_comparison_and_other_rungs_are_information_not_tests
+Status:          ruled; written in configs/ms11/ms11_eval.yaml and docs/ms11_eval_rules.md.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-350  MS11 11c: ruling 5: within_boundary = inclusive; "<" and ">" strict    [ID: MS11, 11c, RB6, RB9, RB10, within_boundary]
+Date:            2026-10-26        Author:
+Decision:        RULED (reviewer, 11c ruling 5). "Within X" in the plan is inclusive (at most X); "<" and ">" are strict, as the plan writes them. Implemented once in ms11_eval.compare (tolerance 1e-9): within and <= and >= inclusive, < and > strict. Consequences: RB9(a) value equal to 0.5 percent passes; RB9(b) difference equal to 1/W passes; RB6 network f_pk change equal to 2 percent FAILS ("< 2%"); RB2 8 of 10 passes ("at least"); RB9(c) 5 percent and RB10 10 percent pass ("<=").
+Reason:          instruction of the reviewer (11c prompt, step 2)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_ms11_eval.py: test_boundary_case_1_..., test_boundary_case_2_..., test_boundary_case_3_..., test_rb2_at_least_is_inclusive_...
+Status:          ruled; written in configs/ms11/ms11_eval.yaml and docs/ms11_eval_rules.md.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-351  MS11 11c: ruling 6: rb9a_source = unit_test_level    [ID: MS11, 11c, RB9, RB9a, rb9a_source, DL-341]
+Date:            2026-10-26        Author:
+Decision:        RULED (reviewer, 11c ruling 6). The existing unit-level test counts as the RB9(a) evidence, with its scope stated in the result as a limit: 1 s path_eta ramp (eta 1 to 4), tau 10 and 20 ms, not the headline path, no run record. The test is re-run once as an analysis step and its measured maximum relative difference stored in a labelled results file so that the value can be cited. No new RB9(a) run. Implementation: the test's computation moved unchanged to src/mprsurge/analysis/rb9a_unit.py (tests/test_units.py now calls it and asserts the same strict 0.005 on r*tau, v, s*tau); scripts/run_rb9a_unit.py writes results/A11/rb9a_unit_level.json (per tau, per variable, maximum, scope limit, git commit and dirty flag). The script is written at 11c and run once AFTER the 11c commit (so the stored provenance shows dirty = false); the measured value is entered in a later decision-log entry.
+Reason:          instruction of the reviewer (11c prompt, step 2)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_units.py::test_rb9a_dimensional_and_nondimensional_runs_agree_within_half_a_percent (unchanged assertions); tests/test_ms11_eval.py::test_boundary_case_1_...
+Status:          ruled; written in configs/ms11/ms11_eval.yaml and docs/ms11_eval_rules.md.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-352  MS11 11c: ruling 7: rb9b_cells = headline_gate_map_cells_reported    [ID: MS11, 11c, RB9, RB9b, rb9b_cells]
+Date:            2026-10-26        Author:
+Decision:        RULED (reviewer, 11c ruling 7). The headline run is the gate: cycle frequency computed from the stored v (unwrapped analytic phase over 2 pi, O5), spectral frequency from the stored classifier output. Map 1 and map 2 cells that have a flagged episode and a stored v series are REPORTED as the fraction within 1/W, with no gate fraction invented.
+Reason:          instruction of the reviewer (11c prompt, step 2)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_ms11_eval.py::test_rb9b_headline_gates_and_map_cells_are_reported_as_a_fraction_only
+Status:          ruled; written in configs/ms11/ms11_eval.yaml and docs/ms11_eval_rules.md.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-353  MS11 11c: ruling 8: rb9b_comparison_window = classifier_episode    [ID: MS11, 11c, RB9, RB9b, rb9b_comparison_window]
+Date:            2026-10-26        Author:
+Decision:        RULED (reviewer, 11c ruling 8). The comparison window is the classifier's flagged episode window per run (onset to end). W is the classifier's spectrogram window length as frozen (2 s for T_ramp >= 60 s, else max(0.2 s, T_ramp/30)), so the bound is 1/W Hz.
+Reason:          instruction of the reviewer (11c prompt, step 2)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_ms11_eval.py::test_boundary_case_2_within_one_over_W_is_inclusive_rb9b
+Status:          ruled; written in configs/ms11/ms11_eval.yaml and docs/ms11_eval_rules.md.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-354  MS11 11c: ruling 9: gate_cell_set = map1    [ID: MS11, 11c, RB9, RB10, gate_cell_set]
+Date:            2026-10-26        Author:
+Decision:        RULED (reviewer, 11c ruling 9). Map 1 (900 cells) carries the RB9(c) and RB10 verdicts; map 2 (325) and the noisy subgrid are reported beside it (status REPORTED, the status they would have had printed as information) and feed no verdict.
+Reason:          instruction of the reviewer (11c prompt, step 2)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_ms11_eval.py::test_gate_cell_set_map1_carries_the_verdict_and_map2_and_subgrid_are_reported_beside_it, test_rb10_needs_headline_unchanged_under_every_variant_and_the_map1_bound
+Status:          ruled; written in configs/ms11/ms11_eval.yaml and docs/ms11_eval_rules.md.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-355  MS11 11c: ruling 10: not_run_cells_count_as = excluded_with_worst_case_flag    [ID: MS11, 11c, RB9, RB10, not_run_cells_count_as, DL-147]
+Date:            2026-10-26        Author:
+Decision:        RULED (reviewer, 11c ruling 10). Cells where a variant does not fit the stored record are excluded from numerator and denominator; the verdict states the evaluated denominator; the worst case (every excluded cell counted as changed) is printed beside it, and if the two give different pass or fail results the verdict is flagged "depends on exclusions". Implementation: a cell whose stored baseline is not a class is excluded the same way; with no evaluable cell the verdict is NOT EVALUABLE; the worst-case fraction is (changed + excluded) over all cells.
+Reason:          instruction of the reviewer (11c prompt, step 2)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_ms11_eval.py::test_exclusions_that_change_the_verdict_are_flagged_depends_on_exclusions, test_exclusions_that_do_not_change_the_verdict_carry_no_flag_and_equality_is_at_most, test_reclassify_excludes_not_run_and_counts_changes_with_a_fake_classifier
+Status:          ruled; written in configs/ms11/ms11_eval.yaml and docs/ms11_eval_rules.md.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-356  MS11 11c: ruling 11: s13_floor_other_T_ramp_form = rb3b_form_reported_only    [ID: MS11, 11c, RB3, RB6, S13, D43, s13_floor_other_T_ramp_form]
+Date:            2026-10-26        Author:
+Decision:        RULED (reviewer, 11c ruling 11). Floor medians at T_ramp 10 s and 316 s are REPORTED ONLY, printed in the RB3(b) form (direction of change with floor level; no scaling law entered; UNVERIFIED). Implementation: the median delay per level under both onset readings of the MS8 sheet (raw first crossing and classifier onset), the number of seeds without an onset per level, and the direction (strictly decreasing, strictly increasing, non-increasing with ties, not monotone). No verdict, feeds no gate.
+Reason:          instruction of the reviewer (11c prompt, step 2)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_ms11_eval.py::test_floor_other_T_ramp_is_reported_only_in_the_rb3b_form
+Status:          ruled; written in configs/ms11/ms11_eval.yaml and docs/ms11_eval_rules.md.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-357  MS11 11c: ruling 12 rb9d_runs = YES (small list MS11_RB9D, reported only); parameter specification AMBIGUOUS, item STOPPED, question to the reviewer    [ID: MS11, 11c, RB9, RB9d, rb9d_runs, M11-8]
+Date:            2026-10-26        Author:
+Decision:        RULED and STOPPED. Ruling 12: YES, add a small list MS11_RB9D with the two tau +-20 percent runs on the headline cell, reported only; state what is held fixed and what changes before writing it; if ambiguous, STOP on this item. YES is recorded (rb9d_runs = separate_post_hoc_list). The list is NOT written. FACTS. Plan Table 7.2 RB9(d): "tau +-20%", "reported only, since every gamma result the reports cite fixes tau = 10 ms"; the plan says nothing about what is held. Code: model.tau_ms (Table 3.2: fixed, 10 ms) enters only through (1) the conversion of every duration given in seconds into tau units (ramps.make_path: T_ramp_s, t_on_s, I_period_s; simulate_mf: baseline, hold, discard), (2) the synaptic ratio tau_d/tau = ms_to_tau(model.tau_d_ms, model.tau_ms), tau_d_ms being a separate parameter in ms (5 ms at the headline), and (3) the output stamps t_ms = t_tau * tau_ms. eta_start, eta_peak, J, Delta and I are dimensionless numbers and do not change with tau_ms; path.eta_H is a stored number (2.8960461989737856, the A4 Hopf value at tau_d/tau = 0.5) from which resolve_config derives eta_start = eta_H - 1.5 and eta_peak = max(4, eta_H + 2); it is not recomputed from tau. The classifier works on the 1 kHz output in Hz with the frozen 25 to 100 Hz band and the frozen threshold 0.1 x A_ref (A_ref measured at tau 10 ms, tau_d 5 ms). So a bare override model.tau_ms = 8 or 12 gives reading (A) below. AMBIGUITY (three readings): (A) tau_d_ms held at 5 ms and all durations held in seconds: tau_d/tau becomes 0.625 and 0.4167, the Hopf point of the path moves while the eta numbers are held (the start is no longer eta_H - 1.5 of the new system), the 120 s ramp is 15,000 / 10,000 tau instead of 12,000; this is a genuine parameter test of the ratio. (B) tau_d scaled with tau (tau_d_ms = 4 and 6, ratio 0.5 held) and durations held in seconds: the Hopf eta is unchanged, frequencies in Hz scale by 1/tau (x1.25, x0.833), the ramp is 15,000 / 10,000 tau. (C) B with the durations also scaled with tau: the non-dimensional run is identical and only the ms and Hz labels change (a trivial result). QUESTIONS for the reviewer: (1) A, B or C? (2) eta numbers held at the headline values (the code default) or re-derived from a Hopf point at the new tau_d/tau (that needs an A4 continuation at each tau, which is a new computation, not in the plan)? (3) the frozen classifier band and threshold unchanged (the default)? (4) which quantities are reported (class, onset, f_pk in Hz and in units of 1/tau, delay against the headline eta_H)? RECOMMENDATION (not a ruling): (A) with eta numbers, band and threshold held, because the plan's parameter table fixes tau_d in ms and the check is of tau alone; report class, onset, delay (against eta_H = 2.896, labelled) and f_pk in Hz and in cycles per tau. Deterministic runs (kind mf, seeds.spawn_key null in configs/base.yaml) use no noise stream: NO new seed key is needed, confirmed; the key family [11, ...] is untouched. Run count if added: 236 + 2 = 238; provisional timing in DL-363.
+Reason:          instruction of the reviewer (11c prompt, step 2, item 12)
+Options:         A, B, C as above
+Chosen:          none for the specification   Default from: -
+Test:            -
+Status:          YES recorded; specification open; STOPPED; for the reviewer.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-358  MS11 11c: ruling 13 a11_logged_verdict_map; the status vocabulary is the four words    [ID: MS11, 11c, A11, a11_logged_verdict_map, a11_status_vocabulary]
+Date:            2026-10-26        Author:
+Decision:        RULED. Ruling 13: every logged verdict word maps to one A11 status word in a table in ms11_eval.yaml: PASS, FAIL, NOT EVALUABLE or REPORTED; a logged word with no mapping raises an error; the logged word is kept verbatim in its own column. CONSEQUENCE: the 11b vocabulary of six words (DL-336, with NOT_JUDGED and OPEN) is replaced by these four (a11_status_vocabulary). The ruling gave the rule, not the entries; the table written at 11c has 17 words, each verbatim from the log or the closes (a test checks that every registered word occurs in the cited documents): PASS PASS; FAIL FAIL; FAILED FAIL; MEETS PASS; DOES NOT MEET FAIL; NOT EVALUABLE NOT EVALUABLE; NOT INSIDE FAIL; NOT JUDGED NOT EVALUABLE; NO VERDICT NOT EVALUABLE; NOT IN MS8 RUNS NOT EVALUABLE; OPEN NOT EVALUABLE; REPORTED REPORTED; PASSED PASS; "PASSED, continue" PASS; CONTINUE PASS; PASSED WITH DEPARTURES PASS; NOT PASSED FAIL. UNVERIFIED readings for the reviewer to confirm: NOT INSIDE to FAIL, CONTINUE and PASSED WITH DEPARTURES to PASS (the G6 departures G6-D1 to G6-D3 stay in the note column), OPEN (M4 parts, MS12) to NOT EVALUABLE, NOT JUDGED to NOT EVALUABLE. The 26 carried checks of MS8 to MS10 are registered in ms11_eval.yaml (a11_logged) with their logged word, source and label; they are not recomputed at 11c (no hook is registered; recomputed_match is no and the note says so). Failed checks stay in the table as FAIL (RB1, RB2 subgrid, RB6 solver onset, RB3(a) in-range and RB3(b) classifier onset), never dropped, never PASS.
+Reason:          instruction of the reviewer (11c prompt, step 2)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_ms11_eval.py::test_the_verdict_map_covers_the_users_words_and_every_logged_word_of_the_registry, test_an_unmapped_logged_word_raises, test_logged_words_are_verbatim_in_the_cited_documents, test_assemble_rows_keeps_every_failed_check_...
+Status:          ruled; written in configs/ms11/ms11_eval.yaml.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-359  MS11 11c: ruling 14 a11_extra_columns    [ID: MS11, 11c, A11, a11_extra_columns]
+Date:            2026-10-26        Author:
+Decision:        RULED. Ruling 14: besides value, threshold, pass or fail and input commits, A11 adds rb_id, check_id, source (MS and DL reference), logged_verdict (verbatim), recomputed_match (yes or no), n_evaluated, label (pre-registered or post hoc). ADDITION at 11c, not in the ruling, UNVERIFIED: a column `note` (says whether a row was recomputed, has no logged verdict yet, or carries a flag such as "depends on exclusions"); the reviewer may remove it. recomputed_match is yes only when the status recomputed at A11 equals the mapped logged status; it is no for a carried check that was not recomputed and for an MS11 check with no logged verdict yet. After this no required field of ms11_eval.yaml is null (45 of 45 set); the loader still raises MissingChoice on any null or absent field (a test deletes each field in turn).
+Reason:          instruction of the reviewer (11c prompt, step 2)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_ms11_eval.py::test_every_required_field_is_set_and_deleting_any_one_raises_missing_choice, test_an_evaluator_raises_when_its_required_field_is_null, test_the_status_vocabulary_is_the_four_words_and_the_columns_are_the_ruled_ones; tests/test_ms11_eval_choices.py
+Status:          ruled; written in configs/ms11/ms11_eval.yaml.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-360  MS11 11c: read-only audit of the S13 mean-field count of 68 and of overlap with the 125 MS8 runs    [ID: MS11, 11c, S13, DL-178, DL-337, DL-342]
+Date:            2026-10-26        Author:
+Decision:        FACT (read-only; stored records and the frozen definition file; nothing run). Derivation from Table 6.2 S13 and the cut ruling (DL-337): T_ramp {10, 316.22776601683796} s (2 values); rtol {1e-8, 1e-12} (1e-10 is the S5 grid run, DL-338) x 2 = 4; delta0 {1e-9, 1e-3} (1e-6 is the S5 grid run) x 2 = 4; Radau 0 (cut order step 1: Radau only at the headline T_ramp, which ran at MS8); floor 3 levels x 10 seeds x 2 T_ramp at the default Heun rung = 60; total 4 + 4 + 0 + 60 = 68. Read from configs/ms11/lists/MS11_S13_MF.yaml and from the 68 expanded rows (ms11_runlist.expand: S13_rtol 4, S13_delta0 4, S13_floor 60). OVERLAP: the 125 stored MS8 S13 records (results/S13/{rtol 2, delta0 2, radau 1, floor_l0 40, floor_l1 40, floor_l2 40}) all have T_ramp 120 s; none of the 68 has T_ramp 120 s. Full config hash: 0 of 68 equal to any of the 125 stored hashes; 12-character hash (record names): 0 overlap; also 0 of 68 equal to any of the 1,461 stored S5 config hashes (the S5 grid members are reused, not repeated). The floor seed keys differ ([8, 2, l, s] at MS8, [11, 3, t, l, s] at MS11). No duplicate.
+Reason:          instruction of the reviewer (11c prompt, step 3)
+Options:         -
+Chosen:          -   Default from: -
+Test:            session script (read-only), not committed; tests/test_ms11_runlist.py::test_no_run_is_repeated_across_the_four_lists_and_the_s5_grid_runs_are_not_repeated
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-361  MS11 11c: evaluators, A11 script and tests written; synthetic fixtures only; nothing run on any real record    [ID: MS11, 11c, RB2, RB5, RB6, RB9, RB10, A11, S11, S13]
+Date:            2026-10-26        Author:
+Decision:        FACT. Written: src/mprsurge/analysis/ms11_eval.py (RB2/S11 with the DL-251 controls; RB5 delta0 and up/down; RB6 rtol, floor at 10 s and 316 s, network f_pk with the two readings, V_p and dt-rung information; RB9 (a), (b), (c); RB10 and the window x {0.5, 2} line; the A11 row builder; record readers and collectors), src/mprsurge/analysis/rb9a_unit.py, scripts/run_A11.py (output results/A11/a11_robustness.csv and a11_evaluators.json; --check-only opens no record), scripts/run_rb9a_unit.py. Thresholds are read from the frozen criteria (blob of the tag) and never typed; every choice is read through ms11_eval_choices.choice. The evaluators read stored records only and integrate nothing. NOT run on any MS11 record or on the stored map series; scripts/run_A11.py has not been executed beyond its argument parser, so its real-data path (record paths, S5 grid member lookup, map loaders) is untested until the first real evaluation (UNVERIFIED). Not delivered: recompute hooks for the MS8 to MS10 checks (DL-358); an RB9(d) evaluator (no run exists). Tests (tests/test_ms11_eval.py, synthetic data): the three boundary cases of ruling 5, an unmapped logged word, a null required field (every field, and each evaluator that reads one), exclusions that change the verdict (ruling 10), a seed with no episode (ruling 3), the failed-run rule (ruling 1), map 1 against map 2 and subgrid (ruling 9), RB10 headline-unchanged, the floor form, the registry words against the documents. Labels attached by the code: "sigma checked, not confirmed (G4-C4)", "provisional (D8 open, DL-137)", "post hoc, feeds no gate", "POST-HOC AMENDMENT (DL-251)", the RB9(a) scope limit, the G4 limits for network results, the short-window false-surge rates beside S11 at T_ramp 10 s and 30 s.
+Reason:          instruction of the reviewer (11c prompt, step 4)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_ms11_eval.py; fast suite: 858 passed, 11 deselected, 9 xfailed, 1 warning (baseline 815 passed after 11b; 43 new tests), pytest exit code 0 taken from pytest itself (output to a file, exit code echoed right after, not a pipe)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-362  MS11 11c: rb9d_parameter_spec recorded as a pending item, not a required field    [ID: MS11, 11c, RB9d, DL-357]
+Date:            2026-10-26        Author:
+Decision:        FACT. Because ruling 12 is STOPPED, the specification of the two tau runs is recorded under `pending: rb9d_parameter_spec` in configs/ms11/ms11_eval.yaml (status PENDING, question text, source DL-357) and listed in ms11_eval_choices.PENDING. It is not a required field, so it does not make the launcher refuse the four frozen lists (it concerns a list that does not exist); the RB9D list will be written and hashed only after the reviewer answers DL-357, with its own frozen hashes. Until then A11 shows the RB9(d) row as NOT EVALUABLE with the note that the runs are not specified. This choice (a pending item instead of a null required field) is the implementer's, UNVERIFIED.
+Reason:          instruction of the reviewer (11c prompt, step 2, item 12)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_ms11_eval.py::test_ruled_values_of_the_fourteen_fields; tests/test_ms11_eval_choices.py::test_no_required_field_is_open_after_11c_and_the_pending_item_is_not_a_required_field
+Status:          done; the question is open.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-363  MS11 11c: run total, timing and D36 for the added runs (provisional: the RB9(d) list does not exist)    [ID: MS11, 11c, D36, 9.2, RB9d, DL-342, DL-357]
+Date:            2026-10-26        Author:
+Decision:        FACT. The four frozen lists are unchanged (MS11_S11 120, MS11_CTRL 30, MS11_S13_MF 68, MS11_S13_NET 18): total 236 runs, list and definition hashes as in DL-344 (verified at DL-345; ms11_counts.py, ms11_list_hashes.yaml and the seed-key collision test are unchanged because no list changed). With the two RB9(d) runs the total would be 238 (provisional). PROVISIONAL timing of the two runs, mean field DOP853 rtol 1e-10, headline path, T_ramp 120 s (165 s of simulated time), reading A or B of DL-357 (the cost does not depend on the reading): tau 8 ms 20,625 tau, tau 12 ms 13,750 tau; at the measured 0.01129 s per tau (ms8 10 s rtol 1e-10 cell, 10 copies) to 0.01205 s per tau (ms11 316 s cell) the runs take 233 to 249 s and 155 to 166 s; total run walls 6.5 to 6.9 min; with two workers the prediction is the longer run, 233 to 249 s (4.1 min). D36 basis B (the two placeholders replaced, as ruled in DL-336): the figure of DL-337 is 13.45 h (S11 plus controls 39.7 s, S13 remainder 14.2 min on 86 runs, S13 as a whole 40.6 min = 0.68 x the allowance); adding the two runs gives 13.52 h; basis A (on top of 14.21 h): 14.46 h before, 14.53 h with the two runs. Inside the 24 h cap either way; analysis, evaluation and A11 time are not included (no timing cell exists; the A11 evaluation reads 3,475 + 1,226 stored series and is timed when it is first run). Disk: unchanged for the four lists (2.55 GB raw estimate, DL-337); the two runs add about 0.3 MB.
+Reason:          instruction of the reviewer (11c prompt, step 5)
+Options:         -
+Chosen:          -   Default from: -
+Test:            session computation with ms11_counts.predict and ms11_counts.d36 (read-only)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-364  MS11 11c: SHA-256 of the frozen evaluation rules and eval yaml    [ID: MS11, 11c, DL-345 to DL-363]
+Date:            2026-10-26        Author:
+Decision:        FREEZE. docs/ms11_eval_rules.md SHA-256 (LF text) f4a21b92ecd0394a6d7ca3019dace34c61ccf2416cdbda0edf92b0ae53ecf74f; configs/ms11/ms11_eval.yaml SHA-256 (LF text) 64d815b334e5559af33710531e165dd3a3d94f4900e26326b6f09a3fc726f29e. Both are recorded here and committed in the 11c commit, locally, before any further step, so later run records show git dirty = false. No tag, no push. Changing either file needs a decision-log entry and a report to the reviewer first. Open at the freeze: the RB9(d) parameter specification (DL-357, pending, not a required field). Nothing launched; no list has been run; no evaluator has been run on a real record.
+Reason:          instruction of the reviewer (11c prompt, step 6)
+Options:         -
+Chosen:          -   Default from: -
+Test:            python -c (hashlib over the LF text of the two files)
+Status:          frozen.
+Commit/tag:      the commit that adds this entry; no tag
