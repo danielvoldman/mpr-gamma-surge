@@ -1,0 +1,4 @@
+# MS11 11a timing-gate sample cell (DL-334): layered on configs/S5.yaml by scripts/time_one_run.py. TIMING SAMPLE ONLY: not a pre-registered run, in no run list, feeds no gate.
+# S11 proxy (mode N, sigma 0.0624 x 1): P2 at the headline cell, T_ramp 30 s, stochastic Heun dt 1e-3 tau, 2 s discard. Cost per Heun step does not depend on sigma (ours, UNVERIFIED).
+run:  {kind: mf_noisy}
+path: {T_ramp_s: 30.0}

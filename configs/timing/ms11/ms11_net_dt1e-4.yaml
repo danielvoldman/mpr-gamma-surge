@@ -1,0 +1,6 @@
+# MS11 11a timing-gate sample cell (DL-334): layered on configs/S5.yaml by scripts/time_one_run.py. TIMING SAMPLE ONLY: not a pre-registered run, in no run list, feeds no gate.
+# S13 network, M3 N = 1e4, P2 at T_ramp 10 s (2,950 tau incl. the 2 s discard), forward Euler: dt 1e-4 tau (rung 4).
+run:     {kind: network}
+path:    {T_ramp_s: 10.0}
+network: {N: 10000, dt_tau: 1.0e-4}
+seeds:   {spawn_key: [0]}

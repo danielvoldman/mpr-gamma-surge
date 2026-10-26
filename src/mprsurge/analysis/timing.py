@@ -17,9 +17,9 @@ CELLS = ("headline", "delta_0.01", "delta_0.6", "delta_0.01_td1", "delta_0.01_td
 
 
 def cell_path(cell: str):
-    """configs/timing/<cell>.yaml; the MS8 8a and MS9 9a sample cells live one level down (configs/timing/ms8/, configs/timing/ms9/)."""
+    """configs/timing/<cell>.yaml; the MS8 8a, MS9 9a and MS11 11a sample cells live one level down (configs/timing/ms8/, ms9/, ms11/)."""
     p = C.repo_root() / "configs" / "timing" / f"{cell}.yaml"
-    for ms in ("ms8", "ms9"):
+    for ms in ("ms8", "ms9", "ms11"):
         if not p.exists() and cell.startswith(ms + "_"):
             return C.repo_root() / "configs" / "timing" / ms / f"{cell}.yaml"
     return p

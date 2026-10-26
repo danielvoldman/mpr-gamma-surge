@@ -1,0 +1,4 @@
+# MS11 11a timing-gate sample cell (DL-334): layered on configs/S5.yaml by scripts/time_one_run.py. TIMING SAMPLE ONLY: not a pre-registered run, in no run list, feeds no gate.
+# S13 mean field, P2 at T_ramp 316.2278 s (the S5 grid value 10^2.5), DOP853 rtol 1e-12 (noise-free).
+path:   {T_ramp_s: 316.22776601683796}
+solver: {rtol: 1e-12}

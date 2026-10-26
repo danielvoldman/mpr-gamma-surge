@@ -1,0 +1,4 @@
+# MS11 11a timing-gate sample cell (DL-334): layered on configs/S5.yaml by scripts/time_one_run.py. TIMING SAMPLE ONLY: not a pre-registered run, in no run list, feeds no gate.
+# S11 proxy at sigma factor 0.5 (noise.sigma_factor), T_ramp 120 s: checks that the factor does not change the cost per step (ours, UNVERIFIED).
+run:   {kind: mf_noisy}
+noise: {sigma_factor: 0.5}

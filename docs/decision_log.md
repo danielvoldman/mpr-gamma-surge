@@ -3716,3 +3716,43 @@ Chosen:          -   Default from: -
 Test:            full suite and fast suite
 Status:          done
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-330  MS11 11a: R33 the MS10 close is accepted with its stated limits    [ID: MS11, 11a, R33, D36, D37]
+Date:            2026-10-26        Author:
+Decision:        RULING R33, recorded as ruled: "The MS10 close is accepted with its stated limits: the independent check shares the frozen classifier, the criteria loader and the 9i function with the original evaluation; the D36 figure 14.21 h is a sum on mixed bases (UNVERIFIED); disk free is 153 GB while the 10e log recorded 81.4 GB, now explained (the user deleted a video game), so free space is still measured before every launch; D37 stays open to MS15." Quoted as the opening note of docs/ms11_plan.md.
+Reason:          instruction of the reviewer (11a prompt, second message).
+Options:         -
+Chosen:          as ruled   Default from: -
+Test:            -
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-331  MS11 11a: pre-checks, plan quantities quoted, RB and S13 status inventory, carry-in notes (docs/ms11_plan.md)    [ID: MS11, 11a, S11, S13, A11, RB1, RB2, RB3, RB5, RB6, RB9, RB10, DL-251, G4]
+Date:            2026-10-26        Author:
+Decision:        FACT. Nothing was run in this entry. Pre-checks, all PASS: criteria-loader gate against tag criteria-frozen (dd8330c5eaacd63d21e7b7969430988d00862769); criteria file c7d2f36b...fa05, S13 317db87e..., A4_grids cf6a60be..., S5_cells fe8590ce...; tree clean, HEAD a83a6ee; docs/ms10_close.md 29b2cab8be79804c847908a0bbb0482ede1bde2f23a698ae42e59f957f2e2517 (the prompt's "29bb..." was a typo; the full value given in the prompt was used), ms10_g_evidence.md 8ffc2858..., ms10_file_hashes.csv 053c6391..., ms10_results.md 55a7d1af..., the 10f table digest d1b98f05... (321 files, 0 mismatches). docs/ms11_plan.md did not exist: 11a had not been run before. Plan sections are quoted verbatim, copied by script from docs/plan.md, in docs/ms11_plan.md section 2 (Table 11.1 MS11, Table 6.2 S11/S12/S13, 6.2, 6.4, Table 7.2 RB2/3/5/6/9/10, the A11 paragraph, D24/D35/D36/D43, Table 9.1, 9.2, 9.3, Table 2.1); the plan has no separate A11 section and gives no module name beyond scripts/run_A11.py. Status inventory (docs/ms11_plan.md section 4): RB1 done (FAIL, DL-319/320/323); RB2 partial (subgrid FAILED DL-242; the S11 part open, no S11 run exists); RB3 done at MS8 (DL-182/186/208, G6-D1 to D3); RB4 done (PASS, DL-235); RB5 partial (headline delta0 ladder and P1 start distance done, DL-183/195; delta0 at 10 and 316 s open); RB6 partial (120 s rtol, Heun and Radau done, DL-184/189/190; the network part and the 10 and 316 s mean-field parts open); RB7 done (G7 not passed, DL-228/229); RB8 heterogeneity part NOT EVALUABLE (DL-322), M4/adaptation parts MS12 only via G2/G3 (G3 not triggered, DL-261); RB9 open (a unit-level check exists, tests/test_units.py, DL-061; UNVERIFIED whether it counts); RB10 open on ramp records (pre-freeze variants on synthetic, baseline-only and S3/S4 records, DL-146/147). S13 at MS8 (DL-178, 125 runs, 26.3 min): rtol, delta0 and Radau (rtol 1e-10) at 120 s and the floor with its Heun ladder at 120 s; remaining at MS11: mean-field checks at T_ramp 10 and 316.2278 s, the network dt ladder on the 10 s ramp, V_p +-100 against +-200 (+-200 also at dt 1e-4), window x {0.5, 2}, and the network part of RB6/S13 (G4-C6, UNVERIFIED reading). Carry-in: DL-251 (control at the headline cell for each sigma, planned as M11-3, post-hoc amendment), sigma 0.0624 checked and not confirmed (frozen), G4-C1 to G4-C6 and the MS9 and MS8 limits unchanged, D36 14.21 h on mixed bases UNVERIFIED (two placeholders, "rest of S13" 1.0 h and "S11" 0.0075 h, are what MS11 replaces). Anything not confirmable from the records is marked UNVERIFIED in the plan.
+Reason:          instruction of the reviewer (11a prompt, steps 1 to 4).
+Options:         -
+Chosen:          -   Default from: -
+Test:            pre-check commands run in the 11a session; docs/ms11_plan.md sections 1 to 5
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-332  MS11 11a: open choices M11-1 to M11-14, run counts, evaluation-file contents (NOT decided)    [ID: MS11, 11a, M11-1, M11-2, M11-3, M11-4, M11-5, M11-6, M11-7, M11-8, M11-9, M11-10, M11-11, M11-12, M11-13, M11-14, DL-251]
+Date:            2026-10-26        Author:
+Decision:        NOTE, NOT DECIDED. Fourteen open choices with options and a plan-grounded recommendation, none chosen (docs/ms11_plan.md section 6): M11-1 S11 design (headline example, factors on 0.0624, nominal T_ramp, same stream per s); M11-2 RB2 class criterion in mode N (reading A = S+, S-rel or S-abs as the gate at T_ramp 120 s, readings B and C and the DL-250 view reported, post hoc); M11-3 constant-parameter control at the headline cell for each sigma (DL-251; 30 runs recommended, 120 or 0 as alternatives); M11-4 which S13 mean-field families run (plan scope at 10 and 316.2278 s, floor at the default rung, Radau scope under the cut order); M11-5 the network part of S13 (3 seeds, 1e-3 rung re-run, no new controls); M11-6 the f_pk source of the network dt clause; M11-7 RB9/RB10/window from stored series only; M11-8 RB9(a) and (d); M11-9 RB9(b) and (c) cell sets; M11-10 A11 recompute-and-compare, status vocabulary, no new threshold; M11-11 D36 basis (replace the two placeholders, predicted wall at 10 workers replaced by recorded wall); M11-12 allowance shares (S13 as a whole against 1.5 x 1 h; S11 against 1.5 x 40 min); M11-13 the quantities the plan leaves without a number, stated in words; M11-14 parts over one hour. Run counts (recommended readings; src/mprsurge/analysis/ms11_counts.py, tests/test_ms11_counts.py): S11 120 (3 sigma x 4 T_ramp x 10 seeds; 643 s = 64,300 tau per sigma and seed, 1.929e9 Heun steps), control 30, S13 mean field 71 (rtol 4, delta0 4, Radau 3, floor 60), S13 network 18 (6 configurations x 3 seeds; cost units 17 + 11 = 28 of a dt-1e-3 run), total 239 new simulation runs, plus 2 optional (RB9(d)). RB9(a) to (c), RB10, window and A11 are stored-series analyses (0 runs). docs/ms11_eval_rules.md and configs/ms11/ms11_eval.yaml are listed in section 8 of the plan, not written.
+Reason:          instruction of the reviewer (11a prompt, steps 4d and 4e).
+Options:         as listed in docs/ms11_plan.md
+Chosen:          none chosen   Default from: -
+Test:            tests/test_ms11_counts.py
+Status:          open; for the reviewer's rulings at the start of 11b.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-333  MS11 11a: proposed seed keys [11, ...] and the collision test    [ID: MS11, 11a, DL-141, DL-251]
+Date:            2026-10-26        Author:
+Decision:        PROPOSED, UNVERIFIED until confirmed (the existing keys are the authority; root_seed 20261008): [11, 1, s] S11 ramp runs, s = 0..9, the same stream at every sigma and T_ramp (S5 precedent DL-069); [11, 2, s] S11 controls; [11, 3, t, l, s] S13 mean-field floor runs, t = 0..1 (T_ramp 10, 316.2278 s), l = 0..2, s = 0..9, the rungs of one (t, l, s) share the key (F-14); [11, 4, s] S13 network runs, s = 0..2; [11, 5, k, s] S13 network controls, k = 0..5, s = 0..2 (only if chosen). 101 distinct keys. No config uses a key starting with 11 yet. Collision test tests/test_ms11_counts.py: every existing key from the 11a prompt is written out (calibration [0]-[9]; [7,4,s]; [7,9], [7,9,0], [7,9,1,k]; [8,1,s]; [8,2,l,s]; [9,1,s], [9,2,0], [9,3,s], [9,4,s], [9,5,0..8], [9,6,0..9], [9,7,s]; [10,1,s], [10,2,c,s], [10,3,n,s], [10,4,l,s], [10,5,k,s]) and also scanned in the repository; the proposal must be equal to, a prefix of, or prefixed by none of them; a second test shows the rule catches deliberately colliding keys.
+Reason:          instruction of the reviewer (11a prompt, step 4g).
+Options:         keys as listed
+Chosen:          -   Default from: -
+Test:            tests/test_ms11_counts.py (test_the_proposed_keys_collide_with_no_existing_key, test_the_collision_test_has_teeth)
+Status:          proposed; for confirmation at 11b.
+Commit/tag:      the commit that adds this entry; no tag

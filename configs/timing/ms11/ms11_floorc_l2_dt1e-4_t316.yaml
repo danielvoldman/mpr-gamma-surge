@@ -1,0 +1,5 @@
+# MS11 11a timing-gate sample cell (DL-334): layered on configs/S5.yaml by scripts/time_one_run.py. TIMING SAMPLE ONLY: not a pre-registered run, in no run list, feeds no gate.
+# S13 D43 floor run, level 2 (sigma_floor 1.59e-3), coupled Brownian increments drawn at 5e-5 tau (F-14, as configs/timing/ms8/ms8_floorc_l2_dt1e-4.yaml), Heun dt 1e-4 tau, P2 at T_ramp 316.2278 s.
+run:   {kind: mf_noisy}
+path:  {T_ramp_s: 316.22776601683796}
+noise: {sigma: 1.59e-3, dt_tau: 1e-4, coupling_dt_tau: 5.0e-5}
