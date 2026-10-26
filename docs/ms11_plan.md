@@ -348,9 +348,44 @@ Disk and memory are estimated at 11b from the run lengths (float64, 8 arrays at 
 
 **Allowances (Table 9.1) used, with their status.** S11: "S11, S12 mean field, S16 … < 40 min" (40 min; the share for S11 is not stated). S13: "S13 numerics … < 1 h" (60 min, whole of S13). Launch rule: prediction ≤ 1.5 × allowance and the total inside the D36 cap of 24 h. Cut order 9.3 (quoted in section 2.9) if it does not fit.
 
-### 9.4 Result
+### 9.4 Result of the timing samples (DL-334; TIMING SAMPLES, in no run list, feeding no gate)
 
-**Not yet measured** (the samples run after the commit that adds this plan; this section is filled in the post-timing update, DL-334).
+Samples taken at commit 2b43379 on a clean tree (`git status --porcelain` empty before each; `results/timing/ms11/`, git-ignored; prediction text `results/timing/ms11/prediction_11a.txt`). 10 concurrent copies, one batch, per-run median. **Incident:** the five S11 mode-N cells failed in the first pass (0.0 s, "not ok") because `scripts/run_timing_ms11.sh` set `--set seeds.spawn_key=[0]` only for the floor cells; they were rerun from the shell with that option on the same clean tree (the script is corrected in the post-timing commit). The other nine cells and the alone run were taken by the script as committed. Peak total python working set polled during the cells: 2.78 GB (a lower bound, UNVERIFIED, as DL-142).
+
+| Cell | Per-run median (10 copies) | τ simulated | s per τ |
+|---|---|---|---|
+| `ms11_s11_t10` / `t30` / `t120_sf0p5` / `t120_sf2` / `t300` | 0.41 / 0.84 / 2.62 / 2.73 / 5.68 s | 2,950 / 5,450 / 16,700 / 16,700 / 39,200 | 1.4–1.6e-4 (σ factor 0.5 and 2 cost the same per step; 1.635e-7 s per Heun step used) |
+| `ms11_dop_1e-10_t316` / `ms11_dop_1e-12_t316` | 494.5 / 604.1 s | 41,028 | 0.01205 / 0.01472 |
+| `ms11_floorc_l2_dt1e-3_t316` / `dt1e-4_t316` | 18.6 / 82.2 s | 41,228 | 0.00045 / 0.00199 |
+| `net_1e4` (MS10, dt 1e-3) / `ms11_net_dt5e-4` / `dt2p5e-4` / `dt1e-4` | 56.8 / 140.8 / 286.0 / 691.1 s (alone, dt 1e-4: 340.4 s) | 2,950 | 0.0193 / 0.0477 / 0.0970 / 0.2343 |
+| `ms11_net_vp200` / `ms11_net_vp200_dt1e-4` | 68.2 / 669.5 s | 2,950 | 0.0231 / 0.2269 |
+| Radau (not sampled at 316 s) | DL-178: 0.0957 s per τ at 120 s | 41,028 | 65.4 min predicted for the one run |
+
+**Prediction per family, recommended readings (M11-1 to M11-5 as recommended; Radau at the plan's scope):**
+
+| Family | Runs | Prediction (10 workers) | Allowance (Table 9.1) | Ratio | Rule (≤ 1.5 ×) |
+|---|---|---|---|---|---|
+| S11 + control | 150 | 40 s (sum 397 s, longest 6 s) | 40 min (row shared with S12, S16; share UNVERIFIED) | 0.02 | fits |
+| S13 remainder: mean field (rtol, δ₀, Radau, floor) | 71 | run walls 2.1 h in all, of which the one Radau run at 316 s is 65.4 min | | | |
+| S13 remainder: network (6 configurations × 3 seeds) | 18 | sum 1.6 h of run walls, longest 11.5 min | | | |
+| **S13 remainder, whole** | 89 | **65.4 min** (the longest run) | | | |
+| **S13 as a whole** (MS8 recorded 26.3 min + remainder) | | **91.8 min** | 60 min (whole row) | **1.53** | **FAIL by 1.8 min** (limit 90 min) |
+
+Per part: S13 rtol at 316 s 18.3 min of run walls (longest 10.1 min), δ₀ at 316 s 16.5 min (longest 8.2 min), floor at 316 s 9.3 min (longest 19 s), floor at 10 s 40 s, rtol and δ₀ at 10 s about 1 min each, Radau at 10 s 263 s (rtol 1e-10) and 550 s (rtol 1e-12); network: dt 1e-3 170 s, 5e-4 7.0 min, 2.5e-4 14.3 min, 1e-4 34.6 min of run walls (longest 11.5 min), V_p 200 at dt 1e-3 205 s and at dt 1e-4 33.5 min (longest 11.2 min).
+
+**Other readings (same arithmetic):**
+
+| Reading | S13 whole | Rule | S11 + control | MS11 added to D36 |
+|---|---|---|---|---|
+| Radau at 10 s only (`t10_only`) | 41.9 min (0.70 ×) | fits | 40 s | 0.271 h |
+| Radau only at the headline T_ramp (cut order step 1, `headline_only_cut_1`) | 40.6 min (0.68 ×) | fits | 40 s | 0.249 h |
+| Cut-1, floor full ladder at 10 and 316 s, control at every T_ramp, network controls | 58.0 min (0.97 ×) | fits | 63 s | 0.546 h |
+
+**Parts over one hour (flagged for the reviewer's ruling; launched by the reviewer in PowerShell, never by Claude Code):** the Radau run at T_ramp 316.2278 s, rtol 1e-10, one run, predicted 65.4 min from the measured 120 s rate (DL-178: 0.0957 s per τ, which was 1.27 × the linear-scaled 10 s value). The prediction is an extrapolation, not a sample (a sample would itself run over an hour). No other part exceeds one hour: the longest network run is 11.5 min (dt 1e-4, 10 copies; 5.7 min alone), the longest DOP853 run 10.1 min (rtol 1e-12 at 316 s).
+
+**D36 (24 h cap), basis B of M11-11 (the two placeholders replaced by the MS11 predicted wall):** carried 14.21 h (mixed bases, UNVERIFIED) − 1.0075 h + 1.102 h = 14.30 h with the full-scope Radau, 13.47 h with Radau at 10 s only, 13.45 h with cut order step 1; basis A (added on top): 15.31 h, 14.48 h, 14.46 h. All inside 24 h; the margin is at least 8.7 h on either basis. Analysis, evaluation and A11 time are not included (no timing cell exists yet; M11-11).
+
+**Launch-rule application and cut order (9.2 step 3, 9.3).** With the plan's full S13 scope, the whole-row prediction is 91.8 min against the limit 90 min, a FAIL by 1.8 min that is caused by the single Radau run at 316 s alone (without it the row is 40.6–41.9 min). Cut order step 1 ("Run Radau only at the headline T_ramp") removes exactly that run and the 10 s Radau runs, and the row fits at 40.6 min; step 2 (drop network dt 1e-4) is not needed. Nothing has been cut by this plan: which option is used is M11-4 and M11-14 for the reviewer. Judged against the MS11 remainder alone (1 h, M11-12 option 1) the full scope is 65.4 min, 1.09 × the allowance, which fits the 1.5 × limit. The rule is applied to the recommended readings only; it is re-applied on the ruled lists at 11b.
 
 
 ## 10. Proposed seed keys (DL-333; PROPOSED, UNVERIFIED until the reviewer confirms; none is in a config yet)
@@ -386,5 +421,5 @@ Total distinct keys: 10 + 10 + 60 + 3 + 18 = 101. The collision test is `tests/t
 | DL-333 | proposed seed keys [11, ...] and the collision test |
 | DL-334 | measured timing, launch-rule application and decision (post-timing update) |
 
-Checks made in 11a: the seed-key collision test (`tests/test_ms11_counts.py`) and the run-count tests pass; the fast-suite result of the commit that adds this plan is recorded in the 11a report and in DL-334.
+Checks made in 11a: the seed-key collision test (`tests/test_ms11_counts.py`) and the run-count tests pass; fast suite before the first commit (2b43379): 792 passed, 11 deselected, 9 xfailed, pytest exit code 0 (baseline 783 passed; the 9 new tests are `tests/test_ms11_counts.py`); the second fast-suite run is recorded in DL-334.
 

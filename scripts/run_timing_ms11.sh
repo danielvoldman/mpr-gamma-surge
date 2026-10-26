@@ -16,7 +16,7 @@ powercfg /getactivescheme >> $D/logs/machine_state_before.txt 2>&1
 for cell in ms11_s11_t10 ms11_s11_t30 ms11_s11_t120_sf0p5 ms11_s11_t120_sf2 ms11_s11_t300 ms11_floorc_l2_dt1e-3_t316 ms11_floorc_l2_dt1e-4_t316 \
             ms11_dop_1e-10_t316 ms11_dop_1e-12_t316 ms11_net_vp200 ms11_net_dt5e-4 ms11_net_dt2p5e-4 ms11_net_dt1e-4 ms11_net_vp200_dt1e-4; do
   extra=""
-  case $cell in ms11_floorc*) extra="--set seeds.spawn_key=[0]";; esac
+  case $cell in ms11_floorc*|ms11_s11_*) extra="--set seeds.spawn_key=[0]";; esac
   rm -f $D/logs/stop_$cell
   powershell -NoProfile -Command "\$mx=0; while(-not (Test-Path '$D/logs/stop_$cell')){ \$s=(Get-Process python -ErrorAction SilentlyContinue | Measure-Object WorkingSet64 -Sum).Sum; if(\$s -gt \$mx){\$mx=\$s}; Set-Content -Path '$D/logs/mem_$cell.csv' -Value \$mx; Start-Sleep -Milliseconds 500 }" &
   $P scripts/time_one_run.py --cell $cell --workers 10 --repeat 1 --limit-s 3600 --out-dir $D/$cell $extra > $D/logs/w10_$cell.log 2>&1
