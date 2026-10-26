@@ -3656,3 +3656,63 @@ Chosen:          -   Default from: -
 Test:            -
 Status:          done
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-324  MS10 10g: R30 the 10f verdicts stand as pre-registered    [ID: MS10, 10g, R30, RB1, RB8, G4]
+Date:            2026-10-26        Author:
+Decision:        RULING R30. The 10f verdicts stand as pre-registered: sigma check NOT INSIDE (reference 0.039522 above the six network baselines 0.037989 to 0.038920, mean 0.038455; sigma stays frozen as a limitation); RB1 FAIL (headline 10 s FAIL, 120 s FAIL, cells 1 of 4 FAIL, N rule PASS 2 at 1e4 and 5 at 3e4); RB8 heterogeneity part NOT EVALUABLE (Lorentzian S-sus, S-abs, S-sus; Gaussian S-abs x3 and uniform S-abs x3 reported); G4 triggered by consequence (2) (3 of 4 cells disagree), report-only for the run order. Nothing is re-tuned.
+Reason:          instruction of the reviewer (10g prompt).
+Options:         -
+Chosen:          as ruled   Default from: -
+Test:            -
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-325  MS10 10g: R31 claim limits G4-C1 to G4-C6    [ID: MS10, 10g, R31, G4]
+Date:            2026-10-26        Author:
+Decision:        RULING R31. Claim limits (carry to the paper), facts only: G4-C1 Under the frozen mode-N criteria the network at N = 1e4 and 3e4 does not reproduce the mean-field classes at the headline (0 of 3 seeds at each of T_ramp 10 s and 120 s) or at the 4 map cells (1 of 4 agree). G4-C2 The surge result is stated for the mean field only (G4 consequence 3; this reading is UNVERIFIED); no claim of robustness to finite-size fluctuations. G4-C3 No-ramp network controls are classified into surge classes (10 s headline S-abs and S-rel; S9 N = 3e3 and 1e4 S+; cell (24,26) S+), so network classes under the frozen criteria cannot separate ramp-driven from non-ramp records (DL-229, DL-231). G4-C4 Sigma 0.0624 is checked and not confirmed (the mean-field baseline std lies above all six network baselines). Noisy mean-field results are labelled accordingly; sigma stays frozen. G4-C5 No claim about heterogeneity-shape robustness (RB8 not evaluable). G4-C6 The RB6 rerun named in G4 is read as the network part of S13 at MS11 (UNVERIFIED reading; RB6's mean-field parts were done at MS8).
+Reason:          instruction of the reviewer (10g prompt).
+Options:         -
+Chosen:          as ruled   Default from: -
+Test:            -
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-326  MS10 10g: R32 no diagnostic run, MS10 closes on paper    [ID: MS10, 10g, R32, G4]
+Date:            2026-10-26        Author:
+Decision:        RULING R32. No diagnostic or exploratory run is made at MS10. G4 keeps the model (plan Table 4.2). MS10 closes on paper.
+Reason:          instruction of the reviewer (10g prompt).
+Options:         -
+Chosen:          as ruled   Default from: -
+Test:            -
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-327  MS10 10g: independent recomputation, first pass (4 differences, as found)    [ID: MS10, 10g, R30]
+Date:            2026-10-26        Author:
+Decision:        FACT (first pass, kept exactly as found). scripts/ms10_independent_check.py (new, separate code path: no import of ms10_eval, ms10_runlist, ms9_classify, the results writer or evaluate_ms10; it calls only the frozen classifier, the frozen criteria loader, the run-path definitions for eta(t) and J(t), and, for J_exit,static only, the 9i static-exit function, which is NOT independent) recomputed from the stored records only. Records: 103 (S8 18, C2_S8 18, S10 9, C2_S10 6, S9 40, C2_S9 12), all status ok, dirty false, commit 324a8d8, 103 distinct names, first stamp one bin; per-record class table results/ms10/10g/record_classes.tsv (sha256 ba791914888d66fc2fb15b9ec00c053cbbc8394717b2c6a1f7e8ed72c5802ced). Pass 1 used the references as recomputed at full precision (sigma reference 0.03952171666266689; headline f_pk references from the classifier on the stored mode-D records, 48.048048048048045 Hz at 10 s and 49.0 Hz at 120 s) instead of the frozen rounded constants. 282 items compared with the cells of docs/ms10_results.md: 271 MATCH, 7 MATCH at the last printed digit (rounding boundary), 4 DIFFERENCE. Report results/ms10/10g/independent_report_pass1.txt sha256 4528808b601cb6d17bff1d8dee5ea8d5cdafb7326a4356424f3e633a8f6b1284. The four differences (independent path | docs/ms10_results.md | gap, exact then as printed): (1) sigma, position of the reference in the range: 1.646148587546253 (printed 1.6461) | 1.6465 (exact with 0.039522: 1.6464528972) | 3.04e-4 exact, 4e-4 printed. (2) sigma, reference / network mean: 1.0277473597715443 (printed 1.0277) | 1.0278 (exact with 0.039522: 1.0277547279) | 7.4e-6 exact, 1e-4 printed. (3) RB1 headline, T_ramp 10 s, seed 2, f_pk relative error: 0 | 4.062e-05 | 4.06e-5. (4) RB1 headline, T_ramp 10 s, seed 2, f_pk difference in bins: 0 | -0.0006507 | 6.5e-4 bins (1.952e-3 Hz at 3 Hz per bin). The seven last-digit matches are the same cause: T_ramp 10 s seed 0 relative error 0.9375 | 0.9374 and diff in bins 15.02 | 15.01; seed 1 relative error 0.25 | 0.2499 and diff in bins 4.004 | 4.003; and the bin width printed as 3 | 3.0 for seeds 0, 1, 2. Cause: the evaluator uses the frozen rounded constants (E-10 sigma reference 0.039522; mf_references.yaml stored_class f_pk 48.05 Hz and onset 10.604 s at 10 s, 49.0 Hz and 58.698 s at 120 s); pass 1 used unrounded values. Gap of the constants: 0.039522 - 0.03952171666 = 2.833e-7 (below the rounding 5e-7 of a 6-decimal constant); 48.05 - 48.048048 = 1.952e-3 Hz (below the rounding 5e-3 Hz); 49.0 has no gap. No class, no per-seed verdict, no count and no gate verdict differs in pass 1 (record classes, per-seed pass flags, cell agreement, N rule counts, S9 class and undefined counts, RB8, G4 pools and triggering all MATCH). Neither side was changed.
+Reason:          instruction of the reviewer (10g prompt).
+Options:         -
+Chosen:          -   Default from: -
+Test:            scripts/ms10_independent_check.py
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-328  MS10 10g: independent recomputation, second pass with the frozen constants (0 differences)    [ID: MS10, 10g, R30]
+Date:            2026-10-26        Author:
+Decision:        FACT (second pass, the reviewer's instruction). The same script run with --frozen-constants: sigma reference 0.039522 (E-10), headline f_pk and onset references 48.05 Hz and 10.604 s (10 s), 49.0 Hz and 58.698 s (120 s) from mf_references.yaml stored_class; companion references remain the classifier output on the stored companion records, as in the evaluator. 282 items compared: 279 MATCH, 3 MATCH at the printed text (the bin width 3 against 3.0, a formatting difference, not a numeric one), 0 DIFFERENCE. Report results/ms10/10g/independent_report_pass2.txt sha256 4ec5a6fdd0fd0c2d49ee4f730072d4d59f3cc60209065140830005f395447bb8; per-record classes identical to pass 1 (record_classes_pass2.tsv, same content). Conditions of the reviewer for proceeding all hold: each first-pass gap is smaller than the rounding of its frozen constant (2.83e-7 against 5e-7; 1.95e-3 Hz against 5e-3 Hz); no class, per-seed verdict, count or gate verdict differs; the second pass has 0 differences. Limits of the check (UNVERIFIED as independence): it shares the frozen classifier, the criteria loader, the path definitions and, for J_exit,static, the 9i function with the original evaluation, and it re-reads the same rules text, so a classifier error or a misreading of the rules would not show (as for DL-267). No run of any kind was made.
+Reason:          instruction of the reviewer (10g prompt).
+Options:         -
+Chosen:          -   Default from: -
+Test:            scripts/ms10_independent_check.py --frozen-constants
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-329  MS10 10g: MS10 closed on paper; SHA-256 of the close documents    [ID: MS10, 10g, R30, R31, R32]
+Date:            2026-10-26        Author:
+Decision:        FACT. MS10 closes on paper (R30 to R32, DL-324 to DL-326); no run of any kind at 10g. Files written: docs/ms10_g_evidence.md SHA-256 8ffc2858e70c0e2288ac13554f2dc8412b6194ea559765cfb454d41a731b45c4; docs/ms10_file_hashes.csv SHA-256 053c63916ab536a5a3672dd6c1a5c7797a79fa20e2b419840c1d94019949ca10 (436 files, table digest 9a7825c9870b2311132efa2869aca5ee014c46d6bd249aa31e10bddef34045cb; the 10f digest d1b98f05b1b147437ed19ef3dc4ee84c1dda61693c9e9cc3a9de41f4ba572a52 re-verified, 321 files); docs/ms10_close.md SHA-256 29b2cab8be79804c847908a0bbb0482ede1bde2f23a698ae42e59f957f2e2517. New scripts: scripts/ms10_independent_check.py, scripts/hash_ms10_results.py. Pre-checks passed (criteria gate, four frozen hashes, clean tree at 81d6be6, seven list hashes, ms10_eval.yaml, ms10_eval_rules.md, ms10_results.md, 10f table, 24,876 MS9 files). Test suites: fast suite before the work 783 passed, 11 deselected, 9 xfailed, exit 0; full suite including the slow tests 794 passed, 9 xfailed, 3 warnings, exit 0 (pytest's own exit code, taken from a redirected run, not a pipe). The final fast run is in the commit message. Disk free 153 GB, MS10 volume 450.9 MB. Nothing in docs/plan.md, the frozen lists, configs or evaluators changed. No tag, no push.
+Reason:          instruction of the reviewer (10g prompt, steps 3 to 5).
+Options:         -
+Chosen:          -   Default from: -
+Test:            full suite and fast suite
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag

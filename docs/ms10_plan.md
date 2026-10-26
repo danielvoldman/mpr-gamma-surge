@@ -352,3 +352,17 @@ Appended at 10f. Everything above is unchanged. The ruling is the reviewer's (10
 ### 10f: verification and evaluation (DL-317 to DL-323)
 
 All 103 records verified (status ok, dirty false, commit 324a8d8, hashes and spawn keys equal to the frozen lists, no warnings). The pre-registered evaluators ran as frozen; tables and verdicts are in `docs/ms10_results.md`. Verdicts in the pre-registered wording: sigma check NOT INSIDE (limitation; sigma stays frozen); RB1 FAIL (headline 10 s FAIL, 120 s FAIL, cells FAIL with 1 of 4 agreeing, N rule PASS); RB8 heterogeneity part NOT EVALUABLE; G4 triggered (cells disagree in 3 of 4; network does not miss the surge at 1e4 or 3e4). No RB6 rerun, diagnostic or exploratory run was made.
+
+## Rulings after 10f (10g; DL-324 to DL-326)
+
+Appended at 10g. Everything above is unchanged. The rulings are the reviewer's (10g prompt). No run of any kind was made at 10g (no network, no mean field, no diagnostic); only stored records were read.
+
+| Ruling | Item | Content | DL |
+|---|---|---|---|
+| R30 | 10f verdicts | The 10f verdicts stand as pre-registered: sigma check NOT INSIDE (reference 0.039522 above the six network baselines 0.037989 to 0.038920, mean 0.038455; sigma stays frozen as a limitation); RB1 FAIL (headline 10 s FAIL, 120 s FAIL, cells 1 of 4 FAIL, N rule PASS 2 at 1e4 and 5 at 3e4); RB8 heterogeneity part NOT EVALUABLE (Lorentzian S-sus, S-abs, S-sus; Gaussian S-abs x3 and uniform S-abs x3 reported); G4 triggered by consequence (2) (3 of 4 cells disagree), report-only for the run order. Nothing is re-tuned | 324 |
+| R31 | claim limits | Claim limits (carry to the paper), facts only: G4-C1 Under the frozen mode-N criteria the network at N = 1e4 and 3e4 does not reproduce the mean-field classes at the headline (0 of 3 seeds at each of T_ramp 10 s and 120 s) or at the 4 map cells (1 of 4 agree). G4-C2 The surge result is stated for the mean field only (G4 consequence 3; this reading is UNVERIFIED); no claim of robustness to finite-size fluctuations. G4-C3 No-ramp network controls are classified into surge classes (10 s headline S-abs and S-rel; S9 N = 3e3 and 1e4 S+; cell (24,26) S+), so network classes under the frozen criteria cannot separate ramp-driven from non-ramp records (DL-229, DL-231). G4-C4 Sigma 0.0624 is checked and not confirmed (the mean-field baseline std lies above all six network baselines). Noisy mean-field results are labelled accordingly; sigma stays frozen. G4-C5 No claim about heterogeneity-shape robustness (RB8 not evaluable). G4-C6 The RB6 rerun named in G4 is read as the network part of S13 at MS11 (UNVERIFIED reading; RB6's mean-field parts were done at MS8) | 325 |
+| R32 | close | No diagnostic or exploratory run is made at MS10. G4 keeps the model (plan Table 4.2). MS10 closes on paper | 326 |
+
+### 10g: independent recomputation (DL-327, DL-328)
+
+`scripts/ms10_independent_check.py` (separate code path, stored records only, no run). Pass 1 with unrounded references: 282 items, 4 DIFFERENCE (sigma position in range 1.6461 | 1.6465; sigma reference over network mean 1.0277 | 1.0278; RB1 10 s seed 2 f_pk relative error 0 | 4.062e-05 and difference in bins 0 | -0.0006507), all from the frozen rounded constants (gaps 2.83e-7 and 1.95e-3 Hz, below their rounding); no class, per-seed verdict, count or gate verdict differs. Pass 2 with the frozen constants: 0 DIFFERENCE. Both reports are kept (`results/ms10/10g/`, git-ignored; hashes in `docs/ms10_file_hashes.csv`).
