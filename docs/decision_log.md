@@ -4066,3 +4066,14 @@ Chosen:          -   Default from: -
 Test:            python -c (hashlib over the LF text of the two files)
 Status:          frozen.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-365  MS11 11c: RB9(a) unit-level value measured once (ruling 6)    [ID: MS11, 11c, RB9, RB9a, DL-351, DL-341]
+Date:            2026-10-26        Author:
+Decision:        RESULT (analysis step, in memory, no run record; scripts/run_rb9a_unit.py at commit a31c89b, git dirty = false, stored in results/A11/rb9a_unit_level.json, git-ignored, SHA-256 c1a93353b088f801997cbe20ea345af0865395f421356c3a5a02081719bd5dbd). Maximum relative difference of the dimensional run against the non-dimensional run, per variable (r*tau, v, s*tau): tau 10 ms: 5.85e-9, 1.23e-8, 4.31e-9; tau 20 ms: 9.80e-10, 2.21e-9, 1.55e-9. Maximum over both tau and all variables: 1.2258e-8, against the frozen bound 0.005 (0.5 percent): within, by a factor of about 4e5. SCOPE LIMIT, stated with every use of the value (ruling 6): a 1 s path_eta ramp (eta 1 to 4, t_on 0.5 s, baseline 0.5 s, hold 0.5 s), tau 10 and 20 ms, M3 at ref_devalle values; not the headline path (P2, 120 s); no run record. This is the value to cite for RB9(a). It is an agreement of two integrations of the same equations with a tight tolerance (DOP853 rtol 1e-10), so it tests the unit conversion, not the model. No new RB9(a) run.
+Reason:          instruction of the reviewer (11c prompt, ruling 6).
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_units.py::test_rb9a_... (same computation, asserts below 0.005 per variable)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
