@@ -1,0 +1,11 @@
+# status: FROZEN   (MS11 11b, DL-344; nothing launched). Definition file of one MS11 run list: parameters only; the run configs are in configs/ms11/*.yaml, the expansion in src/mprsurge/analysis/ms11_runlist.py.
+# DL-251 controls, POST-HOC AMENDMENT (M11-3 (a), ruled at 11b): headline cell, T_ramp 120 s, 3 sigma factors x 10 seeds, constant parameters. Feeds no gate; labelled post hoc in every output.
+status: FROZEN
+list: MS11_CTRL
+config: configs/ms11/ms11_ctrl.yaml
+family: S11_ctrl
+sigma_factors: [0.5, 1.0, 2.0]
+T_ramp_s: 120.0
+n_seeds: 10
+key: [11, 2]                  # [11, 2, s]
+expected_runs: 30

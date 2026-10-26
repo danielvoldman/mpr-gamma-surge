@@ -1,0 +1,11 @@
+# STATUS: FROZEN (MS11 11b, DL-344; nothing launched). Names the FROZEN criteria file: the runner refuses to start unless the tag criteria-frozen verifies.
+# Layered on configs/base.yaml (ref_devalle); eta_H as in configs/S5.yaml (A4, DL-115). Per-run values (T_ramp, sigma_factor, solver, noise, network dt and V_p, seed key) are
+# overrides in src/mprsurge/analysis/ms11_runlist.py; parameters are in configs/ms11/lists/*.yaml.
+# DL-251 constant-parameter control, POST-HOC AMENDMENT (M11-3 (a), ruled at 11b): mean-field mode N at the headline cell with the start state held constant
+# (eta_start = eta_peak, J_end = J0), the headline record structure (2 s discard, 5 s baseline, T_ramp 120 s ramp period, 10 s hold) and the same sigma factors. eta_H is null
+# because the start state is given explicitly (the S12x_ctrl_mf pattern, configs/ms9/s12x_ctrl_mf.yaml). Feeds no gate.
+run:        {id: MS11_ctrl, kind: mf_noisy, workers: 1}
+model:      {ref_point: ref_devalle}
+path:       {name: path_hypoxia, profile: linear, T_ramp_s: 120.0, eta_H: null}
+output:     {dir: results/S11}
+robustness: {criteria_file: configs/robustness_criteria.yaml}

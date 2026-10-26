@@ -1,0 +1,19 @@
+# status: FROZEN   (MS11 11b, DL-344; nothing launched). Definition file of one MS11 run list: parameters only; the run configs are in configs/ms11/*.yaml, the expansion in src/mprsurge/analysis/ms11_runlist.py.
+# S13 network (plan Table 6.2 S13; M11-5 (a), ruled at 11b): N = 1e4, 10 s ramp, 3 seeds, no new controls. Six configurations: the dt ladder {1e-3, 5e-4, 2.5e-4, 1e-4} at V_p +-100, and V_p +-200 at dt 1e-3 and 1e-4.
+# The 1e-3 / +-100 rung is re-run under the new key so that all configurations of one seed share their initial V (M11-5); the MS10 S8 runs ([10, 1, s]) are not reused.
+status: FROZEN
+list: MS11_S13_NET
+config: configs/ms11/ms11_net.yaml
+family: S13_net
+N: 10000
+T_ramp_s: 10.0
+configurations:                # k = index in this order
+  - {k: 0, V_peak: 100.0, dt_tau: 1.0e-3}
+  - {k: 1, V_peak: 100.0, dt_tau: 5.0e-4}
+  - {k: 2, V_peak: 100.0, dt_tau: 2.5e-4}
+  - {k: 3, V_peak: 100.0, dt_tau: 1.0e-4}
+  - {k: 4, V_peak: 200.0, dt_tau: 1.0e-3}
+  - {k: 5, V_peak: 200.0, dt_tau: 1.0e-4}
+n_seeds: 3
+key: [11, 4]                   # [11, 4, s]; the six configurations of one s share the key
+expected_runs: 18

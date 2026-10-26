@@ -1,0 +1,11 @@
+# STATUS: FROZEN (MS11 11b, DL-344; nothing launched). Names the FROZEN criteria file: the runner refuses to start unless the tag criteria-frozen verifies.
+# Layered on configs/base.yaml (ref_devalle); eta_H as in configs/S5.yaml (A4, DL-115). Per-run values (T_ramp, sigma_factor, solver, noise, network dt and V_p, seed key) are
+# overrides in src/mprsurge/analysis/ms11_runlist.py; parameters are in configs/ms11/lists/*.yaml.
+# S13 network (M3, N = 1e4, P2 headline, Lorentzian, forward Euler, 2 s discard, 5 s baseline, hold 10 s) on the 10 s ramp: dt ladder and V_p +-100 / +-200. Same configuration as the
+# MS10 S8 headline 10 s run (configs/ms10/ms10_net.yaml) apart from the seed key, network.dt_tau and network.V_peak / V_reset.
+run:        {id: MS11_net, kind: network, workers: 1}
+model:      {ref_point: ref_devalle}
+path:       {name: path_hypoxia, profile: linear, T_ramp_s: 10.0, eta_H: 2.8960461989737856}
+network:    {N: 10000}
+output:     {dir: results/S13/ms11}
+robustness: {criteria_file: configs/robustness_criteria.yaml}

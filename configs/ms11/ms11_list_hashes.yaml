@@ -1,0 +1,25 @@
+# status: FROZEN   (MS11 11b, DL-344; written once by hashing the expanded lists, nothing launched)
+# sha256 = SHA-256 of the canonical JSON of [family, config, index, full config hash, spawn key] per run in list order (ms9_runlist.list_sha256);
+# keys_sha256 = SHA-256 of the canonical JSON of the seed keys in list order. check_launch refuses a launch when either differs. definition_sha256 = SHA-256 of configs/ms11/lists/<LIST>.yaml.
+status: FROZEN
+lists:
+  MS11_S11:
+    runs: 120
+    sha256: 51e747698e081925199f9f6a8902f6bbaa5bc937d9eedd4d986707257a99672d
+    keys_sha256: f4d5af9b526fc57731cc54959a44eee80306a12219ec32ec20acd51b4995921e
+    definition_sha256: f403a20408c64ef0b3a4d448c3111aa9cedc32b10fb39d20149759463c2d04ae
+  MS11_CTRL:
+    runs: 30
+    sha256: c9cedaac39f3236cea8cb2172232c3f963f284a1a41dfb1eb8b8e7cbb6a49537
+    keys_sha256: d068564046f891536d60c3ecac244922d031fb93c8e6894c662ba7d58da4c6ac
+    definition_sha256: fb88958a423e08426c1ff482a1c1cebdf7b07ef961954b9875d8ca2249e9c8a9
+  MS11_S13_MF:
+    runs: 68
+    sha256: b7be5147f9f58c2646d334e2afabaf786431511cca13ef6a3b5deb7491bf320a
+    keys_sha256: 28ca77592eeb28ef866d94f11a5d7261ba587d897966f2ff5a30cd2847758d4f
+    definition_sha256: 8158e0369d1ca86da045104ddeff5e5bc1b411d1bc04e3605952c3494fb1eec5
+  MS11_S13_NET:
+    runs: 18
+    sha256: 9bc9283c2d5f2cd295c8c8e26d11154ebfbe4f83f7932eb8208f24815d1b702f
+    keys_sha256: 20b1049ca44e7d553c9c9624e75348068943bbf13bc3e3d7ce1010f32a113e12
+    definition_sha256: dd7853ea0c6f32e58bb2af641ffadd5224abf45e67e7ed17792a7db2de72fd7b

@@ -1,0 +1,112 @@
+"""MS11 evaluation choices (11b; docs/ms11_eval_rules.md, DL-343): the required fields of configs/ms11/ms11_eval.yaml.
+
+Reads the choices and refuses to default any of them. A choice that the plan and the rulings leave open is a REQUIRED field whose value is null in the file until the
+reviewer rules it; reading it (`choice`) raises MissingChoice. `open_fields` lists the null ones; the launcher (ms11_runlist.check_launch) refuses a real launch while any
+is open, so the evaluation rules are complete before the first MS11 run (the MS10 10e pattern). Nothing here reads a record, simulates or classifies.
+"""
+from __future__ import annotations
+
+from pathlib import Path
+
+import yaml
+
+from .. import config as C
+
+EVAL_FILE = "configs/ms11/ms11_eval.yaml"
+
+
+class MissingChoice(Exception):
+    """A required evaluation field is absent, null or not an allowed value."""
+
+
+# name -> allowed values (None: free value of the stated type, checked only for presence). Every name must appear in `choices` and in `meta` of the file.
+REQUIRED: dict[str, tuple | None] = {
+    # --- ruled (value present) ------------------------------------------------------------------------------------------------------------------------
+    "rb2_gate_class_set": None,                    # DL-336 (ruling 2b): the frozen Table 2.1 surge classes
+    "rb2_gate_sigma_factors": None,                # DL-336: 0.5 sigma and sigma only
+    "rb2_judged_T_ramp_s": None,                   # M11-2 recommendation, accepted
+    "rb2_beside_gate": None,                       # 2 sigma, other T_ramp, stricter readings: reported, post hoc, no gate
+    "rb2_subgrid": None,                           # carried in as recorded (97 of 225, D24 failed), not re-evaluated
+    "rb2_control": None,                           # DL-251 controls: post hoc, no gate
+    "s11_onset_reading": ("classifier_centre",),   # frozen O1; raw crossing secondary
+    "s11_short_window_limit_stated": (True,),
+    "rb5_delta0_reference": ("s5_grid_member",),
+    "rb5_class_unchanged_means": ("same_table21_label",),
+    "rb5_delay_shift": ("reported",),
+    "rb6_rtol": ("reported_not_a_pass_test",),
+    "rb6_solver_pair_scope": ("headline_only",),   # DL-337: Radau only at the headline T_ramp
+    "rb6_floor_other_T_ramp": ("reported_default_rung_only",),   # consequence of the ruled floor scope (default rung, M11-4)
+    "rb6_network_dt_pair": None,
+    "rb6_network_fpk_sources": None,               # M11-6 (c)
+    "rb6_network_fpk_bound_boundary": ("strict",), # plan text "< 2%"
+    "rb6_network_seeds": None,
+    "rb6_network_class_claim": ("none",),          # G4-C3 stands (M11-5: no new controls)
+    "rb6_network_time_origin_check": ("required",),
+    "rb9c_unit_of_change": ("raw_class_categories_beside",),   # M11-7
+    "rb9c_rb10_map_mode": ("D",),
+    "rb9c_subgrid": ("reported_no_verdict",),
+    "rb9d_method": ("two_runs_tau_8_12_ms_reported_only",),    # M11-8 (d)
+    "rb10_variants": None,                         # frozen leaf
+    "rb10_window_line_of_s13": ("same_computation",),
+    "a11_mode": ("recompute_and_compare",),        # M11-10 (c)
+    "a11_row_unit": ("criterion_leaf",),
+    "a11_status_vocabulary": None,
+    "a11_new_thresholds": ("none",),
+    "d36_basis": ("B",),
+    # --- OPEN (null until the reviewer rules; reading one raises MissingChoice) ------------------------------------------------------------------------
+    "rb2_failed_run_counts_as": ("not_kept", "excluded"),
+    "rb5_updown_source": ("P5_only", "P5_and_S4_quasi_static", "P5_with_S4_reported_beside"),
+    "rb6_network_fpk_no_episode": ("undefined_fails", "not_evaluable"),
+    "rb6_network_vp_comparison": ("reported_only", "fpk_2pct_applied"),
+    "within_boundary": ("inclusive", "strict"),
+    "rb9a_source": ("unit_test_level", "new_run", "left_open"),
+    "rb9b_cells": ("headline_and_all_dtr_cells_map1_map2", "headline_and_dtr_cells_map1"),
+    "rb9b_comparison_window": ("classifier_episode", "fixed_window"),
+    "gate_cell_set": ("pooled_map1_map2", "map1", "each_alone_both_must_pass"),
+    "not_run_cells_count_as": ("excluded_from_denominator", "changed", "unchanged"),
+    "s13_floor_other_T_ramp_form": ("reported_only", "rb3b_form_applied_not_gated"),
+    "rb9d_runs": ("not_run_reported_open", "separate_post_hoc_list"),
+    "a11_logged_verdict_map": None,
+    "a11_extra_columns": None,
+}
+
+
+def load_choices(path: str | Path | None = None) -> dict:
+    p = Path(path) if path else C.repo_root() / EVAL_FILE
+    return yaml.safe_load(p.read_text(encoding="utf-8"))["choices"]
+
+
+def load_file(path: str | Path | None = None) -> dict:
+    p = Path(path) if path else C.repo_root() / EVAL_FILE
+    return yaml.safe_load(p.read_text(encoding="utf-8"))
+
+
+def choice(ch: dict, name: str):
+    """The value of one required field; MissingChoice if it is absent, null or not an allowed value."""
+    if name not in REQUIRED:
+        raise MissingChoice(f"{name!r} is not a field of {EVAL_FILE}")
+    v = ch.get(name)
+    if v is None or (isinstance(v, (list, dict, str)) and len(v) == 0):
+        raise MissingChoice(f"{EVAL_FILE}: required field {name!r} is not set (open for the reviewer's ruling)")
+    allowed = REQUIRED[name]
+    if allowed is not None and v not in allowed:
+        raise MissingChoice(f"{EVAL_FILE}: {name} = {v!r} is not one of {allowed}")
+    return v
+
+
+def open_fields(ch: dict | None = None) -> list[str]:
+    """Names of the required fields that are absent, null or not allowed (the fields the reviewer still owes)."""
+    ch = load_choices() if ch is None else ch
+    out = []
+    for name in REQUIRED:
+        try:
+            choice(ch, name)
+        except MissingChoice:
+            out.append(name)
+    return out
+
+
+def check_all(ch: dict | None = None) -> dict:
+    """Every required field read once: {name: value}. Raises MissingChoice at the first open field (nothing is defaulted)."""
+    ch = load_choices() if ch is None else ch
+    return {name: choice(ch, name) for name in REQUIRED}

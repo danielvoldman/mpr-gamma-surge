@@ -1,0 +1,109 @@
+# status: FROZEN_EXCEPT_OPEN_FIELDS   (MS11 11b, DL-343; written before any MS11 run; nothing launched)
+# Evaluation choices of docs/ms11_eval_rules.md. Ruled values and values fixed by the plan or the frozen criteria are present. Every choice that the plan and rulings
+# leave open is a REQUIRED field whose value is null: reading it raises MissingChoice (src/mprsurge/analysis/ms11_eval_choices.py), and the launcher refuses a real launch while
+# any is null. The reviewer rules them (decision-log entry, then the value here); nothing is defaulted. `meta` gives the status and source of each field; the 11a
+# recommendation next to an open field is a proposal, not a ruling.
+status: FROZEN_EXCEPT_OPEN_FIELDS
+choices:
+  # ---- RB2 (S11 and the DL-251 controls) ----------------------------------------------------------------------------------------------------------
+  rb2_gate_class_set: ["S+", "S-rel", "S-abs"]          # ruling 2b (DL-336): the frozen Table 2.1 surge classes, mode N; a failed run is not one
+  rb2_gate_sigma_factors: [0.5, 1.0]                    # ruling 2b: 0.5 sigma and sigma only; the frozen leaf gives >= 8 of 10 seeds (read from the tag blob, not typed here)
+  rb2_judged_T_ramp_s: 120.0                            # M11-2 recommendation, accepted (DL-336): the headline T_ramp
+  rb2_beside_gate:
+    sigma_factor_2: reported_no_gate
+    other_T_ramp_s: {values: [10.0, 30.0, 300.0], treatment: reported_no_verdict}
+    stricter_readings: {S_plus_only: post_hoc, S_plus_or_S_abs: post_hoc}
+    label: "post hoc, feeds no gate"
+  rb2_subgrid: {cells_agree: 97, cells: 225, cells_needed: 203, d24: FAILED, source: "DL-242, MS9 close", re_evaluated: false}
+  rb2_control: {list: MS11_CTRL, label: "POST-HOC AMENDMENT (DL-251)", feeds_gate: false, sigma_s_rel_note: "S-rel is not ramp evidence (DL-250)"}
+  rb2_failed_run_counts_as: null                        # OPEN
+  # ---- S11 conventions (Table 2.1, frozen O1) --------------------------------------------------------------------------------------------------------
+  s11_onset_reading: classifier_centre
+  s11_short_window_limit_stated: true
+  # ---- RB5 / RB6 ---------------------------------------------------------------------------------------------------------------------------------
+  rb5_delta0_reference: s5_grid_member
+  rb5_class_unchanged_means: same_table21_label
+  rb5_delay_shift: reported
+  rb5_updown_source: null                               # OPEN (3c of the 11b prompt)
+  rb6_rtol: reported_not_a_pass_test
+  rb6_solver_pair_scope: headline_only
+  rb6_floor_other_T_ramp: reported_default_rung_only
+  s13_floor_other_T_ramp_form: null                     # OPEN (M11-13 (iv))
+  rb6_network_dt_pair: [1.0e-3, 5.0e-4]
+  rb6_network_fpk_sources: [classifier_episode_fpk, psd_argmax_25_100_over_same_seed_1e-3_episode_window]
+  rb6_network_fpk_bound_boundary: strict
+  rb6_network_fpk_no_episode: null                      # OPEN
+  rb6_network_vp_comparison: null                       # OPEN (M11-13 (v))
+  rb6_network_seeds: 3
+  rb6_network_class_claim: none
+  rb6_network_time_origin_check: required
+  # ---- RB9 ---------------------------------------------------------------------------------------------------------------------------------------
+  within_boundary: null                                 # OPEN: the equality case of "within 0.5 percent" and "within 1/W"
+  rb9a_source: null                                     # OPEN (ruling pending)
+  rb9b_cells: null                                      # OPEN (M11-9)
+  rb9b_comparison_window: null                          # OPEN
+  rb9c_unit_of_change: raw_class_categories_beside
+  rb9c_rb10_map_mode: D
+  rb9c_subgrid: reported_no_verdict
+  rb9d_method: two_runs_tau_8_12_ms_reported_only
+  rb9d_runs: null                                       # OPEN
+  # ---- RB10 --------------------------------------------------------------------------------------------------------------------------------------
+  rb10_variants: {band_hz: [30, 120], factors: [1.5, 4.0], amin_factor: [0.05, 0.2], window_multiplier: [0.5, 2.0], min_cycles: [5, 20]}
+  rb10_window_line_of_s13: same_computation
+  gate_cell_set: null                                   # OPEN: which set carries the RB9(c) and RB10 verdict
+  not_run_cells_count_as: null                          # OPEN
+  # ---- A11 ---------------------------------------------------------------------------------------------------------------------------------------
+  a11_mode: recompute_and_compare
+  a11_row_unit: criterion_leaf
+  a11_status_vocabulary: [PASS, FAIL, REPORTED, NOT_JUDGED, NOT_EVALUABLE, OPEN]
+  a11_new_thresholds: none
+  a11_logged_verdict_map: null                          # OPEN
+  a11_extra_columns: null                               # OPEN
+  # ---- D36 ---------------------------------------------------------------------------------------------------------------------------------------
+  d36_basis: B
+meta:
+  rb2_gate_class_set: {status: ruled, source: "ruling 2b, DL-336; Table 2.1"}
+  rb2_gate_sigma_factors: {status: ruled, source: "ruling 2b, DL-336; Table 7.2 RB2"}
+  rb2_judged_T_ramp_s: {status: ruled, source: "M11-2 recommendation accepted, DL-336 (UNVERIFIED reading: the plan names no T_ramp for the S11 test)"}
+  rb2_beside_gate: {status: ruled, source: "ruling 2b, DL-336"}
+  rb2_subgrid: {status: ruled, source: "user instruction 11b step 4; DL-242, DL-250, DL-257"}
+  rb2_control: {status: ruled, source: "M11-3 (a), DL-336; DL-251"}
+  rb2_failed_run_counts_as: {status: OPEN, proposal: "not_kept (a failed run is class `failed`, never NS: A9; MS10 E-2 precedent)"}
+  s11_onset_reading: {status: frozen, source: "frozen criteria O1 (window centre); raw crossing secondary, post hoc"}
+  s11_short_window_limit_stated: {status: frozen, source: "frozen criteria reading_conventions.short_window_false_surge"}
+  rb5_delta0_reference: {status: ruled, source: "M11-4 (reuse of the S5 grid run), DL-336, DL-338"}
+  rb5_class_unchanged_means: {status: plan, source: "Table 7.2 RB5 `Class unchanged`; exact Table 2.1 label (UNVERIFIED reading)"}
+  rb5_delay_shift: {status: plan, source: "Table 7.2 RB5: reported"}
+  rb5_updown_source: {status: OPEN, proposal: "P5_with_S4_reported_beside (11b 3c: the S4 record has no class)"}
+  rb6_rtol: {status: plan, source: "Table 7.2 RB6: reported against rtol, not a pass test"}
+  rb6_solver_pair_scope: {status: ruled, source: "ruling 2c, DL-337: DOP853 against Radau covers the headline T_ramp only"}
+  rb6_floor_other_T_ramp: {status: ruled, source: "consequence of the ruled floor scope (default rung only, M11-4): no finest rung at 10 and 316 s, so the 5 percent test cannot be formed"}
+  s13_floor_other_T_ramp_form: {status: OPEN, proposal: "reported_only (11a M11-13 (iv))"}
+  rb6_network_dt_pair: {status: frozen, source: "frozen criteria RB6 network_dt_for_f_pk_test (F-21)"}
+  rb6_network_fpk_sources: {status: ruled, source: "M11-6 (c), DL-336 (UNVERIFIED reading; window = the episode window of the same-seed 1e-3 run, O6 convention)"}
+  rb6_network_fpk_bound_boundary: {status: plan, source: "Table 7.2 RB6 `< 2%`"}
+  rb6_network_fpk_no_episode: {status: OPEN, proposal: "undefined_fails (MS10 E-2 precedent)"}
+  rb6_network_vp_comparison: {status: OPEN, proposal: "reported_only (11a M11-13 (v))"}
+  rb6_network_seeds: {status: ruled, source: "M11-5, DL-336"}
+  rb6_network_class_claim: {status: ruled, source: "M11-5 no new controls; G4-C3"}
+  rb6_network_time_origin_check: {status: ruled, source: "docs/ms11_plan.md section 8 item 4: as in MS10 (R27)"}
+  within_boundary: {status: OPEN, proposal: "inclusive (MS10 E-3 precedent, ruled for RB1 only)"}
+  rb9a_source: {status: OPEN, proposal: "none (user: no ruling yet; 11b 3d gives the facts)"}
+  rb9b_cells: {status: OPEN, proposal: "headline_and_all_dtr_cells_map1_map2 (11a M11-9; not ruled)"}
+  rb9b_comparison_window: {status: OPEN, proposal: "none; the plan gives no window"}
+  rb9c_unit_of_change: {status: ruled, source: "M11-7, DL-336"}
+  rb9c_rb10_map_mode: {status: ruled, source: "M11-7, DL-336"}
+  rb9c_subgrid: {status: ruled, source: "M11-7, DL-336"}
+  rb9d_method: {status: ruled, source: "M11-8 (d), DL-336; reported only"}
+  rb9d_runs: {status: OPEN, proposal: "none; the two runs are in none of the four lists written at 11b"}
+  rb10_variants: {status: frozen, source: "frozen criteria RB10.variations (checked equal by tests/test_ms11_eval_choices.py)"}
+  rb10_window_line_of_s13: {status: ruled, source: "M11-7, DL-336"}
+  gate_cell_set: {status: OPEN, proposal: "pooled_map1_map2 carries the verdict, each alone reported (11a M11-7 reading; the ruling does not say which carries it)"}
+  not_run_cells_count_as: {status: OPEN, proposal: "excluded_from_denominator with the count printed (DL-147 style); no source"}
+  a11_mode: {status: ruled, source: "M11-10 (c), DL-336"}
+  a11_row_unit: {status: ruled, source: "M11-10 (c), DL-336"}
+  a11_status_vocabulary: {status: ruled, source: "M11-10 recommendation accepted, DL-336 (UNVERIFIED: the word OPEN is ours, for the M4 parts open to MS12)"}
+  a11_new_thresholds: {status: ruled, source: "M11-10, DL-336"}
+  a11_logged_verdict_map: {status: OPEN, proposal: "none; logged words such as `DOES NOT MEET`, `NOT INSIDE`, `PASSED WITH DEPARTURES` have no ruled mapping"}
+  a11_extra_columns: {status: OPEN, proposal: "none; the plan names value, threshold, pass or fail and input commits only"}
+  d36_basis: {status: ruled, source: "ruling 2b, DL-336: basis B, basis A beside"}

@@ -1,0 +1,12 @@
+# status: FROZEN   (MS11 11b, DL-344; nothing launched). Definition file of one MS11 run list: parameters only; the run configs are in configs/ms11/*.yaml, the expansion in src/mprsurge/analysis/ms11_runlist.py.
+# S11 (plan Table 6.2): sigma {0.5, 1, 2} x T_ramp {10, 30, 120, 300} s x 10 seeds, M3 mean field mode N, P2 headline example, linear (M11-1 (a), ruled at 11b, DL-336).
+# Seed index s is the same noise stream at every sigma and T_ramp (M11-1 (d); S5 precedent DL-069). sigma = factor x 0.0624 ("sigma checked, not confirmed", G4-C4).
+status: FROZEN
+list: MS11_S11
+config: configs/ms11/ms11_mfn.yaml
+family: S11
+sigma_factors: [0.5, 1.0, 2.0]
+T_ramp_s: [10.0, 30.0, 120.0, 300.0]
+n_seeds: 10
+key: [11, 1]                  # [11, 1, s]
+expected_runs: 120

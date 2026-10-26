@@ -42,11 +42,12 @@ D36_CARRIED_H = 14.21                                 # DL-329: sum of mixed bas
 D36_PLACEHOLDERS_H = 1.0 + 0.0075                     # of that: "Rest of S13" at its 1 h upper bound and "S11" at its 9a prediction (ms9_g_evidence section 3)
 WORKERS = 10
 
-# Readings the plan leaves open (none chosen). First entry of each tuple is the recommendation of docs/ms11_plan.md.
+# Readings the plan leaves open. First entry of each tuple is the reading used by default: the recommendation of docs/ms11_plan.md, accepted by the
+# reviewer at 11b (M11-3 (a), M11-4, M11-5; DL-336), except Radau, which the timing-gate ruling cuts to the headline T_ramp (plan 9.3 step 1, DL-337).
 OPTIONS = {
     "M11-3_control": ("headline_T120", "twin_every_T_ramp", "none_new"),
     "M11-4_floor_at_10_316": ("default_rung", "full_ladder", "none"),
-    "M11-4_radau": ("t10_and_t316", "t10_only", "headline_only_cut_1"),
+    "M11-4_radau": ("headline_only_cut_1", "t10_and_t316", "t10_only"),     # 11b RULED (DL-337, plan 9.3 step 1); the others are the 11a readings
     "M11-5_net_seeds": (3, 1, 10),
     "M11-5_net_controls": ("none_new", "per_configuration"),
 }
@@ -132,6 +133,10 @@ def s13_net_runs(opts=None) -> list[dict]:
 
 def net_updates(r: dict) -> float:
     return r["N"] * r["tau"] / r["dt_tau"]
+
+
+RULED_COUNTS = {"S11": 120, "S11_control": 30, "S13_mf": 68, "S13_net": 18}      # 11b (DL-337): S13 mean field = 4 rtol + 4 delta0 + 0 Radau + 60 floor
+RULED_TOTAL = sum(RULED_COUNTS.values())                                         # 236 (the 2 optional RB9(d) runs are in no list)
 
 
 def counts(opts=None) -> dict:

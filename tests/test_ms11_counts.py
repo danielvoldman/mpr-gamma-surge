@@ -77,10 +77,13 @@ def test_control_scopes():
 
 def test_s13_mean_field_remainder_counts():
     n = lambda fam, r: sum(1 for x in r if x["family"] == fam)
-    r = M.s13_mf_runs()                                        # plan scope: Radau 1e-10 at 10 and 316 s, 1e-12 at 10 s; floor at the default rung
-    assert n("S13_rtol", r) == 2 * 2 and n("S13_delta0", r) == 2 * 2 and n("S13_radau", r) == 3 and n("S13_floor", r) == 2 * 3 * 10
-    assert len(r) == 4 + 4 + 3 + 60 == 71
-    assert n("S13_radau", M.s13_mf_runs({"M11-4_radau": "t10_only"})) == 2 and n("S13_radau", M.s13_mf_runs({"M11-4_radau": "headline_only_cut_1"})) == 0
+    r = M.s13_mf_runs()                                        # 11b ruling (DL-337): Radau only at the headline T_ramp (plan 9.3 step 1), so none is new; floor at the default rung
+    assert n("S13_rtol", r) == 2 * 2 and n("S13_delta0", r) == 2 * 2 and n("S13_radau", r) == 0 and n("S13_floor", r) == 2 * 3 * 10
+    assert len(r) == 4 + 4 + 0 + 60 == 68
+    assert M.DEFAULTS["M11-4_radau"] == "headline_only_cut_1"
+    # the plan's full scope (11a reading): Radau 1e-10 at 10 and 316 s and 1e-12 at 10 s = 3 runs, 71 in all; 10 s only = 2
+    assert n("S13_radau", M.s13_mf_runs({"M11-4_radau": "t10_and_t316"})) == 3 and len(M.s13_mf_runs({"M11-4_radau": "t10_and_t316"})) == 71
+    assert n("S13_radau", M.s13_mf_runs({"M11-4_radau": "t10_only"})) == 2
     r = M.s13_mf_runs({"M11-4_floor_at_10_316": "full_ladder"})
     assert n("S13_floor", r) == 2 * 3 * 4 * 10
     assert n("S13_floor", M.s13_mf_runs({"M11-4_floor_at_10_316": "none"})) == 0
@@ -109,3 +112,10 @@ def test_prediction_arithmetic_on_synthetic_cells():
     assert P["ms11_s11"]["runs"] == 120 + 30 and P["ms11_s13"]["carried_ms8_s"] == 1578.8
     assert M.d36(3600.0)["on_top_h"] == pytest.approx(15.21) and M.d36(3600.0)["replaced_h"] == pytest.approx(14.21 - 1.0075 + 1.0)
     assert not M.d36(10 * 3600.0)["within_cap"]
+
+
+def test_ruled_counts_11b_total_236():
+    """DL-337: Radau cut to the headline T_ramp; 120 S11 + 30 controls + 68 S13 mean field + 18 S13 network = 236 (the 2 optional RB9(d) runs are in no list)."""
+    c = M.counts()
+    assert {k: v["runs"] for k, v in c.items()} == M.RULED_COUNTS == {"S11": 120, "S11_control": 30, "S13_mf": 68, "S13_net": 18}
+    assert M.RULED_TOTAL == 236

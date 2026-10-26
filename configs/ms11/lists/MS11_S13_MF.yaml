@@ -1,0 +1,15 @@
+# status: FROZEN   (MS11 11b, DL-344; nothing launched). Definition file of one MS11 run list: parameters only; the run configs are in configs/ms11/*.yaml, the expansion in src/mprsurge/analysis/ms11_runlist.py.
+# S13 mean-field remainder (plan Table 6.2 S13; the headline subset at T_ramp 120 s ran at MS8, DL-178). T_ramp 10 s and 316.2278 s (the S5 grid value 10^2.5; M11-4).
+# Timing-gate ruling (DL-337): Radau only at the headline T_ramp (plan 9.3 step 1), so no Radau run is in this list; the DOP853 against Radau comparison covers the headline T_ramp only.
+# The rtol 1e-10 and delta0 1e-6 member of each ladder is the S5 grid P2 linear run (config hash equal, DL-338), not repeated.
+# Floor (D43): 3 levels x 10 seeds at the default Heun rung 1e-3 tau (coupled increments at 5e-5 tau), key [11, 3, t, l, s], t = 0..1, l = 0..2.
+status: FROZEN
+list: MS11_S13_MF
+T_ramp_s: [10.0, 316.22776601683796]
+rtol_new: [1.0e-8, 1.0e-12]
+delta0_new: [1.0e-9, 1.0e-3]
+radau: {runs: 0, cut: "plan 9.3 step 1, DL-337; the Radau run at 120 s ran at MS8 (DL-178)"}
+floor: {sigma_floor_levels: [1.59e-9, 1.59e-6, 1.59e-3], seeds: 10, dt_tau: 1.0e-3, coupling_dt_tau: 5.0e-5, key: [11, 3]}
+config_mf: configs/ms11/ms11_mf.yaml
+config_mfn: configs/ms11/ms11_mfn.yaml
+expected_runs: 68              # 4 rtol + 4 delta0 + 0 Radau + 60 floor
