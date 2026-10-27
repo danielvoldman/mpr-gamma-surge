@@ -23,7 +23,7 @@ def test_continue_maps_to_reported_not_pass_and_no_carried_row_uses_the_word_con
     assert E.map_logged("CONTINUE", CH) == E.REPORTED
     row = E.a11_row(CH, rb_id="X", check_id="y", source="s", label="pre-registered", logged_verdict="CONTINUE", recomputed=True)
     assert row["pass_or_fail"] == "REPORTED" and row["recomputed_match"] == "yes"
-    assert "CONTINUE" not in [e["logged_verdict"] for e in FILE["a11_logged"]]      # the G5 row carries the close's word "PASSED, continue" (unchanged, PASS; flagged for the reviewer)
+    assert "CONTINUE" not in [e["logged_verdict"] for e in FILE["a11_logged"]]      # the G5 row carries the close's word "PASSED, continue" (11e, DL-377: REPORTED)
 
 
 def test_passed_with_departures_is_pass_only_with_the_departures_named_in_the_note_column():
@@ -65,7 +65,20 @@ def test_a_recomputed_difference_is_flagged_in_the_note_and_never_resolved():
 def test_the_full_verdict_table_has_every_logged_word_and_only_the_four_status_words():
     m = E.verdict_map(CH)
     assert set(m.values()) <= set(E.STATUS_WORDS) and len(m) == 17
-    assert {w for w, s in m.items() if s == "REPORTED"} == {"REPORTED", "CONTINUE"}
+    assert {w for w, s in m.items() if s == "REPORTED"} == {"REPORTED", "CONTINUE", "PASSED, continue"}      # 11e (DL-377)
+
+
+def test_passed_continue_maps_to_reported_and_every_other_mapping_is_the_11d_table():
+    """11e ruling (DL-377): "PASSED, continue" -> REPORTED (was PASS). The other 16 entries are the 11d table, written out here word by word."""
+    expect = {"PASS": "PASS", "FAIL": "FAIL", "FAILED": "FAIL", "MEETS": "PASS", "DOES NOT MEET": "FAIL", "NOT EVALUABLE": "NOT EVALUABLE", "NOT INSIDE": "FAIL",
+              "NOT JUDGED": "NOT EVALUABLE", "NO VERDICT": "NOT EVALUABLE", "NOT IN MS8 RUNS": "NOT EVALUABLE", "OPEN": "NOT EVALUABLE", "REPORTED": "REPORTED", "PASSED": "PASS",
+              "PASSED, continue": "REPORTED", "CONTINUE": "REPORTED", "PASSED WITH DEPARTURES": "PASS", "NOT PASSED": "FAIL"}
+    assert E.verdict_map(CH) == expect
+    assert E.map_logged("PASSED, continue", CH) == E.REPORTED
+    g5 = next(e for e in FILE["a11_logged"] if e["rb_id"] == "G5")
+    assert g5["logged_verdict"] == "PASSED, continue"
+    row = E.a11_row(CH, rb_id="G5", check_id="gate", source="s", label="pre-registered", logged_verdict="PASSED, continue", recomputed=True)
+    assert row["pass_or_fail"] == E.REPORTED
 
 
 # --- ruling 2b: RB9(d), Reading A, reported only --------------------------------------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-# status: FROZEN   (MS11 11c, DL-345 to DL-364; amended at 11d, DL-366 to DL-371, before any MS11 run existed: RB9(d) Reading A ruled, verdict table CONTINUE -> REPORTED, PASSED WITH DEPARTURES -> PASS only with the departures named; nothing launched). No item is pending.
+# status: FROZEN   (MS11 11c, DL-345 to DL-364; amended at 11d, DL-366 to DL-371, before any MS11 run existed: RB9(d) Reading A ruled, verdict table CONTINUE -> REPORTED, PASSED WITH DEPARTURES -> PASS only with the departures named; nothing launched; amended again at 11e, DL-377, before any MS11 run existed: "PASSED, continue" -> REPORTED). No item is pending.
 # Evaluation choices of docs/ms11_eval_rules.md. Ruled values and values fixed by the plan or the frozen criteria are present. A required field that is null or absent raises
 # MissingChoice (src/mprsurge/analysis/ms11_eval_choices.py) and the launcher refuses a real launch while any is null; nothing is defaulted. `meta` gives the status and source of each field.
 status: FROZEN
@@ -84,7 +84,7 @@ choices:
     OPEN: NOT EVALUABLE
     REPORTED: REPORTED
     PASSED: PASS
-    "PASSED, continue": PASS
+    "PASSED, continue": REPORTED          # 11e ruling (DL-377): a G5 not-stopped state is not a passed check; REPORTED, consistent with CONTINUE (it was PASS at 11c and 11d)
     CONTINUE: REPORTED                    # 11d ruling 2c (DL-368): CONTINUE maps to REPORTED, not PASS (it was PASS at 11c, UNVERIFIED reading)
     PASSED WITH DEPARTURES: PASS          # 11d ruling 2c (DL-368): PASS only with the departures (G6-D1 to G6-D3 and any other logged departure) named in the note column; a11_pass_with_departures_words below
     NOT PASSED: FAIL
@@ -137,7 +137,7 @@ meta:
   a11_row_unit: {status: ruled, source: "M11-10 (c), DL-336"}
   a11_status_vocabulary: {status: ruled, source: "ruling 13, DL-358: four status words (replaces the six of DL-336)"}
   a11_new_thresholds: {status: ruled, source: "M11-10, DL-336"}
-  a11_logged_verdict_map: {status: ruled, source: "ruling 13, DL-358; CONTINUE and PASSED WITH DEPARTURES ruled at 11d (DL-368); NOT INSIDE, OPEN, NOT JUDGED confirmed unchanged"}
+  a11_logged_verdict_map: {status: ruled, source: "ruling 13, DL-358; CONTINUE and PASSED WITH DEPARTURES ruled at 11d (DL-368); 'PASSED, continue' -> REPORTED ruled at 11e (DL-377); NOT INSIDE, OPEN, NOT JUDGED confirmed unchanged"}
   a11_extra_columns: {status: ruled, source: "ruling 14, DL-359 (plus `note`, UNVERIFIED addition)"}
   d36_basis: {status: ruled, source: "ruling 2b, DL-336: basis B, basis A beside"}
 

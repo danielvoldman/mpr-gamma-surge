@@ -32,7 +32,7 @@ def fab(tmp_path_factory):
     """One fabricated tree for the module (the series are the only made-up part)."""
     root = tmp_path_factory.mktemp("fabricated_results")
     res = root / "results"
-    info = FAB.build_all(res)
+    info = FAB.build_all(res, ms10=True)
     return res, info
 
 
@@ -168,14 +168,10 @@ def test_run_a11_with_a_missing_rb9d_record_marks_the_row_not_evaluable(tmp_path
     assert json.loads((tmp_path / "A11/a11_evaluators.json").read_text(encoding="utf-8"))["missing_records"]["MS11_RB9D"] == 1
 
 
-@pytest.mark.slow
-def test_the_real_context_ms9_loaders_read_the_stored_csv_layouts_and_the_ms8_parquet_gate(fab, tmp_path):
-    """RealContext on fabricated CSVs in the real layout (headers copied from the stored tables) and a fabricated A7 parquet table."""
-    import pandas as pd
-    from test_ms11_hooks import FV, ms8_df
-    res = tmp_path / "results"
-    ctx = HK.RealContext(root=ROOT, results_root=res)
-    hl_cols = list(csv.DictReader((fab[0] / "ms9/9d/s5_headline_classes.csv").open(encoding="utf-8")).__next__())
+def _write_ms8_ms9_tables(res, fab_res):
+    """The fabricated MS9 class tables (real headers, made-up classes) and the fabricated A7 parquet table under res (the stored tables are not read). Returns the frame."""
+    from test_ms11_hooks import ms8_df
+    hl_cols = list(csv.DictReader((fab_res / "ms9/9d/s5_headline_classes.csv").open(encoding="utf-8")).__next__())
     runlist = list(csv.DictReader((ROOT / "configs/ms9/runlists/runlist_S16.csv").open(encoding="utf-8")))
     d = res / "ms9/9d"
     d.mkdir(parents=True)
@@ -188,20 +184,31 @@ def test_the_real_context_ms9_loaders_read_the_stored_csv_layouts_and_the_ms8_pa
         w = csv.DictWriter(f, fieldnames=hl_cols, lineterminator="\n")
         w.writeheader()
         w.writerow({**{c: "" for c in hl_cols}, "run": FAB.HEADLINE, "class": "D-tr", "path_name": "path_hypoxia", "T_ramp_s": "120.0", "mode": "D", "status": "ok"})
-    s = ctx.s16()
-    assert sum(r["group"] == "oat" for r in s["rows"]) == 14 and sum(r["group"] == "lhs" for r in s["rows"]) == 64 and s["nominal_class"] == "D-tr"
     (res / "ms9/9e").mkdir(parents=True)
     (res / "ms9/9f").mkdir(parents=True)
     (res / "ms9/9e/map1_classes.csv").write_text("run,i,j,class\n" + "".join(f"r{k},{k},0,D-tr\n" for k in range(900)), encoding="utf-8")
     (res / "ms9/9f/subgrid_classes.csv").write_text("run,i,j,seed,class,det,W_s,git_commit,git_dirty,agree\n"
                                                     + "".join(f"r{k},{k // 10},0,{k % 10},S+,D-tr,2.0,x,False,True\n" for k in range(2250)), encoding="utf-8")
     (res / "ms9/nc1_classes.csv").write_text("family,class,supplementary,status\nNC1,D-none,False,ok\nNC1_net,S+,False,ok\nNC1_supp,S-rel,True,ok\n", encoding="utf-8")
-    assert len(ctx.map1_classes()) == 900 and len(ctx.subgrid()) == 2250 and [r["supplementary"] for r in ctx.nc1()] == [False, False, True]
     (res / "A7").mkdir()
     fi, _ = A7.frozen_inputs()
     df = ms8_df()
     df["criteria_sha256"] = fi["criteria_sha256"]
     df.to_parquet(res / "A7/a7_ramp_metrics.parquet")
+    return df
+
+
+@pytest.mark.slow
+def test_the_real_context_ms9_loaders_read_the_stored_csv_layouts_and_the_ms8_parquet_gate(fab, tmp_path):
+    """RealContext on fabricated CSVs in the real layout (headers copied from the stored tables) and a fabricated A7 parquet table."""
+    import pandas as pd
+    res = tmp_path / "results"
+    ctx = HK.RealContext(root=ROOT, results_root=res)
+    df = _write_ms8_ms9_tables(res, fab[0])
+    fi, _ = A7.frozen_inputs()
+    s = ctx.s16()
+    assert sum(r["group"] == "oat" for r in s["rows"]) == 14 and sum(r["group"] == "lhs" for r in s["rows"]) == 64 and s["nominal_class"] == "D-tr"
+    assert len(ctx.map1_classes()) == 900 and len(ctx.subgrid()) == 2250 and [r["supplementary"] for r in ctx.nc1()] == [False, False, True]
     got = ctx.ms8()
     assert len(got["df"]) == len(df) and got["fv"]["criteria_sha256"] == fi["criteria_sha256"]
     ctx2 = HK.RealContext(root=ROOT, results_root=res)
@@ -217,3 +224,78 @@ def test_the_real_context_ms9_loaders_read_the_stored_csv_layouts_and_the_ms8_pa
     only = [k for k, h in HK.HOOKS.items() if h.origin in ("MS8", "MS9", "frozen criteria")]
     out = HK.run_hooks(ctx3, EC.load_choices(), only=only)
     assert len(out) == len(only) == 19 and out["RB8/m4_adaptation"]["word"] == "OPEN" and out["G6/gate"]["word"] == "PASSED WITH DEPARTURES"
+
+
+# --- 11e: the MS10 reader path (ms10_eval.read_lists on the 103 network records, the 5 companion records, the stored mean-field references) on FABRICATED records ----------
+
+MS10_HOOKS = ["RB1/headline_10s", "RB1/headline_120s", "RB1/cells_30s", "RB1/n_rule_60s", "RB1/overall", "RB8/heterogeneity", "sigma_check/S8_baseline_std"]
+
+
+@pytest.mark.slow
+def test_the_ms10_reader_path_reads_103_fabricated_network_records_in_the_real_layout(fab):
+    """FABRICATED records only (the tree of the fixture, outside results/): the records of the six MS10 lists and the companion list are read with the real reader."""
+    from mprsurge.analysis import ms10_runlist as RL10
+    res, info = fab
+    assert info["ms10"] == {"S8": 18, "S9": 40, "S10": 9, "C2_S8": 18, "C2_S9": 12, "C2_S10": 6, "MF_COMPANION": 5}
+    assert sum(v for k, v in info["ms10"].items() if k != "MF_COMPANION") == 103
+    fi, _ = A7.frozen_inputs()
+    by = E10.read_lists(("S8", "S9", "S10", "C2_S8", "C2_S9", "C2_S10"), fi, table21=True, results_root=res)
+    assert sum(len(v) for v in by.values()) == 103 and not any(r.get("missing") for v in by.values() for r in v)
+    assert all(r["mode"] == "N" and r["status"] == "ok" and r["git_dirty"] is False for v in by.values() for r in v)
+    assert all("onset_raw_crossing_s" in r and "baseline_std_v" in r for v in by.values() for r in v)
+    refs = E10.mf_references(fi, results_root=res)
+    assert ("head", 10.0) in refs and ("head", 120.0) in refs and ("head", 60.0) in refs and sum(1 for k in refs if k[0] == "cell") == 4
+    assert (ROOT / "results").resolve() not in res.resolve().parents
+
+
+@pytest.mark.slow
+def test_the_ms10_reader_refuses_a_fabricated_network_record_with_the_old_t_ms_layout(fab, tmp_path):
+    """The R27 stamp check is live on the path: a network record whose first t_ms is 0 (not the first bin end) is refused."""
+    import shutil
+    from mprsurge.analysis import ms10_runlist as RL10
+    row = E10.redirect_rows(RL10.expand("S10"), fab[0])[0]
+    d = tmp_path / "S10"
+    d.mkdir()
+    for ext in (".json", ".npz"):
+        shutil.copy(Path(row["out_dir"]) / f"{row['name']}{ext}", d / f"{row['name']}{ext}")
+    with np.load(d / f"{row['name']}.npz") as z:
+        arrs = {k: z[k] for k in z.files}
+    arrs["t_ms"] = arrs["t_ms"] - arrs["t_ms"][0]
+    P.atomic_save_npz(d / f"{row['name']}.npz", arrs)
+    fi, _ = A7.frozen_inputs()
+    with pytest.raises(E10.EvalRefused, match="R27"):
+        E10.read_record({**row, "out_dir": str(d)}, fi)
+
+
+@pytest.mark.slow
+def test_the_seven_ms10_hooks_run_through_the_real_context_on_the_fabricated_records(fab):
+    res, _ = fab
+    ctx = HK.RealContext(root=ROOT, results_root=res)
+    out = HK.run_hooks(ctx, EC.load_choices(), only=MS10_HOOKS)
+    assert list(out) == MS10_HOOKS or set(out) == set(MS10_HOOKS)
+    assert all(v["status"] in E.STATUS_WORDS and v["word"] for v in out.values())
+    assert not any(v["word"] == "INCOMPLETE" for v in out.values()), {k: v["detail"] for k, v in out.items()}
+
+
+@pytest.mark.slow
+def test_run_a11_with_all_26_hooks_on_the_fabricated_tree_including_the_ms10_records(fab, tmp_path, monkeypatch):
+    import shutil
+    res = tmp_path / "results"
+    shutil.copytree(fab[0], res)
+    scratch = tmp_path / "tables"
+    _write_ms8_ms9_tables(scratch, fab[0])
+    for q in scratch.rglob("*"):                                            # only the tables the fixture tree lacks (s16, nc1, A7); the fixture's own are kept
+        if q.is_file() and not (res / q.relative_to(scratch)).exists():
+            (res / q.relative_to(scratch)).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy(q, res / q.relative_to(scratch))
+    mod = _load_script()
+    monkeypatch.setattr(P, "git_info", lambda: {"commit": "fabricated", "branch": "test", "tags": [], "dirty": False})
+    out = tmp_path / "A11"
+    assert mod.main(["--results-root", str(res), "--out", str(out)]) == 0
+    rows = list(csv.DictReader((out / "a11_robustness.csv").open(encoding="utf-8")))
+    carried = [r for r in rows if f"{r['rb_id']}/{r['check_id']}" in HK.HOOKS]
+    assert len(carried) == 26 and all(r["pass_or_fail"] in E.STATUS_WORDS for r in carried)
+    assert all(r["note"].startswith("recomputed from stored records") for r in carried), [(r["check_id"], r["note"][:80]) for r in carried if not r["note"].startswith("recomputed")]
+    ev = json.loads((out / "a11_evaluators.json").read_text(encoding="utf-8"))
+    assert set(MS10_HOOKS) <= set(ev["evaluators"]["recompute"])
+    assert (ROOT / "results").resolve() not in out.resolve().parents

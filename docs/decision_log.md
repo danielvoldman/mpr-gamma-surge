@@ -4177,3 +4177,63 @@ Chosen:          -   Default from: -
 Test:            pytest -m 'not slow' (exit code from pytest)
 Status:          done.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-376  MS11 11e: the reviewer's rulings on 11d: 11d accepted, verdict table confirmed with one change; RB9(d) specification, the 26 hooks, timing and D36 accepted    [ID: MS11, 11e, DL-366 to DL-375, A11, RB9d, D36]
+Date:            2026-10-26        Author:
+Decision:        RULING (the reviewer, 11e prompt, step 2). (a) 11d is accepted. The verdict table of DL-368 (ruling 2c) is confirmed with ONE change: the logged word "PASSED, continue" now maps to REPORTED (a G5 not-stopped state is not a passed check), consistent with CONTINUE. All other mappings stay (PASS, MEETS, PASSED to PASS; FAIL, FAILED, DOES NOT MEET, NOT INSIDE, NOT PASSED to FAIL; NOT EVALUABLE, NOT JUDGED, NO VERDICT, NOT IN MS8 RUNS, OPEN to NOT EVALUABLE; REPORTED and CONTINUE to REPORTED; PASSED WITH DEPARTURES to PASS only with the departures named). (b) Accepted: the RB9(d) specification (Reading A, DL-367); the 26 recompute hooks (DL-369) with NO independence claimed for any of them (all read thresholds through the criteria loader; the MS8 and MS10 hooks call the original evaluator functions rb_eval and ms10_eval; the MS9 hooks re-derive the verdict from the stored class tables but read the class column the frozen classifier wrote); the timing and D36 figures of DL-372 (the 10-copy per-run median as the basis for the two RB9(d) runs stays UNVERIFIED, not sampled; 14.21 h remains a sum on mixed bases, UNVERIFIED). Nothing in docs/plan.md changed; no threshold or criterion changed.
+Reason:          instruction of the reviewer (11e prompt, step 2)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_ms11_11d.py::test_passed_continue_maps_to_reported_and_every_other_mapping_is_the_11d_table (DL-377)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-377  MS11 11e: the frozen evaluation files changed before any MS11 run: "PASSED, continue" -> REPORTED; OLD and NEW SHA-256    [ID: MS11, 11e, DL-364, DL-368, DL-371, DL-376]
+Date:            2026-10-26        Author:
+Decision:        FREEZE (amended). Because the ruling of DL-376(a) changes the frozen evaluation files, and a change of a frozen file needs a decision-log entry (DL-364), the OLD and NEW SHA-256 (LF text) are recorded. docs/ms11_eval_rules.md: OLD b006bdd72a8c8520696029031f685e7acf410dc4d8fb539403071de37457df2b (the NEW of DL-371), NEW 4b1a1a66dba379015f6c78f5f0431bd16cfdd81bb69b925b8857f4ccc55c48a5. configs/ms11/ms11_eval.yaml: OLD 95cda460c3be8233392a0d4801284be0b5f7f07a176ff6c8515154ffe21770bf (the NEW of DL-371), NEW fcb439645473667b5bdd3d59f902b4e0498547af7403b79d5044a7d69d4209cf. NO MS11 RUN EXISTED at the time of the change: no MS11 list has been launched, results/ has no S11, RB9D or MS11 folder and no S13/ms11 folder, and no evaluator or hook has been run on a real record. What changed: ms11_eval.yaml: the entry "PASSED, continue" of a11_logged_verdict_map (PASS to REPORTED), the header line and the meta source of a11_logged_verdict_map; ms11_eval_rules.md: the header, section 7 (the sentence on the G5 row) and the table row of a11_pass_with_departures_words. No threshold, no criterion and no other mapping changed. Effect on the A11 table: the G5 row (logged "PASSED, continue", MS9 close DL-258) shows REPORTED instead of PASS; the word REPORTED now has three entries (REPORTED, CONTINUE, "PASSED, continue"). The amended files are committed locally in the 11e commit before any further step.
+Reason:          instruction of the reviewer (11e prompt, steps 2a and 3)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_ms11_11d.py::test_passed_continue_maps_to_reported_and_every_other_mapping_is_the_11d_table (all 17 entries written out word by word; the G5 row of a11_logged; a11_row for the word), test_the_full_verdict_table_has_every_logged_word_and_only_the_four_status_words; tests/test_ms11_eval.py (map coverage)
+Status:          frozen.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-378  MS11 11e: the MS10 reader path of RealContext tested on FABRICATED records; one access gap fixed in code, one layout mismatch fixed in the fabricator    [ID: MS11, 11e, A11, DL-373, DL-369]
+Date:            2026-10-26        Author:
+Decision:        FACT. The MS10 reader path (ms10_eval.read_lists on the 103 network records of S8, S9, S10, C2_S8, C2_S9, C2_S10; the 5 MF_COMPANION records; the stored mean-field references of T_ramp 10 s and 120 s; origin_check_all) is exercised by the 7 MS10 hooks and by scripts/run_A11.py on FABRICATED records, in pytest's temporary folder outside results/, labelled 'fabricated' in the message and flags of every record (tests/fabricate_ms11.py, ms10_records), written with the real writers and the names and config hashes of the rows of the frozen MS10 lists, never evaluated as results and deleted with the temporary folder. The two stored references are the fabricated S5 records of the existing 11d tree. Tests (slow, full suite): tests/test_ms11_fabricated.py::test_the_ms10_reader_path_reads_103_fabricated_network_records_in_the_real_layout, test_the_ms10_reader_refuses_a_fabricated_network_record_with_the_old_t_ms_layout, test_the_seven_ms10_hooks_run_through_the_real_context_on_the_fabricated_records, test_run_a11_with_all_26_hooks_on_the_fabricated_tree_including_the_ms10_records (all 26 carried rows recomputed through run_A11.py with the 26 hooks). MISMATCH 1 (code, fixed): the MS10 path of RealContext ignored results_root: ms10_eval.read_lists, mf_references and origin_check_all read the repository results/ only (and mf_references verifies the stored references' SHA-256 against the real files), so a run of the hooks on a redirected tree would have read the REAL stored MS10 records. Fixed with an optional results_root (default None: behaviour unchanged) in ms10_eval.read_lists, mf_references, origin_check_all and the new redirect_rows; with a redirect the SHA-256 check of the stored references is skipped (their hashes belong to the real files); RealContext.ms10 passes the redirect only when its results root is not <repo>/results. MISMATCH 2 (fabricator, fixed): the 11d fabricated network series had t_ms starting at 0; the real network layout (qif_network.run_network) has t_ms at the bin END, (b + 1) bin, and the raster arrays; the R27 check refuses the old layout. The fabricator now writes the real layout for network records. No mismatch in the stored-evaluator code itself. To see the real layout, one header of one real stored network npz (results/S8/S8_head: array names, shapes and the first three t_ms values) was read; no hook, evaluator or classifier was run on any real record. The word values of the hooks on fabricated records are meaningless (made-up series) and are not recorded.
+Reason:          instruction of the reviewer (11e prompt, step 4)
+Options:         -
+Chosen:          -   Default from: -
+Test:            see Decision; tests/test_ms10_eval.py unchanged and passing (default path)
+Status:          done; fabricated records deleted with the temporary folder.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-379  MS11 11e: free disk re-measured    [ID: MS11, 11e, DL-374]
+Date:            2026-10-26        Author:
+Decision:        FACT. Free space on the drive of the repository, measured with shutil.disk_usage at the start of 11e (before the fabricated tests): 109,838,180,352 bytes = 109.8 GB = 102.3 GiB (11d: 71.0 GB; MS10 close: 153 GB). The five lists need at most 2.57 GB raw. The cause of the changes between sessions was not investigated (by instruction); it stays unexplained (UNVERIFIED). docs/ms11_launch.md section 4 updated.
+Reason:          instruction of the reviewer (11e prompt, step 5)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-380  MS11 11e: pre-checks and dry run of the five lists    [ID: MS11, 11e]
+Date:            2026-10-26        Author:
+Decision:        FACT. Pre-checks, all PASS before any change: criteria-loader gate (verify_frozen_criteria returned tag criteria-frozen, commit dd8330c5eaacd63d21e7b7969430988d00862769, criteria SHA-256 c7d2f36b...fa05 and the three secondary hashes); S13.yaml 317db87e..., A4_grids.yaml cf6a60be..., S5_cells.yaml fe8590ce... equal the prompt values; tree clean; HEAD 2e29ced (git merge-base --is-ancestor true); MS10 files ms10_close.md 29b2cab8..., ms10_g_evidence.md 8ffc2858..., ms10_file_hashes.csv 053c6391..., ms10_results.md 55a7d1af... equal; the 10f table rehashed (321 files, 0 mismatches) with digest d1b98f05b1b147437ed19ef3dc4ee84c1dda61693c9e9cc3a9de41f4ba572a52; the DL-371 eval freeze (ms11_eval_rules.md b006bdd7..., ms11_eval.yaml 95cda460...) before the 11e change; the five list definition hashes equal ms11_list_hashes.yaml (f403a204..., fb88958a..., 8158e036..., dd7853ea..., 043fd2f7...). Dry run (scripts/run_ms11_list.py --list <ID> --dry-run, nothing simulated or written): MS11_S11 120 runs, MS11_CTRL 30, MS11_RB9D 2, MS11_S13_MF 68, MS11_S13_NET 18; every list SHA-256 equals the frozen one; "a real launch would be ALLOWED" for all five (re-run on the committed tree: DL-381). docs/ms11_launch.md: only the free-disk paragraph and the header line changed; the list hashes and predictions did not.
+Reason:          instruction of the reviewer (11e prompt, steps 1 and 6)
+Options:         -
+Chosen:          -   Default from: -
+Test:            scripts/run_ms11_list.py --dry-run (five lists)
+Status:          done; nothing launched.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-381  MS11 11e: tests and commit    [ID: MS11, 11e]
+Date:            2026-10-26        Author:
+Decision:        FACT. Fast suite (pytest -m 'not slow') on the 11e tree: 901 passed, 24 deselected, 9 xfailed, 1 warning, 425.6 s, pytest exit code 0 (11d: 900 passed, 20 deselected; one new fast mapping test and the changed 11d map test; the 4 new slow tests are deselected). Exit code taken from pytest itself (redirected run, echo of $? right after, no pipe). A first fast run failed 2 tests of tests/test_ms10_eval.py (exit 1): they replace origin_check_all by a function without the new results_root argument and read_lists passed it always; fixed by passing results_root only when it is given (the default call is unchanged); then the run above. Slow tests of the 11e work (tests/test_ms11_fabricated.py -k 'ms10 or all_26'): the four MS10 tests passed (the all-26-hooks run_A11 test was first run with a too strict note assertion, corrected, then passed, 148 s); the older slow fabricated tests were not re-run after the fabricator change (network t_ms layout): to be run in the full suite before any tag (UNVERIFIED until then). The two eval files hash to the NEW values of DL-377; the five list definitions and the 10f digest are unchanged. No list launched, no evaluator or hook run on a real record, no tag, no push.
+Reason:          instruction of the reviewer (11e prompt, step 7)
+Options:         -
+Chosen:          -   Default from: -
+Test:            pytest -m 'not slow' (exit code from pytest)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag

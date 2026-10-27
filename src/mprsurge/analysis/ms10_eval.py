@@ -210,14 +210,27 @@ def mf_origin_of_record(ref_json) -> dict:
     return origin_facts(cfg, t0)
 
 
-def origin_check_all(rows_net: list[dict], root=None) -> list[dict]:
+def redirect_rows(rows: list[dict], results_root) -> list[dict]:
+    """Copies of list rows whose out_dir lies under `results_root` instead of <repo>/results (the fabricated-record test of 11e; the stored rows are not changed)."""
+    base = (C.repo_root() / "results").resolve()
+    return [{**r, "out_dir": C.to_posix(Path(results_root) / Path(r["out_dir"]).resolve().relative_to(base))} for r in rows]
+
+
+def _under(rel: str, root, results_root) -> Path:
+    """A stored file named 'results/...' in the config files, under results_root when one is given (fabricated-record test), else under root."""
+    rel = str(rel).replace("\\", "/")
+    return Path(results_root) / rel[len("results/"):] if results_root is not None and rel.startswith("results/") else Path(root) / rel
+
+
+def origin_check_all(rows_net: list[dict], root=None, results_root=None) -> list[dict]:
     """The R27 check for the network configs of the given rows against the stored and companion mean-field records they are compared with. Reads the
     network configs and the mean-field t_ms only; no network record is opened (the network first stamp is the rate bin by construction of
     qif_network.run_network; read_record re-checks it on every record that carries t_ms)."""
     root = Path(root) if root else C.repo_root()
     mf_files = [f for ref in RL._read(RL.REFS_FILE)["references"] for f in ref["files"] if f.endswith(".json")]
-    mf_files += [str(record_path(r)) for r in RL.expand("MF_COMPANION")]
-    mfo = {Path(f).name: mf_origin_of_record(root / f) for f in mf_files}
+    comp = RL.expand("MF_COMPANION")
+    mf_files += [str(record_path(r)) for r in (comp if results_root is None else redirect_rows(comp, results_root))]
+    mfo = {Path(f).name: mf_origin_of_record(Path(f) if Path(f).is_absolute() else _under(f, root, results_root)) for f in mf_files}
     seen, out = set(), []
     for r in rows_net:
         cfg = r["cfg"]
@@ -339,14 +352,17 @@ def table21_fields(cfg: dict, v, r, res, fi: dict, static_cache: dict | None = N
     return out
 
 
-def read_lists(lists, fi: dict, require_frozen: bool = True, table21: bool = False) -> dict:
+def read_lists(lists, fi: dict, require_frozen: bool = True, table21: bool = False, results_root=None) -> dict:
     """{list: [record dicts in list order]}; refuses unlisted records in the family folders. R27: the time-origin check runs before any record is read.
-    table21 adds the Table 2.1 Metrics row to the ramp lists (S8, S9, S10), not to the controls."""
+    table21 adds the Table 2.1 Metrics row to the ramp lists (S8, S9, S10), not to the controls.
+    results_root: read the records (and the mean-field references of origin_check_all) from there instead of <repo>/results (fabricated-record test only)."""
     rows = expected_rows(lists, require_frozen)
+    if results_root is not None:
+        rows = {n: redirect_rows(rs, results_root) for n, rs in rows.items()}
     stray = unlisted_records(rows)
     if stray:
         raise EvalRefused(f"{len(stray)} record(s) in the family folders are not rows of the frozen lists, e.g. {stray[0]}")
-    origin_check_all([r for rs in rows.values() for r in rs])
+    origin_check_all([r for rs in rows.values() for r in rs], **({} if results_root is None else {"results_root": results_root}))
     cache: dict = {}
     return {n: [read_record(r, fi, table21=table21 and n in RL.RAMP_LISTS, static_cache=cache) for r in rs] for n, rs in rows.items()}
 
@@ -463,14 +479,18 @@ def _mf_ref(rec: dict, source: str) -> dict:
     return {"class": rec["class"], "onset_s": rec.get("onset_s"), "f_pk_hz": rec.get("f_pk_hz"), "source": source, "name": rec["name"]}
 
 
-def mf_references(fi: dict, require_frozen: bool = True) -> dict:
-    """{('head', T): ref, ('cell', c): ref}: stored records (T 10 and 120 s, R13; SHA-256 verified) and the companion runs (cells at 30 s, headline at 60 s)."""
-    RL.verify_references()
+def mf_references(fi: dict, require_frozen: bool = True, results_root=None) -> dict:
+    """{('head', T): ref, ('cell', c): ref}: stored records (T 10 and 120 s, R13; SHA-256 verified) and the companion runs (cells at 30 s, headline at 60 s).
+    results_root (fabricated-record test only): the companion records are read from there and the SHA-256 check of the stored references is skipped (their hashes belong to the real files)."""
+    if results_root is None:
+        RL.verify_references()
     refs = {}
     for r in RL._read(RL.REFS_FILE)["references"]:
         sc = r["stored_class"]
         refs[("head", float(r["T_ramp_s"]))] = {"class": sc["class"], "onset_s": sc["onset_s"], "f_pk_hz": sc["f_pk_hz"], "source": f"stored {r['run_id']}", "name": r["run_id"]}
     rows = expected_rows(("MF_COMPANION",), require_frozen)["MF_COMPANION"]
+    if results_root is not None:
+        rows = redirect_rows(rows, results_root)
     recs = [read_record(r, fi) for r in rows]
     for r, rec in zip(rows, recs):
         if rec.get("missing"):

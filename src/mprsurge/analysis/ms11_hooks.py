@@ -481,8 +481,9 @@ class RealContext(Context):
             fr = E10.frozen_rb1()
             ch = E10.load_choices()
             lists = ("S8", "S9", "S10", "C2_S8", "C2_S9", "C2_S10")
-            by = E10.read_lists(lists, fi, table21=True)
-            refs = E10.mf_references(fi)
+            rr = None if self.results_root == self.root / "results" else self.results_root      # a redirected root is the fabricated-record test only
+            by = E10.read_lists(lists, fi, table21=True, results_root=rr)
+            refs = E10.mf_references(fi, results_root=rr)
             controls = [r for n in RL10.CONTROL_LISTS for r in by[n]]
             s8h = [r for r in by["S8"] if r["name"].startswith("S8_head")]
             s8c = [r for r in by["S8"] if r["name"].startswith("S8_cells")]

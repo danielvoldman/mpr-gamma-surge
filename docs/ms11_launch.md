@@ -1,4 +1,4 @@
-# MS11 launch instructions (11d, DL-374; written before any MS11 run; nothing is launched by Claude Code)
+# MS11 launch instructions (11d, DL-374; free disk and dry runs re-done at 11e, DL-379, DL-380; written before any MS11 run; nothing is launched by Claude Code)
 
 Written for: the reviewer, who launches every MS11 list in PowerShell. Nothing here has been run: no list, no evaluator on a real record, no hook on a real record. Predictions are from the 11a timing samples (DL-334, 10 concurrent copies, per-run median) and, for MS11_RB9D, from the headline timing cell; the five lists are frozen (hashes in `configs/ms11/ms11_list_hashes.yaml`, DL-370).
 
@@ -46,7 +46,7 @@ Launches:
 
 ## 4. Free disk now
 
-Measured at the time of writing this file: **71.0 GB free** on the drive of the repository (MS10 close, R33: 153 GB; 10e log: 81.4 GB; the 11d pre-check `df` showed 67 GiB = 71 GB, the same figure; so free space is about 82 GB lower than at the MS10 close, cause not recorded, UNVERIFIED). The five lists need at most 2.57 GB raw (below); the launcher refuses a real launch if the free space is below the estimate of the lists it is given. Measure again immediately before each launch; free space has changed between sessions without a record of why.
+Re-measured at 11e (DL-379): **109.8 GB free** (102.3 GiB; `shutil.disk_usage` on the drive of the repository), against 71.0 GB at 11d and 153 GB at the MS10 close (R33). The change in free space between sessions has no recorded cause (UNVERIFIED; not investigated, by instruction). The five lists need at most 2.57 GB raw (below); the launcher refuses a real launch if the free space is below the estimate of the lists it is given. Measure again immediately before each launch; free space has changed between sessions without a record of why.
 
 ## 5. Pre-launch reminders
 

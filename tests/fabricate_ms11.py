@@ -46,6 +46,9 @@ def series(cfg: dict, rng, burst=True) -> dict:
     arrs = {k: np.zeros(n) for k in ARRAYS}
     arrs["t_ms"] = t * 1000.0
     arrs["v"] = v
+    if kind == "network":                                  # real layout (qif_network.run_network): t_ms is the bin END ((b + 1) bin), plus the raster arrays
+        arrs["t_ms"] = (np.arange(n) + 1.0) * cfg["network"]["rate_bin_ms"]
+        arrs.update(raster_t_ms=np.zeros(0), raster_neuron=np.zeros(0, dtype=np.int32), raster_j=np.zeros(0, dtype=np.int64))
     return arrs
 
 
@@ -71,6 +74,21 @@ def list_records(results_root: Path, lists=None, skip: dict | None = None, seed=
         for r in rows[:keep]:
             write_record(r["cfg"], Path(r["out_dir"]), r["name"], rng, burst=True)
         out[name] = len(rows[:keep])
+    return out
+
+
+def ms10_records(results_root: Path, seed=3) -> dict:
+    """A fabricated record for every row of the frozen MS10 lists (S8, S9, S10, the three C2 control lists: 103 network records; MF_COMPANION: 5 mean-field records), named and
+    hashed as the row says, in the real network layout (t_ms at the bin end, raster arrays). The stored mean-field references of MS10 (T_ramp 10 s and 120 s) are the S5 records of s5_records."""
+    from mprsurge.analysis import ms10_eval as E10
+    from mprsurge.analysis import ms10_runlist as RL10
+    rng = np.random.default_rng(seed)
+    out = {}
+    for name in RL10.ALL_LISTS:
+        rows = E10.redirect_rows(RL10.expand(name), results_root)
+        for r in rows:
+            write_record(r["cfg"], Path(r["out_dir"]), r["name"], rng, burst=True)
+        out[name] = len(rows)
     return out
 
 
@@ -144,10 +162,12 @@ def rb9a_file(results_root: Path, value=1.2258e-8) -> Path:
     return p
 
 
-def build_all(results_root: Path, skip: dict | None = None) -> dict:
+def build_all(results_root: Path, skip: dict | None = None, ms10: bool = False) -> dict:
     results_root = Path(results_root)
     out = {"lists": list_records(results_root, skip=skip)}
     s5_records(results_root)
+    if ms10:
+        out["ms10"] = ms10_records(results_root)
     out["tables"] = class_tables(results_root)
     rb9a_file(results_root)
     return out
