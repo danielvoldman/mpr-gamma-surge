@@ -6,7 +6,7 @@ scripts/run_A11.py. What it does share with the original evaluation, on purpose 
   * the frozen classifier (surge_metrics.classify_mode_d / classify_mode_n and window_for_ramp, the D8 estimator inside it) and the frozen A8 variant definitions
     (a8_sensitivity.classify): every Table 2.1 class and episode (onset, end, f_pk) in this file was written by them;
   * the 9i-independent parts only: the 9i function (J_exit) is not used here at all.
-What is its own code: the record reader, the comparators, the counts and verdicts, the zero-crossing cycle frequency, the raw envelope crossing, the Welch PSD argmax,
+What is its own code: the record reader, the comparators, the counts and verdicts, the zero-crossing cycle frequency, the spectrogram-window PSD argmax of DL-401,
 the medians and the direction word, the class-change fractions, and the row-by-row comparison with the A11 output.
 """
 from __future__ import annotations
@@ -132,23 +132,18 @@ def cycle_frequency(v, fs: float, t_start: float, t_end: float, band=BAND) -> tu
     return float((up.size - 1) / (t[-1] - t[0])), int(up.size)
 
 
-def raw_first_crossing(v, fs: float, t_on: float, threshold: float, band=BAND) -> float:
-    """Time (s) of the first sample at or after t_on where the Hilbert envelope of the band-passed v reaches the threshold; nan if never (the 'raw crossing')."""
-    env = np.abs(signal.hilbert(bandpass(v, fs, band)))
-    i_on = int(round(t_on * fs))
-    hit = np.flatnonzero(env[i_on:] >= threshold)
-    return math.nan if hit.size == 0 else float((i_on + hit[0]) / fs)
-
-
-def welch_argmax(v, fs: float, a_s: float, b_s: float, T_ramp_s: float, band=BAND) -> float:
-    """Frequency (Hz, no interpolation) of the PSD maximum in the band over v[a_s:b_s]: Hann windows of the Table 2.1 window W for T_ramp, step per the window rule, linear
-    detrend, density scaling, averaged over the windows (Welch). This averaging is MY READING of 'the PSD of v over the episode window with resolution 1/W' (UNVERIFIED)."""
+def overlap_window_psd_argmax(v, fs: float, a_s: float, b_s: float, T_ramp_s: float, band=BAND) -> float:
+    """Reading (ii) of the network f_pk, as described in DL-401 (method taken from the original behaviour, arithmetic independent): the Hann spectrogram of the WHOLE record
+    (window W of the Table 2.1 window rule for T_ramp, step per that rule, linear detrend, density scaling, window centres in seconds from 0); keep the windows whose centre lies in
+    [a_s, b_s] (inclusive, 1e-9 s); mean PSD over them; frequency of the maximum in band[0] <= f < band[1], no interpolation. nan if no window centre lies in the span."""
     W, step = M.window_for_ramp(T_ramp_s)
     nper, nstep = int(round(W * fs)), max(1, int(round(step * fs)))
-    seg = np.asarray(v, float)[int(round(a_s * fs)):int(round(b_s * fs)) + 1]
-    f, p = signal.welch(seg, fs=fs, window="hann", nperseg=nper, noverlap=nper - nstep, detrend="linear", scaling="density")
-    sel = (f >= band[0]) & (f < band[1])
-    return float(f[sel][np.argmax(p[sel])])
+    f, t, S = signal.spectrogram(np.asarray(v, float), fs=fs, window="hann", nperseg=nper, noverlap=nper - nstep, detrend="linear", scaling="density", mode="psd")
+    sel = (t >= a_s - TOL) & (t <= b_s + TOL)
+    if not sel.any():
+        return math.nan
+    bsel = (f >= band[0]) & (f < band[1])
+    return float(f[bsel][np.argmax(S[bsel][:, sel].mean(axis=1))])
 
 
 def eta_at(rec: dict, t_s: float) -> float:
@@ -251,8 +246,8 @@ def analyse_cell(json_path: str, threshold: float, a_ref: float, variants: tuple
     return out
 
 
-def analyse_record(json_path: str, threshold: float, raw: bool = False) -> dict:
-    """Class, episode, delay against eta_H (classifier onset; and, with raw, the raw envelope crossing) and the config facts of one stored record."""
+def analyse_record(json_path: str, threshold: float) -> dict:
+    """Class, episode, delay against eta_H (classifier onset) and the config facts of one stored record."""
     rec = load_record(json_path)
     c = classify(rec, threshold)
     cfg = rec["cfg"]
@@ -262,7 +257,4 @@ def analyse_record(json_path: str, threshold: float, raw: bool = False) -> dict:
            "delta0": cfg.get("solver", {}).get("delta0"), "rtol": cfg.get("solver", {}).get("rtol"), "tau_ms": float(cfg["model"]["tau_ms"]),
            "V_peak": cfg.get("network", {}).get("V_peak"), "dt_tau": cfg.get("network", {}).get("dt_tau"),
            "delay": delay_vs_hopf(rec, c["onset"]) if eta_H is not None and rec["status"] == "ok" else math.nan}
-    if raw and rec["status"] == "ok":
-        out["onset_raw"] = raw_first_crossing(rec["v"], rec["fs"], rec["t_on"], threshold)
-        out["delay_raw"] = delay_vs_hopf(rec, out["onset_raw"]) if eta_H is not None else math.nan
     return out

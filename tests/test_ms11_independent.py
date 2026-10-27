@@ -49,20 +49,13 @@ def test_cycle_frequency_needs_two_crossings():
     assert math.isnan(fr) and n == 0
 
 
-def test_raw_first_crossing():
-    v = np.zeros(20000)
-    t = np.arange(8000) / FS
-    v[10000:18000] = 1.0 * np.sin(2 * np.pi * 50 * t)
-    t0 = I.raw_first_crossing(v, FS, 5.0, 0.2)
-    assert 10.0 - 0.05 < t0 < 10.5
-    assert math.isnan(I.raw_first_crossing(np.zeros(20000), FS, 5.0, 0.2))
-
-
-def test_welch_argmax_on_the_grid():
-    # W for T_ramp 10 s is 1/3 s (bin 3.003 Hz): a 60.06 Hz sine sits on a bin and is returned without interpolation
+def test_overlap_window_psd_argmax_short_episode():
+    # T_ramp 10 s: W = 1/3 s, step 1/6 s, window centres at 1/6 + k/6 s. A span of 0.083 s (shorter than W) holding one centre still gives a frequency (DL-401)
     f = 60.06006006006006
-    assert abs(I.welch_argmax(sine(f, 12.0), FS, 2.0, 10.0, 10.0) - 60.06006006006006) < 1.5
-    assert I.welch_argmax(sine(40.0, 12.0) + sine(70.0, 12.0, 0.2), FS, 2.0, 10.0, 10.0) < 45.0
+    v = sine(f, 12.0)
+    assert abs(I.overlap_window_psd_argmax(v, FS, 1.10, 1.1833, 10.0) - f) < 3.1
+    assert math.isnan(I.overlap_window_psd_argmax(v, FS, 1.20, 1.25, 10.0))          # no centre inside the span
+    assert I.overlap_window_psd_argmax(sine(40.0, 12.0) + sine(70.0, 12.0, 0.2), FS, 2.0, 10.0, 10.0) < 45.0
 
 
 def test_counts_and_status():

@@ -4434,3 +4434,43 @@ Chosen:          -   Default from: -
 Test:            scripts/ms11_independent_check.py (one run, exit 1, no output written)
 Status:          open for the reviewer.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-401  MS11 11g: ruling on DL-400 (option a); how A11 forms RB6 network reading (ii) f_pk, in words; rules gap; candidate MS11-C8    [ID: MS11, 11g, A11, RB6, MS11-C8, DL-400]
+Date:            2026-10-27        Author:
+Decision:        RULED by the reviewer (11g resume prompt, step 2a): option (a); read, read-only and for that one point only, how A11 forms the reading (ii) f_pk when the classifier episode is shorter than W (function psd_argmax_fpk and its caller in src/mprsurge/analysis/ms11_eval.py). FACT, in words: A11 does not cut the record to the episode. It takes the spectrogram of the whole stored v of the run (Hann windows of length W, step as the window rule for the T_ramp, linear detrend, density scaling, time origin 0, window centres in seconds). From it it keeps the windows whose CENTRE lies inside [onset, end] of the classifier episode of the same seed at dt 1e-3 (the base run), inclusive with a tolerance of 1e-9 s, takes the mean PSD over those windows, and returns the frequency of the maximum of that mean in 25 <= f < 100 Hz, without interpolation. The same span (the base episode) is used for the other dt. If no window centre lies in the span the seed is NOT EVALUABLE ("no spectrogram window inside the episode window"). So an episode shorter than W is not a problem for A11: the window is not required to fit inside the episode, only its centre. Count: the base episodes at dt 1e-3, V_p 100, seeds 0, 1, 2 are 0.0833 s long each, against W = 0.3333 s and step 0.1667 s; all 3 of the 3 reading-(ii) comparisons (and so all 6 PSD evaluations) involve an episode shorter than W; no seed was NOT EVALUABLE, so a window centre fell in the span in all of them. The behaviour is NOT stated in the frozen rules (ms11_eval_rules.md section 3 says only 'argmax of the PSD of v in 25 to 100 Hz over the window of the classifier episode'): RULES GAP. The frozen rules file is not edited. CANDIDATE claim limit MS11-C8 (not entered as a limit until the reviewer rules): 'RB6 network reading (ii) f_pk for episodes shorter than W relies on a method not stated in the frozen rules (see the entry); the verdict stands as evaluated.' The independent script will implement this description (not a copy of the code); the row is marked 'method taken from original behaviour, arithmetic independent'. DL-400 is answered.
+Reason:          instruction of the reviewer (11g resume prompt, step 2a)
+Options:         -
+Chosen:          -   Default from: -
+Test:            read of ms11_eval.psd_argmax_fpk; episode durations of the 6 network runs read through the independent module (frozen classifier)
+Status:          done; MS11-C8 open for the reviewer.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-402  MS11 11g: MS11-C6 check confirmed; claim limit reworded; erratum to docs/ms11_results.md    [ID: MS11, 11g, A11, RB6, MS11-C6]
+Date:            2026-10-27        Author:
+Decision:        FACT (read only: classify_stored, mode_of, docs/ms11_eval_rules.md section 3). Confirmed: (1) classify_stored computes onset_raw_s only for mode D (A7.first_crossing is called 'if mode == "D" else None'; NaN otherwise); (2) mode_of gives D only for run kind mf, and the 60 floor runs of MS11_S13_MF are kind mf_noisy, so mode N; (3) the eval rules ask for both onset readings at the floor and do not restrict the raw crossing to mode D. So the raw-crossing floor rows (A11 row 35, results section 6, section 8 item 6) are NaN by construction, and 'no onset in any of the 60 seeds' is not a finding about the data. RULED by the reviewer (step 2b): MS11-C6 now reads 'the floor-level direction of RB3(b) is unresolved at T_ramp 10 s and 316 s: classifier-onset medians are not monotone; the raw-crossing onset is defined only for mode D records, so no raw-crossing median exists for the mode N floor runs; no scaling law is entered (UNVERIFIED)'. It replaces the wording of DL-394. Erratum section 9 appended to docs/ms11_results.md, original text kept. SHA-256 of docs/ms11_results.md OLD 491a8eded373f74243b763656d0c0649e4ec6b8755fc08cdba12946b63f8b394, NEW 02b9fe9fc6d9b0caa8dd70298fae5f92d0201d7cfa525f095ba872d90d347ade. DL-387 and DL-390 (11f entries) carry the old sentence and are not edited; this entry corrects them. A11 row 35 stays REPORTED; no other row is affected; the A11 output files are unchanged.
+Reason:          instruction of the reviewer (11g resume prompt, step 2b)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-403  MS11 11g: ruling, independent check follows the frozen definitions only; stray process ended    [ID: MS11, 11g, A11]
+Date:            2026-10-27        Author:
+Decision:        RULED by the reviewer (step 2c): the independent check computes no mode N raw crossing (that would be an exploratory diagnostic and goes to the reviewer first). The raw_first_crossing function, its test and the floor raw reading are removed from the independent module, script and tests before the real run; for the raw-crossing reading the independent row states 'not defined for mode N by the frozen definition' and compares only the A11 word 'undefined'. Also (step 2d): PID 11524 was confirmed by its command line to be the idle 'python.exe -' of 11f (C:\Users\Alpha\AppData\Local\Programs\Python\Python311\python.exe -); it was ended (Stop-Process) and is gone. No other process was touched. Pre-checks of the resume (HEAD 228e948; loader gate, all frozen hashes, 10f digest, MS11 digest cdafcc08...7f53; a11_robustness.csv b4f26b00...8cffb; ms11_results.md 491a8ede...f8b394 before the erratum) all PASS.
+Reason:          instruction of the reviewer (11g resume prompt, steps 1, 2c, 2d)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-404  MS11 11g: independent script amended for DL-401 and DL-403, committed before the run    [ID: MS11, 11g, A11]
+Date:            2026-10-27        Author:
+Decision:        FACT. Amended: reading (ii) of the network f_pk now follows the description of DL-401 (own scipy spectrogram call on the raw v, windows with centre in the base-run episode, mean PSD, argmax in 25 to <100 Hz; row note 'method taken from original behaviour, arithmetic independent'); the raw envelope crossing, its test and the floor raw reading are removed (DL-403), the raw-crossing floor rows are compared only by the A11 word 'undefined'. Tests: 15 in tests/test_ms11_independent.py (one removed, one replaced). Fast suite: 916 passed, 24 deselected, 9 xfailed, 1 warning, 387.92 s, pytest exit code 0 (output redirected, exit code echoed right after, no pipe). Files committed with this entry: the three independent files, docs/ms11_results.md (erratum, DL-402), docs/decision_log.md. Committed before the single run on real records. No tag, no push.
+Reason:          instruction of the reviewer (11g resume prompt, step 3)
+Options:         -
+Chosen:          -   Default from: -
+Test:            pytest -m 'not slow' (exit code from pytest)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag

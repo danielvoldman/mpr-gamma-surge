@@ -31,8 +31,8 @@ NOTES = {
     "RB2": "classes: frozen classifier (shared) on the raw v read by my own reader; kept counts, thresholds, status: own code",
     "RB5": "classes: frozen classifier (shared); label equality and onset/delay shifts: own code from the stored onset and the stored eta series",
     "RB6rtol": "classes: frozen classifier (shared); onset and delay differences: own subtraction",
-    "RB6floor": "classifier-onset reading: frozen classifier (shared) + own delay and median; raw-crossing reading: own envelope crossing from the raw v (independent)",
-    "RB6net": "reading (i): frozen classifier episode f_pk (shared); reading (ii): own Welch PSD argmax from the raw v (independent, my reading of the averaging, UNVERIFIED); bound, pair and verdict logic: own",
+    "RB6floor": "classifier-onset reading: frozen classifier (shared) + own delay (stored eta series) and median; raw-crossing reading: not defined for the mode N floor runs (DL-402), nothing computed, only the A11 word compared",
+    "RB6net": "reading (i): frozen classifier episode f_pk (shared); reading (ii): method taken from original behaviour (DL-401), arithmetic independent (own spectrogram call on the raw v); bound, pair and verdict logic: own",
     "RB9a": "NOT independent: re-reads results/A11/rb9a_unit_level.json written by rb9a_unit.py; only the max and the inclusive comparison are mine",
     "RB9b": "cycle frequency: own zero-crossing code from the raw v (independent); episode window and spectral f_pk: frozen classifier (shared)",
     "RB9c": "variant classes: frozen A8 variant classifier (shared) applied by my reader to the raw map-1 v; baseline from the stored map1_classes.csv; counting and fractions: own",
@@ -106,9 +106,9 @@ def main(argv=None) -> int:
     grid_paths = [v[0] for v in grid_all.values()]
     hl = next(csv.DictReader(open(R / "ms9/9d/s5_headline_classes.csv", newline="", encoding="utf-8")))
     hl_path = str(R / "S5/ramp/S5ramp" / (hl["run"] + ".json"))
-    jobs = [(p, False) for k in ("s11", "ctrl", "d0", "rt", "net", "rb9d") for p in P[k]] + [(p, True) for p in P["floor"]] + [(p, False) for p in p5 + grid_paths + [hl_path]]
-    res = pool_map(I.analyse_record, [(p, thr, raw) for p, raw in jobs], a.workers)
-    allr = dict(zip((p for p, _ in jobs), res))
+    jobs = [p for k in ("s11", "ctrl", "d0", "rt", "net", "rb9d", "floor") for p in P[k]] + p5 + grid_paths + [hl_path]
+    res = pool_map(I.analyse_record, [(p, thr) for p in jobs], a.workers)
+    allr = dict(zip(jobs, res))
     G = lambda k: [allr[p] for p in P[k]]            # noqa: E731
     for r in res:
         if r["status"] != "ok":
@@ -184,19 +184,20 @@ def main(argv=None) -> int:
     if len(levels) != 3:
         raise SystemExit(f"floor levels: {levels}")
     fr = {(e["onset_reading"], e["T_ramp_s"]): e for e in ev["rb6_floor"]["rows"]}
-    for reading, key in (("classifier_onset", "delay"), ("raw_first_crossing", "delay_raw")):
-        for T in T_OTHER:
-            meds, nos = [], []
-            for lv in levels:
-                recs = [r for r in fl if r["sigma"] == lv and math.isclose(r["T"], T)]
-                vals = [r[key] for r in recs]
-                meds.append(I.median_of(vals)); nos.append(sum(not math.isfinite(x) for x in vals))
-            e = fr[(reading, T)]
-            k = f"{reading}_T{T:.4f}"
-            for i in range(3):
-                cmp.real("floor_other_T_ramp", f"{k}_median_level{i}", meds[i], e["median_delay_by_level"][str(i)])
-                cmp.count("floor_other_T_ramp", f"{k}_seeds_without_onset_level{i}", nos[i], e["seeds_without_onset_by_level"][str(i)])
-            cmp.count("floor_other_T_ramp", f"{k}_direction", I.direction_word(meds).split(" ")[0], e["direction"].split(" ")[0])
+    for T in T_OTHER:
+        meds, nos = [], []
+        for lv in levels:
+            vals = [r["delay"] for r in fl if r["sigma"] == lv and math.isclose(r["T"], T)]
+            meds.append(I.median_of(vals)); nos.append(sum(not math.isfinite(x) for x in vals))
+        e = fr[("classifier_onset", T)]
+        k = f"classifier_onset_T{T:.4f}"
+        for i in range(3):
+            cmp.real("floor_other_T_ramp", f"{k}_median_level{i}", meds[i], e["median_delay_by_level"][str(i)])
+            cmp.count("floor_other_T_ramp", f"{k}_seeds_without_onset_level{i}", nos[i], e["seeds_without_onset_by_level"][str(i)])
+        cmp.count("floor_other_T_ramp", f"{k}_direction", I.direction_word(meds).split(" ")[0], e["direction"].split(" ")[0])
+        # the raw-crossing onset is defined only for mode D records (DL-402, DL-403): the floor runs are mode N, so no median exists; nothing is computed, only the A11 word is compared
+        cmp.count("floor_other_T_ramp", f"raw_first_crossing_T{T:.4f}_direction", "undefined", fr[("raw_first_crossing", T)]["direction"].split(" ")[0])
+        assert all(r["mode"] == "N" for r in fl)
     row("RB6", "floor_other_T_ramp", "REPORTED", NOTES["RB6floor"])
 
     # ---- RB6 network (rows 36 and 37) ----
@@ -213,7 +214,7 @@ def main(argv=None) -> int:
         if not math.isfinite(base["onset"]):
             return math.nan
         r = net[(v, dt, s)]
-        return I.welch_argmax(r["v"], r["fs"], base["onset"], base["end"], r["T"])
+        return I.overlap_window_psd_argmax(r["v"], r["fs"], base["onset"], base["end"], r["T"])
     pr = ev["rb6_network"]["per_reading"]
     verdicts = []
     for reading, getter, jk in (("classifier_episode_fpk", fk, "classifier_episode_fpk"), ("psd_argmax", psd, "psd_argmax")):
