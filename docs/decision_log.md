@@ -4424,3 +4424,13 @@ Chosen:          -   Default from: -
 Test:            pytest -m 'not slow' (exit code from pytest)
 Status:          done.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-400  MS11 11g: independent recomputation STOPPED on an error in the independent script; nothing patched, nothing re-run    [ID: MS11, 11g, A11, RB6]
+Date:            2026-10-27        Author:
+Decision:        FACT, STOP (prompt step 5: an error stops the step). scripts/ms11_independent_check.py (commit 8ff8ee3) was run once on the real records (criteria gate ok; 254 stored records classified by the frozen classifier; map cells not yet reached). It raised ValueError at the network RB6 reading (ii), in my own welch_argmax (scipy.signal.welch): "noverlap=166 must be less than nperseg=85", after the warning "nperseg=333 is greater than signal length 85". Cause: the classifier episode of a network seed at dt 1e-3 is 85 samples (85 ms) long, shorter than the Table 2.1 window W = 0.333 s (333 samples) of the 10 s ramp, so a Welch average of W-long Hann windows cannot be formed inside the episode. The rules text (ms11_eval_rules.md section 3: "argmax of the PSD of v in 25 to 100 Hz (O6, resolution 1/W, no interpolation) over the window of the classifier episode") does not say how a window longer than the episode is handled; my reading (windows of length W lying inside the episode, averaged) was too narrow. The error is in the independent code path, not in A11; no A11 value was compared with an independent value for any row (the script stopped before any comparison and wrote no output file; results/A11 has only the three original files). No patch of either code path, no re-run, no diagnostic. Needs the reviewer: (a) rule how the reading (ii) PSD is to be formed when the episode is shorter than W (for example the spectrogram windows that overlap the episode, as the classifier's own episode f_pk rule, or one window of length W centred on the episode), after which the independent script is amended, committed and run once; or (b) record reading (ii) as not independently recomputable and run the other rows without it (which also needs an amended script). Which reading A11 used was not looked up (that would be reading the original code path for the answer).
+Reason:          instruction of the reviewer (11g prompt, step 5)
+Options:         (a) amend the independent reading of the network PSD argmax, commit, run once; (b) leave reading (ii) out of the independent check and say so; no choice made.
+Chosen:          -   Default from: -
+Test:            scripts/ms11_independent_check.py (one run, exit 1, no output written)
+Status:          open for the reviewer.
+Commit/tag:      the commit that adds this entry; no tag
