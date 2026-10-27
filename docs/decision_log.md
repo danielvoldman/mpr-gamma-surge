@@ -4524,3 +4524,93 @@ Chosen:          -   Default from: -
 Test:            pytest -m 'not slow' (exit code from pytest)
 Status:          done.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-410  MS11 11h: pre-checks, all PASS    [ID: MS11, 11h]
+Date:            2026-10-27        Author:
+Decision:        FACT. Nothing run. Pre-checks (read-only script in the session scratchpad; hashes of working-copy bytes), all PASS: criteria-loader gate against tag criteria-frozen (dd8330c5eaacd63d21e7b7969430988d00862769, criteria SHA-256 c7d2f36b...fa05); configs/S13.yaml 317db87e..., A4_grids.yaml cf6a60be..., S5_cells.yaml fe8590ce...; tree clean; HEAD e189428; ms10_close.md 29b2cab8..., ms10_g_evidence.md 8ffc2858..., ms10_file_hashes.csv 053c6391..., ms10_results.md 55a7d1af...; the 10f table rehashed (321 files, 0 mismatches, digest d1b98f05...2a52); ms11_eval_rules.md 4b1a1a66..., ms11_eval.yaml fcb43964...; the five list definition hashes equal configs/ms11/ms11_list_hashes.yaml; ms11_results.md 02b9fe9f...; ms11_evidence.md daf2820e... (working copy); ms11_file_hashes.csv c6571235...; MS11 result-file digest (724 files, 1192.347 MB) cdafcc0831580ea4b9f7dfd8e095deb50e8b86db2974f556cf7ffe7d75637f53 equals DL-383 and DL-408; results/A11/a11_robustness.csv b4f26b00...8cffb.
+Reason:          instruction of the reviewer (11h prompt)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-411  MS11 11h: ruling, 11g accepted    [ID: MS11, 11g, 11h, RB9, DL-405, DL-407]
+Date:            2026-10-27        Author:
+Decision:        RULED by the reviewer (11h prompt, step 2a). 11g is accepted. The independent check agrees on 17 of 18 rows; the one mismatch (RB9 b_map_cells_fraction, map 1, 45 versus 51 of 760) is explained by the two estimators and reconciles through the 18 listed cells (12 within by Hilbert phase only, 6 within by zero crossings only); the DL-405 near-bound hypothesis is recorded as disproved.
+Reason:          instruction of the reviewer (11h prompt)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-412  MS11 11h: ruling, MS11-C9 accepted as a claim limit    [ID: MS11, 11h, RB9, MS11-C9, DL-407]
+Date:            2026-10-27        Author:
+Decision:        RULED by the reviewer (11h prompt, step 2b). MS11-C9 is accepted, worded: 'the frozen rules do not name the estimator of the cycle frequency in RB9(b); the map-cell fractions are 51 of 760 (A11, Hilbert phase) and 45 of 760 (independent, zero crossings), both reported; the two estimators differ by several Hz in 18 of 760 cells for reasons not investigated; the headline RB9(b) FAIL holds under either estimator'. MS11-C1 to MS11-C9 are the MS11 claim limits (C1 to C7 DL-394 with C6 reworded in DL-402, C8 DL-406, C9 this entry).
+Reason:          instruction of the reviewer (11h prompt)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-413  MS11 11h: ruling, no further diagnostic on the estimator difference    [ID: MS11, 11h, RB9, MS11-C9]
+Date:            2026-10-27        Author:
+Decision:        RULED by the reviewer (11h prompt, step 2c). No further diagnostic on the difference between the two cycle-frequency estimators. Any diagnostic comes to the reviewer first.
+Reason:          instruction of the reviewer (11h prompt)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-414  MS11 11h: ruling, hash convention; LF-blob hashes    [ID: MS11, 11h]
+Date:            2026-10-27        Author:
+Decision:        RULED by the reviewer (11h prompt, step 2d). For every document hashed at the close, both the SHA-256 of the working-copy bytes and the SHA-256 of the committed LF blob (git show HEAD:<path>) are recorded. The pre-checks use the WORKING-COPY bytes (as in DL-410) and keep that method for future pre-checks. FACT, at HEAD e189428 (working copy / LF blob): docs/ms11_evidence.md daf2820eb0cf94f4a844e45218f34f3c775fc0f0d8404d763f30d524c5515a92 / 7cc25fd51f7279144df3a5334cd7ba6c1a76dc892f9c241efed4150c1e719cb3 (differ: the working copy has CRLF line ends); docs/ms11_results.md 02b9fe9fc6d9b0caa8dd70298fae5f92d0201d7cfa525f095ba872d90d347ade / ce8739da6357adbdccd194b15c81534e0a7f767d0fbaa4938e8a353ea121096a (differ); equal in both forms: docs/ms11_file_hashes.csv c6571235..., docs/ms10_close.md, ms10_g_evidence.md, ms10_file_hashes.csv, ms10_results.md, ms11_eval_rules.md, configs/ms11/ms11_eval.yaml, configs/S13.yaml, A4_grids.yaml, S5_cells.yaml, docs/robustness_criteria.md.
+Reason:          instruction of the reviewer (11h prompt)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-415  MS11 11h: ruling, MS11 acceptance and D36    [ID: MS11, 11h, D36, DL-393, DL-396]
+Date:            2026-10-27        Author:
+Decision:        RULED by the reviewer (11h prompt, step 2e). MS11 has no gate in Table 11.1; its acceptance (every RB check except the RB8 M4/adaptation parts has a result) is met (DL-393). D36 total after MS11 is 13.51 h of 24 h on basis B (basis A 14.52 h); the 14.21 h mixed-basis figure stays UNVERIFIED.
+Reason:          instruction of the reviewer (11h prompt)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-416  MS11 11h: G2 and G3 status as read from the log (no decision)    [ID: MS11, 11h, G2, G3]
+Date:            2026-10-27        Author:
+Decision:        FACT, read only, nothing decided. G2: DL-133 (MS6): 'So no G2 trigger fires: the project stays on M3, and M4 is robustness only, as the plan says.' G3: DL-261 (MS9): 'RECOMMENDATION: G3 NOT TRIGGERED'; DL-271 (MS9 close): 'G3 NOT TRIGGERED (DL-261)'. No entry after DL-271 triggers G2 or G3 (a search of the log for G2 and G3 after DL-271 finds only MS10/MS11 pre-check mentions and the verdict map). MS12 opens only via G2 or G3 (Table 11.1). The log records neither as triggered.
+Reason:          instruction of the reviewer (11h prompt)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-417  MS11 11h: full test suite    [ID: MS11, 11h]
+Date:            2026-10-27        Author:
+Decision:        FACT. Full suite (pytest, slow tests included, nothing deselected), on the tree of HEAD e189428 before the 11h edits: 940 passed, 9 xfailed, 3 warnings, 906.44 s (0:15:06), pytest exit code 0 (output redirected to a file, exit code echoed right after, no pipe). 940 = 916 fast + 24 slow.
+Reason:          instruction of the reviewer (11h prompt)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-418  MS11 11h: MS11 CLOSED ON PAPER    [ID: MS11, 11h]
+Date:            2026-10-27        Author:
+Decision:        MS11 CLOSED ON PAPER. docs/ms11_close.md written (layout of docs/ms10_close.md). SHA-256, working copy and LF blob (both equal, the file has LF line ends): f911c7b11ecfbdaeab9a106246afed87e554343ad8ca60e49bf4cc09482a192c (21,248 bytes; the blob is verified after the commit by the reviewer's method git show HEAD:docs/ms11_close.md). No simulation, launch or diagnostic at 11h; no frozen file edited; no tag; no push. DL-410 to DL-418 are the 11h entries. The fast suite after the commit is reported in the 11h report, not in this entry.
+Reason:          instruction of the reviewer (11h prompt)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
