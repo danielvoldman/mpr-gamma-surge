@@ -1,4 +1,4 @@
-# status: FROZEN   (MS11 11c, DL-345 to DL-364; all 14 fields that were open at 11b are ruled; written before any MS11 run; nothing launched). One item is PENDING, not a required field: rb9d_parameter_spec (ruling 12 STOPPED, DL-357).
+# status: FROZEN   (MS11 11c, DL-345 to DL-364; amended at 11d, DL-366 to DL-371, before any MS11 run existed: RB9(d) Reading A ruled, verdict table CONTINUE -> REPORTED, PASSED WITH DEPARTURES -> PASS only with the departures named; nothing launched). No item is pending.
 # Evaluation choices of docs/ms11_eval_rules.md. Ruled values and values fixed by the plan or the frozen criteria are present. A required field that is null or absent raises
 # MissingChoice (src/mprsurge/analysis/ms11_eval_choices.py) and the launcher refuses a real launch while any is null; nothing is defaulted. `meta` gives the status and source of each field.
 status: FROZEN
@@ -44,7 +44,22 @@ choices:
   rb9c_rb10_map_mode: D
   rb9c_subgrid: reported_no_verdict
   rb9d_method: two_runs_tau_8_12_ms_reported_only
-  rb9d_runs: separate_post_hoc_list                     # ruling 12 (DL-357): YES, a small list MS11_RB9D, reported only; its parameter specification is PENDING (see pending)
+  rb9d_runs: separate_post_hoc_list                     # ruling 12 (DL-357): YES, a small list MS11_RB9D, reported only (the list is written at 11d, DL-370)
+  rb9d_parameter_spec:                                  # 11d ruling 2b (DL-367): Reading A. Reported only, no pass test, feeds no gate.
+    reading: A
+    changed: {model.tau_ms: [8.0, 12.0]}
+    held:
+      model.tau_d_ms: 5.0                               # ms; so tau_d/tau becomes 0.625 and 0.4167
+      durations: in_seconds                             # T_ramp 120 s, t_on 5 s, hold, discard: unchanged in seconds (15,000 and 10,000 tau instead of 12,000)
+      eta_numbers: held_not_rederived                   # eta_H 2.8960461989737856, eta_start = eta_H - 1.5, eta_peak = max(4, eta_H + 2), and the path; no new Hopf continuation
+      model_dimensionless: [Delta, J, I]
+      classifier: [band_25_100_Hz, threshold_0p1_A_ref] # as frozen
+    mode: D                                             # deterministic mean field, kind mf, the run settings of the stored headline record S5ramp_0000_240de3ef73be
+    reference_record: S5ramp_0000_240de3ef73be          # the stored 10 ms headline, shown beside each run
+    reported: [class, f_pk_hz, f_pk_per_tau, onset_s, eta_onset, duration_s, peak_p_g, peak_rho, J_exit_run]
+    statements:
+      confounding: "a class change under this reading mixes the tau effect with the path missing a shifted Hopf point"
+      frequency_scaling: "the expected 1/tau scaling of the frequency is [reasoned, not tested]"
   # ---- RB10 --------------------------------------------------------------------------------------------------------------------------------------
   rb10_variants: {band_hz: [30, 120], factors: [1.5, 4.0], amin_factor: [0.05, 0.2], window_multiplier: [0.5, 2.0], min_cycles: [5, 20]}
   rb10_window_line_of_s13: same_computation
@@ -70,9 +85,10 @@ choices:
     REPORTED: REPORTED
     PASSED: PASS
     "PASSED, continue": PASS
-    CONTINUE: PASS                        # mapping chosen at 11c (UNVERIFIED reading): G5 continue = the gate passed
-    PASSED WITH DEPARTURES: PASS          # mapping chosen at 11c (UNVERIFIED reading); the departures G6-D1 to G6-D3 are carried in the note column
+    CONTINUE: REPORTED                    # 11d ruling 2c (DL-368): CONTINUE maps to REPORTED, not PASS (it was PASS at 11c, UNVERIFIED reading)
+    PASSED WITH DEPARTURES: PASS          # 11d ruling 2c (DL-368): PASS only with the departures (G6-D1 to G6-D3 and any other logged departure) named in the note column; a11_pass_with_departures_words below
     NOT PASSED: FAIL
+  a11_pass_with_departures_words: [PASSED WITH DEPARTURES]   # 11d ruling 2c (DL-368): a row with one of these logged words is refused unless its departures are named (a11_logged `departures`) and they go into the note column
   a11_extra_columns: [rb_id, check_id, source, logged_verdict, recomputed_match, n_evaluated, label, note]    # ruling 14 (DL-359) plus `note` (added at 11c, not in the ruling: UNVERIFIED addition; says why a row was or was not recomputed)
   # ---- D36 ---------------------------------------------------------------------------------------------------------------------------------------
   d36_basis: B
@@ -110,7 +126,9 @@ meta:
   rb9c_rb10_map_mode: {status: ruled, source: "M11-7, DL-336"}
   rb9c_subgrid: {status: ruled, source: "M11-7, DL-336"}
   rb9d_method: {status: ruled, source: "M11-8 (d), DL-336; reported only"}
-  rb9d_runs: {status: ruled, source: "ruling 12, DL-357 (YES; parameter specification pending)"}
+  rb9d_runs: {status: ruled, source: "ruling 12, DL-357 (YES; separate post hoc list written at 11d, DL-370)"}
+  rb9d_parameter_spec: {status: ruled, source: "11d ruling 2b, DL-367 (Reading A; the 1/tau scaling is [reasoned, not tested])"}
+  a11_pass_with_departures_words: {status: ruled, source: "11d ruling 2c, DL-368"}
   rb10_variants: {status: frozen, source: "frozen criteria RB10.variations (checked equal by tests/test_ms11_eval_choices.py)"}
   rb10_window_line_of_s13: {status: ruled, source: "M11-7, DL-336"}
   gate_cell_set: {status: ruled, source: "ruling 9, DL-354"}
@@ -119,15 +137,14 @@ meta:
   a11_row_unit: {status: ruled, source: "M11-10 (c), DL-336"}
   a11_status_vocabulary: {status: ruled, source: "ruling 13, DL-358: four status words (replaces the six of DL-336)"}
   a11_new_thresholds: {status: ruled, source: "M11-10, DL-336"}
-  a11_logged_verdict_map: {status: ruled, source: "ruling 13, DL-358 (the table contents are the implementer's; four mappings UNVERIFIED)"}
+  a11_logged_verdict_map: {status: ruled, source: "ruling 13, DL-358; CONTINUE and PASSED WITH DEPARTURES ruled at 11d (DL-368); NOT INSIDE, OPEN, NOT JUDGED confirmed unchanged"}
   a11_extra_columns: {status: ruled, source: "ruling 14, DL-359 (plus `note`, UNVERIFIED addition)"}
   d36_basis: {status: ruled, source: "ruling 2b, DL-336: basis B, basis A beside"}
 
-# Not a required field: the question put to the reviewer at 11c (ruling 12 STOPPED, DL-357). No MS11_RB9D list exists until it is answered.
-pending:
-  rb9d_parameter_spec: {status: PENDING, question: "what is held fixed and what changes in the two tau +-20 percent runs (docs/ms11_eval_rules.md section 4 (d))", source: "DL-357"}
+# Nothing is pending at 11d (the question of DL-357 is answered by the reviewer, DL-367).
+pending: {}
 
-# Carried checks of MS8 to MS10: logged verdict word VERBATIM from the cited source, mapped by a11_logged_verdict_map. A11 does not recompute them at 11c.
+# Carried checks of MS8 to MS10: logged verdict word VERBATIM from the cited source, mapped by a11_logged_verdict_map. At 11d the recompute hooks (src/mprsurge/analysis/ms11_hooks.py, 26 of them, one per row) are coded and tested on synthetic fixtures; the real recompute runs at the A11 evaluation step.
 a11_logged:
   - {rb_id: RB1, check_id: headline_10s, logged_verdict: FAIL, source: "MS10, DL-319", label: pre-registered, value: "0 of 3 seeds", threshold: "3 of 3"}
   - {rb_id: RB1, check_id: headline_120s, logged_verdict: FAIL, source: "MS10, DL-319", label: pre-registered, value: "0 of 3 seeds", threshold: "3 of 3"}
@@ -152,6 +169,7 @@ a11_logged:
   - {rb_id: RB8, check_id: heterogeneity, logged_verdict: NOT EVALUABLE, source: "MS10, DL-322", label: pre-registered}
   - {rb_id: RB8, check_id: m4_adaptation, logged_verdict: OPEN, source: "frozen criteria RB8.M4_criteria (F-23); MS12", label: pre-registered}
   - {rb_id: G5, check_id: gate, logged_verdict: "PASSED, continue", source: "MS9 close, DL-258", label: pre-registered}
-  - {rb_id: G6, check_id: gate, logged_verdict: PASSED WITH DEPARTURES, source: "MS8, DL-208 (G6-D1 to G6-D3)", label: pre-registered}
+  - {rb_id: G6, check_id: gate, logged_verdict: PASSED WITH DEPARTURES, source: "MS8, DL-208 (G6-D1 to G6-D3)", label: pre-registered,
+     departures: [G6-D1, G6-D2, G6-D3, "gate departure 1 (DL-163, D8 provisional)", "gate departure 2 (DL-163, zero baseline)", "gate departure 3 (DL-163, RB3(a) not judged at the headline)", "gate departure 4 (DL-163, short-window false surges)"]}
   - {rb_id: G7, check_id: gate, logged_verdict: NOT PASSED, source: "MS9, DL-228, DL-229", label: pre-registered}
   - {rb_id: sigma_check, check_id: S8_baseline_std, logged_verdict: NOT INSIDE, source: "MS10, DL-318 (limitation; sigma stays frozen)", label: pre-registered}

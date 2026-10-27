@@ -15,8 +15,8 @@ from .. import config as C
 EVAL_FILE = "configs/ms11/ms11_eval.yaml"
 
 
-# Items that are not required fields and block nothing but the list they belong to (11c): the question is with the reviewer.
-PENDING = ("rb9d_parameter_spec",)
+# Items that are not required fields and block nothing but the list they belong to. Empty since 11d: the RB9(d) specification was ruled (Reading A, DL-367) and is a required field.
+PENDING: tuple = ()
 
 
 class MissingChoice(Exception):
@@ -69,9 +69,12 @@ REQUIRED: dict[str, tuple | None] = {
     "gate_cell_set": ("map1",),                                      # ruling 9
     "not_run_cells_count_as": ("excluded_with_worst_case_flag",),    # ruling 10
     "s13_floor_other_T_ramp_form": ("rb3b_form_reported_only",),     # ruling 11
-    "rb9d_runs": ("separate_post_hoc_list",),                        # ruling 12 (YES; the parameter specification is pending, see PENDING)
+    "rb9d_runs": ("separate_post_hoc_list",),                        # ruling 12 (YES; the specification was ruled at 11d, rb9d_parameter_spec)
     "a11_logged_verdict_map": None,                                  # ruling 13: table word -> PASS / FAIL / NOT EVALUABLE / REPORTED
     "a11_extra_columns": None,                                       # ruling 14
+    # --- ruled at 11d (DL-366 to DL-368) ----------------------------------------------------------------------------------------------------------------
+    "rb9d_parameter_spec": None,                                     # 11d ruling 2b: Reading A (tau_ms 8 and 12; tau_d 5 ms, durations in seconds, eta numbers, Delta, J, band, threshold held); reported only
+    "a11_pass_with_departures_words": None,                          # 11d ruling 2c: a logged word in this list maps to PASS only with the departures named in the note column
 }
 
 

@@ -135,8 +135,29 @@ def net_updates(r: dict) -> float:
     return r["N"] * r["tau"] / r["dt_tau"]
 
 
-RULED_COUNTS = {"S11": 120, "S11_control": 30, "S13_mf": 68, "S13_net": 18}      # 11b (DL-337): S13 mean field = 4 rtol + 4 delta0 + 0 Radau + 60 floor
-RULED_TOTAL = sum(RULED_COUNTS.values())                                         # 236 (the 2 optional RB9(d) runs are in no list)
+RULED_COUNTS = {"S11": 120, "S11_control": 30, "S13_mf": 68, "S13_net": 18, "RB9D": 2}   # 11b (DL-337): S13 mean field = 4 rtol + 4 delta0 + 0 Radau + 60 floor; 11d (DL-370): RB9(d) 2
+RULED_TOTAL = sum(RULED_COUNTS.values())                                         # 238 (236 at 11b; the two RB9(d) runs are the separate post hoc list MS11_RB9D, DL-367)
+
+RB9D_TAU_MS = (8.0, 12.0)                              # RB9(d) tau +-20 percent (Table 7.2), Reading A (DL-367): only model.tau_ms changes; durations stay in seconds
+RB9D_WORKERS = 2                                       # one run per worker; the 10-copy per-run median is conservative for two runs (UNVERIFIED, not sampled)
+HEADLINE_TIMING_CELL = "ms8_dop_1e-10_t120"            # configs/timing/ms8/ms8_dop_1e-10_t120.yaml, 10 concurrent copies (results/timing/ms8d/)
+
+
+def rb9d_runs() -> list[dict]:
+    """RB9(d): the headline run (P2, T_ramp 120 s, DOP853 rtol 1e-10, mode D) with tau 8 and 12 ms. The ramp, baseline and hold are durations in seconds (Reading A), so the
+    run is 165 s long at either tau and is 165 s / tau in tau units: 20,625 tau and 13,750 tau."""
+    return [{"family": "RB9D", "path": P2, "T_ramp_s": 120.0, "mode": "D", "tau_ms": t, "rtol": 1.0e-10, "solver": "DOP853",
+             "tau": s_to_tau(M8.run_integrated_s(P2, 120.0, "D"), t)} for t in RB9D_TAU_MS]
+
+
+def rb9d_prediction(cells: dict, workers: int = RB9D_WORKERS) -> dict:
+    """Wall of the two RB9(d) runs from the headline timing cell (seconds per tau of ms8_dop_1e-10_t120 under 10 copies), the larger of sum / workers and the longest run."""
+    c = cells[HEADLINE_TIMING_CELL]
+    spt = c["wall_s"] / c["tau"]
+    walls = [r["tau"] * spt for r in rb9d_runs()]
+    pred = max(sum(walls) / workers, max(walls))
+    return {"cell": HEADLINE_TIMING_CELL, "s_per_tau": spt, "tau": [r["tau"] for r in rb9d_runs()], "walls_s": walls, "sum_s": sum(walls), "longest_s": max(walls),
+            "workers": workers, "prediction_s": pred, "over_one_hour": [w for w in walls if w > ONE_HOUR_S]}
 
 
 def counts(opts=None) -> dict:

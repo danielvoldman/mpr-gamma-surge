@@ -1,0 +1,12 @@
+# status: FROZEN   (MS11 11d, DL-367 and DL-370; nothing launched). Definition file of one MS11 run list: parameters only; the run config is configs/ms11/ms11_mf.yaml, the expansion in src/mprsurge/analysis/ms11_runlist.py.
+# RB9(d), ruling 12 and the 11d ruling (Reading A, DL-367): REPORTED ONLY, in no gate. Not a pre-registered pass test: the list is POST HOC by ruling 12 (rb9d_runs = separate_post_hoc_list).
+# Mode D: deterministic mean field (kind mf), the run settings of the stored headline record S5ramp_0000_240de3ef73be (DOP853, rtol 1e-10, atol 1e-12, max_step 0.05 tau, output every 1 ms, delta0 1e-6 added on v at t_on).
+# Only model.tau_ms changes (8 and 12 ms). Held: model.tau_d_ms 5 ms, every duration in seconds (T_ramp 120 s, t_on 5 s, hold), the stored eta numbers (eta_H, eta_start, eta_peak), J, Delta, I, the classifier band and threshold.
+# Deterministic: seeds.spawn_key stays null (configs/base.yaml), so no seed key is used and the key family [11, ...] is untouched.
+status: FROZEN
+list: MS11_RB9D
+config: configs/ms11/ms11_mf.yaml
+family: RB9D
+tau_ms: [8.0, 12.0]
+T_ramp_s: 120.0
+expected_runs: 2

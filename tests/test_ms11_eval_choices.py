@@ -18,11 +18,11 @@ def test_every_required_field_is_in_the_file_with_a_meta_entry_and_nothing_else(
     assert all(m["status"] in ("ruled", "plan", "frozen", "OPEN") for m in META.values())
 
 
-def test_no_required_field_is_open_after_11c_and_the_pending_item_is_not_a_required_field():
+def test_no_required_field_is_open_after_11d_and_nothing_is_pending():
     assert EC.open_fields() == [] and all(v is not None for v in CH.values())
     assert all(m["status"] != "OPEN" for m in META.values())
-    assert len(EC.check_all(CH)) == len(EC.REQUIRED) == 45
-    assert EC.PENDING == ("rb9d_parameter_spec",) and "rb9d_parameter_spec" not in EC.REQUIRED and "rb9d_parameter_spec" in FILE["pending"]
+    assert len(EC.check_all(CH)) == len(EC.REQUIRED) == 47            # 45 at 11c; 11d adds rb9d_parameter_spec (ruling 2b) and a11_pass_with_departures_words (ruling 2c)
+    assert EC.PENDING == () and not FILE["pending"] and "rb9d_parameter_spec" in EC.REQUIRED
 
 
 def test_a_missing_empty_or_disallowed_value_raises_and_nothing_is_defaulted():

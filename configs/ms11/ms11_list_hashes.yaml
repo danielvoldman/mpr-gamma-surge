@@ -1,4 +1,4 @@
-# status: FROZEN   (MS11 11b, DL-344; written once by hashing the expanded lists, nothing launched)
+# status: FROZEN   (MS11 11b, DL-344; MS11_RB9D added at 11d, DL-370, before any MS11 run; the four 11b entries are unchanged)
 # sha256 = SHA-256 of the canonical JSON of [family, config, index, full config hash, spawn key] per run in list order (ms9_runlist.list_sha256);
 # keys_sha256 = SHA-256 of the canonical JSON of the seed keys in list order. check_launch refuses a launch when either differs. definition_sha256 = SHA-256 of configs/ms11/lists/<LIST>.yaml.
 status: FROZEN
@@ -23,3 +23,8 @@ lists:
     sha256: 9bc9283c2d5f2cd295c8c8e26d11154ebfbe4f83f7932eb8208f24815d1b702f
     keys_sha256: 20b1049ca44e7d553c9c9624e75348068943bbf13bc3e3d7ce1010f32a113e12
     definition_sha256: dd7853ea0c6f32e58bb2af641ffadd5224abf45e67e7ed17792a7db2de72fd7b
+  MS11_RB9D:                          # 11d (DL-370): post hoc, reported only; no seed key, so keys_sha256 is the hash of the empty key list
+    runs: 2
+    sha256: 4ed2bb07b96eb8ad9465f8314f6a2846dfe0e002a546a31146694bd1bbb6ada0
+    keys_sha256: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    definition_sha256: 043fd2f70be0a08ff336c0b7da8c7ce613d63a932e1af4f63cb85b1ef150f78e

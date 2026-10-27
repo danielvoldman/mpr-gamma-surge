@@ -334,7 +334,8 @@ def test_an_evaluator_raises_when_its_required_field_is_null(name, call):
 def test_the_verdict_map_covers_the_users_words_and_every_logged_word_of_the_registry():
     m = E.verdict_map(CH)
     assert {m[w] for w in m} <= set(E.STATUS_WORDS)
-    expect = {"PASS": "PASS", "FAIL": "FAIL", "DOES NOT MEET": "FAIL", "NOT EVALUABLE": "NOT EVALUABLE", "NOT INSIDE": "FAIL", "CONTINUE": "PASS", "NOT PASSED": "FAIL"}
+    expect = {"PASS": "PASS", "FAIL": "FAIL", "DOES NOT MEET": "FAIL", "NOT EVALUABLE": "NOT EVALUABLE", "NOT INSIDE": "FAIL", "CONTINUE": "REPORTED", "NOT PASSED": "FAIL",
+              "PASSED WITH DEPARTURES": "PASS", "OPEN": "NOT EVALUABLE", "NOT JUDGED": "NOT EVALUABLE"}          # 11d ruling 2c (DL-368)
     assert {w: m[w] for w in expect} == expect
     for e in FILE["a11_logged"]:
         assert E.map_logged(e["logged_verdict"], CH) in E.STATUS_WORDS
@@ -395,7 +396,7 @@ def test_ruled_values_of_the_fourteen_fields():
     assert CH["rb9b_cells"] == "headline_gate_map_cells_reported" and CH["rb9b_comparison_window"] == "classifier_episode" and CH["gate_cell_set"] == "map1"
     assert CH["not_run_cells_count_as"] == "excluded_with_worst_case_flag" and CH["s13_floor_other_T_ramp_form"] == "rb3b_form_reported_only"
     assert CH["rb9d_runs"] == "separate_post_hoc_list"
-    assert FILE["pending"]["rb9d_parameter_spec"]["status"] == "PENDING"
+    assert not FILE["pending"]                                  # 11d: the RB9(d) specification is ruled (Reading A, DL-367)
 
 
 # --- readers on synthetic stored records -----------------------------------------------------------------------------------------------------------

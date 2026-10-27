@@ -33,14 +33,14 @@ def _ov(x):
 
 
 def test_each_list_has_its_count_and_the_nominal_count_agrees(rows):
-    assert {n: len(r) for n, r in rows.items()} == {"MS11_S11": 120, "MS11_CTRL": 30, "MS11_S13_MF": 68, "MS11_S13_NET": 18}
+    assert {n: len(r) for n, r in rows.items()} == {"MS11_S11": 120, "MS11_CTRL": 30, "MS11_S13_MF": 68, "MS11_S13_NET": 18, "MS11_RB9D": 2}
     assert RL.nominal_counts() == RL.EXPECTED_COUNTS == {n: len(r) for n, r in rows.items()}
-    assert sum(RL.EXPECTED_COUNTS.values()) == MC.RULED_TOTAL == 236
+    assert sum(RL.EXPECTED_COUNTS.values()) == MC.RULED_TOTAL == 238 and sum(RL.EXPECTED_COUNTS[n] for n in RL.PREREG_LISTS) == 236
     assert {k: v["runs"] for k, v in MC.counts().items()} == {"S11": 120, "S11_control": 30, "S13_mf": 68, "S13_net": 18}
 
 
 def test_the_counts_derive_from_the_definition_files():
-    a, b, c, d = (RL.params(n) for n in RL.ALL_LISTS)
+    a, b, c, d = (RL.params(n) for n in RL.PREREG_LISTS)
     assert len(a["sigma_factors"]) * len(a["T_ramp_s"]) * a["n_seeds"] == 3 * 4 * 10
     assert len(b["sigma_factors"]) * b["n_seeds"] == 3 * 10 and b["T_ramp_s"] == 120.0
     assert len(c["T_ramp_s"]) * (2 + 2) + len(c["T_ramp_s"]) * 3 * c["floor"]["seeds"] == 8 + 60 and c["radau"]["runs"] == 0
@@ -59,9 +59,9 @@ def test_frozen_hashes_equal_the_expanded_lists_and_the_definition_files(rows):
     assert not RL.is_draft()
 
 
-def test_no_run_is_repeated_across_the_four_lists_and_the_s5_grid_runs_are_not_repeated(rows):
+def test_no_run_is_repeated_across_the_lists_and_the_s5_grid_runs_are_not_repeated(rows):
     allh = [x["hash"] for r in rows.values() for x in r]
-    assert len(set(allh)) == len(allh) == 236
+    assert len(set(allh)) == len(allh) == 238
     for T_ in GRID_T:
         base = C.config_hash(C.resolve_config(ROOT / "configs/S5_ramp.yaml", {"path.T_ramp_s": T_}))
         assert base not in allh

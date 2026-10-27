@@ -376,6 +376,63 @@ def rb9b(headline: dict, cells: list[dict], ch: dict) -> dict:
             "cells_label": "REPORTED as a fraction; no gate fraction (ruling 7)"}
 
 
+# --- RB9(d): tau +-20 percent, reported only (ruling 12; 11d Reading A, DL-367) -----------------------------------------------------------
+
+RB9D_MODE = ("mode D: deterministic mean field (kind mf), DOP853 rtol 1e-10, atol 1e-12, max_step 0.05 tau, output every 1 ms (1 kHz), delta0 1e-6 added on v at t_on, "
+             "5 s baseline, P2 (path_hypoxia) linear, T_ramp 120 s, the run settings of the stored headline record S5ramp_0000_240de3ef73be; the same frozen classifier")
+RB9D_CAVEAT = ("a class change under this reading mixes the tau effect with the path missing a shifted Hopf point: tau_d stays 5 ms, so tau_d/tau is 0.625 (tau 8 ms) or "
+               "0.4167 (tau 12 ms) while the eta numbers are held at the headline values; the expected 1/tau scaling of the frequency is [reasoned, not tested]")
+RB9D_FIELDS = ("class", "f_pk_hz", "f_pk_per_tau", "onset_s", "eta_onset", "duration_s", "peak_p_g", "peak_rho", "J_exit_run")
+
+
+def j_exit_run(cfg: dict, end_s: float, n: int, fs: float) -> float:
+    """J at the end of the classifier episode on P2 (the reported J_exit,run of Table 2.1; as ms10_eval.table21_fields): J of the run's path at the stamp of end_s. NaN if undefined."""
+    from .. import ramps
+    from ..units import s_to_tau
+    if cfg["path"]["name"] != "path_hypoxia" or not _fin(end_s):
+        return float("nan")
+    t_s = np.arange(n) / fs
+    path = ramps.make_path(cfg)
+    J = np.broadcast_to(np.asarray(path.J(s_to_tau(t_s, cfg["model"]["tau_ms"])), float), t_s.shape)
+    return float(M.j_exit_metrics(end_s, t_s, J, 0.0)[0])
+
+
+def _rb9d_fields(rec: dict, tau_ms: float) -> dict:
+    f = float(rec["f_pk_hz"]) if _fin(rec.get("f_pk_hz")) else float("nan")
+    return {"tau_ms": tau_ms, "class": rec.get("class"), "f_pk_hz": f, "f_pk_per_tau": f * tau_ms / 1000.0, "onset_s": rec.get("onset_s"), "eta_onset": rec.get("eta_onset"),
+            "duration_s": rec.get("duration_s"), "peak_p_g": rec.get("peak_p_g"), "peak_rho": rec.get("peak_rho"), "J_exit_run": rec.get("J_exit_run", float("nan")),
+            "terminated": rec.get("terminated")}
+
+
+def rb9d(records: dict, headline: dict | None, ch: dict) -> dict:
+    """RB9(d), reported only (no pass test, feeds no gate; post hoc list). records: {tau_ms: stored record} for the two runs (a record absent from disk is {'missing': True});
+    headline: the stored 10 ms headline record in the same form. Per run: class, f_pk (Hz and per tau, i.e. cycles per tau), onset time and eta at onset, duration, peak
+    absolute and relative power, J_exit,run, beside the 10 ms headline. A missing record makes the row NOT EVALUABLE; nothing replaces it."""
+    spec = _need(ch, "rb9d_parameter_spec")
+    _need(ch, "rb9d_method", "rb9d_runs")
+    want = [float(x) for x in spec["changed"]["model.tau_ms"]]
+    if headline is None or headline.get("missing"):
+        return {"check": "RB9.d", "status": NE, "reason": "stored 10 ms headline record not supplied", "n_evaluated": 0, "mode": RB9D_MODE, "caveat": RB9D_CAVEAT, "label": LABEL_POSTHOC}
+    ref = _rb9d_fields(headline, 10.0)
+    rows, missing = [], []
+    for t in want:
+        rec = records.get(t)
+        if rec is None or rec.get("missing"):
+            missing.append(t)
+            continue
+        r = _rb9d_fields(rec, t)
+        r["status"] = REPORTED
+        r["class_changed_vs_headline"] = r["class"] != ref["class"]
+        r["f_pk_ratio_to_headline"] = r["f_pk_hz"] / ref["f_pk_hz"] if _fin(r["f_pk_hz"]) and _fin(ref["f_pk_hz"]) and ref["f_pk_hz"] else float("nan")
+        r["f_pk_ratio_expected_10_over_tau"] = 10.0 / t
+        r["failed"] = _is_failed(rec)
+        rows.append(r)
+    summary = "; ".join(f"tau {r['tau_ms']:g} ms: {r['class']}, f_pk {r['f_pk_hz']:.4g} Hz ({r['f_pk_per_tau']:.4g} per tau)" for r in rows) + f"; headline 10 ms: {ref['class']}, f_pk {ref['f_pk_hz']:.4g} Hz"
+    return {"check": "RB9.d", "status": NE if missing else REPORTED, "headline_10ms": ref, "rows": rows, "missing_tau_ms": missing, "n_evaluated": len(rows), "summary": summary,
+            "mode": RB9D_MODE, "held": spec["held"], "changed": spec["changed"], "caveat": RB9D_CAVEAT, "label": LABEL_POSTHOC + "; sigma not involved (deterministic)",
+            "reported_fields": list(RB9D_FIELDS)}
+
+
 # --- RB9(c) and RB10: reclassification of stored series --------------------------------------------------------------------
 
 CATEGORY = {"D-tr": "surge", "S+": "surge", "S-rel": "surge", "S-abs": "surge", "D-sus": "sustained", "S-sus": "sustained", "D-none": "quiet", "NS": "quiet"}
@@ -498,10 +555,20 @@ def a11_columns(ch: dict) -> list[str]:
 
 
 def a11_row(ch: dict, *, rb_id: str, check_id: str, source: str, label: str, value="", threshold="", status: str | None = None, logged_verdict: str = "",
-            n_evaluated="", input_commits="", note: str = "", recomputed: bool = False) -> dict:
+            n_evaluated="", input_commits="", note: str = "", recomputed: bool = False, departures=()) -> dict:
     """One A11 row. Every logged word is mapped (UnmappedVerdict if not). recomputed_match: yes if the recomputed status equals the mapped logged status; no otherwise,
-    including a check that was not recomputed or has no logged verdict yet (the note says which)."""
+    including a check that was not recomputed or has no logged verdict yet (the note says which).
+
+    11d ruling 2c (a11_pass_with_departures_words): a logged word of that list (PASSED WITH DEPARTURES) maps to PASS only with its departures named in the note column;
+    a row with such a word and no departures is refused (EvalError), and departures given for any other word are refused as well."""
     logged_status = map_logged(logged_verdict, ch) if logged_verdict else ""
+    dep_words = EC.choice(ch, "a11_pass_with_departures_words")
+    if logged_verdict in dep_words:
+        if not departures:
+            raise EvalError(f"{rb_id}/{check_id}: the logged word {logged_verdict!r} maps to PASS only with its departures named in the note column; none given")
+        note = (note + "; " if note else "") + "PASS only with the departures: " + ", ".join(departures)
+    elif departures:
+        raise EvalError(f"{rb_id}/{check_id}: departures given for the logged word {logged_verdict!r}, which is not in a11_pass_with_departures_words {dep_words}")
     st = status if status is not None else logged_status
     if st not in STATUS_WORDS:
         raise EvalError(f"{rb_id}/{check_id}: status {st!r} is not one of {STATUS_WORDS}")
@@ -548,10 +615,23 @@ def assemble_rows(results: dict, logged: list[dict], fr: dict, ch: dict, input_c
     for e in logged:
         hook = (results.get("recompute") or {}).get(f"{e['rb_id']}/{e['check_id']}")
         st = hook["status"] if hook else None
+        if hook:
+            diff = []
+            if hook.get("word") != e["logged_verdict"]:
+                diff.append(f"DIFFERS: recomputed word {hook.get('word')!r}, logged {e['logged_verdict']!r}")
+            if hook["status"] != map_logged(e["logged_verdict"], ch):
+                diff.append(f"DIFFERS: recomputed status {hook['status']}, logged status {map_logged(e['logged_verdict'], ch)}")
+            how = "recomputed from stored records (" + hook.get("reads", "stored evaluator") + "); " + ("; ".join(diff) if diff else "equals the logged word")
+            if hook.get("shares"):
+                how += "; shares with the original: " + ", ".join(hook["shares"])
+            if hook.get("detail"):
+                how += "; " + str(hook["detail"])
+        else:
+            how = "carried as logged; not recomputed (no hook registered or hooks not run)"
         rows.append(a11_row(ch, rb_id=e["rb_id"], check_id=e["check_id"], source=e["source"], label=e.get("label", "pre-registered"), value=e.get("value", ""),
                             threshold=e.get("threshold", ""), status=st, logged_verdict=e["logged_verdict"], n_evaluated=e.get("n_evaluated", ""),
-                            input_commits=input_commits, recomputed=bool(hook),
-                            note=("recomputed" if hook else "carried as logged; not recomputed at 11c (no hook registered)") + (("; " + e["note"]) if e.get("note") else "")))
+                            input_commits=input_commits, recomputed=bool(hook), departures=e.get("departures") or (),
+                            note=how + (("; " + e["note"]) if e.get("note") else "")))
 
     def ms11(rb, check, res, src, label="pre-registered", value="", threshold="", note="", status=None):
         if res is None and status is None:
@@ -586,8 +666,10 @@ def assemble_rows(results: dict, logged: list[dict], fr: dict, ch: dict, input_c
     c = results.get("rb9c")
     ms11("RB9", "c_band_30_120_map1", c, "map 1; rulings 9 and 10, DL-354, DL-355", threshold=f"<= {fr['rb9c_max']}", value=_val(c, "fraction"),
          note=(c or {}).get("flag", "") or "")
-    ms11("RB9", "d_tau_pm20", results.get("rb9d"), "ruling 12, DL-357 (STOPPED: parameter specification pending)", status=NE if results.get("rb9d") is None else None,
-         note="runs not specified yet (item 12); reported only when run")
+    d = results.get("rb9d")
+    ms11("RB9", "d_tau_pm20", d, "MS11_RB9D; ruling 12 and 11d Reading A, DL-357, DL-367", label="post hoc", value=_val(d, "summary"), threshold="reported only, no pass test",
+         note=("runs not launched or not supplied; " if d is None else "") + "post hoc, feeds no gate; a class change mixes the tau effect with the path missing a shifted Hopf point; "
+         "the 1/tau frequency scaling is [reasoned, not tested]")
     r10 = results.get("rb10")
     ms11("RB10", "surge_definition_sensitivity_map1", r10, "headline and map 1; rulings 9 and 10", threshold=f"headline unchanged; <= {fr['rb10_max']}",
          note=(" ".join(sorted({v["flag"] for v in r10["variants"].values() if v["flag"]})) if r10 else ""))
@@ -608,6 +690,8 @@ def _eta_delay(cfg: dict, onset_s: float) -> tuple[float, float]:
     path = ramps.make_path(cfg)
     tau = s_to_tau(np.array([onset_s]), cfg["model"]["tau_ms"])
     eta = float(np.broadcast_to(np.asarray(path.eta(tau), float), (1,))[0])
+    if cfg["path"].get("eta_H") is None:                      # the DL-251 control config has no eta_H (constant parameters): the delay against eta_H is undefined, not an error (found by the 11d fabricated-record test)
+        return eta, float("nan")
     return eta, eta - float(cfg["path"]["eta_H"])
 
 
@@ -641,12 +725,13 @@ def classify_stored(jp, fi: dict, with_v: bool = False) -> dict:
     raw = A7.first_crossing(v, out["fs"], cfg["path"]["t_on_s"], fi["threshold"]) if mode == "D" else None
     out["onset_raw_s"] = float("nan") if raw is None else float(raw)
     out["eta_onset_raw"], out["delay_eta_raw"] = _eta_delay(cfg, out["onset_raw_s"])
+    out["J_exit_run"] = j_exit_run(cfg, out["end_s"], len(v), out["fs"]) if mode == "D" and out.get("terminated") else float("nan")
     if with_v:
         out["v"] = v
     return out
 
 
-def read_record(row: dict, fi: dict, with_v: bool = False) -> dict:
+def read_record(row: dict, fi: dict, with_v: bool = False) -> dict:   # row["out_dir"] may be redirected by read_lists(results_root=...)
     """One record of a listed row of the frozen MS11 lists: the refusals of ms10_eval.check_record first (dirty flag, dry run, config hash, name, criteria SHA-256),
     then classify_stored. An absent file is {'missing': True} and is never replaced."""
     from . import ms10_eval as E10
@@ -655,7 +740,7 @@ def read_record(row: dict, fi: dict, with_v: bool = False) -> dict:
     base = {"name": row["name"], "family": row["family"], "list": row["list"], "seed": int(key[-1]) if key else -1, "T_ramp_s": float(cfg0["path"]["T_ramp_s"]),
             "sigma_factor": float(cfg0["noise"]["sigma_factor"]) if "noise" in cfg0 and "sigma_factor" in cfg0["noise"] else None,
             "spawn_key": key, "V_peak": cfg0.get("network", {}).get("V_peak"), "dt_tau": cfg0.get("network", {}).get("dt_tau"),
-            "delta0": cfg0.get("solver", {}).get("delta0"), "rtol": cfg0.get("solver", {}).get("rtol")}
+            "delta0": cfg0.get("solver", {}).get("delta0"), "rtol": cfg0.get("solver", {}).get("rtol"), "tau_ms": float(cfg0["model"]["tau_ms"])}
     if not jp.exists():
         return {**base, "missing": True}
     rec = json.loads(jp.read_text(encoding="utf-8"))
@@ -663,14 +748,27 @@ def read_record(row: dict, fi: dict, with_v: bool = False) -> dict:
     return {**base, **classify_stored(jp, fi, with_v=with_v)}
 
 
-def read_lists(fi: dict, names=None, with_v_for=("MS11_S13_NET",)) -> dict:
-    """{list: [records in list order]} for the frozen MS11 lists. Refuses while any MS11 data file is not FROZEN, and refuses unlisted records in the family folders."""
+def redirect_rows(rows: list[dict], results_root) -> list[dict]:
+    """Copies of list rows whose out_dir lies under `results_root` instead of <repo>/results (the fabricated-record test of 11d; the stored rows are not changed)."""
+    base = (C.repo_root() / "results").resolve()
+    out = []
+    for r in rows:
+        rel = Path(r["out_dir"]).resolve().relative_to(base)
+        out.append({**r, "out_dir": C.to_posix(Path(results_root) / rel)})
+    return out
+
+
+def read_lists(fi: dict, names=None, with_v_for=("MS11_S13_NET",), results_root=None) -> dict:
+    """{list: [records in list order]} for the frozen MS11 lists. Refuses while any MS11 data file is not FROZEN, and refuses unlisted records in the family folders.
+    results_root: read the records from there instead of <repo>/results (fabricated-record test only)."""
     from . import ms10_eval as E10
     from . import ms11_runlist as RL11
     if RL11.is_draft():
         raise E10.EvalRefused(f"the MS11 data files are not FROZEN: {RL11.status()}")
     names = names or RL11.ALL_LISTS
     rows = {n: RL11.expand(n) for n in names}
+    if results_root is not None:
+        rows = {n: redirect_rows(rs, results_root) for n, rs in rows.items()}
     stray = E10.unlisted_records(rows)
     if stray:
         raise E10.EvalRefused(f"{len(stray)} record(s) in the family folders are not rows of the frozen lists, e.g. {stray[0]}")

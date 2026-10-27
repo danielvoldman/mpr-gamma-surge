@@ -114,8 +114,23 @@ def test_prediction_arithmetic_on_synthetic_cells():
     assert not M.d36(10 * 3600.0)["within_cap"]
 
 
-def test_ruled_counts_11b_total_236():
-    """DL-337: Radau cut to the headline T_ramp; 120 S11 + 30 controls + 68 S13 mean field + 18 S13 network = 236 (the 2 optional RB9(d) runs are in no list)."""
+def test_ruled_counts_11b_total_236_and_11d_total_238():
+    """DL-337: Radau cut to the headline T_ramp; 120 S11 + 30 controls + 68 S13 mean field + 18 S13 network = 236 pre-registered runs. 11d (DL-370): + the 2 RB9(d) runs of the
+    separate post hoc list MS11_RB9D = 238."""
     c = M.counts()
-    assert {k: v["runs"] for k, v in c.items()} == M.RULED_COUNTS == {"S11": 120, "S11_control": 30, "S13_mf": 68, "S13_net": 18}
-    assert M.RULED_TOTAL == 236
+    four = {"S11": 120, "S11_control": 30, "S13_mf": 68, "S13_net": 18}
+    assert {k: v["runs"] for k, v in c.items()} == four
+    assert M.RULED_COUNTS == {**four, "RB9D": 2}
+    assert sum(four.values()) == 236 and M.RULED_TOTAL == 238
+
+
+def test_rb9d_runs_are_the_headline_with_tau_8_and_12_ms_and_durations_in_seconds():
+    r = M.rb9d_runs()
+    assert [x["tau_ms"] for x in r] == [8.0, 12.0] == list(M.RB9D_TAU_MS)
+    assert [x["tau"] for x in r] == pytest.approx([20625.0, 13750.0])
+
+
+def test_rb9d_prediction_arithmetic_on_a_synthetic_cell():
+    p = M.rb9d_prediction({M.HEADLINE_TIMING_CELL: {"wall_s": 165.0, "tau": 16500.0}})            # 0.01 s per tau
+    assert p["walls_s"] == pytest.approx([206.25, 137.5]) and p["workers"] == 2
+    assert p["prediction_s"] == pytest.approx(206.25) and p["sum_s"] == pytest.approx(343.75) and p["over_one_hour"] == []
