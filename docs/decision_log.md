@@ -4484,3 +4484,13 @@ Chosen:          -   Default from: -
 Test:            scripts/ms11_independent_check.py (one run, exit 2)
 Status:          open for the reviewer.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-406  MS11 11g: rulings on DL-405 (bounded look), MS11-C8, and the 11g independent-check result    [ID: MS11, 11g, A11, RB9, MS11-C8, DL-405]
+Date:            2026-10-27        Author:
+Decision:        RULED by the reviewer (second resume prompt, step 2). (a) DL-405 option (b), bounded: one post-hoc, read-only look at the RB9(b) map-1 cells, labelled 'post hoc, exploratory', reading stored records only; no simulation; changes neither A11 nor the independent code path; does not re-run A11 or the independent check; feeds no gate. Implemented as scripts/ms11_9b_look.py, committed before it is run (it lists only the cells where the Hilbert-phase and the zero-crossing estimators disagree on 'within 1/W', and the headline under both). (b) MS11-C8 is accepted as a claim limit, worded as in DL-401: RB6 network reading (ii) f_pk for episodes shorter than W relies on a method not stated in the frozen rules (described in DL-401); the verdict stands as evaluated. (c) The independent check's result for 11g: 17 of 18 rows agree on status words and counts; the RB9 b_map_cells_fraction row disagrees (map 1: independent 45 of 760, A11 51 of 760; map 2 equal at 71 of 296). The row is reported as a mismatch (match = no) in the evidence sheet. The A11 output is not changed. Pre-checks of this resume (HEAD 02ad127; gate, frozen hashes, 10f and MS11 digests; a11_robustness.csv b4f26b00...8cffb; ms11_results.md 02b9fe9f...ade) all PASS.
+Reason:          instruction of the reviewer (second resume prompt, steps 1 to 3)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
