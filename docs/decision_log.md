@@ -4337,3 +4337,90 @@ Chosen:          -   Default from: -
 Test:            pytest -m 'not slow' (exit code from pytest)
 Status:          done.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-392  MS11 11g: ruling, 11f accepted    [ID: MS11, 11g, 11f, A11]
+Date:            2026-10-27        Author:
+Decision:        RULED by the reviewer (11g prompt, step 2a). 11f is accepted. The single A11 run (DL-386) is the pre-registered MS11 evaluation. No frozen rule was changed and no open choice was made (DL-390). DL-390 is thereby answered: its candidates are ruled in DL-393 to DL-395.
+Reason:          instruction of the reviewer (11g prompt, step 2a)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-393  MS11 11g: ruling, MS11 statuses and Table 11.1 acceptance    [ID: MS11, 11g, A11, RB2, RB5, RB6, RB9, RB10]
+Date:            2026-10-27        Author:
+Decision:        RULED by the reviewer (11g prompt, step 2b). MS11 statuses are as in docs/ms11_results.md. FAIL: RB2 at sigma (7 of 10 against 8; 0.5 sigma 8 of 10 is PASS; 2 sigma is reported; the constant-parameter controls keep 7 of 10 at each sigma), RB6 network f_pk, RB9(b) headline. PASS: RB5 delta_0, RB9(a), RB9(c), RB10, the window check, RB2 at 0.5 sigma. The rest is REPORTED. Table 11.1 acceptance for MS11 (every RB check except the RB8 M4 and adaptation parts has a result) is met in the plan's sense: it requires results, not passes.
+Reason:          instruction of the reviewer (11g prompt, step 2b)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-394  MS11 11g: ruling, claim limits MS11-C1 to MS11-C7    [ID: MS11, 11g, MS11-C1, MS11-C2, MS11-C3, MS11-C4, MS11-C5, MS11-C6, MS11-C7]
+Date:            2026-10-27        Author:
+Decision:        RULED by the reviewer (11g prompt, step 2c); these replace the candidates of DL-390.
+                 MS11-C1: the headline surge class is kept in 7 of 10 seeds at sigma (required 8 of 10), and the constant-parameter controls reach the same class in 7 of 10 at each sigma; no claim that a ramp-driven surge is robust to noise (carry with DL-229, DL-258 and the MS9 D24 failure).
+                 MS11-C2: no claim of f_pk or class agreement between the network and the mean field (RB6 network f_pk failed under both readings; carry with G4-C1).
+                 MS11-C3: at the headline the spectral and the cycle frequency differ by 4.39 Hz against the 1/W bound of 0.5 Hz (RB9(b) FAIL); the cause is not investigated; peak frequencies are stated as the classifier's spectral peaks.
+                 MS11-C4: RB9(a) rests on the unit-level test only (1 s path_eta ramp, tau 10 and 20 ms, not the headline).
+                 MS11-C5: the DOP853 versus Radau comparison covers T_ramp 120 s only (cut order step 1, DL-337).
+                 MS11-C6: the floor-level direction of RB3(b) is unresolved at T_ramp 10 s and 316 s (classifier-onset medians not monotone; raw-crossing medians undefined); no scaling law is entered (UNVERIFIED).
+                 MS11-C7: all earlier failures and claim limits stand as logged (RB1 FAIL, G7 not passed, D24 failed, G4-C1 to G4-C6, the MS9 claim limits).
+Reason:          instruction of the reviewer (11g prompt, step 2c)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-395  MS11 11g: ruling, RB9(b) failure is reported as is; no diagnostic    [ID: MS11, 11g, RB9, MS11-C3]
+Date:            2026-10-27        Author:
+Decision:        RULED by the reviewer (11g prompt, step 2d). No diagnostic run for the RB9(b) failure. It is reported as is, as an appendix item (plan Table 7.2 and the main-text versus appendix split). Further diagnostics come to the reviewer first.
+Reason:          instruction of the reviewer (11g prompt, step 2d)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-396  MS11 11g: ruling, D36 total after MS11 and the one basis    [ID: MS11, 11g, D36, DL-384]
+Date:            2026-10-27        Author:
+Decision:        RULED by the reviewer (11g prompt, step 2e). The D36 total after MS11 on basis B is 13.51 h of 24 h (basis A 14.52 h). Basis B is the one basis from now on. The 14.21 h mixed-basis figure stays UNVERIFIED.
+Reason:          instruction of the reviewer (11g prompt, step 2e)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-397  MS11 11g: ruling, journal folder names    [ID: MS11, 11g, DL-383]
+Date:            2026-10-27        Author:
+Decision:        RULED by the reviewer (11g prompt, step 2f). The journal folder names launch_s13mf and launch_s13net (not launch_s13_mf and launch_s13_net of docs/ms11_launch.md) are accepted. They enter no hash and no evaluator.
+Reason:          instruction of the reviewer (11g prompt, step 2f)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-398  MS11 11g: pre-checks    [ID: MS11, 11g, A11]
+Date:            2026-10-27        Author:
+Decision:        FACT. All pre-checks PASS (check script in the session scratchpad, read only). Criteria-loader gate against tag criteria-frozen (dd8330c5eaacd63d21e7b7969430988d00862769, criteria SHA-256 c7d2f36b74ea611c8777c1b408d5085333e55230834c27e5f0eb839f1162fa05); configs/S13.yaml 317db87e..., A4_grids.yaml cf6a60be..., S5_cells.yaml fe8590ce... equal the frozen values; tree clean; HEAD dd78cc1d77bb8025c564d4a65fd2f9d9fafe357e; docs/ms10_close.md 29b2cab8..., ms10_g_evidence.md 8ffc2858..., ms10_file_hashes.csv 053c6391..., ms10_results.md 55a7d1af... equal; the 10f table rehashed (321 files, 0 mismatches, digest d1b98f05b1b147437ed19ef3dc4ee84c1dda61693c9e9cc3a9de41f4ba572a52); docs/ms11_eval_rules.md 4b1a1a66... and configs/ms11/ms11_eval.yaml fcb43964... (DL-377) equal; the five list definition hashes equal configs/ms11/ms11_list_hashes.yaml; MS11 result-file digest 724 files, 1192.347 MB, cdafcc0831580ea4b9f7dfd8e095deb50e8b86db2974f556cf7ffe7d75637f53 equals DL-383. NEW values computed now: SHA-256 of results/A11/a11_robustness.csv = b4f26b003d88f7d13dcb582786da32c1a2fe4e3b8de051ce1f494e81a1d8cffb; SHA-256 of docs/ms11_results.md = 491a8eded373f74243b763656d0c0649e4ec6b8755fc08cdba12946b63f8b394. Stray process: one python.exe (PID 11524, system Python 3.11, command line "python.exe -", started 2026-10-27 00:48, child of a bash.exe shell of the 11f session) is still alive, idle on stdin; it is not a simulation and is left running, nothing was killed (the reviewer is told).
+Reason:          instruction of the reviewer (11g prompt, step 1)
+Options:         -
+Chosen:          -   Default from: -
+Test:            scratchpad pre-check script (hashes, loader gate, digests)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-399  MS11 11g: independent recomputation written and committed BEFORE any run on real records    [ID: MS11, 11g, A11]
+Date:            2026-10-27        Author:
+Decision:        FACT. Written from docs/ms11_eval_rules.md and the plan text: src/mprsurge/analysis/ms11_independent.py, scripts/ms11_independent_check.py, tests/test_ms11_independent.py (16 tests, synthetic signals and fabricated tiny records only). It imports none of ms11_eval, ms11_hooks, ms11_eval_choices, ms11_runlist, ms9_classify, a7, ms10_eval, run_A11 (a test checks the import lines). Shared with the original, on purpose: the criteria loader (thresholds), the frozen classifier surge_metrics.classify_mode_d / classify_mode_n / window_for_ramp (every Table 2.1 class and episode), and the frozen A8 variant definitions a8_sensitivity.classify (RB9(c), RB10, window line). The 9i function (J_exit) is not used. Own code: record reader, comparators, kept counts and verdicts, zero-crossing cycle frequency (RB9(b)), raw envelope crossing and delay (floor), Welch PSD argmax (network reading ii; the averaging is my reading of the rules text, UNVERIFIED), medians and direction word, class-change fractions, row comparison. Rows not independent of the original beyond the shared parts: RB9(a) re-reads results/A11/rb9a_unit_level.json (written by rb9a_unit.py); it is only re-compared. Agreement means identical status words and identical counts; floats are listed with their difference and not judged. Fast suite (pytest -m 'not slow') with these files: 917 passed, 24 deselected, 9 xfailed, 1 warning, 407.80 s, pytest exit code 0 (output redirected, exit code echoed right after, no pipe); 901 before plus the 16 new tests. Committed before the script was run on any MS11, map or headline record. No tag, no push.
+Reason:          instruction of the reviewer (11g prompt, steps 3 and 6)
+Options:         -
+Chosen:          -   Default from: -
+Test:            pytest -m 'not slow' (exit code from pytest)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
