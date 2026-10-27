@@ -4237,3 +4237,103 @@ Chosen:          -   Default from: -
 Test:            pytest -m 'not slow' (exit code from pytest)
 Status:          done.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-382  MS11 11f: launch outcome of the five lists (launched by the reviewer, 2026-10-26)    [ID: MS11, 11f, DL-374, DL-380]
+Date:            2026-10-27        Author:
+Decision:        FACT (reported by the reviewer; the journals are results/ms11/launch_*). MS11_S11 120 ok, wall 34.1 s; MS11_CTRL 30 ok, 10.6 s; MS11_RB9D 2 ok, 143.3 s (2 workers); MS11_S13_MF 68 ok, 407.5 s; MS11_S13_NET 18 ok, 502.5 s. Total 238 ok, 0 failed, list wall 1098 s (18.3 min), the sum of the five walls, launch overhead not included. Launched from a clean tree; every record carries commit d29268f (DL-383).
+Reason:          instruction of the reviewer (11f prompt, step 2)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-383  MS11 11f: pre-checks and run-record audit (records only)    [ID: MS11, 11f, A11]
+Date:            2026-10-27        Author:
+Decision:        FACT. Pre-checks, all PASS: criteria-loader gate (tag criteria-frozen, commit dd8330c5..., criteria SHA-256 c7d2f36b...fa05); S13.yaml 317db87e..., A4_grids.yaml cf6a60be..., S5_cells.yaml fe8590ce...; tree clean; HEAD d29268f; ms10_close.md 29b2cab8..., ms10_g_evidence.md 8ffc2858..., ms10_file_hashes.csv 053c6391..., ms10_results.md 55a7d1af...; the 10f table rehashed (321 files, 0 mismatches, digest d1b98f05...2a52); ms11_eval_rules.md 4b1a1a66..., ms11_eval.yaml fcb43964... (DL-377); the five list definition hashes equal ms11_list_hashes.yaml. Audit per list (listed = found; status ok in all; git dirty false in all; commit d29268f73943c75383b1be942d57d0f6afe01b81 in all; full config hash and name equal to the frozen row; 0 duplicates; npz present for each; criteria SHA-256 c7d2f36b in all): MS11_S11 120, MS11_CTRL 30, MS11_S13_MF 68, MS11_S13_NET 18, MS11_RB9D 2. MS11 result-file table (json, npz and params.md of the 238 runs, and manifest.csv and run.log of the five journals; 10f convention: sorted path TAB sha256 lines): 724 files, 1192.347 MB, digest cdafcc0831580ea4b9f7dfd8e095deb50e8b86db2974f556cf7ffe7d75637f53. The journal directories are named launch_s13mf and launch_s13net (the launch instructions of DL-374 wrote launch_s13_mf and launch_s13_net); the name enters no hash or evaluator.
+Reason:          instruction of the reviewer (11f prompt, steps 1 and 3)
+Options:         -
+Chosen:          -   Default from: -
+Test:            audit script in the session scratchpad (records only, no evaluation)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-384  MS11 11f: D36 running total with the measured walls    [ID: MS11, 11f, D36, DL-372]
+Date:            2026-10-27        Author:
+Decision:        FACT (ms11_counts.d36 with the MS11 figure = 1098 s = 0.305 h, the measured sum of the five list walls of DL-382). Basis B (the placeholders 'rest of S13' 1.0 h and 'S11' 0.0075 h of the 14.21 h replaced by the MS11 figure): 13.51 h (13.5075; previous prediction 13.51 h), margin to the 24 h cap 10.49 h. Basis A (MS11 figure added on top of 14.21 h): 14.52 h (14.515; previous prediction 14.52 h), margin 9.49 h. Both inside the cap. Basis B is the ruled basis and is the one used for the running total; basis A is stated beside. The 14.21 h remains a sum on mixed bases (UNVERIFIED). Analysis, A11 evaluation (not timed) and test time are not included. Prediction and measurement agree to two decimals; how the previous MS11 figure (about 0.31 h) was composed was not re-derived here (UNVERIFIED).
+Reason:          instruction of the reviewer (11f prompt, step 2)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-385  MS11 11f: slow tests    [ID: MS11, 11f]
+Date:            2026-10-27        Author:
+Decision:        FACT. pytest -m slow (the deselected tests, including the fabricated-record tests not re-run after the 11e fabricator change): 24 passed, 910 deselected, 2 warnings (existing ComplexWarning in bifurcation.py), 551.72 s, pytest exit code 0, taken from pytest itself (output redirected, exit code echoed right after, no pipe). Run before the A11 evaluation.
+Reason:          instruction of the reviewer (11f prompt, step 4)
+Options:         -
+Chosen:          -   Default from: -
+Test:            pytest -m slow
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-386  MS11 11f: the frozen A11 evaluation, run ONCE on the real records    [ID: MS11, 11f, A11, DL-377]
+Date:            2026-10-27        Author:
+Decision:        FACT. scripts/run_A11.py (no options, 26 recompute hooks, frozen rules of DL-377), one run, exit code 0, HEAD d29268f, 0 missing records in the five lists, 44 rows written to results/A11/a11_robustness.csv and results/A11/a11_evaluators.json (git-ignored outputs). No error, no patch, no re-run, no diagnostic. docs/ms11_results.md was written from these stored outputs only. Rows: 26 carried, 18 MS11. Status of the 18 MS11 rows. PASS: RB2 0.5 sigma (8 of 10), RB5 delta_0 (4 of 4), RB9(a) (1.2258e-08 against 0.005), RB9(c) (14 of 900 = 1.56 percent against 5 percent), RB10 (map 1, nine variants), S13 window line. FAIL: RB2 sigma (7 of 10 against 8), RB6 network f_pk halving dt (both readings FAIL), RB9(b) headline (4.391 Hz against 0.5 Hz). REPORTED: RB2 2 sigma, stricter readings, DL-251 controls, RB5 up/down, RB6 rtol, RB6 floor at 10 s and 316.2278 s, RB6 V_p, RB9(b) cells, RB9(d). No MS11 row is NOT EVALUABLE.
+Reason:          instruction of the reviewer (11f prompt, step 5)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-387  MS11 11f: RB2, RB5 and RB6 results    [ID: MS11, 11f, RB2, RB5, RB6, DL-251]
+Date:            2026-10-27        Author:
+Decision:        FACT (stored outputs). RB2 at 120 s: 0.5 sigma 8 of 10 PASS, sigma 7 of 10 FAIL, 2 sigma 8 of 10 reported; DL-251 controls: NS 3 and S-rel 7 of 10 (kept 7 of 10) at each of the three sigma, so by the rule's reading the S11 counts are not ramp evidence beyond the controls; failed runs 0. RB5 delta_0 at 10 s and 316.2278 s: D-tr against D-tr in 4 of 4, onset and delay shift 0.0 at the 1 ms grid, PASS. RB5 up/down: P5 D-tr at all 13 T_ramp, REPORTED, S4 beside labelled no class. RB6 rtol 1e-8 and 1e-12 at 10 s and 316.2278 s: D-tr, difference 0.0, REPORTED. RB6 floor at 10 s and 316.2278 s (RB3(b) form, reported only): classifier-onset medians -1.4967, -0.9706, -1.0291 and -1.5000, -1.5000, -1.2731, not monotone; raw-crossing readings undefined (no onset in any of the 60 seeds). RB6 network (N 1e4, dt 1e-3 against 5e-4): classifier-episode f_pk 0 of 3 pass, PSD argmax 2 of 3 pass, row FAIL; no seed NOT EVALUABLE, no class change. Details in docs/ms11_results.md sections 3, 4, 6.
+Reason:          instruction of the reviewer (11f prompt, step 5)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-388  MS11 11f: RB9, RB10 and window results    [ID: MS11, 11f, RB9, RB10]
+Date:            2026-10-27        Author:
+Decision:        FACT (stored outputs). RB9(a) PASS, max relative difference 1.2258e-08, unit-level scope limit stated. RB9(b) headline FAIL: 49.0 Hz spectral against 44.609 Hz cycle, difference 4.391 Hz against 1/W = 0.5 Hz; map cells within the bound, reported: map 1 51 of 760, map 2 71 of 296. RB9(c) PASS 14 of 900 (1.56 percent); map 2 0 of 325 and subgrid 1096 of 2250 beside, no verdict. RB9(d) (post hoc, reported only): tau 8 ms D-tr 49.5 Hz, tau 12 ms D-tr 43 Hz, headline 10 ms D-tr 49 Hz; no class change; a class change would mix the tau effect with the path missing a shifted Hopf point. RB10 PASS: headline unchanged under all nine variants, at most 1.67 percent of 900 map-1 cells change class (bound 10 percent); window x 0.5 and x 2: 0.0 percent.
+Reason:          instruction of the reviewer (11f prompt, step 5)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-389  MS11 11f: the 26 carried checks recomputed against the logged words    [ID: MS11, 11f, A11, DL-373]
+Date:            2026-10-27        Author:
+Decision:        FACT. 26 of 26 recomputed values equal the logged word under the 11d map (with "PASSED, continue" -> REPORTED, DL-377); 0 mismatches. Shared with the original (so not independent of these): criteria loader (all 26); frozen classifier (25, not RB8 M4); the original evaluator function, same code (21: RB1 x5, RB3 x6, RB5 x3, RB6 MS8 x4, RB8 heterogeneity, G6, sigma_check); A7 table pieces (14: RB3, RB5, RB6, G6); the 9i function ms9_9i.j_exit_static_path via ms10_eval.table21_fields (7: RB1 x5, RB8 heterogeneity, sigma_check); G6 applies the reviewer's departure ruling (applied, not recomputed). Per-hook lists in docs/ms11_results.md section 7.
+Reason:          instruction of the reviewer (11f prompt, step 5)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-390  MS11 11f: candidate claim limits for the reviewer to rule on; no choice left open by the rules was needed    [ID: MS11, 11f, A11]
+Date:            2026-10-27        Author:
+Decision:        CANDIDATES ONLY (nothing ruled, nothing entered as a limit). Listed in docs/ms11_results.md section 8: RB2 not met at sigma and the S11 counts not ramp evidence beyond the controls; RB6 network f_pk FAIL (no f_pk or class claim from the network); RB9(b) headline FAIL; RB9(a) unit-level only; solver agreement at 120 s only; floor direction not monotone or undefined, Heun 5 percent test not formed at 10 s and 316 s; RB9(c) and RB10 on map 1 with D8 provisional; RB9(d) post hoc; carried failures stand. No frozen rule left a choice open in any row. One observation, not interpreted: the raw-crossing floor reading has no onset in any seed at 10 s and 316 s.
+Reason:          instruction of the reviewer (11f prompt, steps 5 and 6)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          open for the reviewer's rulings.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-391  MS11 11f: fast suite and commit    [ID: MS11, 11f]
+Date:            2026-10-27        Author:
+Decision:        FACT. Fast suite (pytest -m 'not slow') on the 11f tree: 901 passed, 24 deselected, 9 xfailed, 1 warning, 392.22 s, pytest exit code 0 (output redirected, exit code echoed right after, no pipe). Same counts as DL-381 (no code or test changed in 11f). Files committed: docs/ms11_results.md and docs/decision_log.md only; no frozen file edited; no tag, no push.
+Reason:          instruction of the reviewer (11f prompt, step 7)
+Options:         -
+Chosen:          -   Default from: -
+Test:            pytest -m 'not slow' (exit code from pytest)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
