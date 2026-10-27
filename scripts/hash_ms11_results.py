@@ -38,7 +38,7 @@ def records():
     files = []
     for n in RL.ALL_LISTS:
         for r in RL.expand(n):
-            j = E10.record_path(r)
+            j = ROOT / E10.record_path(r)
             files += [j, j.with_suffix(".npz"), j.with_name(j.stem + "_params.md")]
     for d in sorted((ROOT / "results/ms11").glob("launch_*")):
         files += [d / "manifest.csv", d / "run.log"]
@@ -65,7 +65,7 @@ GROUPS = [
     ("docs (ms11_plan, ms11_eval_rules, ms11_results, ms11_launch)", lambda: [ROOT / "docs" / n for n in ("ms11_plan.md", "ms11_eval_rules.md", "ms11_results.md", "ms11_launch.md")]),
     ("code (ms11_* modules, rb9a_unit, launcher, A11 script, independent check, hash script, timing script)",
      lambda: [q for q in tree("src/mprsurge/analysis") if q.name.startswith("ms11_")] + [ROOT / "src/mprsurge/analysis/rb9a_unit.py"]
-     + [ROOT / "scripts" / n for n in ("run_ms11_list.py", "run_A11.py", "run_rb9a_unit.py", "ms11_independent_check.py", "hash_ms11_results.py", "run_timing_ms11.sh")]),
+     + [ROOT / "scripts" / n for n in ("run_ms11_list.py", "run_A11.py", "run_rb9a_unit.py", "ms11_independent_check.py", "ms11_9b_look.py", "hash_ms11_results.py", "run_timing_ms11.sh")]),
     ("tests (test_ms11_*, fabricate_ms11.py)", lambda: sorted((ROOT / "tests").glob("test_ms11_*.py")) + [ROOT / "tests/fabricate_ms11.py"]),
 ]
 

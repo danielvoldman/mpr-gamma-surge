@@ -4494,3 +4494,33 @@ Chosen:          -   Default from: -
 Test:            -
 Status:          done.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-407  MS11 11g: the bounded post-hoc look at the RB9(b) map-1 cells; candidate claim limit MS11-C9    [ID: MS11, 11g, RB9, MS11-C9, DL-405, DL-406]
+Date:            2026-10-27        Author:
+Decision:        FACT, POST HOC, EXPLORATORY, read only, feeds no gate (scripts/ms11_9b_look.py, committed before the run, one run, exit 0; output results/A11/post_hoc_9b_look/ms11_9b_map1_estimator_look.csv and ms11_9b_map1_estimator_summary.json, git-ignored, labelled). 760 map-1 cells with an episode. Within 1/W (0.5 Hz): unwrapped Hilbert phase estimator 51 (equals A11), upward zero crossings 45 (equals the independent check). The two estimators disagree on 'within' in 18 cells: 12 are within by the Hilbert phase and outside by zero crossings, 6 the other way; 12 - 6 = 6 = 51 - 45, so the counts reconcile through the listed cells. No error, no cell-mapping problem (cell ids are the run stems; the 760 and the baseline classes were already equal). Nature of the 18 cells (table in the file): NOT near-bound flips as I had guessed in DL-405 (that hypothesis is withdrawn). In the 12 cells the zero-crossing frequency is 0.88 to 11.25 Hz away from the spectral f_pk (above it) while the Hilbert frequency is within 0.5 Hz of it; in the 6 cells the Hilbert frequency is 5.09 to 8.32 Hz below f_pk while the zero-crossing frequency is within 0.5 Hz. The largest difference between the two estimators over all 760 cells is 14.76 Hz. I did not investigate why (UNVERIFIED; possible waveform or amplitude-phase effects in the flagged episodes). Headline under both: spectral f_pk 49.0 Hz; Hilbert phase 44.609402 Hz (difference 4.390598 Hz); zero crossings 44.609421 Hz (difference 4.390579 Hz); bound 0.5 Hz: FAIL under either, difference 1.9e-5 Hz. The statement for MS11-C9 holds for the headline, so it is recorded. CANDIDATE claim limit MS11-C9 (not entered until the reviewer rules; worded as the prompt): 'the frozen rules do not name the estimator of the cycle frequency in RB9(b); the map-cell fractions are 51 of 760 (A11, Hilbert phase) and 45 of 760 (independent, zero crossings), both reported; the headline RB9(b) FAIL holds under either estimator'. Fact to carry with it: the two estimators disagree by several Hz in 18 of 760 cells (see above), not by a rounding amount. Nothing patched, A11 and the independent output unchanged, no further diagnostic.
+Reason:          instruction of the reviewer (second resume prompt, steps 3 and 4)
+Options:         -
+Chosen:          -   Default from: -
+Test:            scripts/ms11_9b_look.py (one run, exit 0)
+Status:          done; MS11-C9 open for the reviewer.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-408  MS11 11g: evidence sheet and file hashes    [ID: MS11, 11g, A11]
+Date:            2026-10-27        Author:
+Decision:        FACT. docs/ms11_evidence.md written (18 MS11 rows with A11 and independent values and status, match, independence notes; the mismatch row; the post-hoc look; MS11-C1 to C8 and the candidate C9; commits; known weak points). scripts/hash_ms11_results.py run (--dl-last 407): docs/ms11_file_hashes.csv, 771 rows (group, path, bytes, sha256): 724 MS11 result files (1192.347 MB, digest cdafcc0831580ea4b9f7dfd8e095deb50e8b86db2974f556cf7ffe7d75637f53, equal to DL-383), 8 results/A11 files (the three A11 outputs, the three independent outputs, the two labelled post-hoc files; digest 6a5a48c0...6c4c), 5 list definitions, 6 configs/ms11 files, 4 docs (ms11_plan, ms11_eval_rules, ms11_results after the erratum, ms11_launch), 14 code files, 9 test files, and one row for the decision-log text DL-330 to DL-407 (137,367 bytes, sha256 9a453e0de24acae83d21f39793b9698698c93f974483e2e31c0789283ae088f7). Total 1,193,035,196 bytes; table digest (sorted 'path TAB sha256' lines) 7a28624ba44cf7e960a656f89a174e0005859cf2c7766b16af735df4c6adb1e0. SHA-256 of docs/ms11_evidence.md = daf2820eb0cf94f4a844e45218f34f3c775fc0f0d8404d763f30d524c5515a92; SHA-256 of docs/ms11_file_hashes.csv = c6571235b98369c89ac3a76045d6f98e83e09858ce12a2a1d2b71aafdc729d75. Not in the table: the CSV itself, the evidence sheet, and the decision-log entries after DL-407 (they quote these hashes).
+Reason:          instruction of the reviewer (second resume prompt, step 5)
+Options:         -
+Chosen:          -   Default from: -
+Test:            scripts/hash_ms11_results.py
+Status:          done; MS11-C9 open for the reviewer.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-409  MS11 11g: fast suite and commit    [ID: MS11, 11g]
+Date:            2026-10-27        Author:
+Decision:        FACT. Fast suite (pytest -m 'not slow') on the closing 11g tree: 916 passed, 24 deselected, 9 xfailed, 1 warning, 379.06 s, pytest exit code 0 (output redirected, exit code echoed right after, no pipe); same counts as DL-404 (no test changed since). Committed: docs/ms11_evidence.md, docs/ms11_file_hashes.csv, scripts/hash_ms11_results.py, docs/decision_log.md. No frozen file edited, no result file edited, no tag, no push. Open for the reviewer: MS11-C9 (DL-407).
+Reason:          instruction of the reviewer (second resume prompt, step 5)
+Options:         -
+Chosen:          -   Default from: -
+Test:            pytest -m 'not slow' (exit code from pytest)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
