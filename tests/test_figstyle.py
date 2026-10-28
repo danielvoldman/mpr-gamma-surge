@@ -62,6 +62,8 @@ def test_colour_difference_report_is_written_and_has_no_pass_line(tmp_path):
 ROWS = [
     {"panel": "a", "section": "", "name": "rtol", "key": "solver.rtol", "value": 1e-10, "units": "", "status": "",
      "source_run_id": "stand_in_0000_aaaaaaaaaaaa", "source_config_hash12": "aaaaaaaaaaaa"},
+    {"panel": "a", "section": "", "name": "J", "key": "model.J", "value": -21.0, "units": "", "status": "",
+     "source_run_id": "stand_in_0000_aaaaaaaaaaaa", "source_config_hash12": "aaaaaaaaaaaa"},
     {"panel": "a", "section": "", "name": "N", "key": "network.N", "value": 10000, "units": "", "status": "UNVERIFIED",
      "source_run_id": "stand_in_0000_aaaaaaaaaaaa", "source_config_hash12": "aaaaaaaaaaaa"},
     {"panel": "b", "section": "", "name": "a|b \\ c", "key": "foo.bar", "value": None, "units": "ms", "status": "",
@@ -80,7 +82,7 @@ def _record(path, config):
     return path
 
 
-CONFIG = {"solver": {"method": "DOP853", "rtol": 1e-10}, "network": {"N": 10000}, "foo": {"bar": None}}
+CONFIG = {"solver": {"method": "DOP853", "rtol": 1e-10}, "network": {"N": 10000}, "model": {"J": -21.0}, "foo": {"bar": None}}
 
 
 def test_caption_raises_on_a_missing_take_home_message():
@@ -139,7 +141,7 @@ def test_nordlie_stage2_reproduces_every_params_csv_row(tmp_path):
     key = lambda r: tuple(r[c] for c in F.PARAMS_COLUMNS)
     want = [{**r, "section": N.section_of(r)} for r in stage1]
     assert sorted(map(key, back)) == sorted(map(key, want))                              # every row, every column, exact (section filled by the mapping)
-    assert {r["key"]: r["section"] for r in back if r["panel"] == "a"} == {"solver.rtol": N.SECTION_ORDER[4], "network.N": "Populations"}
+    assert {r["key"]: r["section"] for r in back if r["panel"] == "a"} == {"solver.rtol": N.NUMERICS_SECTION, "network.N": "Populations", "model.J": "Connectivity"}
     assert [r["section"] for r in back if r["key"] == "foo.bar"] == [N.UNASSIGNED_SECTION]
     assert [r["section"] for r in back if r["panel"] == "b" and r["key"] == "solver.rtol"] == ["Custom"]      # a section set in stage 1 is kept
     assert [r["name"] for r in back if r["key"] == "foo.bar"] == ["a|b \\ c"]                                # escaping round trip

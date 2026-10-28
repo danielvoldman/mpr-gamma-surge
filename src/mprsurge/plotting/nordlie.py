@@ -21,15 +21,17 @@ from ..config import repo_root
 from . import figprov as F
 
 UNASSIGNED_SECTION = "UNASSIGNED (mapping UNVERIFIED)"
-SECTION_ORDER = ("Populations", "Neuron model", "Input", "Measurement", "Numerics and bookkeeping (not a Nordlie section)", UNASSIGNED_SECTION)
+NUMERICS_SECTION = "Numerics and bookkeeping (not a Nordlie section)"
+SECTION_ORDER = ("Populations", "Connectivity", "Neuron model", "Input", "Measurement", NUMERICS_SECTION, UNASSIGNED_SECTION)
 SECTION_BY_CONFIG = {                                           # UNVERIFIED: ours
     "network": "Populations",
     "model": "Neuron model",
     "path": "Input", "noise": "Input",
     "analysis": "Measurement", "durations": "Measurement",
-    "solver": SECTION_ORDER[4], "seeds": SECTION_ORDER[4], "budget": SECTION_ORDER[4], "run": SECTION_ORDER[4], "output": SECTION_ORDER[4],
-    "sweep": SECTION_ORDER[4], "robustness": SECTION_ORDER[4], "replication": SECTION_ORDER[4], "s4": SECTION_ORDER[4],
+    "solver": NUMERICS_SECTION, "seeds": NUMERICS_SECTION, "budget": NUMERICS_SECTION, "run": NUMERICS_SECTION, "output": NUMERICS_SECTION,
+    "sweep": NUMERICS_SECTION, "robustness": NUMERICS_SECTION, "replication": NUMERICS_SECTION, "s4": NUMERICS_SECTION,
 }
+SECTION_BY_KEY = {"model.J": "Connectivity"}                        # UNVERIFIED: ours; the coupling J is a connectivity parameter (presentation fix, DL below 437)
 ROW_COLUMNS = tuple(c for c in F.PARAMS_COLUMNS if c not in ("figure", "section"))      # the section is the heading, the figure is in the header
 
 
@@ -49,6 +51,8 @@ def read_params_csv(path) -> list[dict]:
 def section_of(row: dict) -> str:
     if row.get("section"):
         return row["section"]
+    if row["key"] in SECTION_BY_KEY:
+        return SECTION_BY_KEY[row["key"]]
     return SECTION_BY_CONFIG.get(row["key"].partition(".")[0], UNASSIGNED_SECTION)
 
 
