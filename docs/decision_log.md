@@ -4754,3 +4754,53 @@ Chosen:          -   Default from: -
 Test:            tests/test_figprov.py; fast suite
 Status:          done.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-433  MS13 13c: ruling, draft logic confirmed    [ID: MS13, 13c, M13-14]
+Date:            2026-10-28        Author:
+Decision:        RULED by the reviewer (13c prompt). M13-14 (iii) is confirmed: an untagged build on a dirty tree is allowed and marked draft; a tagged build on a dirty tree raises DirtyTreeError. Replaces the UNVERIFIED reading of DL-432.
+Reason:          instruction of the reviewer (13c prompt)
+Options:         -
+Chosen:          as stated   Default from: -
+Test:            tests/test_figprov.py::test_tagged_build_refuses_a_dirty_tree_and_untagged_is_draft
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-434  MS13 13c: ruling, check_clean_tree stays a tree check; frozen criteria verified in figprov    [ID: MS13, 13c, M13-14]
+Date:            2026-10-28        Author:
+Decision:        RULED by the reviewer (13c prompt). scripts/check_clean_tree.py stays a tree-cleanliness check only. A tagged figure build verifies the frozen criteria through the loader (criteria.verify_frozen_criteria, called in figprov.write_figure_provenance). FACT: the call is made on every build, tagged or not, so an untagged build with a changed or dirty criteria file also raises CriteriaError; reported, not changed.
+Reason:          instruction of the reviewer (13c prompt)
+Options:         -
+Chosen:          as stated   Default from: -
+Test:            tests/test_figstyle.py::test_tagged_build_verifies_frozen_criteria_through_the_loader_and_fails_on_a_changed_hash (temporary repository with a copy of the criteria file; the real file is not touched)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-435  MS13 13c: ruling, M13-14 gap points    [ID: MS13, 13c, M13-14, FS5, FS6]
+Date:            2026-10-28        Author:
+Decision:        RULED by the reviewer (13c prompt). (ii) closed by the FS5 ruling (DL-430). (iii) confirmed (DL-433). (iv) five supplementary figures FS1 to FS5; the FS6 gap is stated in the manuscript notes. (v) the source of the F4 M2 ring panel (A2 ring map or A3) is decided in the F4 build prompt after checking what A2 and A3 hold. (vi) claim-limit placement per figure. (vii) font, size and resolution are placeholders flagged UNVERIFIED until the journal is chosen (style.py: DejaVu Sans, 8 pt, PNG 200 dpi, chosen here as placeholders). (viii) make_all.ps1 is written at MS15.
+Reason:          instruction of the reviewer (13c prompt)
+Options:         -
+Chosen:          as stated   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-436  MS13 13c: ruling, colour-blind criterion    [ID: MS13, 13c, M13-2, M13-14]
+Date:            2026-10-28        Author:
+Decision:        RULED by the reviewer (13c prompt); UNVERIFIED, no number. Marker shape or line style is unique for every class and path key (exact test). For colour the test only REPORTS pairwise differences under simulated deuteranopia, protanopia and greyscale, with no pass line; the reviewer judges by eye. Closes the PENDING item of docs/ms13_conventions.md sections 2 and 11 (that file is not edited and still says PENDING).
+Reason:          instruction of the reviewer (13c prompt)
+Options:         -
+Chosen:          as stated   Default from: -
+Test:            tests/test_figstyle.py::test_style_table_has_a_unique_marker_for_every_key; ::test_colour_difference_report_is_written_and_has_no_pass_line
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-437  MS13 13c: result, style table, caption and Nordlie helpers    [ID: MS13, 13c]
+Date:            2026-10-28        Author:
+Decision:        FACT. Pre-checks all PASS (criteria loader returned dd8330c5... and c7d2f36b...; S13, A4_grids, S5_cells, ms13_plan, ms13_conventions, ms11_close, ms11_file_hashes, a11_robustness equal the stated hashes; the 724 MS11 records rehash with 0 mismatches, digest cdafcc08...7f53 equal to DL-383 and DL-408 using the sorted 'path TAB sha256' lines with a trailing newline). Written: src/mprsurge/plotting/style.py, captions.py, nordlie.py; scripts/report_style_colours.py; tests/test_figstyle.py (7 tests); small edit of figprov.py (value_text, used by write_params_csv and by captions; behaviour unchanged). All modules and the script were committed (9331a73, b4c2c95) before any test ran; nothing was simulated, no figure built. SHA-256 (working copy = LF blob): style.py 44658330...b726e; captions.py c8ce04ef...304c; nordlie.py a92b5312...2b17; report_style_colours.py 31c580a6...ac5a; figprov.py 6d28cae853d67e6ad565eb3be31170013076b9f688810e827995efa6f4185335; tests/test_figstyle.py 0b991e26...018c. Docs written: none besides this log (ms13_conventions.md unchanged, a4400624...). SHA-256 of docs/decision_log.md through DL-436 (before this entry): 0fcefead0be244eb6f48c4c619e9872425b44a1364ed7bb3a3e95277394af45b. UNVERIFIED: all hex colours, markers, line styles, font/size/dpi, the deuteranopia/protanopia matrices and sRGB/CIELAB constants (written from memory), the CIE76 measure, the Nordlie section mapping, an empty claim-limit list counting as missing, P4a and P4b as their own style keys (the plan names them in S6 and F6). Tests added: 7, exact except the white-point self-check of the colour conversion (abs 1e-2). Of the 12 tests of 13a: written 11 (10 in 13b; plus row 8 now, in two parts and with the ruled criterion); row 7 (caption equals params.csv) is also written. Unwritten: 9 (drawn-data hash equal across two runs), 10 (FS6 refused at make_FS6 / fig_FS6.py absent; the writer part is covered by a 13b test), 11 (claim-limit strip IDs in provenance), 12 (readiness registry equals the figure scripts' declared inputs). Fast suite: 933 passed, 24 deselected, 9 xfailed, 1 warning, exit code 0 taken from pytest (926 + 7).
+Reason:          instruction of the reviewer (13c prompt)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_figstyle.py; fast suite
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
