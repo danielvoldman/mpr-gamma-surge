@@ -211,6 +211,7 @@ def test_13e_caption_notes_are_printed_in_order_before_the_claim_limits_and_defa
         CAP.build_caption("F3", notes=("  ",), **ok)
 
 
+FS2_MARK_KEYS = ("s3_mf", "s3_net_1e4", "s3_net_5e4", "k7_paper", "tol_band", "k9_pt", "k11_pt", "k10_curve", "k10_j8", "k10_j20", "k10_j40")
 FS1_MARK_KEYS = ("m2_fold", "m2_cusp", "m2_k_point", "s1_k4_trace", "s1_k5_trace", "s1_forcing", "k4_window", "k4_r_star")
 
 
@@ -218,7 +219,7 @@ def test_13f_diagram_marks_are_style_keys_outside_the_class_table():
     # exact: the F2 diagram marks (13f) sit outside STYLE, so the unique-marker test and the colour report are unchanged; the two sweep directions of a
     # source differ in marker shape; sources differ in colour and fill; no colour of the class/path/control/source table is reused
     keys = {"a5_cycle", "a5_fixed_stable", "a5_fixed_unstable", "hopf_point", "s4_mf_up", "s4_mf_down", "s4_net_up", "s4_net_down"}
-    keys |= set(FS1_MARK_KEYS)                                                      # 13h: the FS1 marks are in the same table
+    keys |= set(FS1_MARK_KEYS) | set(FS2_MARK_KEYS)                                                      # 13h: the FS1 marks are in the same table
     assert set(S.DIAGRAM_MARKS) == keys and all(S.diagram_mark(k).key == k for k in keys)
     drawn = [S.diagram_mark(k) for k in ("s4_mf_up", "s4_mf_down", "s4_net_up", "s4_net_down", "hopf_point")]
     assert len({m.marker for m in drawn}) == 5                                      # five drawn marks, all different shapes (mean field: filled carets; network: open vertex shapes)
@@ -249,3 +250,17 @@ def test_13h_fs1_marks_and_colour_maps_are_style_keys_outside_the_class_table():
     assert {m.colour.lower() for m in marks}.isdisjoint({s.colour.lower() for s in S.STYLE.values()} | {S.HALO_COLOUR.lower()})
     assert set(S.ROOT_COUNT_COLOURS) == {1, 3} and S.ROOT_COUNT_COLOURS[1] != S.ROOT_COUNT_COLOURS[3]
     assert (S.FREQUENCY_CMAP, S.CYCLES_CMAP) == ("viridis", "cividis")
+
+
+def test_13h_fs2_marks_are_style_keys_outside_the_class_table():
+    # exact: the FS2 marks are diagram marks (colours avoid every class/path/control/source colour and the halo; markers avoid every table marker); the three
+    # S3 source marks differ in marker and the two network marks also in colour; the three K10 tau_d marks differ in marker, colour and line style
+    marks = [S.diagram_mark(k) for k in FS2_MARK_KEYS]
+    assert all(m.key == k for m, k in zip(marks, FS2_MARK_KEYS))
+    assert {m.colour.lower() for m in marks}.isdisjoint({s.colour.lower() for s in S.STYLE.values()} | {S.HALO_COLOUR.lower()})
+    table_markers = {s.marker for s in S.STYLE.values()}
+    assert not {m.marker for m in marks if m.marker is not None} & table_markers
+    src = [S.diagram_mark(k) for k in ("s3_mf", "s3_net_1e4", "s3_net_5e4")]
+    assert len({m.marker for m in src}) == 3 and len({m.colour for m in src[1:]}) == 2 and src[0].filled and not src[1].filled
+    j = [S.diagram_mark(k) for k in ("k10_j8", "k10_j20", "k10_j40")]
+    assert len({m.marker for m in j}) == 3 and len({m.colour for m in j}) == 3 and len({m.linestyle for m in j}) == 3

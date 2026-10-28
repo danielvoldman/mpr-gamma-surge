@@ -143,6 +143,18 @@ DIAGRAM_MARKS = {
     "s1_forcing": DiagramMark("s1_forcing", "#7a7a7a", None, "line", ":", 0.0, 0.9, True),
     "k4_window": DiagramMark("k4_window", "#a05a00", None, "line", "-.", 0.0, 0.8, True),
     "k4_r_star": DiagramMark("k4_r_star", "#7a7a7a", None, "line", "--", 0.0, 0.8, True),
+    # 13h, FS2 (M3 validation K7 to K11). Marker glyphs are mathtext symbols (strings that no STYLE marker uses). UNVERIFIED design choices.
+    "s3_mf": DiagramMark("s3_mf", "#222222", r"$\bullet$", "filled dot (mean field)", "-", 7.0, 1.0, True),
+    "s3_net_1e4": DiagramMark("s3_net_1e4", "#1f77b4", r"$\circ$", "open circle (network N = 1e4)", "-", 7.0, 0.6, False),
+    "s3_net_5e4": DiagramMark("s3_net_5e4", "#2a9d8f", r"$\diamond$", "open diamond (network N = 5e4)", "-", 7.0, 0.6, False),
+    "k7_paper": DiagramMark("k7_paper", "#b35806", None, "line", "--", 0.0, 1.0, True),
+    "tol_band": DiagramMark("tol_band", "#9a9a9a", None, "line", "--", 0.0, 0.7, True),
+    "k9_pt": DiagramMark("k9_pt", "#4a148c", r"$\star$", "star outline (K9 ratio)", "none", 9.0, 1.0, True),
+    "k11_pt": DiagramMark("k11_pt", "#006d77", r"$\ast$", "asterisk (K11 ratio)", "none", 8.0, 1.0, True),
+    "k10_curve": DiagramMark("k10_curve", "#0b6e4f", None, "line", "-", 0.0, 1.2, True),
+    "k10_j8": DiagramMark("k10_j8", "#8c6d1f", r"$\triangle$", "triangle up outline (8 ms)", "-", 7.0, 0.7, True),
+    "k10_j20": DiagramMark("k10_j20", "#2f4f4f", r"$\boxdot$", "square with dot (20 ms)", "--", 7.0, 0.7, True),
+    "k10_j40": DiagramMark("k10_j40", "#7b3f00", r"$\triangledown$", "triangle down outline (40 ms)", ":", 7.0, 0.7, True),
 }
 
 # 13h, FS1: fill of the A1 root-count map (one root, three roots) and the colour map of the A2 cycles per e-fold. The A2 ring frequency uses

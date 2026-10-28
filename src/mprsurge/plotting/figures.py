@@ -1009,6 +1009,372 @@ def make_FS1(res=None, out_dir=None, *, tag_build: bool = False, take_home=FS1_T
             "timing_s": timing, "drawn_sha256": drawn, "caption": cap.text}
 
 
+# ---- FS2 (13h) -------------------------------------------------------------------------------------------------------------------------------------
+# Paths relative to results/. The registry scripts/ms13_inputs.py INPUTS["FS2"] must name the same files (the S3 records as json plus their npz; test).
+_S3_MF = {("ceni", "3.0"): "ceni_0000_0de955d7d683", ("ceni", "4.95"): "ceni_0001_52277c9529ac", ("ceni", "8.0"): "ceni_0002_032f8992d047",
+          ("devalle", "5.0"): "devalle_0000_9e49def91dfc", ("devalle", "50.0"): "devalle_0001_9a3f46a18b44"}
+_S3_NET = {"ceni_3ms": "net_ceni/net_ceni_0000_3f4561d07a32", "ceni_4.95ms": "net_ceni/net_ceni_0001_1d7353d4b3fc", "ceni_8ms": "net_ceni/net_ceni_0002_73624487461f",
+           "devalle_5ms": "net_devalle/net_devalle_0000_82a8c8cca980", "devalle_50ms": "net_devalle/net_devalle_0001_0bdf9ad62b84", "k8_5e4_5ms": "net_k8/net_k8_0000_6d90ef8de3c5"}
+FS2_INPUTS = (
+    "A4/a4_hopf_curves.npz",                                 # ceni Hopf tau_d, K9, K10 and K11 arrays (DL-115)
+    "A5/a5_cycles.npz",                                      # ceni cycle branch (DL-126)
+    "A6/a6_freq_map.npz",                                    # ref_devalle slice, checked against the stored A6 summary (DL-131)
+    "A6/a6_summary.json",                                     # K10 J dependence and the ref_devalle cycle frequency (DL-131)
+    "S3/s3_mf_summary.json",                                 # S3 mean-field readouts (DL-116)
+    "S3/s3_net_summary.json",                                # S3 network readouts and network-against-mean-field differences (DL-119)
+    "A5/check/a5_check.json",                                # stored K7 amplitude fits and hysteresis (DL-129, DL-130)
+    "A4/A4_0000_4ece63ed731f.json", "A5/A5_0000_506cf5745380.json", "A6/A6_0000_daa85487fd0a.json",       # run records: source of the FS2 parameter rows
+) + tuple(f"S3/{('ceni' if k[0] == 'ceni' else 'devalle')}/{v}.{ext}" for k, v in _S3_MF.items() for ext in ("json", "npz")) \
+  + tuple(f"S3/{v}.{ext}" for v in _S3_NET.values() for ext in ("json", "npz"))
+FS2_FILES = {"a4": FS2_INPUTS[0], "a5": FS2_INPUTS[1], "a6npz": FS2_INPUTS[2], "a6": FS2_INPUTS[3], "s3mf": FS2_INPUTS[4], "s3net": FS2_INPUTS[5], "a5check": FS2_INPUTS[6]}
+FS2_RECORDS = {"A4": FS2_INPUTS[7], "A5": FS2_INPUTS[8], "A6": FS2_INPUTS[9],
+               "S3_mf_ceni": f"S3/ceni/{_S3_MF[('ceni', '8.0')]}.json", "S3_mf_devalle": f"S3/devalle/{_S3_MF[('devalle', '5.0')]}.json",
+               "S3_net_ceni": f"S3/{_S3_NET['ceni_8ms']}.json", "S3_net_devalle": f"S3/{_S3_NET['devalle_5ms']}.json", "S3_net_k8": f"S3/{_S3_NET['k8_5e4_5ms']}.json"}
+FS2_CAPTION_KEYS = ("model.type", "model.ref_point", "model.tau_ms", "model.J", "model.Delta", "model.eta_bar", "network.N", "durations.hold_s")
+FS2_TRACE_MS = 400.0         # the traces show the last 400 ms of each stored 10 s series (axis choice; the series are stored in full)
+FS2_K9 = (0.1453, 0.002)     # plan Table 7.1 K9: the largest Delta/eta_bar is 0.1453 +- 0.002
+FS2_K11 = 0.01               # plan Table 7.1 K11: Im lambda / (2 pi r*) = 1 +- 0.01
+FS2_K8_TOL = 0.05            # plan Table 7.1 K8: network peak within 5 percent
+FS2_K7_PAPER_MS = 4.95       # the paper's value (plan Table 7.1 K7); the S3 cell at 4.95 ms is the stored run at that value
+
+# PROPOSED for the reviewer's ruling (13h prompt, item 3); every statement is from a logged result (DL numbers in the text) and the numbers are checked
+# against the stored arrays by tests/test_fig_FS2.py. FS2 reports K7, K9, K10 and K11 as they stand, failures included.
+FS2_TAKE_HOME = (
+    "PROPOSED (for ruling): The M3 mean field reproduces the K8 existence checks (limit cycle at tau_d 5 ms, fixed point at 50 ms; the N = 5e4 network peak is within 0.09 "
+    "percent of the mean field, tolerance 5 percent; DL-116, DL-119), K9 (largest Delta/eta_bar 0.14531 at eta_bar 1, 2 and 4; DL-115) and K11 (largest deviation from 1 "
+    "7.1e-4; DL-115). It does not reproduce K7 as stated: the Hopf point is at tau_d 4.12 ms, not 4.95 ms (a recorded departure, DL-074, DL-076, DL-079), and the "
+    "amplitude-squared line misses its residual rule (2.42 against 2 percent; a REPORTED FAILURE, DL-129, DL-130). K10 is not reproduced as worded: the J dependence of the "
+    "frequency is 13.4, 25.0 and 42.2 percent at 8, 20 and 40 ms against the 10 percent limit (DL-131, DL-132; single source, UNVERIFIED)."
+)
+# PROPOSED: MS11-C7 is the only limit in docs/ms13_plan.md section 5 that lists FS2 ('every figure'); no other limit of the table names FS2 (listed, not decided).
+FS2_CLAIM_LIMITS = ("MS11-C7",)
+FS2_FOOTER = "DRAFT: untagged build. Layout, marks and colours are UNVERIFIED design choices (style.py). Take-home message and claim-limit list are PROPOSED."
+
+
+def load_FS2(res=None) -> dict:
+    """Open the files of FS2_INPUTS under `res` (default results/) and return their content. Opens nothing else."""
+    res = Path(res) if res is not None else results_dir()
+    for rel in FS2_INPUTS:
+        if not (res / rel).is_file():
+            raise F.MissingInputError(f"input file not found: {res / rel}")
+    try:
+        def npz(rel, keys=None):
+            with np.load(res / rel, allow_pickle=False) as z:
+                return {k: z[k] for k in (keys or z.files)}
+        def js(rel):
+            return json.loads((res / rel).read_text(encoding="utf-8"))
+        out = {"a4": npz(FS2_FILES["a4"]), "a5": npz(FS2_FILES["a5"]), "a6npz": npz(FS2_FILES["a6npz"], ("slice_ids", "po_slice_index", "po_param", "po_frequency_hz")),
+               "a6": js(FS2_FILES["a6"]), "s3mf": js(FS2_FILES["s3mf"]), "s3net": js(FS2_FILES["s3net"]), "a5check": js(FS2_FILES["a5check"]),
+               "records": {k: js(rel) for k, rel in FS2_RECORDS.items()}, "mf": {}, "net": {}}
+        for (ref, tau), stem in _S3_MF.items():
+            out["mf"][(ref, tau)] = {"series": npz(f"S3/{ref}/{stem}.npz", ("t_ms", "r", "v")), "record": js(f"S3/{ref}/{stem}.json")}
+        for key, stem in _S3_NET.items():
+            out["net"][key] = {"series": npz(f"S3/{stem}.npz", ("t_ms", "r", "v")), "record": js(f"S3/{stem}.json")}
+    except (OSError, ValueError, KeyError) as exc:
+        raise F.MissingInputError(f"an FS2 input cannot be read: {exc}") from exc
+    return out
+
+
+def prepare_FS2(raw: dict) -> dict:
+    """Pure: stored content -> the arrays and numbers that are drawn. Keys are flat names; values are float arrays, ints, bools or strings."""
+    a4, a5, a6, s3m, s3n, chk = raw["a4"], raw["a5"], raw["a6"], raw["s3mf"], raw["s3net"], raw["a5check"]
+    d: dict = {}
+    # K7: A5 ceni cycle branch and Hopf points
+    if not bool(a5["ceni_stable"].all()):
+        raise DataError("an unstable cycle point in the A5 ceni branch: the draft draws stable cycles only")
+    up = a5["ceni_direction_up"].astype(bool)
+    for name, m in (("up", up), ("down", ~up)):
+        d[f"a5c_{name}_tau_d"] = np.asarray(a5["ceni_tau_d_ms"][m], dtype=float)
+        d[f"a5c_{name}_amp"] = np.asarray(a5["ceni_amplitude_v"][m], dtype=float)
+    d["hopf_a4_ms"], d["hopf_a5_ms"] = float(a4["ceni_hopf_tau_d_ms"][0]), float(a5["ceni_hopf_tau_d_ms"][0])
+    d["hopf_check_ms"] = float(chk["k7_amplitude"]["hopf_ms"])
+    # S3 mean-field values
+    cells_mf = s3m["cells"]
+    d["k7_tau"] = np.array([3.0, 4.95, 8.0])
+    d["k7_mf_vptp"] = np.array([float(cells_mf["K7"][k]["v_ptp_mean"]) for k in ("3.0", "4.95", "8.0")])
+    d["k7_mf_hold_dev"] = np.array([float(cells_mf["K7"][k]["hold_dev"]) for k in ("3.0", "4.95", "8.0")])
+    d["k7_mf_decays"] = np.array([float(bool(cells_mf["K7"][k]["decays"])) for k in ("3.0", "4.95", "8.0")])
+    d["k8_tau"] = np.array([5.0, 50.0])
+    d["k8_mf_vptp"] = np.array([float(cells_mf["K8"][k]["v_ptp_mean"]) for k in ("5.0", "50.0")])
+    d["k8_mf_decays"] = np.array([float(bool(cells_mf["K8"][k]["decays"])) for k in ("5.0", "50.0")])
+    d["k8_mf_f_fft"] = float(cells_mf["K8"]["5.0"]["f_fft_hz"])
+    d["k7_summary_pass"], d["k8_summary_pass"] = bool(s3m["K7"]["pass"]), bool(s3m["K8"]["pass"])
+    # K7 amplitude half: stored fits
+    k7 = chk["k7_amplitude"]
+    d["fit_hopf_ms"] = float(k7["hopf_ms"])
+    d["fit_window_ms"] = np.asarray(k7["window_ms"], dtype=float)
+    for name in ("s4_up", "posthoc_near_hopf"):
+        for k in ("slope", "intercept", "r2", "max_resid_frac", "n_points"):
+            d[f"fit_{name}_{k}"] = float(k7[name][k])
+        d[f"fit_{name}_resid_pass"] = bool(k7[name]["resid_pass"])
+    d["fit_posthoc_window_ms"] = np.asarray(k7["posthoc_near_hopf"]["window_ms"], dtype=float)
+    d["fit_hysteresis_max_rel_diff"] = float(k7["hysteresis"]["max_rel_diff"])
+    d["fit_rel_tol"] = float(chk["rel_tol"]) if np.isscalar(chk["rel_tol"]) else float("nan")
+    # network cells in the stored order, differences as stored
+    names = list(s3n["cells"])
+    d["net_cells"] = names
+    for q in ("f_rel_diff", "r_mean_rel_diff", "r_fit_ptp_rel_diff"):
+        d[f"net_{q}"] = np.array([np.nan if s3n["cells"][n]["diff"][q] is None else float(s3n["cells"][n]["diff"][q]) for n in names])
+    d["net_f_net_hz"] = np.array([np.nan if s3n["cells"][n]["diff"]["f_net_hz"] is None else float(s3n["cells"][n]["diff"]["f_net_hz"]) for n in names])
+    d["net_f_mf_hz"] = np.array([np.nan if s3n["cells"][n]["diff"]["f_mf_hz"] is None else float(s3n["cells"][n]["diff"]["f_mf_hz"]) for n in names])
+    d["net_N"] = np.array([float(s3n["cells"][n]["N"]) for n in names])
+    d["k8_net_rel_diff"], d["k8_net_tol"], d["k8_net_pass"] = float(s3n["K8"]["rel_diff"]), float(s3n["K8"]["tol"]), bool(s3n["K8"]["pass"])
+    if d["k8_net_tol"] != FS2_K8_TOL:
+        raise DataError(f"the stored K8 network tolerance {d['k8_net_tol']!r} is not the plan's {FS2_K8_TOL!r}")
+    # A6: the ref_devalle cycle frequency at eta_bar 4 is the stored summary value; the stored slice reproduces it
+    ids = [str(x) for x in raw["a6npz"]["slice_ids"]]
+    m = raw["a6npz"]["po_slice_index"] == ids.index("eta_tau_D0.3_td5.0")
+    d["k8_a6_f_eta4"] = float(a6["devalle"]["f_at_eta_4"])
+    if float(np.interp(4.0, raw["a6npz"]["po_param"][m], raw["a6npz"]["po_frequency_hz"][m])) != d["k8_a6_f_eta4"]:
+        raise DataError("the A6 slice does not reproduce the stored A6 summary frequency at eta_bar 4")
+    # traces: the last FS2_TRACE_MS of each stored series
+    for key, src in [(f"mf_{ref}_{tau}", raw["mf"][(ref, tau)]) for (ref, tau) in _S3_MF] + [(f"net_{k}", raw["net"][k]) for k in _S3_NET]:
+        t, r = np.asarray(src["series"]["t_ms"], dtype=float), np.asarray(src["series"]["r"], dtype=float)
+        sel = t >= t[-1] - FS2_TRACE_MS - 1e-9
+        d[f"tr_{key}_t"], d[f"tr_{key}_r"] = t[sel], r[sel]
+    for (ref, tau), src in raw["mf"].items():
+        if abs(float(src["record"]["config"]["model"]["tau_d_ms"]) - float(tau)) > 0:
+            raise DataError(f"S3 mean-field record {ref} {tau}: model.tau_d_ms differs")
+    # K9, K10, K11
+    for k in ("eta_bar", "ratio", "tau_d_ms", "J"):
+        d[f"k9_{k}"] = np.asarray(a4[f"k9_{k}"], dtype=float)
+    d["k9_on_edge"] = int(a4["k9_on_edge"].sum())
+    d["k10_tau_d"], d["k10_freq"] = np.asarray(a4["k10_tau_d_ms"], dtype=float), np.asarray(a4["k10_freq_hz"], dtype=float)
+    k10 = a6["k10"]
+    d["k10_band_hz"], d["k10_band_slack"], d["k10_j_limit"] = np.asarray(k10["band_hz"], dtype=float), float(k10["band_slack"]), float(k10["J_limit"])
+    d["k10_pass_all"] = bool(k10["pass_all"])
+    for tau in ("8.0", "20.0", "40.0"):
+        jd = k10["J_dependence"][tau]
+        d[f"k10_J_{tau}"] = np.asarray(jd["J"], dtype=float)
+        d[f"k10_lin_{tau}"] = np.asarray(jd["linear_freq_hz"], dtype=float)
+        d[f"k10_unstable_{tau}"] = np.asarray(jd["linear_is_unstable"], dtype=bool).astype(float)
+        d[f"k10_rel_change_{tau}"] = float(jd["linear_all"]["rel_change"])
+        d[f"k10_cycle_f_{tau}"] = np.array([np.nan if x is None else float(x) for x in jd["cycle_freq_hz"]])
+    d["k11_ratio"], d["k11_J_H"], d["k11_eta_bar"] = (np.asarray(a4[k], dtype=float) for k in ("k11_ratio", "k11_J_H", "k11_eta_bar"))
+    d["k11_max_dev"] = float(np.max(np.abs(d["k11_ratio"] - 1.0)))
+    return d
+
+
+def _fs2_trace(ax, d: dict, series: list, title: str):
+    for key, mark in series:
+        st = S.diagram_mark(mark)
+        ax.plot(d[f"tr_{key}_t"], d[f"tr_{key}_r"], color=st.colour, lw=st.width, ls=st.linestyle, zorder=3 if mark == "s3_mf" else 2)
+    ax.set_title(title, fontsize=6.2)
+    ax.tick_params(labelsize=5.5)
+
+
+def _draw_FS2(d: dict, draft: bool):
+    import textwrap
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    plt.rcParams.update({"font.family": S.FONT_FAMILY, "font.size": S.FONT_SIZE_PT, "pdf.fonttype": 42})
+    cyc, hp = S.diagram_mark("a5_cycle"), S.diagram_mark("hopf_point")
+    mf, n1, n5 = S.diagram_mark("s3_mf"), S.diagram_mark("s3_net_1e4"), S.diagram_mark("s3_net_5e4")
+    paper, tol = S.diagram_mark("k7_paper"), S.diagram_mark("tol_band")
+    fig = plt.figure(figsize=(7.4, 11.2), constrained_layout=True)
+    gs = fig.add_gridspec(5, 6, height_ratios=[1.35, 0.95, 1.25, 1.25, 0.95])
+    # (a) K7: v amplitude of the A5 ceni branch and the S3 mean-field runs
+    ax = fig.add_subplot(gs[0, 0:3])
+    for name in ("up", "down"):
+        ax.plot(d[f"a5c_{name}_tau_d"], d[f"a5c_{name}_amp"], color=cyc.colour, lw=cyc.width, zorder=3, label="A5 stable cycle, v amplitude" if name == "up" else None)
+    ax.axvline(d["hopf_a4_ms"], color=hp.colour, ls=hp.linestyle, lw=hp.width, label=f"Hopf, A4: {d['hopf_a4_ms']:.4f} ms", zorder=1)
+    ax.axvline(FS2_K7_PAPER_MS, color=paper.colour, ls=paper.linestyle, lw=paper.width, label=f"paper value {FS2_K7_PAPER_MS:g} ms (not reproduced)", zorder=1)
+    ax.plot(d["k7_tau"], d["k7_mf_vptp"], ls="none", marker=mf.marker, ms=mf.size, color=mf.colour, zorder=5, label="S3 mean field, v peak-to-peak (3, 4.95, 8 ms)")
+    ax.set_xlabel(r"$\tau_d$ (ms)")
+    ax.set_ylabel("v amplitude")
+    ax.set_xlim(2.5, 10.5)
+    ax.set_title("(a) K7: ref_ceni amplitude of v against tau_d", fontsize=S.FONT_SIZE_PT)
+    ax.legend(loc="upper left", fontsize=5.4, frameon=True, framealpha=0.95)
+    # (b) K7 amplitude half: A^2 against tau_d with the stored fits
+    axb = fig.add_subplot(gs[0, 3:6])
+    for name in ("up", "down"):
+        axb.plot(d[f"a5c_{name}_tau_d"], d[f"a5c_{name}_amp"] ** 2, color=cyc.colour, lw=cyc.width, zorder=3, label="A5 cycle, amplitude squared" if name == "up" else None)
+    h = d["fit_hopf_ms"]
+    w = d["fit_window_ms"]
+    x = np.array([h + w[0], h + w[1]])
+    axb.plot(x, d["fit_s4_up_slope"] * (x - h) + d["fit_s4_up_intercept"], color=paper.colour, lw=1.6, ls="-", zorder=4,
+             label=f"stored fit, S4 up, window {w[0]:g} to {w[1]:g} ms above Hopf: R2 {d['fit_s4_up_r2']:.5f}, residual {100 * d['fit_s4_up_max_resid_frac']:.2f} percent")
+    pw = d["fit_posthoc_window_ms"]
+    xp = np.array([h + pw[0], h + pw[1]])
+    axb.plot(xp, d["fit_posthoc_near_hopf_slope"] * (xp - h) + d["fit_posthoc_near_hopf_intercept"], color=tol.colour, lw=1.6, ls="-", zorder=4,
+             label=f"POST HOC fit (exploratory), window {pw[0]:g} to {pw[1]:g} ms: residual {100 * d['fit_posthoc_near_hopf_max_resid_frac']:.2f} percent")
+    axb.axvline(h, color=hp.colour, ls=hp.linestyle, lw=hp.width, zorder=1)
+    axb.set_xlim(h - 0.1, 6.0)
+    axb.set_ylim(0.0, 5.5)
+    axb.set_xlabel(r"$\tau_d$ (ms); axis cut at 6 ms, the A5 branch runs to 10 ms")
+    axb.set_ylabel("v amplitude squared")
+    axb.set_title("(b) K7 amplitude half: REPORTED FAILURE on the residual rule", fontsize=S.FONT_SIZE_PT)
+    axb.legend(loc="upper left", fontsize=5.0, frameon=True, framealpha=0.95)
+    # (c) traces
+    sub = gs[1, :].subgridspec(1, 5, wspace=0.28)
+    specs = [("ceni 3 ms", [("mf_ceni_3.0", "s3_mf"), ("net_ceni_3ms", "s3_net_1e4")]), ("ceni 4.95 ms", [("mf_ceni_4.95", "s3_mf"), ("net_ceni_4.95ms", "s3_net_1e4")]),
+             ("ceni 8 ms", [("mf_ceni_8.0", "s3_mf"), ("net_ceni_8ms", "s3_net_1e4")]),
+             ("devalle 5 ms", [("mf_devalle_5.0", "s3_mf"), ("net_devalle_5ms", "s3_net_1e4"), ("net_k8_5e4_5ms", "s3_net_5e4")]),
+             ("devalle 50 ms", [("mf_devalle_50.0", "s3_mf"), ("net_devalle_50ms", "s3_net_1e4")])]
+    for i, (title, series) in enumerate(specs):
+        axt = fig.add_subplot(sub[0, i])
+        _fs2_trace(axt, d, series, f"({'cdefg'[i]}) {title}")
+        axt.set_xlabel("t (ms)", fontsize=5.5)
+        if i == 0:
+            axt.set_ylabel("r (1/tau), last 400 ms", fontsize=5.5)
+    # (h) frequency and differences, network against mean field (stored)
+    axd = fig.add_subplot(gs[2, 0:2])
+    names = d["net_cells"]
+    xs = np.arange(len(names), dtype=float)
+    for q, glyph, lab in (("f_rel_diff", "d_freq", "peak frequency"), ("r_mean_rel_diff", "d_mean", "r mean"), ("r_fit_ptp_rel_diff", "d_ptp", "fitted r amplitude")):
+        mk = {"d_freq": r"$\bullet$", "d_mean": r"$\circ$", "d_ptp": r"$\diamond$"}[glyph]
+        axd.plot(xs, 100 * d[f"net_{q}"], ls="none", marker=mk, ms=7, color="#222222", label=lab, zorder=4)
+    axd.axhline(100 * FS2_K8_TOL, color=tol.colour, ls=tol.linestyle, lw=tol.width, label="K8 tolerance, 5 percent (frequency)")
+    axd.axhline(-100 * FS2_K8_TOL, color=tol.colour, ls=tol.linestyle, lw=tol.width)
+    axd.axhline(0.0, color="#7a7a7a", lw=0.5, zorder=1)
+    axd.set_xticks(xs)
+    axd.set_xticklabels([n.replace("_", " ").replace("k8 5e4 5ms", "devalle 5ms N 5e4") for n in names], rotation=40, ha="right", fontsize=5.5)
+    axd.set_ylabel("(network - MF) / MF (percent)")
+    axd.set_title("(h) S3 network against mean field", fontsize=S.FONT_SIZE_PT)
+    axd.legend(loc="upper left", fontsize=5.0, frameon=True, framealpha=0.95)
+    # (i) K9
+    axe = fig.add_subplot(gs[2, 2:4])
+    k9 = S.diagram_mark("k9_pt")
+    axe.plot(d["k9_eta_bar"], d["k9_ratio"], ls="none", marker=k9.marker, ms=k9.size, color=k9.colour, zorder=4, label="largest Delta/eta_bar on the Hopf curve (A4)")
+    axe.axhspan(FS2_K9[0] - FS2_K9[1], FS2_K9[0] + FS2_K9[1], color=tol.colour, alpha=0.3, lw=0, label="plan: 0.1453 +- 0.002")
+    axe.set_xticks(d["k9_eta_bar"])
+    axe.set_xlim(0.5, 4.5)
+    axe.set_xlabel(r"$\bar\eta$")
+    axe.set_ylabel(r"$\Delta/\bar\eta$")
+    axe.set_title("(i) K9 ratio scaling", fontsize=S.FONT_SIZE_PT)
+    axe.legend(loc="lower right", fontsize=5.0, frameon=True, framealpha=0.95)
+    # (j) K11
+    axk = fig.add_subplot(gs[2, 4:6])
+    k11 = S.diagram_mark("k11_pt")
+    axk.plot(-d["k11_J_H"], d["k11_ratio"], ls="none", marker=k11.marker, ms=k11.size, color=k11.colour, zorder=4, label="Im lambda / (2 pi r*), 20 branches (A4)")
+    for sgn in (-1, 1):
+        axk.axhline(1.0 + sgn * FS2_K11, color=tol.colour, ls=tol.linestyle, lw=tol.width, label="plan: 1 +- 0.01" if sgn == -1 else None)
+    axk.set_xscale("log")
+    axk.set_xticks([5e-4, 1e-3, 2e-3, 5e-3])
+    axk.set_xticklabels(["5e-4", "1e-3", "2e-3", "5e-3"], fontsize=6)
+    axk.minorticks_off()
+    axk.set_ylim(0.986, 1.014)
+    axk.set_xlabel("-J at the Hopf point")
+    axk.set_ylabel("ratio")
+    axk.set_title("(j) K11, Delta = 1e-4", fontsize=S.FONT_SIZE_PT)
+    axk.legend(loc="lower left", fontsize=5.0, frameon=True, framealpha=0.95)
+    # (k) K10 frequency against tau_d
+    axf = fig.add_subplot(gs[3, 0:3])
+    k10 = S.diagram_mark("k10_curve")
+    axf.plot(d["k10_tau_d"], d["k10_freq"], color=k10.colour, lw=k10.width, label="A4 linear frequency, eta_bar 1, J -20 (64 points)", zorder=3)
+    lo, hi = d["k10_band_hz"]
+    sl = d["k10_band_slack"]
+    for yv, lab in ((lo * (1 - sl), "plan band 5 to 30 Hz, +-10 percent"), (hi * (1 + sl), None)):
+        axf.axhline(yv, color=tol.colour, ls=tol.linestyle, lw=tol.width, label=lab)
+    axf.set_xlabel(r"$\tau_d$ (ms)")
+    axf.set_ylabel("frequency (Hz)")
+    axf.set_title("(k) K10 frequency against tau_d (band and monotone parts)", fontsize=S.FONT_SIZE_PT)
+    axf.legend(loc="upper right", fontsize=5.0, frameon=True, framealpha=0.95)
+    # (l) K10 J dependence: stored linear frequency
+    axg = fig.add_subplot(gs[3, 3:6])
+    for tau, key in (("8.0", "k10_j8"), ("20.0", "k10_j20"), ("40.0", "k10_j40")):
+        st = S.diagram_mark(key)
+        axg.plot(d[f"k10_J_{tau}"], d[f"k10_lin_{tau}"], color=st.colour, ls=st.linestyle, lw=0.7, marker=st.marker, ms=st.size, zorder=3,
+                 label=f"tau_d {float(tau):g} ms: change {100 * d[f'k10_rel_change_{tau}']:.1f} percent (limit {100 * d['k10_j_limit']:.0f})")
+    axg.set_xlabel("J")
+    axg.set_ylabel("linear Im lambda frequency (Hz)")
+    axg.set_title("(l) K10 J dependence: NOT reproduced as worded", fontsize=S.FONT_SIZE_PT)
+    axg.legend(loc="upper left", fontsize=5.0, frameon=True, framealpha=0.95)
+    # status block
+    axs = fig.add_subplot(gs[4, :])
+    axs.axis("off")
+    lines = ["Status of each check, from the stored values (a failure is shown, not dropped):"]
+    for text in fs2_status_lines(d):
+        lines += textwrap.wrap(text, width=150, subsequent_indent="    ")
+    axs.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=5.7, linespacing=1.25)
+    axs.text(0.0, 0.0, FS2_FOOTER if draft else "", fontsize=5.5, color="#7f0000", ha="left", va="bottom")
+    return fig
+
+
+def fs2_status_lines(d: dict) -> list[str]:
+    return [
+        f"K7 Hopf: tau_d {d['hopf_a4_ms']:.4f} ms (A4; A5 {d['hopf_a5_ms']:.4f}) against the paper's {FS2_K7_PAPER_MS:g} ms; not reproduced, kept as a recorded departure (DL-074, DL-076, DL-079).",
+        f"K7 time series: v decays at 3 ms (final v amplitude {d['k7_mf_vptp'][0]:g}) and holds at 8 ms (window deviation {d['k7_mf_hold_dev'][2]:.2g}, limit 0.02): pass (S3 summary).",
+        f"K7 amplitude half: R2 {d['fit_s4_up_r2']:.5f} pass; residual {100 * d['fit_s4_up_max_resid_frac']:.2f} percent against 2 percent FAIL (REPORTED FAILURE, DL-129); up-down difference {d['fit_hysteresis_max_rel_diff']:.1e} pass. "
+        "The post hoc fit is exploratory, not pre-registered (DL-130).",
+        f"K8: limit cycle at 5 ms (v amplitude {d['k8_mf_vptp'][0]:.3f}), fixed point at 50 ms; mean-field peak {d['k8_mf_f_fft']:.2f} Hz, A6 cycle frequency at eta_bar 4 {d['k8_a6_f_eta4']:.2f} Hz; network (N = 5e4) {100 * d['k8_net_rel_diff']:+.2f} percent against the 5 percent tolerance: pass.",
+        f"K9: largest ratio {d['k9_ratio'].max():.5f}, spread {d['k9_ratio'].max() - d['k9_ratio'].min():.1e}; {d['k9_on_edge']} maximisers on an edge. K11: largest deviation from 1 {d['k11_max_dev']:.1e} (tolerance {FS2_K11:g}). Both pass.",
+        f"K10 (non-blocking, single source, UNVERIFIED): band and monotone parts pass; the J dependence is {100 * d['k10_rel_change_8.0']:.1f}, {100 * d['k10_rel_change_20.0']:.1f} and {100 * d['k10_rel_change_40.0']:.1f} percent against {100 * d['k10_j_limit']:.0f}: not passed as worded (DL-131, DL-132).",
+        "K4-net: not run, M2 network coupling unsourced (open item 1, T51); non-blocking (DL-113). No source was supplied (DL-119).",
+        "FAIL rows of the stored A11 table that touch FS2: none (Table 7.2 names no RB check for FS2; UNVERIFIED reading).",
+    ]
+
+
+def fs2_caption_notes(d: dict) -> tuple:
+    """Sentences about what is and is not drawn (13h). Values come from the prepared data; only the wording is typed here."""
+    return (
+        "Panels (a) and (b) draw the A5 stable ceni cycle branch (v amplitude and its square), the A4 Hopf point, and the S3 mean-field runs at 3, 4.95 and 8 ms. The two fit lines in (b) "
+        "are drawn from the stored slope and intercept of the K7 amplitude check (A5 check file); the line from the pre-registered window misses the residual rule, and the "
+        "near-Hopf line is a POST HOC exploratory fit (DL-130).",
+        "Panels (c) to (g) are the stored S3 r(t) series, last 400 ms of the 10 s runs (the series run to 10 s, mean field at 1 ms output, network at 1 ms bins). Network runs are single "
+        "seeds; the network r has a different noise character from the mean field, and the network start differs (DL-119). No smoothing or interpolation is applied.",
+        "Panel (h) draws the stored differences (network minus mean field over mean field); only the K8 frequency has a criterion (5 percent); the amplitude and mean differences are "
+        "information (DL-119, DL-129). The 3 ms and 50 ms cells have no mean-field oscillation, so their differences are undefined and not drawn.",
+        "Panels (i) and (j) are the stored K9 and K11 arrays of the A4 run, with the plan's tolerance bands. Panels (k) and (l) are the K10 readouts: (k) the A4 linear frequency against tau_d, "
+        "(l) the stored linear frequency at J of -40, -30, -20, -10 and -5 for three tau_d; the linear frequency is not a cycle frequency (DL-131).",
+        "The A6 frequency map file is opened for one check only (the ref_devalle slice reproduces the stored cycle frequency at eta_bar 4); no frequency map is drawn. S3 cells of the K8 N = 5e4 run have a single seed.",
+        "The claim-limit ID listed here is PROPOSED for the reviewer's ruling. K7, K9 to K11 are single-source checks (CP1, CP11); K10 is UNVERIFIED single source.",
+    )
+
+
+def make_FS2(res=None, out_dir=None, *, tag_build: bool = False, take_home=FS2_TAKE_HOME, claim_limit_ids=FS2_CLAIM_LIMITS,
+             script="scripts/fig_FS2.py", root=None) -> dict:
+    """Build FS2 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov)."""
+    F.require_buildable("FS2")
+    root = Path(root) if root is not None else repo_root()
+    res = Path(res) if res is not None else root / "results"
+    out = Path(out_dir) if out_dir is not None else root / "figures" / "FS2"
+    t = {"start": time.perf_counter()}
+    raw = load_FS2(res)
+    t["load"] = time.perf_counter()
+    d = prepare_FS2(raw)
+    t["prepare"] = time.perf_counter()
+    rows = []
+    for panel, key in (("a,b,i-l", "A4"), ("a,b", "A5"), ("k,l", "A6"), ("a,c-e", "S3_mf_ceni"), ("f,g", "S3_mf_devalle"), ("c-e,h", "S3_net_ceni"), ("f,h", "S3_net_devalle"), ("f,h", "S3_net_k8")):
+        rec = raw["records"][key]
+        for r in make_param_table(rec["config"]):
+            rows.append({**r, "panel": panel, "section": "", "source_run_id": rec["name"], "source_config_hash12": rec["config_hash12"]})
+    cap = CAP.build_caption("FS2", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=[r for r in rows if r["key"] in FS2_CAPTION_KEYS],
+                            spectrogram=None, symbol_keys=(), notes=fs2_caption_notes(d))
+    import matplotlib.pyplot as plt
+    fig = _draw_FS2(d, draft=not tag_build)
+    out.mkdir(parents=True, exist_ok=True)
+    pdf, png = out / "FS2.pdf", out / "FS2.png"
+    fig.savefig(pdf)
+    fig.savefig(png, dpi=S.PNG_DPI)
+    plt.close(fig)
+    t["draw"] = time.perf_counter()
+    cap_path, dig_path = out / "FS2_caption.txt", out / "FS2_drawn_data_sha256.txt"
+    from .. import provenance as P
+    drawn = drawn_data_sha256(d)
+    P.atomic_write_text(cap_path, cap.text + "\n")
+    P.atomic_write_text(dig_path, drawn + "\n")
+    warnings = []
+    for k, rec in raw["records"].items():
+        if (rec.get("git") or {}).get("dirty"):
+            warnings.append(f"input record {k} ({rec['name']}) was written with git dirty = true")
+    prov = F.write_figure_provenance(
+        "FS2", script=script, inputs=[res / p for p in FS2_INPUTS], outputs=[pdf, png, cap_path, dig_path], params_rows=rows,
+        modules=["src/mprsurge/plotting/figures.py", "src/mprsurge/plotting/style.py", "src/mprsurge/plotting/captions.py",
+                 "src/mprsurge/plotting/nordlie.py", "src/mprsurge/plotting/figprov.py"],
+        configs=["configs/A4_grids.yaml", "configs/A5.yaml", "configs/A6.yaml", "configs/S3.yaml", "configs/S3_ceni.yaml", "configs/S3_net_ceni.yaml",
+                 "configs/S3_net_devalle.yaml", "configs/S3_net_k8.yaml"], claim_limits=cap.claim_limits, spectrogram=None, tag_build=tag_build,
+        out_dir=out, root=root, warnings=warnings, wall_time_s=time.perf_counter() - t["start"])
+    nordlie_path = out / "FS2_nordlie.md"
+    N.write_nordlie(out / "FS2_params.csv", out / "FS2_provenance.json", nordlie_path, root=root)
+    t["end"] = time.perf_counter()
+    timing = {"load_s": t["load"] - t["start"], "prepare_s": t["prepare"] - t["load"], "draw_s": t["draw"] - t["prepare"],
+              "provenance_and_nordlie_s": t["end"] - t["draw"], "total_s": t["end"] - t["start"]}
+    return {"prov": prov, "paths": [pdf, png, cap_path, dig_path, out / "FS2_params.csv", out / "FS2_provenance.json", nordlie_path],
+            "timing_s": timing, "drawn_sha256": drawn, "caption": cap.text}
+
+
 def make_FS6(*args, **kwargs):
     """FS6 is not produced (S14 and S15 were not run, MS12-C1, DL-421): raises figprov.FigureRefused."""
     F.require_buildable("FS6")

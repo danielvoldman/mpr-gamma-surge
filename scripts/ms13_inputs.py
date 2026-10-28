@@ -127,6 +127,11 @@ INPUTS = {
         fil("A4 Hopf curves", "A4/a4_hopf_curves.npz"),
         fil("A5 cycles", "A5/a5_cycles.npz"),
         fil("A6 frequency map", "A6/a6_freq_map.npz"),
+        fil("A6 summary (K10 J dependence, ref_devalle cycle frequency; added 13h)", "A6/a6_summary.json"),
+        fil("A5 K7 amplitude check (stored fits and hysteresis; added 13h)", "A5/check/a5_check.json"),
+        fil("A4 run record (source of the FS2 parameter rows; added 13h)", "A4/A4_0000_4ece63ed731f.json"),
+        fil("A5 run record (source of the FS2 parameter rows; added 13h)", "A5/A5_0000_506cf5745380.json"),
+        fil("A6 run record (source of the FS2 parameter rows; added 13h)", "A6/A6_0000_daa85487fd0a.json"),
     ],
     "FS3": [
         rec("S9 finite size", "S9/S9/*.json", 40, NET),
