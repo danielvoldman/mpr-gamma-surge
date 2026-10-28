@@ -110,7 +110,6 @@ def test_build_hashes_and_params_agree_with_the_provenance(built):
     assert F.verify_figure_provenance(prov) == []                                  # exact SHA-256 of every recorded file
     assert F.check_params_against_provenance(out / "F3_params.csv", prov) == []
     text = (out / "F3_nordlie.md").read_text(encoding="utf-8")
-    conn = text.split("## Connectivity", 1)[1].split("
-## ", 1)[0]
+    conn = text.split("## Connectivity", 1)[1].split("## ", 1)[0]
     assert "model.J" in conn                                                       # J sits under Connectivity (13d fix)
     assert (out / "F3.pdf").stat().st_size > 0 and (out / "F3.png").stat().st_size > 0
