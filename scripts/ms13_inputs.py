@@ -59,6 +59,9 @@ INPUTS = {
         fil("A4 Hopf curves", "A4/a4_hopf_curves.npz"),
         fil("A6 frequency map", "A6/a6_freq_map.npz"),
         fil("A6 summary", "A6/a6_summary.json"),
+        fil("A4 run record (source of the F3 parameter rows)", "A4/A4_0000_4ece63ed731f.json"),
+        fil("A6 run record (source of the F3 parameter rows)", "A6/A6_0000_daa85487fd0a.json"),
+        fil("A11 robustness table (FAIL-row strip)", "A11/a11_robustness.csv"),
     ],
     "F4": [
         fil("A7 ramp metrics", "A7/a7_ramp_metrics.parquet"),
