@@ -209,3 +209,19 @@ def test_13e_caption_notes_are_printed_in_order_before_the_claim_limits_and_defa
     assert t.index("First note.") < t.index("Second note.") < t.index("Claim limits:")
     with pytest.raises(CAP.CaptionError, match="notes entry"):
         CAP.build_caption("F3", notes=("  ",), **ok)
+
+
+def test_13f_diagram_marks_are_style_keys_outside_the_class_table():
+    # exact: the F2 diagram marks (13f) sit outside STYLE, so the unique-marker test and the colour report are unchanged; the two sweep directions of a
+    # source differ in marker shape; sources differ in colour and fill; no colour of the class/path/control/source table is reused
+    keys = {"a5_cycle", "a5_fixed_stable", "a5_fixed_unstable", "hopf_point", "s4_mf_up", "s4_mf_down", "s4_net_up", "s4_net_down"}
+    assert set(S.DIAGRAM_MARKS) == keys and all(S.diagram_mark(k).key == k for k in keys)
+    drawn = [S.diagram_mark(k) for k in ("s4_mf_up", "s4_mf_down", "s4_net_up", "s4_net_down", "hopf_point")]
+    assert len({m.marker for m in drawn}) == 3 and S.diagram_mark("s4_mf_up").marker != S.diagram_mark("s4_mf_down").marker   # 6, 7 shared by source, told apart by fill and colour
+    assert S.diagram_mark("s4_mf_up").colour != S.diagram_mark("s4_net_up").colour and S.diagram_mark("s4_mf_up").filled and not S.diagram_mark("s4_net_up").filled
+    assert (S.diagram_mark("a5_fixed_stable").linestyle, S.diagram_mark("a5_fixed_unstable").linestyle) == ("-", "--")
+    assert {m.colour.lower() for m in S.DIAGRAM_MARKS.values()}.isdisjoint({s.colour.lower() for s in S.STYLE.values()} | {S.HALO_COLOUR.lower()})
+    table_markers = {s.marker for s in S.STYLE.values()}
+    assert not {m.marker for m in S.DIAGRAM_MARKS.values() if m.marker is not None} & table_markers
+    with pytest.raises(S.StyleError, match="no diagram mark"):
+        S.diagram_mark("s4_network_unknown")

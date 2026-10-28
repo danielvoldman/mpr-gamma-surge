@@ -102,6 +102,42 @@ CONTOUR_MARKS = {
     "100hz": ContourMark(100.0, ".", "point", "#7f0000", 6.0, 1.0),
 }
 
+# One-parameter diagram marks (13f, F2). Like the contour marks they are not entries of STYLE (they are not classes, paths, controls or sources),
+# so the unique-marker table and the colour report are unchanged. The two sweep directions of a source differ in marker shape, not in colour alone.
+# The network marks are NOT the 'network_agree' / 'network_disagree' keys: those mean a class agreement, and F2 has no classes and no agreement
+# threshold (the plan gives none for the S4 network amplitudes). UNVERIFIED design choices; marker None means a line without markers.
+@dataclass(frozen=True)
+class DiagramMark:
+    key: str
+    colour: str
+    marker: object          # matplotlib marker code (a str or an int caret code) or None for a line
+    marker_name: str
+    linestyle: str
+    size: float
+    width: float
+    filled: bool
+
+
+DIAGRAM_MARKS = {
+    "a5_cycle": DiagramMark("a5_cycle", "#111111", None, "line", "-", 0.0, 1.2, True),
+    "a5_fixed_stable": DiagramMark("a5_fixed_stable", "#7a7a7a", None, "line", "-", 0.0, 2.2, True),
+    "a5_fixed_unstable": DiagramMark("a5_fixed_unstable", "#7a7a7a", None, "line", "--", 0.0, 1.4, True),
+    "hopf_point": DiagramMark("hopf_point", "#67001f", "*", "star", ":", 9.0, 1.0, True),
+    "s4_mf_up": DiagramMark("s4_mf_up", "#222222", 6, "caret up (up sweep)", "none", 3.5, 0.8, True),
+    "s4_mf_down": DiagramMark("s4_mf_down", "#222222", 7, "caret down (down sweep)", "none", 3.5, 0.8, True),
+    "s4_net_up": DiagramMark("s4_net_up", "#1f77b4", 6, "open caret up (up sweep)", "none", 6.0, 1.1, False),
+    "s4_net_down": DiagramMark("s4_net_down", "#1f77b4", 7, "open caret down (down sweep)", "none", 6.0, 1.1, False),
+}
+
+
+def diagram_mark(key: str) -> DiagramMark:
+    """The mark of a one-parameter diagram element; an unknown key raises StyleError (no silent default)."""
+    try:
+        return DIAGRAM_MARKS[key]
+    except KeyError:
+        raise StyleError(f"no diagram mark for key {key!r}; known: {', '.join(DIAGRAM_MARKS)}") from None
+
+
 STYLE: dict[str, Style] = {
     key: Style(key, family, *vals) for family, body in _TABLE.items() for key, vals in body.items()
 }
