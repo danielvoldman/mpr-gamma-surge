@@ -54,6 +54,10 @@ INPUTS = {
         fil("A5 Julia summary", "A5/julia/a5.json"),
         rec("S4 mean-field sweep, ref_devalle", "S4/devalle/*.json", 1, ("t_ms", "r", "v", "param", "step", "step_param", "step_up")),
         rec("S4 network sweep (15 steps)", "S4/net/*.json", 1, ("t_ms", "r", "v", "param", "step", "step_param", "step_up")),
+        fil("A5 run record (source of the F2 parameter rows; added 13f)", "A5/A5_0000_506cf5745380.json"),
+        fil("S4 mean-field stored readouts (v_ptp, pair differences; added 13f)", "S4/s4_summary.npz"),
+        fil("S4 network stored readouts and network-against-mean-field differences (added 13f)", "S4/s4_net_summary.npz"),
+        fil("A11 robustness table (FAIL-row strip; added 13f)", "A11/a11_robustness.csv"),
     ],
     "F3": [
         fil("A4 Hopf curves", "A4/a4_hopf_curves.npz"),

@@ -105,7 +105,8 @@ CONTOUR_MARKS = {
 # One-parameter diagram marks (13f, F2). Like the contour marks they are not entries of STYLE (they are not classes, paths, controls or sources),
 # so the unique-marker table and the colour report are unchanged. The two sweep directions of a source differ in marker shape, not in colour alone.
 # The network marks are NOT the 'network_agree' / 'network_disagree' keys: those mean a class agreement, and F2 has no classes and no agreement
-# threshold (the plan gives none for the S4 network amplitudes). UNVERIFIED design choices; marker None means a line without markers.
+# threshold (the plan gives none for the S4 network amplitudes). The mean-field marks are filled carets, the network marks open vertex shapes; both
+# network shapes drawn on one point read as an eight-pointed star. UNVERIFIED design choices; marker None means a line without markers.
 @dataclass(frozen=True)
 class DiagramMark:
     key: str
@@ -118,15 +119,18 @@ class DiagramMark:
     filled: bool
 
 
+# vertex markers (matplotlib reads a tuple of (x, y) points as a marker), so they share no code with the class/path/control/source markers
+_SQUARE = ((-1.0, -1.0), (1.0, -1.0), (1.0, 1.0), (-1.0, 1.0), (-1.0, -1.0))
+_DIAMOND = ((0.0, -1.4), (1.4, 0.0), (0.0, 1.4), (-1.4, 0.0), (0.0, -1.4))
 DIAGRAM_MARKS = {
     "a5_cycle": DiagramMark("a5_cycle", "#111111", None, "line", "-", 0.0, 1.2, True),
     "a5_fixed_stable": DiagramMark("a5_fixed_stable", "#7a7a7a", None, "line", "-", 0.0, 2.2, True),
     "a5_fixed_unstable": DiagramMark("a5_fixed_unstable", "#7a7a7a", None, "line", "--", 0.0, 1.4, True),
-    "hopf_point": DiagramMark("hopf_point", "#67001f", "*", "star", ":", 9.0, 1.0, True),
+    "hopf_point": DiagramMark("hopf_point", "#67001f", r"$\otimes$", "circled cross", ":", 10.0, 1.0, True),
     "s4_mf_up": DiagramMark("s4_mf_up", "#222222", 6, "caret up (up sweep)", "none", 3.5, 0.8, True),
     "s4_mf_down": DiagramMark("s4_mf_down", "#222222", 7, "caret down (down sweep)", "none", 3.5, 0.8, True),
-    "s4_net_up": DiagramMark("s4_net_up", "#1f77b4", 6, "open caret up (up sweep)", "none", 6.0, 1.1, False),
-    "s4_net_down": DiagramMark("s4_net_down", "#1f77b4", 7, "open caret down (down sweep)", "none", 6.0, 1.1, False),
+    "s4_net_up": DiagramMark("s4_net_up", "#1f77b4", _SQUARE, "open square (up sweep)", "none", 6.0, 1.1, False),
+    "s4_net_down": DiagramMark("s4_net_down", "#1f77b4", _DIAMOND, "open diamond (down sweep)", "none", 6.0, 1.1, False),
 }
 
 

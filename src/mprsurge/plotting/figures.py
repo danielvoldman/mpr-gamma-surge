@@ -1,4 +1,4 @@
-"""Figure builders (MS13 13d; plan section 10.1: plotting/figures.py, make_F1 ... make_FS6). Only make_F3 and the make_FS6 refusal exist so far.
+"""Figure builders (MS13 13d; plan section 10.1: plotting/figures.py, make_F1 ... make_FS6). Only make_F3, make_F2 and the make_FS6 refusal exist so far.
 
 A figure builder reads stored results under results/ (never simulates, never writes under results/), draws, and writes the figure, <ID>_provenance.json
 and <ID>_params.csv into figures/<ID>/ through figprov. The step order is fixed: load_<ID> (files -> arrays), prepare_<ID> (pure: arrays -> the drawn
@@ -368,6 +368,288 @@ def make_F3(res=None, out_dir=None, *, tag_build: bool = False, take_home=F3_TAK
     timing = {"load_s": t["load"] - t["start"], "prepare_s": t["prepare"] - t["load"], "draw_s": t["draw"] - t["prepare"],
               "provenance_and_nordlie_s": t["end"] - t["draw"], "total_s": t["end"] - t["start"]}
     return {"prov": prov, "paths": [pdf, png, cap_path, dig_path, out / "F3_params.csv", out / "F3_provenance.json", nordlie_path],
+            "timing_s": timing, "drawn_sha256": drawn, "caption": cap.text}
+
+
+# ---- F2 (13f) --------------------------------------------------------------------------------------------------------------------------------------
+# Paths relative to results/. The registry scripts/ms13_inputs.py INPUTS["F2"] must name the same files (the S4 records as json plus their npz; test).
+F2_INPUTS = (
+    "A5/a5_cycles.npz",                                      # devalle branch: cycle max/min, stable flags, fixed points, Hopf eta_bar (DL-126)
+    "A5/julia/a5.json",                                      # Hopf type and the 'fold' turn-around entry (DL-126)
+    "A5/A5_0000_506cf5745380.json",                          # run record: source of the A5 rows of F2_params.csv
+    "S4/devalle/devalle_0000_48a5a3bd19e9.json",             # S4 mean-field sweep record (61 steps up then down; DL-127)
+    "S4/devalle/devalle_0000_48a5a3bd19e9.npz",              # its series (v, step): read-window max and min are taken here
+    "S4/net/net_0000_38692898ae60.json",                     # S4 network sweep record (15 steps up then down; DL-128)
+    "S4/net/net_0000_38692898ae60.npz",
+    "S4/s4_summary.npz",                                     # stored per-step readouts, mean field (v_ptp checked against the series)
+    "S4/s4_net_summary.npz",                                 # stored per-step readouts, network, and the stored network-against-mean-field differences
+    "A11/a11_robustness.csv",                                # stored A11 table: the FAIL-row strip is read from it, not recomputed
+)
+F2_RECORDS = {"A5": F2_INPUTS[2], "S4_mf": F2_INPUTS[3], "S4_net": F2_INPUTS[5]}
+F2_STRIP_RB = ("RB1",)       # network against mean field. UNVERIFIED reading: Table 7.2 'Where' names F2 for no RB id; RB1 is listed because F2 draws network symbols
+F2_JUDGED_ABOVE = 0.1        # DL-129 (D-3, CP23): steps within 0.1 of eta_H are excluded from the amplitude comparison; the relative difference is drawn above it only
+F2_CAPTION_KEYS = ("model.type", "model.ref_point", "model.tau_ms", "model.tau_d_ms", "model.J", "model.Delta", "network.N", "s4.param", "s4.step_s", "s4.read_s",
+                   "s4.n_points", "s4.indices")
+
+# PROPOSED for the reviewer's ruling (13f prompt); every statement is from a logged result (DL numbers in the text) and the numbers are checked
+# against the stored arrays by tests/test_fig_F2.py.
+F2_TAKE_HOME = (
+    "PROPOSED (for ruling): At ref_devalle the limit cycle appears at eta_bar 2.896 in a supercritical Hopf bifurcation, with no fold of cycles and stable "
+    "cycles to eta_bar 8 (A5; DL-126). The quasi-static mean-field sweeps up and down (S4) lie on that branch with no hysteresis loop from 0.2 above the "
+    "Hopf point (largest up-down difference in the v amplitude 1.2e-3 relative, stored arrays; A5 against S4 at most 1.84e-3, DL-129). The N = 1e4 network "
+    "sweep follows the branch less closely: its v amplitude differs from the mean field by +13.2 to -2.5 percent above eta_bar 3.0 (a different "
+    "definition of v; information only, no criterion; DL-128, DL-129), and below the Hopf point it does not rest (v amplitude 0.22 to 0.31; DL-128)."
+)
+# PROPOSED placement (docs/ms13_plan.md section 5 lists, the reviewer decides): MS11-C7 (every figure), MS12-C1 (F1 to F6, as ruled for F3, DL-453),
+# G4-C2 (network symbols are drawn; the table lists F1, F5 and FS3 for G4-C1 to C3 and does not list F2: UNVERIFIED reading).
+F2_CLAIM_LIMITS = ("MS11-C7", "MS12-C1", "G4-C2")
+F2_FOOTER = "DRAFT: untagged build. Layout, marks and colours are UNVERIFIED design choices (style.py). Take-home message and claim-limit list are PROPOSED."
+
+
+def load_F2(res=None) -> dict:
+    """Open the files of F2_INPUTS under `res` (default results/) and return their content. Opens nothing else."""
+    res = Path(res) if res is not None else results_dir()
+    for rel in F2_INPUTS:
+        if not (res / rel).is_file():
+            raise F.MissingInputError(f"input file not found: {res / rel}")
+    try:
+        with np.load(res / F2_INPUTS[0], allow_pickle=False) as z:
+            a5 = {k: z[k] for k in z.files}
+        a5json = json.loads((res / F2_INPUTS[1]).read_text(encoding="utf-8"))
+        records = {k: json.loads((res / rel).read_text(encoding="utf-8")) for k, rel in F2_RECORDS.items()}
+        series = {}
+        for key, rel in (("mf", F2_INPUTS[4]), ("net", F2_INPUTS[6])):
+            with np.load(res / rel, allow_pickle=False) as z:
+                series[key] = {k: z[k] for k in ("t_ms", "v", "step", "step_param", "step_up")}
+        with np.load(res / F2_INPUTS[7], allow_pickle=False) as z:
+            summ_mf = {k: z[k] for k in z.files}
+        with np.load(res / F2_INPUTS[8], allow_pickle=False) as z:
+            summ_net = {k: z[k] for k in z.files}
+        with open(res / F2_INPUTS[9], newline="", encoding="utf-8") as fh:
+            a11 = list(csv.DictReader(fh))
+    except (OSError, ValueError, KeyError) as exc:
+        raise F.MissingInputError(f"an F2 input cannot be read: {exc}") from exc
+    return {"a5": a5, "a5json": a5json, "records": records, "series": series, "summ_mf": summ_mf, "summ_net": summ_net, "a11": a11}
+
+
+def _read_window_extrema(s: dict, read_s: float):
+    """Per step: maximum and minimum of v over the read window (the last `read_s` seconds, the rule of analysis.s4.step_table)."""
+    t, v, k = s["t_ms"], s["v"], s["step"]
+    n = int(s["step_param"].size)
+    vmax, vmin = np.full(n, np.nan), np.full(n, np.nan)
+    for i in range(n):
+        m = k == i
+        ti, vi = t[m], v[m]
+        vi = vi[ti >= ti[-1] - 1e3 * read_s - 1e-9]
+        vmax[i], vmin[i] = vi.max(), vi.min()
+    return vmax, vmin
+
+
+def prepare_F2(raw: dict) -> dict:
+    """Pure: stored content -> the arrays and numbers that are drawn. Keys are flat names; values are float arrays, ints, bools or strings."""
+    a5, js = raw["a5"], raw["a5json"]
+    d: dict = {}
+    branch = js["branches"]["devalle"]
+    d["eta_H"] = float(a5["devalle_hopf_eta_bar"][0])
+    if d["eta_H"] != float(branch["hopf_param"]):
+        raise DataError(f"A5 npz Hopf eta_bar {d['eta_H']!r} is not the a5.json value {branch['hopf_param']!r}")
+    d["hopf_type"], d["hopf_frequency_hz"] = str(branch["hopf_type"]), float(branch["hopf_frequency_hz"])
+    d["a5_special_points"] = [{"type": p["type"], "param": float(p["param"]), "direction": p["direction"]} for p in branch["po_special_points"]]
+    d["a5_cycle_unstable_count"] = int((~a5["devalle_stable"]).sum())
+    if d["a5_cycle_unstable_count"]:
+        raise DataError(f"{d['a5_cycle_unstable_count']} unstable cycle points in the A5 devalle branch: the draft draws stable cycles only")
+    up = a5["devalle_direction_up"].astype(bool)
+    for name, m in (("up", up), ("down", ~up)):
+        d[f"a5_{name}_param"] = np.asarray(a5["devalle_param"][m], dtype=float)
+        d[f"a5_{name}_vmax"] = np.asarray(a5["devalle_vmax"][m], dtype=float)
+        d[f"a5_{name}_vmin"] = np.asarray(a5["devalle_vmin"][m], dtype=float)
+        d[f"a5_{name}_amp"] = np.asarray(a5["devalle_amplitude_v"][m], dtype=float)
+    d["a5_eta_max"], d["a5_cycle_count"] = float(a5["devalle_param"].max()), int(a5["devalle_param"].size)
+    fp = np.asarray(a5["devalle_fixed_param"], dtype=float)
+    d["fixed_param"], d["fixed_v"] = fp, np.asarray(a5["devalle_fixed_v"], dtype=float)
+    d["fixed_stable"] = np.asarray(a5["devalle_fixed_stable"], dtype=bool).astype(float)
+    d["hopf_v_interp"] = float(np.interp(d["eta_H"], fp, d["fixed_v"]))             # derived: the fixed-point v at eta_H, linear between stored points
+    d["A_ref"] = float(a5["A_ref"][0])
+    # S4: the read-window extrema come from the stored series; the stored per-step v_ptp is the check
+    for key, summ, rec_name, pre in (("mf", raw["summ_mf"], "S4_mf", "devalle"), ("net", raw["summ_net"], "S4_net", "net")):
+        s, rd = raw["series"][key], float(raw["records"][rec_name]["config"]["s4"]["read_s"])
+        vmax, vmin = _read_window_extrema(s, rd)
+        p = np.asarray(s["step_param"], dtype=float)
+        if not np.array_equal(p, np.asarray(summ[f"{pre}_param"], dtype=float)):
+            raise DataError(f"S4 {key}: the step parameters of the series and of the stored summary differ")
+        ptp = np.asarray(summ[f"{pre}_v_ptp"], dtype=float)
+        gap = float(np.max(np.abs((vmax - vmin) - ptp)))
+        if gap > 1e-12:
+            raise DataError(f"S4 {key}: read-window max - min differs from the stored v_ptp by {gap:.3e}")
+        d[f"{key}_param"], d[f"{key}_up"] = p, np.asarray(s["step_up"], dtype=bool).astype(float)
+        d[f"{key}_vmax"], d[f"{key}_vmin"], d[f"{key}_v_ptp"] = vmax, vmin, ptp
+        d[f"{key}_r_ptp"] = np.asarray(summ[f"{pre}_r_ptp"], dtype=float)
+        d[f"{key}_ptp_check_max_abs"] = gap
+    net = raw["summ_net"]
+    d["cmp_mf_v_ptp"] = np.asarray(net["cmp_mf_v_ptp"], dtype=float)
+    d["cmp_rel_v_ptp"], d["cmp_rel_r_ptp"] = (np.asarray(net[k], dtype=float) for k in ("cmp_rel_v_ptp", "cmp_rel_r_ptp"))
+    above = d["net_param"] > d["eta_H"] + F2_JUDGED_ABOVE
+    below = d["net_param"] < d["eta_H"] - F2_JUDGED_ABOVE
+    d["net_above_mask"] = above.astype(float)
+    d["cmp_rel_v_above_min"], d["cmp_rel_v_above_max"] = float(d["cmp_rel_v_ptp"][above].min()), float(d["cmp_rel_v_ptp"][above].max())
+    d["cmp_rel_r_above_min"], d["cmp_rel_r_above_max"] = float(d["cmp_rel_r_ptp"][above].min()), float(d["cmp_rel_r_ptp"][above].max())
+    d["net_floor_steps"] = int(below.sum())
+    d["net_floor_v_ptp_min"], d["net_floor_v_ptp_max"] = float(d["net_v_ptp"][below].min()), float(d["net_v_ptp"][below].max())
+    d["net_floor_r_ptp_min"], d["net_floor_r_ptp_max"] = float(d["net_r_ptp"][below].min()), float(d["net_r_ptp"][below].max())
+    d["cmp_rel_v_below_max_abs"] = float(np.nanmax(np.abs(d["cmp_rel_v_ptp"][below])))
+    # mean-field up-down difference of the stored v_ptp, from 0.2 above the Hopf point (the stored pair arrays)
+    pp, rr = np.asarray(raw["summ_mf"]["devalle_pair_param"], dtype=float), np.asarray(raw["summ_mf"]["devalle_pair_v_ptp_rel_diff"], dtype=float)
+    d["mf_updown_max_abs_from_0p2"] = float(np.nanmax(np.abs(rr[pp >= d["eta_H"] + 0.2 - 1e-6])))
+    d["strip"] = [{"rb_id": r["rb_id"], "check_id": r["check_id"], "value": r["value"], "threshold": r["threshold"], "status": r["pass_or_fail"]}
+                  for r in raw["a11"] if r["rb_id"] in F2_STRIP_RB and r["pass_or_fail"] == "FAIL"]
+    return d
+
+
+def _vline_hopf(ax, d: dict):
+    hp = S.diagram_mark("hopf_point")
+    ax.axvline(d["eta_H"], color=hp.colour, ls=hp.linestyle, lw=hp.width, zorder=1)
+
+
+def _s4_points(ax, d: dict, key: str, ycol: str, kind: str, *, label: str | None = None, mask=None):
+    """The step symbols of one source ('mf' or 'net'), up and down sweeps with their own marks."""
+    for direction in ("up", "down"):
+        m = d[f"{key}_up"] == (1.0 if direction == "up" else 0.0)
+        if mask is not None:
+            m = m & mask
+        st = S.diagram_mark(f"s4_{kind}_{direction}")
+        ax.plot(d[f"{key}_param"][m], d[ycol][m], ls="none", marker=st.marker, ms=st.size, mew=st.width, mfc=st.colour if st.filled else "none",
+                mec=st.colour, color=st.colour, zorder=5 if kind == "net" else 4, clip_on=False,
+                label=(f"{label}, {direction} sweep" if label else None))
+
+
+def _draw_F2(d: dict, draft: bool, strip_lines: list[str]):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    plt.rcParams.update({"font.family": S.FONT_FAMILY, "font.size": S.FONT_SIZE_PT, "pdf.fonttype": 42})
+    cyc, fs, fu, hp = S.diagram_mark("a5_cycle"), S.diagram_mark("a5_fixed_stable"), S.diagram_mark("a5_fixed_unstable"), S.diagram_mark("hopf_point")
+    fig = plt.figure(figsize=(7.4, 8.6), constrained_layout=True)
+    gs = fig.add_gridspec(5, 1, height_ratios=[1.7, 1.15, 0.95, 1.05, 0.07])
+    xlim = (0.0, 8.0)
+    # (a) cycle maximum and minimum of v
+    ax = fig.add_subplot(gs[0])
+    st = d["fixed_stable"] == 1.0
+    for m, mk, lab in ((st, fs, "A5 fixed point, stable"), (~st, fu, "A5 fixed point, unstable")):
+        seg = np.where(m, d["fixed_v"], np.nan)
+        ax.plot(d["fixed_param"], seg, color=mk.colour, ls=mk.linestyle, lw=mk.width, label=lab, zorder=2)
+    for name in ("up", "down"):
+        for ycol in ("vmax", "vmin"):
+            ax.plot(d[f"a5_{name}_param"], d[f"a5_{name}_{ycol}"], color=cyc.colour, lw=cyc.width, zorder=3,
+                    label="A5 stable cycle maximum and minimum of v" if (name, ycol) == ("up", "vmax") else None)
+    _vline_hopf(ax, d)
+    ax.plot([d["eta_H"]], [d["hopf_v_interp"]], ls="none", marker=hp.marker, ms=hp.size, color=hp.colour, mew=hp.width, zorder=6,
+            label=f"Hopf point, eta_bar {d['eta_H']:.3f} ({d['hopf_type']})")
+    for key, kind, lab in (("mf", "mf", "S4 mean field"), ("net", "net", "S4 network N = 1e4")):
+        _s4_points(ax, d, key, f"{key}_vmax", kind, label=f"{lab}: max and min of v")
+        _s4_points(ax, d, key, f"{key}_vmin", kind)
+    ax.set_xlim(*xlim)
+    ax.set_ylabel("v")
+    ax.set_title(r"(a) $\bar\eta$ diagram at ref_devalle: fixed point and cycle maximum and minimum of v", fontsize=S.FONT_SIZE_PT)
+    # (b) amplitude
+    ax2 = fig.add_subplot(gs[1], sharex=ax)
+    for name in ("up", "down"):
+        ax2.plot(d[f"a5_{name}_param"], d[f"a5_{name}_amp"], color=cyc.colour, lw=cyc.width, zorder=3)
+    _vline_hopf(ax2, d)
+    _s4_points(ax2, d, "mf", "mf_v_ptp", "mf")
+    _s4_points(ax2, d, "net", "net_v_ptp", "net")
+    ax2.set_ylabel("v amplitude (max - min)")
+    ax2.set_title("(b) amplitude: A5 cycles, S4 mean field and S4 network, stored values", fontsize=S.FONT_SIZE_PT)
+    # (c) stored relative difference, network against mean field
+    ax3 = fig.add_subplot(gs[2], sharex=ax)
+    above = d["net_above_mask"] == 1.0
+    ax3.axhline(0.0, color="#7a7a7a", lw=0.6, zorder=1)
+    _vline_hopf(ax3, d)
+    _s4_points(ax3, d, "net", "cmp_rel_v_ptp", "net", mask=above)
+    ax3.set_xlim(*xlim)
+    ax3.set_ylabel("(network - MF) / MF")
+    ax3.set_xlabel(r"$\bar\eta$")
+    ax3.set_title(r"(c) stored relative difference of the v amplitude, drawn above $\bar\eta_H$ + 0.1 only", fontsize=S.FONT_SIZE_PT)
+    ax3.text(0.99, 0.97, "not drawn at and below eta_H: the mean-field amplitude there is ~0 or still\nrelaxing, so the stored relative difference is not a measure (largest |stored value|\n"
+             f"below eta_H - 0.1: {d['cmp_rel_v_below_max_abs']:.2g}). Network below eta_H: no rest, v amplitude\n"
+             f"{d['net_floor_v_ptp_min']:.2f} to {d['net_floor_v_ptp_max']:.2f} (panel b).", transform=ax3.transAxes, fontsize=5.8, va="top", ha="right")
+    # legend and strip
+    axl = fig.add_subplot(gs[3])
+    axl.axis("off")
+    h, l = ax.get_legend_handles_labels()
+    axl.legend(h, l, loc="upper left", bbox_to_anchor=(0.0, 1.0), fontsize=6, ncol=2, frameon=False, borderaxespad=0)
+    axl.text(0.0, 0.40, "FAIL rows of the stored A11 table that touch F2 through the network symbols (not recomputed; UNVERIFIED reading):",
+             va="top", fontsize=S.FONT_SIZE_PT - 1, weight="bold")
+    axl.text(0.0, 0.33, "\n".join(strip_lines) if strip_lines else "none", va="top", fontsize=6.2)
+    axf = fig.add_subplot(gs[4])
+    axf.axis("off")
+    axf.text(0.0, 0.5, F2_FOOTER if draft else "", fontsize=5.5, color="#7f0000", ha="left", va="center")
+    return fig
+
+
+def f2_caption_notes(d: dict) -> tuple:
+    """Sentences about what is and is not drawn (13f). Values come from the prepared data; only the wording is typed here."""
+    turn = ", ".join(f"{p['param']:.4f}" for p in d["a5_special_points"])
+    return (
+        "Plotted: the voltage variable v and its maximum and minimum (panel a) and its amplitude max - min (panel b). Nothing in this figure is a frequency or a spectral peak.",
+        "A5 cycles are the continuation from the Hopf point; the up and the down continuation retrace one branch, and the entry labelled fold at the turn-around next to "
+        f"the Hopf point ({turn}) is that turn-around, not a fold of cycles (DL-126). The v of the Hopf marker is interpolated linearly between the stored fixed points (derived).",
+        f"S4 symbols are the maximum and minimum of v over the last 1 s of each 2 s step ({d['mf_param'].size} mean-field steps, {d['net_param'].size} network steps); "
+        "their difference equals the stored v amplitude of S4 to 1e-12. Steps within 0.1 of eta_H are drawn: there the 2 s step is still relaxing (DL-127), and no "
+        "amplitude comparison is made.",
+        "Network v is the mean V of non-refractory neurons within the cut, not the mean-field v (DL-128); the network values are single runs (one seed) and are drawn "
+        "without error bars. No agreement criterion is applied to them (none is in the plan), so network symbols have one shape per sweep direction.",
+        f"Panel (c) draws the stored relative differences above eta_H + 0.1; there the v amplitude differs by {100 * d['cmp_rel_v_above_min']:+.1f} to "
+        f"{100 * d['cmp_rel_v_above_max']:+.1f} percent and the r amplitude by {100 * d['cmp_rel_r_above_min']:+.1f} to {100 * d['cmp_rel_r_above_max']:+.1f} percent (stored). "
+        f"Below eta_H the network does not rest ({d['net_floor_steps']} steps: v amplitude {d['net_floor_v_ptp_min']:.2f} to {d['net_floor_v_ptp_max']:.2f}, r amplitude "
+        f"{d['net_floor_r_ptp_min']:.3f} to {d['net_floor_r_ptp_max']:.3f}).",
+        "In the params table model.eta_bar is the base value of each record; the swept parameter is s4.param. The claim-limit IDs listed here are PROPOSED for the reviewer's ruling.",
+    )
+
+
+def make_F2(res=None, out_dir=None, *, tag_build: bool = False, take_home=F2_TAKE_HOME, claim_limit_ids=F2_CLAIM_LIMITS,
+            script="scripts/fig_F2.py", root=None) -> dict:
+    """Build F2 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov)."""
+    F.require_buildable("F2")
+    root = Path(root) if root is not None else repo_root()
+    res = Path(res) if res is not None else root / "results"
+    out = Path(out_dir) if out_dir is not None else root / "figures" / "F2"
+    t = {"start": time.perf_counter()}
+    raw = load_F2(res)
+    t["load"] = time.perf_counter()
+    d = prepare_F2(raw)
+    t["prepare"] = time.perf_counter()
+    rows = _params_rows(raw)
+    cap = CAP.build_caption("F2", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=[r for r in rows if r["key"] in F2_CAPTION_KEYS],
+                            spectrogram=None, symbol_keys=(), notes=f2_caption_notes(d))
+    import matplotlib.pyplot as plt
+    fig = _draw_F2(d, draft=not tag_build, strip_lines=strip_lines(d))
+    out.mkdir(parents=True, exist_ok=True)
+    pdf, png = out / "F2.pdf", out / "F2.png"
+    fig.savefig(pdf)
+    fig.savefig(png, dpi=S.PNG_DPI)
+    plt.close(fig)
+    t["draw"] = time.perf_counter()
+    cap_path, dig_path = out / "F2_caption.txt", out / "F2_drawn_data_sha256.txt"
+    from .. import provenance as P
+    drawn = drawn_data_sha256(d)
+    P.atomic_write_text(cap_path, cap.text + "\n")
+    P.atomic_write_text(dig_path, drawn + "\n")
+    warnings = []
+    for k, rec in raw["records"].items():
+        if (rec.get("git") or {}).get("dirty"):
+            warnings.append(f"input record {k} ({rec['name']}) was written with git dirty = true")
+    prov = F.write_figure_provenance(
+        "F2", script=script, inputs=[res / p for p in F2_INPUTS], outputs=[pdf, png, cap_path, dig_path], params_rows=rows,
+        modules=["src/mprsurge/plotting/figures.py", "src/mprsurge/plotting/style.py", "src/mprsurge/plotting/captions.py",
+                 "src/mprsurge/plotting/nordlie.py", "src/mprsurge/plotting/figprov.py"],
+        configs=["configs/S4.yaml", "configs/S4_net.yaml", "configs/A5.yaml"], claim_limits=cap.claim_limits, spectrogram=None, tag_build=tag_build,
+        out_dir=out, root=root, warnings=warnings, wall_time_s=time.perf_counter() - t["start"])
+    nordlie_path = out / "F2_nordlie.md"
+    N.write_nordlie(out / "F2_params.csv", out / "F2_provenance.json", nordlie_path, root=root)
+    t["end"] = time.perf_counter()
+    timing = {"load_s": t["load"] - t["start"], "prepare_s": t["prepare"] - t["load"], "draw_s": t["draw"] - t["prepare"],
+              "provenance_and_nordlie_s": t["end"] - t["draw"], "total_s": t["end"] - t["start"]}
+    return {"prov": prov, "paths": [pdf, png, cap_path, dig_path, out / "F2_params.csv", out / "F2_provenance.json", nordlie_path],
             "timing_s": timing, "drawn_sha256": drawn, "caption": cap.text}
 
 
