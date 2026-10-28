@@ -4674,3 +4674,83 @@ Chosen:          -   Default from: -
 Test:            scripts/ms13_inputs.py timing (read only)
 Status:          done.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-425  MS13 13b: pre-checks    [ID: MS13, 13b]
+Date:            2026-10-28        Author:
+Decision:        FACT. All pre-checks PASS before any change (read-only script in the session scratchpad). Directory C:\dev\mpr-gamma-surge; git status --porcelain empty; HEAD c5d2ed7 (the named commit). Criteria-loader gate against tag criteria-frozen: verify_frozen_criteria() returned commit dd8330c5eaacd63d21e7b7969430988d00862769 and criteria SHA-256 c7d2f36b74ea611c8777c1b408d5085333e55230834c27e5f0eb839f1162fa05; configs/S13.yaml 317db87e69afcb09111a33e78640869b3f588e64390d110655aaa3a7cff52388; configs/A4_grids.yaml cf6a60bec781c6f7e53b7f92b747ff745fcc5dc4794c0b83768e0aa4a4e56401; configs/S5_cells.yaml fe8590ce81bc8c537f9c92e2afbee80685aaaa52c757474912b243fe9ed38790. docs/ms13_plan.md 06133663918c46d1186bb42c8748ec644dfb3251911bab85eb8c27e0dd5f7437, working copy and LF blob equal. MS11: docs/ms11_close.md f911c7b11ecfbdaeab9a106246afed87e554343ad8ca60e49bf4cc09482a192c; docs/ms11_results.md 02b9fe9fc6d9b0caa8dd70298fae5f92d0201d7cfa525f095ba872d90d347ade; docs/ms11_file_hashes.csv c6571235b98369c89ac3a76045d6f98e83e09858ce12a2a1d2b71aafdc729d75; results/A11/a11_robustness.csv b4f26b003d88f7d13dcb582786da32c1a2fe4e3b8de051ce1f494e81a1d8cffb; the 724 MS11 result files rehashed against docs/ms11_file_hashes.csv: 0 mismatches, digest cdafcc0831580ea4b9f7dfd8e095deb50e8b86db2974f556cf7ffe7d75637f53 (equal to DL-383 and DL-408). No stray non-project file in the repository.
+Reason:          instruction of the reviewer (13b prompt)
+Options:         -
+Chosen:          -   Default from: -
+Test:            scratchpad pre-check script (hashes, loader gate, digest)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-426  MS13 13b: ruling, M13-1 to M13-13 accepted as proposed    [ID: MS13, 13b, M13-1 to M13-13]
+Date:            2026-10-28        Author:
+Decision:        RULED by the reviewer (13b prompt). M13-1 to M13-13 of docs/ms13_plan.md section 6 are accepted as proposed (recommendations a/(a) throughout: PDF plus PNG preview; one fixed colour and marker table keyed by class and path; failures at equal weight plus a FAIL-row strip per figure; network disagreement drawn, never dropped; generated caption template; two-stage Nordlie tables; build order cheapest first; tags proposed after each figure; noise-free and noisy series separate; F5c with all seeds and the control; style.py/figures.py/figure_map.md as named; tables first, series for example panels; reuse of the run-record machinery). Colours, markers and layouts are design choices, UNVERIFIED, not scientific parameters. Written in words in docs/ms13_conventions.md, which marks every item not in the plan UNVERIFIED and states the colour-blind criterion as PENDING the reviewer's ruling (no number invented; the colour-blind test is not written). docs/ms13_conventions.md SHA-256, working copy and LF blob (equal, LF line ends; the blob verified by git show HEAD:docs/ms13_conventions.md at commit 6ed6724): a44006245f60b3bc294d5d0d7af1678cde5774db9fc8091f788d78e5a486835d.
+Reason:          instruction of the reviewer (13b prompt)
+Options:         see docs/ms13_plan.md section 6
+Chosen:          M13-1 to M13-13 as proposed   Default from: docs/ms13_plan.md recommendations (UNVERIFIED where the plan is silent)
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-427  MS13 13b: ruling, M13-14 (i) dirty tree; seven gap points open    [ID: MS13, 13b, M13-14]
+Date:            2026-10-28        Author:
+Decision:        RULED by the reviewer (13b prompt). Any modified or untracked file makes the tree dirty and scripts/check_clean_tree.py refuses; results/ and figures/ are git-ignored and do not count. The other seven gap points of M13-14, (ii) to (viii), stay open; the 13b report lists them with recommendations.
+Reason:          instruction of the reviewer (13b prompt)
+Options:         -
+Chosen:          M13-14 (i) as proposed   Default from: docs/ms13_plan.md section 6
+Test:            tests/test_figprov.py::test_check_clean_tree_refuses_modified_and_untracked_and_accepts_clean
+Status:          done for (i); (ii) to (viii) open.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-428  MS13 13b: ruling, claim-limit placement stays a list    [ID: MS13, 13b, M13-5]
+Date:            2026-10-28        Author:
+Decision:        RULED by the reviewer (13b prompt). The claim-limit table in docs/ms13_plan.md section 5 stays a list. Where each limit is visible (caption, panel, strip) is decided figure by figure in each build prompt.
+Reason:          instruction of the reviewer (13b prompt)
+Options:         -
+Chosen:          list only   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-429  MS13 13b: ruling, FS4 reading of Table 8.1 "Any RB6 failure -> affected results unused"    [ID: MS13, 13b, FS4, RB6, DL-387, DL-189]
+Date:            2026-10-28        Author:
+Decision:        RULED by the reviewer (13b prompt); UNVERIFIED reading of plan Table 8.1. Results touched by an RB6 failure are not used as evidence in any claim, and are still shown labelled FAIL (plan section 7: failed checks are reported, not dropped).
+Reason:          instruction of the reviewer (13b prompt)
+Options:         -
+Chosen:          as stated   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-430  MS13 13b: ruling, FS5 inputs    [ID: MS13, 13b, FS5, A8, A6, A11, RB9]
+Date:            2026-10-28        Author:
+Decision:        RULED by the reviewer (13b prompt). FS5 inputs are A8 plus A6 and the A11 RB9 rows. This is an assumption beyond the plan (Table 8.1 gives only "A8"); it is to be flagged in the FS5 caption notes. UNVERIFIED.
+Reason:          instruction of the reviewer (13b prompt)
+Options:         -
+Chosen:          A8, A6, A11 RB9 rows   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-431  MS13 13b: ruling, tags only when the user says so (restated)    [ID: MS13, 13b, DL-422]
+Date:            2026-10-28        Author:
+Decision:        RULED by the reviewer (13b prompt), restating DL-422. Tags are created only when the user says so. No tag, no push in 13b.
+Reason:          instruction of the reviewer (13b prompt)
+Options:         -
+Chosen:          -   Default from: DL-422
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-432  MS13 13b: result, figure infrastructure    [ID: MS13, 13b]
+Date:            2026-10-28        Author:
+Decision:        FACT. Written: docs/ms13_conventions.md; src/mprsurge/plotting/figprov.py (provenance and params writer, reuses provenance.git_info, environment_info, sha256_file, atomic writes and criteria.verify_frozen_criteria); scripts/check_clean_tree.py; tests/test_figprov.py (10 tests, all exact comparisons). The module, the script and the conventions document were committed (6ed6724) before the tests ran; nothing was simulated, no figure built, no result file read or written. Behaviour in the writer that goes beyond the rulings and is UNVERIFIED (M13-14 (iii) proposed reading, still open): a build without tag_build is marked draft, a tagged build on a dirty tree raises DirtyTreeError. check_clean_tree.py does not call verify_frozen_criteria (the 13b task did not ask for it; plan 13a section 7 proposed it). Colour-blind test not written (PENDING). Fast suite: 926 passed, 24 deselected, 9 xfailed, 1 warning, exit code 0 taken from pytest (916 + 10 new).
+Reason:          instruction of the reviewer (13b prompt)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_figprov.py; fast suite
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
