@@ -4664,3 +4664,13 @@ Chosen:          -   Default from: -
 Test:            scripts/ms13_inputs.py readiness (read only)
 Status:          done.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-424  MS13 13a: result, timing sample and SHA-256 of docs/ms13_plan.md    [ID: MS13, 13a]
+Date:            2026-10-28        Author:
+Decision:        FACT. Plan and script committed at c5eb659d4abb549e7064d22af116112da9dd142f before the timing sample; the sample (scripts/ms13_inputs.py timing, read only, simulates nothing) ran at that commit with git dirty = false. Whole-family load ESTIMATES: F5 130.6 s (S7 15.9 GB, noisy subgrid 74.2 s), F4 14.2 s, F6 1.4 s, FS4 1.8 s, FS3 0.5 s beyond shared reads, F1 0.3 s; sum 148.9 s; measured total of the sampled files and tables 10.40 s. Rendering time not measured, no estimate given (UNVERIFIED). docs/ms13_plan.md SHA-256, working copy and LF blob (equal, the file has LF line ends): 06133663918c46d1186bb42c8748ec644dfb3251911bab85eb8c27e0dd5f7437 (the blob is verified after the commit by git show HEAD:docs/ms13_plan.md). The plan table in section 11 lists DL-419 to DL-424. No figure built, no simulation, no frozen file edited, no tag, no push. Open for the reviewer: M13-1 to M13-14.
+Reason:          instruction of the reviewer (13a prompt)
+Options:         -
+Chosen:          -   Default from: -
+Test:            scripts/ms13_inputs.py timing (read only)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag

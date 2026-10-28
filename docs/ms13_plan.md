@@ -367,9 +367,73 @@ Slow-marked tests: none expected except a full rebuild of F5 from stored inputs 
 
 ## 10. Load-time sample (read-only; `scripts/ms13_inputs.py timing`)
 
-Committed before it was run (script and this file, commit recorded in DL-423), so the record shows git dirty = false. The script reads and times; it simulates nothing and writes nothing. Results are filled in below after the run.
+Committed before it was run (script and this file, commit recorded in DL-423), so the record shows git dirty = false. The script reads and times; it simulates nothing and writes nothing. Results below.
 
-TIMING_PLACEHOLDER
+**Run at commit c5eb659d4abb549e7064d22af116112da9dd142f, git dirty = false** (tag-free, 2026-10-28, Python 3.11.9, Windows-10-10.0.26300, AMD64 Family 25 Model 33, 12 logical processors). Method: the 5 largest npz of each family plus a fixed-stride sample (about 15 files) were loaded in full (every array materialised); the family time is mean load time per file x number of files, an **ESTIMATE**. Each file is read once, so most reads are cold or only partly cached (not controlled). Files already loaded under an earlier figure are not read again (FS3 reuses the S9 and S11 files timed under F5 and F4). Output of the script, verbatim:
+
+```
+# MS13 13a timing sample (read-only; full load of every array of each sampled npz)
+git {"commit": "c5eb659d4abb549e7064d22af116112da9dd142f", "branch": "master", "tags": [], "dirty": false}
+env {"python": {"version": "3.11.9", "executable": "C:\\dev\\mpr-gamma-surge\\.venv\\Scripts\\python.exe"}, "os": "Windows-10-10.0.26300-SP0", "cpu": {"processor": "AMD64 Family 25 Model 33 Stepping 2, AuthenticAMD", "machine": "AMD64", "count": 12}}
+note: first read of a file may come from disk, a repeat from the Windows file cache; each file is read once here (cold unless recently used)
+
+## F1
+  S5 headline mean-field record (P2, ref_devalle, 120 s): 1 npz, 4.1 MB; sampled 1 files, mean 29.2 ms (4.10 MB mean compressed), largest 4.10 MB; family load ESTIMATE 0.0 s
+  S8 network headline (T_ramp 10 and 120 s x 3 seeds): 6 npz, 36.9 MB; sampled 6 files, mean 50.3 ms (6.15 MB mean compressed), largest 10.26 MB; family load ESTIMATE 0.3 s
+  F1 input load ESTIMATE (whole families, one read each): 0.3 s
+
+## F4
+  S5 ramp families (P1, P2, P5 x linear, sigmoid x 13 T_ramp; start distance; headline): 105 npz, 694.7 MB; sampled 19 files, mean 90.9 ms (14.06 MB mean compressed), largest 56.15 MB; family load ESTIMATE 9.5 s
+  S11 noise level (3 sigma x 4 T_ramp x 10 seeds): 120 npz, 570.4 MB; sampled 20 files, mean 39.1 ms (6.00 MB mean compressed), largest 12.17 MB; family load ESTIMATE 4.7 s
+  F4 input load ESTIMATE (whole families, one read each): 14.2 s
+
+## F5
+  S7 map 1 (30 x 30, 120 s): 900 npz, 3716.1 MB; sampled 20 files, mean 30.6 ms (4.36 MB mean compressed), largest 4.87 MB; family load ESTIMATE 27.5 s
+  S7 map 2 (25 x 13): 325 npz, 2204.7 MB; sampled 21 files, mean 81.5 ms (13.76 MB mean compressed), largest 39.60 MB; family load ESTIMATE 26.5 s
+  S7 noisy subgrid (225 cells x 10 seeds): 2250 npz, 10689.6 MB; sampled 20 files, mean 33.0 ms (4.83 MB mean compressed), largest 5.09 MB; family load ESTIMATE 74.2 s
+  S8 network at 4 map cells (3 seeds): 12 npz, 46.4 MB; sampled 12 files, mean 34.9 ms (3.87 MB mean compressed), largest 4.25 MB; family load ESTIMATE 0.4 s
+  S9 finite size (4 N x 10 seeds): 40 npz, 229.5 MB; sampled 21 files, mean 49.2 ms (5.75 MB mean compressed), largest 5.99 MB; family load ESTIMATE 2.0 s
+  F5 input load ESTIMATE (whole families, one read each): 130.6 s
+
+## F6
+  S6 P3 (3 I_amp x 4 T_ramp): 12 npz, 53.0 MB; sampled 12 files, mean 31.6 ms (4.41 MB mean compressed), largest 11.88 MB; family load ESTIMATE 0.4 s
+  S12 NC1 (13 T_ramp): 13 npz, 57.8 MB; sampled 13 files, mean 33.1 ms (4.45 MB mean compressed), largest 25.17 MB; family load ESTIMATE 0.4 s
+  S12 NC1 network (1 seed, 120 s): 1 npz, 3.9 MB; sampled 1 files, mean 31.7 ms (3.87 MB mean compressed), largest 3.87 MB; family load ESTIMATE 0.0 s
+  S12 NC2 (13 T_ramp): 13 npz, 94.9 MB; sampled 13 files, mean 45.0 ms (7.30 MB mean compressed), largest 41.05 MB; family load ESTIMATE 0.6 s
+  F6 input load ESTIMATE (whole families, one read each): 1.4 s
+
+## FS3
+  S9 finite size: all sampled files already loaded under an earlier figure
+  S10 heterogeneity shape (3 shapes x 3 seeds): 9 npz, 48.8 MB; sampled 9 files, mean 52.2 ms (5.43 MB mean compressed), largest 5.81 MB; family load ESTIMATE 0.5 s
+  S11 noise level: all sampled files already loaded under an earlier figure
+  FS3 input load ESTIMATE (whole families, one read each): 0.5 s
+
+## FS4
+  S13 rtol ladder: 2 npz, 8.2 MB; sampled 2 files, mean 31.8 ms (4.10 MB mean compressed), largest 4.10 MB; family load ESTIMATE 0.1 s
+  S13 floor level 0: 40 npz, 171.1 MB; sampled 21 files, mean 33.8 ms (4.28 MB mean compressed), largest 4.28 MB; family load ESTIMATE 1.4 s
+  S13 MS11 network records (dt ladder, V_p, 18): 18 npz, 39.1 MB; sampled 18 files, mean 19.4 ms (2.17 MB mean compressed), largest 2.35 MB; family load ESTIMATE 0.3 s
+  FS4 input load ESTIMATE (whole families, one read each): 1.8 s
+
+## tables
+  A7/a7_ramp_metrics.parquet: 0.11 MB, 38.4 ms
+  A9/a9_regime_map.parquet: 0.08 MB, 4.2 ms
+  A9/a9_regime_map_v2.parquet: 0.08 MB, 4.0 ms
+  A9/a9_subgrid_agreement.parquet: 0.02 MB, 4.9 ms
+  A3/a3_sn_ramp.parquet: 0.02 MB, 2.7 ms
+  A7/a7_s6_metrics.parquet: 0.03 MB, 4.3 ms
+  A4/a4_hopf_curves.npz: 0.01 MB, 2.5 ms
+  A5/a5_cycles.npz: 0.04 MB, 3.7 ms
+  A6/a6_freq_map.npz: 0.27 MB, 6.7 ms
+  A1/a1_fixedpoints_2d.npz: 1.78 MB, 16.8 ms
+  A2/a2_ring_map.npz: 1.42 MB, 19.7 ms
+
+TOTAL measured load time of the sampled files and tables: 10.40 s
+SUM of the per-figure whole-family load ESTIMATES: 148.9 s
+```
+
+Reading (all labelled estimates): the heaviest input is F5, 130.6 s to load the whole of S7 (map 1, map 2, noisy subgrid: 15.9 GB on disk, 3,475 series), of which the noisy subgrid is 74.2 s. F4 about 14 s, F6 1.4 s, FS3 about 0.5 s plus the S9/S11 reads already counted, FS4 1.8 s, F1 0.3 s. Every table and the five analysis npz files load in under 40 ms each. Sum of whole-family loads: 148.9 s; measured total of the sampled files and tables: 10.40 s. Memory: each series is 8 arrays of up to 165,001 float64 values (about 10.6 MB uncompressed), so the 3,475 S7 series cannot be held at once in 16 GB (about 36 GB uncompressed by this count, an arithmetic estimate); a figure script that reads S7 series must stream them (M13-12).
+
+**Figure build time per figure (ESTIMATE, load only):** F1 under 1 s; F2, F3 under 1 s (small npz/parquet/S4 files); F4 about 14 s; F5 about 131 s if all S7 series are read, under 1 s from the A9 tables alone (M13-12); F6 about 2 s; FS1, FS2 under 1 s (S1, S3, A-files not sampled: they are a few MB); FS3 about 0.5 s beyond the shared S9/S11 reads; FS4 about 2 s; FS5 under 1 s. **Rendering time is not estimated**: no figure code exists and rendering was not measured; no number is given for it (UNVERIFIED). Two further things not measured: the SHA-256 of every input for the provenance file (about 15.9 GB for the F5 all-series case; hashing speed was not sampled) and a warm-cache repeat.
 
 ## 11. Decision-log entries of 13a
 
