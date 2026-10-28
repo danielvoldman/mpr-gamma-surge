@@ -4614,3 +4614,53 @@ Chosen:          -   Default from: -
 Test:            -
 Status:          done.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-419  MS13 13a: pre-checks, all PASS; starting fast suite    [ID: MS13, 13a]
+Date:            2026-10-28        Author:
+Decision:        FACT. All pre-checks PASS (check script in the session scratchpad, read only). Criteria-loader gate against tag criteria-frozen (dd8330c5eaacd63d21e7b7969430988d00862769, criteria SHA-256 c7d2f36b74ea611c8777c1b408d5085333e55230834c27e5f0eb839f1162fa05); configs/S13.yaml 317db87e..., A4_grids.yaml cf6a60be..., S5_cells.yaml fe8590ce... equal the frozen values; tree clean; HEAD 128a53e. Working-copy / LF-blob SHA-256: docs/ms11_close.md f911c7b1... / same; docs/ms11_results.md 02b9fe9f... / ce8739da...; docs/ms11_evidence.md daf2820e... / 7cc25fd5...; docs/ms11_file_hashes.csv c6571235... / same (771 rows); docs/ms11_eval_rules.md 4b1a1a66... / same; configs/ms11/ms11_eval.yaml fcb43964... / same; results/A11/a11_robustness.csv b4f26b00... (44 rows, not in git); MS11 result files 724, 1192.347 MB, digest cdafcc0831580ea4b9f7dfd8e095deb50e8b86db2974f556cf7ffe7d75637f53; docs/ms10_close.md 29b2cab8... ; docs/ms10_file_hashes.csv 053c6391... (436 files); 10f table rehashed (321 files, 0 mismatches, digest d1b98f05b1b147437ed19ef3dc4ee84c1dda61693c9e9cc3a9de41f4ba572a52); docs/ms9_close.md 11f8b1eb... ; docs/ms9_file_hashes.csv 53201f91... (24,876 rows; the listed files were not rehashed). Fast suite at the start: 916 passed, 24 deselected, 9 xfailed, 1 warning, 453.20 s, pytest exit code 0 (output redirected to a file, exit code echoed right after, no pipe). Two commands were run with the bare python (stdin empty, nothing executed); all runs used .venv\Scripts\python.exe.
+Reason:          instruction of the reviewer (13a prompt, start order and pre-checks)
+Options:         -
+Chosen:          -   Default from: -
+Test:            scratchpad pre-check script (hashes, loader gate, digests)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-420  MS13 13a: ruling, the MS11 close is acknowledged    [ID: MS13, 13a, MS11, MS11-C1 to MS11-C9, DL-418]
+Date:            2026-10-28        Author:
+Decision:        RULED by the reviewer (13a prompt). The MS11 close (docs/ms11_close.md, DL-418) is acknowledged as closed on paper, with claim limits MS11-C1 to MS11-C9 standing (C1 to C7 DL-394 with C6 reworded in DL-402, C8 DL-406, C9 DL-412).
+Reason:          instruction of the reviewer (13a prompt)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-421  MS13 13a: ruling, MS12 was not run; claim limit MS12-C1    [ID: MS13, 13a, MS12, MS12-C1, G2, G3, DL-133, DL-261, DL-271]
+Date:            2026-10-28        Author:
+Decision:        RULED by the reviewer (13a prompt). MS12 was not run: G2 had no trigger (DL-133), G3 was not triggered (DL-261, DL-271), S14 and S15 were not run, FS6 is not produced. Claim limit MS12-C1: the surge result is stated for M3; no claim about robustness to a PING circuit (M4) or to adaptation (M3a/M3b); the RB8 M4/adaptation parts have no result.
+Reason:          instruction of the reviewer (13a prompt)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-422  MS13 13a: ruling, tags only when the user says so    [ID: MS13, 13a, DL-045]
+Date:            2026-10-28        Author:
+Decision:        RULED by the reviewer (13a prompt). Tags, including any fig-<ID>-v<k>, are created only when the user says so. Nothing is pushed unless asked. Table 11.1's "tagged" for MS13 is read under this ruling.
+Reason:          instruction of the reviewer (13a prompt)
+Options:         -
+Chosen:          -   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-423  MS13 13a: figure inventory, readiness, Table 8.1 triggers; plan and script committed before the timing sample    [ID: MS13, 13a, F1 to F6, FS1 to FS6]
+Date:            2026-10-28        Author:
+Decision:        FACT, nothing decided. docs/ms13_plan.md written (layout of docs/ms11_plan.md). Figure code that exists: none (plotting/ holds only __init__.py; no style.py, figures.py, fig_*.py, check_clean_tree.py, make_all.ps1, docs/figure_map.md). Read-only readiness check scripts/ms13_inputs.py readiness opened every stored input: F1, F2, F3, F4, F5, F6, FS1, FS2, FS3, FS4, FS5 ready (all listed files found, opened, record counts equal the Table 6.2 derivations); FS6 not produced (S14, S15 not run, MS12-C1). Two errors of the first draft of the check itself (a cell_list.json counted as a record in S5/baseline; the MS11 S13 records looked for in the wrong folder) were corrected in the script before the numbers were recorded; no stored file was wrong. Table 8.1 triggers read from the log: occurred: F1/F5 network disagreement (G4, DL-323, DL-325), F4 onsets miss the A4 prediction (G6-D1, DL-208), F6 NC1 network S+ (G7, DL-220, DL-221, DL-228), FS4 RB6 failures (DL-387, DL-189), FS5 D8 estimator fails 2 of 8 ring items (DL-161, DL-163); did not occur: F1 peak below 25 Hz (not found in the log; headline 49.0 Hz), F2 subcritical Hopf or fold of cycles (DL-126), F3 25 Hz contour outside the region at the headline (DL-133; other slices not evaluated), F4 floored delay depends on the Heun step (DL-190), F5 surge class below 3 percent or RB4 fail (DL-235, DL-258), F6 only P3 surges (DL-235); not evaluable as worded: FS3 (DL-322, DL-325); FS1 and FS2 G0 not a stop (DL-123, DL-129). Open choices M13-1 to M13-14, claim-limit placement table (listed only), provenance specification, tests to add: in docs/ms13_plan.md, none decided. The plan and the script were committed before the timing sample, so the timing records show git dirty = false; the commit hash is in DL-424.
+Reason:          instruction of the reviewer (13a prompt)
+Options:         see docs/ms13_plan.md section 6 (M13-1 to M13-14)
+Chosen:          -   Default from: -
+Test:            scripts/ms13_inputs.py readiness (read only)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
