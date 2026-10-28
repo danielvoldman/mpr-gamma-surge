@@ -4894,3 +4894,104 @@ Chosen:          -   Default from: -
 Test:            tests/test_fig_F3.py; fast suite
 Status:          done; no tag.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-447  MS13 13e: ruling, the F3 registry has 12 inputs (replaces the 6-input ruling of the first 13e prompt)    [ID: MS13, 13e, F3, M13-7]
+Date:            2026-10-28        Author:
+Decision:        RULED (reviewer, 13e continuation prompts, R-A, R-E, R-F, R-G). INPUTS["F3"] and figures.F3_INPUTS hold 12 files: the 6 of DL-446 (A4 and A6 npz/json, A4 and A6 run records, A11 table) plus one run record per path, linear profile: P1 results/S5/ramp/p1_linear/p1_linear_0008_333859d6472b.json (T_ramp 100 s; no 120 s record exists for P1 or P5, the S5 grid has 13 log-spaced values 1 to 1000 s), P2 results/S5/ramp/S5ramp/S5ramp_0000_240de3ef73be.json (headline, 120 s), P3 results/S6/S6_P3/S6_P3_0006_5fb237a3d3fd.json (120 s, I_amp 1), P4a results/S6/S6_P4a/S6_P4a_0002_42415b96d00c.json (120 s), P4b results/S6/S6_P4b/S6_P4b_0002_7be4a3067a9d.json (120 s), P5 results/S5/ramp/p5_linear/p5_linear_0008_da88da96d075.json (100 s). Reason: Table 8.1 asks F3 for path arrows and these records are the only stored source of the resolved path values. The 6-input ruling of the first 13e prompt is replaced by this one.
+Facts:           Consistency check (read-only) of config.path (eta_start, eta_peak, eta_H, Delta_factor, I_amp, J0, J_end, profile) and config.model (tau_d_ms, Delta, J) over every record of each family: P1 13 records, P2 13, P5 13, P4a 4, P4b 4 have one identical key set (eta_start 1.3960461989737856, eta_peak 4.896046198973785, eta_H 2.8960461989737856, tau_d 5 ms, Delta 0.3, J -21; P4a Delta_factor 1.5, P4b 0.6666666666666666); P3 (12 records) has three key sets that differ only in I_amp (0.5, 1, 2). T_ramp 120 s linear: P2 one record (S5ramp, outside the 13-value S5 grid), P3 three (one per I_amp), P4a one, P4b one; P1 and P5 none. Reading (UNVERIFIED): the arrow end points do not depend on T_ramp, because the path keys are identical within each family. P3 default amplitude (R-F search): DL-015 "trapezoid; I_amp 1 {0.5, 1, 2}, default from Part 1"; plan.md line 507 lists I_amp in {0.5, 1, 2}; DL-224 and the NC2 ruling use I_amp 1; docs/ms13_plan.md and docs/ms13_conventions.md name no other default. So I_amp 1 is used (the amplitude of DL-015); no differing default found.
+Reason:          instruction of the reviewer (13e prompts)
+Options:         one record per path, T_ramp 100 s for P1 and P5 (chosen); 177.8 s; drop the 120 s rule
+Chosen:          as stated   Default from: reviewer ruling
+Test:            tests/test_fig_F3.py (row 12 registry equals the declared inputs, 12 entries; arrow end points equal the stored values)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-448  MS13 13e: ruling, the frequency colour map and the 25 Hz and 100 Hz contour marks are style.py keys    [ID: MS13, 13e, M13-2, F3]
+Date:            2026-10-28        Author:
+Decision:        RULED (reviewer, 13e prompt) and FACT. style.py gained FREQUENCY_CMAP ("viridis"), HALO_COLOUR ("#ffffff"), CONTOUR_MARKS {"25hz": marker "_", colour "#1a1a1a", size 7.0, width 1.0; "100hz": marker ".", colour "#7f0000", size 6.0, width 1.0} and contour_mark(key) (unknown key raises StyleError). One fixed table for all figures. The values are UNVERIFIED design choices. The marks are not entries of STYLE (they are not classes, paths, controls or sources), so the unique-key tests and the colour report cover the same 22 keys as before; the marker shapes differ from every marker in STYLE and from each other (tested). F3's local choices (viridis, black 25 Hz bar with white halo) moved to these keys. The 100 Hz mark is defined but not drawn in F3 (no 100 Hz crossing exists). Colour report rerun to figures/style/ (report only, no pass line): colour_report.csv 2f113107d3db966777e5553b275d5b94428c6063ff7142fed617eb3c1e8a339f, colour_report.txt 62719ee9367e2eb75e98874be5f863d40867d4cf07ac39854d657db7f2c58bf1; same smallest-difference lines as at 13c.
+Reason:          instruction of the reviewer (13e prompt)
+Options:         -
+Chosen:          as stated   Default from: DL-436, DL-443 (colour report approximate and UNVERIFIED)
+Test:            tests/test_figstyle.py (two tests added: style keys; caption notes)
+Status:          done.
+Commit/tag:      56f6ce8 (code and tests, before any run); the commit that adds this entry; no tag
+
+## DL-449  MS13 13e: ruling and result, the A4 curve parameters are read from the A4 record; A4 against A6    [ID: MS13, 13e, F3, A4, A6]
+Date:            2026-10-28        Author:
+Decision:        RULED (reviewer, 13e prompt) and FACT. prepare_F3 reads Delta, J and tau_d of the A4 Hopf curve from config.model of the A4 run record, and the A6 headline point from the A6 record, never assumed; the A4 curve and the A6 Hopf points are drawn as separate labelled markers with no claim that they agree. FACT: record A4_0000_4ece63ed731f.json has Delta 0.3, J -21, eta_bar 4, tau_d 5 ms, tau 10 ms, M3, ref_devalle; results/A4/a4_hopf_curves.npz has the same SHA-256 (affbddcac9ae21954a59e4309c13a7caa097397ae38461ba7a15dea7490a5dc4) as the record's npz; the record message gives eta_H 2.8960461989737856. A4 curve (log-tau interpolation of the 30-point grid) minus the A6 Hopf points at Delta 0.3: tau_d 1 ms -6.9e-6, 2 ms +1.3e-3, 3 ms +1.2e-3, 5 ms +5.4e-4, 8 ms +1.9e-3, 13 ms +4.1e-5, 22 ms +1.2e-3, 36 ms +1.97e-2 (maximum), 50 ms -1.4e-8. Reading (UNVERIFIED, supported by the node values): the difference is interpolation error of the 30-point A4 grid; it is about 1e-5 or less at the nodes tau_d 1 and 50 ms, and the A4 Delta curve read at Delta 0.3 gives 2.89601 against 2.89605 for A6. The two stay separate markers.
+Reason:          instruction of the reviewer (13e prompt)
+Options:         -
+Chosen:          as stated   Default from: -
+Test:            tests/test_fig_F3.py (parameters equal the record values)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-450  MS13 13e: ruling, the A4 record written with git dirty = true is a provenance warning, listed in the MS13 close document    [ID: MS13, 13e, DL-124]
+Date:            2026-10-28        Author:
+Decision:        RULED (reviewer, 13e prompt). The F3 provenance warns that the A4 record (commit f92a691) was written with git.dirty = true; the warning is to be listed in the MS13 close document. Search of the log: the earlier ruling is DL-124 (MS5 5k, dirty-tree check): the A4 run was made before the commit that added its code; a clean-tree rerun from fffb63e with the same config and seeds gave identical arrays and verdicts, with new records at dirty = false in results/rerun. No other entry rules on it. All six path records and the A6 record have dirty = false. The F3 warning text now cites DL-124.
+Reason:          instruction of the reviewer (13e prompt)
+Options:         -
+Chosen:          as stated   Default from: DL-124
+Test:            -
+Status:          done; the MS13 close document is not yet written.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-451  MS13 13e: ruling (UNVERIFIED reading of Table 8.1), the (eta, Delta) panel of F3 shows the Hopf curve only    [ID: MS13, 13e, F3]
+Date:            2026-10-28        Author:
+Decision:        RULED (reviewer, 13e prompt). A6 stores no Delta slices, so panel (d) draws the A4 Hopf curve in (eta, Delta) and the paths, with no frequency shading; the caption says so. Scripts never simulate, so this is a gap, not a change to the plan. Reading of Table 8.1 UNVERIFIED.
+Reason:          instruction of the reviewer (13e prompt)
+Options:         -
+Chosen:          as stated   Default from: plan Table 8.1
+Test:            tests/test_fig_F3.py (caption sentence)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-452  MS13 13e: ruling, path arrows come only from stored results (R-B, R-C, R-D)    [ID: MS13, 13e, F3, R-B, R-C, R-D]
+Date:            2026-10-28        Author:
+Decision:        RULED (reviewer, 13e prompt and continuations). (1) Arrows are drawn only from the resolved config.path and config.model values stored in the 12-input records (eta_start, eta_peak, eta_H, Delta_factor, I_amp, T_ramp_s; tau_d_ms, Delta); never from the D12 rule, never retyped, the figure script reads no config. (2) The (eta, tau_d) arrows are horizontal at the stored tau_d (5 ms) and are drawn in the panel whose Delta equals the stored Delta (0.3); P4a and P4b are drawn in the (eta, Delta) panel from Delta to Delta x Delta_factor, computed in the script from the stored values and labelled "derived" in the caption. (3) P5 is drawn as the record defines it: the record stores the path name path_updown and no direction key; its stored eta trace (results/S5/ramp/p5_linear/p5_linear_0008_da88da96d075.npz) rises 1.396046 to 4.896046 at 105 s and returns to 1.396046, so P5 has TWO legs (up, return); every other path has one (tested against the stored eta traces). The leg count follows from the path name (LEGS in figures.py, plan 4.4 wording). (4) Sigmoid and start-distance variants are not drawn; the caption says "linear profile; path values identical at every stored T_ramp" (T_ramp 100 s for P1 and P5, 120 s for the others). (5) P3 is one arrow, I_amp 1 (UNVERIFIED choice, DL-447); the other amplitudes and the J ramp of P2 and P3 are not drawn. (6) Arrows that share a stored position are offset by 5 pt in the display for legibility; the offset carries no value and the caption says so. Markers: each arrow starts with the path's marker from style.py.
+Reason:          instruction of the reviewer (13e prompts)
+Options:         -
+Chosen:          as stated   Default from: reviewer ruling
+Test:            tests/test_fig_F3.py (arrow end points exact against config.path; derived P4 end Delta rel 1e-12 against Delta x Delta_factor and against the stored Delta trace; legs against the stored eta traces)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-453  MS13 13e: ruling, F3 take-home and claim limits accepted; caption content    [ID: MS13, 13e, F3, MS11-C7, MS12-C1, MS11-C3, DL-388]
+Date:            2026-10-28        Author:
+Decision:        RULED (reviewer, 13e prompt). The F3 take-home message (DL-131, DL-132) and the claim limits MS11-C7, MS12-C1, MS11-C3 are accepted: they sit in the caption and in the provenance claim_limits; the RB9(b) FAIL row (DL-388) sits in the FAIL strip of the figure, read from the stored A11 table (value cell blank there; the 4.391 Hz against 0.5 Hz is DL-388), and is no longer a caption claim limit. The caption states that the colour and the contours show the continuation cycle frequency, not the classifier's spectral peak. The caption carries only the parameters that define the plotted slices and the regime (model.type, model.ref_point, model.tau_ms, model.J, from both records), points to the Nordlie table F3_nordlie.md, and has no provenance hash; the full key list stays in F3_params.csv and the Nordlie table. captions.build_caption gained a notes argument (default empty; earlier captions unchanged) for the sentences on what is and is not drawn.
+Reason:          instruction of the reviewer (13e prompt)
+Options:         -
+Chosen:          as stated   Default from: DL-131, DL-132, DL-421, docs/ms13_plan.md section 5
+Test:            tests/test_fig_F3.py (frequency-type sentence, no 12-hex string and no "hash" or "sha" word in the caption; take-home numbers against the stored arrays, as before: counts and 25 Hz first slices exact, maximum frequency abs 0.05 Hz)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-454  MS13 13e: ruling, one more untagged draft build (v2) is allowed    [ID: MS13, 13e, F3]
+Date:            2026-10-28        Author:
+Decision:        RULED (reviewer, 13e prompt). One untagged draft build of F3 (v2) from a clean tree; provenance draft true, git dirty false; no tag.
+Reason:          instruction of the reviewer (13e prompt)
+Options:         -
+Chosen:          as stated   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-455  MS13 13e: reading, G6-D1 and the F3 arrows    [ID: MS13, 13e, F3, G6-D1, DL-208]
+Date:            2026-10-28        Author:
+Decision:        PROPOSED reading, not ruled (UNVERIFIED). docs/ms13_plan.md lists G6-D1 (no claim that onset follows the A4 entry-exit prediction; RB3(a) not validated) for F3 "if path arrows carry predicted entries". The F3 arrows carry the stored eta_start and eta_peak of each path; eta_H is the Hopf point (static onset), not a predicted entry (eta_pred of the A7 table), and the figure shows no onset. So G6-D1 is not listed in the F3 caption; the caption says the arrows are stored path values. If the reviewer wants the limit shown anyway because a reader may take eta_H as an onset, add G6-D1 to F3_CLAIM_LIMITS (one line).
+Reason:          instruction of the reviewer (13e prompt: G6-D1 revisited once the arrows exist)
+Options:         not listed (proposed); listed
+Chosen:          not listed pending the reviewer   Default from: docs/ms13_plan.md
+Test:            -
+Status:          open, for the reviewer.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-456  MS13 13e: result, F3 draft v2 (untagged)    [ID: MS13, 13e, F3, M13-7]
+Date:            2026-10-28        Author:
+Decision:        FACT. Pre-checks PASS (clean tree at 3f84b3c; criteria loader dd8330c5eaacd63d21e7b7969430988d00862769 with criteria c7d2f36b74ea611c8777c1b408d5085333e55230834c27e5f0eb839f1162fa05, S13 317db87e69afcb09111a33e78640869b3f588e64390d110655aaa3a7cff52388, A4_grids cf6a60bec781c6f7e53b7f92b747ff745fcc5dc4794c0b83768e0aa4a4e56401, S5_cells fe8590ce81bc8c537f9c92e2afbee80685aaaa52c757474912b243fe9ed38790; decision_log defcd8868fb23235fdb890ed6f797915b0342a0dad2354f5328076dc125327d7 (this was its hash through DL-446, before DL-447); MS11 digest cdafcc0831580ea4b9f7dfd8e095deb50e8b86db2974f556cf7ffe7d75637f53, 724 files). The step stopped twice before code was written (first: path values live in run records outside the 6-input registry; second: no 120 s record for P1 and P5, three for P3; both resolved by DL-447). Code committed before any run: 56f6ce8 (style keys, caption notes, tests), e6fe408 (F3 v2 code, registry, tests); three test-only fixes 688479a, 234c01a, a376047 (a caption-test word match hit "share"; a regex escape was lost twice by shell quoting; no figure code changed). One untagged draft build at a376047, git dirty false, provenance draft true: figures/F3/ F3.pdf, F3.png, F3_caption.txt, F3_drawn_data_sha256.txt, F3_params.csv, F3_provenance.json, F3_nordlie.md. Measured: load 0.012 s, prepare 0.001 s, draw 2.137 s, provenance and Nordlie 0.727 s, total 2.878 s. Layout fixes in words: the legend and the FAIL strip sit in the empty right half of the lower row, off the data; the 100 Hz statement is in each panel title ("no 100 Hz contour in range, maximum 60.3, 73.5, 73.7 Hz", from the stored arrays); panel (d) has explicit limits covering the curve and the arrows; the footer has its own grid row. Not yet in the draft: (eta, Delta) frequency shading (no A6 Delta slices), the J plane, the J ramp of P2 and P3, the sigmoid and start-distance variants, P3 amplitudes other than 1, an onset marker, and a final choice of layout, colour map and marks (UNVERIFIED). SHA-256, full (working copy; LF blob where different): src/mprsurge/plotting/figures.py b07ca9c49609b6467b43db667120ed2433f222768d76772a24d2e0bc0432af74; style.py 1ede0c9d9703c72b450e95df4842bb3f8cce9edc540a97439da1a19373118ecd; captions.py 95a7d0595e8659089248615debcb024e2cd00a6896eb56552a47b37f79a877a6; scripts/fig_F3.py a4a8f6c6d322cd02a9cec0e2a4aa1a6db4aab5a6adbc2884b710d44c5058f25a; scripts/ms13_inputs.py c4b7c4ece228040dea2f882febdf76cf82d834fe789637a7e60724c9fd8f6381 (working copy is CRLF; LF blob 90da61023f17dc637270bc4077447ff0563c1d3c7f347172fa35ac8c7b2c317d); tests/test_fig_F3.py 33ab53db4b49b25bedf918a162f90f6c8749cbff9f087aa7adffad71bf5f2280; tests/test_figstyle.py 8862bfbefd8218d58a6283ac4e974a3bd3ef6e3284095f62a08d696559694f99. Outputs: F3.pdf 6efd7d984d2253a93f28d75eaf9a78828cf9d7c4362e631e69fa691397ac3be3; F3.png 05555af468730b50d68c84a0d330f740e0fa45f202c2f26926cb303df6889db0; F3_caption.txt 48ce4b15d9ab1c92a2fdb53717816cc86107f8a03d7bc6ec675ac8fafd88cf00; F3_drawn_data_sha256.txt 008d124776e0dc4cf314065e275e9f76751b81d1e0c415d180e50af73eae873e (drawn-data digest e12a1086fbe84d1f121618b82dfe61afd7e7b951c1d67b541e782e3e74d1bbc6); F3_params.csv 07ce5b3d97fcc82b92c0fb8597307e97db4bf5e8a3e04fcd3c2482f150670071; F3_provenance.json 09b29d6b06449ef78c160a131b3cce8d3c94aee734fb301beafe9d9b5de78d43; F3_nordlie.md ed0b76bab38ba2faf4d067d9f7f135f6d8ae58c0facfaefbb9dc04810a86aa6e. Docs written: this log only; SHA-256 of docs/decision_log.md through DL-446 (before this block): defcd8868fb23235fdb890ed6f797915b0342a0dad2354f5328076dc125327d7. Tests: 7 added (2 in test_figstyle.py: style keys, caption notes; 5 in test_fig_F3.py: arrow end points exact, derived P4 end Delta rel 1e-12, legs against stored eta traces, A4 parameters and 100 Hz note, caption sentence and no hash); row 12 now asserts 12 entries; take-home numbers unchanged (exact except maximum frequency abs 0.05 Hz). Fast suite: 947 passed, 24 deselected, 9 xfailed, 1 warning, exit 0 from pytest (940 + 7), 410.9 s.
+Reason:          instruction of the reviewer (13e prompts)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_fig_F3.py, tests/test_figstyle.py; fast suite
+Status:          done; no tag.
+Commit/tag:      the commit that adds this entry; no tag
