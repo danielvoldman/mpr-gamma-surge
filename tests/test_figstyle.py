@@ -225,3 +225,12 @@ def test_13f_diagram_marks_are_style_keys_outside_the_class_table():
     assert not {m.marker for m in S.DIAGRAM_MARKS.values() if m.marker is not None} & table_markers
     with pytest.raises(S.StyleError, match="no diagram mark"):
         S.diagram_mark("s4_network_unknown")
+
+
+def test_13g_25hz_contour_mark_is_a_tall_vertex_bar_distinct_from_every_style_marker():
+    # exact: the 13g mark is a vertex tuple taller than wide, size at least 10 pt (the 13e mark was the horizontal bar "_" at 7 pt)
+    m = S.contour_mark("25hz")
+    assert isinstance(m.marker, tuple) and m.size >= 10.0
+    xs, ys = [v[0] for v in m.marker], [v[1] for v in m.marker]
+    assert (max(ys) - min(ys)) > 4 * (max(xs) - min(xs))
+    assert m.marker not in {s.marker for s in S.STYLE.values()} and m.marker != S.contour_mark("100hz").marker

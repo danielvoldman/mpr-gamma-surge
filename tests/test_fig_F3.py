@@ -1,10 +1,12 @@
-"""MS13 13d, 13e: tests of the first figure (F3, untagged draft v2) and of plan 13a rows 9 to 12. They read the stored results under results/
+"""MS13 13d, 13e, 13g: tests of the first figure (F3, untagged draft v3) and of plan 13a rows 9 to 12. They read the stored results under results/
 (git-ignored) and skip if those are absent. Builds go to a temporary directory, never to figures/. Tolerances: every comparison is exact (SHA-256, set
 equality, exact messages, arrow end points against the stored config.path values) except row 9's array comparison (rel 1e-12, plan section 8 row 9), the
-derived P4 end Delta (rel 1e-12) and the quoted maximum frequency (abs 0.05 Hz, 73.7 against the stored 73.692...)."""
+derived P4 end Delta (rel 1e-12) and the quoted maximum frequency (abs 0.05 Hz, 73.7 against the stored 73.692...). 13g: the drawn arrow and start-marker
+coordinates are read from the figure artists and equal the stored values exactly (no tolerance); the colour-bar gap is bounded in figure fractions (< 0.08)."""
 import ast
 import importlib.util
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -14,6 +16,7 @@ import pytest
 from mprsurge import config as C
 from mprsurge.plotting import figprov as F
 from mprsurge.plotting import figures as FG
+from mprsurge.plotting import style as S
 
 ROOT = C.repo_root()
 RES = ROOT / "results"
@@ -176,3 +179,111 @@ def test_caption_has_the_frequency_type_sentence_and_no_provenance_hash(built):
     assert not re.search(r"[0-9a-f]{12,}", caption) and "hash" not in caption.lower() and not re.search(r"\bsha(256)?\b", caption.lower())
     assert "Provenance" not in caption
     assert "model.Delta" not in caption and "noise.sigma" not in caption          # only the slice and regime keys are listed
+
+
+# ---- 13g: layout clean-up (v3)
+
+def _fig_v3():
+    import matplotlib.pyplot as plt
+    d = FG.prepare_F3(FG.load_F3())
+    return d, FG._draw_F3(d, True, FG.strip_lines(d)), plt
+
+
+def _stored(k):
+    rec = json.loads((RES / FG.F3_PATH_RECORDS[k]).read_text(encoding="utf-8"))
+    return rec["config"]["path"], rec["config"]["model"]
+
+
+def test_drawn_arrows_and_start_markers_equal_the_stored_values_exactly_in_data_coordinates():
+    # exact (==, no tolerance): coordinates read back from the annotation and marker artists, against the stored run records read independently of prepare_F3
+    d, fig, plt = _fig_v3()
+    try:
+        arrows, starts, axes_of = {}, {}, {}
+        for ax in fig.axes:
+            for a in ax.texts:
+                if (a.get_gid() or "").startswith("arrow:"):
+                    arrows[a.get_gid()[6:]] = a
+                    axes_of[a.get_gid()[6:]] = ax
+            for ln in ax.lines:
+                if (ln.get_gid() or "").startswith("start:"):
+                    starts[ln.get_gid()[6:]] = (ln, ax)
+        legs = {"P1": 1, "P2": 1, "P3": 1, "P5": 2}
+        want = {f"{pl}:{k}:{leg}" for pl in ("tau_d", "Delta", "strip") for k, n in legs.items() for leg in range(n)}
+        want |= {"Delta:P4a:0", "Delta:P4b:0", "strip:P4a:0", "strip:P4b:0"}
+        assert set(arrows) == want == set(starts)
+        for gid, a in arrows.items():
+            plane, k, leg = gid.split(":")
+            p, m = _stored(k)
+            e0, e1 = float(p["eta_start"]), float(p["eta_peak"])
+            x0, x1 = (e0, e1) if leg == "0" else (e1, e0)
+            assert a.xycoords == "data" and a.anncoords == "data"                         # no transform shift: nothing is offset
+            if plane == "tau_d":
+                y0 = y1 = float(m["tau_d_ms"])
+            elif plane == "Delta":
+                y0 = float(m["Delta"])
+                y1 = float(m["Delta"]) * float(p["Delta_factor"]) if k in ("P4a", "P4b") else float(m["Delta"])
+            else:
+                y0 = y1 = float(list(FG.STRIP_ROWS).index((k, int(leg))))                # the strip row number is a label, x is the stored eta
+            assert (a.xyann, a.xy) == ((x0, y0), (x1, y1)), gid
+            ln, ax = starts[gid]
+            assert list(ln.get_xdata()) == [x0] and list(ln.get_ydata()) == [y0], gid
+            assert ln.get_transform() == ax.transData and ax is axes_of[gid]
+    finally:
+        plt.close(fig)
+
+
+def test_a6_hopf_point_has_its_own_mark_and_colour_and_is_drawn_on_top_of_every_arrow():
+    d, fig, plt = _fig_v3()
+    try:
+        hp, found = S.diagram_mark("hopf_point"), []
+        for ax in fig.axes:
+            for ln in ax.lines:
+                if ln.get_gid() == "a6_hopf_point":
+                    found.append((ax, ln))
+        assert len(found) == 2                                                          # panel (c) and panel (d)
+        assert sorted(float(ln.get_ydata()[0]) for _, ln in found) == sorted([d["headline_tau_d_ms"], d["headline_Delta"]])      # exact
+        for ax, ln in found:
+            assert list(ln.get_xdata()) == [d["headline_hopf_eta"]]                      # exact
+            assert ln.get_marker() == hp.marker and ln.get_color() == hp.colour
+            others = [o.get_zorder() for o in list(ax.texts) + list(ax.lines) if o is not ln and (o.get_gid() or "").startswith(("arrow:", "start:"))]
+            assert others and ln.get_zorder() > max(others)                              # on top of every arrow and start marker
+        path_colours = {S.get(k).colour.lower() for k in FG.PATH_ORDER}
+        assert hp.colour.lower() not in path_colours and hp.marker not in {S.get(k).marker for k in FG.PATH_ORDER}      # not the P2 hexagon, not any path mark
+    finally:
+        plt.close(fig)
+
+
+def test_25hz_mark_is_a_tall_bar_across_the_slice_line_not_the_old_horizontal_bar():
+    m = S.contour_mark("25hz")
+    assert m.marker != "_" and m.size >= 10.0 and m.width > 0.0                          # exact thresholds: the old mark was "_" at size 7
+    d, fig, plt = _fig_v3()
+    try:
+        sizes = {ln.get_markersize() for ax in fig.axes for ln in ax.lines if ln.get_marker() == m.marker}
+        assert sizes == {m.size}                                                           # the drawn marks carry the style size
+    finally:
+        plt.close(fig)
+
+
+def test_colour_bar_sits_next_to_the_panels_gap_below_0_08_of_the_figure_width():
+    # tolerance: the gap between the right edge of panel (c) and the colour bar is bounded at 0.08 of the figure width (v2 had about 0.30)
+    d, fig, plt = _fig_v3()
+    try:
+        fig.canvas.draw()
+        cax = [ax for ax in fig.axes if ax.get_ylabel() == "limit-cycle frequency (Hz)"]
+        assert len(cax) == 1
+        panel_c = [ax for ax in fig.axes if ax.get_title().startswith("(c)")][0]
+        gap = cax[0].get_position().x0 - panel_c.get_position().x1
+        assert 0.0 < gap < 0.08, gap
+    finally:
+        plt.close(fig)
+
+
+def test_caption_never_says_offset_and_states_the_shared_stored_position(built):
+    res, out = built
+    caption = (out / "F3_caption.txt").read_text(encoding="utf-8")
+    assert not re.search(r"offset", caption, re.I)                                       # exact: the word does not occur
+    assert "no shift is applied" in caption and "path strip" in caption and "rows are labels" in caption
+    d = FG.prepare_F3(FG.load_F3())
+    assert f"eta_bar {d['P1_eta_start']:.3f}" in caption and f"Delta {d['P1_Delta']:g}, tau_d {d['P1_tau_d_ms']:g} ms" in caption
+    assert "P1, P2, P3 and P5 start at the same" in caption                               # the grouping is computed from the stored values
+    assert "DRAFT v3" in FG.FOOTER

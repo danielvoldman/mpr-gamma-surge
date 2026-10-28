@@ -90,15 +90,18 @@ HALO_COLOUR = "#ffffff"
 @dataclass(frozen=True)
 class ContourMark:
     hz: float
-    marker: str
+    marker: object         # matplotlib marker code or a vertex tuple
     marker_name: str
     colour: str
     size: float
-    width: float
+    width: float           # width of the halo edge (HALO_COLOUR) around the filled mark
 
 
+# 13g: the 25 Hz mark was a short horizontal bar, which lay along the slice line and was hard to see; it is now a tall narrow filled bar that crosses the
+# slice line (vertex marker, so it shares no code with the '|' of the 'noise' key), with a white edge. UNVERIFIED design choice.
+_TALL_BAR = ((-0.2, -1.0), (0.2, -1.0), (0.2, 1.0), (-0.2, 1.0), (-0.2, -1.0))
 CONTOUR_MARKS = {
-    "25hz": ContourMark(25.0, "_", "short horizontal bar", "#1a1a1a", 7.0, 1.0),
+    "25hz": ContourMark(25.0, _TALL_BAR, "tall narrow bar across the slice line", "#1a1a1a", 13.0, 0.9),
     "100hz": ContourMark(100.0, ".", "point", "#7f0000", 6.0, 1.0),
 }
 

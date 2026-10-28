@@ -173,12 +173,36 @@ def test_build_hashes_and_params_agree_with_the_provenance(built):
     assert {i["path"].split("results/")[-1] for i in rec["inputs"]} == set(FG.F2_INPUTS)
 
 
-def test_caption_names_the_plotted_quantity_marks_the_proposal_and_has_no_provenance_hash(built):
+def test_caption_names_the_plotted_quantity_states_the_ruled_limits_and_has_no_provenance_hash(built):
     res, out = built
     caption = (out / "F2_caption.txt").read_text(encoding="utf-8")
-    assert caption.startswith("F2. PROPOSED (for ruling):")                         # take-home and claim limits are proposals until ruled
+    assert caption.startswith("F2. At ref_devalle the limit cycle appears") and "PROPOSED" not in caption        # take-home and claim limits ruled in 13g
     assert "Nothing in this figure is a frequency or a spectral peak" in caption and "voltage variable v" in caption
     assert "not a fold of cycles" in caption and "mean V of non-refractory neurons" in caption and "F2_" not in caption
-    assert "Claim limits: MS11-C7, MS12-C1, G4-C2." in caption and "PROPOSED for the reviewer's ruling" in caption
+    assert "Claim limits: MS11-C7, MS12-C1, G4-C2." in caption and "UNVERIFIED readings of the plan" in caption
     assert not re.search(r"[0-9a-f]{12,}", caption) and "hash" not in caption.lower() and not re.search(r"\bsha(256)?\b", caption.lower())
     assert "Provenance" not in caption
+
+
+# ---- 13g: layout review of the first draft (v2)
+
+def test_panel_c_limits_keep_every_drawn_point_inside_the_frame_with_a_margin_of_at_least_5_percent():
+    # tolerance: the margin is at least 5 percent of the axis span on each side (the first draft had its largest point on the frame)
+    import matplotlib.pyplot as plt
+    d = FG.prepare_F2(FG.load_F2())
+    fig = FG._draw_F2(d, True, FG.strip_lines(d))
+    try:
+        ax = fig.axes[2]
+        lo, hi = ax.get_ylim()
+        v = d["cmp_rel_v_ptp"][d["net_above_mask"] == 1.0]
+        assert lo < min(v.min(), 0.0) - 0.05 * (hi - lo) and hi > max(v.max(), 0.0) + 0.05 * (hi - lo)
+    finally:
+        plt.close(fig)
+
+
+def test_strip_text_says_when_the_stored_threshold_is_blank():
+    d = FG.prepare_F2(FG.load_F2())
+    lines = FG.strip_lines(d)
+    assert len(lines) == 4 and not any("threshold )" in s for s in lines)               # exact
+    blank = [r for r in d["strip"] if not r["threshold"]]
+    assert len([s for s in lines if "threshold blank in the table" in s]) == len(blank) == 1
