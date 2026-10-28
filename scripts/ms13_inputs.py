@@ -113,6 +113,8 @@ INPUTS = {
         fil("A2 ring map", "A2/a2_ring_map.npz"),
         fil("A0 replication table", "A0/a0_replication.csv"),
         rec("S1 M2 validation (K4 step, K5 sinusoid)", "S1/*.json", 4),
+        fil("A1 run record (source of the FS1 parameter rows; added 13h)", "A1/A1_0000_695d1f3d53a7.json"),
+        fil("A2 run record (source of the FS1 parameter rows; added 13h)", "A2/A2_0000_ac3c1fb033cc.json"),
     ],
     "FS2": [
         rec("S3 mean field, ref_ceni (3 tau_d)", "S3/ceni/*.json", 3),

@@ -211,10 +211,14 @@ def test_13e_caption_notes_are_printed_in_order_before_the_claim_limits_and_defa
         CAP.build_caption("F3", notes=("  ",), **ok)
 
 
+FS1_MARK_KEYS = ("m2_fold", "m2_cusp", "m2_k_point", "s1_k4_trace", "s1_k5_trace", "s1_forcing", "k4_window", "k4_r_star")
+
+
 def test_13f_diagram_marks_are_style_keys_outside_the_class_table():
     # exact: the F2 diagram marks (13f) sit outside STYLE, so the unique-marker test and the colour report are unchanged; the two sweep directions of a
     # source differ in marker shape; sources differ in colour and fill; no colour of the class/path/control/source table is reused
     keys = {"a5_cycle", "a5_fixed_stable", "a5_fixed_unstable", "hopf_point", "s4_mf_up", "s4_mf_down", "s4_net_up", "s4_net_down"}
+    keys |= set(FS1_MARK_KEYS)                                                      # 13h: the FS1 marks are in the same table
     assert set(S.DIAGRAM_MARKS) == keys and all(S.diagram_mark(k).key == k for k in keys)
     drawn = [S.diagram_mark(k) for k in ("s4_mf_up", "s4_mf_down", "s4_net_up", "s4_net_down", "hopf_point")]
     assert len({m.marker for m in drawn}) == 5                                      # five drawn marks, all different shapes (mean field: filled carets; network: open vertex shapes)
@@ -234,3 +238,14 @@ def test_13g_25hz_contour_mark_is_a_tall_vertex_bar_distinct_from_every_style_ma
     xs, ys = [v[0] for v in m.marker], [v[1] for v in m.marker]
     assert (max(ys) - min(ys)) > 4 * (max(xs) - min(xs))
     assert m.marker not in {s.marker for s in S.STYLE.values()} and m.marker != S.contour_mark("100hz").marker
+
+
+def test_13h_fs1_marks_and_colour_maps_are_style_keys_outside_the_class_table():
+    # exact: the FS1 marks are diagram marks (their colours avoid every class/path/control/source colour and the halo; markers avoid every table marker); the two
+    # point marks differ in shape and colour; the root-count fills are two different colours for 1 and 3 roots; the ring maps use viridis (frequency) and cividis
+    marks = [S.diagram_mark(k) for k in FS1_MARK_KEYS]
+    assert all(m.key == k for m, k in zip(marks, FS1_MARK_KEYS))
+    assert S.diagram_mark("m2_cusp").marker != S.diagram_mark("m2_k_point").marker and S.diagram_mark("m2_cusp").colour != S.diagram_mark("m2_k_point").colour
+    assert {m.colour.lower() for m in marks}.isdisjoint({s.colour.lower() for s in S.STYLE.values()} | {S.HALO_COLOUR.lower()})
+    assert set(S.ROOT_COUNT_COLOURS) == {1, 3} and S.ROOT_COUNT_COLOURS[1] != S.ROOT_COUNT_COLOURS[3]
+    assert (S.FREQUENCY_CMAP, S.CYCLES_CMAP) == ("viridis", "cividis")

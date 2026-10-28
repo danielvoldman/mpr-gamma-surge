@@ -713,6 +713,302 @@ def make_F2(res=None, out_dir=None, *, tag_build: bool = False, take_home=F2_TAK
             "timing_s": timing, "drawn_sha256": drawn, "caption": cap.text}
 
 
+# ---- FS1 (13h) -------------------------------------------------------------------------------------------------------------------------------------
+# Paths relative to results/. The registry scripts/ms13_inputs.py INPUTS["FS1"] must name the same files (the four S1 records as json plus their npz; test).
+# S1 holds two copies of each run (15 Oct and 17 Oct, same arrays); the A0 table cites the 15 Oct ones (K4 2bffa787ba51, K5 ee3bd60993e0). All four are
+# opened and the copies are checked equal to the cited records, so a differing copy stops the build.
+FS1_INPUTS = (
+    "A1/a1_fixedpoints_2d.npz",                              # M2 root count, fold formula positions, cusp, K1 to K3 (DL-086)
+    "A2/a2_ring_map.npz",                                    # ring frequency, cycles per e-fold, K4 fit and linearisation (DL-089)
+    "A0/a0_replication.csv",                                 # K1 to K5 table (DL-091)
+    "S1/S1_0000_2bffa787ba51.json", "S1/S1_0000_2bffa787ba51.npz",        # K4 step, the record the A0 table cites
+    "S1/S1_0000_c2d0a2f953a5.json", "S1/S1_0000_c2d0a2f953a5.npz",        # K4 step, later copy
+    "S1/S1_0000_ee3bd60993e0.json", "S1/S1_0000_ee3bd60993e0.npz",        # K5 sinusoid, the record the A0 table cites
+    "S1/S1_0000_a2f4befc74ad.json", "S1/S1_0000_a2f4befc74ad.npz",        # K5 sinusoid, later copy
+    "A1/A1_0000_695d1f3d53a7.json",                          # run record: source of the A1 rows of FS1_params.csv
+    "A2/A2_0000_ac3c1fb033cc.json",                          # run record: source of the A2 rows of FS1_params.csv
+)
+FS1_RECORDS = {"S1_K4": FS1_INPUTS[3], "S1_K5": FS1_INPUTS[7], "A1": FS1_INPUTS[11], "A2": FS1_INPUTS[12]}
+FS1_CAPTION_KEYS = ("model.type", "model.J", "model.Delta", "model.eta_bar", "model.tau_ms", "path.name", "path.I_amp", "path.I_period_s", "solver.rtol")
+FS1_STRIP_RB = ()            # Table 7.2 'Where' names FS1 for no RB check (UNVERIFIED reading): no A11 row touches FS1, so the A11 table is not opened
+FS1_K4NET = "K4-net: not run, M2 network coupling unsourced (open item 1, T51); non-blocking (DL-113). No source was supplied (DL-119)."
+FS1_K5 = "K5 (DL-064, DL-082): own reading, UNVERIFIED, deferred (unchanged; docs/ms11_close.md). The K5 trace is the stored S1 run."
+
+# PROPOSED for the reviewer's ruling (13h prompt, item 3); every statement is from a logged result (DL numbers in the text) and the numbers are checked
+# against the stored arrays by tests/test_fig_FS1.py.
+FS1_TAKE_HOME = (
+    "PROPOSED (for ruling): The M2 model, kept as the damped-ring comparison (DL-111), passes the replication checks K1 to K4 on the stored A1, A2 and S1 results "
+    "(DL-086, DL-089, DL-091): the root-count boundary lies within one cell of the formula fold at half spacing for 20 of 20 r values (18 of 20 at base spacing; "
+    "the two cusp points need half spacing), (-5, 15) has a saddle, a stable focus and a stable node, and the K4 step response rings at the linearised "
+    "frequency and decay to 2.1e-4 and 6.1e-3 relative. K5 passes only on our own UNVERIFIED reading and its source check is deferred, and K4-net was not run "
+    "(unsourced coupling; DL-119). No stable focus on the A1 grid is non-damped (0 of 25727; the linearised rate has standard error 0, DL-092), and the largest "
+    "cycles per e-fold inside the 25 to 100 Hz band is 5.1 (DL-089)."
+)
+# PROPOSED: MS11-C7 is the only limit in docs/ms13_plan.md section 5 that lists FS1 ('every figure'). MS12-C1 lists F1 to F6 and FS6, not FS1; no other
+# limit of the table names FS1 (listed, not decided).
+FS1_CLAIM_LIMITS = ("MS11-C7",)
+FS1_FOOTER = "DRAFT: untagged build. Layout, marks and colours are UNVERIFIED design choices (style.py). Take-home message and claim-limit list are PROPOSED."
+
+
+def load_FS1(res=None) -> dict:
+    """Open the files of FS1_INPUTS under `res` (default results/) and return their content. Opens nothing else."""
+    res = Path(res) if res is not None else results_dir()
+    for rel in FS1_INPUTS:
+        if not (res / rel).is_file():
+            raise F.MissingInputError(f"input file not found: {res / rel}")
+    try:
+        with np.load(res / FS1_INPUTS[0], allow_pickle=False) as z:
+            a1 = {k: z[k] for k in z.files}
+        with np.load(res / FS1_INPUTS[1], allow_pickle=False) as z:
+            a2 = {k: z[k] for k in z.files}
+        with open(res / FS1_INPUTS[2], newline="", encoding="utf-8") as fh:
+            a0 = list(csv.DictReader(fh))
+        records = {k: json.loads((res / rel).read_text(encoding="utf-8")) for k, rel in FS1_RECORDS.items()}
+        series = {}                      # [cited record's series, later copy's series]
+        for key, cited, copy in (("S1_K4", FS1_INPUTS[4], FS1_INPUTS[6]), ("S1_K5", FS1_INPUTS[8], FS1_INPUTS[10])):
+            series[key] = []
+            for rel in (cited, copy):
+                with np.load(res / rel, allow_pickle=False) as z:
+                    series[key].append({k: z[k] for k in z.files})
+        copies = {k: json.loads((res / rel).read_text(encoding="utf-8")) for k, rel in (("S1_K4_copy", FS1_INPUTS[5]), ("S1_K5_copy", FS1_INPUTS[9]))}
+    except (OSError, ValueError, KeyError) as exc:
+        raise F.MissingInputError(f"an FS1 input cannot be read: {exc}") from exc
+    return {"a1": a1, "a2": a2, "a0": a0, "records": records, "series": series, "copies": copies}
+
+
+def _single_slot(values, mask, name: str):
+    """The value of the one slot per node where `mask` holds, NaN where none (A1/A2 keep up to three root slots per node)."""
+    if int(mask.sum(axis=2).max()) > 1:
+        raise DataError(f"{name}: more than one slot per node is flagged")
+    return np.where(mask.any(axis=2), np.where(mask, values, 0.0).sum(axis=2), np.nan)
+
+
+def prepare_FS1(raw: dict) -> dict:
+    """Pure: stored content -> the arrays and numbers that are drawn. Keys are flat names; values are float arrays, ints, bools or strings."""
+    a1, a2 = raw["a1"], raw["a2"]
+    d: dict = {}
+    if not (np.array_equal(a1["eta_over_Delta"], a2["eta_over_Delta"]) and np.array_equal(a1["J_over_sqrtDelta"], a2["J_over_sqrtDelta"])):
+        raise DataError("the A1 and A2 grids differ")
+    d["eta"], d["J"] = np.asarray(a1["eta_over_Delta"], dtype=float), np.asarray(a1["J_over_sqrtDelta"], dtype=float)
+    d["n_roots_T"] = np.asarray(a1["n_roots"], dtype=float).T                         # (J, eta) for pcolormesh
+    d["fold_J"] = np.asarray(a1["halving_fold_J"], dtype=float)
+    d["fold_eta_a"], d["fold_eta_b"] = (np.asarray(a1["halving_fold_eta_formula"][:, i], dtype=float) for i in (0, 1))
+    d["cusp_r"], d["cusp_eta"], d["cusp_J"] = (float(x) for x in a1["cusp_r_eta_J"])
+    hv = dict(zip((str(x) for x in a1["halving_cusp_names"]), (float(x) for x in a1["halving_cusp_values"])))
+    d["cusp_J_shift_cells"], d["cusp_eta_shift_cells"] = hv["J_shift_cells"], hv["eta_shift_cells"]
+    d["k1_n"], d["k1_pass_base"], d["k1_pass_half"] = int(a1["k1_pass_base"].size), int(a1["k1_pass_base"].sum()), int(a1["k1_pass_half"].sum())
+    d["k3_labels"] = ", ".join(str(x) for x in a1["k3_labels"])
+    d["k3_pass"] = bool(a1["k3_pass"])
+    # ring map: the stable-focus slot of each node; frequency everywhere, cycles per e-fold everywhere, and the band flag
+    foc = a2["ring_is_focus"].astype(bool)
+    d["ring_freq_T"] = _single_slot(a2["ring_freq_hz"], foc, "ring_is_focus").T
+    d["ring_cyc_T"] = _single_slot(a2["ring_cycles_per_efold"], foc, "ring_is_focus").T
+    d["ring_inG_T"] = _single_slot(a2["ring_in_G"].astype(float), foc, "ring_is_focus").T
+    d["ring_n_focus"] = int(foc.sum())
+    d["ring_n_inG"] = int((a2["ring_in_G"].astype(bool) & foc).sum())
+    d["ring_n_nondamped"] = int((a2["ring_g1_nondamped"].astype(bool) & foc).sum())
+    d["ring_freq_min"], d["ring_freq_max"] = float(np.nanmin(d["ring_freq_T"])), float(np.nanmax(d["ring_freq_T"]))
+    inG = d["ring_inG_T"] == 1.0
+    d["ring_cyc_inG_max"] = float(d["ring_cyc_T"][inG].max())
+    d["ring_cyc_inG_T"] = np.where(inG, d["ring_cyc_T"], np.nan)
+    d["band_hz"] = np.asarray(a2["band_primary_hz"], dtype=float)
+    d["tau_ms"] = float(a2["tau_ms"])
+    for k in ("omega_fit", "omega_lin", "decay_fit", "decay_lin", "rel_err_frequency", "rel_err_decay", "tol_frequency", "tol_decay", "r_star", "jump", "cycles", "rms",
+              "t_start_tau", "t_end_tau"):
+        d[f"k4_{k}"] = float(a2[f"k4_{k}"])
+    d["k4_pass"] = bool(a2["k4_pass"])
+    # S1: the cited record is drawn; its later copy must have equal arrays
+    for key, rec_name in (("K4", "S1_K4"), ("K5", "S1_K5")):
+        s_cited, s_copy = raw["series"][rec_name][0], raw["series"][rec_name][1]
+        for k in s_cited:
+            if not np.array_equal(s_cited[k], s_copy[k]):
+                raise DataError(f"S1 {key}: the later copy differs from the cited record in '{k}'")
+        d[f"{key}_t_ms"], d[f"{key}_r"], d[f"{key}_I"] = (np.asarray(s_cited[k], dtype=float) for k in ("t_ms", "r", "I"))
+        for k in ("eta", "J", "Delta"):
+            if np.ptp(s_cited[k]) != 0.0:
+                raise DataError(f"S1 {key}: '{k}' is not constant")
+    expect = {"S1_K4": "I_step", "S1_K5": "I_sin"}
+    for rec_name, name in expect.items():
+        if raw["records"][rec_name]["config"]["path"]["name"] != name:
+            raise DataError(f"{rec_name}: path.name is {raw['records'][rec_name]['config']['path']['name']!r}, expected {name!r}")
+    s4 = raw["series"]["S1_K4"][0]
+    d["k_eta"], d["k_J"], d["k_Delta"] = float(s4["eta"][0]), float(s4["J"][0]), float(s4["Delta"][0])
+    d["k4_start_r"], d["k4_end_r"] = float(s4["r"][0]), float(s4["r"][-1])
+    d["k4_t_start_ms"], d["k4_t_end_ms"] = d["k4_t_start_tau"] * d["tau_ms"], d["k4_t_end_tau"] * d["tau_ms"]
+    d["a0_target"] = [r["target"] for r in raw["a0"]]
+    d["a0_pass"] = [r["pass"] for r in raw["a0"]]
+    d["a0_measured"] = [r["measured"] for r in raw["a0"]]
+    d["a0_tolerance"] = [r["tolerance"] for r in raw["a0"]]
+    return d
+
+
+def _draw_FS1(d: dict, draft: bool):
+    import textwrap
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.colors import ListedColormap
+    plt.rcParams.update({"font.family": S.FONT_FAMILY, "font.size": S.FONT_SIZE_PT, "pdf.fonttype": 42})
+    fold, cusp, kpt = S.diagram_mark("m2_fold"), S.diagram_mark("m2_cusp"), S.diagram_mark("m2_k_point")
+    k4t, k5t, frc = S.diagram_mark("s1_k4_trace"), S.diagram_mark("s1_k5_trace"), S.diagram_mark("s1_forcing")
+    win, rst = S.diagram_mark("k4_window"), S.diagram_mark("k4_r_star")
+    fig = plt.figure(figsize=(7.4, 9.0), constrained_layout=True)
+    gs = fig.add_gridspec(5, 2, height_ratios=[1.5, 1.5, 1.0, 0.95, 0.06])
+    xl, yl = r"$\bar\eta/\Delta$", r"$J/\sqrt{\Delta}$"
+    eta, J = d["eta"], d["J"]
+    ext = dict(shading="nearest", rasterized=True)
+
+    def mark_k(ax):
+        ax.plot([d["k_eta"] / d["k_Delta"]], [d["k_J"] / np.sqrt(d["k_Delta"])], ls="none", marker=kpt.marker, ms=kpt.size, color=kpt.colour, mew=kpt.width, zorder=6,
+                label=f"K3 to K5 point ({d['k_eta'] / d['k_Delta']:g}, {d['k_J'] / np.sqrt(d['k_Delta']):g})")
+
+    # (a) root count with the formula fold positions and the cusp
+    ax = fig.add_subplot(gs[0, 0])
+    cm = ListedColormap([S.ROOT_COUNT_COLOURS[1], S.ROOT_COUNT_COLOURS[3]])
+    ax.pcolormesh(eta, J, d["n_roots_T"], cmap=cm, vmin=1, vmax=3, **ext)
+    for col, lab in (("fold_eta_a", "fold formula (A1), two branches"), ("fold_eta_b", None)):
+        ax.plot(d[col], d["fold_J"], color=fold.colour, lw=fold.width, ls=fold.linestyle, label=lab, zorder=3)
+    ax.plot([d["cusp_eta"]], [d["cusp_J"]], ls="none", marker=cusp.marker, ms=cusp.size, color=cusp.colour, mew=cusp.width, zorder=5,
+            label=f"cusp, formula ({d['cusp_eta']:.3f}, {d['cusp_J']:.3f})")
+    mark_k(ax)
+    from matplotlib.patches import Patch
+    h, l = ax.get_legend_handles_labels()
+    h = [Patch(fc=S.ROOT_COUNT_COLOURS[1], ec="#7a7a7a", lw=0.5), Patch(fc=S.ROOT_COUNT_COLOURS[3], ec="#7a7a7a", lw=0.5)] + h
+    l = ["1 root (A1 grid node)", "3 roots (A1 grid node)"] + l
+    ax.legend(h, l, loc="lower left", fontsize=5.4, frameon=True, framealpha=0.95, borderaxespad=0.3)
+    ax.set_xlim(eta.min(), eta.max())
+    ax.set_ylim(J.min(), J.max())
+    ax.set_xlabel(xl)
+    ax.set_ylabel(yl)
+    ax.set_title("(a) M2 fixed points: number of roots (A1, base grid)", fontsize=S.FONT_SIZE_PT)
+    # (b) ring frequency of the stable focus
+    axb = fig.add_subplot(gs[0, 1], sharex=ax, sharey=ax)
+    m = axb.pcolormesh(eta, J, d["ring_freq_T"], cmap=S.FREQUENCY_CMAP, **ext)
+    axb.set_facecolor("#f2f2f2")
+    mark_k(axb)
+    fig.colorbar(m, ax=axb, pad=0.02, fraction=0.06).set_label("ring frequency (Hz, tau = %g ms)" % d["tau_ms"], fontsize=6)
+    axb.set_xlabel(xl)
+    axb.set_title("(b) A2 ring map: frequency of the stable focus", fontsize=S.FONT_SIZE_PT)
+    # (c) cycles per e-fold in the band
+    axc = fig.add_subplot(gs[1, 0], sharex=ax, sharey=ax)
+    axc.set_facecolor("#f2f2f2")
+    mc = axc.pcolormesh(eta, J, d["ring_cyc_inG_T"], cmap=S.CYCLES_CMAP, **ext)
+    mark_k(axc)
+    fig.colorbar(mc, ax=axc, pad=0.02, fraction=0.06).set_label("cycles per e-fold", fontsize=6)
+    axc.set_xlabel(xl)
+    axc.text(0.0, -0.27, "grey: stable focus outside the band, or no focus." + "\n" + f"{d['ring_n_nondamped']} of {d['ring_n_focus']} foci are non-damped.",
+             transform=axc.transAxes, fontsize=6.0, va="top", ha="left")
+    axc.set_ylabel(yl)
+    axc.set_title("(c) A2 ring map: cycles per e-fold, 25 to 100 Hz band", fontsize=S.FONT_SIZE_PT)
+    # (d) K4 step response
+    axd = fig.add_subplot(gs[1, 1])
+    axd.plot(d["K4_t_ms"], d["K4_r"], color=k4t.colour, lw=k4t.width, ls=k4t.linestyle, label="S1 K4: r(t), stored series", zorder=3)
+    axd.axhline(d["k4_r_star"], color=rst.colour, lw=rst.width, ls=rst.linestyle, label=f"post-step focus r* = {d['k4_r_star']:.4f} (A2)", zorder=2)
+    for x, lab in ((d["k4_t_start_ms"], "fit window start"), (d["k4_t_end_ms"], "fit window end")):
+        axd.axvline(x, color=win.colour, lw=win.width, ls=win.linestyle, label=f"{lab} ({x:g} ms)" if lab.endswith("start") else f"{lab} ({x:g} ms)", zorder=1)
+    axd.set_xlim(0.0, 600.0)
+    axd.set_xlabel("t (ms)")
+    axd.set_ylabel("r")
+    axd.set_title("(d) K4: step I = 0 to 3 at (-5, 15); axis cut at 600 ms", fontsize=S.FONT_SIZE_PT)
+    axd.legend(loc="upper right", fontsize=5.4, frameon=True, framealpha=0.95)
+    axd.text(0.98, 0.34, f"stored fit: omega {d['k4_omega_fit']:.4f}\n  decay {d['k4_decay_fit']:.5f} per tau\nlinearisation: omega {d['k4_omega_lin']:.4f}\n  decay {d['k4_decay_lin']:.5f}\n"
+             f"relative error {d['k4_rel_err_frequency']:.2g} (frequency)\n  {d['k4_rel_err_decay']:.2g} (decay), tolerance {d['k4_tol_frequency']:g}\n"
+             f"{'pass' if d['k4_pass'] else 'FAIL'}; {d['k4_cycles']:.1f} tail cycles", transform=axd.transAxes, fontsize=5.4, va="top", ha="right")
+    # (e) K5 sinusoid
+    axe = fig.add_subplot(gs[2, :])
+    axe.plot(d["K5_t_ms"], d["K5_r"], color=k5t.colour, lw=k5t.width, ls=k5t.linestyle, label="S1 K5: r(t), stored series", zorder=3)
+    axe.set_xlim(d["K5_t_ms"].min(), d["K5_t_ms"].max())
+    axe.set_xlabel("t (ms)")
+    axe.set_ylabel("r")
+    axe2 = axe.twinx()
+    axe2.plot(d["K5_t_ms"], d["K5_I"], color=frc.colour, lw=frc.width, ls=frc.linestyle, label="forcing I(t), stored", zorder=1)
+    axe2.set_ylabel("forcing I", color=frc.colour)
+    axe.set_title("(e) K5 sinusoidal forcing: own reading, UNVERIFIED, source check deferred (DL-064, DL-082)", fontsize=S.FONT_SIZE_PT)
+    h1, l1 = axe.get_legend_handles_labels()
+    h2, l2 = axe2.get_legend_handles_labels()
+    axe.legend(h1 + h2, l1 + l2, loc="upper right", fontsize=5.4, frameon=True, framealpha=0.95, ncol=2)
+    # (f) A0 table and status lines
+    axf = fig.add_subplot(gs[3, :])
+    axf.axis("off")
+    lines = ["(f) Stored A0 replication table (K1 to K5; every row passes on definitions marked UNVERIFIED in the table):"]
+    for t, p, mm, tol in zip(d["a0_target"], d["a0_pass"], d["a0_measured"], d["a0_tolerance"]):
+        lines += textwrap.wrap(f"{t}: {p}. {mm}. Criterion: {tol}.", width=150, subsequent_indent="    ")
+    lines += ["", FS1_K5, FS1_K4NET, "FAIL rows of the stored A11 table that touch FS1: none (Table 7.2 names no RB check for FS1; UNVERIFIED reading)."]
+    axf.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=5.7, linespacing=1.25)
+    axg = fig.add_subplot(gs[4, :])
+    axg.axis("off")
+    axg.text(0.0, 0.5, FS1_FOOTER if draft else "", fontsize=5.5, color="#7f0000", ha="left", va="center")
+    return fig
+
+
+def fs1_caption_notes(d: dict) -> tuple:
+    """Sentences about what is and is not drawn (13h). Values come from the prepared data; only the wording is typed here."""
+    return (
+        "Panel (a) shows the stored A1 root count on the base grid (241 by 201 nodes, one cell per node) and the stored positions of the fold formula and the cusp; the "
+        f"refined half-spacing lattice is not drawn. At the cusp the half-spacing result moves by {d['cusp_J_shift_cells']:.1f} J cells and {abs(d['cusp_eta_shift_cells']):.1f} eta "
+        "cells against the base grid (stored; DL-086 records this, it does not claim it met). Axes are eta_bar/Delta and J/sqrt(Delta); the K points are at Delta = 1.",
+        f"Panels (b) and (c) show the A2 ring map: the frequency (Hz) and the cycles per e-fold of the stable focus at each node ({d['ring_n_focus']} nodes; {d['ring_n_inG']} with the ring "
+        f"frequency in the 25 to 100 Hz band). The ring rate is the linearised rate with standard error 0, not a fit to simulated rings, so every focus is damped by construction "
+        f"(DL-089, DL-092). Panel (c) is drawn only where the ring frequency lies in the band; its largest value is {d['ring_cyc_inG_max']:.2f}.",
+        f"Panel (d) is the stored S1 K4 run (DOP853, 1 ms output, start in the low state r = {d['k4_start_r']:.4f}); the x axis is cut at 600 ms and the run goes on to "
+        f"{d['K4_t_ms'].max():g} ms, ending at r = {d['k4_end_r']:.4f}. The fit window is {d['k4_t_start_tau']:g} to {d['k4_t_end_tau']:g} tau (tau = {d['tau_ms']:g} ms, UNVERIFIED mapping, DL-082); the fit and linearisation numbers are the stored A2 values.",
+        "Panel (e) is the stored S1 K5 run; its burst definition, tolerance and time mapping are our own readings (UNVERIFIED, DL-082), and the check against the primary source is deferred. No crossing is drawn.",
+        "K4-net was not run and has no panel (the M2 network coupling is unsourced; DL-119). The S1 records exist as two copies (15 and 17 Oct) with equal arrays; the copy cited by the A0 table is drawn.",
+        "The claim-limit ID listed here is PROPOSED for the reviewer's ruling. M2 is the comparison model (DL-111): nothing here is a result for M3.",
+    )
+
+
+def make_FS1(res=None, out_dir=None, *, tag_build: bool = False, take_home=FS1_TAKE_HOME, claim_limit_ids=FS1_CLAIM_LIMITS,
+             script="scripts/fig_FS1.py", root=None) -> dict:
+    """Build FS1 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov)."""
+    F.require_buildable("FS1")
+    root = Path(root) if root is not None else repo_root()
+    res = Path(res) if res is not None else root / "results"
+    out = Path(out_dir) if out_dir is not None else root / "figures" / "FS1"
+    t = {"start": time.perf_counter()}
+    raw = load_FS1(res)
+    t["load"] = time.perf_counter()
+    d = prepare_FS1(raw)
+    t["prepare"] = time.perf_counter()
+    rows = []
+    for panel, key in (("a-c", "A1"), ("a-c", "A2"), ("d", "S1_K4"), ("e", "S1_K5")):
+        rec = raw["records"][key]
+        for r in make_param_table(rec["config"]):
+            rows.append({**r, "panel": panel, "section": "", "source_run_id": rec["name"], "source_config_hash12": rec["config_hash12"]})
+    cap = CAP.build_caption("FS1", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=[r for r in rows if r["key"] in FS1_CAPTION_KEYS],
+                            spectrogram=None, symbol_keys=(), notes=fs1_caption_notes(d))
+    import matplotlib.pyplot as plt
+    fig = _draw_FS1(d, draft=not tag_build)
+    out.mkdir(parents=True, exist_ok=True)
+    pdf, png = out / "FS1.pdf", out / "FS1.png"
+    fig.savefig(pdf)
+    fig.savefig(png, dpi=S.PNG_DPI)
+    plt.close(fig)
+    t["draw"] = time.perf_counter()
+    cap_path, dig_path = out / "FS1_caption.txt", out / "FS1_drawn_data_sha256.txt"
+    from .. import provenance as P
+    drawn = drawn_data_sha256(d)
+    P.atomic_write_text(cap_path, cap.text + "\n")
+    P.atomic_write_text(dig_path, drawn + "\n")
+    warnings = []
+    for k, rec in {**raw["records"], **raw["copies"]}.items():
+        if (rec.get("git") or {}).get("dirty"):
+            warnings.append(f"input record {k} ({rec['name']}) was written with git dirty = true")
+    prov = F.write_figure_provenance(
+        "FS1", script=script, inputs=[res / p for p in FS1_INPUTS], outputs=[pdf, png, cap_path, dig_path], params_rows=rows,
+        modules=["src/mprsurge/plotting/figures.py", "src/mprsurge/plotting/style.py", "src/mprsurge/plotting/captions.py",
+                 "src/mprsurge/plotting/nordlie.py", "src/mprsurge/plotting/figprov.py"],
+        configs=["configs/A1.yaml", "configs/A2.yaml", "configs/S1.yaml"], claim_limits=cap.claim_limits, spectrogram=None, tag_build=tag_build,
+        out_dir=out, root=root, warnings=warnings, wall_time_s=time.perf_counter() - t["start"])
+    nordlie_path = out / "FS1_nordlie.md"
+    N.write_nordlie(out / "FS1_params.csv", out / "FS1_provenance.json", nordlie_path, root=root)
+    t["end"] = time.perf_counter()
+    timing = {"load_s": t["load"] - t["start"], "prepare_s": t["prepare"] - t["load"], "draw_s": t["draw"] - t["prepare"],
+              "provenance_and_nordlie_s": t["end"] - t["draw"], "total_s": t["end"] - t["start"]}
+    return {"prov": prov, "paths": [pdf, png, cap_path, dig_path, out / "FS1_params.csv", out / "FS1_provenance.json", nordlie_path],
+            "timing_s": timing, "drawn_sha256": drawn, "caption": cap.text}
+
+
 def make_FS6(*args, **kwargs):
     """FS6 is not produced (S14 and S15 were not run, MS12-C1, DL-421): raises figprov.FigureRefused."""
     F.require_buildable("FS6")

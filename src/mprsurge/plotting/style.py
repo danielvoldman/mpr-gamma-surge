@@ -134,7 +134,21 @@ DIAGRAM_MARKS = {
     "s4_mf_down": DiagramMark("s4_mf_down", "#222222", 7, "caret down (down sweep)", "none", 3.5, 0.8, True),
     "s4_net_up": DiagramMark("s4_net_up", "#1f77b4", _SQUARE, "open square (up sweep)", "none", 6.0, 1.1, False),
     "s4_net_down": DiagramMark("s4_net_down", "#1f77b4", _DIAMOND, "open diamond (down sweep)", "none", 6.0, 1.1, False),
+    # 13h, FS1 (M2 diagram, K4 and K5 traces, ring map). UNVERIFIED design choices, like every mark above.
+    "m2_fold": DiagramMark("m2_fold", "#2b2b2b", None, "line", "-", 0.0, 1.0, True),
+    "m2_cusp": DiagramMark("m2_cusp", "#8c510a", r"$\oplus$", "circled plus", "none", 9.0, 1.0, True),
+    "m2_k_point": DiagramMark("m2_k_point", "#5d4037", r"$\odot$", "circled dot", "none", 9.0, 1.0, True),
+    "s1_k4_trace": DiagramMark("s1_k4_trace", "#1f3a5f", None, "line", "-", 0.0, 0.9, True),
+    "s1_k5_trace": DiagramMark("s1_k5_trace", "#0b6e4f", None, "line", "-", 0.0, 0.9, True),
+    "s1_forcing": DiagramMark("s1_forcing", "#7a7a7a", None, "line", ":", 0.0, 0.9, True),
+    "k4_window": DiagramMark("k4_window", "#a05a00", None, "line", "-.", 0.0, 0.8, True),
+    "k4_r_star": DiagramMark("k4_r_star", "#7a7a7a", None, "line", "--", 0.0, 0.8, True),
 }
+
+# 13h, FS1: fill of the A1 root-count map (one root, three roots) and the colour map of the A2 cycles per e-fold. The A2 ring frequency uses
+# FREQUENCY_CMAP (one frequency colour map for every figure). UNVERIFIED design choices.
+ROOT_COUNT_COLOURS = {1: "#e8eef4", 3: "#f3cfa6"}
+CYCLES_CMAP = "cividis"
 
 
 def diagram_mark(key: str) -> DiagramMark:
