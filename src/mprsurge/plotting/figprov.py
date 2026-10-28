@@ -120,12 +120,17 @@ def _numerical_settings(root, inputs) -> list[dict]:
     return out
 
 
+def value_text(value) -> str:
+    """The text of a params.csv `value` cell (JSON, so the round trip is exact); captions use the same function."""
+    return json.dumps(value, sort_keys=True, default=str)
+
+
 def write_params_csv(path, rows: list[dict], figure_id: str) -> None:
     """<ID>_params.csv (columns PARAMS_COLUMNS). `varied` is computed: true if the value of (panel, key) differs between source runs."""
     require_buildable(figure_id)
     vals: dict = {}
     for r in rows:
-        vals.setdefault((r.get("panel", ""), r["key"]), set()).add(json.dumps(r["value"], sort_keys=True, default=str))
+        vals.setdefault((r.get("panel", ""), r["key"]), set()).add(value_text(r["value"]))
     buf = io.StringIO(newline="")
     w = csv.DictWriter(buf, fieldnames=PARAMS_COLUMNS, lineterminator="\n")
     w.writeheader()
@@ -133,7 +138,7 @@ def write_params_csv(path, rows: list[dict], figure_id: str) -> None:
         row = {c: r.get(c, "") for c in PARAMS_COLUMNS}
         row["figure"] = figure_id
         row["varied"] = len(vals[(r.get("panel", ""), r["key"])]) > 1
-        row["value"] = json.dumps(r["value"], sort_keys=True, default=str)       # JSON text: the round trip is exact
+        row["value"] = value_text(r["value"])                                     # JSON text: the round trip is exact
         w.writerow(row)
     P.atomic_write_text(path, buf.getvalue())
 
