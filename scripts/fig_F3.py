@@ -2,7 +2,7 @@
 
   .venv/Scripts/python.exe scripts/fig_F3.py [--tag]
 
-Reads only files under results/ (the list below), never simulates, and writes figures/F3/ (F3.pdf, F3.png, F3_caption.txt, F3_drawn_data_sha256.txt,
+Reads only files under results/ (figures.F3_INPUTS: 6 analysis inputs and 6 path run records), never simulates, and writes figures/F3/ (F3.pdf, F3.png, F3_caption.txt, F3_drawn_data_sha256.txt,
 F3_params.csv, F3_provenance.json, F3_nordlie.md) through plotting.figures.make_F3 and plotting.figprov. Without --tag the build is an untagged
 DRAFT (provenance draft = true). With --tag the clean-tree check runs first and a dirty tree stops the build; a tag itself is never created here.
 """

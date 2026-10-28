@@ -62,6 +62,12 @@ INPUTS = {
         fil("A4 run record (source of the F3 parameter rows)", "A4/A4_0000_4ece63ed731f.json"),
         fil("A6 run record (source of the F3 parameter rows)", "A6/A6_0000_daa85487fd0a.json"),
         fil("A11 robustness table (FAIL-row strip)", "A11/a11_robustness.csv"),
+        fil("P1 run record (linear, T_ramp 100 s; path arrow)", "S5/ramp/p1_linear/p1_linear_0008_333859d6472b.json"),
+        fil("P2 run record (linear, T_ramp 120 s, headline; path arrow)", "S5/ramp/S5ramp/S5ramp_0000_240de3ef73be.json"),
+        fil("P3 run record (linear, T_ramp 120 s, I_amp 1; path arrow)", "S6/S6_P3/S6_P3_0006_5fb237a3d3fd.json"),
+        fil("P4a run record (linear, T_ramp 120 s; path arrow)", "S6/S6_P4a/S6_P4a_0002_42415b96d00c.json"),
+        fil("P4b run record (linear, T_ramp 120 s; path arrow)", "S6/S6_P4b/S6_P4b_0002_7be4a3067a9d.json"),
+        fil("P5 run record (linear, T_ramp 100 s; path arrow)", "S5/ramp/p5_linear/p5_linear_0008_da88da96d075.json"),
     ],
     "F4": [
         fil("A7 ramp metrics", "A7/a7_ramp_metrics.parquet"),

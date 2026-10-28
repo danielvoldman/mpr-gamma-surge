@@ -1,7 +1,7 @@
-"""MS13 13d: tests of the first figure (F3, untagged draft) and of plan 13a rows 9 to 12. They read the stored results under results/ (git-ignored)
-and skip if those are absent. Builds go to a temporary directory, never to figures/. Tolerances: every comparison is exact (SHA-256, set equality,
-exact messages) except row 9's array comparison (rel 1e-12, plan section 8 row 9) and the quoted maximum frequency (abs 0.05 Hz, 73.7 against the
-stored 73.692...)."""
+"""MS13 13d, 13e: tests of the first figure (F3, untagged draft v2) and of plan 13a rows 9 to 12. They read the stored results under results/
+(git-ignored) and skip if those are absent. Builds go to a temporary directory, never to figures/. Tolerances: every comparison is exact (SHA-256, set
+equality, exact messages, arrow end points against the stored config.path values) except row 9's array comparison (rel 1e-12, plan section 8 row 9), the
+derived P4 end Delta (rel 1e-12) and the quoted maximum frequency (abs 0.05 Hz, 73.7 against the stored 73.692...)."""
 import ast
 import importlib.util
 import json
@@ -55,10 +55,11 @@ def test_row10_make_FS6_is_refused_citing_ms12_c1_and_no_fig_FS6_script():
 def test_row11_claim_limit_ids_appear_in_the_provenance_claim_limits(built):
     res, out = built
     prov = json.loads((out / "F3_provenance.json").read_text(encoding="utf-8"))
-    assert set(prov["claim_limits"]) == set(FG.F3_PROPOSED_CLAIM_LIMITS)           # exact set equality
+    assert set(prov["claim_limits"]) == set(FG.F3_CLAIM_LIMITS) == {"MS11-C7", "MS12-C1", "MS11-C3"}           # exact set equality
     caption = (out / "F3_caption.txt").read_text(encoding="utf-8")
-    assert all(i in caption for i in FG.F3_PROPOSED_CLAIM_LIMITS)
-    assert caption.startswith("F3. PROPOSED, not ruled:")                          # the take-home message is marked as a proposal
+    assert all(i in caption for i in FG.F3_CLAIM_LIMITS)
+    assert caption.startswith("F3. On the A6 slices the 100 Hz contour")           # the ruled take-home message (DL-453), no PROPOSED marker
+    assert "PROPOSED" not in caption
     assert prov["draft"] is True and prov["figure_id"] == "F3" and prov["criteria_sha256"] == F.K.verify_frozen_criteria()["sha256"]
 
 
@@ -68,6 +69,7 @@ def test_row12_readiness_registry_equals_the_declared_inputs_of_fig_F3():
     registry = {e["path"] for e in reg.INPUTS["F3"]}
     assert all(e["kind"] == "file" for e in reg.INPUTS["F3"])
     assert registry == set(script.DECLARED_INPUTS) == set(FG.F3_INPUTS)           # exact set equality
+    assert len(FG.F3_INPUTS) == len(reg.INPUTS["F3"]) == 12                         # 6 stored analysis inputs and 6 path records (DL-447)
 
 
 def test_data_step_opens_only_paths_under_results_and_the_script_opens_nothing_itself():
@@ -113,3 +115,64 @@ def test_build_hashes_and_params_agree_with_the_provenance(built):
     conn = text.split("## Connectivity", 1)[1].split("## ", 1)[0]
     assert "model.J" in conn                                                       # J sits under Connectivity (13d fix)
     assert (out / "F3.pdf").stat().st_size > 0 and (out / "F3.png").stat().st_size > 0
+
+
+PATH_KEYS = ("P1", "P2", "P3", "P4a", "P4b", "P5")
+
+
+def test_arrow_end_points_equal_the_stored_config_path_values_exactly():
+    d = FG.prepare_F3(FG.load_F3())
+    assert set(FG.F3_PATH_RECORDS) == set(PATH_KEYS)
+    for k, rel in FG.F3_PATH_RECORDS.items():
+        rec = json.loads((RES / rel).read_text(encoding="utf-8"))
+        p, m = rec["config"]["path"], rec["config"]["model"]
+        assert p["name"] == FG.PATH_NAMES[k] and p["profile"] == "linear" and rec["status"] == "ok"
+        for name in ("eta_start", "eta_peak", "eta_H", "T_ramp_s", "I_amp", "Delta_factor"):
+            assert d[f"{k}_{name}"] == float(p[name])                              # exact
+        assert d[f"{k}_tau_d_ms"] == float(m["tau_d_ms"]) and d[f"{k}_Delta"] == float(m["Delta"])
+    assert d["P3_I_amp"] == 1.0                                                    # the default amplitude (DL-015), as ruled
+    assert (d["P1_T_ramp_s"], d["P5_T_ramp_s"], d["P2_T_ramp_s"]) == (100.0, 100.0, 120.0)
+
+
+def test_derived_p4_end_delta_equals_stored_delta_times_stored_factor_rel_1e12():
+    d = FG.prepare_F3(FG.load_F3())
+    for k in ("P4a", "P4b"):
+        rec = json.loads((RES / FG.F3_PATH_RECORDS[k]).read_text(encoding="utf-8"))
+        want = rec["config"]["model"]["Delta"] * rec["config"]["path"]["Delta_factor"]
+        assert d[f"{k}_Delta_end_derived"] == pytest.approx(want, rel=1e-12, abs=0)
+        z = np.load((RES / FG.F3_PATH_RECORDS[k]).with_suffix(".npz"))             # the stored trace agrees with the derived end value
+        assert float(z["Delta"][-1]) == pytest.approx(want, rel=1e-12, abs=0)
+        assert float(z["eta"][0]) == d[f"{k}_eta_start"] and float(z["eta"].max()) == d[f"{k}_eta_peak"]
+
+
+def test_p5_legs_follow_from_the_stored_eta_trace_and_the_others_have_one_leg():
+    d = FG.prepare_F3(FG.load_F3())
+    for k in PATH_KEYS:
+        z = np.load((RES / FG.F3_PATH_RECORDS[k]).with_suffix(".npz"))
+        eta = z["eta"]
+        returns = bool(eta[-1] < eta.max() - 1e-9)                                  # the stored eta comes back down
+        assert d[f"{k}_legs"] == (2 if returns else 1), k
+        assert d[f"{k}_eta_peak"] == float(eta.max()) and d[f"{k}_eta_start"] == float(eta[0])
+    assert d["P5_legs"] == 2
+
+
+def test_a4_curve_parameters_are_read_from_the_a4_record_and_the_100hz_note_from_the_arrays():
+    raw = FG.load_F3()
+    d = FG.prepare_F3(raw)
+    m = raw["records"]["A4"]["config"]["model"]
+    assert (d["a4_curve_Delta"], d["a4_curve_J"], d["a4_curve_tau_d_ms"]) == (m["Delta"], m["J"], m["tau_d_ms"]) == (0.3, -21.0, 5.0)
+    for D in FG.DELTAS:
+        note = FG.note_100hz(d, D)
+        assert note == f"no 100 Hz contour in range, maximum {float(d[f'D{D}_po_f_hz'].max()):.1f} Hz"
+
+
+def test_caption_has_the_frequency_type_sentence_and_no_provenance_hash(built):
+    import re
+    res, out = built
+    caption = (out / "F3_caption.txt").read_text(encoding="utf-8")
+    assert "limit-cycle frequency of the continuation (A6), not the classifier's spectral peak" in caption
+    assert "panel (d) shows the Hopf curve only, because A6 stores no Delta slices" in caption
+    assert "J ramp of P2 and P3 is not drawn" in caption and "derived" in caption and "F3_nordlie.md" in caption
+    assert not re.search(r"[0-9a-f]{12,}", caption) and "hash" not in caption.lower() and "sha" not in caption.lower()
+    assert "Provenance" not in caption
+    assert "model.Delta" not in caption and "noise.sigma" not in caption          # only the slice and regime keys are listed
