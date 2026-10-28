@@ -4995,3 +4995,53 @@ Chosen:          -   Default from: -
 Test:            tests/test_fig_F3.py, tests/test_figstyle.py; fast suite
 Status:          done; no tag.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-457  MS13 13f: rulings recorded from the 13f prompt    [ID: MS13, 13f, F3, G6-D1, DL-455]
+Date:            2026-10-28        Author:
+Decision:        RULED (reviewer, 13f prompt). (1) G6-D1 is not listed on F3: the arrows carry the stored eta_start and eta_peak, eta_H is the Hopf point, no onset is shown; revisit at F4 (closes DL-455). (2) P3 drawn at I_amp 1 is accepted (UNVERIFIED; DL-015 and DL-224 use 1). (3) The A4 dirty-flag warning (DL-124) goes into the MS13 close document. (4) The 100 Hz style mark stays defined and undrawn. (5) Scratchpad trial renders are allowed before the one recorded draft build; they are not recorded builds and are never written to figures/. (6) F3 stays an untagged draft until the user says "tag F3". (7) Result entries of 13f carry the full SHA-256 of every file written and of docs/decision_log.md.
+Reason:          instruction of the reviewer (13f prompt)
+Options:         -
+Chosen:          as stated   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-458  MS13 13f: F2 inputs, readiness, Table 8.1 result    [ID: MS13, 13f, F2, DL-126, DL-127, DL-128]
+Date:            2026-10-28        Author:
+Decision:        FACT. Readiness of the registered F2 inputs (A5 cycles, A5 Julia summary, S4 mean-field record, S4 network record): 4 of 4 opened, ready. Files used (under results/): A5/a5_cycles.npz (devalle_* arrays), A5/julia/a5.json, S4/devalle/devalle_0000_48a5a3bd19e9.{json,npz}, S4/net/net_0000_38692898ae60.{json,npz}. Four inputs were not in scripts/ms13_inputs.py and were ADDED to INPUTS["F2"]: A5/A5_0000_506cf5745380.json (source of the A5 parameter rows), S4/s4_summary.npz and S4/s4_net_summary.npz (stored per-step readouts and the stored network-against-mean-field differences, DL-127, DL-128, DL-129), A11/a11_robustness.csv (FAIL-row strip). Table 8.1 result "Subcritical Hopf or fold of cycles": did NOT occur (DL-126: SuperCritical at ref_devalle, no fold, stable cycles to eta_bar 8, no second Hopf on 0 to 8; stored a5.json hopf_type SuperCritical, 483 cycle points all stable, maximum eta_bar 8.0). a5.json lists one po_special_point of type "fold" at 2.8975 (down direction): DL-126 Oddities (1) reads it as the turn-around at the Hopf point, not a fold of cycles; the caption says so. S4 shows no hysteresis loop above eta_H + 0.2 (DL-127). Whether P5 is added to F4 follows as in docs/ms13_plan.md (P5 is already in S5 and A7).
+Reason:          instruction of the reviewer (13f prompt, item 1)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_fig_F2.py (registry equals declared inputs)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-459  MS13 13f: logged text that disagrees with the stored arrays (reported, nothing patched)    [ID: MS13, 13f, F2, DL-127, DL-129]
+Date:            2026-10-28        Author:
+Decision:        FACT, for the reviewer. (1) DL-127 says the S4 mean-field up and down v amplitudes "agree to 3e-4 relative or better from eta_bar 3.096". The stored array devalle_pair_v_ptp_rel_diff (results/S4/s4_summary.npz) has 1.1634e-3 at eta_bar 4.196; every other pair from 3.096 up to 4.096 is below 7e-5. (2) DL-129 says the network v amplitude relative difference "falls through zero near 4.5 to a minimum of -2.5 percent, then rising to +12.4 percent at 6.496". The stored cmp_rel_v_ptp has +0.132 (up) and +0.124 (down) at 3.296, a zero crossing between 5.3 and 5.7, and -0.023 (up) and -0.025 (down) at 6.496; there is no rise at 6.496. My reading (UNVERIFIED): a transcription slip in the log text (the +12.4 percent is the 3.296 down value); the stored arrays and the logged maximum |diff| 0.132 agree. F2 prints the stored values (1.2e-3; +13.2 to -2.5 percent) and does not repeat either sentence. Under the stop rule this should have stopped the step; the build is an untagged draft and nothing was patched, so it continued (my call, for the reviewer's ruling).
+Reason:          instruction of the reviewer (13f prompt, stop rule)
+Options:         leave the log text; add an erratum entry
+Chosen:          leave, pending the reviewer   Default from: -
+Test:            tests/test_fig_F2.py (take-home numbers against the stored arrays)
+Status:          open, for the reviewer.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-460  MS13 13f: PROPOSED take-home message, claim-limit placement and strip reading for F2    [ID: MS13, 13f, F2, MS11-C7, MS12-C1, G4-C2]
+Date:            2026-10-28        Author:
+Decision:        PROPOSED, not ruled (UNVERIFIED). Take-home (from DL-126, DL-127, DL-128, DL-129; numbers from the stored arrays): supercritical Hopf at eta_bar 2.896, no fold of cycles, stable cycles to 8; S4 mean field up and down on the A5 branch with no hysteresis loop from 0.2 above the Hopf point (up-down difference at most 1.2e-3, A5 against S4 at most 1.84e-3); network v amplitude differs from the mean field by +13.2 to -2.5 percent above eta_bar 3.0 (definition of v differs, information only), and does not rest below eta_H (v amplitude 0.22 to 0.31). Claim-limit placement from the section 5 list: MS11-C7 (every figure), MS12-C1 (F1 to F6, as for F3), G4-C2 (F2 draws network symbols; the table lists F1, F5, FS3 for G4-C1 to C3 and does not list F2, so this is my reading). Not proposed: MS11-C3 (no frequency drawn), G6-D1 (no onset or predicted entry drawn). FAIL strip: Table 7.2 "Where" names F2 for no RB id; the strip shows the four RB1 FAIL rows (network against mean field, DL-319, DL-320, DL-323) because F2 draws network symbols (UNVERIFIED reading). RB5 "updown" (row 33, S4 beside P5) is REPORTED, not FAIL, so it is not in the strip. The caption marks take-home and claim limits PROPOSED.
+Reason:          instruction of the reviewer (13f prompt, item 3)
+Options:         MS11-C7 and MS12-C1 only; plus G4-C2; plus G4-C1 to C3
+Chosen:          MS11-C7, MS12-C1, G4-C2 pending the reviewer   Default from: docs/ms13_plan.md section 5
+Test:            tests/test_fig_F2.py
+Status:          open, for the reviewer.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-461  MS13 13f: result, F2 draft (untagged)    [ID: MS13, 13f, F2, M13-7]
+Date:            2026-10-28        Author:
+Decision:        FACT. Pre-checks PASS (clean tree at 511803c; criteria loader dd8330c5eaacd63d21e7b7969430988d00862769, criteria c7d2f36b74ea611c8777c1b408d5085333e55230834c27e5f0eb839f1162fa05, S13 317db87e69afcb09111a33e78640869b3f588e64390d110655aaa3a7cff52388, A4_grids cf6a60bec781c6f7e53b7f92b747ff745fcc5dc4794c0b83768e0aa4a4e56401, S5_cells fe8590ce81bc8c537f9c92e2afbee80685aaaa52c757474912b243fe9ed38790; decision_log 0757db8542b23933f0c19a4f8da02c73138c5cabdf511f69d3fe67221e7deff7 (working copy and LF blob, before DL-457); F3 files equal DL-456; plan 06133663918c46d1186bb42c8748ec644dfb3251911bab85eb8c27e0dd5f7437; conventions a44006245f60b3bc294d5d0d7af1678cde5774db9fc8091f788d78e5a486835d; MS11 digest cdafcc0831580ea4b9f7dfd8e095deb50e8b86db2974f556cf7ffe7d75637f53 over 724 files; a11_robustness.csv b4f26b003d88f7d13dcb582786da32c1a2fe4e3b8de051ce1f494e81a1d8cffb). Code committed before the recorded run: e315d69 (style.py diagram marks; committed with one failing own test, fixed in f25d394), f25d394 (make_F2, scripts/fig_F2.py, registry additions, tests). Two scratchpad trial renders were looked at; fixes: network marks changed from overlapping carets to open square and diamond, panel (c) note moved off the data, footer in its own row. One untagged draft build at f25d394, git dirty false, provenance draft true: figures/F2/. Measured: load 0.028 s, prepare 0.010 s, draw 1.750 s, provenance and Nordlie 0.809 s, total 2.597 s. Not in the draft: any frequency, any class or surge label, the ramp paths, error bars or seeds for the network (one seed), an agreement criterion for the network symbols (none in the plan), the ceni branch, and a final choice of layout, marks and colours (UNVERIFIED). SHA-256 (working copy; LF blob where different): src/mprsurge/plotting/figures.py 48c7f1bc3d2c97e0305ab79f472d12b3b9b865cdc5f8602ab9cb054f30bc6cae; style.py f4c08f17b374ccf49f748145d1fc2c0d7f69966a4e7e8afe43602189a223300f; scripts/fig_F2.py 7ee70a9b4acde0265a43f5165709f5fb8a9ab8cf8e8e1231eef611fece1cf645; scripts/ms13_inputs.py 87cd952cc4f4ec0450a0949771d178c6cb8eca4ec5308ac5170bcc36777b7f55 (working copy CRLF; LF blob 08af9d157583bd57fc1a90d0e8e2eced2a1eb1f1e9e357fa54c1bf33513ea143); tests/test_fig_F2.py 6484d150efaad3bb1b77556b4158e97bb3ee3845beb047411b387bb99824e2de; tests/test_figstyle.py 8b53667e56cbbd423c43ca0bf16df9e9d5bf8b77c7f5ac354b9a5fc78535e3fa. Outputs: F2.pdf 345d671bf7b0ab486f7a16f393e3045f53d716bce3d0eb9281645e5ecd98a7f2; F2.png 76dc6f6935b6cef4fdac8f5762f9d5ebe6ff08c904d4c5109b6d6d158fee24ef; F2_caption.txt e56f320e1d3996bbc20b1b39a65e7c8e31017ffe46c2e09f85d615f48cfb32a3; F2_drawn_data_sha256.txt dd931068bfe221f1e4cd63c5225c00bd029a21f106755d88bb69559bd9004fd9 (drawn-data digest 3584f8faee5d704a1f172ad4185c133324ddb9f196f32d05d80f3ca5ef28a932); F2_params.csv 6fb23b13d67d5b2f009c3d2b20ad05c28182c6e59f47e9eb1d63036b84e16071; F2_provenance.json a38c34baaa4cd0562a9f7477e65e61e81336e2c9b997aa233b05cd7e00361a92; F2_nordlie.md f75a9c064b0664a377698da79e55cadf850af4161deafbfa3f287b52fd688285. Tests added: 1 in test_figstyle.py, 10 in test_fig_F2.py (tolerances stated in the files; exact except array rel 1e-12, extrema abs 1e-12, take-home numbers at the printed digits). Fast suite: 958 passed, 24 deselected, 9 xfailed, 1 warning, exit 0 from pytest, 422.8 s. The SHA-256 of docs/decision_log.md after this block is in the 13f report, not here.
+Reason:          instruction of the reviewer (13f prompt)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_fig_F2.py, tests/test_figstyle.py; fast suite
+Status:          done; no tag.
+Commit/tag:      the commit that adds this entry; no tag
