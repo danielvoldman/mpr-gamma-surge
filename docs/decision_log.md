@@ -4804,3 +4804,93 @@ Chosen:          -   Default from: -
 Test:            tests/test_figstyle.py; fast suite
 Status:          done.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-438  MS13 13d: ruling, P4a and P4b stay separate style keys    [ID: MS13, 13d, M13-2]
+Date:            2026-10-28        Author:
+Decision:        RULED by the reviewer (13d prompt). P4a and P4b stay as separate keys of the style table (src/mprsurge/plotting/style.py). Confirms the choice reported in DL-437 (the plan names them in S6 and F6).
+Reason:          instruction of the reviewer (13d prompt)
+Options:         -
+Chosen:          as stated   Default from: -
+Test:            tests/test_figstyle.py::test_style_table_has_a_unique_marker_for_every_key
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-439  MS13 13d: ruling, an empty claim-limit list stays an error    [ID: MS13, 13d, M13-5]
+Date:            2026-10-28        Author:
+Decision:        RULED by the reviewer (13d prompt). captions.build_caption keeps raising CaptionError for an empty claim-limit list. A figure that truly has no claim limit gets an explicit ruling from the reviewer in its build prompt; the helper is not changed to allow it.
+Reason:          instruction of the reviewer (13d prompt)
+Options:         -
+Chosen:          as stated   Default from: -
+Test:            tests/test_figstyle.py (caption tests of 13c)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-440  MS13 13d: ruling, Nordlie section mapping is ours; J moves to Connectivity    [ID: MS13, 13d, M13-6]
+Date:            2026-10-28        Author:
+Decision:        RULED by the reviewer (13d prompt). The mapping from config keys to Nordlie sections is ours and stays UNVERIFIED (the plan names no sectioning). The coupling J (model.J) moves from "Neuron model" to "Connectivity" (new section after "Populations"). This is a presentation fix, not a decision change. Implementation: nordlie.SECTION_BY_KEY (key-level entry, checked before the config-section mapping), NUMERICS_SECTION constant replaces the index SECTION_ORDER[4]. Only model.J is placed in Connectivity; every other key keeps its section.
+Reason:          instruction of the reviewer (13d prompt)
+Options:         -
+Chosen:          as stated   Default from: -
+Test:            tests/test_figstyle.py::test_nordlie_stage2_reproduces_every_params_csv_row (a model.J row, expected section Connectivity; exact); tests/test_fig_F3.py::test_build_hashes_and_params_agree_with_the_provenance
+Status:          done.
+Commit/tag:      868d891; no tag
+
+## DL-441  MS13 13d: ruling, the frozen-criteria check runs on every build    [ID: MS13, 13d, DL-434]
+Date:            2026-10-28        Author:
+Decision:        RULED by the reviewer (13d prompt). figprov.write_figure_provenance calls criteria.verify_frozen_criteria on every build, tagged or not (DL-434 reported this as a fact; it is now a ruling). A changed or dirty criteria file stops an untagged build with CriteriaError.
+Reason:          instruction of the reviewer (13d prompt)
+Options:         -
+Chosen:          as stated   Default from: DL-434
+Test:            tests/test_figstyle.py::test_tagged_build_verifies_frozen_criteria_through_the_loader_and_fails_on_a_changed_hash
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-442  MS13 13d: ruling, docs/ms13_conventions.md keeps its PENDING colour-blind text    [ID: MS13, 13d, M13-2, DL-436]
+Date:            2026-10-28        Author:
+Decision:        RULED by the reviewer (13d prompt). docs/ms13_conventions.md is not edited: it keeps its PENDING colour-blind text (sections 2 and 11) and its pinned SHA-256 a44006245f60b3bc294d5d0d7af1678cde5774db9fc8091f788d78e5a486835d. DL-436 supersedes that text. The MS13 close document must state this.
+Reason:          instruction of the reviewer (13d prompt)
+Options:         -
+Chosen:          as stated   Default from: DL-436
+Test:            -
+Status:          done; the statement in the MS13 close document is still to be written.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-443  MS13 13d: ruling, the colour-difference report is approximate and UNVERIFIED    [ID: MS13, 13d, M13-2, DL-436]
+Date:            2026-10-28        Author:
+Decision:        RULED by the reviewer (13d prompt). The colour-difference report (style.colour_report_*, scripts/report_style_colours.py) is approximate and UNVERIFIED: the deuteranopia and protanopia matrices and the sRGB/CIELAB constants were written from memory and not checked against a source, and the CIE76 measure is a stated choice. The paper makes no claim that colour-blind safety was verified.
+Reason:          instruction of the reviewer (13d prompt)
+Options:         -
+Chosen:          as stated   Default from: DL-436, DL-437
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-444  MS13 13d: ruling, tests of plan-13a rows 9, 11 and 12 come with the first figure; row 10 now    [ID: MS13, 13d, FS6]
+Date:            2026-10-28        Author:
+Decision:        RULED by the reviewer (13d prompt). The tests of rows 9 (drawn-data hash), 11 (claim-limit IDs in the provenance) and 12 (readiness registry equals the figure script's declared inputs) are written with the first figure (F3). The test of row 10 (FS6 refused) is written in 13d.
+Reason:          instruction of the reviewer (13d prompt)
+Options:         -
+Chosen:          as stated   Default from: -
+Test:            tests/test_fig_F3.py
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-445  MS13 13d: digest convention of the MS11 result files    [ID: MS13, 13d, DL-383, DL-408]
+Date:            2026-10-28        Author:
+Decision:        RULED by the reviewer (13d prompt) and FACT. The MS11 result-file digest is the SHA-256 of the lines 'path<TAB>sha256', one per file, sorted as text, joined by LF and ending with a trailing LF; the file set is the 724 files of scripts/hash_ms11_results.py records() (238 records x json, npz, params.md, plus manifest.csv and run.log of 5 lists). Recomputed at 13d with the read-only scratchpad script ms11_digest.py: 724 files, cdafcc0831580ea4b9f7dfd8e095deb50e8b86db2974f556cf7ffe7d75637f53, equal to DL-383 and DL-408.
+Reason:          instruction of the reviewer (13d prompt)
+Options:         -
+Chosen:          as stated   Default from: DL-383, DL-408
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-446  MS13 13d: result, first figure F3 as an untagged draft    [ID: MS13, 13d, F3, M13-7]
+Date:            2026-10-28        Author:
+Decision:        FACT. Pre-checks all PASS (criteria loader dd8330c5.../c7d2f36b...; S13, A4_grids, S5_cells, ms13_plan, ms13_conventions, decision_log a358b0bb..., ms11_close, ms11_file_hashes, a11_robustness; six 13c files equal DL-437; MS11 digest cdafcc08...7f53, 724 files). Figure: F3, first in the M13-7 build order (b), accepted in DL-426. Written and committed before any run: figures.py (make_F3, make_FS6 refusal), scripts/fig_F3.py, tests/test_fig_F3.py (7 tests), nordlie.py J fix (868d891). One untagged DRAFT build at 3d41332 (git dirty false, provenance draft true): figures/F3/ F3.pdf, F3.png, F3_caption.txt, F3_drawn_data_sha256.txt, F3_params.csv, F3_provenance.json, F3_nordlie.md. Measured: load 0.011 s (warm cache), prepare 0.001 s, draw 2.28 s, provenance and Nordlie 0.78 s, total 3.07 s. Registry change (needs the reviewer's ruling): INPUTS["F3"] in scripts/ms13_inputs.py gained the A4 and A6 run records (source of the params rows) and a11_robustness.csv (FAIL-row strip), 6 files instead of 3. PROPOSED, not ruled: take-home message (DL-131, DL-132) and claim limits MS11-C7, MS12-C1, RB9(b) FAIL; G6-D1 not listed because the draft has no path arrows. Noted: A4 record has git.dirty true (in provenance warnings); the A4 tau_d curve differs from the A6 Delta 0.3 Hopf points by up to 1.97e-2 (assumes that curve is at Delta 0.3, J -21; UNVERIFIED). F3-local scalar colour map (viridis) and 25 Hz mark are outside style.py (UNVERIFIED). Draft defects not fixed (one build only): legend and text overlap data, panel (d) axis clipped, footer overlaps an axis label, the caption prints every config key. SHA-256 (working copy; LF blob where different): figures.py 247e769a...60d1; fig_F3.py 106df8e8...6150; test_fig_F3.py eb441f09...2526; ms13_inputs.py 605e22e9...1cba (blob 8001f6cd...ab1c; working copy is CRLF); nordlie.py a1f51669...07c8; test_figstyle.py 77e24c1c...dbdf. Outputs: F3.pdf 16f88dd4...f196, F3.png 4d92eb95...0b89, F3_provenance.json e852bab9...83ae. Docs written: this log only; SHA-256 of docs/decision_log.md through DL-445 (before this entry): 8e96d78ce2fe4cc4b41415817d3d187758c1a497f23451d117b3753ea7db25a1. Tests: 7 new (rows 9, 10, 11, 12, script opens only results/, take-home numbers against stored arrays, hashes and params agree); exact except row 9 arrays (rel 1e-12) and max frequency (abs 0.05 Hz). Fast suite: 940 passed, 24 deselected, 9 xfailed, 1 warning, exit 0 from pytest (933 + 7).
+Reason:          instruction of the reviewer (13d prompt)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_fig_F3.py; fast suite
+Status:          done; no tag.
+Commit/tag:      the commit that adds this entry; no tag
