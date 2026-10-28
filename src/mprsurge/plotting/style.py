@@ -79,6 +79,29 @@ _TABLE = {
     },
 }
 
+# Scalar colour map for frequencies and the contour marks (13e, DL-448): one fixed choice for every figure that shades by frequency or marks a
+# frequency contour. Not entries of STYLE (they are not classes, paths, controls or sources), so the unique-marker table and the colour report are
+# unchanged. UNVERIFIED design choices. FREQUENCY_CMAP is a matplotlib colour-map name (no matplotlib import here). A mark is drawn with a halo of
+# HALO_COLOUR so it stays visible on the shading; the marker shapes differ from each other and from every marker in STYLE.
+FREQUENCY_CMAP = "viridis"
+HALO_COLOUR = "#ffffff"
+
+
+@dataclass(frozen=True)
+class ContourMark:
+    hz: float
+    marker: str
+    marker_name: str
+    colour: str
+    size: float
+    width: float
+
+
+CONTOUR_MARKS = {
+    "25hz": ContourMark(25.0, "_", "short horizontal bar", "#1a1a1a", 7.0, 1.0),
+    "100hz": ContourMark(100.0, ".", "point", "#7f0000", 6.0, 1.0),
+}
+
 STYLE: dict[str, Style] = {
     key: Style(key, family, *vals) for family, body in _TABLE.items() for key, vals in body.items()
 }
@@ -90,6 +113,14 @@ def get(key: str) -> Style:
         return STYLE[key]
     except KeyError:
         raise StyleError(f"no style for key {key!r}; known keys: {', '.join(STYLE)}") from None
+
+
+def contour_mark(key: str) -> ContourMark:
+    """The mark of a frequency contour ('25hz' or '100hz'); an unknown key raises StyleError (no silent default)."""
+    try:
+        return CONTOUR_MARKS[key]
+    except KeyError:
+        raise StyleError(f"no contour mark for key {key!r}; known keys: {', '.join(CONTOUR_MARKS)}") from None
 
 
 def keys(family: str | None = None) -> list[str]:

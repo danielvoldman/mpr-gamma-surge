@@ -60,12 +60,13 @@ def _required_ids(ids) -> tuple:
 
 
 def build_caption(figure_id: str, *, take_home=None, claim_limit_ids=None, params_rows=(), spectrogram=None, symbol_keys=(),
-                  provenance_hash12=None, tag=None) -> Caption:
+                  provenance_hash12=None, tag=None, notes=()) -> Caption:
     """Caption text in the order of the template: take-home, parameters, spectrogram, symbols, claim limits, provenance pointer.
 
     take_home, claim_limit_ids: REQUIRED (default None, so leaving one out raises CaptionError, not TypeError). params_rows: the rows written to <ID>_params.csv (empty: part omitted). spectrogram: settings dict or None
     (part omitted). symbol_keys: keys of the style table whose marker is explained (an unknown key raises StyleError). provenance_hash12, tag: optional
-    pointer (omitted when None).
+    pointer (omitted when None). notes: sentences the figure script writes about what is and is not drawn (13e, DL-453); placed after the symbols,
+    printed as given, none added; default empty, so earlier captions are unchanged.
     """
     take = _required_text(take_home, "take_home")
     limits = _required_ids(claim_limit_ids)
@@ -78,6 +79,7 @@ def build_caption(figure_id: str, *, take_home=None, claim_limit_ids=None, param
         parts.append(f"Spectrogram: {s_str}.")
     if symbol_keys:
         parts.append("Symbols: " + "; ".join(f"{k} = {S.get(k).marker_name}" for k in symbol_keys) + ".")
+    parts.extend(_required_text(n, "notes entry") for n in notes)
     parts.append("Claim limits: " + ", ".join(limits) + ".")
     if provenance_hash12:
         parts.append(f"Provenance: {figure_id}_provenance.json hash12 {provenance_hash12}" + (f", tag {tag}" if tag else "") + ".")

@@ -185,3 +185,27 @@ def test_tagged_build_verifies_frozen_criteria_through_the_loader_and_fails_on_a
         build()
     assert not (repo / "figures").exists()
     assert K.verify_frozen_criteria(ROOT)["sha256"] == "c7d2f36b74ea611c8777c1b408d5085333e55230834c27e5f0eb839f1162fa05"
+
+
+def test_13e_frequency_colour_map_and_contour_marks_are_style_keys():
+    # exact: one fixed colour-map name and two contour marks (13e, DL-448); the marks are outside STYLE, so the unique-marker test is unchanged
+    import matplotlib
+    assert S.FREQUENCY_CMAP in matplotlib.colormaps
+    m25, m100 = S.contour_mark("25hz"), S.contour_mark("100hz")
+    assert (m25.hz, m100.hz) == (25.0, 100.0)
+    assert m25.marker != m100.marker and m25.colour != m100.colour
+    table_markers = {s.marker for s in S.STYLE.values()}
+    assert not {m25.marker, m100.marker} & table_markers                            # no shape of the class/path/control/source table is reused
+    assert {m25.colour.lower(), m100.colour.lower(), S.HALO_COLOUR.lower()}.isdisjoint({s.colour.lower() for s in S.STYLE.values()})
+    with pytest.raises(S.StyleError, match="no contour mark"):
+        S.contour_mark("50hz")
+
+
+def test_13e_caption_notes_are_printed_in_order_before_the_claim_limits_and_default_is_empty():
+    ok = dict(take_home="A message.", claim_limit_ids=["G6-D1"])
+    base = CAP.build_caption("F3", **ok).text
+    assert base == CAP.build_caption("F3", notes=(), **ok).text                       # default: earlier captions unchanged
+    t = CAP.build_caption("F3", notes=("First note.", "Second note."), **ok).text
+    assert t.index("First note.") < t.index("Second note.") < t.index("Claim limits:")
+    with pytest.raises(CAP.CaptionError, match="notes entry"):
+        CAP.build_caption("F3", notes=("  ",), **ok)
