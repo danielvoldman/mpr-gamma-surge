@@ -59,11 +59,11 @@ def _required_ids(ids) -> tuple:
     return tuple(i.strip() for i in ids)
 
 
-def build_caption(figure_id: str, *, take_home, claim_limit_ids, params_rows=(), spectrogram=None, symbol_keys=(),
+def build_caption(figure_id: str, *, take_home=None, claim_limit_ids=None, params_rows=(), spectrogram=None, symbol_keys=(),
                   provenance_hash12=None, tag=None) -> Caption:
     """Caption text in the order of the template: take-home, parameters, spectrogram, symbols, claim limits, provenance pointer.
 
-    take_home, claim_limit_ids: REQUIRED. params_rows: the rows written to <ID>_params.csv (empty: part omitted). spectrogram: settings dict or None
+    take_home, claim_limit_ids: REQUIRED (default None, so leaving one out raises CaptionError, not TypeError). params_rows: the rows written to <ID>_params.csv (empty: part omitted). spectrogram: settings dict or None
     (part omitted). symbol_keys: keys of the style table whose marker is explained (an unknown key raises StyleError). provenance_hash12, tag: optional
     pointer (omitted when None).
     """
