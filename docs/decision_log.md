@@ -5045,3 +5045,43 @@ Chosen:          -   Default from: -
 Test:            tests/test_fig_F2.py, tests/test_figstyle.py; fast suite
 Status:          done; no tag.
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-462  MS13 13g: ERRATUM to DL-127 (S4 mean-field up and down amplitudes)    [ID: MS13, 13g, DL-127, DL-459]
+Date:            2026-10-28        Author:
+Decision:        ERRATUM, a new entry; DL-127 is not edited. DL-127 says the S4 mean-field up and down v amplitudes agree to 3e-4 relative or better from eta_bar 3.096. The stored array results/S4/s4_summary.npz devalle_pair_v_ptp_rel_diff has 1.1634e-3 at eta_bar 4.196 (reviewer, 13g prompt; re-read at 13g, 1.1634e-3). The same array read at 13g over 3.096 to 6.896 (39 pairs) has two values above 3e-4 in absolute value: 1.1634e-3 at 4.196 and 3.394e-4 at 6.696; the second was not in the reviewer's list and is reported for the reviewer's reading (UNVERIFIED which of the two the DL-127 sentence meant to cover; not ruled). F2 prints the stored values (largest up-down difference from 3.096: 1.2e-3 at the printed digits) and does not repeat the DL-127 sentence. This entry answers item (1) of DL-459.
+Reason:          instruction of the reviewer (13g prompt, errata)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_fig_F2.py (take-home numbers against the stored arrays)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-463  MS13 13g: ERRATUM to DL-129 (network v amplitude difference)    [ID: MS13, 13g, DL-129, DL-459]
+Date:            2026-10-28        Author:
+Decision:        ERRATUM, a new entry; DL-129 is not edited. DL-129 says the network v amplitude relative difference rises to +12.4 percent at 6.496. The stored array results/S4/s4_net_summary.npz cmp_rel_v_ptp at eta_bar 6.496 is -0.0233 (up sweep) and -0.0248 (down sweep), that is -2.3 and -2.5 percent (reviewer, 13g prompt; re-read at 13g). The +12.4 percent is the stored 3.296 down-sweep value (+0.1238; the 3.296 up-sweep value is +0.1317). The stored values above 3.1 run from +13.2 percent (3.296, up) to -2.5 percent (6.496, down) and there is no rise at 6.496. F2 prints the stored values. This entry answers item (2) of DL-459.
+Reason:          instruction of the reviewer (13g prompt, errata)
+Options:         -
+Chosen:          -   Default from: -
+Test:            tests/test_fig_F2.py (take-home numbers against the stored arrays)
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-464  MS13 13g: rulings recorded from the 13g prompt (F2)    [ID: MS13, 13g, F2, F3, DL-459, DL-460, MS11-C7, MS12-C1, G4-C2]
+Date:            2026-10-28        Author:
+Decision:        RULED (reviewer, 13g prompt). (1) The F2 take-home message is accepted as proposed in DL-460. (2) F2 claim limits: MS11-C7, MS12-C1, G4-C2 (G4-C2 on F2 is an UNVERIFIED reading of the plan); MS11-C3 and G6-D1 are left out (no frequency and no onset is drawn). (3) F2 FAIL-row strip: the four RB1 FAIL rows (UNVERIFIED reading, because the figure has network symbols). (4) F2 network symbols: no agreement criterion is applied (the plan gives none for amplitude); the caption says so, that the network sweep is one seed, and that the network v amplitude has a different definition. (5) The four inputs added to the F2 registry in DL-458 are accepted. (6) Stop rule reminder: a logged text that disagrees with a stored array is a disagreement under stop rule 12; stop and report, do not continue. (7) F3 and F2 stay untagged drafts until the user says "tag <ID>". (8) Result entries of 13g carry the full SHA-256 (working copy and LF blob) of every file written and of docs/decision_log.md. DL-459 stays as written (open status); DL-462 and DL-463 are the erratum entries that answer it.
+Reason:          instruction of the reviewer (13g prompt)
+Options:         -
+Chosen:          as stated   Default from: -
+Test:            -
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-465  MS13 13g: design choices for F3 draft v3 and the F2 layout review (UNVERIFIED design choices, no data changed)    [ID: MS13, 13g, F3, F2, M13-7]
+Date:            2026-10-28        Author:
+Decision:        DESIGN CHOICES, all UNVERIFIED (the plan gives no layout). F3 v3: (1) no vertical offset of any arrow: every arrow and start marker is drawn in data coordinates at its stored values (P1, P2, P3 and P5 share eta_start, eta_peak, Delta 0.3 and tau_d 5 ms, so they lie on top of each other); they are told apart by line width, transparency, start-marker size and head size (nested, widest and faintest at the back; table PATH_DRAW in figures.py), by the existing style.py colour, marker and line style, and by a path strip aligned to the eta axis of panel (d) with one row per arrow (P5 up and P5 return on two rows); the strip rows are labels, not a parameter axis, and the caption says so; the caption no longer says "offset". (2) The A6 headline Hopf point is drawn with the existing diagram mark key hopf_point of style.py (circled cross, dark red, not a path colour or path marker), above every arrow (zorder 12) with a white halo; no new style key. (3) The 25 Hz crossing mark in style.py (CONTOUR_MARKS["25hz"], defined in DL-448) is changed from the short horizontal bar "_" at 7 pt to a tall narrow filled bar (vertex marker) at 13 pt with a white edge, so that it crosses the slice line; the 100 Hz mark stays defined and undrawn (DL-457). (4) Panel (d) is larger (two grid columns wide) and its arrows are thin; the legend moved to the right column with shorter labels. (5) The colour bar has its own narrow grid column beside panel (c); in v2 the long legend text widened the layout and put the bar about 0.30 of the figure width from the panels. F2 review (scratchpad trial renders of the recorded draft code, looked at): defects found: (a) the first point of panel (c) (+13.2 percent) sat on the top frame (explicit y limits with a 12 percent margin added); (b) the strip line of the blank RB1 overall row read "threshold )" (now "threshold blank in the table"; same wording rule in F3); (c) the caption and footer still carried the PROPOSED marks that DL-464 rules away (removed; the UNVERIFIED readings of G4-C2 and of the RB1 list are stated instead). Not defects, left: open network symbols lie on the mean-field carets below eta_H (the network sweep rests nowhere there; visible as squares and diamonds around the carets). The data, the take-home numbers and the registry are unchanged.
+Reason:          instruction of the reviewer (13g prompt, items B and C)
+Options:         offsets in points (v2); a strip only; nested widths plus a strip
+Chosen:          nested widths plus a strip   Default from: -
+Test:            tests/test_fig_F3.py (arrow and marker coordinates read from the artists, exact; Hopf mark and z order; 25 Hz mark; colour-bar gap below 0.08; no word "offset"), tests/test_fig_F2.py, tests/test_figstyle.py
+Status:          done.
+Commit/tag:      the commit that adds this entry; no tag
