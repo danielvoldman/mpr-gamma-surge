@@ -219,7 +219,7 @@ def test_caption_names_the_plotted_quantities_the_onset_reading_marks_the_propos
     caption = (out / "F4_caption.txt").read_text(encoding="utf-8")
     assert caption.startswith("F4. PROPOSED (for ruling):")
     assert "Claim limits: " + "; ".join(f"{i}: {CL[i][0]} ({', '.join(CL[i][1])})" for i in FG.F4_CLAIM_LIMITS) + "." in caption and "PROPOSED for the reviewer's ruling" in caption
-    for s in ("Panel (a)", "raw first crossing", "classifier-episode onset", "G6-D1", "reported, not judged", "departure 3 of DL-163", "Panels (b) to (e)", "Panels (i) and (j)",
+    for s in ("Panel (a)", "raw first crossing", "classifier-episode onset", "G6-D1", "reported, not judged", "DL-163-D3", "Panels (b) to (e)", "Panels (i) and (j)",
               "A3 table", "A2 ring map", "RB6 solver clause FAIL", "signed", "peak power", "f_pk", "duration", "D-none"):
         assert s in caption, s
     assert not re.search(r"[0-9a-f]{12,}", caption) and "hash" not in caption.lower() and not re.search(r"\bsha(256)?\b", caption.lower())

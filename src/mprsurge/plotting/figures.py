@@ -2994,10 +2994,10 @@ F4_TAKE_HOME = (
     "confirmed, DL-325) the median raw-crossing delay of the 10 seeds is negative from T_ramp 5.62 s on and the classes are mixed (A7 table, DL-180; RB2 FAIL, DL-387, DL-394). The M2 ramp through the saddle-node "
     "is damped at all 13 T_ramp and its jump offset from the fold falls from 0.346 to 0.0034 (DL-109, DL-110)."
 )
-# PROPOSED: the limits of docs/ms13_plan.md section 5 whose right-hand column lists F4 and that are defined in docs/claim_limit_labels.md; G6-D1 and DL-163 departure 3 have no
-# entry in that table and are written in plain words with their DL numbers in the caption (DL-482 reading; the table is the reviewer's to extend); the plan labels RB2 FAIL and
+# PROPOSED: the limits of docs/ms13_plan.md section 5 whose right-hand column lists F4 and that are defined in docs/claim_limit_labels.md; G6-D1 and DL-163 departure 3 (DL-163-D3)
+# were added to that table in 13l (DL-485 ruling); the plan labels RB2 FAIL and
 # D24 failed are written in plain words with their DL numbers. Listed, not decided.
-F4_CLAIM_LIMITS = ("MS11-C7", "MS12-C1", "MS9(e)-2", "MS9(e)-5", "G6-D2", "G6-D3", "DL-163-D1", "DL-163-D2", "DL-163-D4", "G4-C4", "MS11-C1", "MS11-C3", "MS11-C6")
+F4_CLAIM_LIMITS = ("MS11-C7", "MS12-C1", "MS9(e)-2", "MS9(e)-5", "G6-D1", "G6-D2", "G6-D3", "DL-163-D1", "DL-163-D2", "DL-163-D3", "DL-163-D4", "G4-C4", "MS11-C1", "MS11-C3", "MS11-C6")
 F4_FOOTER = "DRAFT: untagged build. Layout, marks, colours and panel choices are UNVERIFIED (style.py); take-home and claim limits are PROPOSED."
 
 
@@ -3362,8 +3362,8 @@ def f4_caption_notes(d: dict) -> tuple:
         "(primary, DL-186 clarification 1); the classifier-episode onset is the small double dagger (secondary; RB3(b) is reported under both readings, G6-D3, DL-208). The dash-dot lines "
         "are the A4 entry-exit prediction as stored in the A7 table, drawn where the predicted entry lies in the run; a ring marks a run inside the RB3(a) range, which is judged "
         "on the testable runs only (DL-186 clarification 2): " + f"{d['n_testable_within_one_step']} of {d['n_testable']}" + " are within one A4 step, so the onset does not follow the prediction "
-        "(claim limit G6-D1, DL-208: no claim that onset follows the A4 entry-exit prediction); runs outside the range are reported, not judged, and RB3(a) is not judged at the headline "
-        "(departure 3 of DL-163). The dotted zero line is the quasi-static reference by the definition of the delay column (onset at eta_H); no quasi-static onset is computed here. The headline "
+        "(claim limit G6-D1, defined in the claim-limit list); runs outside the range are reported, not judged, and RB3(a) is not judged at the headline "
+        "(DL-163-D3). The dotted zero line is the quasi-static reference by the definition of the delay column (onset at eta_H); no quasi-static onset is computed here. The headline "
         "(T_ramp 120 s) carries the RB6 solver clause FAIL (DOP853 58.698 s, Radau 58.879 s, 181 ms against 1 ms, DL-189) and is not used as evidence (G6-D2).",
         "Panels (b) to (e) draw the stored peak power (absolute and relative), f_pk and duration of the same runs; the grey bars are the stored minimum to maximum of the 10 mode-N seeds at "
         "sigma 0.0624 (checked, not confirmed, G4-C4), the bar marks their median; nothing is smoothed or offset. Runs with no episode (D-none) and the one run with no raw crossing are "
