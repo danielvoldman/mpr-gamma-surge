@@ -5415,3 +5415,13 @@ Chosen:          as done   Default from: 13o prompt, DL-494
 Test:            tests/test_ms13_13o.py (9 tests); edited tests T1 to T13
 Status:          done; manifest, audit and contact sheets in the next entry
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-499  MS13 13o: manifest, hash check, audit, contact sheets; fast suite    [ID: MS13, 13o, F1, F2, F3, F4, F5, F6, DL-498]
+Date:            2026-10-29        Author:
+Decision:        FACT. scripts/ms13_check_hashes.py --write-manifest: 104 rows, 0 without a matching logged hash; check: 104 manifest rows, 0 problems, exit 0. scripts/ms13_audit.py (with the DL-496 changes): 11 figures, 191 flags; F1 to F6 0 flags each (no literal, no file name in a caption, every claim label printed with its table definition); "listed but not carried" for F1 to F6: only G6-D1 on F3, marked ruled out (DL-494 R5); "carried, not listed" (informational): G4-C2 on F2 (ruled 13g), MS11-C3 on F3 (ruled 13e). FS1 to FS5 keep their flags until 13p (FS1 14, FS2 21, FS3 36, FS4 54, FS5 66; mostly numeric font sizes now counted as literals, R4; FS3 RB2 FAIL and D24 failed, FS4 RB6 FAIL, FS5 RB9(b) FAIL not yet carried as labels; build-code drift informational). Contact sheets regenerated (figures/_review, git-ignored; recorded figure PNGs read only). Fast suite at c2693e4: 1109 passed, 24 deselected, 9 xfailed, 1 warning, exit 0 taken from pytest itself (output redirected to a file, no pipe), 549.96 s (1100 of DL-493 plus the 9 tests of tests/test_ms13_13o.py); the seven review-aid checker tests of DL-497 (a) pass after the manifest update. FULL SHA-256 (working copy equals LF blob for the tracked files; the png are binary): docs/ms13_figure_manifest.csv dd04c554560bd46eab2a1c75f402caea2174fde85196cd74a4dcb24de7fe1ba2; docs/ms13_audit.md bdbca7fe18fac868345c7413fd7ae53c371bbc1d7e7a43e83d2f58125461c1f4; figures/_review/contact_sheet_1.png 43dfa8f584627a061218ca38b8be0b70617fecc7c7fc2a9864b95ac7ac49c980; contact_sheet_2.png f08694d5716ddf321ddc549f29318cfdac56695bb0d99094febc04e2918890a9; contact_sheet_3.png 7ce11fe5d9ae91fe4c6b8cb1b0e88c5db3766e5db5f9ae879f405612a9cfa2dd. The SHA-256 of docs/decision_log.md after this entry is in the report (an entry cannot hold its own hash). No tag; all figures stay untagged drafts.
+Reason:          instruction of the reviewer (13o prompt)
+Options:         -
+Chosen:          as done   Default from: 13o prompt
+Test:            fast suite as above
+Status:          done; open items for the reviewer in the report
+Commit/tag:      the commit that adds this entry; no tag
