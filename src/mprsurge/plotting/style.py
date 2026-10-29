@@ -125,6 +125,7 @@ class DiagramMark:
 # vertex markers (matplotlib reads a tuple of (x, y) points as a marker), so they share no code with the class/path/control/source markers
 _SQUARE = ((-1.0, -1.0), (1.0, -1.0), (1.0, 1.0), (-1.0, 1.0), (-1.0, -1.0))
 _DIAMOND = ((0.0, -1.4), (1.4, 0.0), (0.0, 1.4), (-1.4, 0.0), (0.0, -1.4))
+_BAR = ((-1.0, -0.22), (1.0, -0.22), (1.0, 0.22), (-1.0, 0.22), (-1.0, -0.22))
 DIAGRAM_MARKS = {
     "a5_cycle": DiagramMark("a5_cycle", "#111111", None, "line", "-", 0.0, 1.2, True),
     "a5_fixed_stable": DiagramMark("a5_fixed_stable", "#7a7a7a", None, "line", "-", 0.0, 2.2, True),
@@ -183,6 +184,9 @@ DIAGRAM_MARKS = {
     "fs4_psd": DiagramMark("fs4_psd", "#333333", r"$\bigcirc$", "large open circle (PSD argmax reading)", "none", 10.0, 0.7, False),
     "fs4_vp100": DiagramMark("fs4_vp100", "#34495e", r"$\bullet$", "filled dot (V_p +-100)", "none", 6.0, 1.0, True),
     "fs4_vp200": DiagramMark("fs4_vp200", "#a04000", r"$\circ$", "open circle (V_p +-200)", "none", 6.0, 1.0, False),
+    # 13k (DL-482), FS3: the stored median of a per-N range. Its own mark (a short horizontal bar across the range line); the star of 'fs5_pt' keeps its single
+    # meaning (a stored fraction in FS5). UNVERIFIED design choice.
+    "fs3_median": DiagramMark("fs3_median", "#4a148c", _BAR, "short horizontal bar (stored median)", "none", 9.0, 1.0, True),
 }
 
 # 13h, FS1: fill of the A1 root-count map (one root, three roots) and the colour map of the A2 cycles per e-fold. The A2 ring frequency uses
@@ -192,6 +196,42 @@ CYCLES_CMAP = "cividis"
 # 13i, FS5: fill of the class-change fraction matrix, and a hatch per class so that no class rests on colour alone in a stacked bar. UNVERIFIED design choices.
 CHANGE_CMAP = "YlOrBr"
 CLASS_HATCH = {"S+": "", "S-rel": "//", "S-abs": "xx", "S-sus": "..", "NS": "\\\\", "D-tr": "--", "D-sus": "++", "D-none": "oo"}
+
+# 13k (DL-482): the plain colours, hatches and point sizes that FS3, F6 and F4 draw (edges, text, reference lines, bar fills, the F6 map greys). Not entries of STYLE
+# (they are not classes, paths, controls or sources) and not marks, so the unique-marker table, the colour report and the diagram-mark colour test are unchanged. A figure
+# asks for a key; an unknown key raises StyleError. Every value is an UNVERIFIED design choice. The numbers are the ones the 13j drafts drew with.
+FIGURE_COLOURS = {
+    "bar_edge": "#333333",       # edge of a bar or of a class point
+    "bar_edge_dark": "#222222",  # edge of the F6 count bars
+    "range_line": "#555555",     # a min-to-max range line, and the text of a control count
+    "fail_text": "#7f0000",      # a title or status text that names a FAIL or a draft
+    "text_dark": "#222222",      # a gate status that passed
+    "gate_line": "#000000",      # the RB2 gate line
+    "subgrid_bar": "#9ecae1",    # the bar of the stored subgrid count
+    "label_box": "#ffffff",      # face of the box behind a number printed on a bar
+    "open_fill": "#ffffff",      # fill of an open (any-label) bar
+    "map1_fill": "#6a6a6a",      # F6 map 1 bars
+    "map2_fill": "#b5b5b5",      # F6 map 2 bars
+}
+FIGURE_HATCHES = {"map1_any": "//", "map2_any": ".."}
+POINT_SIZES = {"fs3_shape": 7.0, "f6_control": 6.5, "f6_network_run": 9.0, "f6_s6_line": 4.5, "f6_s6_line_large": 5.5}
+POINT_EDGE_WIDTH = {"class": 0.4, "class_large": 0.5}
+
+
+def figure_colour(key: str) -> str:
+    """A plain figure colour (edge, text, reference line, fill); an unknown key raises StyleError (no silent default)."""
+    try:
+        return FIGURE_COLOURS[key]
+    except KeyError:
+        raise StyleError(f"no figure colour for key {key!r}; known: {', '.join(FIGURE_COLOURS)}") from None
+
+
+def figure_hatch(key: str) -> str:
+    """A hatch of an open bar; an unknown key raises StyleError."""
+    try:
+        return FIGURE_HATCHES[key]
+    except KeyError:
+        raise StyleError(f"no figure hatch for key {key!r}; known: {', '.join(FIGURE_HATCHES)}") from None
 
 
 def diagram_mark(key: str) -> DiagramMark:

@@ -37,3 +37,18 @@ Labels that exist only in the plan's section 5 table (no source label of their o
 | RB2 FAIL (plan label) | docs/ms13_plan.md section 5 | 7 of 10 at sigma; noisy subgrid 97 of 225 | 7 of 10 at sigma; noisy subgrid 97 of 225 | DL-387, DL-242 | F4, F5, FS3 |
 | D24 failed (plan label) | docs/ms13_plan.md section 5 | subgrid agreement 43.1 percent on raw classes | subgrid agreement 43.1 percent on raw classes | DL-242 | F5, F4, FS3 |
 | G7 not passed (plan label) | docs/ms13_plan.md section 5 | NC1 network S+ | NC1 network S+ | DL-228 | F6, F1 |
+
+## A9 failure labels printed in F6 (13k, DL-482)
+
+The eight A9 failure labels (a) to (h) are not claim limits. F6 prints a short form of each; a short form is allowed only when it is listed here beside its verbatim source. "Source wording" is quoted verbatim from the source in the second column (docs/plan.md, the A9 row of the method list; DL-244 for g and h). The labels are our operational rules on the plan's words (M9-12, DL-214), and label (c) is a flag, not a demonstrated cause (MS9(e)-3 above, DL-270). The short form of (c) is the end of the short form of MS9(e)-3 ("label (c) is a flag, not a demonstrated cause"), as ruled in DL-482. The rows of this table begin with "Label (x)" so that the parser of the claim-limit table, which skips every row that begins with "| Label", does not read them; tests/test_a9_labels.py reads them.
+
+| Label | Source | Source wording (verbatim) | Short form | DL numbers |
+|---|---|---|---|---|
+| Label (a) | docs/plan.md A9 row | (a) Δ above critical | Delta above critical | DL-214, DL-244 |
+| Label (b) | docs/plan.md A9 row | (b) τ_d outside the Hopf window | tau_d outside window | DL-214, DL-244 |
+| Label (c) | docs/plan.md A9 row, and MS9(e)-3 | (c) frequency \< 25 Hz | a flag, not a demonstrated cause | DL-214, DL-270 |
+| Label (d) | docs/plan.md A9 row | (d) ramp too fast for 10 cycles | ramp too fast for 10 cycles | DL-214, DL-244 |
+| Label (e) | docs/plan.md A9 row | (e) no exit (D-sus or S-sus) | no exit (D-sus or S-sus) | DL-214, DL-244 |
+| Label (f) | docs/plan.md A9 row | (f) amplitude below the fixed threshold (the cell oscillates inside the A4 region, but its envelope never reaches 0.1 × A_ref) | amplitude below the fixed threshold | DL-214, DL-244 |
+| Label (g) | DL-244 | g = an A4 Hopf point exists at the cell's J0 but the path spends no time in the oscillatory region (time inside = 0) | Hopf point, no time inside | DL-244 |
+| Label (h) | DL-244 | h = the episode is rejected by the damped (D8) clause | rejected by the damped (D8) clause | DL-244 |

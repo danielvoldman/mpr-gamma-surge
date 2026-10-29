@@ -212,6 +212,7 @@ def test_13e_caption_notes_are_printed_in_order_before_the_claim_limits_and_defa
 
 
 FS2_MARK_KEYS = ("s3_mf", "s3_net_1e4", "s3_net_5e4", "k7_paper", "tol_band", "k9_pt", "k11_pt", "k10_curve", "k10_j8", "k10_j20", "k10_j40")
+FS3_MARK_KEYS = ("fs3_median",)                                                        # 13k, DL-482
 FS1_MARK_KEYS = ("m2_fold", "m2_cusp", "m2_k_point", "s1_k4_trace", "s1_k5_trace", "s1_forcing", "k4_window", "k4_r_star")
 
 
@@ -219,7 +220,7 @@ def test_13f_diagram_marks_are_style_keys_outside_the_class_table():
     # exact: the F2 diagram marks (13f) sit outside STYLE, so the unique-marker test and the colour report are unchanged; the two sweep directions of a
     # source differ in marker shape; sources differ in colour and fill; no colour of the class/path/control/source table is reused
     keys = {"a5_cycle", "a5_fixed_stable", "a5_fixed_unstable", "hopf_point", "s4_mf_up", "s4_mf_down", "s4_net_up", "s4_net_down"}
-    keys |= set(FS1_MARK_KEYS) | set(FS2_MARK_KEYS) | set(FS5_MARK_KEYS) | set(FS4_MARK_KEYS)                                                      # 13h: the FS1 marks are in the same table
+    keys |= set(FS1_MARK_KEYS) | set(FS2_MARK_KEYS) | set(FS5_MARK_KEYS) | set(FS4_MARK_KEYS) | set(FS3_MARK_KEYS)                                    # 13h: the FS1 marks are in the same table; 13k (DL-482): FS3 median
     assert set(S.DIAGRAM_MARKS) == keys and all(S.diagram_mark(k).key == k for k in keys)
     drawn = [S.diagram_mark(k) for k in ("s4_mf_up", "s4_mf_down", "s4_net_up", "s4_net_down", "hopf_point")]
     assert len({m.marker for m in drawn}) == 5                                      # five drawn marks, all different shapes (mean field: filled carets; network: open vertex shapes)

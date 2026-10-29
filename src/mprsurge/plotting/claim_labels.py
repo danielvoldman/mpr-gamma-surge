@@ -35,3 +35,16 @@ CLAIM_LIMIT_LABELS = {
     'D24 failed (plan label)': ('subgrid agreement 43.1 percent on raw classes', ('DL-242',)),
     'G7 not passed (plan label)': ('NC1 network S+', ('DL-228',)),
 }
+
+# A9 failure labels printed in F6 (13k, DL-482): label -> (short form, DL numbers). Generated from the second table of docs/claim_limit_labels.md; tests/test_a9_labels.py
+# checks that this dict equals that table and that each source wording is verbatim in its source.
+A9_LABELS = {
+    'a': ('Delta above critical', ('DL-214', 'DL-244')),
+    'b': ('tau_d outside window', ('DL-214', 'DL-244')),
+    'c': ('a flag, not a demonstrated cause', ('DL-214', 'DL-270')),
+    'd': ('ramp too fast for 10 cycles', ('DL-214', 'DL-244')),
+    'e': ('no exit (D-sus or S-sus)', ('DL-214', 'DL-244')),
+    'f': ('amplitude below the fixed threshold', ('DL-214', 'DL-244')),
+    'g': ('Hopf point, no time inside', ('DL-244',)),
+    'h': ('rejected by the damped (D8) clause', ('DL-244',)),
+}
