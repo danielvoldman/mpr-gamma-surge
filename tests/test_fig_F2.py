@@ -179,7 +179,8 @@ def test_caption_names_the_plotted_quantity_states_the_ruled_limits_and_has_no_p
     assert caption.startswith("F2. At ref_devalle the limit cycle appears") and "PROPOSED" not in caption        # take-home and claim limits ruled in 13g
     assert "Nothing in this figure is a frequency or a spectral peak" in caption and "voltage variable v" in caption
     assert "not a fold of cycles" in caption and "mean V of non-refractory neurons" in caption and "F2_" not in caption
-    assert "Claim limits: MS11-C7, MS12-C1, G4-C2." in caption and "UNVERIFIED readings of the plan" in caption
+    from mprsurge.plotting.claim_labels import CLAIM_LIMIT_LABELS as CL                   # 13o (DL-495 T3, R2): the definitions are printed
+    assert "Claim limits: " + "; ".join(f"{i}: {CL[i][0]} ({', '.join(CL[i][1])})" for i in ("MS11-C7", "MS12-C1", "G4-C2")) + "." in caption and "UNVERIFIED readings of the plan" in caption
     assert not re.search(r"[0-9a-f]{12,}", caption) and "hash" not in caption.lower() and not re.search(r"\bsha(256)?\b", caption.lower())
     assert "Provenance" not in caption
 

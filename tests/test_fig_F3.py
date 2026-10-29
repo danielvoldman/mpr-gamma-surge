@@ -175,7 +175,7 @@ def test_caption_has_the_frequency_type_sentence_and_no_provenance_hash(built):
     caption = (out / "F3_caption.txt").read_text(encoding="utf-8")
     assert "limit-cycle frequency of the continuation (A6), not the classifier's spectral peak" in caption
     assert "panel (d) shows the Hopf curve only, because A6 stores no Delta slices" in caption
-    assert "J ramp of P2 and P3 is not drawn" in caption and "derived" in caption and "F3_nordlie.md" in caption
+    assert "J ramp of P2 and P3 is not drawn" in caption and "derived" in caption and "the Nordlie table of F3" in caption and "F3_" not in caption      # 13o (DL-495 T4, R3)
     assert not re.search(r"[0-9a-f]{12,}", caption) and "hash" not in caption.lower() and not re.search(r"\bsha(256)?\b", caption.lower())
     assert "Provenance" not in caption
     assert "model.Delta" not in caption and "noise.sigma" not in caption          # only the slice and regime keys are listed
@@ -271,7 +271,7 @@ def test_colour_bar_sits_next_to_the_panels_gap_below_0_08_of_the_figure_width()
         fig.canvas.draw()
         cax = [ax for ax in fig.axes if ax.get_ylabel() == "limit-cycle frequency (Hz)"]
         assert len(cax) == 1
-        panel_c = [ax for ax in fig.axes if ax.get_title().startswith("(c)")][0]
+        panel_c = [ax for ax in fig.axes if ax.get_title(loc="left").startswith("(c)")][0]                 # 13o (DL-495 T5, R4): titles are left-aligned
         gap = cax[0].get_position().x0 - panel_c.get_position().x1
         assert 0.0 < gap < 0.08, gap
     finally:

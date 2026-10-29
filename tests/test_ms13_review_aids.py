@@ -194,9 +194,9 @@ def test_audit_detects_a_caption_string_its_test_requires(aroot):
 
 def test_audit_reads_the_plan_table_and_the_label_table():
     labels = A.load_label_table(ROOT)
-    assert "MS11-C7" in labels and "RB2 FAIL (plan label)" in labels and len(labels) == 32
+    assert "MS11-C7" in labels and "RB2 FAIL (plan label)" in labels and len(labels) == 35          # 13o (DL-496 T10): three plan labels added (DL-495)
     rows = A.load_plan_table(ROOT, labels)
     by = {r["id"]: r for r in rows if r["id"]}
     assert by["MS11-C7"]["figures"] == list(A.FIGURES) and by["MS12-C1"]["figures"] == ["F1", "F2", "F3", "F4", "F5", "F6"]
     assert by["MS9(e)-1"]["figures"] == ["F1", "F5", "F6", "FS3"] and by["DL-163-D1"]["figures"] == ["F1", "F4", "F5", "F6", "FS5"]
-    assert A.canonical_id("RB1 FAIL (DL-319, DL-320)", labels) == "RB1 FAIL"
+    assert A.canonical_id("RB1 FAIL (DL-319, DL-320)", labels) == "RB1 FAIL (plan label)"          # 13o (DL-496 T11): the table now has this plan label

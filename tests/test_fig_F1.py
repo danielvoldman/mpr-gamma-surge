@@ -190,9 +190,12 @@ def test_drawn_series_equal_the_stored_values_exactly(data):
             ys = [list(ln.get_ydata()) for ln in _ax(fig, title).get_lines()]
             for i in range(3):
                 assert [float(x) for x in data[f"net{i}_{q}_lo"]] in ys and [float(x) for x in data[f"net{i}_{q}_hi"]] in ys
-        r = _ax(fig, "(i)")
-        got = [ln for ln in r.get_lines() if len(ln.get_xdata()) == data["ras_t_s"].size][0]
-        assert np.array_equal(got.get_xdata(), data["ras_t_s"]) and np.array_equal(got.get_ydata(), data["ras_row"])                                                         # exact: every stored spike
+        r = _ax(fig, "(i)")                                                                 # 13o (DL-495 T9, R7): (i) is the count image of the stored spikes
+        want = np.zeros((data["ras_n_rows"], data["ras_count_edges_s"].size - 1), dtype=np.int64)
+        np.add.at(want, (data["ras_row"].astype(np.int64), np.minimum((data["ras_t_s"] // 1.0).astype(np.int64), want.shape[1] - 1)), 1)       # independent of prepare_F1
+        img = [c for c in r.collections if np.asarray(c.get_array()).size == want.size]
+        assert len(img) == 1 and np.array_equal(np.asarray(img[0].get_array()).reshape(want.shape), want)                                                                   # exact: every count
+        assert int(want.sum()) == data["ras_t_s"].size                                                                                                                    # exact: every stored spike counted
         for title, win in (("(j)", data["zoom_windows_s"][0]), ("(k)", data["zoom_windows_s"][1])):
             ln = [x for x in _ax(fig, title).get_lines()][0]
             m = (data["ras_t_s"] >= win[0]) & (data["ras_t_s"] <= win[1])

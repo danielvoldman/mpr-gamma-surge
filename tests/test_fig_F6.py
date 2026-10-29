@@ -200,7 +200,8 @@ def test_caption_names_the_plotted_quantities_marks_the_proposals_and_has_no_pro
     res, out = built
     caption = (out / "F6_caption.txt").read_text(encoding="utf-8")
     assert caption.startswith("F6. PROPOSED (for ruling):")
-    assert "Claim limits: " + "; ".join(f"{i}: {CL[i][0]} ({', '.join(CL[i][1])})" for i in FG.F6_CLAIM_LIMITS) + "." in caption and "PROPOSED for the reviewer's ruling" in caption
+    na = FG.F6_NOT_APPLICABLE                                                          # 13o (DL-495 T7, R5): a limit can be carried as not applicable
+    assert "Claim limits: " + "; ".join(f"{i}: {CL[i][0]} ({', '.join(CL[i][1])})" + (f", not applicable here because {na[i]}" if i in na else "") for i in FG.F6_CLAIM_LIMITS) + "." in caption and "PROPOSED for the reviewer's ruling" in caption
     assert "NOT PASSED" in caption and "Panel (a)" in caption and "Panel (b)" in caption and "Panels (d) and (e)" in caption and "same weight" in caption
     assert not re.search(r"[0-9a-f]{12,}", caption) and "hash" not in caption.lower() and not re.search(r"\bsha(256)?\b", caption.lower())
     assert "Provenance" not in caption and "F6_" not in caption

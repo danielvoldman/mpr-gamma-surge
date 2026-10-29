@@ -195,7 +195,8 @@ def test_caption_names_the_plotted_quantities_marks_the_proposals_and_has_no_pro
     res, out = built
     caption = (out / "FS1_caption.txt").read_text(encoding="utf-8")
     assert caption.startswith("FS1. PROPOSED (for ruling):")                       # take-home and claim limits are proposals until ruled
-    assert "Claim limits: MS11-C7." in caption and "PROPOSED for the reviewer's ruling" in caption
+    from mprsurge.plotting.claim_labels import CLAIM_LIMIT_LABELS as CL                   # 13o (DL-495 T8, R2): the definitions are printed
+    assert "Claim limits: MS11-C7: " + CL["MS11-C7"][0] + " (" + ", ".join(CL["MS11-C7"][1]) + ")." in caption and "PROPOSED for the reviewer's ruling" in caption
     assert "root count" in caption and "ring map" in caption and "cycles per e-fold" in caption and "K4-net was not run" in caption
     assert "UNVERIFIED" in caption and "No crossing is drawn" in caption and "nothing here is a result for M3" in caption
     assert not re.search(r"[0-9a-f]{12,}", caption) and "hash" not in caption.lower() and not re.search(r"\bsha(256)?\b", caption.lower())

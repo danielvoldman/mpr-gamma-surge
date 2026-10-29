@@ -189,7 +189,8 @@ def test_caption_names_the_plotted_quantities_marks_the_proposals_and_has_no_pro
     res, out = built
     caption = (out / "FS2_caption.txt").read_text(encoding="utf-8")
     assert caption.startswith("FS2. PROPOSED (for ruling):")
-    assert "Claim limits: MS11-C7." in caption and "PROPOSED for the reviewer's ruling" in caption
+    from mprsurge.plotting.claim_labels import CLAIM_LIMIT_LABELS as CL                   # 13o (DL-495 T8, R2): the definitions are printed
+    assert "Claim limits: MS11-C7: " + CL["MS11-C7"][0] + " (" + ", ".join(CL["MS11-C7"][1]) + ")." in caption and "PROPOSED for the reviewer's ruling" in caption
     assert "REPORTED FAILURE" in caption and "POST HOC" in caption and "no smoothing or interpolation" in caption.lower() and "UNVERIFIED" in caption
     assert "single-source" in caption or "single source" in caption
     assert not re.search(r"[0-9a-f]{12,}", caption) and "hash" not in caption.lower() and not re.search(r"\bsha(256)?\b", caption.lower())

@@ -101,7 +101,8 @@ def test_caption_raises_on_a_missing_claim_limit_list():
         with pytest.raises(CAP.CaptionError, match="claim_limit_ids"):
             CAP.build_caption("F3", claim_limit_ids=bad, **ok)
     cap = CAP.build_caption("F3", claim_limit_ids=["G6-D1", "MS12-C1"], **ok)             # prints exactly the IDs it is given, none added
-    assert cap.claim_limits == ("G6-D1", "MS12-C1") and "Claim limits: G6-D1, MS12-C1." in cap.text
+    from mprsurge.plotting.claim_labels import CLAIM_LIMIT_LABELS as CL                   # 13o (DL-495 T1, R2): every caption prints the definitions
+    assert cap.claim_limits == ("G6-D1", "MS12-C1") and "Claim limits: " + "; ".join(f"{i}: {CL[i][0]} ({', '.join(CL[i][1])})" for i in ("G6-D1", "MS12-C1")) + "." in cap.text
 
 
 def test_caption_values_equal_params_csv_values(tmp_path):
@@ -109,16 +110,16 @@ def test_caption_values_equal_params_csv_values(tmp_path):
     F.write_params_csv(out, [dict(r) for r in ROWS], "F3")
     with open(out, newline="", encoding="utf-8") as fh:
         csv_rows = list(csv.DictReader(fh))
-    expected, seen = [], set()                                                           # independent of the helper: built from the csv text itself
+    by_key: dict = {}                                                                    # independent of the helper: built from the csv text itself (13o, DL-495 T2, R3: grouped by key)
     for r in csv_rows:
-        item = (r["panel"], r["key"], r["value"])
-        if item not in seen:
-            seen.add(item)
-            expected.append(f"[{r['panel']}] {r['key']}={r['value']}")
+        by_key.setdefault(r["key"], {}).setdefault(r["value"], [])
+        if r["panel"] not in by_key[r["key"]][r["value"]]:
+            by_key[r["key"]][r["value"]].append(r["panel"])
+    expected = [f"{k}={next(iter(v))}" if len(v) == 1 else f"{k}=" + ", ".join(f"{x} [{', '.join(ps)}]" for x, ps in v.items()) for k, v in by_key.items()]
     cap = CAP.build_caption("F3", take_home="A message.", claim_limit_ids=["G6-D1"], params_rows=ROWS, spectrogram=SPEC, symbol_keys=["S+", "NC1"])
     assert cap.parameter_string == "; ".join(expected)
     assert cap.spectrogram_string == 'band_primary_hz=[25, 100]; taper="hann"; window_s=2.0'
-    assert f"Parameters: {cap.parameter_string}." in cap.text and f"Spectrogram: {cap.spectrogram_string}." in cap.text
+    assert f"Parameters: {cap.parameter_string}. The full parameter list is in the Nordlie table of F3." in cap.text and f"Spectrogram: {cap.spectrogram_string}." in cap.text
     assert "Symbols: S+ = circle; NC1 = plus." in cap.text
     with pytest.raises(S.StyleError):
         CAP.build_caption("F3", take_home="A message.", claim_limit_ids=["G6-D1"], symbol_keys=["nope"])
