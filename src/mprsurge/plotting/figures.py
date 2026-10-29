@@ -3885,7 +3885,7 @@ F5_STRIP = (("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30
 F5_STATUS = (("RB4", "parameter_perturbation"), ("RB1", "n_rule_60s"))
 F5_CAPTION_KEYS = ("model.type", "model.ref_point", "model.J", "model.Delta", "model.tau_ms", "model.tau_d_ms", "path.name", "path.profile", "path.T_ramp_s", "path.eta_H",
                    "network.N", "network.het_dist", "solver.method", "noise.sigma", "seeds.root_seed")
-F5_SLOT = 15.0                                        # x width of one N group on the F5c axes: 10 ramp seeds, a gap, 3 control seeds (a layout slot, carries no value)
+F5_SLOT = 17.0                                        # x width of one N group on the F5c axes: 10 ramp seeds, a gap, 3 control seeds (a layout slot, carries no value)
 F5_CTRL_X0 = 11.0
 F5_FOOTER = "DRAFT: untagged build. Layout, marks, colours and panel choices are UNVERIFIED (style.py); take-home and claim limits are PROPOSED."
 
@@ -4232,9 +4232,9 @@ def _draw_F5(d: dict, draft: bool):
     ax.set_xlim(-0.6, 7.4)
     ax.set_ylim(3.5, -0.6)
     ax.xaxis.tick_top()
-    ax.set_title("(b) the 4 network cells (N = 1e4): classes as stored", fontsize=fs, loc="left", color=fail, pad=24)
+    ax.set_title("(b) the 4 network cells (N = 1e4): classes as stored", fontsize=fs, loc="left", color=fail, pad=16)
     ax.tick_params(labelsize=4.8)
-    ax.set_xlabel("The network was run at T_ramp 30 s; the map is at T_ramp 120 s. Both are drawn; no equivalence is claimed.", fontsize=4.4)
+    ax.set_xlabel("The network was run at T_ramp 30 s; the map is at T_ramp 120 s.\nBoth are drawn; no equivalence is claimed.", fontsize=4.6)
 
     # (c), (d) subgrid agreement: D24 (frozen, FAILED) and P-1 (post hoc), same size and frame, cells at their map-1 indices
     for pos, key, ttl, bad, post in ((gs[2, 0:2], "d24", f"(c) D24, frozen rule: FAILED, {d['d24_n_agree']} of {d['sub_n']} agree ({100.0 * d['d24_n_agree'] / d['sub_n']:.1f}%; {d['d24_needed']} needed)", True, False),
@@ -4264,7 +4264,7 @@ def _draw_F5(d: dict, draft: bool):
 
     # (e) map 2
     ax = fig.add_subplot(gs[2, 4:6])
-    _f5_map(ax, d["map2_class"], d["map2_T_ramp_s"], d["map2_J0"], title=f"(e) map 2, mode D: D-tr {d['map2_n_surge']}, D-none {d['map2_n_none']} of {d['map2_n']}", xlabel="T_ramp (s)",
+    _f5_map(ax, d["map2_class"], d["map2_T_ramp_s"], d["map2_J0"], title=f"(e) map 2, mode D:\nD-tr {d['map2_n_surge']}, D-none {d['map2_n_none']} of {d['map2_n']}", xlabel="T_ramp (s)",
             ylabel="J0", tick_idx_x=[0, 3, 6, 9, 12], tick_idx_y=[0, 6, 12, 18, 24])
 
     # (f) class per seed against N (ramp seeds filled, no-ramp control seeds open)
@@ -4280,7 +4280,7 @@ def _draw_F5(d: dict, draft: bool):
     _f5_n_axis(ax, d)
     ax.set_yticks(range(len(F5_NET_CLASSES)), list(F5_NET_CLASSES), fontsize=5.0)
     ax.set_ylim(len(F5_NET_CLASSES) - 0.4, -0.6)
-    ax.set_title("(f) network class of every seed against N (T_ramp 60 s): ramp seeds filled (10 per N), no-ramp control seeds open (3 per N); the mean-field companion is D-tr", fontsize=fs - 0.6, loc="left")
+    ax.set_title("(f) network class of every seed against N (T_ramp 60 s): ramp seeds filled (10 per N), no-ramp control seeds open (3 per N);\nthe mean-field companion at T_ramp 60 s is D-tr", fontsize=fs - 0.6, loc="left")
 
     # (g) to (i) metrics against N: recomputed per-seed points, stored min to max and median
     for col, (m, lab) in enumerate(F5_METRICS):
@@ -4336,10 +4336,11 @@ def _draw_F5(d: dict, draft: bool):
 
 
 def _f5_n_axis(ax, d: dict, small: bool = False):
-    ax.set_xticks([k * F5_SLOT + 4.5 for k in range(4)] , [f"N = {int(n):,}".replace(",", " ") for n in d["n_values"]], fontsize=5.0)
+    ax.set_xticks([k * F5_SLOT + 5.5 for k in range(4)], [(f"{int(n):,}".replace(",", " ") if not small else f"{n:.0e}".replace("e+0", "e")) for n in d["n_values"]] if small
+                  else [f"N = {int(n):,}".replace(",", " ") for n in d["n_values"]], fontsize=5.0)
     for k in range(1, 4):
-        ax.axvline(k * F5_SLOT - 2.5, color=S.F5_COLOURS["frame_posthoc"], lw=0.4, ls=":", zorder=0)
-    ax.set_xlim(-2.6, 4 * F5_SLOT - 2.4)
+        ax.axvline(k * F5_SLOT - 3.0, color=S.F5_COLOURS["frame_posthoc"], lw=0.4, ls=":", zorder=0)
+    ax.set_xlim(-2.6, 4 * F5_SLOT - 2.0)
     ax.tick_params(labelsize=5.0)
 
 
