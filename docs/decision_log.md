@@ -5385,3 +5385,13 @@ Chosen:          as planned   Default from: DL-494
 Test:            T1 to T9 above; new tests listed in the result entry
 Status:          open until the result entry
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-496  MS13 13o: two further test edits that follow the label-table rows of DL-495; audit script changes; logged before the test run    [ID: MS13, 13o, DL-493, DL-494, DL-495]
+Date:            2026-10-29        Author:
+Decision:        PLAN (follows DL-494 and DL-495; nothing here changes a decision). TEST EDITS (text and count of the label table, consequences of the three plan-label rows added in DL-495; no stored-data assertion changes): T10 tests/test_ms13_review_aids.py test_audit_reads_the_plan_table_and_the_label_table: the label-table size 32 becomes 35 (RB1 FAIL, RB6 FAIL and RB9(b) FAIL plan labels added). T11 same test: canonical_id("RB1 FAIL (DL-319, DL-320)") now returns "RB1 FAIL (plan label)", because the audit maps a plan row to its "(plan label)" ID when the label table has one (unchanged audit rule, scripts/ms13_audit.py canonical_id). AUDIT SCRIPT (scripts/ms13_audit.py, committed before it is run): (1) the literal check also reports a numeric fontsize= or labelsize= in the drawing code (DL-494 R4: font sizes come from style.py); (2) the generic caption checks also report a file name (DL-494 R3); (3) a plan-listed limit that a figure does not carry is marked "ruled out (DL-494 R5)" when it is one of the R5 exceptions (G6-D1 on F3, MS12-C1 on FS1, MS11-C3 and G6-D1 on F2), so the "listed but not carried" list can be read against R5; (4) the heading names 13o. Commit order: this entry, then the audit script, then the test edits T1 to T11 and the new tests/test_ms13_13o.py, then the test run.
+Reason:          rulings of DL-494; label-table rows of DL-495
+Options:         -
+Chosen:          as planned   Default from: DL-494, DL-495
+Test:            T10, T11; tests/test_ms13_13o.py (new)
+Status:          open until the result entry
+Commit/tag:      the commit that adds this entry; no tag
