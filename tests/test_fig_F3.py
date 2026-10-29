@@ -58,7 +58,7 @@ def test_row10_make_FS6_is_refused_citing_ms12_c1_and_no_fig_FS6_script():
 def test_row11_claim_limit_ids_appear_in_the_provenance_claim_limits(built):
     res, out = built
     prov = json.loads((out / "F3_provenance.json").read_text(encoding="utf-8"))
-    assert set(prov["claim_limits"]) == set(FG.F3_CLAIM_LIMITS) == {"MS11-C7", "MS12-C1", "MS11-C3"}           # exact set equality
+    assert set(prov["claim_limits"]) == set(FG.F3_CLAIM_LIMITS) == {"MS11-C7", "MS12-C1", "MS11-C3", "RB9(b) FAIL (plan label)"}           # exact set equality (13o, DL-497 T12)
     caption = (out / "F3_caption.txt").read_text(encoding="utf-8")
     assert all(i in caption for i in FG.F3_CLAIM_LIMITS)
     assert caption.startswith("F3. On the A6 slices the 100 Hz contour")           # the ruled take-home message (DL-453), no PROPOSED marker

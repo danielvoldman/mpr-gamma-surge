@@ -68,7 +68,7 @@ def test_row11_claim_limit_ids_appear_in_the_provenance_claim_limits(built):
     prov = json.loads((out / "F5_provenance.json").read_text(encoding="utf-8"))
     assert set(prov["claim_limits"]) == set(FG.F5_CLAIM_LIMITS)                    # exact set equality
     assert {"MS12-C1", "MS9(e)-2", "G4-C1", "G4-C3", "MS11-C2", "MS11-C1"} <= set(prov["claim_limits"])
-    assert all(i in CL for i in FG.F5_CLAIM_LIMITS) and len(FG.F5_CLAIM_LIMITS) == 17
+    assert all(i in CL for i in FG.F5_CLAIM_LIMITS) and len(FG.F5_CLAIM_LIMITS) == 20          # 13o (DL-497 T13): three plan labels added (DL-495)
     assert prov["draft"] is True and prov["figure_id"] == "F5" and prov["criteria_sha256"] == F.K.verify_frozen_criteria()["sha256"]
     assert {t["path"].split("results/")[-1]: t["rows"] for t in prov["input_tables"]} == {FG.F5_INPUTS[0]: 1226, FG.F5_INPUTS[1]: 225, FG.F5_INPUTS[3]: 103, FG.F5_INPUTS[4]: 44}
 

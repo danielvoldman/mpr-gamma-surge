@@ -2941,7 +2941,7 @@ def _draw_F6(d: dict, draft: bool, columns: dict | None = None):
             axd.text(0.02, 0.98, "coincide (identical stored values):\n" + "\n".join(names), transform=axd.transAxes, ha="left", va="top",
                      fontsize=S.TEXT_SIZES["small"])
         if key == "s6_onset_s":
-            axd.legend(loc="upper left", fontsize=S.TEXT_SIZES["legend"], frameon=True, framealpha=0.95)
+            axd.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), ncol=2, fontsize=S.TEXT_SIZES["legend"], frameon=False)
         else:
             axd.set_ylim(36.0, 60.0)
     # status block
