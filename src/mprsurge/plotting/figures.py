@@ -3453,10 +3453,11 @@ F1_SEED_KEYS = ("fs4_s0", "fs4_s1", "fs4_s2")                     # the three ne
 # ms10_eval.json and the stored records by tests/test_fig_F1.py.
 F1_TAKE_HOME = (
     "PROPOSED (for ruling): At the headline (P2, ref_devalle, T_ramp 120 s) the stored mean-field record is a surge of class D-tr with a spectral peak of 49.0 Hz and onset 58.698 s "
-    "(DL-319); the peak is far above 25 Hz, so the plan's second F1 trigger did not occur. The network at N = 1e4 does not reproduce this class: all 3 stored seeds are S-sus with "
+    "(DL-319); the peak is far above 25 Hz, so the plan's second F1 trigger did not occur. The network at N = 1e4 does not reproduce this class: all 3 stored seeds are S-sus (3 of 3; DL-319, DL-323) with "
     "classifier onset 12.0 s (46.7 s before the mean-field onset) and f_pk 49.0, 48.5 and 49.0 Hz; at T_ramp 10 s the 3 seeds are S-abs, S-rel and S-sus (0 of 3 seeds at each "
-    "T_ramp, RB1 headline FAIL, DL-319). The constant-parameter network controls without a ramp are also classified into surge classes (S-sus 3 of 3 at 120 s; S-abs 2 and S-rel 1 "
-    "at 10 s; DL-319, DL-325), so network classes under the frozen criteria cannot separate ramp-driven from non-ramp records (G4-C3, DL-229, DL-231). RB1 failed (headline 10 s, "
+    "T_ramp, RB1 headline FAIL, DL-319). The network controls without a ramp reach the surge classes S-abs and S-rel at the 10 s headline, S+ in S9 at N = 3e3 and 1e4 and at map cell "
+    "(24,26) (DL-325); the 120 s headline controls are S-sus 3 of 3 (DL-319, DL-323). Network classes under the frozen criteria therefore cannot separate ramp-driven from non-ramp "
+    "records (G4-C3, DL-229, DL-231). RB1 failed (headline 10 s, "
     "headline 120 s, cells 1 of 4), G4 was triggered through consequence (2) and is report-only; the surge result is stated for the mean field only (DL-320, DL-323, DL-325)."
 )
 # PROPOSED: the limits of docs/ms13_plan.md section 5 whose right-hand column lists F1 and that are defined in docs/claim_limit_labels.md. The plan labels RB1 FAIL (DL-319, DL-320)
@@ -3574,6 +3575,9 @@ def prepare_F1(raw: dict, crit: dict) -> dict:
         d["spec_t_s"], d["spec_f_hz"] = tc, f[sel]
         d[f"spec_{name}_db"] = db
     d["spec_db_range"] = {n: [float(d[f"spec_{n}_db"].min()), float(d[f"spec_{n}_db"].max())] for n in ("mf", "net0")}
+    # one colour range for both spectrograms (13m ruling, UNVERIFIED display choice): from the network minimum to the larger maximum; mean-field cells below it take the lowest colour
+    d["spec_shared_db_range"] = [d["spec_db_range"]["net0"][0], max(d["spec_db_range"]["mf"][1], d["spec_db_range"]["net0"][1])]
+    d["spec_mf_below_shared"] = [int((d["spec_mf_db"] < d["spec_shared_db_range"][0]).sum()), int(d["spec_mf_db"].size)]
     # raster of seed 0: the 300 stored neurons as rows 0 to 299 in the order of raster_j
     rj, rn = n0["raster_j"], n0["raster_neuron"]
     if rj.size != int(raw["net"][0]["rec"]["config"]["network"]["n_raster"]) or not (np.diff(rj) > 0).all():
@@ -3616,7 +3620,7 @@ def f1_status_lines(d: dict) -> list[str]:
     lines = [f"Stored classes (ms10_eval, DL-319): mean-field headline {d['ref_class']} (onset {d['ref_onset_s']:.3f} s, f_pk {d['ref_f_pk_hz']:.1f} Hz). Network N = 1e4, T_ramp 120 s, "
              f"seeds 0 to 2: {', '.join(d['cls120'])}; classifier onset {', '.join(f'{x:.3f}' for x in d['onset120_s'])} s; raw first crossing {', '.join(f'{x:.3f}' for x in d['raw120_s'])} s "
              f"(post hoc, feeds no gate); f_pk {', '.join(f'{x:.2f}' for x in d['fpk120_hz'])} Hz. T_ramp 10 s (not drawn): {', '.join(d['cls10'])}.",
-             f"No-ramp network controls (stored classes, not drawn): 120 s {d['ctrl120']}; 10 s {d['ctrl10']} (G4-C3). G4 triggered: {d['g4_triggered']}; RB1 {d['rb1_verdict']}.",
+             f"No-ramp network controls (stored classes, DL-319, not drawn): 120 s {d['ctrl120']}; 10 s {d['ctrl10']} (G4-C3). G4 triggered: {d['g4_triggered']}; RB1 {d['rb1_verdict']}.",
              "FAIL rows of the stored A11 table that touch F1 (PROPOSED strip):"] + ["    " + s for s in f1_strip_lines(d)]
     return lines
 
@@ -3727,14 +3731,17 @@ def _draw_F1(d: dict, draft: bool):
     sp = d["spec_settings"]
     for k, (name, ttl) in enumerate((("mf", "(g) spectrogram of v, mean field"), ("net0", "(h) spectrogram of v, network seed 0"))):
         a = fig.add_subplot(gs[7 + k, 0:3], sharex=ax)
-        im = a.pcolormesh(d["spec_t_s"], d["spec_f_hz"], d[f"spec_{name}_db"], shading="nearest", cmap=S.SPECTROGRAM_CMAP, vmin=d[f"spec_{name}_db"].min(), vmax=d[f"spec_{name}_db"].max(), rasterized=True)
+        im = a.pcolormesh(d["spec_t_s"], d["spec_f_hz"], d[f"spec_{name}_db"], shading="nearest", cmap=S.SPECTROGRAM_CMAP, vmin=d["spec_shared_db_range"][0], vmax=d["spec_shared_db_range"][1], rasterized=True)
         for b in sp["band_primary_hz"]:
             a.axhline(b, color=S.HALO_COLOUR, ls="--", lw=S.F1_SIZES["event_line"], zorder=4)
         a.set_yticks(sorted({0.0, *sp["band_primary_hz"], sp["total_band_hz"][1], 50.0, 75.0, 125.0}))
-        fig.colorbar(im, cax=fig.add_subplot(gs[7 + k, 3])).set_label("10 log10 PSD", fontsize=4.8)
+        if k == 1:
+            cb = fig.colorbar(im, cax=fig.add_subplot(gs[7:9, 3]), extend="min")
+            cb.set_label("10 log10 PSD (one range for (g) and (h))", fontsize=4.8)
+            cb.ax.tick_params(labelsize=4.8)
         a.axvline(d["ref_onset_s"], color=dtr.colour, ls=dtr.linestyle, lw=S.F1_SIZES["event_line"], zorder=4)
         a.set_ylim(0, sp["total_band_hz"][1])
-        tidy(a, ttl + f" (W {sp['window_s']:g} s, step {sp['step_s']:g} s, {sp['taper']}; 10 log10 PSD)", "frequency (Hz)", xlabel=(k == 1))
+        tidy(a, ttl + f" (W {sp['window_s']:g} s, step {sp['step_s']:g} s, {sp['taper']}; shared dB range)", "frequency (Hz)", xlabel=(k == 1))
     # (i) to (k) raster of seed 0: 300 stored neurons
     pix, tick = S.RASTER_MARKS["full"], S.RASTER_MARKS["zoom"]
     specs = ((gs[9, 0], "(i) raster, network seed 0, whole record, 300 stored neurons", None), (gs[9, 1], f"(j) {d['zoom_windows_s'][0][0]:.3f} to {d['zoom_windows_s'][0][1]:.3f} s", d["zoom_windows_s"][0]),
@@ -3775,13 +3782,17 @@ def f1_caption_notes(d: dict) -> tuple:
         "envelope per pixel column (" + f"{F1_COLUMNS}" + " blocks of whole samples; display decimation, UNVERIFIED rule): the extremes of every block and of the whole series are the stored "
         "extremes, nothing is smoothed or offset. The network does not reproduce the mean-field class at the headline (claim limit G4-C1): the marks are stored values (ms10_eval, DL-319): "
         "the mean-field onset (" + d["ref_class"] + f", {d['ref_onset_s']:.3f} s), the network classifier onset ({d['cls120'][0]}, {d['onset120_s'][0]:.1f} s in all three seeds) and the "
-        "network raw first crossings (post hoc, feeding no gate), which differ from the mean-field onset and are not hidden. Network surge classes cannot separate ramp-driven from non-ramp "
-        "records (G4-C3): the stored no-ramp network controls at 120 s are " + ", ".join(f"{k} {v}" for k, v in d["ctrl120"].items()) + " and at 10 s " + ", ".join(f"{k} {v}" for k, v in d["ctrl10"].items()) + ". "
+        "network raw first crossings (post hoc, feeding no gate), which differ from the mean-field onset and are not hidden. Network classes cannot separate ramp-driven from non-ramp "
+        "records (G4-C3, DL-325): the no-ramp network controls reach the surge classes " + ", ".join(f"{k} {v}" for k, v in d["ctrl10"].items()) + " at the 10 s headline (stored, DL-319), S+ in S9 at N = 3e3 and 1e4 and at "
+        "map cell (24,26) (DL-325; not drawn here); the stored controls of the 120 s headline are " + ", ".join(f"{k} {v}" for k, v in d["ctrl120"].items()) + " (DL-319, DL-323), the class of the three ramp seeds there. "
+        "Only seed 0 is drawn in the raster and the network spectrogram; seeds 1 and 2 are not drawn there. "
         "RB1 FAILED (headline 10 s, headline 120 s, cells 1 of 4; DL-319, DL-320) and G7 is not passed (DL-228: the NC1 network is S+); G4 was triggered and is report-only (DL-323).",
         "Panels (g) and (h) are NOT stored: they are computed from the stored v of the mean-field record and of network seed 0 by the frozen classifier routine "
         "analysis.surge_metrics.spectrogram_v with the frozen settings printed above (no new setting; UNVERIFIED reading of the script rule that a figure script never simulates). Only the "
-        f"rows from 0 to {sp['total_band_hz'][1]:g} Hz (the total band) are drawn; the power is shown as 10 log10 PSD on its own colour scale per panel, each from its stored minimum to maximum (display choices; the mean-field floor is about -400 dB), "
-        "and the dashed lines are the edges of the primary band. The window time axis is the classifier's (sample i at i/fs); the stored network time stamp is the end of the 1 ms bin. Panels (i) to (k) draw the "
+        f"rows from 0 to {sp['total_band_hz'][1]:g} Hz (the total band) are drawn; the power is shown as 10 log10 PSD on ONE colour range for both panels, from " + f"{d['spec_shared_db_range'][0]:.2f} dB (the minimum of the network panel) to {d['spec_shared_db_range'][1]:.2f} dB "
+        f"(the larger of the two maxima). The stored mean-field range is {d['spec_db_range']['mf'][0]:.2f} to {d['spec_db_range']['mf'][1]:.2f} dB, so {d['spec_mf_below_shared'][0]} of "
+        f"{d['spec_mf_below_shared'][1]} mean-field cells lie below the shared minimum and are drawn in its lowest colour (arrow on the colour bar; their values are in the drawn data); a range that "
+        "covers both would flatten the network panel (display choice, UNVERIFIED). The dashed lines are the edges of the primary band. The window time axis is the classifier's (sample i at i/fs); the stored network time stamp is the end of the 1 ms bin. Panels (i) to (k) draw the "
         f"spikes of the 300 stored neurons of seed 0 as stored ({d['ras_n_active_rows']} of the {d['ras_n_rows']} rows spike); (j) and (k) are windows of {F1_ZOOM_S:g} s that start at the stored "
         "network classifier onset and at the stored mean-field onset. A_ref (reading a) is " + f"{d['a_ref']:.6f}" + " (A8). Peak frequencies are the classifier's spectral peaks (MS11-C3). "
         "Every D8-dependent class is provisional (D8 open). The claim-limit IDs listed here are PROPOSED for the reviewer's ruling.",

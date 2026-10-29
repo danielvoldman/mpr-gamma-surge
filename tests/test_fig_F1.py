@@ -149,7 +149,7 @@ def test_stored_classes_and_onsets_in_the_take_home_equal_the_stored_evaluation_
     assert round(data["ref_onset_s"] - data["onset120_s"][0], 1) == 46.7 and "46.7 s" in th                                       # the printed digits
     assert data["fpk120_hz"] == [49.0, 48.5, 49.0] and "49.0, 48.5 and 49.0 Hz" in th
     assert data["cls10"] == ["S-abs", "S-rel", "S-sus"] and "S-abs, S-rel and S-sus" in th
-    assert data["ctrl120"] == {"S-sus": 3} and data["ctrl10"] == {"S-abs": 2, "S-rel": 1} and "S-sus 3 of 3" in th and "S-abs 2 and S-rel 1" in th
+    assert data["ctrl120"] == {"S-sus": 3} and data["ctrl10"] == {"S-abs": 2, "S-rel": 1} and "S-sus 3 of 3 (DL-319, DL-323)" in th and "S-abs and S-rel at the 10 s headline" in th and "S+ in S9" in th and "(DL-325)" in th
     assert data["g4_triggered"] is True and data["rb1_verdict"] == "FAIL"
     assert [r["check_id"] for r in data["strip"]] == ["headline_10s", "headline_120s", "cells_30s", "overall", "gate"] and all(r["status"] == "FAIL" for r in data["strip"])
     from mprsurge.analysis import a7 as A7
