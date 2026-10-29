@@ -60,13 +60,15 @@ def _required_ids(ids) -> tuple:
 
 
 def build_caption(figure_id: str, *, take_home=None, claim_limit_ids=None, params_rows=(), spectrogram=None, symbol_keys=(),
-                  provenance_hash12=None, tag=None, notes=()) -> Caption:
+                  provenance_hash12=None, tag=None, notes=(), limit_labels=None) -> Caption:
     """Caption text in the order of the template: take-home, parameters, spectrogram, symbols, claim limits, provenance pointer.
 
     take_home, claim_limit_ids: REQUIRED (default None, so leaving one out raises CaptionError, not TypeError). params_rows: the rows written to <ID>_params.csv (empty: part omitted). spectrogram: settings dict or None
     (part omitted). symbol_keys: keys of the style table whose marker is explained (an unknown key raises StyleError). provenance_hash12, tag: optional
     pointer (omitted when None). notes: sentences the figure script writes about what is and is not drawn (13e, DL-453); placed after the symbols,
-    printed as given, none added; default empty, so earlier captions are unchanged.
+    printed as given, none added; default empty, so earlier captions are unchanged. limit_labels (13j, DL-477): None (default; earlier captions unchanged) or a dict label -> (short form, DL numbers)
+    such as claim_labels.CLAIM_LIMIT_LABELS; each claim-limit ID is then printed with its short form and DL numbers, and an ID missing from the dict raises CaptionError (a label is
+    used only when it is defined once in docs/claim_limit_labels.md).
     """
     take = _required_text(take_home, "take_home")
     limits = _required_ids(claim_limit_ids)
@@ -80,7 +82,13 @@ def build_caption(figure_id: str, *, take_home=None, claim_limit_ids=None, param
     if symbol_keys:
         parts.append("Symbols: " + "; ".join(f"{k} = {S.get(k).marker_name}" for k in symbol_keys) + ".")
     parts.extend(_required_text(n, "notes entry") for n in notes)
-    parts.append("Claim limits: " + ", ".join(limits) + ".")
+    if limit_labels is None:
+        parts.append("Claim limits: " + ", ".join(limits) + ".")
+    else:
+        missing = [i for i in limits if i not in limit_labels]
+        if missing:
+            raise CaptionError(f"claim-limit label(s) {missing} are not defined in the label table (docs/claim_limit_labels.md)")
+        parts.append("Claim limits: " + "; ".join(f"{i}: {limit_labels[i][0]} ({', '.join(limit_labels[i][1])})" for i in limits) + ".")
     if provenance_hash12:
         parts.append(f"Provenance: {figure_id}_provenance.json hash12 {provenance_hash12}" + (f", tag {tag}" if tag else "") + ".")
     return Caption(" ".join(parts), p_str, s_str, limits)

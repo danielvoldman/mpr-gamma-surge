@@ -15,6 +15,7 @@ import pytest
 from mprsurge import config as C
 from mprsurge.plotting import figprov as F
 from mprsurge.plotting import figures as FG
+from mprsurge.plotting.claim_labels import CLAIM_LIMIT_LABELS as CL
 
 ROOT = C.repo_root()
 RES = ROOT / "results"
@@ -196,7 +197,25 @@ def test_caption_names_the_plotted_quantities_marks_the_proposals_and_has_no_pro
     res, out = built
     caption = (out / "FS4_caption.txt").read_text(encoding="utf-8")
     assert caption.startswith("FS4. PROPOSED (for ruling):")
-    assert "Claim limits: " + ", ".join(FG.FS4_CLAIM_LIMITS) + "." in caption and "PROPOSED for the reviewer's ruling" in caption
+    assert "Claim limits: " + "; ".join(f"{i}: {CL[i][0]} ({', '.join(CL[i][1])})" for i in FG.FS4_CLAIM_LIMITS) + "." in caption and "PROPOSED for the reviewer's ruling" in caption
     assert "FAILS" in caption and "not used as evidence" in caption and "UNVERIFIED" in caption and "Panel (a)" in caption and "Panels (e) and (f)" in caption
     assert not re.search(r"[0-9a-f]{12,}", caption) and "hash" not in caption.lower() and not re.search(r"\bsha(256)?\b", caption.lower())
     assert "Provenance" not in caption and "FS4_" not in caption
+
+
+def test_13j_floor_points_keep_clear_of_the_axes_frame_and_the_first_halving_note_equals_the_stored_range():
+    """Panels (c) and (c2): every drawn point lies inside the limits with a margin of at least 4 percent of the axis range (no marker cut by the frame). Exact comparison on the artists."""
+    import matplotlib.pyplot as plt
+    d = FG.prepare_FS4(FG.load_FS4())
+    fig = FG._draw_FS4(d, True)
+    try:
+        for prefix in ("(c) D43 floor", "(c2) D43 floor"):
+            ax = [a for a in fig.axes if a.get_title(loc="left").startswith(prefix)]
+            assert len(ax) == 1
+            lo, hi = ax[0].get_ylim()
+            for ln in ax[0].get_lines():
+                y = np.asarray(ln.get_ydata(), dtype=float)
+                if len(y) and ln.get_label() != "_nolegend_" and not ln.get_label().startswith("_"):
+                    assert y.min() >= lo + 0.04 * (hi - lo) and y.max() <= hi - 0.04 * (hi - lo), (prefix, ln.get_label())
+    finally:
+        plt.close(fig)

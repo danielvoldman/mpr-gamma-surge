@@ -15,6 +15,7 @@ import pytest
 from mprsurge import config as C
 from mprsurge.plotting import figprov as F
 from mprsurge.plotting import figures as FG
+from mprsurge.plotting.claim_labels import CLAIM_LIMIT_LABELS as CL
 
 ROOT = C.repo_root()
 RES = ROOT / "results"
@@ -248,9 +249,52 @@ def test_caption_names_the_plotted_quantities_marks_the_proposals_and_has_no_pro
     res, out = built
     caption = (out / "FS5_caption.txt").read_text(encoding="utf-8")
     assert caption.startswith("FS5. PROPOSED (for ruling):")
-    assert "Claim limits: " + ", ".join(FG.FS5_CLAIM_LIMITS) + "." in caption and "PROPOSED for the reviewer's ruling" in caption
+    assert "Claim limits: " + "; ".join(f"{i}: {CL[i][0]} ({', '.join(CL[i][1])})" for i in FG.FS5_CLAIM_LIMITS) + "." in caption and "PROPOSED for the reviewer's ruling" in caption
     assert "RB9(b) FAILS" in caption and "UNVERIFIED" in caption
     assert "Panel (a)" in caption and "Panel (c)" in caption and "Panel (d)" in caption and "Panel (e)" in caption and "Panels (f) and (g)" in caption
     assert "DL-430" in caption and "provisional" in caption
     assert not re.search(r"[0-9a-f]{12,}", caption) and "hash" not in caption.lower() and not re.search(r"\bsha(256)?\b", caption.lower())
     assert "Provenance" not in caption and "FS5_" not in caption
+
+
+def test_13j_test_files_are_recorded_by_sha256_in_the_provenance_and_panel_b_says_it_is_from_test_source_text(built):
+    """Ruling 13j: the two tests/ files are read as text, never executed, their SHA-256 values are in the provenance, panel (b) is labelled. Exact comparisons."""
+    import hashlib
+    res, out = built
+    rec = json.loads((out / "FS5_provenance.json").read_text(encoding="utf-8"))
+    by_path = {i["path"]: i for i in rec["inputs"]}
+    for rel in FG.FS5_TEST_FILES:
+        assert by_path[rel]["sha256"] == hashlib.sha256((ROOT / rel).read_bytes()).hexdigest()          # exact
+    import matplotlib.pyplot as plt
+    d = FG.prepare_FS5(FG.load_FS5())
+    fig = FG._draw_FS5(d, True)
+    try:
+        axb = [a for a in fig.axes if any(t.get_text().startswith("(b)") for t in a.texts)]
+        assert len(axb) == 1
+        assert "from test source text, not from results/" in axb[0].texts[0].get_text()
+    finally:
+        plt.close(fig)
+    caption = (out / "FS5_caption.txt").read_text(encoding="utf-8")
+    assert "Panel (b) is from test source text, not from results/" in caption
+    # never executed: the readers parse source text only (no import or exec of the test files)
+    src = (ROOT / "src" / "mprsurge" / "plotting" / "figures.py").read_text(encoding="utf-8")
+    block = src[src.index("def load_FS5"):src.index("def prepare_FS5")]
+    assert "ast.parse" in src and "exec(" not in block and "import_module" not in block and "runpy" not in block and "subprocess" not in block
+
+
+def test_13j_panel_b_text_is_clear_of_the_class_legend_and_inside_the_canvas():
+    """The text block of panel (b) and the legend of the same axes do not overlap (display-pixel boxes, exact geometry)."""
+    import matplotlib.pyplot as plt
+    d = FG.prepare_FS5(FG.load_FS5())
+    fig = FG._draw_FS5(d, True)
+    try:
+        fig.canvas.draw()
+        rend = fig.canvas.get_renderer()
+        axb = [a for a in fig.axes if any(t.get_text().startswith("(b)") for t in a.texts)][0]
+        tb = axb.texts[0].get_window_extent(rend)
+        lg = axb.get_legend().get_window_extent(rend)
+        assert not tb.overlaps(lg)
+        fb = fig.bbox
+        assert tb.x0 >= fb.x0 and tb.x1 <= fb.x1 and tb.y0 >= fb.y0 and tb.y1 <= fb.y1
+    finally:
+        plt.close(fig)

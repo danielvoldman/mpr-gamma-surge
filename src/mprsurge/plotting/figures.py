@@ -21,6 +21,7 @@ import numpy as np
 from ..config import repo_root
 from ..params import make_param_table
 from . import captions as CAP
+from .claim_labels import CLAIM_LIMIT_LABELS
 from . import figprov as F
 from . import nordlie as N
 from . import style as S
@@ -1681,11 +1682,17 @@ def _draw_FS5(d: dict, draft: bool):
     # (b) the stored test cases, read as a list
     axb = fig.add_subplot(gs[0, 4:6])
     axb.axis("off")
-    lines = textwrap.wrap("(b) Stored synthetic tests, read as a list (never run here):", width=40)
+    lines = ["(b) from test source text, not from results/"] + textwrap.wrap("The stored synthetic tests, read as a list (never run here):", width=44)
     lines += [f"{Path(f).name}: {n} test functions" for f, n in zip(d["tests_file"], d["tests_n"])]
-    lines += textwrap.wrap(f"{len(d['tests_xfail_name'])} strict-xfail marks (expected failures), on functions or on parameters:", width=40)
+    lines += textwrap.wrap(f"{len(d['tests_xfail_name'])} strict-xfail marks (expected failures), on functions or on parameters:", width=44)
     for nm, rs in zip(d["tests_xfail_name"], d["tests_xfail_reason"]):
-        lines += textwrap.wrap(f"- {nm}: {rs}", width=40, subsequent_indent="    ")
+        ln = f"- {nm}:"
+        while len(ln) > 44 and "_" in ln[:44]:                                      # a long test name breaks after an underscore, never inside a word
+            cut = ln[:44].rindex("_") + 1
+            lines.append(ln[:cut])
+            ln = "    " + ln[cut:]
+        lines.append(ln)
+        lines += textwrap.wrap(rs, width=44, initial_indent="    ", subsequent_indent="    ")
     axb.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=4.8, linespacing=1.2)
     axb.legend(h_a, l_a, loc="lower left", ncol=2, fontsize=5.0, frameon=True, framealpha=0.95, title="class (cells)", title_fontsize=5.0)
     # (c) class changes against V0
@@ -1747,7 +1754,7 @@ def _draw_FS5(d: dict, draft: bool):
     axf.axvline(FS5_RB10_BOUND, color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label="plan bound 0.10", zorder=2)
     axf.set_yticks(yv, d["rb10_variant"], fontsize=5.5)
     axf.set_ylim(len(yv) - 0.5, -0.5)
-    axf.set_xlim(-0.005, 0.27)
+    axf.set_xlim(-0.005, 0.30)
     axf.set_xlabel("fraction of map-1 cells that change class", fontsize=6)
     axf.set_title("(f) RB10: " + ("headline class unchanged, nine variants" if d["rb10_headline_all_pass"] else "headline class changed under a variant"), fontsize=S.FONT_SIZE_PT - 1, loc="left")
     axf.tick_params(labelsize=5.5)
@@ -1828,7 +1835,7 @@ def fs5_caption_notes(d: dict) -> tuple:
     n_chg = int(d["chg_changed"].sum())
     return (
         f"Panel (a) draws every stored classification of the 26 synthetic cases (39 rows: mode N at T_ramp 120 s and 3 s, mode D at 120 s) under V0 and the nine variants; "
-        "the class is the stored one and the D8 call is provisional (DL-137). The expected class of each case is not stored and is not drawn; the strict-xfail marks of the test files are listed in (b).",
+        "the class is the stored one and the D8 call is provisional (DL-137). The expected class of each case is not stored and is not drawn; the strict-xfail marks of the test files are listed in (b). Panel (b) is from test source text, not from results/: the two test files are read as text, never run, and are listed among the inputs of the provenance record.",
         f"Panel (c) counts, per group and variant, the records whose class differs from V0 ({n_chg} changes over all groups and variants; checked against the stored a8_sens_summary.json); "
         "records the window x2 variant could not run are counted as not run, not as unchanged.",
         "Panel (d) is the stored reachability table: the share of cells whose mean-over-seeds baseline rho is at or above each level, per window (UNVERIFIED arithmetic, DL-146; the plan's "
@@ -1858,7 +1865,7 @@ def make_FS5(res=None, out_dir=None, *, tag_build: bool = False, take_home=FS5_T
         for r in make_param_table(rec["config"]):
             rows.append({**r, "panel": key, "section": "", "source_run_id": rec["name"], "source_config_hash12": rec["config_hash12"]})
     cap = CAP.build_caption("FS5", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=[r for r in rows if r["key"] in FS5_CAPTION_KEYS and r["panel"] == "A8_sensitivity"],
-                            spectrogram=None, symbol_keys=(), notes=fs5_caption_notes(d))
+                            spectrogram=None, symbol_keys=(), notes=fs5_caption_notes(d), limit_labels=CLAIM_LIMIT_LABELS)
     import matplotlib.pyplot as plt
     fig = _draw_FS5(d, draft=not tag_build)
     out.mkdir(parents=True, exist_ok=True)
@@ -2060,7 +2067,7 @@ def _draw_FS4(d: dict, draft: bool):
     import matplotlib.pyplot as plt
     plt.rcParams.update({"font.family": S.FONT_FAMILY, "font.size": S.FONT_SIZE_PT, "pdf.fonttype": 42})
     fig = plt.figure(figsize=(7.4, 13.4), constrained_layout=True)
-    gs = fig.add_gridspec(5, 6, height_ratios=[1.6, 1.8, 1.9, 1.9, 2.6])
+    gs = fig.add_gridspec(5, 6, height_ratios=[1.6, 1.8, 1.9, 1.9, 2.25])
     tol = S.diagram_mark("tol_band")
     fcl = S.diagram_mark("fs4_cross")
     # (a) headline numerics: one row per setting, the stored classifier onset (class marker) and the raw first crossing (small cross)
@@ -2104,7 +2111,7 @@ def _draw_FS4(d: dict, draft: bool):
         axc.set_ylabel("delay (eta_bar)" if col == 0 else "", fontsize=6)
         axc.set_title(ttl, fontsize=S.FONT_SIZE_PT - 1, loc="left")
         axc.tick_params(labelsize=5.5)
-        axc.set_ylim((-0.115, 0.055) if q == "cross" else (-1.56, -0.62))       # headroom: the legend row sits above the highest points
+        axc.set_ylim((-0.125, 0.055) if q == "cross" else (-1.64, -0.62))       # headroom: the legend row sits above the highest points
         axc.legend(loc="upper center", ncol=3, fontsize=4.8, frameon=True, framealpha=0.95, handletextpad=0.2, columnspacing=0.8)
     # (d) floor medians at the other T_ramp (reported only)
     axd = fig.add_subplot(gs[1, 4:6])
@@ -2134,7 +2141,7 @@ def _draw_FS4(d: dict, draft: bool):
     axe.set_title("(e) network f_pk against dt: RB6 " + d["net_status"] + " (not used as evidence)", fontsize=S.FONT_SIZE_PT - 1, loc="left", color="#7f0000")
     axe.tick_params(labelsize=5.5)
     axe.set_ylim(40.0, 125.0)
-    axe.legend(loc="upper center", ncol=4, fontsize=4.6, frameon=True, framealpha=0.95, handletextpad=0.2, columnspacing=0.8)
+    axe.legend(loc="upper center", ncol=4, fontsize=4.6, frameon=True, framealpha=0.95, handletextpad=0.3, columnspacing=1.0, markerscale=0.55, handlelength=2.0)
     # (f) relative change of f_pk per halving of dt against the 2 percent bound
     axf = fig.add_subplot(gs[2, 3:6])
     for s_ in range(3):
@@ -2147,7 +2154,7 @@ def _draw_FS4(d: dict, draft: bool):
     axf.set_ylabel("relative change of f_pk", fontsize=6)
     axf.set_title("(f) classifier-episode f_pk per halving of dt", fontsize=S.FONT_SIZE_PT - 1, loc="left")
     axf.tick_params(labelsize=5.5)
-    axf.legend(loc="upper left", fontsize=4.8, frameon=True, framealpha=0.95)
+    axf.legend(loc="upper left", fontsize=4.8, frameon=True, framealpha=0.95, markerscale=0.6, labelspacing=0.5)
     # (g) network classes by V_p, dt and seed (information only)
     axg = fig.add_subplot(gs[3, 0:3])
     for i, row in enumerate(d["netcls_class"]):
@@ -2197,7 +2204,7 @@ def fs4_caption_notes(d: dict) -> tuple:
         "Panels (c) and (c2) draw the stored delay of every D43-floored run (levels 0 to 2, 10 seeds, Heun dt 1e-3 to 1e-4 tau) under both onset readings, as in G6-D3; the delay is the same at "
         "every dt, as the stored table has it (a statement at the 1 ms output resolution, DL-184, DL-190), so the points of one level lie on one another. Panel (d) is reported only (DL-356).",
         "Panels (e) and (f) draw the stored network f_pk at each dt rung and its relative change per halving; (f) uses the classifier-episode reading, and the PSD-argmax reading of the "
-        "first halving is drawn as open marks in (e). RB6 network FAILS under both readings (0 of 3 and 2 of 3 seeds pass; the row is FAIL if any evaluable seed fails, DL-348). "
+        "first halving is drawn as open marks in (e). The 5 to 43 percent of the take-home is the first halving, 1e-3 to 5e-4 tau, of (f); the later halvings are drawn as stored. RB6 network FAILS under both readings (0 of 3 and 2 of 3 seeds pass; the row is FAIL if any evaluable seed fails, DL-348). "
         "Network f_pk results are labelled FAIL and are not used as evidence. Panel (g) and (h) are information only (DL-349).",
         "The network classes in (g) are not evidence of a ramp-driven surge (G4-C3); one seed per cell. The claim-limit IDs listed here are PROPOSED for the reviewer's ruling.",
     )
@@ -2220,7 +2227,7 @@ def make_FS4(res=None, out_dir=None, *, tag_build: bool = False, take_home=FS4_T
         for r in make_param_table(rec["config"]):
             rows.append({**r, "panel": key, "section": "", "source_run_id": rec["name"], "source_config_hash12": rec["config_hash12"]})
     cap = CAP.build_caption("FS4", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=[r for r in rows if r["key"] in FS4_CAPTION_KEYS],
-                            spectrogram=None, symbol_keys=(), notes=fs4_caption_notes(d))
+                            spectrogram=None, symbol_keys=(), notes=fs4_caption_notes(d), limit_labels=CLAIM_LIMIT_LABELS)
     import matplotlib.pyplot as plt
     fig = _draw_FS4(d, draft=not tag_build)
     out.mkdir(parents=True, exist_ok=True)
