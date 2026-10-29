@@ -5395,3 +5395,13 @@ Chosen:          as planned   Default from: DL-494, DL-495
 Test:            T10, T11; tests/test_ms13_13o.py (new)
 Status:          open until the result entry
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-497  MS13 13o: test run 1 of the figure tests; two further test edits (claim-limit sets pinned by F3 and F5); expected manifest failures; one F6 layout fix    [ID: MS13, 13o, F3, F5, F6, DL-494, DL-495, DL-496]
+Date:            2026-10-29        Author:
+Decision:        FACT and PLAN. Run of tests/test_ms13_13o.py, test_figstyle, test_claim_labels, test_ms13_style_keys, test_ms13_review_aids, test_a9_labels, test_figprov and test_fig_F1 to F6 and FS1 to FS5 at commit 0f853c0 (not the fast suite): 183 passed, 10 failed. Every failure is traced: (a) seven tests of tests/test_ms13_review_aids.py (test_the_real_files_match_the_manifest..., test_checker_detects_a_changed_byte, _an_unlogged_hash, _a_file_without_any_logged_hash, _a_missing_file, _a_file_the_manifest_does_not_list, test_write_manifest_changes_only_the_manifest...) copy the real tree and require it to match docs/ms13_figure_manifest.csv; the ruled edits of 13o change 11 listed files (tests, style.py, figures.py, claim_labels.py, the label table), and the manifest is updated in step E after the recorded builds, as the 13o prompt orders; no edit of these tests; they are re-run after step E. (b) tests/test_fig_F3.py test_row11 pins the set {MS11-C7, MS12-C1, MS11-C3} and tests/test_fig_F5.py test_row11 pins the count 17: both follow the claim-limit additions of DL-495 (R5). Planned edits: T12 the F3 set becomes {MS11-C7, MS12-C1, MS11-C3, RB9(b) FAIL (plan label)}; T13 the F5 count becomes 20. (c) tests/test_fig_F6.py test_layout_no_legend_covers_a_line...: the legend of panel (d), moved to the upper left in the trial-render fix, covers the P4a and P2 lines; a defect of the 13o layout, fixed in the code (the legend is placed below the panel), not in the test.
+Reason:          rulings of DL-494; claim limits of DL-495
+Options:         -
+Chosen:          as planned   Default from: DL-494, DL-495
+Test:            T12, T13; re-run of the same set after the fix
+Status:          open until the result entry
+Commit/tag:      the commit that adds this entry; no tag
