@@ -212,7 +212,7 @@ def test_13e_caption_notes_are_printed_in_order_before_the_claim_limits_and_defa
 
 
 FS2_MARK_KEYS = ("s3_mf", "s3_net_1e4", "s3_net_5e4", "k7_paper", "tol_band", "k9_pt", "k11_pt", "k10_curve", "k10_j8", "k10_j20", "k10_j40")
-FS3_MARK_KEYS = ("fs3_median",)                                                        # 13k, DL-482
+FS3_MARK_KEYS = ("fs3_median", "f4_pred", "f4_ref", "f4_inrange", "f4_cls", "f4_down", "f4_hyst", "f4_fail")                                                        # 13k, DL-482 (fs3_median) and DL-483 (the seven f4 keys)
 FS1_MARK_KEYS = ("m2_fold", "m2_cusp", "m2_k_point", "s1_k4_trace", "s1_k5_trace", "s1_forcing", "k4_window", "k4_r_star")
 
 

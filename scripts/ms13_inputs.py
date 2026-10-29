@@ -74,15 +74,14 @@ INPUTS = {
         fil("P5 run record (linear, T_ramp 100 s; path arrow)", "S5/ramp/p5_linear/p5_linear_0008_da88da96d075.json"),
     ],
     "F4": [
-        fil("A7 ramp metrics", "A7/a7_ramp_metrics.parquet"),
-        fil("A3 saddle-node ramp table (M2)", "A3/a3_sn_ramp.parquet"),
-        fil("A2 ring map (M2 ring)", "A2/a2_ring_map.npz"),
-        fil("A4 entry-exit range (RB3(a))", "A4/a4_rb3a_range.csv"),
-        fil("A4 entry-exit summary", "A4/a4_rb3a_summary.json"),
-        rec("S5 ramp families (P1, P2, P5 x linear, sigmoid x 13 T_ramp; start distance; headline)", "S5/ramp/*/*.json", None),
-        rec("S5 baseline-only mode-N runs (headline cell + 900 + 325 map cells; noise band)", "S5/baseline/S5base_*.json", 1226),
-        rec("S11 noise level (3 sigma x 4 T_ramp x 10 seeds)", "S11/S11/*.json", 120),
-        rec("S11 constant-parameter controls (DL-251)", "S11/S11_ctrl/*.json", 30),
+        fil("A7 ramp metrics (S5 and S13 families; onsets, delays, metrics, A4 prediction; 13k)", "A7/a7_ramp_metrics.parquet"),
+        fil("A3 saddle-node ramp table (M2 ring; M2 ring panel source, 13k)", "A3/a3_sn_ramp.parquet"),
+        fil("A4 entry-exit summary (headline cross-check; 13k)", "A4/a4_rb3a_summary.json"),
+        fil("A11 robustness table (FAIL-row strip; 13k)", "A11/a11_robustness.csv"),
+        rec("S5 ramp run records (config: eps; P1, P2, P5 x linear, sigmoid, start distance, headline; 13k)", "S5/ramp/*/*.json", 105),
+        rec("S5 ramp_noise run records (config: eps; p2_noise 13 T_ramp x 10 seeds; 13k)", "S5/ramp_noise/p2_noise/*.json", 130),
+        rec("S13 run records (config: eps; delta0 2, floor 120, radau 1, rtol 2; 13k)", "S13/*/*.json", 125),
+        rec("A3 S2 run records (config: eps; 13 M2 ramps; 13k)", "A3/S2/*.json", 13),
     ],
     "F5": [
         fil("A9 regime map (map 1, map 2)", "A9/a9_regime_map.parquet"),
@@ -251,7 +250,7 @@ def readiness():
 
 TIMING = {   # figure -> families whose load is timed (largest files + stride sample)
     "F1": ["S5 headline mean-field record (P2, ref_devalle, 120 s)", "S8 network headline (T_ramp 10 and 120 s x 3 seeds)"],
-    "F4": ["S5 ramp families (P1, P2, P5 x linear, sigmoid x 13 T_ramp; start distance; headline)", "S11 noise level (3 sigma x 4 T_ramp x 10 seeds)"],
+    "F4": [],
     "F5": ["S7 map 1 (30 x 30, 120 s)", "S7 map 2 (25 x 13)", "S7 noisy subgrid (225 cells x 10 seeds)", "S8 network at 4 map cells (3 seeds)", "S9 finite size (4 N x 10 seeds)"],
     "F6": [],
     "FS3": [],

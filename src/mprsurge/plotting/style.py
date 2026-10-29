@@ -100,6 +100,7 @@ class ContourMark:
 # 13g: the 25 Hz mark was a short horizontal bar, which lay along the slice line and was hard to see; it is now a tall narrow filled bar that crosses the
 # slice line (vertex marker, so it shares no code with the '|' of the 'noise' key), with a white edge. UNVERIFIED design choice.
 _TALL_BAR = ((-0.2, -1.0), (0.2, -1.0), (0.2, 1.0), (-0.2, 1.0), (-0.2, -1.0))
+_OCTAGON = ((0.4, 1.0), (1.0, 0.4), (1.0, -0.4), (0.4, -1.0), (-0.4, -1.0), (-1.0, -0.4), (-1.0, 0.4), (-0.4, 1.0), (0.4, 1.0))
 CONTOUR_MARKS = {
     "25hz": ContourMark(25.0, _TALL_BAR, "tall narrow bar across the slice line", "#1a1a1a", 13.0, 0.9),
     "100hz": ContourMark(100.0, ".", "point", "#7f0000", 6.0, 1.0),
@@ -187,6 +188,16 @@ DIAGRAM_MARKS = {
     # 13k (DL-482), FS3: the stored median of a per-N range. Its own mark (a short horizontal bar across the range line); the star of 'fs5_pt' keeps its single
     # meaning (a stored fraction in FS5). UNVERIFIED design choice.
     "fs3_median": DiagramMark("fs3_median", "#4a148c", _BAR, "short horizontal bar (stored median)", "none", 9.0, 1.0, True),
+    # 13k (DL-482, DL-483), F4 (ramp rate). UNVERIFIED design choices. The A4 prediction and the quasi-static reference are lines; a run inside the RB3(a) range
+    # carries a large open octagon; the classifier-onset reading is a small double dagger (the raw crossing, the primary reading, is the path mark); the down-sweep offset
+    # of P5 is a filled down triangle, its hysteresis width a dashed line; an RB6-FAIL result carries a boxed cross.
+    "f4_pred": DiagramMark("f4_pred", "#6d4c00", None, "line", "-.", 0.0, 1.0, True),
+    "f4_ref": DiagramMark("f4_ref", "#7a7a7a", None, "line", ":", 0.0, 1.0, True),
+    "f4_inrange": DiagramMark("f4_inrange", "#1b1b1b", _OCTAGON, "large open octagon (inside the RB3(a) range)", "none", 11.0, 0.9, False),
+    "f4_cls": DiagramMark("f4_cls", "#333333", r"$\ddagger$", "double dagger (classifier onset)", "none", 6.0, 0.7, True),
+    "f4_down": DiagramMark("f4_down", "#5f4b8b", r"$\blacktriangledown$", "filled down triangle (P5 down-sweep offset)", "-", 6.0, 0.9, True),
+    "f4_hyst": DiagramMark("f4_hyst", "#5f4b8b", None, "line", "--", 0.0, 1.0, True),
+    "f4_fail": DiagramMark("f4_fail", "#7f0000", r"$\boxtimes$", "boxed cross (RB6 FAIL)", "none", 12.0, 1.0, True),
 }
 
 # 13h, FS1: fill of the A1 root-count map (one root, three roots) and the colour map of the A2 cycles per e-fold. The A2 ring frequency uses
@@ -214,7 +225,8 @@ FIGURE_COLOURS = {
     "map2_fill": "#b5b5b5",      # F6 map 2 bars
 }
 FIGURE_HATCHES = {"map1_any": "//", "map2_any": ".."}
-POINT_SIZES = {"fs3_shape": 7.0, "f6_control": 6.5, "f6_network_run": 9.0, "f6_s6_line": 4.5, "f6_s6_line_large": 5.5}
+POINT_SIZES = {"fs3_shape": 7.0, "f6_control": 6.5, "f6_network_run": 9.0, "f6_s6_line": 4.5, "f6_s6_line_large": 5.5,
+               "f4_series": 4.2, "f4_series_small": 3.4, "f4_series_p5": 3.6, "f4_none": 4.0, "f4_seed_tick": 5.0, "f4_key": 7.0, "f4_m2": 5.0, "f4_floor_rungs": (9.0, 7.0, 5.0, 3.0)}
 POINT_EDGE_WIDTH = {"class": 0.4, "class_large": 0.5}
 
 

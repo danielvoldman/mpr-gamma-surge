@@ -2957,6 +2957,477 @@ def make_F6(res=None, out_dir=None, *, tag_build: bool = False, take_home=F6_TAK
             "timing_s": timing, "drawn_sha256": drawn, "caption": cap.text}
 
 
+# ---- F4 (13k) -------------------------------------------------------------------------------------------------------------------------------------
+# Paths relative to results/. Tables first (docs/ms13_conventions.md M13-12): the stored A7 table holds the onsets (raw first crossing and classifier episode), the signed
+# delays, the A4 entry-exit prediction (t_pred, delay_eta_pred, in_range) and the surge metrics of every S5 and S13 run (360 rows); the stored A3 table holds the M2
+# saddle-node ramp (jump offset, ring class, ring rate); the stored A4 summary cross-checks the headline prediction; the stored A11 table holds the status rows and the
+# FAIL-row strip. The run records are opened for their JSON config only (the ramp rate eps; the parameter rows); no series (.npz) is opened and no example trace is drawn.
+# The M2 ring panel is read from A3 (the ring class and ring rate of each ramp), not from the A2 ring map, which is a static map over (eta/Delta, J/sqrt(Delta)) with no ramp
+# (DL-483). The registry scripts/ms13_inputs.py INPUTS["F4"] must name the same files (test).
+F4_INPUTS = (
+    "A7/a7_ramp_metrics.parquet",                     # 360 rows: S5 (235) and S13 (125) families (DL-180, DL-181, DL-182, DL-186)
+    "A3/a3_sn_ramp.parquet",                          # 13 rows: the M2 saddle-node ramps and their ring class (DL-109, DL-110)
+    "A4/a4_rb3a_summary.json",                        # A4 entry-exit summary: headline prediction (cross-check), h_working
+    "A11/a11_robustness.csv",                         # stored A11 table: status rows and the FAIL-row strip
+)
+F4_RECORD_DIRS = {"S5": "S5/ramp", "S5_noise": "S5/ramp_noise/p2_noise", "S13": "S13", "A3": "A3/S2"}
+F4_RECORD_COUNTS = {"S5": 105, "S5_noise": 130, "S13": 125, "A3": 13}
+F4_PARAM_ROWS = (("S5_headline", "S5ramp"), ("S5_noise", "p2_noise"), ("S13_floor", "floor_l0"))
+F4_FAMILIES = (("p1_linear", "P1", "linear"), ("p1_sigmoid", "P1", "sigmoid"), ("p2_linear", "P2", "linear"), ("p2_sigmoid", "P2", "sigmoid"),
+               ("p5_linear", "P5", "linear"), ("p5_sigmoid", "P5", "sigmoid"))
+F4_S13 = ("delta0", "floor_l0", "floor_l1", "floor_l2", "radau", "rtol")
+F4_DT = (1e-3, 5e-4, 2.5e-4, 1e-4)      # the Heun dt ladder, in units of tau (plan S13)
+F4_STRIP = (("RB2", "noisy_subgrid_agreement"), ("RB2", "headline_class_kept_1.0_sigma"), ("RB3", "a_inrange_runs"), ("RB3", "b_classifier_onset"), ("RB6", "solver_onset_headline"))
+F4_STATUS_RB = ("RB2", "RB3", "RB5", "RB6")
+F4_CAPTION_KEYS = ("model.type", "model.ref_point", "path.name", "path.profile", "path.T_ramp_s", "solver.method", "solver.rtol", "solver.delta0", "noise.scheme", "noise.sigma")
+F4_METRICS = ("T_ramp_s", "delay_eta_cross", "delay_eta", "delay_eta_pred", "peak_power_abs", "peak_power_rel", "f_pk_hz", "duration_s", "match_err_steps")
+
+# PROPOSED for the reviewer's ruling (13k prompt, item B3); every statement is from a logged result (DL numbers in the text) and the numbers are checked against the
+# stored tables by tests/test_fig_F4.py.
+F4_TAKE_HOME = (
+    "PROPOSED (for ruling): Onsets do not follow the A4 entry-exit prediction on the runs inside the RB3(a) range: 0 of 6 testable in-range runs are within one A4 step "
+    "(33.1, 20.6, 12.7, 7.6, 4.4 and 25.1 steps; 3 more in-range runs have eta constant at the predicted time), and the noise-free headline onset (58.698 s) lies far "
+    "before the predicted entry (115.2 s), so G6 was ruled PASSED WITH DEPARTURES (DL-188, DL-208). The noise-free onset is solver-dependent (DOP853 58.698 s, Radau 58.879 s, "
+    "181 ms against the 1 ms bound: RB6 solver clause FAIL, unexplained) and the floored delay does not depend on the Heun step at the 1 ms output grid (DL-189, DL-190). "
+    "Under the raw first-crossing reading the D43-floored delays of the headline fall with the floor level (-0.000760, -0.0423 and -0.1051 in eta units); under the "
+    "classifier-onset reading they tie at -1.5 at the two lower levels and RB3(b) DOES NOT MEET (DL-182, DL-186, DL-208). With noise (sigma 0.0624, checked and not "
+    "confirmed, DL-325) the median raw-crossing delay of the 10 seeds is negative from T_ramp 5.62 s on and the classes are mixed (A7 table, DL-180; RB2 FAIL, DL-387, DL-394). The M2 ramp through the saddle-node "
+    "is damped at all 13 T_ramp and its jump offset from the fold falls from 0.346 to 0.0034 (DL-109, DL-110)."
+)
+# PROPOSED: the limits of docs/ms13_plan.md section 5 whose right-hand column lists F4 and that are defined in docs/claim_limit_labels.md; G6-D1 and DL-163 departure 3 have no
+# entry in that table and are written in plain words with their DL numbers in the caption (DL-482 reading; the table is the reviewer's to extend); the plan labels RB2 FAIL and
+# D24 failed are written in plain words with their DL numbers. Listed, not decided.
+F4_CLAIM_LIMITS = ("MS11-C7", "MS12-C1", "MS9(e)-2", "MS9(e)-5", "G6-D2", "G6-D3", "DL-163-D1", "DL-163-D2", "DL-163-D4", "G4-C4", "MS11-C1", "MS11-C3", "MS11-C6")
+F4_FOOTER = "DRAFT: untagged build. Layout, marks, colours and panel choices are UNVERIFIED (style.py); take-home and claim limits are PROPOSED."
+
+
+def _f4_record_path(row_family: str, run_id: str) -> str:
+    if row_family == "p2_noise":
+        return f"{F4_RECORD_DIRS['S5_noise']}/{run_id}.json"
+    if row_family in F4_S13:
+        return f"{F4_RECORD_DIRS['S13']}/{row_family}/{run_id}.json"
+    return f"{F4_RECORD_DIRS['S5']}/{row_family}/{run_id}.json"
+
+
+def f4_record_files(a7, a3) -> list[str]:
+    """Paths (relative to results/) of every run record whose config is read: one per A7 row and one per A3 row."""
+    return [_f4_record_path(f, r) for f, r in zip(a7["family"], a7["run_id"])] + [f"{F4_RECORD_DIRS['A3']}/{r}.json" for r in a3["run"]]
+
+
+def load_F4(res=None) -> dict:
+    """Open the files of F4_INPUTS and the run-record configs under `res` (default results/) and return their content. Opens nothing else."""
+    res = Path(res) if res is not None else results_dir()
+    for rel in F4_INPUTS:
+        if not (res / rel).is_file():
+            raise F.MissingInputError(f"input file not found: {res / rel}")
+    try:
+        import pandas as pd
+        a7 = pd.read_parquet(res / F4_INPUTS[0])
+        a3 = pd.read_parquet(res / F4_INPUTS[1])
+        with open(res / F4_INPUTS[3], newline="", encoding="utf-8") as fh:
+            a11 = list(csv.DictReader(fh))
+        files = f4_record_files(a7, a3)
+        eps, records, names = {}, {}, {}
+        for rel in files:
+            if not (res / rel).is_file():
+                raise F.MissingInputError(f"run record not found: {res / rel}")
+            rec = json.loads((res / rel).read_text(encoding="utf-8"))
+            path = rec["config"]["path"]
+            eps[rec["name"]] = (float(path["eps"]), float(path["T_ramp_s"]))
+            names[rel] = rec["name"]
+            for key, fam in F4_PARAM_ROWS:
+                if rel == _f4_record_path(fam, rec["name"]) and key not in records:
+                    records[key] = rec
+        return {"a7": a7, "a3": a3, "a4": json.loads((res / F4_INPUTS[2]).read_text(encoding="utf-8")), "a11": a11, "eps": eps, "records": records,
+                "record_files": files}
+    except (OSError, ValueError, KeyError, ImportError) as exc:
+        raise F.MissingInputError(f"an F4 input cannot be read: {exc}") from exc
+
+
+def _f4_arr(sub, col):
+    return sub[col].astype(float).to_numpy()
+
+
+def prepare_F4(raw: dict) -> dict:
+    """Pure: stored content -> the arrays and numbers that are drawn. Keys are flat names; values are arrays, ints, floats, bools, strings or lists of strings."""
+    a7, a3, a4 = raw["a7"].copy(), raw["a3"].copy(), raw["a4"]
+    eps = raw["eps"]
+    miss = [r for r in a7["run_id"] if r not in eps]
+    if miss or len(a7) != 360:
+        raise DataError(f"A7 table: {len(a7)} rows, {len(miss)} without a run record config (expected 360 and 0)")
+    a7["eps"] = [eps[r][0] for r in a7["run_id"]]
+    if any(abs(eps[r][1] - T) > 1e-9 for r, T in zip(a7["run_id"], a7["T_ramp_s"])):
+        raise DataError("A7 table: T_ramp_s disagrees with the run-record config")
+    d: dict = {}
+    # (a) to (g): the six mode-D families, 13 T_ramp each, sorted by T_ramp
+    for fam, path, prof in F4_FAMILIES:
+        sub = a7[a7["family"] == fam].sort_values("T_ramp_s")
+        if len(sub) != 13:
+            raise DataError(f"A7 table: family {fam} has {len(sub)} rows, expected 13")
+        d[f"{fam}_eps"] = sub["eps"].to_numpy(dtype=float)
+        for c in F4_METRICS:
+            d[f"{fam}_{c}"] = _f4_arr(sub, c)
+        d[f"{fam}_in_range"] = sub["in_range"].fillna(False).astype(bool).to_numpy()
+        d[f"{fam}_cls"] = [str(c) for c in sub["cls"]]
+        if path == "P5":
+            for c in ("offset_minus_eta_H", "hysteresis_width"):
+                d[f"{fam}_{c}"] = _f4_arr(sub, c)
+    # start state: P1 linear at start distances 0.5 and 3.0 (the 1.5 series is p1_linear)
+    for tag, sd in (("sd05", 0.5), ("sd30", 3.0)):
+        sub = a7[(a7["family"] == "p1_start_distance") & (a7["start_distance"] == sd)].sort_values("T_ramp_s")
+        if len(sub) != 13:
+            raise DataError(f"A7 table: p1_start_distance at {sd} has {len(sub)} rows, expected 13")
+        d[f"{tag}_eps"] = sub["eps"].to_numpy(dtype=float)
+        for c in ("delay_eta_cross", "delay_eta_pred", "peak_power_abs", "f_pk_hz", "duration_s"):
+            d[f"{tag}_{c}"] = _f4_arr(sub, c)
+        d[f"{tag}_in_range"] = sub["in_range"].fillna(False).astype(bool).to_numpy()
+        d[f"{tag}_cls"] = [str(c) for c in sub["cls"]]
+    # noise band: p2_noise, 13 T_ramp x 10 seeds, sigma 0.0624 (checked, not confirmed; G4-C4), mode N
+    sub = a7[a7["family"] == "p2_noise"].sort_values(["T_ramp_s", "seed"])
+    if len(sub) != 130 or sorted(sub["seed"].unique().tolist()) != [float(s) for s in range(10)] or set(sub["sigma"]) != {0.0624}:
+        raise DataError("A7 table: p2_noise is not 13 T_ramp x 10 seeds at sigma 0.0624")
+    d["noise_eps"] = sub["eps"].to_numpy(dtype=float).reshape(13, 10)[:, 0]
+    if not (sub["eps"].to_numpy(dtype=float).reshape(13, 10) == d["noise_eps"][:, None]).all():
+        raise DataError("A7 table: p2_noise eps differs between seeds of one T_ramp")
+    for c in ("T_ramp_s", "delay_eta_cross", "delay_eta", "peak_power_abs", "peak_power_rel", "f_pk_hz", "duration_s"):
+        d[f"noise_{c}"] = _f4_arr(sub, c).reshape(13, 10)
+    d["noise_cls"] = [[str(c) for c in sub["cls"].to_numpy().reshape(13, 10)[i]] for i in range(13)]
+    # D43 floors at the headline (T_ramp 120 s): 3 levels x 4 Heun dt x 10 seeds (mode N)
+    fd, fc, fs = [], [], []
+    for lvl, fam in enumerate(("floor_l0", "floor_l1", "floor_l2")):
+        sub = a7[a7["family"] == fam]
+        if len(sub) != 40 or set(sub["T_ramp_s"]) != {120.0}:
+            raise DataError(f"A7 table: family {fam} is not 40 runs at T_ramp 120 s")
+        rows_d, rows_c = [], []
+        for dt in F4_DT:
+            s2 = sub[np.isclose(sub["heun_dt_tau"].astype(float), dt, rtol=0, atol=0)].sort_values("seed")
+            if len(s2) != 10:
+                raise DataError(f"A7 table: {fam} at dt {dt}: {len(s2)} rows, expected 10")
+            rows_d.append(_f4_arr(s2, "delay_eta_cross"))
+            rows_c.append(_f4_arr(s2, "delay_eta"))
+        fd.append(rows_d)
+        fc.append(rows_c)
+        fs.append(float(sub["floor"].iloc[0]))
+        if lvl == 0:
+            d["floor_eps"] = float(sub["eps"].iloc[0])
+        elif float(sub["eps"].iloc[0]) != d["floor_eps"]:
+            raise DataError("A7 table: floor families differ in eps")
+    d["floor_delay_cross"], d["floor_delay_cls"], d["floor_sigma"] = np.array(fd), np.array(fc), np.array(fs)
+    d["floor_median_cross"] = np.median(d["floor_delay_cross"][:, 0, :], axis=1)
+    d["floor_median_cls"] = np.median(d["floor_delay_cls"][:, 0, :], axis=1)
+    d["floor_dt_identical"] = bool((d["floor_delay_cross"] == d["floor_delay_cross"][:, :1, :]).all())
+    # headline row and the solver clause
+    h = a7[a7["family"] == "S5ramp"]
+    r = a7[a7["family"] == "radau"]
+    if len(h) != 1 or len(r) != 1:
+        raise DataError("A7 table: the headline (S5ramp) or Radau row is missing")
+    d["head_eps"] = float(h["eps"].iloc[0])
+    for c in ("onset_cross_s", "delay_eta_cross", "delay_eta_pred", "t_pred_s", "delay_eta", "onset_s"):
+        d[f"head_{c}"] = float(h[c].iloc[0])
+    d["head_radau_onset_cross_s"] = float(r["onset_cross_s"].iloc[0])
+    d["head_radau_minus_default_ms"] = round((d["head_radau_onset_cross_s"] - d["head_onset_cross_s"]) * 1000.0, 6)
+    hl = a4["headline"]
+    if abs(d["head_delay_eta_pred"] - hl["delay_eta"]) > 1e-6 or abs(d["head_t_pred_s"] - hl["t_pred_s"]) > 1e-6:
+        raise DataError("A7 headline prediction disagrees with the stored A4 summary")
+    if round(d["head_radau_minus_default_ms"]) != 181:
+        raise DataError(f"headline: Radau minus DOP853 {d['head_radau_minus_default_ms']} ms (DL-189 says 181)")
+    # RB3(a): the runs inside the range and the testable ones (eta not constant at the predicted time)
+    md = a7[a7["mode"] == "D"]
+    inr = md[md["in_range"].fillna(False).astype(bool)]
+    test = inr[~inr["eta_const_at_t_pred"].astype(bool)]
+    d["n_in_range"], d["n_testable"] = int(len(inr)), int(len(test))
+    d["n_testable_within_one_step"] = int((test["match_err_steps"].astype(float) <= 1.0).sum())
+    d["testable_match_steps"] = np.sort(test["match_err_steps"].astype(float).to_numpy())
+    d["n_nocross"] = int(md["delay_eta_cross"].isna().sum())
+    d["n_none_class"] = int((md["cls"] == "D-none").sum())
+    # A3: the M2 ramp through the saddle-node (ring class and ring rate)
+    a3 = a3.sort_values("T_ramp_s")
+    if len(a3) != 13 or (a3["status"] != "ok").any():
+        raise DataError("A3 table: not 13 ok rows")
+    d["a3_eps"] = np.array([eps[r][0] for r in a3["run"]])
+    for c in ("T_ramp_s", "offset", "offset_steps", "rate", "se", "cycles_fit", "eta_jump", "fold_eta"):
+        d[f"a3_{c}"] = _f4_arr(a3, c)
+    d["a3_ring_class"] = [str(c) for c in a3["ring_class"]]
+    # A11: status rows and the FAIL-row strip
+    rows = [x for x in raw["a11"] if x["rb_id"] in F4_STATUS_RB]
+    d["rb_status"] = [f"{x['rb_id']} {x['check_id']}: {x['pass_or_fail']}" for x in rows]
+    by = {(x["rb_id"], x["check_id"]): x for x in raw["a11"]}
+    d["strip"] = []
+    for key in F4_STRIP:
+        if key not in by or by[key]["pass_or_fail"] != "FAIL":
+            raise DataError(f"A11 table: {key} is not a FAIL row (strip rows are FAIL rows as logged)")
+        x = by[key]
+        d["strip"].append({"rb_id": x["rb_id"], "check_id": x["check_id"], "status": x["pass_or_fail"], "value": x["value"], "threshold": x["threshold"]})
+    d["rb5_fail_rows"] = int(sum(1 for x in raw["a11"] if x["rb_id"] == "RB5" and x["pass_or_fail"] == "FAIL"))
+    if d["rb5_fail_rows"] != 0 or not by[("RB3", "a_inrange_runs")]["value"].startswith(f"{d['n_testable_within_one_step']} of {d['n_testable']} testable"):
+        raise DataError("A11 table: RB3(a) or RB5 rows disagree with the A7 table")
+    return d
+def f4_strip_lines(d: dict) -> list[str]:
+    return [f"{r['rb_id']} {r['check_id']}: {r['status']} ({r['value'] or 'value blank in the table'}; threshold {r['threshold'] or 'blank'}) - shown, not dropped" for r in d["strip"]]
+
+
+def _f4_series(ax, x, y, path: str, profile: str, *, ms: float = S.POINT_SIZES["f4_series"], z: int = 3):
+    """One path-and-profile series: the path colour and marker; a dashed line and an open marker for the sigmoid profile. NaN breaks the line (no interpolation)."""
+    st = S.get(path)
+    lin = profile == "linear"
+    ax.plot(x, y, color=st.colour, ls=st.linestyle if lin else "--", lw=0.8, marker=st.marker, ms=ms, mfc=st.colour if lin else "none", mec=st.colour, mew=0.7, zorder=z)
+
+
+def _f4_none_marks(ax, x, mask):
+    """Runs with no value to draw (D-none, or no raw crossing) are drawn at the bottom of the axes with the D-none class marker, not dropped."""
+    if mask.any():
+        st = S.get("D-none")
+        ax.plot(np.asarray(x)[mask], [0.025] * int(mask.sum()), ls="none", marker=st.marker, ms=S.POINT_SIZES["f4_none"], color=st.colour, mec=S.figure_colour("bar_edge"), mew=0.3,
+                transform=ax.get_xaxis_transform(), clip_on=False, zorder=6)
+
+
+def _f4_ring(ax, x, y, mask):
+    rg = S.diagram_mark("f4_inrange")
+    if mask.any():
+        ax.plot(np.asarray(x)[mask], np.asarray(y)[mask], ls="none", marker=rg.marker, ms=rg.size, mfc="none", mec=rg.colour, mew=rg.width, zorder=5)
+
+
+def _f4_noise(ax, d: dict, key: str):
+    """The 10 mode-N seeds at each of the 13 T_ramp: the stored values as ticks, the stored min to max as a bar, the median as the median mark. No smoothing, no offsets."""
+    nz, md = S.get("noise"), S.diagram_mark("fs3_median")
+    v = d[key]
+    for x_, col in zip(d["noise_eps"], v):
+        ax.plot([x_, x_], [np.nanmin(col), np.nanmax(col)], color=nz.colour, lw=3.0, solid_capstyle="butt", zorder=1)
+        ax.plot([x_] * len(col), col, ls="none", marker=nz.marker, ms=S.POINT_SIZES["f4_seed_tick"], color=S.figure_colour("range_line"), mew=0.5, zorder=2)
+        ax.plot([x_], [np.nanmedian(col)], ls="none", marker=md.marker, ms=md.size, color=md.colour, mew=md.width, zorder=4)
+
+
+def _draw_F4(d: dict, draft: bool):
+    import textwrap
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.lines import Line2D
+    plt.rcParams.update({"font.family": S.FONT_FAMILY, "font.size": S.FONT_SIZE_PT, "pdf.fonttype": 42})
+    fig = plt.figure(figsize=(7.4, 14.2), constrained_layout=True)
+    gs = fig.add_gridspec(7, 6, height_ratios=[1.15, 2.4, 1.7, 1.7, 1.9, 1.6, 2.2])
+    fs = S.FONT_SIZE_PT - 1
+    pred, ref, cls_m, fail = S.diagram_mark("f4_pred"), S.diagram_mark("f4_ref"), S.diagram_mark("f4_cls"), S.diagram_mark("f4_fail")
+    down, hyst, rg, md = S.diagram_mark("f4_down"), S.diagram_mark("f4_hyst"), S.diagram_mark("f4_inrange"), S.diagram_mark("fs3_median")
+    edge = S.figure_colour("bar_edge")
+
+    def tidy(ax, title, ylabel, xlabel=True, red=False):
+        ax.set_xscale("log")
+        ax.set_title(title, fontsize=fs, loc="left", color=S.figure_colour("fail_text") if red else S.figure_colour("text_dark"))
+        ax.set_ylabel(ylabel, fontsize=5.6)
+        if xlabel:
+            ax.set_xlabel("eps (ramp rate, 1/tau)", fontsize=5.6)
+        ax.tick_params(labelsize=5.0)
+
+    # key row
+    kx = fig.add_subplot(gs[0, :])
+    kx.axis("off")
+    hs = []
+    for fam, path, prof in F4_FAMILIES:
+        st = S.get(path)
+        lin = prof == "linear"
+        hs.append(Line2D([], [], color=st.colour, ls=st.linestyle if lin else "--", lw=0.8, marker=st.marker, ms=S.POINT_SIZES["f4_series"], mfc=st.colour if lin else "none", mec=st.colour, label=f"{path} {prof}"))
+    hs += [Line2D([], [], color=pred.colour, ls=pred.linestyle, lw=pred.width, label="A4 entry-exit prediction (stored; linear profiles)"),
+           Line2D([], [], ls="none", marker=rg.marker, ms=S.POINT_SIZES["f4_key"], mfc="none", mec=rg.colour, mew=rg.width, label="inside the RB3(a) range (judged); outside: reported, not judged"),
+           Line2D([], [], ls="none", marker=cls_m.marker, ms=cls_m.size, color=cls_m.colour, label="classifier-onset reading (secondary); raw crossing = path mark (primary)"),
+           Line2D([], [], color=ref.colour, ls=ref.linestyle, lw=ref.width, label="quasi-static reference: onset at eta_H (delay 0)"),
+           Line2D([], [], ls="none", marker=S.get("D-none").marker, ms=S.POINT_SIZES["f4_none"], color=S.get("D-none").colour, mec=edge, mew=0.3, label="no raw crossing / no episode (D-none), at the axis foot"),
+           Line2D([], [], color=S.get("noise").colour, lw=3.0, label="noise: stored min to max of 10 seeds (sigma 0.0624, checked, not confirmed)"),
+           Line2D([], [], ls="none", marker=md.marker, ms=md.size, color=md.colour, mew=md.width, label="stored median of the seeds"),
+           Line2D([], [], ls="none", marker=fail.marker, ms=S.POINT_SIZES["f4_key"], color=fail.colour, label="RB6 FAIL: not used as evidence")]
+    kx.legend(handles=hs, loc="center", ncol=3, fontsize=4.6, frameon=False, handlelength=2.2, columnspacing=1.2, labelspacing=0.5)
+
+    # (a) delay against eps, signed, raw crossing primary
+    ax = fig.add_subplot(gs[1, :])
+    for fam, path, prof in F4_FAMILIES:
+        x = d[f"{fam}_eps"]
+        _f4_series(ax, x, d[f"{fam}_delay_eta_cross"], path, prof)
+        ok = ~np.isnan(d[f"{fam}_delay_eta"])
+        ax.plot(x[ok], d[f"{fam}_delay_eta"][ok], ls="none", marker=cls_m.marker, ms=cls_m.size, color=cls_m.colour, mew=cls_m.width, zorder=4)
+        _f4_ring(ax, x, d[f"{fam}_delay_eta_cross"], d[f"{fam}_in_range"])
+        _f4_none_marks(ax, x, np.isnan(d[f"{fam}_delay_eta_cross"]))
+        if prof == "linear":
+            st = S.get(path)
+            ax.plot(x, d[f"{fam}_delay_eta_pred"], color=st.colour, ls=pred.linestyle, lw=pred.width, zorder=2)
+    ax.axhline(0.0, color=ref.colour, ls=ref.linestyle, lw=ref.width, zorder=1)
+    ax.plot([d["head_eps"]], [d["head_delay_eta_cross"]], ls="none", marker=fail.marker, ms=fail.size, color=fail.colour, mew=fail.width, zorder=6)
+    ax.annotate("headline (T_ramp 120 s, noise-free): RB6 solver clause FAIL", xy=(d["head_eps"], d["head_delay_eta_cross"]), xytext=(d["head_eps"], 2.3), fontsize=4.8,
+                color=S.figure_colour("fail_text"), ha="center", va="bottom", arrowprops=dict(arrowstyle="-", lw=0.5, color=S.figure_colour("fail_text")))
+    ax.set_ylim(-0.25, 2.6)
+    tidy(ax, "(a) delay against ramp rate (signed): raw first crossing, noise-free (mode D)", "delay (eta - eta_H)")
+
+    # (b) to (e): peak power (absolute, relative), f_pk, duration
+    for pos, key, noisekey, title, yl, logy in ((gs[2, 0:2], "peak_power_abs", "noise_peak_power_abs", "(b) peak power, absolute", "peak power (abs)", False),
+                                                  (gs[2, 2:4], "peak_power_rel", "noise_peak_power_rel", "(c) peak power, relative", "peak power (rel)", False),
+                                                  (gs[2, 4:6], "f_pk_hz", "noise_f_pk_hz", "(d) f_pk", "f_pk (Hz)", False),
+                                                  (gs[3, 0:2], "duration_s", "noise_duration_s", "(e) duration", "duration (s)", True)):
+        ax = fig.add_subplot(pos)
+        _f4_noise(ax, d, noisekey)
+        for fam, path, prof in F4_FAMILIES:
+            _f4_series(ax, d[f"{fam}_eps"], d[f"{fam}_{key}"], path, prof, ms=S.POINT_SIZES["f4_series_small"])
+            _f4_ring(ax, d[f"{fam}_eps"], d[f"{fam}_{key}"], d[f"{fam}_in_range"])
+            _f4_none_marks(ax, d[f"{fam}_eps"], np.isnan(d[f"{fam}_{key}"]))
+        if logy:
+            ax.set_yscale("log")
+        tidy(ax, title, yl)
+
+    # (f) up against down ramp: P5
+    ax = fig.add_subplot(gs[3, 2:4])
+    for fam, path, prof in (("p5_linear", "P5", "linear"), ("p5_sigmoid", "P5", "sigmoid")):
+        x = d[f"{fam}_eps"]
+        _f4_series(ax, x, d[f"{fam}_delay_eta_cross"], path, prof, ms=S.POINT_SIZES["f4_series_p5"])
+        ax.plot(x, d[f"{fam}_offset_minus_eta_H"], color=down.colour, ls="-" if prof == "linear" else ":", lw=0.8, marker=down.marker, ms=down.size - 1.5, zorder=3)
+        ax.plot(x, d[f"{fam}_hysteresis_width"], color=hyst.colour, ls=hyst.linestyle if prof == "linear" else ":", lw=hyst.width, zorder=2)
+        _f4_none_marks(ax, x, np.isnan(d[f"{fam}_delay_eta_cross"]))
+    ax.axhline(0.0, color=ref.colour, ls=ref.linestyle, lw=ref.width, zorder=1)
+    tidy(ax, "(f) up and down (P5): up delay, down offset, width", "eta - eta_H")
+
+    # (g) start state: P1 linear at three start distances (1.5 is the p1_linear series)
+    ax = fig.add_subplot(gs[3, 4:6])
+    p1 = S.get("P1")
+    for tag, lab, ls, fill in (("sd05", "0.5", ":", "left"), ("p1_linear", "1.5", "-", "full"), ("sd30", "3.0", "--", "none")):
+        x = d[f"{tag}_eps"]
+        y = d[f"{tag}_delay_eta_cross"]
+        ax.plot(x, y, color=p1.colour, ls=ls, lw=0.8, marker=p1.marker, ms=S.POINT_SIZES["f4_series_p5"], fillstyle=fill, mec=p1.colour, mew=0.7, zorder=3)
+        _f4_ring(ax, x, y, d[f"{tag}_in_range"])
+        _f4_none_marks(ax, x, np.isnan(y))
+    ax.axhline(0.0, color=ref.colour, ls=ref.linestyle, lw=ref.width, zorder=1)
+    ax.text(0.02, 0.97, "start distance: 0.5 dotted, 1.5 solid, 3.0 dashed", transform=ax.transAxes, fontsize=4.4, va="top", ha="left")
+    ax.set_ylim(-0.1, 2.45)
+    tidy(ax, "(g) start state (P1 linear)", "delay (eta - eta_H)")
+
+    # (h) noise band on the delay
+    ax = fig.add_subplot(gs[4, 0:3])
+    _f4_noise(ax, d, "noise_delay_eta_cross")
+    _f4_series(ax, d["p2_linear_eps"], d["p2_linear_delay_eta_cross"], "P2", "linear", ms=S.POINT_SIZES["f4_series_p5"])
+    ax.axhline(0.0, color=ref.colour, ls=ref.linestyle, lw=ref.width, zorder=1)
+    tidy(ax, "(h) noise band, P2 linear, mode N (RB2 FAIL, MS11-C1)", "delay (eta - eta_H)", red=True)
+
+    # (i) and (j): the D43 floor at the headline, per level, 4 Heun rungs x 10 seeds, both onset readings
+    for pos, key, med, title in ((gs[4, 3:5], "floor_delay_cross", "floor_median_cross", "(i) D43 floor, raw crossing (primary)"),
+                                 (gs[4, 5:6], "floor_delay_cls", "floor_median_cls", "(j) classifier")):
+        ax = fig.add_subplot(pos)
+        for lvl in range(3):
+            mk = S.diagram_mark(f"fs4_l{lvl}")
+            for k, size in enumerate(S.POINT_SIZES["f4_floor_rungs"]):      # the four Heun rungs, 1e-3 to 1e-4 tau, drawn concentric (their values are identical)
+                ax.plot([lvl] * 10, d[key][lvl][k], ls="none", marker=mk.marker, ms=size, mfc="none", mec=mk.colour, mew=0.6, zorder=3)
+            ax.plot([lvl], [d[med][lvl]], ls="none", marker=md.marker, ms=md.size, color=md.colour, mew=md.width, zorder=4)
+        ax.set_xticks(range(3), [f"{s_:.3g}" for s_ in d["floor_sigma"]] if key == "floor_delay_cross" else ["0", "1", "2"], fontsize=4.4)
+        ax.set_xlim(-0.5, 2.5)
+        ax.set_xlabel("floor sigma (D43 level 0, 1, 2)" if key == "floor_delay_cross" else "D43 level", fontsize=5.0)
+        ax.set_title(title, fontsize=fs - 0.5, loc="left", color=S.figure_colour("fail_text") if key == "floor_delay_cls" else S.figure_colour("text_dark"))
+        ax.tick_params(labelsize=4.8)
+        if key == "floor_delay_cross":
+            ax.set_ylabel("delay (eta - eta_H)", fontsize=5.6)
+
+    # (k) and (l): M2 through the saddle-node (A3)
+    mf = S.get("mean_field")
+    ax = fig.add_subplot(gs[5, 0:3])
+    ax.plot(d["a3_eps"], d["a3_offset"], color=mf.colour, ls="-", lw=0.8, marker=mf.marker, ms=S.POINT_SIZES["f4_m2"], zorder=3)
+    ax.set_yscale("log")
+    tidy(ax, "(k) M2 ramp through the saddle-node: jump offset from the fold", "offset (eta)")
+    ax = fig.add_subplot(gs[5, 3:6])
+    for x_, r_, s_ in zip(d["a3_eps"], d["a3_rate"], d["a3_se"]):
+        ax.plot([x_, x_], [r_ - s_, r_ + s_], color=S.figure_colour("range_line"), lw=1.0, zorder=2)
+    ax.plot(d["a3_eps"], d["a3_rate"], color=mf.colour, ls="none", marker=mf.marker, ms=S.POINT_SIZES["f4_m2"], zorder=3)
+    ax.set_ylim(-28.0, -20.0)
+    tidy(ax, f"(l) M2 ring: fitted rate (per s, +-1 SE); class {d['a3_ring_class'][0]} at {sum(c == 'damped' for c in d['a3_ring_class'])} of 13", "ring rate (1/s)")
+
+    # status block
+    axs = fig.add_subplot(gs[6, :])
+    axs.axis("off")
+    lines = [ln for t_ in f4_status_lines(d) for ln in textwrap.wrap(t_, width=150, subsequent_indent="        ")]
+    axs.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=5.0, linespacing=1.25)
+    axs.text(0.0, 0.0, F4_FOOTER if draft else "", fontsize=5.0, color=S.figure_colour("fail_text"), ha="left", va="bottom")
+    return fig
+
+
+def f4_status_lines(d: dict) -> list[str]:
+    by_rb: dict = {}
+    for s_ in d["rb_status"]:
+        by_rb.setdefault(s_.split(" ")[0], []).append(s_.split(" ", 1)[1])
+    lines = ["Stored status of the RB2, RB3, RB5 and RB6 rows of the A11 table (a failure is shown, not dropped):"] + [f"    {k}: " + "; ".join(v) for k, v in by_rb.items()]
+    lines += ["FAIL rows of the stored A11 table that touch F4 (PROPOSED strip):"] + ["    " + s for s in f4_strip_lines(d)]
+    lines += [f"RB3(a): {d['n_in_range']} runs inside the range, {d['n_testable']} testable, {d['n_testable_within_one_step']} within one A4 step (match error in steps: "
+              + ", ".join(f"{x:.1f}" for x in d["testable_match_steps"]) + "); runs outside the range are reported, not judged. RB5 has no FAIL row."]
+    lines += [f"{d['n_nocross']} run has no raw crossing and {d['n_none_class']} mode-D runs are D-none (no episode metrics); they are drawn at the axis foot, not dropped."]
+    return lines
+
+
+def f4_caption_notes(d: dict) -> tuple:
+    """Sentences about what is and is not drawn (13k). Values come from the prepared data; only the wording is typed here."""
+    return (
+        "Panel (a) draws the delay eta - eta_H of the onset, signed (negative = onset before eta_H), against the ramp rate eps = (eta_peak - eta_start)/T_ramp, for the noise-free mean-field "
+        "runs (mode D, DOP853) of P1, P2 and P5 with the linear and the sigmoid profile at 13 T_ramp. The onset reading is the raw first crossing of the envelope at 0.1 x A_ref "
+        "(primary, DL-186 clarification 1); the classifier-episode onset is the small double dagger (secondary; RB3(b) is reported under both readings, G6-D3, DL-208). The dash-dot lines "
+        "are the A4 entry-exit prediction as stored in the A7 table, drawn where the predicted entry lies in the run; a ring marks a run inside the RB3(a) range, which is judged "
+        "on the testable runs only (DL-186 clarification 2): " + f"{d['n_testable_within_one_step']} of {d['n_testable']}" + " are within one A4 step, so the onset does not follow the prediction "
+        "(claim limit G6-D1, DL-208: no claim that onset follows the A4 entry-exit prediction); runs outside the range are reported, not judged, and RB3(a) is not judged at the headline "
+        "(departure 3 of DL-163). The dotted zero line is the quasi-static reference by the definition of the delay column (onset at eta_H); no quasi-static onset is computed here. The headline "
+        "(T_ramp 120 s) carries the RB6 solver clause FAIL (DOP853 58.698 s, Radau 58.879 s, 181 ms against 1 ms, DL-189) and is not used as evidence (G6-D2).",
+        "Panels (b) to (e) draw the stored peak power (absolute and relative), f_pk and duration of the same runs; the grey bars are the stored minimum to maximum of the 10 mode-N seeds at "
+        "sigma 0.0624 (checked, not confirmed, G4-C4), the bar marks their median; nothing is smoothed or offset. Runs with no episode (D-none) and the one run with no raw crossing are "
+        "drawn at the foot of the axes, not dropped. f_pk is the classifier's spectral peak (MS11-C3). Panel (f) draws, for P5, the up delay, the offset on the way down (eta_off - eta_H) "
+        "and the hysteresis width as stored; panel (g) the P1 linear delay at the start distances 0.5, 1.5 and 3.0. Panel (h) repeats the delay for the noisy runs beside the noise-free P2 "
+        "line; the RB2 gate FAILED (7 of 10 seeds keep the headline class, MS11-C1; noisy subgrid 97 of 225, D24 failed, DL-242), so no claim of robustness to noise is made.",
+        "Panels (i) and (j) draw the D43-floored runs at the headline (levels 0, 1, 2; 10 seeds; four Heun steps 1e-3 to 1e-4 tau drawn as concentric marks, which coincide at the 1 ms "
+        "output grid, DL-190) under the raw crossing and under the classifier onset; the median of the seeds is the bar. The delays are signed (DL-186 clarification 8). Panels (k) and (l) "
+        "are the M2 ramp through the saddle-node from the A3 table (the ring class and the fitted ring rate); the A2 ring map is a static map with no ramp and is not drawn here. "
+        "Delays are on the 1 ms output grid. Every D8-dependent class is provisional (D8 open). The claim-limit IDs listed here are PROPOSED for the reviewer's ruling.",
+    )
+
+
+def make_F4(res=None, out_dir=None, *, tag_build: bool = False, take_home=F4_TAKE_HOME, claim_limit_ids=F4_CLAIM_LIMITS,
+            script="scripts/fig_F4.py", root=None) -> dict:
+    """Build F4 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov)."""
+    F.require_buildable("F4")
+    root = Path(root) if root is not None else repo_root()
+    res = Path(res) if res is not None else root / "results"
+    out = Path(out_dir) if out_dir is not None else root / "figures" / "F4"
+    t = {"start": time.perf_counter()}
+    raw = load_F4(res)
+    t["load"] = time.perf_counter()
+    d = prepare_F4(raw)
+    t["prepare"] = time.perf_counter()
+    rows = []
+    for key, rec in raw["records"].items():
+        for r in make_param_table(rec["config"]):
+            rows.append({**r, "panel": key, "section": "", "source_run_id": rec["name"], "source_config_hash12": rec["config_hash12"]})
+    cap = CAP.build_caption("F4", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=[r for r in rows if r["key"] in F4_CAPTION_KEYS],
+                            spectrogram=None, symbol_keys=(), notes=f4_caption_notes(d), limit_labels=CLAIM_LIMIT_LABELS)
+    import matplotlib.pyplot as plt
+    fig = _draw_F4(d, draft=not tag_build)
+    out.mkdir(parents=True, exist_ok=True)
+    pdf, png = out / "F4.pdf", out / "F4.png"
+    fig.savefig(pdf)
+    fig.savefig(png, dpi=S.PNG_DPI)
+    plt.close(fig)
+    t["draw"] = time.perf_counter()
+    cap_path, dig_path = out / "F4_caption.txt", out / "F4_drawn_data_sha256.txt"
+    from .. import provenance as P
+    drawn = drawn_data_sha256(d)
+    P.atomic_write_text(cap_path, cap.text + "\n")
+    P.atomic_write_text(dig_path, drawn + "\n")
+    warnings = []
+    for k, rec in raw["records"].items():
+        if (rec.get("git") or {}).get("dirty"):
+            warnings.append(f"input record {k} ({rec['name']}) was written with git dirty = true")
+    prov = F.write_figure_provenance(
+        "F4", script=script, inputs=[res / p for p in F4_INPUTS] + [res / p for p in raw["record_files"]], outputs=[pdf, png, cap_path, dig_path], params_rows=rows,
+        modules=["src/mprsurge/plotting/figures.py", "src/mprsurge/plotting/style.py", "src/mprsurge/plotting/captions.py",
+                 "src/mprsurge/plotting/nordlie.py", "src/mprsurge/plotting/figprov.py"],
+        configs=["configs/base.yaml", "configs/S5_ramp.yaml"], claim_limits=cap.claim_limits,
+        input_tables=[{"path": res / F4_INPUTS[0], "rows": len(raw["a7"])}, {"path": res / F4_INPUTS[1], "rows": len(raw["a3"])}, {"path": res / F4_INPUTS[3], "rows": len(raw["a11"])}],
+        spectrogram=None, tag_build=tag_build, out_dir=out, root=root, warnings=warnings, wall_time_s=time.perf_counter() - t["start"])
+    nordlie_path = out / "F4_nordlie.md"
+    N.write_nordlie(out / "F4_params.csv", out / "F4_provenance.json", nordlie_path, root=root)
+    t["end"] = time.perf_counter()
+    timing = {"load_s": t["load"] - t["start"], "prepare_s": t["prepare"] - t["load"], "draw_s": t["draw"] - t["prepare"],
+              "provenance_and_nordlie_s": t["end"] - t["draw"], "total_s": t["end"] - t["start"]}
+    return {"prov": prov, "paths": [pdf, png, cap_path, dig_path, out / "F4_params.csv", out / "F4_provenance.json", nordlie_path],
+            "timing_s": timing, "drawn_sha256": drawn, "caption": cap.text}
+
+
 def make_FS6(*args, **kwargs):
     """FS6 is not produced (S14 and S15 were not run, MS12-C1, DL-421): raises figprov.FigureRefused."""
     F.require_buildable("FS6")

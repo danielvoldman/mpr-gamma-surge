@@ -38,7 +38,7 @@ def test_fs3_median_mark_is_unique_and_the_fs5_star_keeps_its_single_meaning():
 
 
 def test_no_literal_colour_hatch_or_point_size_is_left_in_the_fs3_and_f6_drawing_code():
-    for fn in (FG._fs3_stack, FG._draw_FS3, FG._draw_F6):
+    for fn in (FG._fs3_stack, FG._draw_FS3, FG._draw_F6, FG._draw_F4, FG._f4_series, FG._f4_none_marks, FG._f4_ring, FG._f4_noise):      # 13k: F4 uses keys from the start
         src = inspect.getsource(fn)
         assert not re.findall(r"#[0-9a-fA-F]{3,8}\b", src), fn.__name__                                  # exact: no hex colour literal
         assert not re.findall(r"hatch=[\"']", src), fn.__name__                                          # no hatch literal
