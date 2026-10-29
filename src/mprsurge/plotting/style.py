@@ -229,6 +229,13 @@ POINT_SIZES = {"fs3_shape": 7.0, "f6_control": 6.5, "f6_network_run": 9.0, "f6_s
                "f4_series": 4.2, "f4_series_small": 3.4, "f4_series_p5": 3.6, "f4_none": 4.0, "f4_seed_tick": 5.0, "f4_key": 7.0, "f4_m2": 5.0, "f4_floor_rungs": (9.0, 7.0, 5.0, 3.0)}
 POINT_EDGE_WIDTH = {"class": 0.4, "class_large": 0.5}
 
+# 13l, F1 (DL-485 onward). UNVERIFIED design choices, plain scalars (not entries of STYLE, FIGURE_COLOURS or DIAGRAM_MARKS, so the unique-mark table and the pinned key sets are unchanged):
+# the colour map of the spectrogram power (a display transform, 10 log10 of the stored-routine PSD), the two raster marks (a pixel for the whole record, a tick for a one-second window)
+# and the point sizes and line widths of the F1 drawing code.
+SPECTROGRAM_CMAP = "magma"
+RASTER_MARKS = {"full": ",", "zoom": "|"}
+F1_SIZES = {"raster_zoom": 2.4, "onset": 5.0, "key": 7.0, "envelope_line": 0.45, "envelope_alpha": 0.3, "path_line": 1.0, "event_line": 0.7}
+
 
 def figure_colour(key: str) -> str:
     """A plain figure colour (edge, text, reference line, fill); an unknown key raises StyleError (no silent default)."""

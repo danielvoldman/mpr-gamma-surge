@@ -44,9 +44,9 @@ INPUTS = {
     "F1": [
         rec("S5 headline mean-field record (P2, ref_devalle, 120 s)", "S5/ramp/S5ramp/S5ramp_0000_240de3ef73be.json", 1),
         rec("S8 network headline (T_ramp 10 and 120 s x 3 seeds)", "S8/S8_head/*.json", 6, NET),
-        rec("S8 mean-field companions of the headline (head60)", "S8/mf/S8_mf_head60/*.json", None),
-        fil("A8 reference amplitude", "A8/a8_aref.json"),
-        fil("A8 sensitivity table", "A8/a8_sensitivity.csv"),
+        fil("A8 reference amplitude (A_ref, caption only; 13l)", "A8/a8_aref.json"),
+        fil("MS10 evaluation: stored classes, onsets, f_pk and control classes of the S8 headline (added 13l)", "ms10/eval/ms10_eval.json"),
+        fil("A11 robustness table (FAIL-row strip; added 13l)", "A11/a11_robustness.csv"),
         fil("criteria file (spectrogram settings)", "configs/robustness_criteria.yaml"),
     ],
     "F2": [

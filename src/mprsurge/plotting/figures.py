@@ -18,6 +18,7 @@ from pathlib import Path
 
 import numpy as np
 
+from ..analysis import surge_metrics as M
 from ..config import repo_root
 from ..params import make_param_table
 from . import captions as CAP
@@ -3425,6 +3426,418 @@ def make_F4(res=None, out_dir=None, *, tag_build: bool = False, take_home=F4_TAK
     timing = {"load_s": t["load"] - t["start"], "prepare_s": t["prepare"] - t["load"], "draw_s": t["draw"] - t["prepare"],
               "provenance_and_nordlie_s": t["end"] - t["draw"], "total_s": t["end"] - t["start"]}
     return {"prov": prov, "paths": [pdf, png, cap_path, dig_path, out / "F4_params.csv", out / "F4_provenance.json", nordlie_path],
+            "timing_s": timing, "drawn_sha256": drawn, "caption": cap.text}
+
+
+# ---- F1 (13l): schematic and ramp protocol; mean-field and network r(t), v(t) on the headline path; 300-neuron raster; spectrogram of v ---------------------------
+# Paths relative to results/. scripts/ms13_inputs.py INPUTS["F1"] must name the same files (test). Registry change of 13l (DL-486): the A8 sensitivity table and the S8 mean-field
+# companion (head60, T_ramp 60 s) are not read (F1 draws no A_ref-based series and no 60 s run); ms10_eval.json and the A11 table are added (stored classes, onsets and the strip).
+F1_MF_RECORD = "S5/ramp/S5ramp/S5ramp_0000_240de3ef73be"          # P2, ref_devalle, T_ramp 120 s: the mean-field headline (docs/ms8_close.md)
+F1_NET_DIR = "S8/S8_head"                                         # network headline: T_ramp 10 s and 120 s x 3 seeds, N = 1e4 (MS10 10f, DL-317)
+F1_NET_COUNT = 6
+F1_INPUTS = (
+    "A8/a8_aref.json",                                            # A_ref (reading a), stated in the caption only
+    "ms10/eval/ms10_eval.json",                                   # stored classes, classifier and raw-crossing onsets, f_pk and control classes of the S8 headline (DL-319)
+    "A11/a11_robustness.csv",                                     # stored A11 table: the FAIL-row strip
+)
+F1_T_RAMP = 120.0
+F1_COLUMNS = 1300                                                 # blocks of a decimated series (about the drawn width of a time panel in pixels at the PNG resolution)
+F1_ZOOM_S = 1.0                                                   # length of the two raster windows
+F1_STRIP = (("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30s"), ("RB1", "overall"), ("G7", "gate"))
+F1_CAPTION_KEYS = ("model.type", "model.ref_point", "model.J", "model.Delta", "model.tau_ms", "model.tau_d_ms", "path.name", "path.profile", "path.T_ramp_s", "path.t_on_s",
+                   "path.eta_start", "path.eta_H", "path.eta_peak", "path.J0", "path.J_end", "network.N", "network.het_dist", "network.n_raster", "network.rate_bin_ms",
+                   "solver.method", "solver.dt_out_ms", "noise.sigma", "seeds.root_seed")
+F1_SEED_KEYS = ("fs4_s0", "fs4_s1", "fs4_s2")                     # the three network seeds keep the colours and line styles they have in FS4
+
+# PROPOSED for the reviewer's ruling (13l prompt, item B3); every statement is from a logged result (DL numbers in the text) and the numbers are checked against the stored
+# ms10_eval.json and the stored records by tests/test_fig_F1.py.
+F1_TAKE_HOME = (
+    "PROPOSED (for ruling): At the headline (P2, ref_devalle, T_ramp 120 s) the stored mean-field record is a surge of class D-tr with a spectral peak of 49.0 Hz and onset 58.698 s "
+    "(DL-319); the peak is far above 25 Hz, so the plan's second F1 trigger did not occur. The network at N = 1e4 does not reproduce this class: all 3 stored seeds are S-sus with "
+    "classifier onset 12.0 s (46.7 s before the mean-field onset) and f_pk 49.0, 48.5 and 49.0 Hz; at T_ramp 10 s the 3 seeds are S-abs, S-rel and S-sus (0 of 3 seeds at each "
+    "T_ramp, RB1 headline FAIL, DL-319). The constant-parameter network controls without a ramp are also classified into surge classes (S-sus 3 of 3 at 120 s; S-abs 2 and S-rel 1 "
+    "at 10 s; DL-319, DL-325), so network classes under the frozen criteria cannot separate ramp-driven from non-ramp records (G4-C3, DL-229, DL-231). RB1 failed (headline 10 s, "
+    "headline 120 s, cells 1 of 4), G4 was triggered through consequence (2) and is report-only; the surge result is stated for the mean field only (DL-320, DL-323, DL-325)."
+)
+# PROPOSED: the limits of docs/ms13_plan.md section 5 whose right-hand column lists F1 and that are defined in docs/claim_limit_labels.md. The plan labels RB1 FAIL (DL-319, DL-320)
+# and G7 not passed (DL-228) are written in plain words with their DL numbers in the caption (RB1 FAIL has no entry in the label table). Listed, not decided.
+F1_CLAIM_LIMITS = ("MS11-C7", "MS12-C1", "MS9(e)-1", "MS9(e)-5", "DL-163-D1", "G4-C1", "G4-C2", "G4-C3", "MS11-C2", "MS11-C3")
+F1_FOOTER = "DRAFT: untagged build. Layout, marks, colours and panel choices are UNVERIFIED (style.py); take-home and claim limits are PROPOSED."
+
+
+def envelope_minmax(x, y, n_cols: int):
+    """Display decimation of a drawn series (13l ruling, UNVERIFIED): the record is cut into n_cols contiguous blocks of whole samples; each block gives (centre time, minimum, maximum),
+    so the extremes of every block and of the whole series are the stored extremes (no smoothing, no resampling)."""
+    x, y = np.asarray(x, float), np.asarray(y, float)
+    n = y.size
+    if x.size != n or n < n_cols or n_cols < 1:
+        raise DataError(f"envelope: {n} samples cannot be cut into {n_cols} blocks")
+    edges = np.linspace(0, n, n_cols + 1).astype(np.int64)
+    starts, ends = edges[:-1], edges[1:] - 1
+    return (x[starts] + x[ends]) / 2.0, np.minimum.reduceat(y, starts), np.maximum.reduceat(y, starts)
+
+
+def _f1_record(res: Path, stem: str) -> dict:
+    p = res / (stem + ".json")
+    if not p.is_file() or not p.with_suffix(".npz").is_file():
+        raise F.MissingInputError(f"run record not found: {p} (json and npz)")
+    return json.loads(p.read_text(encoding="utf-8"))
+
+
+def load_F1(res=None) -> dict:
+    """Open the files of F1_INPUTS, the stored mean-field headline record, the six stored network headline records (json) and the npz series of the three 120 s records
+    (t_ms, r, v; the raster of seed 0 only) under `res` (default results/). Opens nothing else."""
+    res = Path(res) if res is not None else results_dir()
+    for rel in F1_INPUTS:
+        if not (res / rel).is_file():
+            raise F.MissingInputError(f"input file not found: {res / rel}")
+    try:
+        mf_rec = _f1_record(res, F1_MF_RECORD)
+        heads = sorted(p for p in (res / F1_NET_DIR).glob("*.json") if not p.name.endswith(".dry.json"))
+        if len(heads) != F1_NET_COUNT:
+            raise DataError(f"F1: {len(heads)} network headline records found, {F1_NET_COUNT} expected")
+        net = []
+        for p in heads:
+            rec = json.loads(p.read_text(encoding="utf-8"))
+            net.append({"rel": p.relative_to(res).as_posix(), "rec": rec, "T": float(rec["config"]["path"]["T_ramp_s"]), "seed": int(rec["config"]["seeds"]["spawn_key"][-1])})
+        sel = sorted((n for n in net if n["T"] == F1_T_RAMP), key=lambda n: n["seed"])
+        out = {"mf_rec": mf_rec, "mf_rel": F1_MF_RECORD + ".json", "net_all": net, "net": sel}
+        with np.load(res / (F1_MF_RECORD + ".npz")) as z:
+            out["mf"] = {k: z[k].copy() for k in ("t_ms", "r", "v", "eta", "J")}
+        for i, n in enumerate(sel):
+            with np.load((res / n["rel"]).with_suffix(".npz")) as z:
+                n["npz"] = {k: z[k].copy() for k in ("t_ms", "r", "v")}
+                if i == 0:
+                    n["npz"].update({k: z[k].copy() for k in ("raster_t_ms", "raster_neuron", "raster_j")})
+        out["a8"] = json.loads((res / F1_INPUTS[0]).read_text(encoding="utf-8"))
+        out["ev"] = json.loads((res / F1_INPUTS[1]).read_text(encoding="utf-8"))
+        with open(res / F1_INPUTS[2], newline="", encoding="utf-8") as fh:
+            out["a11"] = list(csv.DictReader(fh))
+        out["record_files"] = [out["mf_rel"], out["mf_rel"][:-5] + ".npz"] + [n["rel"] for n in net] + [n["rel"][:-5] + ".npz" for n in sel]
+        return out
+    except (OSError, ValueError, KeyError, ImportError) as exc:
+        raise F.MissingInputError(f"an F1 input cannot be read: {exc}") from exc
+
+
+def f1_spectrogram_settings(crit: dict, T_ramp_s: float, fs: float) -> dict:
+    """The settings of the spectrogram, all from the frozen criteria and the frozen routine (nothing new): W and step from window_for_ramp (D4), the taper and the bands from the
+    criteria file; detrend and scaling are those of analysis.surge_metrics.spectrogram_v (linear, power spectral density)."""
+    W, step = M.window_for_ramp(T_ramp_s)
+    c = crit["classifier"]
+    return {"routine": "analysis.surge_metrics.spectrogram_v on the stored v (computed here, not stored)", "window_s": float(W), "step_s": float(step), "taper": c["spectrogram_taper"]["value"],
+            "detrend": "linear", "scaling": "density (one-sided PSD)", "fs_hz": float(fs), "frequency_step_hz": 1.0 / float(W), "time_origin": "sample i at i/fs, window centres",
+            "band_primary_hz": [float(x) for x in c["band_primary_hz"]["value"]], "total_band_hz": [float(x) for x in c["total_band_hz"]["value"]]}
+
+
+def prepare_F1(raw: dict, crit: dict) -> dict:
+    """Pure: the drawn data of F1 (decimated envelopes, the stored path, the computed spectrograms, the raster, the stored classes and the strip)."""
+    d: dict = {}
+    mf_cfg, mf = raw["mf_rec"]["config"], raw["mf"]
+    if raw["mf_rec"]["status"] != "ok" or mf_cfg["run"]["kind"] != "mf" or float(mf_cfg["path"]["T_ramp_s"]) != F1_T_RAMP or mf_cfg["path"]["name"] != PATH_NAMES["P2"]:
+        raise DataError("F1: the mean-field record is not the stored P2 headline at T_ramp 120 s")
+    if len(raw["net"]) != 3 or [n["seed"] for n in raw["net"]] != [0, 1, 2] or sum(1 for n in raw["net_all"] if n["T"] == 10.0) != 3:
+        raise DataError("F1: the network headline must be 3 seeds at 120 s and 3 at 10 s")
+    for n in raw["net"]:
+        c = n["rec"]["config"]
+        if n["rec"]["status"] != "ok" or c["run"]["kind"] != "network" or c["network"]["N"] != 10000:
+            raise DataError(f"F1: network record {n['rel']} is not an ok N = 1e4 network record")
+        for k in ("eta_start", "eta_peak", "eta_H", "t_on_s", "T_ramp_s", "J0", "J_end", "J_lag_frac", "name", "profile"):
+            if c["path"][k] != mf_cfg["path"][k]:
+                raise DataError(f"F1: path value {k} differs between the mean-field record and {n['rel']}")
+    fs = 1000.0 / float(mf_cfg["solver"]["dt_out_ms"])
+    if any(1000.0 / float(n["rec"]["config"]["network"]["rate_bin_ms"]) != fs for n in raw["net"]):
+        raise DataError("F1: the mean-field output step and the network rate bin differ")
+    p = mf_cfg["path"]
+    for k in ("eta_start", "eta_H", "eta_peak", "t_on_s", "T_ramp_s", "J0", "J_end"):
+        d["path_" + k] = float(p[k])
+    d["path_name"], d["path_profile"] = p["name"], p["profile"]
+    t = mf["t_ms"] / 1000.0
+    d["path_t_s"], d["path_eta"], d["path_J"] = t, mf["eta"], mf["J"]
+    if not (np.isclose(mf["eta"][0], p["eta_start"]) and np.isclose(mf["eta"][-1], p["eta_peak"])):
+        raise DataError("F1: the stored eta trace does not start at eta_start and end at eta_peak")
+    for name, x, arr in [("mf", t, mf)] + [(f"net{i}", n["npz"]["t_ms"] / 1000.0, n["npz"]) for i, n in enumerate(raw["net"])]:
+        d[f"{name}_n"] = int(x.size)
+        for q in ("r", "v"):
+            xc, lo, hi = envelope_minmax(x, arr[q], F1_COLUMNS)
+            d[f"{name}_{q}_x"], d[f"{name}_{q}_lo"], d[f"{name}_{q}_hi"] = xc, lo, hi
+            d[f"{name}_{q}_min"], d[f"{name}_{q}_max"] = float(np.min(arr[q])), float(np.max(arr[q]))
+    # spectrograms of the stored v by the frozen routine (nothing simulated, no new setting)
+    d["spec_settings"] = f1_spectrogram_settings(crit, F1_T_RAMP, fs)
+    W, step = d["spec_settings"]["window_s"], d["spec_settings"]["step_s"]
+    n0 = raw["net"][0]["npz"]
+    for name, v in (("mf", mf["v"]), ("net0", n0["v"])):
+        tc, f, S_ = M.spectrogram_v(v, fs, W, step)
+        sel = f <= d["spec_settings"]["total_band_hz"][1]
+        db = 10.0 * np.log10(S_[sel])
+        if not np.isfinite(db).all():
+            raise DataError(f"F1: spectrogram of {name} has a non-positive power value; the display transform is undefined")
+        d["spec_t_s"], d["spec_f_hz"] = tc, f[sel]
+        d[f"spec_{name}_db"] = db
+    d["spec_db_range"] = {n: [float(d[f"spec_{n}_db"].min()), float(d[f"spec_{n}_db"].max())] for n in ("mf", "net0")}
+    # raster of seed 0: the 300 stored neurons as rows 0 to 299 in the order of raster_j
+    rj, rn = n0["raster_j"], n0["raster_neuron"]
+    if rj.size != int(raw["net"][0]["rec"]["config"]["network"]["n_raster"]) or not (np.diff(rj) > 0).all():
+        raise DataError("F1: raster_j is not 300 increasing neuron indices")
+    rank = np.searchsorted(rj, rn)
+    if not (rj[np.minimum(rank, rj.size - 1)] == rn).all():
+        raise DataError("F1: a raster spike belongs to a neuron that is not in raster_j")
+    d["ras_t_s"], d["ras_row"], d["ras_n_rows"] = n0["raster_t_ms"] / 1000.0, rank.astype(np.int32), int(rj.size)
+    d["ras_n_active_rows"] = int(np.unique(rank).size)
+    # stored classes (ms10_eval.json: DL-319), checked against the records
+    ev = raw["ev"]["rb1_headline"]
+    h120, h10 = ev["120.0"], ev["10.0"]
+    if h120["ref"]["name"] != Path(raw["mf_rel"]).stem or h120["seeds_present"] != 3 or h10["seeds_present"] != 3:
+        raise DataError("F1: ms10_eval.json does not refer to the stored headline records")
+    for n, s_ in zip(raw["net"], h120["seeds"]):
+        if s_["name"] != n["rec"]["name"] or s_["seed"] != n["seed"]:
+            raise DataError(f"F1: ms10_eval.json seed {s_['seed']} does not match record {n['rel']}")
+    d["ref_class"], d["ref_onset_s"], d["ref_f_pk_hz"] = h120["ref"]["class"], float(h120["ref"]["onset_s"]), float(h120["ref"]["f_pk_hz"])
+    d["cls120"], d["onset120_s"] = [s_["class"] for s_ in h120["seeds"]], [float(s_["onset_s"]) for s_ in h120["seeds"]]
+    d["raw120_s"], d["fpk120_hz"] = [float(s_["onset_raw_s"]) for s_ in h120["seeds"]], [float(s_["f_pk_hz"]) for s_ in h120["seeds"]]
+    d["cls10"], d["ctrl120"], d["ctrl10"] = [s_["class"] for s_ in h10["seeds"]], dict(h120["controls"]["classes"]), dict(h10["controls"]["classes"])
+    d["g4_triggered"], d["rb1_verdict"] = bool(raw["ev"]["g4"]["triggered"]), raw["ev"]["rb1"]["verdict"]
+    d["a_ref"] = float(raw["a8"]["chosen"]["A_ref"])
+    d["zoom_windows_s"] = [[d["onset120_s"][0], d["onset120_s"][0] + F1_ZOOM_S], [d["ref_onset_s"], d["ref_onset_s"] + F1_ZOOM_S]]
+    by = {(x["rb_id"], x["check_id"]): x for x in raw["a11"]}
+    d["strip"] = []
+    for key in F1_STRIP:
+        if key not in by or by[key]["pass_or_fail"] != "FAIL":
+            raise DataError(f"A11 table: {key} is not a FAIL row (strip rows are FAIL rows as logged)")
+        x = by[key]
+        d["strip"].append({"rb_id": x["rb_id"], "check_id": x["check_id"], "status": x["pass_or_fail"], "value": x["value"], "threshold": x["threshold"]})
+    return d
+
+
+def f1_strip_lines(d: dict) -> list[str]:
+    return [f"{r['rb_id']} {r['check_id']}: {r['status']} ({r['value'] or 'value blank in the table'}; threshold {r['threshold'] or 'blank'}) - shown, not dropped" for r in d["strip"]]
+
+
+def f1_status_lines(d: dict) -> list[str]:
+    lines = [f"Stored classes (ms10_eval, DL-319): mean-field headline {d['ref_class']} (onset {d['ref_onset_s']:.3f} s, f_pk {d['ref_f_pk_hz']:.1f} Hz). Network N = 1e4, T_ramp 120 s, "
+             f"seeds 0 to 2: {', '.join(d['cls120'])}; classifier onset {', '.join(f'{x:.3f}' for x in d['onset120_s'])} s; raw first crossing {', '.join(f'{x:.3f}' for x in d['raw120_s'])} s "
+             f"(post hoc, feeds no gate); f_pk {', '.join(f'{x:.2f}' for x in d['fpk120_hz'])} Hz. T_ramp 10 s (not drawn): {', '.join(d['cls10'])}.",
+             f"No-ramp network controls (stored classes, not drawn): 120 s {d['ctrl120']}; 10 s {d['ctrl10']} (G4-C3). G4 triggered: {d['g4_triggered']}; RB1 {d['rb1_verdict']}.",
+             "FAIL rows of the stored A11 table that touch F1 (PROPOSED strip):"] + ["    " + s for s in f1_strip_lines(d)]
+    return lines
+
+
+def _f1_onset_marks(ax, d: dict, *, network: bool):
+    """The stored onsets as marks in the headroom of a time panel (axes fraction on y): the mean-field D-tr onset as a vertical dashed line on every panel; on the network panels the
+    stored S-sus classifier onset (marker of the class) and the three raw first crossings (nabla in the seed colours)."""
+    from matplotlib import transforms
+    tr = transforms.blended_transform_factory(ax.transData, ax.transAxes)
+    dtr = S.get(d["ref_class"])
+    ax.axvline(d["ref_onset_s"], color=dtr.colour, ls=dtr.linestyle, lw=S.F1_SIZES["event_line"], zorder=1)
+    if network:
+        for cls_, x in sorted(set(zip(d["cls120"], d["onset120_s"]))):
+            st = S.get(cls_)
+            ax.plot([x], [0.93], transform=tr, ls="none", marker=st.marker, ms=S.F1_SIZES["onset"], color=st.colour, mec=S.figure_colour("bar_edge"), mew=S.POINT_EDGE_WIDTH["class"],
+                    clip_on=False, zorder=6)
+        nab = S.diagram_mark("fs4_cross")
+        for key, x in zip(F1_SEED_KEYS, d["raw120_s"]):
+            ax.plot([x], [0.93], transform=tr, ls="none", marker=nab.marker, ms=S.F1_SIZES["onset"], color=S.diagram_mark(key).colour, mew=nab.width, clip_on=False, zorder=6)
+
+
+def _f1_env(ax, xc, lo, hi, colour, ls, fill=True):
+    if fill:
+        ax.fill_between(xc, lo, hi, color=colour, alpha=S.F1_SIZES["envelope_alpha"], lw=0, zorder=2)
+    for y in (lo, hi):
+        ax.plot(xc, y, color=colour, ls=ls, lw=S.F1_SIZES["envelope_line"], zorder=3)
+
+
+def _draw_F1(d: dict, draft: bool):
+    import textwrap
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.lines import Line2D
+    plt.rcParams.update({"font.family": S.FONT_FAMILY, "font.size": S.FONT_SIZE_PT, "pdf.fonttype": 42})
+    fig = plt.figure(figsize=(7.4, 15.0), constrained_layout=True)
+    gs = fig.add_gridspec(11, 4, height_ratios=[1.2, 1.35, 0.8, 1.05, 1.05, 1.05, 1.05, 1.35, 1.35, 1.7, 1.5], width_ratios=[2, 1, 1, 0.1])
+    fs = S.FONT_SIZE_PT - 1
+    mf, dtr = S.get("mean_field"), S.get(d["ref_class"])
+    p2, edge, hl = S.get("P2"), S.figure_colour("bar_edge"), S.figure_colour("range_line")
+    seeds = [S.diagram_mark(k) for k in F1_SEED_KEYS]
+    T_END = float(d["path_t_s"][-1])
+
+    def tidy(ax, title, ylabel, xlabel=False, red=False):
+        ax.set_title(title, fontsize=fs, loc="left", color=S.figure_colour("fail_text") if red else S.figure_colour("text_dark"))
+        ax.set_ylabel(ylabel, fontsize=5.6)
+        ax.tick_params(labelsize=5.0)
+        if xlabel:
+            ax.set_xlabel("path time (s)", fontsize=5.6)
+
+    # key row
+    kx = fig.add_subplot(gs[0, 0:3])
+    kx.axis("off")
+    hs = [Line2D([], [], color=mf.colour, lw=3.0, alpha=0.55, label="mean field (stored record, min to max per pixel column)")]
+    hs += [Line2D([], [], color=m.colour, ls=m.linestyle, lw=1.0, label=f"network N = 1e4, seed {i} (T_ramp 120 s)") for i, m in enumerate(seeds)]
+    hs += [Line2D([], [], color=dtr.colour, ls=dtr.linestyle, lw=1.0, label=f"mean-field stored onset ({d['ref_class']}, {d['ref_onset_s']:.3f} s)"),
+           Line2D([], [], ls="none", marker=S.get("S-sus").marker, ms=S.F1_SIZES["key"], color=S.get("S-sus").colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"],
+                  label=f"network stored classifier onset ({d['cls120'][0]}, {d['onset120_s'][0]:.1f} s, all seeds)"),
+           Line2D([], [], ls="none", marker=S.diagram_mark("fs4_cross").marker, ms=S.F1_SIZES["key"], color=edge, label="network raw first crossing (post hoc), seed colour"),
+]
+    kx.legend(handles=hs, loc="center", ncol=2, fontsize=4.8, frameon=False, handlelength=2.4, columnspacing=1.6, labelspacing=0.6)
+
+    # (a) protocol from the stored path: eta(t) and J(t)
+    ax = fig.add_subplot(gs[1, 0:3])
+    ax.plot(d["path_t_s"], d["path_eta"], color=p2.colour, ls=p2.linestyle, lw=S.F1_SIZES["path_line"], zorder=3)
+    t_end_ramp = d["path_t_on_s"] + d["path_T_ramp_s"]
+    for y_ in (d["path_eta_start"], d["path_eta_H"], d["path_eta_peak"]):
+        ax.axhline(y_, color=hl, ls=":", lw=S.F1_SIZES["event_line"], zorder=1)
+    for x_ in (d["path_t_on_s"], t_end_ramp):
+        ax.axvline(x_, color=hl, ls=":", lw=S.F1_SIZES["event_line"], zorder=1)
+    ax.axvline(d["ref_onset_s"], color=dtr.colour, ls=dtr.linestyle, lw=S.F1_SIZES["event_line"], zorder=1)
+    ax.set_xlim(0, T_END)
+    ax.set_ylim(d["path_eta_start"] - 0.4, d["path_eta_peak"] + 1.2)
+    for y_, txt in ((d["path_eta_start"], f"eta_start {d['path_eta_start']:.4f}"), (d["path_eta_H"], f"eta_H {d['path_eta_H']:.4f}"), (d["path_eta_peak"], f"eta_peak {d['path_eta_peak']:.4f}")):
+        ax.text(T_END * 0.995, y_ + 0.08, txt, ha="right", va="bottom", fontsize=4.8, color=S.figure_colour("text_dark"), zorder=5)
+    ax.text(d["path_t_on_s"] + 0.8, d["path_eta_peak"] + 0.75, f"t_on = {d['path_t_on_s']:g} s", ha="left", va="center", fontsize=4.8, color=S.figure_colour("text_dark"))
+    ax.text(t_end_ramp - 0.8, d["path_eta_peak"] + 0.75, f"end of ramp = t_on + T_ramp = {t_end_ramp:g} s", ha="right", va="center", fontsize=4.8, color=S.figure_colour("text_dark"))
+    tidy(ax, f"(a) ramp protocol of the headline path ({d['path_name']}, {d['path_profile']}, T_ramp {d['path_T_ramp_s']:g} s): eta(t) as stored", "eta")
+    ax.tick_params(labelbottom=False)
+    ax = fig.add_subplot(gs[2, 0:3], sharex=ax)
+    ax.plot(d["path_t_s"], d["path_J"], color=S.get("P3").colour, ls="-", lw=S.F1_SIZES["path_line"], zorder=3)
+    for x_ in (d["path_t_on_s"], t_end_ramp):
+        ax.axvline(x_, color=hl, ls=":", lw=S.F1_SIZES["event_line"], zorder=1)
+    ax.set_ylim(d["path_J0"] - 3.0, d["path_J_end"] + 3.0)
+    tidy(ax, f"(b) J(t) as stored (J0 {d['path_J0']:g} to J_end {d['path_J_end']:g}); Delta, I constant (stored)", "J")
+    ax.tick_params(labelbottom=False)
+
+    # (c) to (f) r(t) and v(t): mean field above network, same y range per quantity
+    for row, (q, qn) in enumerate((("r", "r"), ("v", "v"))):
+        lo_all = min(d[f"{n}_{q}_min"] for n in ("mf", "net0", "net1", "net2"))
+        hi_all = max(d[f"{n}_{q}_max"] for n in ("mf", "net0", "net1", "net2"))
+        rng = hi_all - lo_all
+        ylim = (lo_all - 0.04 * rng, hi_all + 0.20 * rng)
+        a1 = fig.add_subplot(gs[3 + 2 * row, 0:3], sharex=ax)
+        _f1_env(a1, d[f"mf_{q}_x"], d[f"mf_{q}_lo"], d[f"mf_{q}_hi"], mf.colour, "-")
+        _f1_onset_marks(a1, d, network=False)
+        a1.set_ylim(*ylim)
+        tidy(a1, f"({'ce'[row]}) {qn}(t), mean field (stored record)", f"{qn} (stored)")
+        a1.tick_params(labelbottom=False)
+        a2 = fig.add_subplot(gs[4 + 2 * row, 0:3], sharex=ax)
+        for i, m in enumerate(seeds):
+            _f1_env(a2, d[f"net{i}_{q}_x"], d[f"net{i}_{q}_lo"], d[f"net{i}_{q}_hi"], m.colour, m.linestyle, fill=False)
+        _f1_onset_marks(a2, d, network=True)
+        a2.set_ylim(*ylim)
+        tidy(a2, f"({'df'[row]}) {qn}(t), network N = 1e4, seeds 0 to 2 (same y range as the mean field)", f"{qn} (stored)")
+        a2.tick_params(labelbottom=False)
+    # (g), (h) spectrograms of the stored v (frozen routine)
+    sp = d["spec_settings"]
+    for k, (name, ttl) in enumerate((("mf", "(g) spectrogram of v, mean field"), ("net0", "(h) spectrogram of v, network seed 0"))):
+        a = fig.add_subplot(gs[7 + k, 0:3], sharex=ax)
+        im = a.pcolormesh(d["spec_t_s"], d["spec_f_hz"], d[f"spec_{name}_db"], shading="nearest", cmap=S.SPECTROGRAM_CMAP, vmin=d[f"spec_{name}_db"].min(), vmax=d[f"spec_{name}_db"].max(), rasterized=True)
+        for b in sp["band_primary_hz"]:
+            a.axhline(b, color=S.HALO_COLOUR, ls="--", lw=S.F1_SIZES["event_line"], zorder=4)
+        a.set_yticks(sorted({0.0, *sp["band_primary_hz"], sp["total_band_hz"][1], 50.0, 75.0, 125.0}))
+        fig.colorbar(im, cax=fig.add_subplot(gs[7 + k, 3])).set_label("10 log10 PSD", fontsize=4.8)
+        a.axvline(d["ref_onset_s"], color=dtr.colour, ls=dtr.linestyle, lw=S.F1_SIZES["event_line"], zorder=4)
+        a.set_ylim(0, sp["total_band_hz"][1])
+        tidy(a, ttl + f" (W {sp['window_s']:g} s, step {sp['step_s']:g} s, {sp['taper']}; 10 log10 PSD)", "frequency (Hz)", xlabel=(k == 1))
+    # (i) to (k) raster of seed 0: 300 stored neurons
+    pix, tick = S.RASTER_MARKS["full"], S.RASTER_MARKS["zoom"]
+    specs = ((gs[9, 0], "(i) raster, network seed 0, whole record, 300 stored neurons", None), (gs[9, 1], f"(j) {d['zoom_windows_s'][0][0]:.3f} to {d['zoom_windows_s'][0][1]:.3f} s", d["zoom_windows_s"][0]),
+             (gs[9, 2], f"(k) {d['zoom_windows_s'][1][0]:.3f} to {d['zoom_windows_s'][1][1]:.3f} s", d["zoom_windows_s"][1]))
+    first_r = None
+    for pos, ttl, win in specs:
+        a = fig.add_subplot(pos, sharey=first_r) if first_r is not None else fig.add_subplot(pos)
+        first_r = first_r if first_r is not None else a
+        if win is None:
+            a.plot(d["ras_t_s"], d["ras_row"], ls="none", marker=pix, color=edge, rasterized=True)
+            a.set_xlim(0, T_END)
+            a.set_ylabel("stored neuron (row)", fontsize=5.6)
+        else:
+            m = (d["ras_t_s"] >= win[0]) & (d["ras_t_s"] <= win[1])
+            a.plot(d["ras_t_s"][m], d["ras_row"][m], ls="none", marker=tick, ms=S.F1_SIZES["raster_zoom"], color=edge, mew=0.3)
+            a.set_xlim(*win)
+            a.tick_params(labelleft=False)
+        a.set_ylim(-1, d["ras_n_rows"])
+        tidy(a, ttl, "stored neuron (row)" if win is None else "", xlabel=True)
+    # status block
+    axs = fig.add_subplot(gs[10, 0:3])
+    axs.axis("off")
+    lines = [ln for t_ in f1_status_lines(d) for ln in textwrap.wrap(t_, width=150, subsequent_indent="        ")]
+    axs.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=5.0, linespacing=1.25)
+    axs.text(0.0, 0.0, F1_FOOTER if draft else "", fontsize=5.0, color=S.figure_colour("fail_text"), ha="left", va="bottom")
+    return fig
+
+
+def f1_caption_notes(d: dict) -> tuple:
+    """Sentences about what is and is not drawn (13l). Values come from the prepared data; only the wording is typed here."""
+    sp = d["spec_settings"]
+    return (
+        "Panels (a) and (b) draw the ramp protocol of the stored headline record (P2, " + d["path_name"] + ", " + d["path_profile"] + ", T_ramp " + f"{d['path_T_ramp_s']:g}" + " s): eta(t) and J(t) are the "
+        "stored arrays, and t_on, the end of the ramp and eta_start, eta_H and eta_peak are the stored path values (read from the record, not retyped); the headline is the T_ramp 120 s path, "
+        "so the network records of T_ramp 10 s are not drawn (their stored classes are in the status block).",
+        "Panels (c) to (f) draw r(t) and v(t) of the stored mean-field record and of the three stored network records at N = 1e4, T_ramp 120 s, seeds 0, 1 and 2, on the same y range per quantity: "
+        "all three stored seeds are drawn and none is chosen, and N = 1e4 is the only N of the S8 headline (the 3e4 records belong to S9 and are not drawn here). Each series is a min-to-max "
+        "envelope per pixel column (" + f"{F1_COLUMNS}" + " blocks of whole samples; display decimation, UNVERIFIED rule): the extremes of every block and of the whole series are the stored "
+        "extremes, nothing is smoothed or offset. The network does not reproduce the mean-field class at the headline (claim limit G4-C1): the marks are stored values (ms10_eval, DL-319): "
+        "the mean-field onset (" + d["ref_class"] + f", {d['ref_onset_s']:.3f} s), the network classifier onset ({d['cls120'][0]}, {d['onset120_s'][0]:.1f} s in all three seeds) and the "
+        "network raw first crossings (post hoc, feeding no gate), which differ from the mean-field onset and are not hidden. Network surge classes cannot separate ramp-driven from non-ramp "
+        "records (G4-C3): the stored no-ramp network controls at 120 s are " + ", ".join(f"{k} {v}" for k, v in d["ctrl120"].items()) + " and at 10 s " + ", ".join(f"{k} {v}" for k, v in d["ctrl10"].items()) + ". "
+        "RB1 FAILED (headline 10 s, headline 120 s, cells 1 of 4; DL-319, DL-320) and G7 is not passed (DL-228: the NC1 network is S+); G4 was triggered and is report-only (DL-323).",
+        "Panels (g) and (h) are NOT stored: they are computed from the stored v of the mean-field record and of network seed 0 by the frozen classifier routine "
+        "analysis.surge_metrics.spectrogram_v with the frozen settings printed above (no new setting; UNVERIFIED reading of the script rule that a figure script never simulates). Only the "
+        f"rows from 0 to {sp['total_band_hz'][1]:g} Hz (the total band) are drawn; the power is shown as 10 log10 PSD on its own colour scale per panel, each from its stored minimum to maximum (display choices; the mean-field floor is about -400 dB), "
+        "and the dashed lines are the edges of the primary band. The window time axis is the classifier's (sample i at i/fs); the stored network time stamp is the end of the 1 ms bin. Panels (i) to (k) draw the "
+        f"spikes of the 300 stored neurons of seed 0 as stored ({d['ras_n_active_rows']} of the {d['ras_n_rows']} rows spike); (j) and (k) are windows of {F1_ZOOM_S:g} s that start at the stored "
+        "network classifier onset and at the stored mean-field onset. A_ref (reading a) is " + f"{d['a_ref']:.6f}" + " (A8). Peak frequencies are the classifier's spectral peaks (MS11-C3). "
+        "Every D8-dependent class is provisional (D8 open). The claim-limit IDs listed here are PROPOSED for the reviewer's ruling.",
+    )
+
+
+def make_F1(res=None, out_dir=None, *, tag_build: bool = False, take_home=F1_TAKE_HOME, claim_limit_ids=F1_CLAIM_LIMITS,
+            script="scripts/fig_F1.py", root=None) -> dict:
+    """Build F1 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov)."""
+    F.require_buildable("F1")
+    root = Path(root) if root is not None else repo_root()
+    res = Path(res) if res is not None else root / "results"
+    out = Path(out_dir) if out_dir is not None else root / "figures" / "F1"
+    t = {"start": time.perf_counter()}
+    raw = load_F1(res)
+    t["load"] = time.perf_counter()
+    crit, _ = F.K.load_frozen_criteria(root)
+    d = prepare_F1(raw, crit)
+    t["prepare"] = time.perf_counter()
+    rows = []
+    recs = {"mf_headline": raw["mf_rec"], **{f"net_120s_seed{n['seed']}": n["rec"] for n in raw["net"]}}
+    for key, rec in recs.items():
+        for r in make_param_table(rec["config"]):
+            rows.append({**r, "panel": key, "section": "", "source_run_id": rec["name"], "source_config_hash12": rec["config_hash12"]})
+    cap = CAP.build_caption("F1", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=[r for r in rows if r["key"] in F1_CAPTION_KEYS],
+                            spectrogram=d["spec_settings"], symbol_keys=(), notes=f1_caption_notes(d), limit_labels=CLAIM_LIMIT_LABELS)
+    import matplotlib.pyplot as plt
+    fig = _draw_F1(d, draft=not tag_build)
+    out.mkdir(parents=True, exist_ok=True)
+    pdf, png = out / "F1.pdf", out / "F1.png"
+    fig.savefig(pdf)
+    fig.savefig(png, dpi=S.PNG_DPI)
+    plt.close(fig)
+    t["draw"] = time.perf_counter()
+    cap_path, dig_path = out / "F1_caption.txt", out / "F1_drawn_data_sha256.txt"
+    from .. import provenance as P
+    drawn = drawn_data_sha256(d)
+    P.atomic_write_text(cap_path, cap.text + "\n")
+    P.atomic_write_text(dig_path, drawn + "\n")
+    warnings = []
+    for k, rec in recs.items():
+        if (rec.get("git") or {}).get("dirty"):
+            warnings.append(f"input record {k} ({rec['name']}) was written with git dirty = true")
+    prov = F.write_figure_provenance(
+        "F1", script=script, inputs=[res / p for p in F1_INPUTS] + [res / p for p in raw["record_files"]], outputs=[pdf, png, cap_path, dig_path], params_rows=rows,
+        modules=["src/mprsurge/plotting/figures.py", "src/mprsurge/plotting/style.py", "src/mprsurge/plotting/captions.py", "src/mprsurge/plotting/nordlie.py",
+                 "src/mprsurge/plotting/figprov.py", "src/mprsurge/analysis/surge_metrics.py"],
+        configs=["configs/base.yaml", "configs/S5_ramp.yaml", "configs/ms10/ms10_net.yaml", "configs/robustness_criteria.yaml"], claim_limits=cap.claim_limits,
+        input_tables=[{"path": res / F1_INPUTS[2], "rows": len(raw["a11"])}], spectrogram=d["spec_settings"], tag_build=tag_build, out_dir=out, root=root, warnings=warnings,
+        wall_time_s=time.perf_counter() - t["start"])
+    nordlie_path = out / "F1_nordlie.md"
+    N.write_nordlie(out / "F1_params.csv", out / "F1_provenance.json", nordlie_path, root=root)
+    t["end"] = time.perf_counter()
+    timing = {"load_s": t["load"] - t["start"], "prepare_s": t["prepare"] - t["load"], "draw_s": t["draw"] - t["prepare"],
+              "provenance_and_nordlie_s": t["end"] - t["draw"], "total_s": t["end"] - t["start"]}
+    return {"prov": prov, "paths": [pdf, png, cap_path, dig_path, out / "F1_params.csv", out / "F1_provenance.json", nordlie_path],
             "timing_s": timing, "drawn_sha256": drawn, "caption": cap.text}
 
 
