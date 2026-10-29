@@ -62,8 +62,8 @@ _TABLE = {
         "P2": ("#e66101", "h", "hexagon", "-"),
         "P3": ("#01665e", "H", "rotated hexagon", "-"),
         "P4": ("#c51b7d", "*", "star", "-"),
-        "P4a": ("#f1b6da", "P", "plus (filled)", "--"),
-        "P4b": ("#80cdc1", "X", "cross (filled)", "--"),
+        "P4a": ("#cc4c9b", "P", "plus (filled)", "--"),      # 13o (DL-494 R10, R11): darker than the 13c #f1b6da, which was hard to read on white and on the shading
+        "P4b": ("#3f9f96", "X", "cross (filled)", "--"),      # 13o (DL-494 R10): darker than the 13c #80cdc1
         "P5": ("#543005", "8", "octagon", "-."),
     },
     "control": {
@@ -234,7 +234,7 @@ POINT_EDGE_WIDTH = {"class": 0.4, "class_large": 0.5}
 # and the point sizes and line widths of the F1 drawing code.
 SPECTROGRAM_CMAP = "magma"
 RASTER_MARKS = {"full": ",", "zoom": "|"}
-F1_SIZES = {"raster_zoom": 2.4, "onset": 5.0, "key": 7.0, "envelope_line": 0.45, "envelope_alpha": 0.3, "path_line": 1.0, "event_line": 0.7}
+F1_SIZES = {"raster_zoom": 2.4, "onset": 5.0, "key": 7.0, "envelope_line": 0.45, "envelope_alpha": 0.3, "path_line": 1.0, "event_line": 0.7, "raster_zoom_width": 0.3}
 
 
 def figure_colour(key: str) -> str:
@@ -385,8 +385,36 @@ def write_colour_report(directory) -> tuple[Path, Path]:
 
 # 13m, F5 (DL-490 onward). UNVERIFIED design choices, plain scalars (not entries of STYLE, FIGURE_COLOURS or DIAGRAM_MARKS, so the unique-mark table and the pinned key sets are
 # unchanged): the colours and marks of the three agreement states of a subgrid cell (agree, disagree, tie; the marks differ so that no state rests on colour alone), the frame of the
-# post-hoc panel, and the point sizes and line widths of the F5 drawing code.
-F5_COLOURS = {"agree": "#1b7837", "disagree": "#762a83", "tie": "#bf812d", "frame_posthoc": "#7f7f7f", "cell_edge": "#ffffff", "net_halo": "#ffffff"}
+# post-hoc panel, and the point sizes and line widths of the F5 drawing code. 13o (DL-494 R9): the agree and disagree colours were the D-none and S-sus class colours; they are now
+# colours that no class, path, control or source key uses; "net_outline" is the dark stroke around the white halo of the network symbols (the agree glyph on the blue D-tr tiles).
+F5_COLOURS = {"agree": "#a6d854", "disagree": "#e7298a", "tie": "#bf812d", "frame_posthoc": "#7f7f7f", "cell_edge": "#ffffff", "net_halo": "#ffffff", "net_outline": "#1a1a1a"}
 F5_STATE_MARKS = {"agree": "o", "disagree": "x", "tie": "+"}
 F5_SIZES = {"map_mark": 2.0, "state_mark": 2.0, "net_symbol": 9.5, "net_halo_width": 3.6, "net_width": 1.3, "cell_edge_width": 0.15, "table_mark": 6.0, "seed_mark": 4.2,
-            "control_mark_width": 0.9, "range_line": 0.9, "median_bar": 4.0, "ref_line": 0.8, "key_mark": 5.0}
+            "control_mark_width": 0.9, "range_line": 0.9, "median_bar": 4.0, "ref_line": 0.8, "key_mark": 5.0,
+            "net_outline_width": 1.2, "map_mark_width": 0.35, "state_mark_width": 0.5, "key_state_width": 1.0, "median_line": 1.6, "median_half_width": 0.6}
+
+# ---- 13o (DL-494 R1, R4, R6 to R12). UNVERIFIED design choices, plain scalars outside STYLE, FIGURE_COLOURS and DIAGRAM_MARKS (the unique-mark table and the pinned key sets
+# are unchanged). The plan gives no font, size or layout (M13-14 (vii)).
+
+# R4: one text style for every figure. Font sizes in points per role; panel titles are left-aligned; the DRAFT note sits at the bottom left of the canvas in the fail_text colour,
+# in a band that the layout keeps free (fraction of the figure height).
+TEXT_SIZES = {"panel_title": 6.8, "axis_label": 5.8, "tick": 5.0, "legend": 5.0, "note": 5.0, "small": 4.6, "status": 5.0, "footer": 5.0, "schematic": 5.2, "schematic_head": 5.8}
+TITLE_LOC = "left"
+DRAFT_NOTE = {"x": 0.012, "y": 0.004, "band": 0.012}
+
+# R1, F2 and F3 (the literals of the 13f and 13g drafts) and R12 (F2 network symbols smaller than the 13f size 6.0 of s4_net_up / s4_net_down).
+F2_MARKS = {"zero_line": "#7a7a7a", "zero_line_width": 0.6, "net_size": 4.0, "net_width": 0.9}
+F3_MARKS = {"cycle_marker": "s", "cycle_size": 5.0, "slice_hopf_size": 5.0, "strip_start_size": 5.0, "key_path_size": 4.0, "strip_arrow_width": 1.6, "strip_head": 8.0,
+            "a6_hopf_size": 7.0, "a6_hopf_width": 0.9}           # R11: the A6 Hopf mark drawn smaller and without the white halo, so the 5 ms slice line stays visible
+
+# R6, F1 schematic: box face and edge colours and the arrow colour (no data, no value).
+F1_SCHEMATIC = {"box_face": "#f4f4f4", "box_edge": "#4d4d4d", "ramp_face": "#fdf0e6", "net_face": "#eaf0f7", "arrow": "#4d4d4d", "edge_width": 0.7, "arrow_width": 0.8}
+# R7, F1: colour map of the spike-count image and the colour of the (j) and (k) window frames drawn on it (the 1 s bin is figures.F1_COUNT_BIN_S, a ruled display aggregation).
+RASTER_COUNT_CMAP = "Greys"
+F1_RASTER = {"window_frame": "#d95f02", "window_width": 0.9}
+
+# R8, F4: the stored median of the seeds (its own colour, not the P1 purple of the fs3_median mark), and the mark of a delay whose stored onset lies in the hold.
+F4_MARKS = {"median_colour": "#1a1a1a", "hold_marker": "s", "hold_colour": "#b35806", "hold_size": 8.0, "hold_width": 0.9}
+
+# R10, F6: the three P3 amplitudes drawn with distinct fills and sizes (same P3 colour and shape: concentric, so coincident values stay visible), and P4b under P2 drawn larger.
+F6_MARKS = {"p3_fill": {0.5: "full", 1.0: "none", 2.0: "left"}, "p3_size": {0.5: 3.4, 1.0: 7.0, 2.0: 5.2}, "p4b_size": 6.5, "line_width": 0.9, "separator": "#9a9a9a"}

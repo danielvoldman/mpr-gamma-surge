@@ -3,7 +3,7 @@
 Each label is defined once, here. Captions of FS4 and FS5 (and later FS3 and F6) print the label, the short form and the DL numbers of this table; a label that is not in this table is not used in a caption (plain words plus a DL number instead).
 "Source wording" is quoted verbatim from the source named in the second column. "Short form" is the one-line content of the plan's section 5 table (docs/ms13_plan.md), verbatim; it is what the caption prints. "Figures" is the right-hand column of that table (listed, not decided).
 The plan writes the Greek letter sigma; here and in captions it is written "sigma" (ASCII), nothing else is changed.
-Labels that exist only in the plan's section 5 table (no source label of their own) are marked "plan label": their source wording is the plan's row, and a caption uses plain words plus the DL numbers instead of the label.
+Labels that exist only in the plan's section 5 table (no source label of their own) are marked "plan label": their source wording is the plan's row. Since 13o (DL-494 R2, DL-495) a caption prints a plan label like every other label (ID, short form, DL numbers); before 13o a caption used plain words plus the DL numbers instead. RB1 FAIL, RB6 FAIL and RB9(b) FAIL were added in 13o (DL-495) in the form of the three earlier plan labels.
 
 | Label | Source | Source wording (verbatim) | Short form (plan section 5) | DL numbers | Figures |
 |---|---|---|---|---|---|
@@ -39,6 +39,9 @@ Labels that exist only in the plan's section 5 table (no source label of their o
 | RB2 FAIL (plan label) | docs/ms13_plan.md section 5 | 7 of 10 at sigma; noisy subgrid 97 of 225 | 7 of 10 at sigma; noisy subgrid 97 of 225 | DL-387, DL-242 | F4, F5, FS3 |
 | D24 failed (plan label) | docs/ms13_plan.md section 5 | subgrid agreement 43.1 percent on raw classes | subgrid agreement 43.1 percent on raw classes | DL-242 | F5, F4, FS3 |
 | G7 not passed (plan label) | docs/ms13_plan.md section 5 | NC1 network S+ | NC1 network S+ | DL-228 | F6, F1 |
+| RB1 FAIL (plan label) | docs/ms13_plan.md section 5 | headline 10 s FAIL, 120 s FAIL, cells 1 of 4 | headline 10 s FAIL, 120 s FAIL, cells 1 of 4 | DL-319, DL-320 | F1, F5 |
+| RB6 FAIL (plan label) | docs/ms13_plan.md section 5 | network f_pk both readings | network f_pk both readings | DL-387 | FS4 |
+| RB9(b) FAIL (plan label) | docs/ms13_plan.md section 5 | 4.391 Hz against 0.5 Hz | 4.391 Hz against 0.5 Hz | DL-388 | FS5, F3 |
 
 ## A9 failure labels printed in F6 (13k, DL-482)
 

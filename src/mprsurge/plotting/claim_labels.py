@@ -36,6 +36,9 @@ CLAIM_LIMIT_LABELS = {
     'RB2 FAIL (plan label)': ('7 of 10 at sigma; noisy subgrid 97 of 225', ('DL-387', 'DL-242')),
     'D24 failed (plan label)': ('subgrid agreement 43.1 percent on raw classes', ('DL-242',)),
     'G7 not passed (plan label)': ('NC1 network S+', ('DL-228',)),
+    'RB1 FAIL (plan label)': ('headline 10 s FAIL, 120 s FAIL, cells 1 of 4', ('DL-319', 'DL-320')),
+    'RB6 FAIL (plan label)': ('network f_pk both readings', ('DL-387',)),
+    'RB9(b) FAIL (plan label)': ('4.391 Hz against 0.5 Hz', ('DL-388',)),
 }
 
 # A9 failure labels printed in F6 (13k, DL-482): label -> (short form, DL numbers). Generated from the second table of docs/claim_limit_labels.md; tests/test_a9_labels.py

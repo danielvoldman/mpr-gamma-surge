@@ -6,12 +6,15 @@ config. Two fields are REQUIRED and have no default: the take-home message and t
 The helper never writes a message, never invents a claim limit, and never decides where a limit is shown: it prints exactly the IDs it is
 given, and the figure script (per the build prompt) decides which IDs go to the caption and which to a strip. Part layout UNVERIFIED.
 An empty claim-limit list counts as missing (UNVERIFIED reading of "REQUIRED list": a figure that truly has no limit needs a ruling).
+13o (DL-494, DL-495): every claim limit is printed with its definition and DL numbers from the label table (R2), a limit can be carried as not applicable with
+its reason (R5), and the parameters are grouped by key, with the full list referred to as the Nordlie table of the figure (R3).
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
 
 from . import style as S
+from .claim_labels import CLAIM_LIMIT_LABELS
 from .figprov import value_text
 
 
@@ -28,14 +31,21 @@ class Caption:
 
 
 def parameter_string(rows) -> str:
-    """'[panel] key=value' for each distinct (panel, key, value), in row order, joined by '; ' (value = the params.csv cell text)."""
-    seen, parts = set(), []
+    """Rows grouped by key, in order of first appearance (13o, R3): 'key=value' when every panel has the same value, else 'key=value [panel, ...], value [panel, ...]'
+    (value = the params.csv cell text). A key repeated per panel or per seed with one value is printed once."""
+    by_key: dict = {}
     for r in rows:
-        item = (r.get("panel", ""), r["key"], value_text(r["value"]))
-        if item in seen:
-            continue
-        seen.add(item)
-        parts.append((f"[{item[0]}] " if item[0] else "") + f"{item[1]}={item[2]}")
+        vals = by_key.setdefault(r["key"], {})
+        panels = vals.setdefault(value_text(r["value"]), [])
+        p = r.get("panel", "")
+        if p and p not in panels:
+            panels.append(p)
+    parts = []
+    for key, vals in by_key.items():
+        if len(vals) == 1:
+            parts.append(f"{key}={next(iter(vals))}")
+        else:
+            parts.append(f"{key}=" + ", ".join(f"{v} [{', '.join(ps)}]" if ps else v for v, ps in vals.items()))
     return "; ".join(parts)
 
 
@@ -60,35 +70,37 @@ def _required_ids(ids) -> tuple:
 
 
 def build_caption(figure_id: str, *, take_home=None, claim_limit_ids=None, params_rows=(), spectrogram=None, symbol_keys=(),
-                  provenance_hash12=None, tag=None, notes=(), limit_labels=None) -> Caption:
+                  provenance_hash12=None, tag=None, notes=(), limit_labels=CLAIM_LIMIT_LABELS, not_applicable=None) -> Caption:
     """Caption text in the order of the template: take-home, parameters, spectrogram, symbols, claim limits, provenance pointer.
 
-    take_home, claim_limit_ids: REQUIRED (default None, so leaving one out raises CaptionError, not TypeError). params_rows: the rows written to <ID>_params.csv (empty: part omitted). spectrogram: settings dict or None
+    take_home, claim_limit_ids: REQUIRED (default None, so leaving one out raises CaptionError, not TypeError). params_rows: the rows written to <ID>_params.csv (empty: part omitted);
+    printed grouped by key, followed by "The full parameter list is in the Nordlie table of <ID>." (13o, R3). spectrogram: settings dict or None
     (part omitted). symbol_keys: keys of the style table whose marker is explained (an unknown key raises StyleError). provenance_hash12, tag: optional
     pointer (omitted when None). notes: sentences the figure script writes about what is and is not drawn (13e, DL-453); placed after the symbols,
-    printed as given, none added; default empty, so earlier captions are unchanged. limit_labels (13j, DL-477): None (default; earlier captions unchanged) or a dict label -> (short form, DL numbers)
-    such as claim_labels.CLAIM_LIMIT_LABELS; each claim-limit ID is then printed with its short form and DL numbers, and an ID missing from the dict raises CaptionError (a label is
-    used only when it is defined once in docs/claim_limit_labels.md).
+    printed as given, none added. limit_labels: a dict label -> (short form, DL numbers), by default claim_labels.CLAIM_LIMIT_LABELS (13o, R2: one format in every
+    caption); each claim-limit ID is printed with its short form and DL numbers, and an ID missing from the dict raises CaptionError. not_applicable (13o, R5): None or a dict
+    ID -> reason; such a limit is printed with ", not applicable here because <reason>" after its definition; every key must be one of claim_limit_ids.
     """
     take = _required_text(take_home, "take_home")
     limits = _required_ids(claim_limit_ids)
+    na = dict(not_applicable or {})
+    if set(na) - set(limits):
+        raise CaptionError(f"not-applicable limit(s) {sorted(set(na) - set(limits))} are not in claim_limit_ids")
     p_str = parameter_string(params_rows)
     s_str = spectrogram_string(spectrogram) if spectrogram else ""
     parts = [f"{figure_id}. {take}"]
     if p_str:
-        parts.append(f"Parameters: {p_str}.")
+        parts.append(f"Parameters: {p_str}. The full parameter list is in the Nordlie table of {figure_id}.")
     if s_str:
         parts.append(f"Spectrogram: {s_str}.")
     if symbol_keys:
         parts.append("Symbols: " + "; ".join(f"{k} = {S.get(k).marker_name}" for k in symbol_keys) + ".")
     parts.extend(_required_text(n, "notes entry") for n in notes)
-    if limit_labels is None:
-        parts.append("Claim limits: " + ", ".join(limits) + ".")
-    else:
-        missing = [i for i in limits if i not in limit_labels]
-        if missing:
-            raise CaptionError(f"claim-limit label(s) {missing} are not defined in the label table (docs/claim_limit_labels.md)")
-        parts.append("Claim limits: " + "; ".join(f"{i}: {limit_labels[i][0]} ({', '.join(limit_labels[i][1])})" for i in limits) + ".")
+    missing = [i for i in limits if i not in limit_labels]
+    if missing:
+        raise CaptionError(f"claim-limit label(s) {missing} are not defined in the label table (docs/claim_limit_labels.md)")
+    parts.append("Claim limits: " + "; ".join(f"{i}: {limit_labels[i][0]} ({', '.join(limit_labels[i][1])})"
+                                              + (f", not applicable here because {_required_text(na[i], 'not_applicable reason')}" if i in na else "") for i in limits) + ".")
     if provenance_hash12:
         parts.append(f"Provenance: {figure_id}_provenance.json hash12 {provenance_hash12}" + (f", tag {tag}" if tag else "") + ".")
     return Caption(" ".join(parts), p_str, s_str, limits)
