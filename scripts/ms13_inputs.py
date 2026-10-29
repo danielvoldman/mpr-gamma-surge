@@ -141,15 +141,13 @@ INPUTS = {
         rec("S11 constant-parameter controls", "S11/S11_ctrl/*.json", 30),
     ],
     "FS4": [
-        rec("S13 delta_0 ladder", "S13/delta0/*.json", None),
-        rec("S13 rtol ladder", "S13/rtol/*.json", None),
-        rec("S13 Radau", "S13/radau/*.json", None),
-        rec("S13 floor level 0", "S13/floor_l0/*.json", None),
-        rec("S13 floor level 1", "S13/floor_l1/*.json", None),
-        rec("S13 floor level 2", "S13/floor_l2/*.json", None),
-        rec("S13 MS11 mean-field records (delta_0, floor 10 and 316 s, rtol: 68)", "S13/ms11/S13_[dfr]*/*.json", 68),
-        rec("S13 MS11 network records (dt ladder, V_p, 18)", "S13/ms11/S13_net/*.json", 18, NET),
-        fil("A11 robustness table", "A11/a11_robustness.csv"),
+        # 13i: tables first (docs/ms13_conventions.md M13-12). The 13a list named the S13 record families (8 + 8 + 4 + 480 MS8 records and 68 + 18 MS11 records); the
+        # figure draws the stored A7 table rows of the MS8 S13 families and the stored A11 evaluator rows of the MS11 S13 part, so those are the inputs. Reported at 13i.
+        fil("A7 ramp metrics table (MS8 S13 families: S5ramp, delta0, rtol, radau, floor_l0 to floor_l2; 13i)", "A7/a7_ramp_metrics.parquet"),
+        fil("A11 evaluator file (MS11 S13 rows: RB5 delta0, RB6 rtol, floor, network; 13i)", "A11/a11_evaluators.json"),
+        fil("A11 robustness table (RB5, RB6 rows)", "A11/a11_robustness.csv"),
+        fil("S13 MS8 run record (source of the mean-field parameter rows; 13i)", "S13/delta0/delta0_0000_b90cc76204e0.json"),
+        fil("S13 MS11 network run record (source of the network parameter rows; 13i)", "S13/ms11/S13_net/S13_net_0000_c83b859499d9.json"),
     ],
     "FS5": [
         fil("A8 sensitivity table", "A8/a8_sensitivity.csv"),
@@ -260,7 +258,7 @@ TIMING = {   # figure -> families whose load is timed (largest files + stride sa
     "F5": ["S7 map 1 (30 x 30, 120 s)", "S7 map 2 (25 x 13)", "S7 noisy subgrid (225 cells x 10 seeds)", "S8 network at 4 map cells (3 seeds)", "S9 finite size (4 N x 10 seeds)"],
     "F6": ["S6 P3 (3 I_amp x 4 T_ramp)", "S12 NC1 (13 T_ramp)", "S12 NC1 network (1 seed, 120 s)", "S12 NC2 (13 T_ramp)"],
     "FS3": ["S9 finite size", "S10 heterogeneity shape (3 shapes x 3 seeds)", "S11 noise level"],
-    "FS4": ["S13 rtol ladder", "S13 floor level 0", "S13 MS11 network records (dt ladder, V_p, 18)"],
+    "FS4": ["A7 ramp metrics table (MS8 S13 families: S5ramp, delta0, rtol, radau, floor_l0 to floor_l2; 13i)", "A11 evaluator file (MS11 S13 rows: RB5 delta0, RB6 rtol, floor, network; 13i)"],
 }
 
 

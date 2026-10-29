@@ -171,6 +171,18 @@ DIAGRAM_MARKS = {
     "fs5_expected": DiagramMark("fs5_expected", "#5d4037", r"$\ast$", "asterisk (headline x 10/tau)", "none", 7.0, 1.0, True),
     "fs5_pt": DiagramMark("fs5_pt", "#4a148c", r"$\star$", "star outline (stored fraction)", "none", 7.0, 1.0, True),
     "not_run": DiagramMark("not_run", "#555555", r"$\times$", "cross (not run)", "none", 4.0, 0.6, True),
+    # 13i, FS4 (numerics). UNVERIFIED design choices. The raw first crossing is a small nabla on the class marker of the classifier onset; the D43 floor levels
+    # are three vertex shapes; the three network seeds are their own digits (marker, colour and line style differ); the PSD-argmax reading is a circled dot.
+    "fs4_cross": DiagramMark("fs4_cross", "#262626", r"$\nabla$", "nabla (raw first crossing)", "none", 4.5, 0.6, True),
+    "fs4_l0": DiagramMark("fs4_l0", "#7a3b00", _SQUARE, "open square (floor level 0)", "none", 5.0, 1.0, False),
+    "fs4_l1": DiagramMark("fs4_l1", "#005f73", _DIAMOND, "open diamond (floor level 1)", "none", 5.0, 1.0, False),
+    "fs4_l2": DiagramMark("fs4_l2", "#6b2d5c", ((-1.0, -1.0), (1.0, -1.0), (0.0, 1.3), (-1.0, -1.0)), "open triangle (floor level 2)", "none", 5.0, 1.0, False),
+    "fs4_s0": DiagramMark("fs4_s0", "#264653", r"$\mathbf{0}$", "digit 0 (network seed 0)", "-", 7.0, 0.8, True),
+    "fs4_s1": DiagramMark("fs4_s1", "#9c4f00", r"$\mathbf{1}$", "digit 1 (network seed 1)", "--", 7.0, 0.8, True),
+    "fs4_s2": DiagramMark("fs4_s2", "#5f0f40", r"$\mathbf{2}$", "digit 2 (network seed 2)", ":", 7.0, 0.8, True),
+    "fs4_psd": DiagramMark("fs4_psd", "#333333", r"$\bigcirc$", "large open circle (PSD argmax reading)", "none", 10.0, 0.7, False),
+    "fs4_vp100": DiagramMark("fs4_vp100", "#34495e", r"$\bullet$", "filled dot (V_p +-100)", "none", 6.0, 1.0, True),
+    "fs4_vp200": DiagramMark("fs4_vp200", "#a04000", r"$\circ$", "open circle (V_p +-200)", "none", 6.0, 1.0, False),
 }
 
 # 13h, FS1: fill of the A1 root-count map (one root, three roots) and the colour map of the A2 cycles per e-fold. The A2 ring frequency uses

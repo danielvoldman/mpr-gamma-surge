@@ -1890,6 +1890,369 @@ def make_FS5(res=None, out_dir=None, *, tag_build: bool = False, take_home=FS5_T
     return {"prov": prov, "paths": [pdf, png, cap_path, dig_path, out / "FS5_params.csv", out / "FS5_provenance.json", nordlie_path],
             "timing_s": timing, "drawn_sha256": drawn, "caption": cap.text}
 
+# ---- FS4 (13i) -------------------------------------------------------------------------------------------------------------------------------------
+# Paths relative to results/. Tables first (docs/ms13_conventions.md M13-12): the stored A7 table holds the MS8 S13 records (delta0, rtol, Radau, the D43 floor
+# levels with the Heun dt ladder), the stored A11 evaluator file holds the MS11 S13 rows (delta0 and rtol at 10 s and 316.2278 s, floor at those T_ramp, the network
+# dt ladder and V_p). No series is drawn. The registry scripts/ms13_inputs.py INPUTS["FS4"] must name the same files (test).
+FS4_INPUTS = (
+    "A7/a7_ramp_metrics.parquet",                            # 360 rows; the S13 families S5ramp, delta0, rtol, radau, floor_l0 to floor_l2 are read (DL-183, DL-184, DL-189, DL-190)
+    "A11/a11_evaluators.json",                               # stored RB5 and RB6 evaluator rows of MS11 (DL-387)
+    "A11/a11_robustness.csv",                                # stored A11 table: the FAIL-row strip and the status check
+    "S13/delta0/delta0_0000_b90cc76204e0.json",              # run record of an MS8 S13 run (source of the mean-field rows of FS4_params.csv)
+    "S13/ms11/S13_net/S13_net_0000_c83b859499d9.json",       # run record of an MS11 S13 network run (source of the network rows of FS4_params.csv)
+)
+FS4_RECORDS = {"S13_MS8_delta0": FS4_INPUTS[3], "S13_MS11_network": FS4_INPUTS[4]}
+FS4_STRIP_RB = ("RB5", "RB6")          # Table 7.2 'Where' names FS4 for RB5 ("Main F4; FS4") and RB6 ("FS4") (plan.md lines 848 and 849)
+FS4_CAPTION_KEYS = ("model.type", "model.ref_point", "path.name", "path.T_ramp_s", "solver.method", "solver.rtol", "solver.delta0", "noise.scheme", "network.N", "analysis.window_s")
+FS4_RB6_FPK_BOUND = 0.02               # plan Table 7.2 RB6: halving dt changes f_pk by < 2 percent (the A11 row threshold text '< 0.02' is checked)
+FS4_RB6_SOLVER_BOUND_MS = 1.0          # plan Table 7.2 RB6: solvers agree on class with onset within 1 ms (the A11 row threshold text '1 ms' is checked)
+FS4_DT = (1e-3, 5e-4, 2.5e-4, 1e-4)    # the network dt ladder, in units of tau (plan S13)
+FS4_HEAD_ROWS = (("S5ramp", None, "default: delta0 1e-6, rtol 1e-10"), ("delta0", 1e-9, "delta0 1e-9"), ("delta0", 1e-3, "delta0 1e-3"), ("rtol", 1e-8, "rtol 1e-8"),
+                 ("rtol", 1e-12, "rtol 1e-12"), ("radau", None, "Radau, rtol 1e-10"))
+
+# PROPOSED for the reviewer's ruling (13i prompt, item B3); every statement is from a logged result (DL numbers in the text) and the numbers are checked against
+# the stored tables by tests/test_fig_FS4.py.
+FS4_TAKE_HOME = (
+    "PROPOSED (for ruling): At the headline (P2, ref_devalle, T_ramp 120 s, noise-free) the class is D-tr under every setting tried: delta0 1e-9, 1e-6 and 1e-3, "
+    "rtol 1e-8, 1e-10 and 1e-12, and DOP853 against Radau. The onset is 58.698 s everywhere except under Radau, which gives 58.879 s: 181 ms against the 1 ms bound, "
+    "so the RB6 solver clause FAILS and is unexplained (DL-184, DL-189, DL-208). The Heun dt ladder 1e-3 to 1e-4 tau leaves the floored delay unchanged at the 1 ms "
+    "output grid (DL-184, DL-190). At T_ramp 10 s and 316.2278 s the class is D-tr under delta0 and rtol with zero onset shift (DL-387). The network f_pk is not stable "
+    "under halving dt: the classifier-episode f_pk changes by 5 to 43 percent against the 2 percent bound (0 of 3 seeds pass) and the PSD-argmax reading passes in 2 "
+    "of 3, so the RB6 network row FAILS (DL-387, DL-394). Results that rest on the network f_pk are shown labelled FAIL and are not used as evidence."
+)
+# PROPOSED: the limits of docs/ms13_plan.md section 5 whose right-hand column lists FS4 (MS9 (e)-5, G6-D2, G6-D3, G4-C6, MS11-C2, MS11-C5, MS11-C6, MS11-C7, MS11-C8);
+# MS12-C1 lists F1 to F6 and FS6, not FS4. The RB6 FAIL rows (DL-387) are in the FAIL-row strip. Listed, not decided.
+FS4_CLAIM_LIMITS = ("MS11-C7", "MS9(e)-5", "G6-D2", "G6-D3", "G4-C6", "MS11-C2", "MS11-C5", "MS11-C6", "MS11-C8")
+FS4_FOOTER = "DRAFT: untagged build. Layout, marks, colours and panel choices are UNVERIFIED (style.py); take-home and claim limits are PROPOSED."
+
+
+def load_FS4(res=None) -> dict:
+    """Open the files of FS4_INPUTS under `res` (default results/) and return their content. Opens nothing else."""
+    res = Path(res) if res is not None else results_dir()
+    for rel in FS4_INPUTS:
+        if not (res / rel).is_file():
+            raise F.MissingInputError(f"input file not found: {res / rel}")
+    try:
+        import pandas as pd
+        a7 = pd.read_parquet(res / FS4_INPUTS[0])
+        with open(res / FS4_INPUTS[2], newline="", encoding="utf-8") as fh:
+            a11 = list(csv.DictReader(fh))
+        return {"a7": a7, "evaluators": json.loads((res / FS4_INPUTS[1]).read_text(encoding="utf-8")), "a11": a11,
+                "records": {k: json.loads((res / rel).read_text(encoding="utf-8")) for k, rel in FS4_RECORDS.items()}}
+    except (OSError, ValueError, KeyError, ImportError) as exc:
+        raise F.MissingInputError(f"an FS4 input cannot be read: {exc}") from exc
+
+
+def prepare_FS4(raw: dict) -> dict:
+    """Pure: stored content -> the arrays and numbers that are drawn. Keys are flat names; values are arrays, ints, floats, bools, strings or lists of strings."""
+    a7, ev = raw["a7"], raw["evaluators"]["evaluators"]
+    d: dict = {}
+    # (a) headline numerics at T_ramp 120 s (MS8 S13 records in the A7 table)
+    onset, cross, cls, lab = [], [], [], []
+    for fam, val, label in FS4_HEAD_ROWS:
+        sub = a7[a7["family"] == fam]
+        if fam == "delta0":
+            sub = sub[np.isclose(sub["delta0"].astype(float), val, rtol=0, atol=0)]
+        elif fam == "rtol":
+            sub = sub[np.isclose(sub["rtol"].astype(float), val, rtol=0, atol=0)]
+        if len(sub) != 1 or float(sub["T_ramp_s"].iloc[0]) != 120.0:
+            raise DataError(f"A7 table: family {fam} value {val}: {len(sub)} rows, expected one at T_ramp 120 s")
+        onset.append(float(sub["onset_s"].iloc[0]))
+        cross.append(float(sub["onset_cross_s"].iloc[0]))
+        cls.append(str(sub["cls"].iloc[0]))
+        lab.append(label)
+    d["head_label"], d["head_class"] = lab, cls
+    d["head_onset_s"], d["head_onset_cross_s"] = np.array(onset), np.array(cross)
+    d["head_radau_minus_default_ms"] = round((onset[-1] - onset[0]) * 1000.0, 6)
+    if round(d["head_radau_minus_default_ms"]) != 181 or any(c != "D-tr" for c in cls):
+        raise DataError(f"headline numerics: Radau minus default {d['head_radau_minus_default_ms']} ms (DL-184 says 181), classes {cls}")
+    # (b) MS11 delta0 and rtol at T_ramp 10 s and 316.2278 s (stored evaluator rows)
+    r5, r6 = ev["rb5_delta0"]["rows"], ev["rb6_rtol"]["rows"]
+    d["ms11_T"] = np.array([10.0, 316.22776601683796])
+    cols = [("delta0", 1e-9), ("delta0", 1e-3), ("rtol", 1e-12), ("rtol", 1e-8)]
+    d["ms11_col_label"] = [f"{k} {v:g}" for k, v in cols]
+    cl = np.empty((2, 4), dtype=object)
+    sh = np.zeros((2, 4))
+    for j, (k, v) in enumerate(cols):
+        for i, T in enumerate(d["ms11_T"]):
+            rows = [r for r in (r5 if k == "delta0" else r6) if r["T_ramp_s"] == T and r[k] == v]
+            if len(rows) != 1:
+                raise DataError(f"evaluator rows for {k} {v} at T_ramp {T}: {len(rows)}")
+            cl[i, j] = rows[0]["class"]
+            sh[i, j] = float(rows[0]["onset_shift_s"] if k == "delta0" else rows[0]["onset_diff_s"])
+    d["ms11_class"], d["ms11_onset_shift_s"] = cl.tolist(), sh
+    # (c) the D43 floor with the Heun dt ladder at T_ramp 120 s, both onset readings (A7 table)
+    levels = (0, 1, 2)
+    dts = np.array(sorted({float(x) for x in a7.loc[a7["family"] == "floor_l0", "heun_dt_tau"]}))
+    d["floor_dt"] = dts
+    for L in levels:
+        sub = a7[a7["family"] == f"floor_l{L}"]
+        for q, col in (("cross", "delay_eta_cross"), ("class", "delay_eta")):
+            arr = np.full((len(dts), 10), np.nan)
+            for i, dt in enumerate(dts):
+                s_ = sub[np.isclose(sub["heun_dt_tau"].astype(float), dt, rtol=0, atol=0)].sort_values("seed")
+                if len(s_) != 10:
+                    raise DataError(f"floor level {L} dt {dt}: {len(s_)} seeds, expected 10")
+                arr[i] = s_[col].to_numpy(dtype=float)
+            d[f"floor_l{L}_{q}_delay"] = arr
+    # (d) floor medians at T_ramp 10 s and 316.2278 s (stored evaluator rows, RB3(b) form, reported only)
+    fr = {(r["onset_reading"], r["T_ramp_s"]): r for r in ev["rb6_floor"]["rows"]}
+    d["floorT_median"] = np.array([[fr[("classifier_onset", T)]["median_delay_by_level"][str(L)] for L in levels] for T in d["ms11_T"]])
+    d["floorT_raw_noonset_seeds"] = np.array([[fr[("raw_first_crossing", T)]["seeds_without_onset_by_level"][str(L)] for L in levels] for T in d["ms11_T"]], dtype=float)
+    d["floorT_direction"] = [fr[("classifier_onset", T)]["direction"] for T in d["ms11_T"]]
+    # (e) network f_pk against dt, per seed (stored evaluator rows); the chain of rungs is checked: f2 of one halving is f1 of the next
+    net = ev["rb6_network"]
+    ce = net["per_reading"]["classifier_episode_fpk"]["rows"]
+    lad = [r for r in net["ladder_info"] if r["reading"] == "classifier_episode_fpk"]
+    f = np.full((3, 4), np.nan)
+    rel = np.full((3, 3), np.nan)
+    for r in ce:
+        f[r["seed"], 0], f[r["seed"], 1], rel[r["seed"], 0] = r["f1_hz"], r["f2_hz"], r["rel"]
+    for r in lad:
+        k = {(0.0005, 0.00025): 1, (0.00025, 0.0001): 2}[(r["dt_from"], r["dt_to"])]
+        if f[r["seed"], k] != r["f1_hz"]:
+            raise DataError(f"network ladder: seed {r['seed']} f_pk at the rung {r['dt_from']} differs between two stored rows")
+        f[r["seed"], k + 1], rel[r["seed"], k] = r["f2_hz"], r["rel"]
+    d["net_dt"], d["net_f_pk_hz"], d["net_rel_change"] = np.array(FS4_DT), f, rel
+    d["net_ce_n_pass"], d["net_psd_n_pass"] = int(net["per_reading"]["classifier_episode_fpk"]["n_pass"]), int(net["per_reading"]["psd_argmax"]["n_pass"])
+    d["net_psd_f_pk_hz"] = np.array([[r["f1_hz"], r["f2_hz"]] for r in net["per_reading"]["psd_argmax"]["rows"]])
+    d["net_psd_rel_change"] = np.array([r["rel"] for r in net["per_reading"]["psd_argmax"]["rows"]])
+    d["net_status"] = net["status"]
+    # (f) network classes by dt and V_p (information only) and the V_p comparison (reported only)
+    keys = sorted(net["classes_information"], key=lambda k: (-float(k.strip("()").split(",")[0]), -float(k.strip("()").split(",")[1]), int(k.strip("()").split(",")[2])))
+    rowsvp = sorted({(float(k.strip("()").split(",")[0]), float(k.strip("()").split(",")[1])) for k in keys}, key=lambda t: (-t[0], -t[1]))
+    d["netcls_row"] = [f"V_p {v:g}, dt {dt:g}" for v, dt in rowsvp]
+    d["netcls_class"] = [[net["classes_information"][f"({v}, {dt}, {s})"] for s in range(3)] for v, dt in rowsvp]
+    d["vp_dt"] = np.array([r["dt"] for r in net["vp_info"]])
+    d["vp_seed"] = np.array([r["seed"] for r in net["vp_info"]], dtype=float)
+    d["vp_f100_hz"], d["vp_f200_hz"] = np.array([r["f1_hz"] for r in net["vp_info"]]), np.array([r["f2_hz"] for r in net["vp_info"]])
+    # statuses of the A11 table against the evaluator file, and the thresholds the figure draws
+    st = {(r["rb_id"], r["check_id"]): r for r in raw["a11"]}
+    if st[("RB6", "network_fpk_halving_dt")]["pass_or_fail"] != net["status"] or st[("RB6", "network_fpk_halving_dt")]["threshold"] != f"< {FS4_RB6_FPK_BOUND:g}":
+        raise DataError("A11 row network_fpk_halving_dt differs from the evaluator file or the plan bound")
+    if st[("RB6", "solver_onset_headline")]["pass_or_fail"] != "FAIL" or st[("RB6", "solver_onset_headline")]["threshold"] != f"{FS4_RB6_SOLVER_BOUND_MS:g} ms":
+        raise DataError("A11 row solver_onset_headline differs from the stored FAIL or the plan bound")
+    if st[("RB5", "delta0_T10_T316")]["pass_or_fail"] != ev["rb5_delta0"]["status"]:
+        raise DataError("A11 row delta0_T10_T316 differs from the evaluator file")
+    d["rb_status"] = [f"{r['rb_id']} {r['check_id']}: {r['pass_or_fail']}" for r in raw["a11"] if r["rb_id"] in FS4_STRIP_RB]
+    d["strip"] = [{"rb_id": r["rb_id"], "check_id": r["check_id"], "value": r["value"], "threshold": r["threshold"], "status": r["pass_or_fail"]}
+                  for r in raw["a11"] if r["rb_id"] in FS4_STRIP_RB and r["pass_or_fail"] == "FAIL"]
+    d["a7_rows_read"] = int(sum(len(a7[a7["family"] == f_]) for f_ in ("S5ramp", "delta0", "rtol", "radau", "floor_l0", "floor_l1", "floor_l2")))
+    return d
+
+
+def fs4_strip_lines(d: dict) -> list[str]:
+    """FAIL rows of the stored A11 table that touch FS4; the numbers a blank 'value' cell leaves out are read from the stored evaluator file."""
+    out = []
+    for r in d["strip"]:
+        val = r["value"] if r["value"] else "value blank in the table"
+        extra = ""
+        if r["check_id"] == "network_fpk_halving_dt":
+            extra = f"; stored evaluator: classifier-episode f_pk {d['net_ce_n_pass']} of 3 seeds pass, PSD argmax {d['net_psd_n_pass']} of 3 pass"
+        out.append(f"{r['rb_id']} {r['check_id']}: {r['status']} ({val}; threshold {r['threshold']}{extra}) - results that rest on it are not used as evidence")
+    return out
+
+
+def _draw_FS4(d: dict, draft: bool):
+    import textwrap
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    plt.rcParams.update({"font.family": S.FONT_FAMILY, "font.size": S.FONT_SIZE_PT, "pdf.fonttype": 42})
+    fig = plt.figure(figsize=(7.4, 13.4), constrained_layout=True)
+    gs = fig.add_gridspec(5, 6, height_ratios=[1.6, 1.8, 1.9, 1.9, 2.6])
+    tol = S.diagram_mark("tol_band")
+    fcl = S.diagram_mark("fs4_cross")
+    # (a) headline numerics: one row per setting, the stored classifier onset (class marker) and the raw first crossing (small cross)
+    ax = fig.add_subplot(gs[0, 0:4])
+    n = len(d["head_label"])
+    for i in range(n):
+        st = S.get(d["head_class"][i])
+        ax.plot([d["head_onset_s"][i]], [i], ls="none", marker=st.marker, ms=6.5, color=st.colour, mec="#333333", mew=0.4, zorder=4, label=f"{d['head_class'][i]} (classifier onset)" if i == 0 else None)
+        ax.plot([d["head_onset_cross_s"][i]], [i], ls="none", marker=fcl.marker, ms=fcl.size, color=fcl.colour, mew=fcl.width, zorder=5, label="raw first crossing" if i == 0 else None)
+    ax.set_yticks(range(n), d["head_label"], fontsize=5.8)
+    ax.set_ylim(n - 0.5, -0.5)
+    ax.set_xlim(58.65, 58.93)
+    ax.set_xlabel("onset (s)", fontsize=6)
+    ax.set_title("(a) headline, T_ramp 120 s: onset under each numerical setting", fontsize=S.FONT_SIZE_PT - 1, loc="left")
+    ax.text(0.99, 0.42, f"RB6 solver clause: FAIL\nRadau - default = {d['head_radau_minus_default_ms']:g} ms\nagainst the 1 ms bound", transform=ax.transAxes, ha="right", va="center", fontsize=5.4,
+            color="#7f0000", bbox=dict(boxstyle="square,pad=0.25", fc="#ffffff", ec="#7f0000", lw=0.5))
+    ax.tick_params(labelsize=5.5)
+    ax.legend(loc="upper right", fontsize=5.0, frameon=True, framealpha=0.95)
+    # (b) MS11 delta0 and rtol at T_ramp 10 s and 316.2278 s
+    axb = fig.add_subplot(gs[0, 4:6])
+    for j in range(4):
+        for i in range(2):
+            st = S.get(d["ms11_class"][i][j])
+            axb.plot([j], [i], ls="none", marker=st.marker, ms=7, color=st.colour, mec="#333333", mew=0.4, zorder=4)
+            axb.text(j, i + 0.32, f"shift {d['ms11_onset_shift_s'][i, j]:g} s", ha="center", va="center", fontsize=4.6)
+    axb.set_xticks(range(4), d["ms11_col_label"], fontsize=5.0, rotation=35, ha="right")
+    axb.set_yticks(range(2), [f"T_ramp {t:g} s" for t in d["ms11_T"]], fontsize=5.5)
+    axb.set_ylim(1.6, -0.5)
+    axb.set_xlim(-0.6, 3.6)
+    axb.set_title("(b) MS11: class, onset shift", fontsize=S.FONT_SIZE_PT - 1, loc="left")
+    # (c) floors: delay against the Heun dt, both onset readings
+    for col, (q, ttl) in enumerate((("cross", "(c) D43 floor, raw first crossing"), ("class", "(c2) D43 floor, classifier onset"))):
+        axc = fig.add_subplot(gs[1, col * 2:col * 2 + 2])
+        for L in (0, 1, 2):
+            mk = S.diagram_mark(f"fs4_l{L}")
+            arr = d[f"floor_l{L}_{q}_delay"]
+            for i, dt in enumerate(d["floor_dt"]):
+                axc.plot([dt] * arr.shape[1], arr[i], ls="none", marker=mk.marker, ms=mk.size, color=mk.colour, mew=mk.width, zorder=3, label=f"level {L}" if i == 0 else None)
+        axc.set_xscale("log")
+        axc.set_xlabel("Heun dt (tau)", fontsize=6)
+        axc.set_ylabel("delay (eta_bar)" if col == 0 else "", fontsize=6)
+        axc.set_title(ttl, fontsize=S.FONT_SIZE_PT - 1, loc="left")
+        axc.tick_params(labelsize=5.5)
+        axc.set_ylim((-0.115, 0.055) if q == "cross" else (-1.56, -0.62))       # headroom: the legend row sits above the highest points
+        axc.legend(loc="upper center", ncol=3, fontsize=4.8, frameon=True, framealpha=0.95, handletextpad=0.2, columnspacing=0.8)
+    # (d) floor medians at the other T_ramp (reported only)
+    axd = fig.add_subplot(gs[1, 4:6])
+    for i, T in enumerate(d["ms11_T"]):
+        axd.plot([0, 1, 2], d["floorT_median"][i], ls="-" if i == 0 else "--", lw=0.8, marker=S.diagram_mark(f"w_{i}").marker, ms=6, color=S.diagram_mark(f"w_{i}").colour, zorder=3,
+                 label=f"T_ramp {T:g} s: {d['floorT_direction'][i]}")
+    axd.set_xticks([0, 1, 2], ["level 0", "level 1", "level 2"], fontsize=5.5)
+    axd.set_xlim(-0.4, 2.4)
+    axd.set_ylim(-1.95, -0.55)
+    axd.set_ylabel("median delay, classifier onset", fontsize=5.5)
+    axd.set_title("(d) floor, 10 s and 316 s", fontsize=S.FONT_SIZE_PT - 1, loc="left")
+    axd.tick_params(labelsize=5.5)
+    axd.legend(loc="lower center", fontsize=4.6, frameon=True, framealpha=0.95)
+    lo_, hi_ = int(d["floorT_raw_noonset_seeds"].min()), int(d["floorT_raw_noonset_seeds"].max())
+    axd.text(0.5, 0.97, "raw crossing: no onset in " + (f"{lo_}" if lo_ == hi_ else f"{lo_} to {hi_}") + " of 10 seeds", transform=axd.transAxes, ha="center", va="top", fontsize=4.6)
+    # (e) network f_pk against dt per seed: FAIL
+    axe = fig.add_subplot(gs[2, 0:3])
+    for s_ in range(3):
+        mk = S.diagram_mark(f"fs4_s{s_}")
+        axe.plot(d["net_dt"], d["net_f_pk_hz"][s_], color=mk.colour, ls=mk.linestyle, lw=0.8, marker=mk.marker, ms=mk.size, zorder=3, label=f"seed {s_}")
+        psd = S.diagram_mark("fs4_psd")
+        axe.plot(d["net_dt"][:2], d["net_psd_f_pk_hz"][s_], ls="none", marker=psd.marker, ms=psd.size, color=mk.colour, mew=psd.width, zorder=4, label="open: PSD argmax" if s_ == 0 else None)
+    axe.set_xscale("log")
+    axe.invert_xaxis()
+    axe.set_xlabel("network dt (tau), decreasing", fontsize=6)
+    axe.set_ylabel("f_pk (Hz)", fontsize=6)
+    axe.set_title("(e) network f_pk against dt: RB6 " + d["net_status"] + " (not used as evidence)", fontsize=S.FONT_SIZE_PT - 1, loc="left", color="#7f0000")
+    axe.tick_params(labelsize=5.5)
+    axe.set_ylim(40.0, 125.0)
+    axe.legend(loc="upper center", ncol=4, fontsize=4.6, frameon=True, framealpha=0.95, handletextpad=0.2, columnspacing=0.8)
+    # (f) relative change of f_pk per halving of dt against the 2 percent bound
+    axf = fig.add_subplot(gs[2, 3:6])
+    for s_ in range(3):
+        mk = S.diagram_mark(f"fs4_s{s_}")
+        axf.plot([0, 1, 2], d["net_rel_change"][s_], ls="none", marker=mk.marker, ms=mk.size, color=mk.colour, zorder=3, label=f"seed {s_}")
+    axf.axhline(FS4_RB6_FPK_BOUND, color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label="bound 0.02", zorder=2)
+    axf.set_xticks([0, 1, 2], ["1e-3 to 5e-4", "5e-4 to 2.5e-4", "2.5e-4 to 1e-4"], fontsize=5.2)
+    axf.set_xlim(-0.5, 2.5)
+    axf.set_ylim(-0.03, 0.78)
+    axf.set_ylabel("relative change of f_pk", fontsize=6)
+    axf.set_title("(f) classifier-episode f_pk per halving of dt", fontsize=S.FONT_SIZE_PT - 1, loc="left")
+    axf.tick_params(labelsize=5.5)
+    axf.legend(loc="upper left", fontsize=4.8, frameon=True, framealpha=0.95)
+    # (g) network classes by V_p, dt and seed (information only)
+    axg = fig.add_subplot(gs[3, 0:3])
+    for i, row in enumerate(d["netcls_class"]):
+        for s_, c in enumerate(row):
+            st = S.get(c)
+            axg.plot([s_], [i], ls="none", marker=st.marker, ms=6.5, color=st.colour, mec="#333333", mew=0.4, zorder=4)
+            axg.text(s_ + 0.22, i, c, va="center", fontsize=4.6)
+    axg.set_yticks(range(len(d["netcls_row"])), d["netcls_row"], fontsize=5.3)
+    axg.set_xticks(range(3), ["seed 0", "seed 1", "seed 2"], fontsize=5.5)
+    axg.set_xlim(-0.5, 2.9)
+    axg.set_ylim(len(d["netcls_row"]) - 0.5, -0.5)
+    axg.set_title("(g) network class by dt and V_p: information only (G4-C3 stands)", fontsize=S.FONT_SIZE_PT - 1, loc="left")
+    # (h) V_p comparison, reported only
+    axh = fig.add_subplot(gs[3, 3:6])
+    v1, v2 = S.diagram_mark("fs4_vp100"), S.diagram_mark("fs4_vp200")
+    xx = np.arange(len(d["vp_seed"]), dtype=float)
+    axh.plot(xx, d["vp_f100_hz"], ls="none", marker=v1.marker, ms=v1.size, color=v1.colour, zorder=3, label="V_p +-100")
+    axh.plot(xx, d["vp_f200_hz"], ls="none", marker=v2.marker, ms=v2.size, color=v2.colour, mew=v2.width, zorder=4, label="V_p +-200")
+    axh.set_xticks(xx, [f"{dt:g}\ns{int(s)}".replace("\\n", "\n") for dt, s in zip(d["vp_dt"], d["vp_seed"])], fontsize=4.8)
+    axh.set_ylim(40.0, 118.0)
+    axh.set_xlim(-0.5, len(xx) - 0.5)
+    axh.set_ylabel("f_pk (Hz)", fontsize=6)
+    axh.set_title("(h) V_p +-100 against +-200 (reported only)", fontsize=S.FONT_SIZE_PT - 1, loc="left")
+    axh.tick_params(labelsize=5.5)
+    axh.legend(loc="upper left", fontsize=4.8, frameon=True, framealpha=0.95)
+    # status block
+    axs = fig.add_subplot(gs[4, :])
+    axs.axis("off")
+    lines = ["Stored status of the RB5 and RB6 rows (A11 table; a failure is shown, not dropped):"] + ["    " + s for s in d["rb_status"]]
+    lines += ["FAIL rows of the stored A11 table that touch FS4:"] + ["    " + s for s in fs4_strip_lines(d)]
+    for s in (f"Panels (a), (c) and (c2) are rows of the stored A7 table ({d['a7_rows_read']} rows read); (b), (d), (e), (f), (g) and (h) are rows of the stored A11 evaluator file. No series is drawn.",
+              "Panels (a) to (d) are noise-free or floored mean-field runs; (e) to (h) are network runs at N = 1e4, 3 seeds, one T_ramp (G4-C1 to G4-C6 apply; the f_pk reading is UNVERIFIED, M11-6)."):
+        lines += textwrap.wrap(s, width=135, subsequent_indent="    ")
+    lines = [ln for t_ in lines for ln in textwrap.wrap(t_, width=135, subsequent_indent="        ")]
+    axs.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=5.6, linespacing=1.25)
+    axs.text(0.0, 0.0, FS4_FOOTER if draft else "", fontsize=5.5, color="#7f0000", ha="left", va="bottom")
+    return fig
+
+
+def fs4_caption_notes(d: dict) -> tuple:
+    """Sentences about what is and is not drawn (13i). Values come from the prepared data; only the wording is typed here."""
+    return (
+        "Panel (a) draws, for the six stored MS8 headline runs (P2, ref_devalle, T_ramp 120 s, noise-free), the classifier onset with the class marker and the raw first crossing "
+        "as a small cross; the two onsets are equal in every run, so the cross lies on the marker. The solver rows are DOP853 (default rtol 1e-10) and Radau (rtol 1e-10); the "
+        "Radau comparison covers T_ramp 120 s only (MS11-C5). The cause of the 181 ms is not known (UNVERIFIED).",
+        "Panel (b) is the stored MS11 result for delta0 and rtol at T_ramp 10 s and 316.2278 s (class and onset shift in seconds at the 1 ms output grid).",
+        "Panels (c) and (c2) draw the stored delay of every D43-floored run (levels 0 to 2, 10 seeds, Heun dt 1e-3 to 1e-4 tau) under both onset readings, as in G6-D3; the delay is the same at "
+        "every dt, as the stored table has it (a statement at the 1 ms output resolution, DL-184, DL-190), so the points of one level lie on one another. Panel (d) is reported only (DL-356).",
+        "Panels (e) and (f) draw the stored network f_pk at each dt rung and its relative change per halving; (f) uses the classifier-episode reading, and the PSD-argmax reading of the "
+        "first halving is drawn as open marks in (e). RB6 network FAILS under both readings (0 of 3 and 2 of 3 seeds pass; the row is FAIL if any evaluable seed fails, DL-348). "
+        "Network f_pk results are labelled FAIL and are not used as evidence. Panel (g) and (h) are information only (DL-349).",
+        "The network classes in (g) are not evidence of a ramp-driven surge (G4-C3); one seed per cell. The claim-limit IDs listed here are PROPOSED for the reviewer's ruling.",
+    )
+
+
+def make_FS4(res=None, out_dir=None, *, tag_build: bool = False, take_home=FS4_TAKE_HOME, claim_limit_ids=FS4_CLAIM_LIMITS,
+             script="scripts/fig_FS4.py", root=None) -> dict:
+    """Build FS4 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov)."""
+    F.require_buildable("FS4")
+    root = Path(root) if root is not None else repo_root()
+    res = Path(res) if res is not None else root / "results"
+    out = Path(out_dir) if out_dir is not None else root / "figures" / "FS4"
+    t = {"start": time.perf_counter()}
+    raw = load_FS4(res)
+    t["load"] = time.perf_counter()
+    d = prepare_FS4(raw)
+    t["prepare"] = time.perf_counter()
+    rows = []
+    for key, rec in raw["records"].items():
+        for r in make_param_table(rec["config"]):
+            rows.append({**r, "panel": key, "section": "", "source_run_id": rec["name"], "source_config_hash12": rec["config_hash12"]})
+    cap = CAP.build_caption("FS4", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=[r for r in rows if r["key"] in FS4_CAPTION_KEYS],
+                            spectrogram=None, symbol_keys=(), notes=fs4_caption_notes(d))
+    import matplotlib.pyplot as plt
+    fig = _draw_FS4(d, draft=not tag_build)
+    out.mkdir(parents=True, exist_ok=True)
+    pdf, png = out / "FS4.pdf", out / "FS4.png"
+    fig.savefig(pdf)
+    fig.savefig(png, dpi=S.PNG_DPI)
+    plt.close(fig)
+    t["draw"] = time.perf_counter()
+    cap_path, dig_path = out / "FS4_caption.txt", out / "FS4_drawn_data_sha256.txt"
+    from .. import provenance as P
+    drawn = drawn_data_sha256(d)
+    P.atomic_write_text(cap_path, cap.text + "\n")
+    P.atomic_write_text(dig_path, drawn + "\n")
+    warnings = []
+    for k, rec in raw["records"].items():
+        if (rec.get("git") or {}).get("dirty"):
+            warnings.append(f"input record {k} ({rec['name']}) was written with git dirty = true")
+    prov = F.write_figure_provenance(
+        "FS4", script=script, inputs=[res / p for p in FS4_INPUTS], outputs=[pdf, png, cap_path, dig_path], params_rows=rows,
+        modules=["src/mprsurge/plotting/figures.py", "src/mprsurge/plotting/style.py", "src/mprsurge/plotting/captions.py",
+                 "src/mprsurge/plotting/nordlie.py", "src/mprsurge/plotting/figprov.py"],
+        configs=["configs/S13.yaml"], claim_limits=cap.claim_limits, input_tables=[{"path": res / FS4_INPUTS[0], "rows": int(len(raw["a7"]))},
+                                                                                     {"path": res / FS4_INPUTS[2], "rows": len(raw["a11"])}],
+        spectrogram=None, tag_build=tag_build, out_dir=out, root=root, warnings=warnings, wall_time_s=time.perf_counter() - t["start"])
+    nordlie_path = out / "FS4_nordlie.md"
+    N.write_nordlie(out / "FS4_params.csv", out / "FS4_provenance.json", nordlie_path, root=root)
+    t["end"] = time.perf_counter()
+    timing = {"load_s": t["load"] - t["start"], "prepare_s": t["prepare"] - t["load"], "draw_s": t["draw"] - t["prepare"],
+              "provenance_and_nordlie_s": t["end"] - t["draw"], "total_s": t["end"] - t["start"]}
+    return {"prov": prov, "paths": [pdf, png, cap_path, dig_path, out / "FS4_params.csv", out / "FS4_provenance.json", nordlie_path],
+            "timing_s": timing, "drawn_sha256": drawn, "caption": cap.text}
+
 
 def make_FS6(*args, **kwargs):
     """FS6 is not produced (S14 and S15 were not run, MS12-C1, DL-421): raises figprov.FigureRefused."""

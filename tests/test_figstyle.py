@@ -219,7 +219,7 @@ def test_13f_diagram_marks_are_style_keys_outside_the_class_table():
     # exact: the F2 diagram marks (13f) sit outside STYLE, so the unique-marker test and the colour report are unchanged; the two sweep directions of a
     # source differ in marker shape; sources differ in colour and fill; no colour of the class/path/control/source table is reused
     keys = {"a5_cycle", "a5_fixed_stable", "a5_fixed_unstable", "hopf_point", "s4_mf_up", "s4_mf_down", "s4_net_up", "s4_net_down"}
-    keys |= set(FS1_MARK_KEYS) | set(FS2_MARK_KEYS) | set(FS5_MARK_KEYS)                                                      # 13h: the FS1 marks are in the same table
+    keys |= set(FS1_MARK_KEYS) | set(FS2_MARK_KEYS) | set(FS5_MARK_KEYS) | set(FS4_MARK_KEYS)                                                      # 13h: the FS1 marks are in the same table
     assert set(S.DIAGRAM_MARKS) == keys and all(S.diagram_mark(k).key == k for k in keys)
     drawn = [S.diagram_mark(k) for k in ("s4_mf_up", "s4_mf_down", "s4_net_up", "s4_net_down", "hopf_point")]
     assert len({m.marker for m in drawn}) == 5                                      # five drawn marks, all different shapes (mean field: filled carets; network: open vertex shapes)
@@ -281,3 +281,19 @@ def test_13i_fs5_marks_are_style_keys_outside_the_class_table():
     assert len({m.marker for m in w}) == 6 and len({m.colour for m in w}) == 6 and len({str(m.linestyle) for m in w}) == 6
     assert set(S.CLASS_HATCH) == set(S.CLASS_KEYS) and len(set(S.CLASS_HATCH.values())) == len(S.CLASS_KEYS)
     assert S.CHANGE_CMAP == "YlOrBr"
+
+
+FS4_MARK_KEYS = ("fs4_cross", "fs4_l0", "fs4_l1", "fs4_l2", "fs4_s0", "fs4_s1", "fs4_s2", "fs4_psd", "fs4_vp100", "fs4_vp200")
+
+
+def test_13i_fs4_marks_are_style_keys_outside_the_class_table():
+    # exact: the FS4 marks are diagram marks (colours avoid every class/path/control/source colour and the halo; markers avoid every table marker); the three floor
+    # levels differ in marker and colour, the three network seeds differ in marker (their own digit), colour and line style
+    marks = [S.diagram_mark(k) for k in FS4_MARK_KEYS]
+    assert all(m.key == k for m, k in zip(marks, FS4_MARK_KEYS))
+    assert {m.colour.lower() for m in marks}.isdisjoint({s.colour.lower() for s in S.STYLE.values()} | {S.HALO_COLOUR.lower()})
+    table_markers = {s.marker for s in S.STYLE.values()}
+    assert not {m.marker for m in marks if m.marker is not None} & table_markers
+    lv, sd = marks[1:4], marks[4:7]
+    assert len({str(m.marker) for m in lv}) == 3 and len({m.colour for m in lv}) == 3
+    assert len({m.marker for m in sd}) == 3 and len({m.colour for m in sd}) == 3 and len({m.linestyle for m in sd}) == 3
