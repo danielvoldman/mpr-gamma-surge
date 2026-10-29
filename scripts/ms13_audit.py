@@ -156,14 +156,14 @@ class Module:
         """Literal colours, colormaps, hatches, markers and sizes in the drawing code (must be none)."""
         out = []
         for n in names:
+            kw_values = set()
             for node in ast.walk(self.funcs[n]):
-                if isinstance(node, ast.Constant) and isinstance(node.value, str) and HEX.fullmatch(node.value):
-                    out.append(f"{n}:{node.lineno} hex colour {node.value}")
                 if isinstance(node, ast.Call):
                     for kw in node.keywords:
                         v = kw.value
                         if kw.arg in COLOUR_KW and isinstance(v, ast.Constant) and isinstance(v.value, str) and v.value.lower() != "none":
                             out.append(f"{n}:{node.lineno} {kw.arg}={v.value!r}")
+                            kw_values.add(id(v))
                         elif kw.arg in COLOUR_KW and isinstance(v, (ast.Tuple, ast.List)) and v.elts and all(isinstance(e, ast.Constant) for e in v.elts):
                             out.append(f"{n}:{node.lineno} {kw.arg}=<literal tuple>")
                         elif kw.arg == "cmap" and isinstance(v, ast.Constant) and isinstance(v.value, str):
@@ -174,6 +174,9 @@ class Module:
                             out.append(f"{n}:{node.lineno} marker={v.value!r}")
                         elif kw.arg in SIZE_KW and isinstance(v, ast.Constant) and isinstance(v.value, (int, float)):
                             out.append(f"{n}:{node.lineno} {kw.arg}={v.value!r}")
+            for node in ast.walk(self.funcs[n]):
+                if isinstance(node, ast.Constant) and isinstance(node.value, str) and HEX.fullmatch(node.value) and id(node) not in kw_values:
+                    out.append(f"{n}:{node.lineno} hex colour {node.value}")
         return sorted(set(out))
 
     def strip_spec(self, fig: str):
@@ -351,7 +354,9 @@ def audit_figure(root: Path, fig: str, mod: Module, labels, plan_rows, a11) -> d
                 r["label_bad"].append(lab)
                 flag(f"{fig}: label {lab} is printed with a definition that differs from docs/claim_limit_labels.md")
     seg = caption.split("Claim limits: ", 1)[1] if "Claim limits: " in caption else ""
-    in_caption = [lab for lab in labels if f"{lab}: " in seg]
+    with_defs = [lab for lab in labels if f"{lab}: " in seg]
+    r["limit_style"] = "definitions" if with_defs else "ids only"
+    in_caption = with_defs if with_defs else [x.strip() for x in seg.split(".")[0].split(",") if x.strip()]
     r["caption_labels"] = in_caption
     if set(in_caption) != set(ids):
         flag(f"{fig}: labels printed under 'Claim limits:' {sorted(set(in_caption) ^ set(ids))} differ from the provenance claim limits")
@@ -400,6 +405,7 @@ def render(results: list[dict], mod: Module, labels, plan_rows) -> str:
               f"- caption strings required by tests/test_fig_{r['fig']}.py: {len(r['required']['in'])} 'in', {len(r['required']['not in'])} 'not in', "
               f"{len(r['required']['startswith'])} 'startswith'; missing: " + (", ".join(repr(s) for s in r["required_missing"]) if r["required_missing"] else "none"),
               "  - required (in): " + "; ".join(repr(s) for s in r["required"]["in"]),
+              f"- claim-limit sentence style: {r['limit_style']}",
               "- generic caption checks (no hash, no 12-hex run, no provenance wording): " + ("; ".join(r["generic"]) if r["generic"] else "pass"),
               f"- functions reached ({len(r['functions'])}): " + ", ".join(r["functions"]),
               f"- style keys used ({len(r['style_keys'])}): " + ", ".join(r["style_keys"]),
@@ -421,6 +427,11 @@ def run(root: Path, out: Path | None = None, figs=FIGURES) -> tuple[str, list[di
     mod = Module(root)
     a11 = a11_table(root)
     results = [audit_figure(root, fig, mod, labels, plan_rows, a11) for fig in figs]
+    styles = {r["limit_style"] for r in results}
+    if len(styles) > 1:
+        for r in results:
+            if r["limit_style"] == "ids only":
+                r["flags"].append(f"{r['fig']}: 'Claim limits:' prints the IDs without the table definitions (other captions print ID, short form and DL numbers)")
     text = render(results, mod, labels, plan_rows)
     if out is not None:
         with open(out, "w", newline="", encoding="utf-8") as f:
