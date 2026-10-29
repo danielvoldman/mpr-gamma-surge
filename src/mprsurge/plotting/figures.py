@@ -902,18 +902,18 @@ def _draw_FS1(d: dict, draft: bool):
     axc.set_title("(c) A2 ring map: cycles per e-fold, 25 to 100 Hz band", fontsize=S.FONT_SIZE_PT)
     # (d) K4 step response
     axd = fig.add_subplot(gs[1, 1])
-    axd.plot(d["K4_t_ms"], d["K4_r"], color=k4t.colour, lw=k4t.width, ls=k4t.linestyle, label="S1 K4: r(t), stored series", zorder=3)
-    axd.axhline(d["k4_r_star"], color=rst.colour, lw=rst.width, ls=rst.linestyle, label=f"post-step focus r* = {d['k4_r_star']:.4f} (A2)", zorder=2)
+    axd.plot(d["K4_t_ms"], d["K4_r"], color=k4t.colour, lw=k4t.width, ls=k4t.linestyle, label="S1 K4 r(t), stored", zorder=3)
+    axd.axhline(d["k4_r_star"], color=rst.colour, lw=rst.width, ls=rst.linestyle, label=f"focus r* = {d['k4_r_star']:.4f} (A2)", zorder=2)
     for x, lab in ((d["k4_t_start_ms"], "fit window start"), (d["k4_t_end_ms"], "fit window end")):
-        axd.axvline(x, color=win.colour, lw=win.width, ls=win.linestyle, label=f"{lab} ({x:g} ms)" if lab.endswith("start") else f"{lab} ({x:g} ms)", zorder=1)
+        axd.axvline(x, color=win.colour, lw=win.width, ls=win.linestyle, label=f"{lab} {x:g} ms", zorder=1)
     axd.set_xlim(0.0, 600.0)
     axd.set_xlabel("t (ms)")
     axd.set_ylabel("r")
     axd.set_title("(d) K4: step I = 0 to 3 at (-5, 15); axis cut at 600 ms", fontsize=S.FONT_SIZE_PT)
-    axd.legend(loc="upper right", fontsize=5.4, frameon=True, framealpha=0.95)
-    axd.text(0.98, 0.34, f"stored fit: omega {d['k4_omega_fit']:.4f}\n  decay {d['k4_decay_fit']:.5f} per tau\nlinearisation: omega {d['k4_omega_lin']:.4f}\n  decay {d['k4_decay_lin']:.5f}\n"
-             f"relative error {d['k4_rel_err_frequency']:.2g} (frequency)\n  {d['k4_rel_err_decay']:.2g} (decay), tolerance {d['k4_tol_frequency']:g}\n"
-             f"{'pass' if d['k4_pass'] else 'FAIL'}; {d['k4_cycles']:.1f} tail cycles", transform=axd.transAxes, fontsize=5.4, va="top", ha="right")
+    axd.legend(loc="upper right", bbox_to_anchor=(0.66, 1.0), fontsize=5.0, frameon=True, framealpha=0.95)      # between the two window lines
+    axd.text(0.22, 0.40, f"fit: omega {d['k4_omega_fit']:.4f}\n     decay {d['k4_decay_fit']:.5f} per tau\nlinearised: omega {d['k4_omega_lin']:.4f}\n     decay {d['k4_decay_lin']:.5f}\n"
+             f"rel. err. {d['k4_rel_err_frequency']:.2g} (freq.)\n     {d['k4_rel_err_decay']:.2g} (decay)\ntolerance {d['k4_tol_frequency']:g}; {'pass' if d['k4_pass'] else 'FAIL'}\n"
+             f"{d['k4_cycles']:.1f} tail cycles", transform=axd.transAxes, fontsize=5.0, va="top", ha="left")
     # (e) K5 sinusoid
     axe = fig.add_subplot(gs[2, :])
     axe.plot(d["K5_t_ms"], d["K5_r"], color=k5t.colour, lw=k5t.width, ls=k5t.linestyle, label="S1 K5: r(t), stored series", zorder=3)
@@ -923,6 +923,8 @@ def _draw_FS1(d: dict, draft: bool):
     axe2 = axe.twinx()
     axe2.plot(d["K5_t_ms"], d["K5_I"], color=frc.colour, lw=frc.width, ls=frc.linestyle, label="forcing I(t), stored", zorder=1)
     axe2.set_ylabel("forcing I", color=frc.colour)
+    axe.set_ylim(0.0, 4.8)                       # headroom: the legend sits above the r peaks and the forcing peaks
+    axe2.set_ylim(-4.8, 4.8)
     axe.set_title("(e) K5 sinusoidal forcing: own reading, UNVERIFIED, source check deferred (DL-064, DL-082)", fontsize=S.FONT_SIZE_PT)
     h1, l1 = axe.get_legend_handles_labels()
     h2, l2 = axe2.get_legend_handles_labels()
@@ -1185,7 +1187,7 @@ def _draw_FS2(d: dict, draft: bool):
     ax.set_ylabel("v amplitude")
     ax.set_xlim(2.5, 10.5)
     ax.set_title("(a) K7: ref_ceni amplitude of v against tau_d", fontsize=S.FONT_SIZE_PT)
-    ax.legend(loc="upper left", fontsize=5.4, frameon=True, framealpha=0.95)
+    ax.legend(loc="lower right", fontsize=5.4, frameon=True, framealpha=0.95)
     # (b) K7 amplitude half: A^2 against tau_d with the stored fits
     axb = fig.add_subplot(gs[0, 3:6])
     for name in ("up", "down"):
@@ -1194,26 +1196,31 @@ def _draw_FS2(d: dict, draft: bool):
     w = d["fit_window_ms"]
     x = np.array([h + w[0], h + w[1]])
     axb.plot(x, d["fit_s4_up_slope"] * (x - h) + d["fit_s4_up_intercept"], color=paper.colour, lw=1.6, ls="-", zorder=4,
-             label=f"stored fit, S4 up, window {w[0]:g} to {w[1]:g} ms above Hopf: R2 {d['fit_s4_up_r2']:.5f}, residual {100 * d['fit_s4_up_max_resid_frac']:.2f} percent")
+             label=f"stored fit, S4 up, window {w[0]:g} to {w[1]:g} ms\nabove Hopf: R2 {d['fit_s4_up_r2']:.5f}, residual {100 * d['fit_s4_up_max_resid_frac']:.2f} percent")
     pw = d["fit_posthoc_window_ms"]
     xp = np.array([h + pw[0], h + pw[1]])
     axb.plot(xp, d["fit_posthoc_near_hopf_slope"] * (xp - h) + d["fit_posthoc_near_hopf_intercept"], color=tol.colour, lw=1.6, ls="-", zorder=4,
-             label=f"POST HOC fit (exploratory), window {pw[0]:g} to {pw[1]:g} ms: residual {100 * d['fit_posthoc_near_hopf_max_resid_frac']:.2f} percent")
+             label=f"POST HOC fit (exploratory), window {pw[0]:g} to {pw[1]:g} ms\nabove Hopf: residual {100 * d['fit_posthoc_near_hopf_max_resid_frac']:.2f} percent")
     axb.axvline(h, color=hp.colour, ls=hp.linestyle, lw=hp.width, zorder=1)
     axb.set_xlim(h - 0.1, 6.0)
-    axb.set_ylim(0.0, 5.5)
+    axb.set_ylim(0.0, 11.0)                         # headroom: the legend sits right of the Hopf line and above the A5 branch (its largest value in the window is 6.8)
     axb.set_xlabel(r"$\tau_d$ (ms); axis cut at 6 ms, the A5 branch runs to 10 ms")
     axb.set_ylabel("v amplitude squared")
-    axb.set_title("(b) K7 amplitude half: REPORTED FAILURE on the residual rule", fontsize=S.FONT_SIZE_PT)
-    axb.legend(loc="upper left", fontsize=5.0, frameon=True, framealpha=0.95)
+    axb.set_title("(b) K7 amplitude half: REPORTED FAILURE (residual)", fontsize=S.FONT_SIZE_PT)
+    axb.legend(loc="upper right", fontsize=5.0, frameon=True, framealpha=0.95)
     # (c) traces
-    sub = gs[1, :].subgridspec(1, 5, wspace=0.28)
+    sub = gs[1, :].subgridspec(2, 5, wspace=0.28, height_ratios=[0.16, 1.0])
+    axl = fig.add_subplot(sub[0, :])                    # key of the line colours of (c) to (g)
+    axl.axis("off")
+    from matplotlib.lines import Line2D
+    axl.legend([Line2D([], [], color=m.colour, lw=m.width) for m in (mf, n1, n5)],
+               ["mean field", "network N = 1e4 (all panels)", "network N = 5e4 (devalle 5 ms only)"], loc="center", ncol=3, fontsize=5.4, frameon=False)
     specs = [("ceni 3 ms", [("mf_ceni_3.0", "s3_mf"), ("net_ceni_3ms", "s3_net_1e4")]), ("ceni 4.95 ms", [("mf_ceni_4.95", "s3_mf"), ("net_ceni_4.95ms", "s3_net_1e4")]),
              ("ceni 8 ms", [("mf_ceni_8.0", "s3_mf"), ("net_ceni_8ms", "s3_net_1e4")]),
              ("devalle 5 ms", [("mf_devalle_5.0", "s3_mf"), ("net_devalle_5ms", "s3_net_1e4"), ("net_k8_5e4_5ms", "s3_net_5e4")]),
              ("devalle 50 ms", [("mf_devalle_50.0", "s3_mf"), ("net_devalle_50ms", "s3_net_1e4")])]
     for i, (title, series) in enumerate(specs):
-        axt = fig.add_subplot(sub[0, i])
+        axt = fig.add_subplot(sub[1, i])
         _fs2_trace(axt, d, series, f"({'cdefg'[i]}) {title}")
         axt.set_xlabel("t (ms)", fontsize=5.5)
         if i == 0:
@@ -1230,15 +1237,17 @@ def _draw_FS2(d: dict, draft: bool):
     axd.axhline(0.0, color="#7a7a7a", lw=0.5, zorder=1)
     axd.set_xticks(xs)
     axd.set_xticklabels([n.replace("_", " ").replace("k8 5e4 5ms", "devalle 5ms N 5e4") for n in names], rotation=40, ha="right", fontsize=5.5)
+    axd.set_ylim(-7.0, 31.0)                     # headroom: the legend sits above the largest stored difference (18.3 percent, fitted amplitude at ceni 4.95 ms)
     axd.set_ylabel("(network - MF) / MF (percent)")
     axd.set_title("(h) S3 network against mean field", fontsize=S.FONT_SIZE_PT)
     axd.legend(loc="upper left", fontsize=5.0, frameon=True, framealpha=0.95)
     # (i) K9
     axe = fig.add_subplot(gs[2, 2:4])
     k9 = S.diagram_mark("k9_pt")
-    axe.plot(d["k9_eta_bar"], d["k9_ratio"], ls="none", marker=k9.marker, ms=k9.size, color=k9.colour, zorder=4, label="largest Delta/eta_bar on the Hopf curve (A4)")
-    axe.axhspan(FS2_K9[0] - FS2_K9[1], FS2_K9[0] + FS2_K9[1], color=tol.colour, alpha=0.3, lw=0, label="plan: 0.1453 +- 0.002")
+    axe.plot(d["k9_eta_bar"], d["k9_ratio"], ls="none", marker=k9.marker, ms=k9.size, color=k9.colour, zorder=4, label="largest Delta/eta_bar (A4)")
+    axe.axhspan(FS2_K9[0] - FS2_K9[1], FS2_K9[0] + FS2_K9[1], color=tol.colour, alpha=0.3, lw=0, label="plan 0.1453 +- 0.002")
     axe.set_xticks(d["k9_eta_bar"])
+    axe.set_ylim(FS2_K9[0] - 3 * FS2_K9[1], FS2_K9[0] + 3 * FS2_K9[1])      # the plan band is +-0.002: three band widths either side, so the band is a band
     axe.set_xlim(0.5, 4.5)
     axe.set_xlabel(r"$\bar\eta$")
     axe.set_ylabel(r"$\Delta/\bar\eta$")
@@ -1254,7 +1263,7 @@ def _draw_FS2(d: dict, draft: bool):
     axk.set_xticks([5e-4, 1e-3, 2e-3, 5e-3])
     axk.set_xticklabels(["5e-4", "1e-3", "2e-3", "5e-3"], fontsize=6)
     axk.minorticks_off()
-    axk.set_ylim(0.986, 1.014)
+    axk.set_ylim(0.980, 1.014)
     axk.set_xlabel("-J at the Hopf point")
     axk.set_ylabel("ratio")
     axk.set_title("(j) K11, Delta = 1e-4", fontsize=S.FONT_SIZE_PT)
@@ -1270,7 +1279,7 @@ def _draw_FS2(d: dict, draft: bool):
     axf.set_xlabel(r"$\tau_d$ (ms)")
     axf.set_ylabel("frequency (Hz)")
     axf.set_title("(k) K10 frequency against tau_d (band and monotone parts)", fontsize=S.FONT_SIZE_PT)
-    axf.legend(loc="upper right", fontsize=5.0, frameon=True, framealpha=0.95)
+    axf.legend(loc="center right", bbox_to_anchor=(1.0, 0.68), fontsize=5.0, frameon=True, framealpha=0.95)
     # (l) K10 J dependence: stored linear frequency
     axg = fig.add_subplot(gs[3, 3:6])
     for tau, key in (("8.0", "k10_j8"), ("20.0", "k10_j20"), ("40.0", "k10_j40")):
@@ -1280,6 +1289,7 @@ def _draw_FS2(d: dict, draft: bool):
     axg.set_xlabel("J")
     axg.set_ylabel("linear Im lambda frequency (Hz)")
     axg.set_title("(l) K10 J dependence: NOT reproduced as worded", fontsize=S.FONT_SIZE_PT)
+    axg.set_ylim(top=25.0)                       # headroom: the legend sits above the first marker of the 8 ms line
     axg.legend(loc="upper left", fontsize=5.0, frameon=True, framealpha=0.95)
     # status block
     axs = fig.add_subplot(gs[4, :])

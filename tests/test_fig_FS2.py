@@ -194,3 +194,24 @@ def test_caption_names_the_plotted_quantities_marks_the_proposals_and_has_no_pro
     assert "single-source" in caption or "single source" in caption
     assert not re.search(r"[0-9a-f]{12,}", caption) and "hash" not in caption.lower() and not re.search(r"\bsha(256)?\b", caption.lower())
     assert "Provenance" not in caption and "FS2_" not in caption
+
+
+def test_layout_no_legend_covers_a_line_or_marker_and_the_k9_band_is_a_band_and_the_trace_key_exists():
+    """13i layout review: display-space check on the drawn artists (tests/figlayout.py; exact geometry); the K9 band must cover less than half the axes height
+    (its height is the plan's +-0.002, the stored values are drawn unchanged); panels (c) to (g) carry a key for the colours of their lines."""
+    import matplotlib.pyplot as plt
+    from figlayout import legend_line_hits
+    d = FG.prepare_FS2(FG.load_FS2())
+    fig = FG._draw_FS2(d, True)
+    try:
+        assert legend_line_hits(fig) == []
+        from figlayout import clipped_texts
+        assert clipped_texts(fig) == []                                      # no title, label or legend text leaves the figure canvas
+        axi = _ax(fig, "(i)")
+        lo, hi = axi.get_ylim()
+        assert (2 * FG.FS2_K9[1]) / (hi - lo) < 0.5
+        assert lo < FG.FS2_K9[0] - FG.FS2_K9[1] and hi > FG.FS2_K9[0] + FG.FS2_K9[1]
+        keys = [a for a in fig.axes if a.get_legend() is not None and "mean field" in [t.get_text() for t in a.get_legend().get_texts()]]
+        assert len(keys) == 1 and len(keys[0].get_legend().get_texts()) == 3
+    finally:
+        plt.close(fig)

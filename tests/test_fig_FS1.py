@@ -146,7 +146,7 @@ def test_drawn_maps_and_points_equal_the_stored_values_exactly():
         s4 = raw["series"]["S1_K4"][0]
         ln = [x for x in td.get_lines() if x.get_label().startswith("S1 K4")][0]
         assert np.array_equal(ln.get_xdata(), s4["t_ms"]) and np.array_equal(ln.get_ydata(), s4["r"])    # exact: the stored series, no smoothing
-        hl = [x for x in td.get_lines() if x.get_label().startswith("post-step")][0]
+        hl = [x for x in td.get_lines() if x.get_label().startswith("focus r*")][0]
         assert hl.get_ydata()[0] == float(a2["k4_r_star"])
         vx = sorted(float(x.get_xdata()[0]) for x in td.get_lines() if x.get_label().startswith("fit window"))
         assert vx == [float(a2["k4_t_start_tau"]) * float(a2["tau_ms"]), float(a2["k4_t_end_tau"]) * float(a2["tau_ms"])]
@@ -200,3 +200,23 @@ def test_caption_names_the_plotted_quantities_marks_the_proposals_and_has_no_pro
     assert "UNVERIFIED" in caption and "No crossing is drawn" in caption and "nothing here is a result for M3" in caption
     assert not re.search(r"[0-9a-f]{12,}", caption) and "hash" not in caption.lower() and not re.search(r"\bsha(256)?\b", caption.lower())
     assert "Provenance" not in caption and "FS1_" not in caption
+
+
+def test_layout_no_legend_covers_a_line_and_the_k4_numbers_do_not_cross_the_fit_window_lines():
+    """13i layout review: display-space check on the drawn artists (tests/figlayout.py; exact geometry). The legend of panel (a) covers map cells only (not tested: background)."""
+    import matplotlib.pyplot as plt
+    from figlayout import legend_line_hits, text_line_hits
+    d = FG.prepare_FS1(FG.load_FS1())
+    fig = FG._draw_FS1(d, True)
+    try:
+        assert legend_line_hits(fig) == []
+        from figlayout import clipped_texts
+        assert clipped_texts(fig) == []                                      # no title, label or legend text leaves the figure canvas
+        axd = [a for a in fig.axes if a.get_title().startswith("(d)")][0]
+        from figlayout import texts_below_axes
+        assert texts_below_axes(fig, axd, "fit: omega") == []                # the number block lies inside the axes frame
+        assert text_line_hits(fig, axd, "fit: omega") == []                  # the two dash-dot window lines and the trace are clear of the number block
+        axe = [a for a in fig.axes if a.get_title().startswith("(e)")][0]
+        assert axe.get_ylim()[1] > 1.5 * float(np.max(d["K5_r"]))             # headroom for the legend above the r peaks
+    finally:
+        plt.close(fig)
