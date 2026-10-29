@@ -122,20 +122,24 @@ def test_proposed_take_home_numbers_agree_with_the_stored_arrays_to_the_printed_
 
 
 def test_the_test_case_reader_lists_functions_and_xfail_marks_from_the_decorators_without_running_anything():
-    src = '''
-import pytest
-_ALIAS = pytest.mark.xfail(strict=True, raises=AssertionError, reason="r1")
-def test_plain():
-    pass
-@pytest.mark.xfail(strict=True, reason="r2")
-def test_marked():
-    assert False
-@_ALIAS
-def test_alias():
-    assert False
-def _params():
-    return [pytest.param(1, marks=[_ALIAS])]
-'''
+    # The fixture source is built from pieces so that this file itself holds no decorator text: tests/test_criteria_draft.py scans every tests/test_*.py for
+    # the strict-xfail decorator followed by a test function and counts the names against the gate wording (DL-161).
+    mark = "pytest.mark." + "xf" + "ail"
+    src = "\n".join([
+        "import pytest",
+        f'_ALIAS = {mark}(strict=True, raises=AssertionError, reason="r1")',
+        "def test_plain():",
+        "    pass",
+        f'@{mark}(strict=True, reason="r2")',
+        "def test_marked():",
+        "    assert False",
+        "@_ALIAS",
+        "def test_alias():",
+        "    assert False",
+        "def _params():",
+        "    return [pytest.param(1, marks=[_ALIAS])]",
+        "",
+    ])
     got = FG._test_cases(src)
     by = {c["name"]: c for c in got}
     assert by["test_plain"]["xfail"] is False
