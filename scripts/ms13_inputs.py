@@ -134,11 +134,12 @@ INPUTS = {
         fil("A6 run record (source of the FS2 parameter rows; added 13h)", "A6/A6_0000_daa85487fd0a.json"),
     ],
     "FS3": [
-        rec("S9 finite size", "S9/S9/*.json", 40, NET),
-        rec("S10 heterogeneity shape (3 shapes x 3 seeds)", "S10/S10/*.json", 9, NET),
-        rec("S10 controls", "S10/S10_ctrl/*.json", None, NET),
-        rec("S11 noise level", "S11/S11/*.json", 120),
-        rec("S11 constant-parameter controls", "S11/S11_ctrl/*.json", 30),
+        fil("MS10 stored evaluation: S9 N sweep with controls, S10 per-seed shape table (13j)", "ms10/eval/ms10_eval.json"),
+        fil("A11 evaluator file (RB2: S11 gate, beside rows, controls, subgrid carried in; 13j)", "A11/a11_evaluators.json"),
+        fil("A11 robustness table (status rows, FAIL-row strip; 13j)", "A11/a11_robustness.csv"),
+        fil("S9 run record (parameter rows; 13j)", "S9/S9/S9_0000_963e33e3f38a.json"),
+        fil("S10 run record (parameter rows; 13j)", "S10/S10/S10_0000_8a0cdc4a874d.json"),
+        fil("S11 run record (parameter rows; 13j)", "S11/S11/S11_0000_bc949a08437f.json"),
     ],
     "FS4": [
         # 13i: tables first (docs/ms13_conventions.md M13-12). The 13a list named the S13 record families (8 + 8 + 4 + 480 MS8 records and 68 + 18 MS11 records); the
@@ -257,7 +258,7 @@ TIMING = {   # figure -> families whose load is timed (largest files + stride sa
     "F4": ["S5 ramp families (P1, P2, P5 x linear, sigmoid x 13 T_ramp; start distance; headline)", "S11 noise level (3 sigma x 4 T_ramp x 10 seeds)"],
     "F5": ["S7 map 1 (30 x 30, 120 s)", "S7 map 2 (25 x 13)", "S7 noisy subgrid (225 cells x 10 seeds)", "S8 network at 4 map cells (3 seeds)", "S9 finite size (4 N x 10 seeds)"],
     "F6": ["S6 P3 (3 I_amp x 4 T_ramp)", "S12 NC1 (13 T_ramp)", "S12 NC1 network (1 seed, 120 s)", "S12 NC2 (13 T_ramp)"],
-    "FS3": ["S9 finite size", "S10 heterogeneity shape (3 shapes x 3 seeds)", "S11 noise level"],
+    "FS3": [],
     "FS4": ["A7 ramp metrics table (MS8 S13 families: S5ramp, delta0, rtol, radau, floor_l0 to floor_l2; 13i)", "A11 evaluator file (MS11 S13 rows: RB5 delta0, RB6 rtol, floor, network; 13i)"],
 }
 

@@ -2261,6 +2261,390 @@ def make_FS4(res=None, out_dir=None, *, tag_build: bool = False, take_home=FS4_T
             "timing_s": timing, "drawn_sha256": drawn, "caption": cap.text}
 
 
+# ---- FS3 (13j) -------------------------------------------------------------------------------------------------------------------------------------
+# Paths relative to results/. Tables first (docs/ms13_conventions.md M13-12): the stored MS10 evaluator output holds the S9 finite-size classes per N with the no-ramp
+# controls and the S10 per-seed shape table (DL-320, DL-321, DL-322); the stored A11 evaluator file holds the S11 noise classes per sigma and T_ramp, the DL-251
+# controls and the subgrid numbers carried in (DL-336, DL-387, DL-242); the stored A11 table holds the status rows. No series is opened. Three run records give the
+# parameter rows. The registry scripts/ms13_inputs.py INPUTS["FS3"] must name the same files (test).
+FS3_INPUTS = (
+    "ms10/eval/ms10_eval.json",                       # stored MS10 evaluation: N_sweep (S9, with controls), rb8 (S10 per-seed table), rb1 parts
+    "A11/a11_evaluators.json",                        # stored MS11 evaluation: rb2 (S11 gate, beside, controls, subgrid carried in)
+    "A11/a11_robustness.csv",                         # stored A11 table: status rows and the FAIL-row strip
+    "S9/S9/S9_0000_963e33e3f38a.json",                # run record of an S9 run (parameter rows)
+    "S10/S10/S10_0000_8a0cdc4a874d.json",             # run record of an S10 run (parameter rows)
+    "S11/S11/S11_0000_bc949a08437f.json",             # run record of an S11 run (parameter rows)
+)
+FS3_RECORDS = {"S9": FS3_INPUTS[3], "S10": FS3_INPUTS[4], "S11": FS3_INPUTS[5]}
+FS3_STRIP_RB = ("RB2", "RB8")                         # Table 7.2 'Where' names FS3 for RB2 ("Main F4, F5; FS3") and RB8 ("F4; FS3; FS6") (plan.md lines 845 and 851)
+FS3_STATUS_RB = ("RB1", "RB2", "RB8")                 # status lines of the stored table; RB1 is listed because its N rule is the S9 comparison drawn in (a)
+FS3_CAPTION_KEYS = ("model.type", "model.ref_point", "path.name", "path.T_ramp_s", "network.N", "network.het_dist", "noise.sigma", "noise.sigma_factor")
+FS3_CLASSES = ("S+", "S-rel", "S-abs", "S-sus", "NS")           # S+, S-rel and S-abs are the frozen Table 2.1 surge classes (DL-336)
+FS3_SURGE = ("S+", "S-rel", "S-abs")
+FS3_SHAPES = ("lorentzian", "gaussian", "uniform")
+FS3_N = (1000, 3000, 10000, 30000)
+FS3_SIGMA = (0.5, 1.0, 2.0)
+FS3_T = (10.0, 30.0, 120.0, 300.0)
+FS3_RB2_KEPT_NEEDED = 8                                         # plan Table 7.2 RB2: headline class kept in >= 8 of 10 seeds
+
+# PROPOSED for the reviewer's ruling (13j prompt, item B3); every statement is from a logged result (DL numbers in the text) and the numbers are checked against
+# the stored tables by tests/test_fig_FS3.py.
+FS3_TAKE_HOME = (
+    "PROPOSED (for ruling): Finite size (S9, P2, T_ramp 60 s, 10 seeds per N; mean-field class D-tr): the network gives a surge class in 4, 7, 2 and 5 of 10 seeds at "
+    "N = 1e3, 3e3, 1e4 and 3e4; the RB1 N rule passes (5 seeds at 3e4 against 2 at 1e4), but no-ramp controls also reach surge classes (2 of 3 at 3e3, 1 of 3 at 1e4 and "
+    "at 3e4), so the network classes do not separate ramp-driven from non-ramp records (DL-320, DL-321, DL-325). Heterogeneity shape (S10, N = 1e4, 3 seeds): Gaussian and "
+    "uniform give S-abs in 3 of 3 seeds each and the Lorentzian seeds give S-sus, S-abs, S-sus, so RB8 is NOT EVALUABLE and no claim about shape robustness is made "
+    "(DL-322, DL-325). Noise (S11, T_ramp 120 s, 10 seeds): the headline class is kept in 8 of 10 seeds at 0.5 sigma (PASS) and 7 of 10 at sigma (FAIL), and "
+    "constant-parameter controls reach 7 of 10 at every sigma; the noisy subgrid agrees in 97 of 225 cells against 203 needed (D24 failed) (DL-242, DL-336, DL-387, DL-394)."
+)
+# PROPOSED: the limits of docs/ms13_plan.md section 5 whose right-hand column lists FS3, in the label table of docs/claim_limit_labels.md (MS9(e)-1, MS9(e)-2, MS9(e)-5,
+# DL-163-D4, G4-C1 to G4-C5, MS11-C1, MS11-C2, MS11-C7); the plan labels "RB2 FAIL" and "D24 failed" are written in plain words with their DL numbers in the take-home and
+# the strip. MS12-C1 lists F1 to F6 and FS6, not FS3. Listed, not decided.
+FS3_CLAIM_LIMITS = ("MS11-C7", "MS9(e)-1", "MS9(e)-2", "MS9(e)-5", "DL-163-D4", "G4-C1", "G4-C2", "G4-C3", "G4-C4", "G4-C5", "MS11-C1", "MS11-C2")
+FS3_FOOTER = "DRAFT: untagged build. Layout, marks, colours and panel choices are UNVERIFIED (style.py); take-home and claim limits are PROPOSED."
+
+
+def load_FS3(res=None) -> dict:
+    """Open the files of FS3_INPUTS under `res` (default results/) and return their content. Opens nothing else."""
+    res = Path(res) if res is not None else results_dir()
+    for rel in FS3_INPUTS:
+        if not (res / rel).is_file():
+            raise F.MissingInputError(f"input file not found: {res / rel}")
+    try:
+        with open(res / FS3_INPUTS[2], newline="", encoding="utf-8") as fh:
+            a11 = list(csv.DictReader(fh))
+        return {"ms10": json.loads((res / FS3_INPUTS[0]).read_text(encoding="utf-8")), "evaluators": json.loads((res / FS3_INPUTS[1]).read_text(encoding="utf-8")),
+                "a11": a11, "records": {k: json.loads((res / rel).read_text(encoding="utf-8")) for k, rel in FS3_RECORDS.items()}}
+    except (OSError, ValueError, KeyError) as exc:
+        raise F.MissingInputError(f"an FS3 input cannot be read: {exc}") from exc
+
+
+def _fs3_counts(classes: dict, where: str) -> np.ndarray:
+    unknown = set(classes) - set(FS3_CLASSES)
+    if unknown:
+        raise DataError(f"{where}: classes {sorted(unknown)} are not in {FS3_CLASSES}")
+    return np.array([int(classes.get(c, 0)) for c in FS3_CLASSES])
+
+
+def _fs3_surge_count(c: np.ndarray) -> int:
+    return int(c[[FS3_CLASSES.index(k) for k in FS3_SURGE]].sum())
+
+
+def prepare_FS3(raw: dict) -> dict:
+    """Pure: stored content -> the arrays and numbers that are drawn. Keys are flat names; values are arrays, ints, floats, bools, strings or lists of strings."""
+    ms10, ev = raw["ms10"], raw["evaluators"]["evaluators"]["rb2"]
+    d: dict = {}
+    # (a), (b), (c) S9 finite size: classes per N with the no-ramp controls, f_pk and onset errors against the mean field
+    by_n = ms10["N_sweep"]["by_N"]
+    if sorted(int(k) for k in by_n) != list(FS3_N):
+        raise DataError(f"MS10 N sweep: N values {sorted(by_n)}, expected {FS3_N}")
+    d["N"] = np.array(FS3_N)
+    cnt, ctl, sur, ctl_sur, ctl_n, seeds = [], [], [], [], [], []
+    fmin, fmed, fmax, fn, omin, omed, omax = [], [], [], [], [], [], []
+    for n in FS3_N:
+        r = by_n[str(n)]
+        c = _fs3_counts(r["classes"], f"S9 N {n}")
+        cc = _fs3_counts(r["controls"]["classes"], f"S9 controls N {n}")
+        if int(c.sum()) != int(r["seeds_present"]) or int(cc.sum()) != int(r["controls"]["n"]):
+            raise DataError(f"S9 N {n}: class counts {c.tolist()} / {cc.tolist()} do not sum to the stored seed counts")
+        if _fs3_surge_count(c) != int(r["surge_seeds"]) or _fs3_surge_count(cc) != int(r["controls"]["surge"]):
+            raise DataError(f"S9 N {n}: surge-class counts disagree with the stored surge_seeds")
+        cnt.append(c)
+        ctl.append(cc)
+        sur.append(int(r["surge_seeds"]))
+        ctl_sur.append(int(r["controls"]["surge"]))
+        ctl_n.append(int(r["controls"]["n"]))
+        seeds.append(int(r["seeds_present"]))
+        fe, oe = r["f_pk_rel_err"], r["onset_abs_err_s"]
+        fmin.append(float(fe["min"]))
+        fmed.append(float(fe["median"]))
+        fmax.append(float(fe["max"]))
+        fn.append(int(fe["n"]))
+        omin.append(float(oe["min"]))
+        omed.append(float(oe["median"]))
+        omax.append(float(oe["max"]))
+    d["s9_count"], d["s9_ctrl_count"] = np.array(cnt), np.array(ctl)
+    d["s9_surge"], d["s9_ctrl_surge"], d["s9_ctrl_n"], d["s9_seeds"] = np.array(sur), np.array(ctl_sur), np.array(ctl_n), np.array(seeds)
+    d["s9_fpk_err_min"], d["s9_fpk_err_median"], d["s9_fpk_err_max"], d["s9_fpk_err_n"] = np.array(fmin), np.array(fmed), np.array(fmax), np.array(fn)
+    d["s9_onset_err_min"], d["s9_onset_err_median"], d["s9_onset_err_max"] = np.array(omin), np.array(omed), np.array(omax)
+    d["mf_ref_class"] = str(ms10["N_sweep"]["ref"]["class"])
+    d["mf_ref_f_pk_hz"], d["mf_ref_onset_s"] = float(ms10["N_sweep"]["ref"]["f_pk_hz"]), float(ms10["N_sweep"]["ref"]["onset_s"])
+    nr = ms10["N_sweep"]["no_worse"]
+    d["nrule_count_1e4"], d["nrule_count_3e4"], d["nrule_pass"] = int(nr["count_1e4"]), int(nr["count_3e4"]), bool(nr["pass"])
+    if d["nrule_count_1e4"] != int(d["s9_surge"][2]) or d["nrule_count_3e4"] != int(d["s9_surge"][3]):
+        raise DataError("RB1 N rule counts disagree with the surge seeds of the stored N sweep")
+    # (d) S10 heterogeneity shape: the stored per-seed table
+    rb8 = ms10["rb8"]
+    if sorted(rb8["per_seed_table"]) != sorted(FS3_SHAPES):
+        raise DataError(f"RB8 per-seed table: shapes {sorted(rb8['per_seed_table'])}")
+    sc = []
+    for sh in FS3_SHAPES:
+        rows = sorted(rb8["per_seed_table"][sh], key=lambda r: r["seed"])
+        if [r["seed"] for r in rows] != [0, 1, 2]:
+            raise DataError(f"RB8 per-seed table, {sh}: seeds {[r['seed'] for r in rows]}")
+        sc.append([r["class"] for r in rows])
+    d["shape_class"] = sc
+    d["shape_ctrl_n"] = int(rb8["lorentzian_controls"]["n"])
+    d["shape_ctrl_counts"] = _fs3_counts(rb8["lorentzian_controls"]["classes"], "S10 Lorentzian controls")
+    d["rb8_verdict"], d["rb8_reason"] = str(rb8["verdict"]), str(rb8["reason"])
+    if d["rb8_verdict"] != "NOT EVALUABLE":
+        raise DataError(f"RB8 heterogeneity verdict {d['rb8_verdict']!r} (DL-322 says NOT EVALUABLE)")
+    # (e), (f) S11 noise: classes per sigma factor and T_ramp (gate at 120 s), DL-251 controls
+    beside = {(float(b["sigma_factor"]), float(b["T_ramp_s"])): b for b in ev["beside"]}
+    if sorted(beside) != sorted((s, t) for s in FS3_SIGMA for t in FS3_T):
+        raise DataError(f"RB2 beside rows: {sorted(beside)}")
+    cnt, kept, gated = [], [], []
+    d["noise_sigma"] = np.array([s for s in FS3_SIGMA for t in FS3_T])
+    d["noise_T"] = np.array([t for s in FS3_SIGMA for t in FS3_T])
+    for s in FS3_SIGMA:
+        for t in FS3_T:
+            b = beside[(s, t)]
+            c = _fs3_counts(b["classes"], f"RB2 sigma {s} T {t}")
+            k = _fs3_surge_count(c)
+            if k != int(b["kept_primary"]) or int(c.sum()) != 10:
+                raise DataError(f"RB2 sigma {s} T {t}: stored kept_primary {b['kept_primary']} against the surge-class count {k} of {int(c.sum())}")
+            cnt.append(c)
+            kept.append(k)
+            gated.append(bool(b["gated"]))
+    d["noise_count"], d["noise_kept"], d["noise_gated"] = np.array(cnt), np.array(kept), np.array(gated)
+    gate = {float(g["sigma_factor"]): g for g in ev["gate"]}
+    d["gate_status"] = [str(gate[s]["status"]) for s in (0.5, 1.0)]
+    d["gate_kept"] = np.array([int(gate[s]["kept"]) for s in (0.5, 1.0)])
+    if [int(k) for k in d["gate_kept"]] != [int(d["noise_kept"][i]) for i in (2, 6)] or str(ev["status"]) != "FAIL":
+        raise DataError("RB2 gate rows disagree with the beside rows or the stored status")
+    ctl = {float(c["sigma_factor"]): c for c in ev["controls"]}
+    d["noise_ctrl_count"] = np.array([_fs3_counts(ctl[s]["classes"], f"RB2 controls sigma {s}") for s in FS3_SIGMA])
+    d["noise_ctrl_kept"] = np.array([int(ctl[s]["kept_primary"]) for s in FS3_SIGMA])
+    # (g) the noisy subgrid, carried in from MS9 (not re-evaluated)
+    sg = ev["subgrid_carried_in"]
+    d["subgrid_agree"], d["subgrid_cells"], d["subgrid_needed"] = int(sg["cells_agree"]), int(sg["cells"]), int(sg["cells_needed"])
+    d["subgrid_status"] = str(sg["d24"])
+    # status rows and the FAIL-row strip from the stored A11 table
+    rows = [r for r in raw["a11"] if r["rb_id"] in FS3_STATUS_RB]
+    d["rb_status"] = [f"{r['rb_id']} {r['check_id']}: {r['pass_or_fail']}" for r in rows]
+    d["strip"] = [{"rb_id": r["rb_id"], "check_id": r["check_id"], "status": r["pass_or_fail"], "value": r["value"], "threshold": r["threshold"]}
+                  for r in raw["a11"] if r["rb_id"] in FS3_STRIP_RB and r["pass_or_fail"] == "FAIL"]
+    row = {r["check_id"]: r for r in raw["a11"] if r["rb_id"] == "RB2"}
+    if row["headline_class_kept_0.5_sigma"]["pass_or_fail"] != d["gate_status"][0] or row["headline_class_kept_1.0_sigma"]["pass_or_fail"] != d["gate_status"][1]:
+        raise DataError("A11 table RB2 gate rows disagree with the stored evaluator file")
+    if row["noisy_subgrid_agreement"]["pass_or_fail"] != "FAIL" or d["subgrid_status"] != "FAILED":
+        raise DataError("RB2 subgrid row is not FAIL / FAILED as logged (DL-242)")
+    if not [r for r in raw["a11"] if r["rb_id"] == "RB8" and r["check_id"] == "heterogeneity" and r["pass_or_fail"] == "NOT EVALUABLE"]:
+        raise DataError("A11 table: RB8 heterogeneity is not NOT EVALUABLE (DL-322)")
+    return d
+
+
+def fs3_strip_lines(d: dict) -> list[str]:
+    return [f"{r['rb_id']} {r['check_id']}: {r['status']} ({r['value'] or 'value blank in the table'}; threshold {r['threshold'] or 'blank'}) - shown, not dropped" for r in d["strip"]]
+
+
+def _fs3_stack(ax, xs, counts, den, width=0.7, label_min=0.09):
+    """Stacked class bars as Rectangles (the stored share is drawn exactly); returns legend handles."""
+    from matplotlib.patches import Patch, Rectangle
+    bottom = np.zeros(len(xs))
+    handles = []
+    for ci, name in enumerate(FS3_CLASSES):
+        st = S.get(name)
+        h = counts[:, ci] / np.asarray(den, dtype=float).reshape(-1)
+        for x_, b_, h_ in zip(xs, bottom, h):
+            if h_ > 0:
+                ax.add_patch(Rectangle((x_ - width / 2, b_), width, h_, fc=st.colour, ec="#333333", lw=0.3, hatch=S.CLASS_HATCH[name], zorder=3))
+        handles.append(Patch(fc=st.colour, ec="#333333", lw=0.3, hatch=S.CLASS_HATCH[name], label=name))
+        for x_, b_, h_, c_ in zip(xs, bottom, h, counts[:, ci]):
+            if h_ >= label_min:
+                ax.text(x_, b_ + h_ / 2, f"{int(c_)}", ha="center", va="center", fontsize=4.8, bbox=dict(boxstyle="square,pad=0.1", fc="#ffffff", ec="none", alpha=0.8), zorder=5)
+        bottom = bottom + h
+    return handles
+
+
+def _draw_FS3(d: dict, draft: bool):
+    import textwrap
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Rectangle
+    plt.rcParams.update({"font.family": S.FONT_FAMILY, "font.size": S.FONT_SIZE_PT, "pdf.fonttype": 42})
+    fig = plt.figure(figsize=(7.4, 12.6), constrained_layout=True)
+    gs = fig.add_gridspec(4, 6, height_ratios=[2.2, 1.7, 2.3, 2.5])
+    tol = S.diagram_mark("tol_band")
+    pt = S.diagram_mark("fs5_pt")
+    fs = S.FONT_SIZE_PT - 1
+    # (a) S9: classes per N (10 seeds) beside the no-ramp controls (3), equal weight
+    ax = fig.add_subplot(gs[0, 0:4])
+    xs = np.arange(4, dtype=float)
+    h_a = _fs3_stack(ax, xs - 0.2, d["s9_count"], d["s9_seeds"][:, None].astype(float), width=0.36)
+    _fs3_stack(ax, xs + 0.2, d["s9_ctrl_count"], d["s9_ctrl_n"][:, None].astype(float), width=0.36, label_min=0.2)
+    for x_, s_, n_, cs, cn in zip(xs, d["s9_surge"], d["s9_seeds"], d["s9_ctrl_surge"], d["s9_ctrl_n"]):
+        ax.text(x_ - 0.2, 1.02, f"{int(s_)}/{int(n_)}", ha="center", va="bottom", fontsize=5.2, fontweight="bold")
+        ax.text(x_ + 0.2, 1.02, f"{int(cs)}/{int(cn)}", ha="center", va="bottom", fontsize=5.2, fontweight="bold", color="#555555")
+    ax.set_xticks(np.concatenate([xs - 0.2, xs + 0.2]), [f"ramp\nN {int(n_):g}" for n_ in d["N"]] + [f"no-ramp\nN {int(n_):g}" for n_ in d["N"]], fontsize=4.6)
+    ax.set_xlim(-0.6, 3.6)
+    ax.set_ylim(0.0, 1.3)
+    ax.set_ylabel("share of seeds", fontsize=6)
+    ax.set_title("(a) S9 (60 s): class per N; bold = surge classes", fontsize=fs, loc="left")
+    ax.tick_params(labelsize=5.2)
+    ax.legend(handles=h_a, loc="upper left", ncol=5, fontsize=4.8, frameon=True, framealpha=0.95, handlelength=1.4, columnspacing=0.8)
+    # (b) f_pk relative error against the mean field per N
+    axb = fig.add_subplot(gs[0, 4:6])
+    for x_, lo, md, hi in zip(xs, d["s9_fpk_err_min"], d["s9_fpk_err_median"], d["s9_fpk_err_max"]):
+        axb.plot([x_, x_], [lo, hi], color="#555555", lw=1.0, zorder=2)
+        axb.plot([x_], [md], ls="none", marker=pt.marker, ms=pt.size, color=pt.colour, mew=pt.width, zorder=4)
+    axb.set_xticks(xs, [f"{int(n_):g}" for n_ in d["N"]], fontsize=5.2)
+    axb.set_xlim(-0.5, 3.5)
+    axb.set_ylim(-0.04, 0.46)
+    axb.set_xlabel("N", fontsize=6)
+    axb.set_ylabel("f_pk relative error", fontsize=5.6)
+    axb.set_title("(b) f_pk error vs MF", fontsize=fs, loc="left")
+    axb.tick_params(labelsize=5.2)
+    # (c) onset error against the mean field per N
+    axc = fig.add_subplot(gs[1, 0:3])
+    for x_, lo, md, hi in zip(xs, d["s9_onset_err_min"], d["s9_onset_err_median"], d["s9_onset_err_max"]):
+        axc.plot([x_, x_], [lo, hi], color="#555555", lw=1.0, zorder=2)
+        axc.plot([x_], [md], ls="none", marker=pt.marker, ms=pt.size, color=pt.colour, mew=pt.width, zorder=4)
+    axc.set_xticks(xs, [f"{int(n_):g}" for n_ in d["N"]], fontsize=5.2)
+    axc.set_xlim(-0.5, 3.5)
+    axc.set_ylim(0.0, 31.0)
+    axc.set_xlabel("N", fontsize=6)
+    axc.set_ylabel("onset error (s)", fontsize=5.6)
+    axc.set_title("(c) S9 onset error vs MF", fontsize=fs, loc="left")
+    axc.tick_params(labelsize=5.2)
+    # (d) S10 shape: the stored per-seed classes; RB8 NOT EVALUABLE
+    axd = fig.add_subplot(gs[1, 3:6])
+    for i in range(3):
+        for j in range(3):
+            st = S.get(d["shape_class"][i][j])
+            axd.plot([j], [i], ls="none", marker=st.marker, ms=7, color=st.colour, mec="#333333", mew=0.4, zorder=4)
+            axd.text(j + 0.2, i, d["shape_class"][i][j], va="center", fontsize=4.8)
+    nz = [c for c, k in zip(FS3_CLASSES, d["shape_ctrl_counts"]) for _ in range(int(k))]
+    for j, c in enumerate(nz):
+        st = S.get(c)
+        axd.plot([j], [3.0], ls="none", marker=st.marker, ms=7, color=st.colour, mec="#333333", mew=0.4, zorder=4)
+        axd.text(j + 0.2, 3.0, c, va="center", fontsize=4.8)
+    axd.set_yticks(range(4), list(FS3_SHAPES) + ["lorentzian, no-ramp (counts)"], fontsize=5.0)
+    axd.set_xticks(range(3), ["seed 0", "seed 1", "seed 2"], fontsize=5.2)
+    axd.set_xlim(-0.5, 2.9)
+    axd.set_ylim(3.6, -0.5)
+    axd.set_title("(d) S10 shape: RB8 " + d["rb8_verdict"], fontsize=fs, loc="left", color="#7f0000")
+    # (e) S11 noise: classes per sigma factor and T_ramp; the 120 s bars are the RB2 gate
+    axe = fig.add_subplot(gs[2, 0:4])
+    xe = np.arange(12, dtype=float) + np.repeat(np.arange(3), 4) * 0.5
+    _fs3_stack(axe, xe, d["noise_count"], np.full((12, 1), 10.0), width=0.8, label_min=0.12)
+    for x_, k, g in zip(xe, d["noise_kept"], d["noise_gated"]):
+        axe.text(x_, 1.02, f"{int(k)}", ha="center", va="bottom", fontsize=5.4, fontweight="bold")
+        if g:
+            axe.text(x_, 1.1, d["gate_status"][0 if x_ < 4 else 1], ha="center", va="bottom", fontsize=5.0, fontweight="bold", color="#7f0000" if (x_ > 4) else "#222222")
+            axe.plot([x_ - 0.4, x_ + 0.4], [FS3_RB2_KEPT_NEEDED / 10.0] * 2, color="#000000", ls=tol.linestyle, lw=tol.width + 0.4, zorder=6)
+    axe.set_xticks(xe, [f"{t:g}\nx{s_:g}" for t, s_ in zip(d["noise_T"], d["noise_sigma"])], fontsize=4.8)
+    axe.set_xlabel("T_ramp (s) and sigma factor", fontsize=6)
+    axe.set_ylim(0.0, 1.26)
+    axe.set_xlim(-0.6, float(xe[-1]) + 0.6)
+    axe.set_ylabel("share of 10 seeds", fontsize=6)
+    axe.set_title("(e) S11 noise: classes; dashed = RB2 gate (>= 8 of 10)", fontsize=fs, loc="left", color="#7f0000")
+    axe.tick_params(labelsize=5.2)
+    # (f) the DL-251 constant-parameter controls
+    axf = fig.add_subplot(gs[2, 4:6])
+    xf = np.arange(3, dtype=float)
+    _fs3_stack(axf, xf, d["noise_ctrl_count"], np.full((3, 1), 10.0), width=0.7, label_min=0.12)
+    for x_, k in zip(xf, d["noise_ctrl_kept"]):
+        axf.text(x_, 1.02, f"{int(k)}", ha="center", va="bottom", fontsize=5.4, fontweight="bold")
+    axf.set_xticks(xf, [f"x {s_:g}" for s_ in FS3_SIGMA], fontsize=5.2)
+    axf.set_xlim(-0.6, 2.6)
+    axf.set_ylim(0.0, 1.14)
+    axf.set_xlabel("sigma factor", fontsize=6)
+    axf.set_title("(f) no-ramp controls", fontsize=fs, loc="left")
+    axf.tick_params(labelsize=5.2)
+    # (g) the noisy subgrid, carried in from MS9
+    axg = fig.add_subplot(gs[3, 0:2])
+    axg.add_patch(Rectangle((-0.3, 0), 0.6, d["subgrid_agree"], fc="#9ecae1", ec="#333333", lw=0.4, zorder=3))
+    axg.axhline(d["subgrid_needed"], color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label="needed (D24, 90 percent)", zorder=2)
+    axg.text(0.0, d["subgrid_agree"] / 2, f"{d['subgrid_agree']} of {d['subgrid_cells']}", ha="center", va="center", fontsize=5.6,
+             bbox=dict(boxstyle="square,pad=0.15", fc="#ffffff", ec="none", alpha=0.85), zorder=5)
+    axg.set_xlim(-0.8, 0.8)
+    axg.set_ylim(0, d["subgrid_cells"] * 1.25)
+    axg.set_xticks([0], ["cells that agree"], fontsize=5.2)
+    axg.set_ylabel(f"cells (of {d['subgrid_cells']})", fontsize=6)
+    axg.set_title("(g) noisy subgrid: " + d["subgrid_status"], fontsize=fs, loc="left", color="#7f0000")
+    axg.tick_params(labelsize=5.2)
+    axg.legend(loc="upper right", fontsize=4.6, frameon=True, framealpha=0.95)
+    # status block
+    axs = fig.add_subplot(gs[3, 2:6])
+    axs.axis("off")
+    lines = ["Stored status of the RB1, RB2 and RB8 rows (A11 table; a failure is shown, not dropped):"] + ["    " + s for s in d["rb_status"]]
+    lines += ["FAIL rows of the stored A11 table that touch FS3:"] + ["    " + s for s in fs3_strip_lines(d)]
+    lines += ["Panels (a) to (d) are network runs (N = 1e4 unless N is varied) at T_ramp 60 s; (e) and (f) are mean-field runs with noise (S11, DL-336). All panels are rows of the "
+              "stored MS10 evaluator file and the stored A11 files; no series is drawn. A surge class here is S+, S-rel or S-abs (frozen Table 2.1; S-rel is not ramp evidence in mode N, MS9(e)-2)."]
+    lines = [ln for t_ in lines for ln in textwrap.wrap(t_, width=88, subsequent_indent="        ")]
+    axs.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=5.0, linespacing=1.25)
+    axs.text(0.0, 0.0, "\n".join(textwrap.wrap(FS3_FOOTER, 80)) if draft else "", fontsize=5.0, color="#7f0000", ha="left", va="bottom")
+    return fig
+
+
+def fs3_caption_notes(d: dict) -> tuple:
+    """Sentences about what is and is not drawn (13j). Values come from the prepared data; only the wording is typed here."""
+    return (
+        "Panel (a) draws, per N, the stored classes of the 10 S9 ramp seeds (P2, T_ramp 60 s, mean-field class " + d["mf_ref_class"] + ") beside the 3 no-ramp control records; the bold number above "
+        "each bar is the count of surge classes (S+, S-rel, S-abs). The RB1 N rule (surge seeds at N = 3e4 no fewer than at 1e4: " + f"{d['nrule_count_3e4']} against {d['nrule_count_1e4']}" + ") is met; the "
+        "network classes at N = 1e4 and 3e4 do not reproduce the mean-field classes (G4-C1) and the controls reach surge classes (G4-C3). Panels (b) and (c) are the stored min, median and max "
+        "of the f_pk relative error and of the absolute onset error against the mean-field companion, per N (seeds with an undefined value are not counted: " + ", ".join(str(int(x)) for x in d["s9_fpk_err_n"]) + " seeds in (b)).",
+        "Panel (d) is the stored per-seed class table of the three heterogeneity shapes (S10, N = 1e4, P2, T_ramp 60 s); the Lorentzian seeds do not share one Table 2.1 correspondence class, "
+        "so RB8 (heterogeneity part) is NOT EVALUABLE and no verdict is drawn (DL-322); the Lorentzian no-ramp controls are listed by class count, not by seed.",
+        "Panels (e) and (f) are the stored RB2 class counts of S11 per sigma factor (0.5, 1, 2 times sigma = 0.0624, checked and not confirmed, G4-C4) and T_ramp; the bars at T_ramp 120 s with a dashed "
+        "line are the gate (kept in at least 8 of 10 seeds at 0.5 sigma and sigma; 2 sigma is reported only); the no-ramp controls of (f) are the post-hoc amendment of DL-251 and feed no gate. "
+        "Panel (g) is the subgrid agreement carried in from MS9 and not re-evaluated here (D24 failed, DL-242). The RB2 FAIL rows are shown, not dropped. "
+        "The claim-limit IDs listed here are PROPOSED for the reviewer's ruling.",
+    )
+
+
+def make_FS3(res=None, out_dir=None, *, tag_build: bool = False, take_home=FS3_TAKE_HOME, claim_limit_ids=FS3_CLAIM_LIMITS,
+             script="scripts/fig_FS3.py", root=None) -> dict:
+    """Build FS3 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov)."""
+    F.require_buildable("FS3")
+    root = Path(root) if root is not None else repo_root()
+    res = Path(res) if res is not None else root / "results"
+    out = Path(out_dir) if out_dir is not None else root / "figures" / "FS3"
+    t = {"start": time.perf_counter()}
+    raw = load_FS3(res)
+    t["load"] = time.perf_counter()
+    d = prepare_FS3(raw)
+    t["prepare"] = time.perf_counter()
+    rows = []
+    for key, rec in raw["records"].items():
+        for r in make_param_table(rec["config"]):
+            rows.append({**r, "panel": key, "section": "", "source_run_id": rec["name"], "source_config_hash12": rec["config_hash12"]})
+    cap = CAP.build_caption("FS3", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=[r for r in rows if r["key"] in FS3_CAPTION_KEYS],
+                            spectrogram=None, symbol_keys=(), notes=fs3_caption_notes(d), limit_labels=CLAIM_LIMIT_LABELS)
+    import matplotlib.pyplot as plt
+    fig = _draw_FS3(d, draft=not tag_build)
+    out.mkdir(parents=True, exist_ok=True)
+    pdf, png = out / "FS3.pdf", out / "FS3.png"
+    fig.savefig(pdf)
+    fig.savefig(png, dpi=S.PNG_DPI)
+    plt.close(fig)
+    t["draw"] = time.perf_counter()
+    cap_path, dig_path = out / "FS3_caption.txt", out / "FS3_drawn_data_sha256.txt"
+    from .. import provenance as P
+    drawn = drawn_data_sha256(d)
+    P.atomic_write_text(cap_path, cap.text + "\n")
+    P.atomic_write_text(dig_path, drawn + "\n")
+    warnings = []
+    for k, rec in raw["records"].items():
+        if (rec.get("git") or {}).get("dirty"):
+            warnings.append(f"input record {k} ({rec['name']}) was written with git dirty = true")
+    prov = F.write_figure_provenance(
+        "FS3", script=script, inputs=[res / p for p in FS3_INPUTS], outputs=[pdf, png, cap_path, dig_path], params_rows=rows,
+        modules=["src/mprsurge/plotting/figures.py", "src/mprsurge/plotting/style.py", "src/mprsurge/plotting/captions.py",
+                 "src/mprsurge/plotting/nordlie.py", "src/mprsurge/plotting/figprov.py"],
+        configs=["configs/base.yaml", "configs/ms10/ms10_net.yaml", "configs/ms11/ms11_mfn.yaml"], claim_limits=cap.claim_limits,
+        input_tables=[{"path": res / FS3_INPUTS[2], "rows": len(raw["a11"])}],
+        spectrogram=None, tag_build=tag_build, out_dir=out, root=root, warnings=warnings, wall_time_s=time.perf_counter() - t["start"])
+    nordlie_path = out / "FS3_nordlie.md"
+    N.write_nordlie(out / "FS3_params.csv", out / "FS3_provenance.json", nordlie_path, root=root)
+    t["end"] = time.perf_counter()
+    timing = {"load_s": t["load"] - t["start"], "prepare_s": t["prepare"] - t["load"], "draw_s": t["draw"] - t["prepare"],
+              "provenance_and_nordlie_s": t["end"] - t["draw"], "total_s": t["end"] - t["start"]}
+    return {"prov": prov, "paths": [pdf, png, cap_path, dig_path, out / "FS3_params.csv", out / "FS3_provenance.json", nordlie_path],
+            "timing_s": timing, "drawn_sha256": drawn, "caption": cap.text}
+
+
 def make_FS6(*args, **kwargs):
     """FS6 is not produced (S14 and S15 were not run, MS12-C1, DL-421): raises figprov.FigureRefused."""
     F.require_buildable("FS6")
