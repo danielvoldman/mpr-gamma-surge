@@ -2937,11 +2937,11 @@ def _draw_F6(d: dict, draft: bool, columns: dict | None = None):
         axd.set_title(ttl, loc=S.TITLE_LOC)
         groups = _coincident_rows(list(d[key]))
         if groups:
-            names = "; ".join(" = ".join(F6_S6_ROWS[i][2] for i in g) for g in groups)
-            axd.text(0.02, 0.98, "coincide (identical stored values):\n" + "\n".join(textwrap.wrap(names, 34)), transform=axd.transAxes, ha="left", va="top",
+            names = [ln for g in groups for ln in textwrap.wrap(" = ".join(F6_S6_ROWS[i][2] for i in g), 40, subsequent_indent="  ")]
+            axd.text(0.02, 0.98, "coincide (identical stored values):\n" + "\n".join(names), transform=axd.transAxes, ha="left", va="top",
                      fontsize=S.TEXT_SIZES["small"])
         if key == "s6_onset_s":
-            axd.legend(loc="lower right", fontsize=S.TEXT_SIZES["legend"], frameon=True, framealpha=0.95)
+            axd.legend(loc="upper left", fontsize=S.TEXT_SIZES["legend"], frameon=True, framealpha=0.95)
         else:
             axd.set_ylim(36.0, 60.0)
     # status block
@@ -3411,7 +3411,7 @@ def _draw_F4(d: dict, draft: bool):
     _f4_noise(ax, d, "noise_delay_eta_cross")
     _f4_series(ax, d["p2_linear_eps"], d["p2_linear_delay_eta_cross"], "P2", "linear", ms=S.POINT_SIZES["f4_series_p5"])
     ax.axhline(0.0, color=ref.colour, ls=ref.linestyle, lw=ref.width, zorder=1)
-    tidy(ax, "(h) noise band, P2 linear, mode N (RB2 FAIL, MS11-C1)", "delay (eta - eta_H)", red=True)
+    tidy(ax, "(h) noise band, P2, mode N: RB2 FAIL", "delay (eta - eta_H)", red=True)
 
     # (i) and (j): the D43 floor at the headline, per level, 4 Heun rungs x 10 seeds, both onset readings
     for pos, key, med, title in ((gs[4, 2:4], "floor_delay_cross", "floor_median_cross", "(i) D43 floor, raw crossing (primary)"),
@@ -3590,8 +3590,16 @@ F1_SCHEMATIC = (
     ("out", "outputs", (("mean-field and network r(t), v(t) on the headline path",), ("spectrogram of v",))),
 )
 # box positions in axes fractions (x0, y0, x1, y1) and the arrows between boxes: our layout, UNVERIFIED
-F1_SCHEMATIC_BOXES = {"ramp": (0.0, 0.08, 0.22, 0.92), "model": (0.27, 0.0, 0.62, 1.0), "mf": (0.67, 0.62, 0.86, 0.95), "net": (0.67, 0.08, 0.86, 0.48),
-                      "out": (0.88, 0.2, 1.0, 0.8)}
+F1_SCHEMATIC_BOXES = {"ramp": (0.0, 0.05, 0.2, 0.95), "model": (0.235, 0.0, 0.585, 1.0), "mf": (0.62, 0.55, 0.81, 0.97), "net": (0.62, 0.03, 0.81, 0.45),
+                      "out": (0.835, 0.2, 1.0, 0.8)}
+F1_SCHEMATIC_WRAP = {"ramp": 34, "model": 60, "mf": 32, "net": 32, "out": 29}       # characters per drawn line; a row is wrapped at spaces only, so its words stay verbatim
+
+
+def f1_count_range(d: dict) -> tuple:
+    """13o (DL-494 R7): the colour range of the count image, 0 to the stored-count percentile S.F1_RASTER['top_percentile'] (one neuron reaches far above the rest and would
+    leave the image blank); the counts above it are drawn in the top colour and counted here. Display choice, UNVERIFIED; the drawn counts are the exact counts."""
+    top = float(np.percentile(d["ras_count"], S.F1_RASTER["top_percentile"]))
+    return top, int((d["ras_count"] > top).sum()), int(d["ras_count"].size)
 F1_SCHEMATIC_ARROWS = (("ramp", "model"), ("model", "mf"), ("model", "net"), ("mf", "out"), ("net", "out"))
 F1_FOOTER = "DRAFT: untagged build. Layout, marks, colours and panel choices are UNVERIFIED (style.py); take-home and claim limits are PROPOSED."
 
@@ -3783,7 +3791,7 @@ def _f1_onset_marks(ax, d: dict, *, network: bool):
         for key, x in zip(F1_SEED_KEYS, d["raw120_s"]):
             ax.plot([x], [0.93], transform=tr, ls="none", marker=nab.marker, ms=S.F1_SIZES["onset"], color=S.diagram_mark(key).colour, mew=nab.width, clip_on=False, zorder=6)
         # 13o (DL-494 R7): the three raw first crossings stay at their stored positions; at the panel scale they lie on top of each other, which the note says
-        ax.text(min(d["raw120_s"]) - 1.5, 0.93, f"3 seeds coincide ({min(d['raw120_s']):.3f} to {max(d['raw120_s']):.3f} s)", transform=tr, ha="right", va="center",
+        ax.text(min(d["raw120_s"]) - 1.0, 0.8, f"3 seeds coincide ({min(d['raw120_s']):.3f} to {max(d['raw120_s']):.3f} s)", transform=tr, ha="right", va="center",
                 fontsize=S.TEXT_SIZES["small"], color=S.figure_colour("text_dark"))
 
 
@@ -3826,9 +3834,9 @@ def _draw_F1(d: dict, draft: bool):
         x0, y0, x1, y1 = F1_SCHEMATIC_BOXES[key]
         sx.add_patch(FancyBboxPatch((x0, y0), x1 - x0, y1 - y0, boxstyle="round,pad=0.004,rounding_size=0.01", fc=faces.get(key, SC["box_face"]), ec=SC["box_edge"],
                                     lw=SC["edge_width"], transform=sx.transAxes, zorder=1))
-        lines = [F1_SCHEMATIC_SEP.join(r) for r in rows]
+        lines = [ln for r in rows for ln in textwrap.wrap(F1_SCHEMATIC_SEP.join(r), F1_SCHEMATIC_WRAP[key], break_long_words=False, break_on_hyphens=False)]
         sx.text(x0 + 0.008, y1 - 0.04, head, transform=sx.transAxes, ha="left", va="top", fontsize=S.TEXT_SIZES["schematic_head"], weight="bold", zorder=3, gid=f"schematic:{key}:head")
-        sx.text(x0 + 0.008, y1 - 0.2, "\n".join(lines), transform=sx.transAxes, ha="left", va="top", fontsize=S.TEXT_SIZES["schematic"], linespacing=1.35, zorder=3,
+        sx.text(x0 + 0.008, y1 - 0.17, "\n".join(lines), transform=sx.transAxes, ha="left", va="top", fontsize=S.TEXT_SIZES["schematic"], linespacing=1.35, zorder=3,
                 gid=f"schematic:{key}:rows")
     for a_, b_ in F1_SCHEMATIC_ARROWS:
         xa0, ya0, xa1, ya1 = F1_SCHEMATIC_BOXES[a_]
@@ -3918,9 +3926,10 @@ def _draw_F1(d: dict, draft: bool):
         first_r = first_r if first_r is not None else a
         if win is None:
             e = d["ras_count_edges_s"]
-            im = a.pcolormesh(e, np.arange(d["ras_n_rows"] + 1) - 0.5, d["ras_count"], cmap=S.RASTER_COUNT_CMAP, vmin=0, shading="flat", rasterized=True)
-            cb = fig.colorbar(im, cax=fig.add_subplot(gs[10, 3]))
-            cb.set_label(f"spikes per {d['ras_count_bin_s']:g} s")
+            top, n_above, _n = f1_count_range(d)
+            im = a.pcolormesh(e, np.arange(d["ras_n_rows"] + 1) - 0.5, d["ras_count"], cmap=S.RASTER_COUNT_CMAP, vmin=0, vmax=top, shading="flat", rasterized=True)
+            cb = fig.colorbar(im, cax=fig.add_subplot(gs[10, 3]), extend="max")
+            cb.set_label(f"spikes per {d['ras_count_bin_s']:g} s (top colour: {top:g} and more)")
             for lab, w in zip("jk", d["zoom_windows_s"]):
                 a.add_patch(Rectangle((w[0], -0.5), w[1] - w[0], d["ras_n_rows"], fill=False, ec=S.F1_RASTER["window_frame"], lw=S.F1_RASTER["window_width"], zorder=4))
                 a.text(w[1] + 1.0, d["ras_n_rows"] - 3, f"({lab})", ha="left", va="top", fontsize=S.TEXT_SIZES["small"], color=S.F1_RASTER["window_frame"], zorder=5)
@@ -3967,7 +3976,8 @@ def f1_caption_notes(d: dict) -> tuple:
         "covers both would flatten the network panel (display choice, UNVERIFIED). The dashed lines are the edges of the primary band. The window time axis is the classifier's (sample i at i/fs); the stored network time stamp is the end of the 1 ms bin. "
         f"Panel (i) draws, for the 300 stored neurons of seed 0, the number of stored spikes per neuron in each {d['ras_count_bin_s']:g} s bin from 0 s, computed from the stored spikes "
         f"(display aggregation, UNVERIFIED; every count is exact, nothing is smoothed, and the counts sum to the {int(d['ras_count'].sum())} stored spikes; {d['ras_n_active_rows']} of the "
-        f"{d['ras_n_rows']} rows spike); panels (j) and (k) draw the spikes as stored in windows of {F1_ZOOM_S:g} s that start at the stored network classifier onset and at the stored "
+        f"{d['ras_n_rows']} rows spike); the colour range runs from 0 to {f1_count_range(d)[0]:g} spikes, the {S.F1_RASTER['top_percentile']:g}th percentile of the counts, and the "
+        f"{f1_count_range(d)[1]} of {f1_count_range(d)[2]} cells above it (up to {int(d['ras_count'].max())}) take the top colour (arrow on the colour bar; display choice, UNVERIFIED); panels (j) and (k) draw the spikes as stored in windows of {F1_ZOOM_S:g} s that start at the stored network classifier onset and at the stored "
         "mean-field onset, and the two windows are framed on (i). The schematic above (a) is our layout of labels written in the plan (UNVERIFIED as a drawing); it carries no equation "
         "and no value. A_ref (reading a) is " + f"{d['a_ref']:.6f}" + " (A8). Peak frequencies are the classifier's spectral peaks (MS11-C3). "
         "Every D8-dependent class is provisional (D8 open). The claim-limit IDs listed here are PROPOSED for the reviewer's ruling.",

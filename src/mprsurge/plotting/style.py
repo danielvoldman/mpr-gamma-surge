@@ -403,15 +403,15 @@ TITLE_LOC = "left"
 DRAFT_NOTE = {"x": 0.012, "y": 0.004, "band": 0.012}
 
 # R1, F2 and F3 (the literals of the 13f and 13g drafts) and R12 (F2 network symbols smaller than the 13f size 6.0 of s4_net_up / s4_net_down).
-F2_MARKS = {"zero_line": "#7a7a7a", "zero_line_width": 0.6, "net_size": 4.0, "net_width": 0.9}
+F2_MARKS = {"zero_line": "#7a7a7a", "zero_line_width": 0.6, "net_size": 3.4, "net_width": 0.8}
 F3_MARKS = {"cycle_marker": "s", "cycle_size": 5.0, "slice_hopf_size": 5.0, "strip_start_size": 5.0, "key_path_size": 4.0, "strip_arrow_width": 1.6, "strip_head": 8.0,
-            "a6_hopf_size": 7.0, "a6_hopf_width": 0.9}           # R11: the A6 Hopf mark drawn smaller and without the white halo, so the 5 ms slice line stays visible
+            "a6_hopf_size": 5.5, "a6_hopf_width": 0.8}           # R11: the A6 Hopf mark drawn smaller and without the white halo, so the 5 ms slice line stays visible
 
 # R6, F1 schematic: box face and edge colours and the arrow colour (no data, no value).
 F1_SCHEMATIC = {"box_face": "#f4f4f4", "box_edge": "#4d4d4d", "ramp_face": "#fdf0e6", "net_face": "#eaf0f7", "arrow": "#4d4d4d", "edge_width": 0.7, "arrow_width": 0.8}
 # R7, F1: colour map of the spike-count image and the colour of the (j) and (k) window frames drawn on it (the 1 s bin is figures.F1_COUNT_BIN_S, a ruled display aggregation).
 RASTER_COUNT_CMAP = "Greys"
-F1_RASTER = {"window_frame": "#d95f02", "window_width": 0.9}
+F1_RASTER = {"window_frame": "#d95f02", "window_width": 0.6, "top_percentile": 99.0}
 
 # R8, F4: the stored median of the seeds (its own colour, not the P1 purple of the fs3_median mark), and the mark of a delay whose stored onset lies in the hold.
 F4_MARKS = {"median_colour": "#1a1a1a", "hold_marker": "s", "hold_colour": "#b35806", "hold_size": 8.0, "hold_width": 0.9}
