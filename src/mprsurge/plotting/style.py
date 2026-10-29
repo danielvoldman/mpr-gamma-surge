@@ -155,12 +155,31 @@ DIAGRAM_MARKS = {
     "k10_j8": DiagramMark("k10_j8", "#8c6d1f", r"$\triangle$", "triangle up outline (8 ms)", "-", 7.0, 0.7, True),
     "k10_j20": DiagramMark("k10_j20", "#2f4f4f", r"$\boxdot$", "square with dot (20 ms)", "--", 7.0, 0.7, True),
     "k10_j40": DiagramMark("k10_j40", "#7b3f00", r"$\triangledown$", "triangle down outline (40 ms)", ":", 7.0, 0.7, True),
+    # 13i, FS5 (classifier tests and sensitivity; frequency mapping). UNVERIFIED design choices. One mark per window W of the reachability panel (the windows of
+    # the plan's T_ramp ladder, in increasing order), the two taus of RB9(a), the RB9(b) frequencies, the 1/tau expectation of RB9(d), a point for a stored
+    # fraction and the 'not run' cell of the class matrix.
+    "w_0": DiagramMark("w_0", "#440154", r"$\clubsuit$", "club (W 0.2 s)", "-", 7.0, 0.8, True),
+    "w_1": DiagramMark("w_1", "#3b528b", r"$\spadesuit$", "spade (W 0.333 s)", "--", 7.0, 0.8, True),
+    "w_2": DiagramMark("w_2", "#21918c", r"$\heartsuit$", "heart outline (W 0.593 s)", "-.", 7.0, 0.8, True),
+    "w_3": DiagramMark("w_3", "#4c9a2a", r"$\diamondsuit$", "diamond suit outline (W 1.054 s)", ":", 7.0, 0.8, True),
+    "w_4": DiagramMark("w_4", "#9c7a00", r"$\bowtie$", "bowtie (W 1.874 s)", (0, (5, 1, 1, 1, 1, 1)), 7.0, 0.8, True),
+    "w_5": DiagramMark("w_5", "#5a5a00", r"$\dagger$", "dagger (W 2 s)", (0, (1, 3)), 7.0, 0.8, True),
+    "rb9a_0": DiagramMark("rb9a_0", "#34495e", r"$\bullet$", "filled dot (tau 10 ms)", "none", 6.0, 1.0, True),
+    "rb9a_1": DiagramMark("rb9a_1", "#a04000", r"$\circ$", "open circle (tau 20 ms)", "none", 6.0, 1.0, False),
+    "fs5_spectral": DiagramMark("fs5_spectral", "#34495e", r"$\bullet$", "filled dot (spectral peak)", "none", 7.0, 1.0, True),
+    "fs5_cycle": DiagramMark("fs5_cycle", "#a04000", r"$\diamond$", "diamond outline (cycle frequency)", "none", 7.0, 1.0, False),
+    "fs5_expected": DiagramMark("fs5_expected", "#5d4037", r"$\ast$", "asterisk (headline x 10/tau)", "none", 7.0, 1.0, True),
+    "fs5_pt": DiagramMark("fs5_pt", "#4a148c", r"$\star$", "star outline (stored fraction)", "none", 7.0, 1.0, True),
+    "not_run": DiagramMark("not_run", "#555555", r"$\times$", "cross (not run)", "none", 4.0, 0.6, True),
 }
 
 # 13h, FS1: fill of the A1 root-count map (one root, three roots) and the colour map of the A2 cycles per e-fold. The A2 ring frequency uses
 # FREQUENCY_CMAP (one frequency colour map for every figure). UNVERIFIED design choices.
 ROOT_COUNT_COLOURS = {1: "#e8eef4", 3: "#f3cfa6"}
 CYCLES_CMAP = "cividis"
+# 13i, FS5: fill of the class-change fraction matrix, and a hatch per class so that no class rests on colour alone in a stacked bar. UNVERIFIED design choices.
+CHANGE_CMAP = "YlOrBr"
+CLASS_HATCH = {"S+": "", "S-rel": "//", "S-abs": "xx", "S-sus": "..", "NS": "\\\\", "D-tr": "--", "D-sus": "++", "D-none": "oo"}
 
 
 def diagram_mark(key: str) -> DiagramMark:

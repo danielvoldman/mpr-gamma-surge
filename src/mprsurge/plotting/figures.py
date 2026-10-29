@@ -1384,6 +1384,512 @@ def make_FS2(res=None, out_dir=None, *, tag_build: bool = False, take_home=FS2_T
     return {"prov": prov, "paths": [pdf, png, cap_path, dig_path, out / "FS2_params.csv", out / "FS2_provenance.json", nordlie_path],
             "timing_s": timing, "drawn_sha256": drawn, "caption": cap.text}
 
+# ---- FS5 (13i) -------------------------------------------------------------------------------------------------------------------------------------
+# Paths relative to results/ (the two test files are relative to the repository root and are read as text, parsed, never run: plan 13a section 4, FS5 inputs).
+# The registry scripts/ms13_inputs.py INPUTS["FS5"] must name the same files (test).
+FS5_INPUTS = (
+    "A8/a8_sensitivity.csv",                                 # 1,880 stored classifications: 10 variants of the A8 classifier on synthetic and stored records (DL-147)
+    "A8/baseline/a8_baseline_summary.json",                  # noise envelope counts of the 7e baseline records (DL-145, DL-147)
+    "A8/sensitivity/a8_reachability.csv",                    # share of cells with baseline rho at or above a level, per window (DL-147 (5))
+    "A8/sensitivity/a8_whitenoise.csv",                      # white-noise records per window and variant by class (DL-147 (6); added at 13i)
+    "A8/sensitivity/a8_sens_summary.json",                   # stored class changes against V0: the counts of panel (c) are checked against it (added at 13i)
+    "A11/a11_robustness.csv",                                # stored A11 table: RB9 and RB10 status rows and the FAIL-row strip
+    "A11/a11_evaluators.json",                               # stored RB9 and RB10 numbers that the A11 table leaves blank (added at 13i)
+    "A11/rb9a_unit_level.json",                              # RB9(a) unit-level result (DL-351, DL-365)
+    "A6/a6_freq_map.npz",                                    # opened for one check only (DL-430 input; UNVERIFIED reading); no A6 frequency map is drawn
+    "A6/a6_summary.json",                                    # the stored value that check compares with (added at 13i)
+    "A8/sensitivity/A8sens_0000_64d37749bae1.json",          # run record: source of the A8 sensitivity rows of FS5_params.csv (added at 13i)
+    "A8/baseline/A8base_0000_e2dbc529d19d.json",             # run record: source of the A8 baseline rows of FS5_params.csv (added at 13i)
+)
+FS5_TEST_FILES = ("tests/test_surge_metrics.py", "tests/test_surge_classes.py")
+FS5_RECORDS = {"A8_sensitivity": FS5_INPUTS[10], "A8_baseline": FS5_INPUTS[11]}
+FS5_STRIP_RB = ("RB9", "RB10")          # Table 7.2 'Where' names FS5 for RB9 ("FS5; F3") and RB10 ("FS5") (plan.md lines 852 and 853)
+FS5_CAPTION_KEYS = ("model.type", "model.ref_point", "model.tau_ms", "analysis.band_primary_hz", "analysis.window_rule", "analysis.amin_factor",
+                    "analysis.rel_factor", "analysis.abs_factor", "analysis.min_cycles", "noise.sigma")
+FS5_GROUPS = (("stored_S3", "D"), ("stored_S4_ceni", "D"), ("stored_S4_devalle", "D"), ("synthetic", "N"), ("synthetic", "D"))
+FS5_GROUP_LABELS = ("S3 mean field (mode D)", "S4 ceni holds (D)", "S4 devalle holds (D)", "synthetic mode N", "synthetic mode D")
+FS5_RB10_BOUND = 0.1                    # plan Table 7.2 RB10: <= 10 percent of map cells change class (the A11 row threshold text names it)
+FS5_RB9A_TOL = 0.005                    # plan Table 7.2 RB9(a): within 0.5 percent (read back from the stored evaluator file and checked)
+FS5_RB9C_BOUND = 0.05                   # plan Table 7.2 RB9(c): <= 5 percent of cells (read back and checked)
+FS5_WHITE_CLASSES = ("S+", "S-rel", "S-abs", "S-sus", "NS")
+
+# PROPOSED for the reviewer's ruling (13i prompt, item B3); every statement is from a logged result (DL numbers in the text) and the numbers are checked
+# against the stored arrays by tests/test_fig_FS5.py.
+FS5_TAKE_HOME = (
+    "PROPOSED (for ruling): The surge classifier, with its D8 call provisional, was run on 26 synthetic cases and on stored mean-field records under nine "
+    "variants (A8; DL-147): which classes change is drawn per variant. The plan's D8 estimator fails 2 of the plan's 8 A8 ring items (DL-161, DL-163), and short "
+    "windows give false surges: 306, 400, 172 and 24 of 500 white-noise records are not NS at W = 0.2, 0.333, 0.593 and 1.054 s (DL-147, DL-163). RB10 passes "
+    "(headline class unchanged under all nine variants; at most 1.67 percent of the 900 map-1 cells change class against the 10 percent bound; DL-388). "
+    "RB9(a) passes at unit level (1.2e-8 against 0.005; DL-351, DL-388), RB9(c) passes (14 of 900 cells), RB9(b) FAILS (49.0 Hz spectral peak against a "
+    "44.609 Hz cycle frequency, 4.391 Hz against 1/W = 0.5 Hz; DL-388), and RB9(d) is reported only."
+)
+# PROPOSED: the limits of docs/ms13_plan.md section 5 whose right-hand column lists FS5 (MS9 (e)-5, DL-163 departures 1, 2 and 4, MS11-C3, MS11-C4, MS11-C7,
+# MS11-C9); MS12-C1 lists F1 to F6 and FS6, not FS5. The RB9(b) FAIL row (DL-388) is in the FAIL-row strip. Listed, not decided.
+FS5_CLAIM_LIMITS = ("MS11-C7", "MS9(e)-5", "DL-163-D1", "DL-163-D2", "DL-163-D4", "MS11-C3", "MS11-C4", "MS11-C9")
+FS5_FOOTER = "DRAFT: untagged build. Layout, marks, colours and panel choices are UNVERIFIED (style.py); take-home and claim limits are PROPOSED."
+
+
+def load_FS5(res=None, root=None) -> dict:
+    """Open the files of FS5_INPUTS under `res` (default results/) and the two test files under the repository root as text. Opens nothing else."""
+    root = Path(root) if root is not None else repo_root()
+    res = Path(res) if res is not None else root / "results"
+    for rel in FS5_INPUTS:
+        if not (res / rel).is_file():
+            raise F.MissingInputError(f"input file not found: {res / rel}")
+    for rel in FS5_TEST_FILES:
+        if not (root / rel).is_file():
+            raise F.MissingInputError(f"input file not found: {root / rel}")
+
+    def rows(rel):
+        with open(res / rel, newline="", encoding="utf-8") as fh:
+            return list(csv.DictReader(fh))
+
+    def js(rel):
+        return json.loads((res / rel).read_text(encoding="utf-8"))
+
+    try:
+        with np.load(res / "A6/a6_freq_map.npz", allow_pickle=False) as z:
+            a6 = {k: z[k] for k in ("slice_ids", "po_slice_index", "po_param", "po_frequency_hz")}
+        return {"a8": rows(FS5_INPUTS[0]), "baseline": js(FS5_INPUTS[1]), "reach": rows(FS5_INPUTS[2]), "white": rows(FS5_INPUTS[3]), "sens": js(FS5_INPUTS[4]),
+                "a11": rows(FS5_INPUTS[5]), "evaluators": js(FS5_INPUTS[6]), "rb9a": js(FS5_INPUTS[7]), "a6": a6, "a6_summary": js(FS5_INPUTS[9]),
+                "records": {k: js(rel) for k, rel in FS5_RECORDS.items()},
+                "tests": {rel: (root / rel).read_text(encoding="utf-8") for rel in FS5_TEST_FILES}}
+    except (OSError, ValueError, KeyError) as exc:
+        raise F.MissingInputError(f"an FS5 input cannot be read: {exc}") from exc
+
+
+def _test_cases(source: str) -> list[dict]:
+    """The test functions of a test module as a list of cases: name, strict-xfail flag and reason (read from the decorators; nothing is run)."""
+    import ast
+    tree = ast.parse(source)
+    alias = {}
+    for n in tree.body:
+        if isinstance(n, ast.Assign) and len(n.targets) == 1 and isinstance(n.targets[0], ast.Name) and isinstance(n.value, ast.Call):
+            alias[n.targets[0].id] = n.value
+
+    def xfail_call(dec):
+        if isinstance(dec, ast.Name):
+            dec = alias.get(dec.id)
+        if isinstance(dec, ast.Call) and isinstance(dec.func, ast.Attribute) and dec.func.attr == "xfail":
+            return dec
+        return None
+
+    out = []
+    for n in ast.walk(tree):
+        if isinstance(n, ast.FunctionDef) and not n.name.startswith("test_"):
+            # a helper that sets an xfail mark on individual parameters (marks=[alias]): listed as a parameter-level mark
+            used = {m.id for m in ast.walk(n) if isinstance(m, ast.Name) and m.id in alias and xfail_call(m) is not None}
+            for a in sorted(used):
+                kw = {k.arg: k.value for k in alias[a].keywords}
+                out.append({"name": f"{n.name} (xfail mark on parameters)", "xfail": True, "strict": bool(kw["strict"].value) if "strict" in kw else False,
+                            "reason": kw["reason"].value if "reason" in kw and isinstance(kw["reason"], ast.Constant) else "", "line": n.lineno, "helper": True})
+        if isinstance(n, ast.FunctionDef) and n.name.startswith("test_"):
+            xf = next((c for c in (xfail_call(d) for d in n.decorator_list) if c is not None), None)
+            kw = {k.arg: k.value for k in xf.keywords} if xf is not None else {}
+            strict = bool(kw["strict"].value) if "strict" in kw and isinstance(kw["strict"], ast.Constant) else False
+            reason = kw["reason"].value if "reason" in kw and isinstance(kw["reason"], ast.Constant) else ""
+            out.append({"name": n.name, "xfail": xf is not None, "strict": strict, "reason": reason, "line": n.lineno})
+    return sorted(out, key=lambda c: c["line"])
+
+
+def prepare_FS5(raw: dict) -> dict:
+    """Pure: stored content -> the arrays and numbers that are drawn. Keys are flat names; values are arrays, ints, floats, bools, strings or lists of strings."""
+    d: dict = {}
+    classes = S.CLASS_KEYS + ("not_run",)
+    a8 = raw["a8"]
+    if len(a8) != 1880:
+        raise DataError(f"a8_sensitivity.csv has {len(a8)} rows, not the 1,880 of DL-147")
+    variants = []
+    for r in a8:
+        if r["variant"] not in variants:
+            variants.append(r["variant"])
+    if variants[0] != "V0" or len(variants) != 10:
+        raise DataError(f"unexpected variants {variants}")
+    d["variants"] = variants
+    cls = {}                                                      # (dataset, mode, record, T_ramp_s, variant) -> class
+    window = {}
+    for r in a8:
+        if r["cls"] not in classes:
+            raise DataError(f"unknown class {r['cls']!r} in a8_sensitivity.csv")
+        cls[(r["dataset"], r["mode"], r["record"], r["T_ramp_s"], r["variant"])] = r["cls"]
+        if r["variant"] == "V0":
+            window[(r["dataset"], r["mode"], r["record"], r["T_ramp_s"])] = r["window_s"]
+    # (a) synthetic classes: one row per (record, T_ramp), one column per variant, in the stored order
+    syn = [k for k in window if k[0] == "synthetic"]
+    if len(syn) != 39 or any((*k, v) not in cls for k in syn for v in variants):
+        raise DataError("the synthetic block is not 39 rows by 10 variants")
+    d["syn_code"] = np.array([[classes.index(cls[(*k, v)]) for v in variants] for k in syn], dtype=float)
+    d["syn_label"] = [f"{k[2]} | {float(k[3]):g} s | W {float(window[k]):g}" for k in syn]
+    d["syn_mode"] = [k[1] for k in syn]
+    d["class_order"] = list(classes)
+    # (c) class changes against V0 per group and variant; checked against the stored a8_sens_summary.json
+    n_g = np.zeros(len(FS5_GROUPS))
+    chg = np.zeros((len(FS5_GROUPS), len(variants) - 1))
+    nrun = np.zeros_like(chg)
+    stored = {(e["dataset"], e["mode"], e["variant"]): e for e in raw["sens"]["changes_vs_V0"]}
+    for gi, (ds, mode) in enumerate(FS5_GROUPS):
+        keys = [k for k in window if k[0] == ds and k[1] == mode]
+        n_g[gi] = len(keys)
+        for vi, v in enumerate(variants[1:]):
+            c = sum(1 for k in keys if cls[(*k, v)] != cls[(*k, "V0")] and cls[(*k, v)] != "not_run")
+            nr = sum(1 for k in keys if cls[(*k, v)] == "not_run")
+            e = stored[(ds, mode, v)]
+            if (c, nr, len(keys)) != (e["changed"], e["not_run"], e["n"]):
+                raise DataError(f"class changes of {ds} {mode} {v}: csv gives {(c, nr, len(keys))}, a8_sens_summary.json gives {(e['changed'], e['not_run'], e['n'])}")
+            chg[gi, vi], nrun[gi, vi] = c, nr
+    d["chg_n"], d["chg_changed"], d["chg_not_run"] = n_g, chg, nrun
+    # (d) reachability: share of cells whose mean-over-seeds baseline rho is at or above the level, per window
+    reach = raw["reach"]
+    ws = sorted({float(r["W_s"]) for r in reach})
+    levels = sorted({float(r["level"]) for r in reach})
+    d["reach_W"], d["reach_level"] = np.array(ws), np.array(levels)
+    share = np.full((len(ws), len(levels)), np.nan)
+    ncell = np.zeros(len(ws))
+    for r in reach:
+        i, j = ws.index(float(r["W_s"])), levels.index(float(r["level"]))
+        share[i, j] = float(r["cells_mean_ge"]) / float(r["n_cells"])
+        ncell[i] = float(r["n_cells"])
+    d["reach_share"], d["reach_n_cells"] = share, ncell
+    # (e) white noise at V0: count per class per window out of the stored denominator
+    wn = [r for r in raw["white"] if r["variant"] == "V0"]
+    wws = sorted({float(r["W_s"]) for r in wn})
+    allc = FS5_WHITE_CLASSES + ("failed", "not_run")
+    cnt = np.zeros((len(wws), len(allc)))
+    den = np.zeros(len(wws))
+    for r in wn:
+        i = wws.index(float(r["W_s"]))
+        cnt[i, allc.index(r["class"])] = float(r["count"])
+        den[i] = float(r["denominator"])
+    if not np.array_equal(cnt.sum(axis=1), den):
+        raise DataError("white-noise V0 counts do not sum to the stored denominator")
+    d["white_W"], d["white_count"], d["white_den"] = np.array(wws), cnt, den
+    d["white_nonNS"] = cnt[:, [0, 1, 2, 3]].sum(axis=1)
+    # (f) RB10 and (g) RB9 from the stored evaluator file, with the A11 table statuses checked against it
+    ev = raw["evaluators"]["evaluators"]
+    status = {(r["rb_id"], r["check_id"]): r["pass_or_fail"] for r in raw["a11"]}
+    want = {("RB9", "a_dimensional_vs_nondimensional"): ev["rb9a"]["status"], ("RB9", "b_spectral_vs_cycle_headline"): ev["rb9b"]["status"],
+            ("RB9", "c_band_30_120_map1"): ev["rb9c"]["status"], ("RB9", "d_tau_pm20"): ev["rb9d"]["status"], ("RB10", "surge_definition_sensitivity_map1"): ev["rb10"]["status"]}
+    for k, v in want.items():
+        if status.get(k) != v:
+            raise DataError(f"A11 table status {status.get(k)!r} of {k} differs from the evaluator file {v!r}")
+    d["rb_status"] = [f"{k[0]} {k[1]}: {v}" for k, v in want.items()]
+    r10 = ev["rb10"]["variants"]
+    d["rb10_variant"] = list(r10)
+    d["rb10_fraction"] = np.array([float(r10[v]["fraction"]) for v in r10])
+    d["rb10_headline_all_pass"] = all(r10[v]["headline"] == "PASS" for v in r10)
+    d["rb10_n_cells"] = int(next(iter(r10.values()))["n_evaluated"])
+    if ev["rb9a"]["threshold"] != FS5_RB9A_TOL or ev["rb9c"]["bound"] != FS5_RB9C_BOUND:
+        raise DataError("a stored RB9 bound differs from the plan value")
+    if abs(raw["rb9a"]["tolerance_frozen"] - FS5_RB9A_TOL) > 0 or raw["rb9a"]["per_tau"] != ev["rb9a"]["per_tau"]:
+        raise DataError("rb9a_unit_level.json and the evaluator file differ")
+    taus = sorted(ev["rb9a"]["per_tau"], key=float)
+    d["rb9a_tau_ms"] = np.array([float(t) for t in taus])
+    d["rb9a_diff"] = np.array([[ev["rb9a"]["per_tau"][t][q] for q in ("r", "v", "s")] for t in taus])
+    d["rb9a_value"], d["rb9a_tol"] = float(ev["rb9a"]["value"]), float(ev["rb9a"]["threshold"])
+    hb = ev["rb9b"]["headline"]
+    d["rb9b_f_spectral"], d["rb9b_f_cycle"], d["rb9b_diff"], d["rb9b_bound"] = (float(hb[k]) for k in ("f_spectral_hz", "f_cycle_hz", "diff_hz", "bound_hz"))
+    d["rb9b_within"] = bool(hb["within"])
+    cr = ev["rb9b"]["cells_reported"]
+    d["rb9b_map1_within"], d["rb9b_map1_n"], d["rb9b_map2_within"], d["rb9b_map2_n"] = int(cr["map1"]["within"]), int(cr["map1"]["n"]), int(cr["map2"]["within"]), int(cr["map2"]["n"])
+    c9 = ev["rb9c"]
+    d["rb9c_bound"] = float(c9["bound"])
+    d["rb9c_set"] = ["map 1 (verdict)", "map 2 (beside)", "subgrid (beside)"]
+    d["rb9c_changed"] = np.array([c9["n_changed"], c9["beside"]["map2"]["n_changed"], c9["beside"]["subgrid"]["n_changed"]], dtype=float)
+    d["rb9c_n"] = np.array([c9["n_evaluated"], c9["beside"]["map2"]["n_evaluated"], c9["beside"]["subgrid"]["n_evaluated"]], dtype=float)
+    d9 = ev["rb9d"]
+    rows_d = sorted([d9["headline_10ms"]] + [{k: r[k] for k in ("tau_ms", "class", "f_pk_hz")} for r in d9["rows"]], key=lambda r: r["tau_ms"])
+    d["rb9d_tau_ms"] = np.array([r["tau_ms"] for r in rows_d])
+    d["rb9d_f_pk"] = np.array([r["f_pk_hz"] for r in rows_d])
+    d["rb9d_class"] = [r["class"] for r in rows_d]
+    d["rb9d_expected_ratio"] = np.array([{r["tau_ms"]: r["f_pk_ratio_expected_10_over_tau"] for r in d9["rows"]}.get(r["tau_ms"], 1.0) for r in rows_d])
+    d["rb9d_headline_f"] = float(d9["headline_10ms"]["f_pk_hz"])
+    # the A6 file is opened for one check: the ref_devalle slice reproduces the stored summary frequency at eta_bar 4 (as at FS2)
+    a6 = raw["a6"]
+    ids = [str(x) for x in a6["slice_ids"]]
+    m = a6["po_slice_index"] == ids.index("eta_tau_D0.3_td5.0")
+    d["a6_f_eta4"] = float(raw["a6_summary"]["devalle"]["f_at_eta_4"])
+    if float(np.interp(4.0, a6["po_param"][m], a6["po_frequency_hz"][m])) != d["a6_f_eta4"]:
+        raise DataError("the A6 slice does not reproduce the stored A6 summary frequency at eta_bar 4")
+    # stored noise-envelope counts of the baseline records (O4; DL-147 (4))
+    env = raw["baseline"]["noise_envelope"]["all"]["all"]
+    d["env_n_records"], d["env_any_above"], d["a_ref"] = int(env["n_records"]), int(env["records_any_above"]), float(raw["baseline"]["a_ref"])
+    # the stored test cases, read as a list
+    d["tests_file"], d["tests_n"], d["tests_xfail_name"], d["tests_xfail_reason"] = [], [], [], []
+    for rel in FS5_TEST_FILES:
+        cases = _test_cases(raw["tests"][rel])
+        d["tests_file"].append(rel)
+        d["tests_n"].append(sum(1 for c in cases if not c.get("helper")))
+        for c in cases:
+            if c["xfail"]:
+                if not c["strict"]:
+                    raise DataError(f"{rel}::{c['name']} carries a non-strict xfail")
+                d["tests_xfail_name"].append(f"{Path(rel).stem.replace('test_', '')}::{c['name'].replace('test_', '', 1)}")
+                d["tests_xfail_reason"].append(c["reason"])
+    d["strip"] = [{"rb_id": r["rb_id"], "check_id": r["check_id"], "value": r["value"], "threshold": r["threshold"], "status": r["pass_or_fail"]}
+                  for r in raw["a11"] if r["rb_id"] in FS5_STRIP_RB and r["pass_or_fail"] == "FAIL"]
+    return d
+
+
+def fs5_strip_lines(d: dict) -> list[str]:
+    """FAIL rows of the stored A11 table that touch FS5. The numbers a blank 'value' cell leaves out are read from the stored evaluator file."""
+    out = []
+    for r in d["strip"]:
+        thr = f"threshold {r['threshold']}" if r["threshold"] else "threshold blank in the table"
+        extra = ""
+        if (r["rb_id"], r["check_id"]) == ("RB9", "b_spectral_vs_cycle_headline"):
+            extra = (f"; stored evaluator: {d['rb9b_f_spectral']:.1f} Hz spectral against {d['rb9b_f_cycle']:.3f} Hz cycle, difference {d['rb9b_diff']:.3f} Hz "
+                     f"against {d['rb9b_bound']:g} Hz")
+        out.append(f"{r['rb_id']} {r['check_id']}: {r['status']} ({thr}{extra})")
+    return out
+
+
+def _draw_FS5(d: dict, draft: bool):
+    import textwrap
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Patch, Rectangle
+    plt.rcParams.update({"font.family": S.FONT_FAMILY, "font.size": S.FONT_SIZE_PT, "pdf.fonttype": 42})
+    fig = plt.figure(figsize=(7.4, 14.4), constrained_layout=True)
+    gs = fig.add_gridspec(5, 6, height_ratios=[4.3, 1.9, 1.9, 1.7, 1.5])
+    classes = d["class_order"]
+    var = d["variants"]
+    # (a) synthetic classes under the ten variants: one marker per cell, shape and colour from the class table
+    ax = fig.add_subplot(gs[0, 0:4])
+    nrow = len(d["syn_label"])
+    ys = np.arange(nrow, dtype=float)
+    for ci, name in enumerate(classes):
+        sel = d["syn_code"] == ci
+        if not sel.any():
+            continue
+        yy, xx = np.nonzero(sel)
+        if name == "not_run":
+            mk = S.diagram_mark("not_run")
+            ax.plot(xx, yy, ls="none", marker=mk.marker, ms=mk.size, color=mk.colour, mew=mk.width, label="not run (window does not fit)", zorder=4)
+        else:
+            st = S.get(name)
+            ax.plot(xx, yy, ls="none", marker=st.marker, ms=4.2, color=st.colour, mec="#333333", mew=0.25, label=f"{name} ({int(sel.sum())})", zorder=4)
+    n_rows_n = d["syn_mode"].count("N")
+    ax.axhline(n_rows_n - 0.5, color="#7a7a7a", lw=0.6, zorder=1)
+    ax.set_ylim(nrow - 0.5, -0.5)
+    ax.set_xlim(-0.6, len(var) - 0.4)
+    ax.set_xticks(range(len(var)), var, rotation=40, ha="right", fontsize=5.5)
+    ax.set_yticks(ys, d["syn_label"], fontsize=4.8)
+    ax.tick_params(length=2)
+    ax.set_title("(a) A8 synthetic cases: class under each variant (mode N above the line, D below)", fontsize=S.FONT_SIZE_PT - 1, loc="left")
+    h_a, l_a = ax.get_legend_handles_labels()
+    # (b) the stored test cases, read as a list
+    axb = fig.add_subplot(gs[0, 4:6])
+    axb.axis("off")
+    lines = textwrap.wrap("(b) Stored synthetic tests, read as a list (never run here):", width=40)
+    lines += [f"{Path(f).name}: {n} test functions" for f, n in zip(d["tests_file"], d["tests_n"])]
+    lines += textwrap.wrap(f"{len(d['tests_xfail_name'])} strict-xfail marks (expected failures), on functions or on parameters:", width=40)
+    for nm, rs in zip(d["tests_xfail_name"], d["tests_xfail_reason"]):
+        lines += textwrap.wrap(f"- {nm}: {rs}", width=40, subsequent_indent="    ")
+    axb.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=4.8, linespacing=1.2)
+    axb.legend(h_a, l_a, loc="lower left", ncol=2, fontsize=5.0, frameon=True, framealpha=0.95, title="class (cells)", title_fontsize=5.0)
+    # (c) class changes against V0
+    axc = fig.add_subplot(gs[1, 0:4])
+    frac = d["chg_changed"] / d["chg_n"][:, None]
+    m = axc.pcolormesh(np.arange(frac.shape[1] + 1) - 0.5, np.arange(frac.shape[0] + 1) - 0.5, frac, cmap=S.CHANGE_CMAP, vmin=0.0, vmax=1.0, shading="flat", edgecolor="#ffffff", lw=0.6)
+    for i in range(frac.shape[0]):
+        for j in range(frac.shape[1]):
+            nr = int(d["chg_not_run"][i, j])
+            axc.text(j, i, f"{int(d['chg_changed'][i, j])}/{int(d['chg_n'][i])}" + (f"\n{nr} not run" if nr else ""), ha="center", va="center", fontsize=4.6,
+                     color="#111111" if frac[i, j] < 0.6 else "#ffffff")
+    axc.set_xticks(range(frac.shape[1]), var[1:], rotation=40, ha="right", fontsize=5.5)
+    axc.set_yticks(range(frac.shape[0]), FS5_GROUP_LABELS, fontsize=5.5)
+    axc.set_ylim(frac.shape[0] - 0.5, -0.5)
+    axc.set_title("(c) class changes against V0: records changed / records (shade: fraction, 0 to 1)", fontsize=S.FONT_SIZE_PT - 1, loc="left")
+    # (d) reachability of the rho levels
+    axd = fig.add_subplot(gs[1, 4:6])
+    for i, w in enumerate(d["reach_W"]):
+        mk = S.diagram_mark(f"w_{i}")
+        axd.plot(d["reach_level"], d["reach_share"][i], color=mk.colour, ls=mk.linestyle, lw=0.8, marker=mk.marker, ms=mk.size - 1, zorder=3,
+                 label=f"W {w:.3g} s ({int(d['reach_n_cells'][i])} cells)")
+    axd.set_xlabel("baseline rho level", fontsize=6)
+    axd.set_ylabel("share of cells at or above", fontsize=6)
+    axd.set_ylim(0.0, 1.05)
+    axd.set_title("(d) baseline rho reachability", fontsize=S.FONT_SIZE_PT - 1, loc="left")
+    axd.tick_params(labelsize=5.5)
+    axd.legend(loc="lower left", fontsize=4.6, frameon=True, framealpha=0.95)
+    # (e) white noise at V0
+    axe = fig.add_subplot(gs[2, 0:3])
+    bottom = np.zeros(len(d["white_W"]))
+    xw = np.arange(len(d["white_W"]), dtype=float)
+    legend_h = []
+    for ci, name in enumerate(FS5_WHITE_CLASSES):
+        st = S.get(name)
+        h = d["white_count"][:, ci] / d["white_den"]
+        for x_, b_, h_ in zip(xw, bottom, h):         # Rectangles, not Axes.bar: bar rounds the height in the last bit ((b + h) - b), the stored share must be drawn exactly
+            axe.add_patch(Rectangle((x_ - 0.35, b_), 0.7, h_, fc=st.colour, ec="#333333", lw=0.3, hatch=S.CLASS_HATCH[name], zorder=3))
+        legend_h.append(Patch(fc=st.colour, ec="#333333", lw=0.3, hatch=S.CLASS_HATCH[name], label=name))
+        for x_, b_, h_, c_ in zip(xw, bottom, h, d["white_count"][:, ci]):
+            if h_ >= 0.07:
+                axe.text(x_, b_ + h_ / 2, f"{int(c_)}", ha="center", va="center", fontsize=4.8, bbox=dict(boxstyle="square,pad=0.1", fc="#ffffff", ec="none", alpha=0.8), zorder=5)
+        bottom = bottom + h
+    for x_, n_, den in zip(xw, d["white_nonNS"], d["white_den"]):
+        axe.text(x_, 1.015, f"{int(n_)}", ha="center", va="bottom", fontsize=5.5, fontweight="bold")
+    axe.set_xticks(xw, [f"{w:.3g}" for w in d["white_W"]], fontsize=5.5)
+    axe.set_ylim(0.0, 1.42)
+    axe.set_xlabel("window W (s)", fontsize=6)
+    axe.set_ylabel("share of 500 white-noise records", fontsize=6)
+    axe.set_title("(e) white noise through the classifier (V0); bold: records not NS", fontsize=S.FONT_SIZE_PT - 1, loc="left")
+    axe.tick_params(labelsize=5.5)
+    axe.set_xlim(-0.6, len(xw) - 0.4)
+    axe.legend(handles=legend_h, loc="upper center", ncol=5, fontsize=5.0, frameon=True, framealpha=0.95, handletextpad=0.3, columnspacing=0.8)
+    # (f) RB10
+    axf = fig.add_subplot(gs[2, 3:6])
+    mk10 = S.diagram_mark("fs5_pt")
+    yv = np.arange(len(d["rb10_variant"]), dtype=float)
+    axf.plot(d["rb10_fraction"], yv, ls="none", marker=mk10.marker, ms=mk10.size, color=mk10.colour, mew=mk10.width, zorder=4, label=f"map-1 cells that change class (of {d['rb10_n_cells']})")
+    tol = S.diagram_mark("tol_band")
+    axf.axvline(FS5_RB10_BOUND, color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label="plan bound 0.10", zorder=2)
+    axf.set_yticks(yv, d["rb10_variant"], fontsize=5.5)
+    axf.set_ylim(len(yv) - 0.5, -0.5)
+    axf.set_xlim(-0.005, 0.27)
+    axf.set_xlabel("fraction of map-1 cells that change class", fontsize=6)
+    axf.set_title("(f) RB10: " + ("headline class unchanged, nine variants" if d["rb10_headline_all_pass"] else "headline class changed under a variant"), fontsize=S.FONT_SIZE_PT - 1, loc="left")
+    axf.tick_params(labelsize=5.5)
+    axf.legend(loc="lower right", fontsize=5.0, frameon=True, framealpha=0.95)
+    # (g) RB9, frequency mapping: four small panels of the stored values
+    sub = gs[3, :].subgridspec(1, 4, wspace=0.55)
+    pt = S.diagram_mark("fs5_pt")
+    a1 = fig.add_subplot(sub[0, 0])
+    for i, tau in enumerate(d["rb9a_tau_ms"]):
+        mk = S.diagram_mark(f"rb9a_{i}")
+        a1.plot([0, 1, 2], d["rb9a_diff"][i], ls="none", marker=mk.marker, ms=mk.size, color=mk.colour, zorder=4, label=f"tau {tau:g} ms")
+    a1.axhline(d["rb9a_tol"], color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label="bound 0.005", zorder=2)
+    a1.set_yscale("log")
+    a1.set_ylim(1e-10, 3e-2)
+    a1.set_xlim(-0.5, 2.5)
+    a1.set_xticks([0, 1, 2], ["r*tau", "v", "s*tau"], fontsize=5.5)
+    a1.set_title("(g1) RB9(a) PASS\nunit level", fontsize=6.0)
+    a1.tick_params(labelsize=5.0)
+    a1.legend(loc="center", bbox_to_anchor=(0.5, 0.62), fontsize=4.4, frameon=True, framealpha=0.95)
+    a1.set_ylabel("relative difference", fontsize=5.5)
+    a2 = fig.add_subplot(sub[0, 1])
+    sp, cy = S.diagram_mark("fs5_spectral"), S.diagram_mark("fs5_cycle")
+    a2.plot([0], [d["rb9b_f_spectral"]], ls="none", marker=sp.marker, ms=sp.size, color=sp.colour, zorder=4, label="spectral peak")
+    a2.errorbar([1], [d["rb9b_f_cycle"]], yerr=[d["rb9b_bound"]], ls="none", marker=cy.marker, ms=cy.size, color=cy.colour, capsize=3, lw=1.0, zorder=4, label="cycle freq. +- 1/W")
+    a2.set_xlim(-0.6, 1.6)
+    a2.set_ylim(38.0, 51.0)
+    a2.set_xticks([0, 1], ["spectral", "cycle"], fontsize=5.5)
+    a2.set_title("(g2) RB9(b) " + ("PASS" if d["rb9b_within"] else "FAIL") + "\nheadline", fontsize=6.0)
+    a2.set_ylabel("frequency (Hz)", fontsize=5.5)
+    a2.tick_params(labelsize=5.0)
+    a2.text(0.5, 0.08, f"diff {d['rb9b_diff']:.3f} Hz > {d['rb9b_bound']:g} Hz\nmap 1: {d['rb9b_map1_within']}/{d['rb9b_map1_n']} in\nmap 2: {d['rb9b_map2_within']}/{d['rb9b_map2_n']} in",
+            transform=a2.transAxes, ha="center", va="bottom", fontsize=4.6, bbox=dict(boxstyle="square,pad=0.2", fc="#ffffff", ec="#7a7a7a", lw=0.4))
+    a3 = fig.add_subplot(sub[0, 2])
+    xs3 = np.arange(3, dtype=float)
+    a3.plot(xs3, d["rb9c_changed"] / d["rb9c_n"], ls="none", marker=pt.marker, ms=pt.size, color=pt.colour, mew=pt.width, zorder=4)
+    a3.axhline(d["rb9c_bound"], color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label="bound 0.05", zorder=2)
+    a3.set_xticks(xs3, ["map 1", "map 2", "subgrid"], fontsize=5.5, rotation=30, ha="right")
+    a3.set_xlim(-0.5, 2.5)
+    a3.set_ylim(-0.09, 0.64)
+    a3.set_title("(g3) RB9(c) PASS\nband 30 to 120 Hz", fontsize=6.0)
+    a3.set_ylabel("fraction of cells that change class", fontsize=5.0)
+    a3.tick_params(labelsize=5.0)
+    a3.legend(loc="upper left", fontsize=4.6, frameon=True, framealpha=0.95)
+    for x_, c_, n_ in zip(xs3, d["rb9c_changed"], d["rb9c_n"]):
+        a3.text(x_ - (0.15 if c_ / n_ > 0.2 else 0.0), c_ / n_ + (0.0 if c_ / n_ > 0.2 else -0.03), f"{int(c_)}/{int(n_)}", ha="right" if c_ / n_ > 0.2 else "center", va="center" if c_ / n_ > 0.2 else "top", fontsize=4.4)
+    a4 = fig.add_subplot(sub[0, 3])
+    for i, (tau, f, c) in enumerate(zip(d["rb9d_tau_ms"], d["rb9d_f_pk"], d["rb9d_class"])):
+        st = S.get(c)
+        a4.plot([tau], [f], ls="none", marker=st.marker, ms=5.5, color=st.colour, mec="#333333", mew=0.4, zorder=4, label=f"{c}" if i == 0 else None)
+    ex = S.diagram_mark("fs5_expected")
+    a4.plot(d["rb9d_tau_ms"], d["rb9d_headline_f"] * d["rb9d_expected_ratio"], ls="none", marker=ex.marker, ms=ex.size, color=ex.colour, zorder=3, label="headline x 10/tau")
+    a4.set_xticks(d["rb9d_tau_ms"], [f"{t:g}" for t in d["rb9d_tau_ms"]], fontsize=5.5)
+    a4.set_xlim(7.0, 13.0)
+    a4.set_ylim(38.0, 76.0)
+    a4.set_xlabel("tau (ms)", fontsize=5.5)
+    a4.set_title("(g4) RB9(d)\nreported only", fontsize=6.0)
+    a4.set_ylabel("peak frequency (Hz)", fontsize=5.5)
+    a4.tick_params(labelsize=5.0)
+    a4.legend(loc="upper center", fontsize=4.4, frameon=True, framealpha=0.95)
+    # status block
+    axs = fig.add_subplot(gs[4, :])
+    axs.axis("off")
+    lines = ["Stored status of the RB9 and RB10 rows (A11 table; a failure is shown, not dropped):"] + ["    " + s for s in d["rb_status"]]
+    lines += ["FAIL rows of the stored A11 table that touch FS5: " + ("none" if not d["strip"] else "")] + ["    " + s for s in fs5_strip_lines(d)]
+    lines = [ln for t_ in lines for ln in textwrap.wrap(t_, width=135, subsequent_indent="        ")]
+    for s in (f"Noise envelope (O4): {d['env_any_above']} of {d['env_n_records']} baseline records have a sample at or above 0.1 x A_ref (A_ref {d['a_ref']:.6f}; DL-147 (4)).",
+              "A6 frequency map: opened for one check (the ref_devalle slice reproduces the stored summary frequency at eta_bar 4); no A6 frequency map is drawn (the DL-430 reading of the "
+              "frequency-mapping panel is UNVERIFIED: the RB9 numbers are the stored A11 evaluator values).",
+              "Panel (a) classes are the stored A8 classifications, D8 call provisional (DL-137); (b) lists test functions and their strict-xfail marks from the test files."):
+        lines += textwrap.wrap(s, width=135, subsequent_indent="    ")
+    axs.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=5.6, linespacing=1.25)
+    axs.text(0.0, 0.0, FS5_FOOTER if draft else "", fontsize=5.5, color="#7f0000", ha="left", va="bottom")
+    return fig
+
+
+def fs5_caption_notes(d: dict) -> tuple:
+    """Sentences about what is and is not drawn (13i). Values come from the prepared data; only the wording is typed here."""
+    n_chg = int(d["chg_changed"].sum())
+    return (
+        f"Panel (a) draws every stored classification of the 26 synthetic cases (39 rows: mode N at T_ramp 120 s and 3 s, mode D at 120 s) under V0 and the nine variants; "
+        "the class is the stored one and the D8 call is provisional (DL-137). The expected class of each case is not stored and is not drawn; the strict-xfail marks of the test files are listed in (b).",
+        f"Panel (c) counts, per group and variant, the records whose class differs from V0 ({n_chg} changes over all groups and variants; checked against the stored a8_sens_summary.json); "
+        "records the window x2 variant could not run are counted as not run, not as unchanged.",
+        "Panel (d) is the stored reachability table: the share of cells whose mean-over-seeds baseline rho is at or above each level, per window (UNVERIFIED arithmetic, DL-146; the plan's "
+        "four numbers do not follow one formula, so both forms are stored and the 1/f levels are drawn).",
+        "Panel (e) is the stored white-noise table at V0: records per class out of 500 per window; white noise has no resonance, so these are rates of the class logic and not predictions for M3 noise (DL-147).",
+        "Panels (f) and (g) are the stored RB10 and RB9 values from the A11 evaluator file; the A11 table leaves the RB9(b) value blank, so its numbers are read from the evaluator file. "
+        "In (g2), 'in' counts the map cells whose spectral and cycle frequencies agree within 1/W (reported as a fraction, no gate fraction; DL-352). "
+        "RB9(a) is a unit-level test on a 1 s eta ramp, not the headline path (DL-351); RB9(d) is post hoc and feeds no gate (DL-367). The headline path is not drawn here.",
+        "The frequency-mapping panel reading (A8 plus A6 plus the RB9 rows) is an UNVERIFIED assumption beyond the plan (DL-430). The claim-limit IDs listed here are PROPOSED for the reviewer's ruling.",
+    )
+
+
+def make_FS5(res=None, out_dir=None, *, tag_build: bool = False, take_home=FS5_TAKE_HOME, claim_limit_ids=FS5_CLAIM_LIMITS,
+             script="scripts/fig_FS5.py", root=None) -> dict:
+    """Build FS5 from results/ (and the two test files, read as text). Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}."""
+    F.require_buildable("FS5")
+    root = Path(root) if root is not None else repo_root()
+    res = Path(res) if res is not None else root / "results"
+    out = Path(out_dir) if out_dir is not None else root / "figures" / "FS5"
+    t = {"start": time.perf_counter()}
+    raw = load_FS5(res, root)
+    t["load"] = time.perf_counter()
+    d = prepare_FS5(raw)
+    t["prepare"] = time.perf_counter()
+    rows = []
+    for key, rec in raw["records"].items():
+        for r in make_param_table(rec["config"]):
+            rows.append({**r, "panel": key, "section": "", "source_run_id": rec["name"], "source_config_hash12": rec["config_hash12"]})
+    cap = CAP.build_caption("FS5", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=[r for r in rows if r["key"] in FS5_CAPTION_KEYS and r["panel"] == "A8_sensitivity"],
+                            spectrogram=None, symbol_keys=(), notes=fs5_caption_notes(d))
+    import matplotlib.pyplot as plt
+    fig = _draw_FS5(d, draft=not tag_build)
+    out.mkdir(parents=True, exist_ok=True)
+    pdf, png = out / "FS5.pdf", out / "FS5.png"
+    fig.savefig(pdf)
+    fig.savefig(png, dpi=S.PNG_DPI)
+    plt.close(fig)
+    t["draw"] = time.perf_counter()
+    cap_path, dig_path = out / "FS5_caption.txt", out / "FS5_drawn_data_sha256.txt"
+    from .. import provenance as P
+    drawn = drawn_data_sha256(d)
+    P.atomic_write_text(cap_path, cap.text + "\n")
+    P.atomic_write_text(dig_path, drawn + "\n")
+    warnings = []
+    for k, rec in raw["records"].items():
+        if (rec.get("git") or {}).get("dirty"):
+            warnings.append(f"input record {k} ({rec['name']}) was written with git dirty = true")
+    prov = F.write_figure_provenance(
+        "FS5", script=script, inputs=[res / p for p in FS5_INPUTS] + [root / p for p in FS5_TEST_FILES], outputs=[pdf, png, cap_path, dig_path], params_rows=rows,
+        modules=["src/mprsurge/plotting/figures.py", "src/mprsurge/plotting/style.py", "src/mprsurge/plotting/captions.py",
+                 "src/mprsurge/plotting/nordlie.py", "src/mprsurge/plotting/figprov.py"],
+        configs=["configs/A8_sensitivity.yaml"], claim_limits=cap.claim_limits, spectrogram=None, tag_build=tag_build,
+        out_dir=out, root=root, warnings=warnings, wall_time_s=time.perf_counter() - t["start"])
+    nordlie_path = out / "FS5_nordlie.md"
+    N.write_nordlie(out / "FS5_params.csv", out / "FS5_provenance.json", nordlie_path, root=root)
+    t["end"] = time.perf_counter()
+    timing = {"load_s": t["load"] - t["start"], "prepare_s": t["prepare"] - t["load"], "draw_s": t["draw"] - t["prepare"],
+              "provenance_and_nordlie_s": t["end"] - t["draw"], "total_s": t["end"] - t["start"]}
+    return {"prov": prov, "paths": [pdf, png, cap_path, dig_path, out / "FS5_params.csv", out / "FS5_provenance.json", nordlie_path],
+            "timing_s": timing, "drawn_sha256": drawn, "caption": cap.text}
+
 
 def make_FS6(*args, **kwargs):
     """FS6 is not produced (S14 and S15 were not run, MS12-C1, DL-421): raises figprov.FigureRefused."""

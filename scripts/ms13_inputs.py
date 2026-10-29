@@ -159,6 +159,13 @@ INPUTS = {
         fil("A11 RB9(a) unit level", "A11/rb9a_unit_level.json"),
         fil("A6 frequency map (frequency mapping panel; UNVERIFIED)", "A6/a6_freq_map.npz"),
         fil("tests/test_surge_metrics.py (synthetic signals)", "../tests/test_surge_metrics.py"),
+        fil("A8 white-noise table (added 13i)", "A8/sensitivity/a8_whitenoise.csv"),
+        fil("A8 sensitivity summary (class changes against V0; added 13i)", "A8/sensitivity/a8_sens_summary.json"),
+        fil("A11 evaluator file (stored RB9 and RB10 numbers; added 13i)", "A11/a11_evaluators.json"),
+        fil("A6 summary (the stored value the A6 check compares with; added 13i)", "A6/a6_summary.json"),
+        fil("A8 sensitivity run record (source of the FS5 parameter rows; added 13i)", "A8/sensitivity/A8sens_0000_64d37749bae1.json"),
+        fil("A8 baseline run record (source of the FS5 parameter rows; added 13i)", "A8/baseline/A8base_0000_e2dbc529d19d.json"),
+        fil("tests/test_surge_classes.py (class-level cases and strict xfails; added 13i)", "../tests/test_surge_classes.py"),
     ],
     "FS6": [],   # S14, S15 not run (MS12-C1)
 }
