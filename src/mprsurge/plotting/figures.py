@@ -3592,7 +3592,7 @@ F1_SCHEMATIC = (
 # box positions in axes fractions (x0, y0, x1, y1) and the arrows between boxes: our layout, UNVERIFIED
 F1_SCHEMATIC_BOXES = {"ramp": (0.0, 0.05, 0.2, 0.95), "model": (0.235, 0.0, 0.585, 1.0), "mf": (0.62, 0.55, 0.81, 0.97), "net": (0.62, 0.03, 0.81, 0.45),
                       "out": (0.835, 0.2, 1.0, 0.8)}
-F1_SCHEMATIC_WRAP = {"ramp": 34, "model": 60, "mf": 32, "net": 32, "out": 29}       # characters per drawn line; a row is wrapped at spaces only, so its words stay verbatim
+F1_SCHEMATIC_WRAP = {"ramp": 30, "model": 66, "mf": 32, "net": 32, "out": 29}       # characters per drawn line; a row is wrapped at spaces only, so its words stay verbatim
 
 
 def f1_count_range(d: dict) -> tuple:
@@ -3810,8 +3810,8 @@ def _draw_F1(d: dict, draft: bool):
     from matplotlib.lines import Line2D
     from matplotlib.patches import FancyBboxPatch, Rectangle
     plt.rcParams.update({"font.family": S.FONT_FAMILY, "font.size": S.FONT_SIZE_PT, "pdf.fonttype": 42})
-    fig = plt.figure(figsize=(7.4, 17.0), constrained_layout=True)
-    gs = fig.add_gridspec(12, 4, height_ratios=[1.9, 1.2, 1.35, 0.8, 1.05, 1.05, 1.05, 1.05, 1.35, 1.35, 1.7, 1.5], width_ratios=[2, 1, 1, 0.1])
+    fig = plt.figure(figsize=(7.4, 16.6), constrained_layout=True)
+    gs = fig.add_gridspec(12, 4, height_ratios=[1.9, 0.8, 1.35, 0.8, 1.05, 1.05, 1.05, 1.05, 1.35, 1.35, 1.7, 1.5], width_ratios=[2, 1, 1, 0.1])
     mf, dtr = S.get("mean_field"), S.get(d["ref_class"])
     p2, edge, hl = S.get("P2"), S.figure_colour("bar_edge"), S.figure_colour("range_line")
     seeds = [S.diagram_mark(k) for k in F1_SEED_KEYS]
