@@ -3852,6 +3852,581 @@ def make_F1(res=None, out_dir=None, *, tag_build: bool = False, take_home=F1_TAK
             "timing_s": timing, "drawn_sha256": drawn, "caption": cap.text}
 
 
+# ---- F5 (13m) -------------------------------------------------------------------------------------------------------------------------------------
+# Paths relative to results/. Tables first (docs/ms13_conventions.md M13-12): the maps, the subgrid agreement, the network cells and the class points come from stored tables and
+# are drawn as stored. A logged exception (DL-490, UNVERIFIED): the per-seed metric points of F5c (f_pk, onset, duration) are RECOMPUTED from the stored S9 and S9_ctrl series
+# with the frozen classifier, by the same call the MS10 evaluation used (analysis.ms10_eval.read_lists with the frozen run lists, the frozen criteria and table21 = True), one
+# record at a time; the recomputed per-seed classes must equal the stored ones and the recomputed counts, min, median and max must equal the stored ones of ms10_eval.json
+# (exact), else the data step stops with a DataError (stop rule). No S7 series is opened. scripts/ms13_inputs.py INPUTS["F5"] must name the same files (test).
+F5_INPUTS = (
+    "A9/a9_regime_map_v2.parquet",                    # 1,226 rows: map 1 (900), map 2 (325), headline (1); class per cell (DL-243, DL-244, DL-249, DL-260)
+    "A9/a9_subgrid_agreement.parquet",                # 225 rows: D24 and P-1 agreement per subgrid cell (DL-242, DL-255)
+    "ms10/eval/ms10_eval.json",                       # RB1 cells (4 cells, per-seed network classes, 30 s mean-field companion), N sweep (stored counts, min, median, max), G4
+    "ms10/10g/record_classes.tsv",                    # per-record class of the S8 cells, S9 and S9_ctrl records (103 rows)
+    "A11/a11_robustness.csv",                         # stored A11 table: status rows and the FAIL-row strip
+)
+F5_CELL_DIR, F5_CELL_COUNT = "S8/S8_cells", 12
+F5_S9_DIR, F5_S9_COUNT = "S9/S9", 40
+F5_CTRL_DIR, F5_CTRL_COUNT = "S9/S9_ctrl", 12
+F5_ORIGIN_RECORDS = (                                 # mean-field records whose t_ms the frozen evaluation call reads for the R27 time-origin check (json and npz)
+    "S5/ramp/S5ramp/S5ramp_0000_240de3ef73be", "S5/ramp/p2_linear/p2_linear_0004_4f4756348cd8", "S8/mf/S8_mf_head60/S8_mf_head60_0000_0080d385accd",
+    "S8/mf/S8_mf_cells/S8_mf_cells_0000_081b77a5f999", "S8/mf/S8_mf_cells/S8_mf_cells_0001_908ef5a1c420", "S8/mf/S8_mf_cells/S8_mf_cells_0002_8cf8eb1029e6",
+    "S8/mf/S8_mf_cells/S8_mf_cells_0003_1474ff58c0a4",
+)
+# files outside results/ that the frozen evaluation call opens (run lists, frozen configs, the S8 candidate table); the data-step test allows exactly these directories
+F5_FROZEN_CONFIG_READS = ("configs", "docs/ms10_10b_s8_candidates.csv")
+F5_N = (1000, 3000, 10000, 30000)
+F5_SEEDS, F5_CTRL_SEEDS = 10, 3
+F5_NET_CLASSES = ("S+", "S-rel", "S-abs", "S-sus", "NS")
+F5_MAP_CLASSES = ("D-tr", "D-none")
+F5_METRICS = (("f_pk_hz", "f_pk (Hz)"), ("onset_s", "onset (s)"), ("duration_ms", "duration (ms)"))
+F5_CONTROL_METRICS = ("f_pk_hz", "onset_s")           # the evaluation read the controls without the Table 2.1 fields: no duration (S9_ctrl)
+F5_STRIP = (("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30s"), ("RB1", "overall"), ("RB2", "noisy_subgrid_agreement"), ("RB2", "headline_class_kept_1.0_sigma"))
+F5_STATUS = (("RB4", "parameter_perturbation"), ("RB1", "n_rule_60s"))
+F5_CAPTION_KEYS = ("model.type", "model.ref_point", "model.J", "model.Delta", "model.tau_ms", "model.tau_d_ms", "path.name", "path.profile", "path.T_ramp_s", "path.eta_H",
+                   "network.N", "network.het_dist", "solver.method", "noise.sigma", "seeds.root_seed")
+F5_SLOT = 15.0                                        # x width of one N group on the F5c axes: 10 ramp seeds, a gap, 3 control seeds (a layout slot, carries no value)
+F5_CTRL_X0 = 11.0
+F5_FOOTER = "DRAFT: untagged build. Layout, marks, colours and panel choices are UNVERIFIED (style.py); take-home and claim limits are PROPOSED."
+
+# PROPOSED for the reviewer's ruling (13m prompt, step 3); every statement is from a logged result (DL numbers in the text) and the numbers are checked against the stored tables
+# by tests/test_fig_F5.py.
+F5_TAKE_HOME = (
+    "PROPOSED (for ruling): In mode D (noise-free mean field) the surge class D-tr fills 760 of the 900 cells of map 1 (84.4%, T_ramp 120 s; D-none 140) and 296 of the 325 cells of "
+    "map 2 (D-none 29), so a surge class is not confined to a few cells and G5 continues; RB4 passed (0 of 14 changed, 64 of 64 unchanged) (DL-235, DL-237, DL-258, DL-260). The map "
+    "statements are mode D and make no claim that the regime map is robust to noise: on the 225-cell noisy subgrid the frozen D24 rule FAILED (97 of 225 cells agree = 43.1%, 203 "
+    "needed; 118 of 225 on the three Table 2.1 categories, our reading), and the post-hoc view P-1 (173 of 225 = 76.9%) feeds no gate (DL-242, DL-255). The network at N = 1e4 "
+    "disagrees with the mean field at 3 of the 4 map cells (T_ramp 30 s; RB1 cells 1 of 4; G4 triggered; DL-320, DL-323, DL-325). Against N = 1e3, 3e3, 1e4 and 3e4 the 10 ramp "
+    "seeds per N fall in S-sus and S-abs (S+ in 6 seeds at N = 3e3, NS in 1 at N = 1e4), and the no-ramp controls also reach surge classes, so network classes do not separate "
+    "ramp-driven from non-ramp records (DL-321, DL-325, G4-C3)."
+)
+# PROPOSED: the limits of docs/ms13_plan.md section 5 whose right-hand column lists F5 and that are defined in docs/claim_limit_labels.md (17 labels). The plan labels RB1 FAIL, RB2
+# FAIL and D24 failed are written in plain words with their DL numbers in the take-home, the caption and the strip. MS9(e)-3 and MS9(e)-4 are listed for F5 by the plan although F5
+# draws no A9 failure label (F6 does); they are kept because the plan's table lists them. Listed, not decided.
+F5_CLAIM_LIMITS = ("MS11-C7", "MS12-C1", "MS9(e)-1", "MS9(e)-2", "MS9(e)-3", "MS9(e)-4", "MS9(e)-5", "MS9(e)-6", "DL-163-D1", "DL-163-D2", "G4-C1", "G4-C2", "G4-C3", "G4-C4",
+                   "MS11-C1", "MS11-C2", "MS11-C3")
+
+
+def _f5_files(res: Path, rels) -> list[Path]:
+    return [res / f"{r}.json" for r in rels] + [res / f"{r}.npz" for r in rels]
+
+
+def f5_record_files(res: Path, names: dict) -> list[Path]:
+    """Every stored record file the data step opens: the S8 cell json (config), the S9 and S9_ctrl json and npz, the mean-field origin records (json and npz)."""
+    out = [res / F5_CELL_DIR / f"{n}.json" for n in names["cells"]]
+    for d, key in ((F5_S9_DIR, "s9"), (F5_CTRL_DIR, "ctrl")):
+        out += _f5_files(res, [f"{d}/{n}" for n in names[key]])
+    return out + _f5_files(res, F5_ORIGIN_RECORDS)
+
+
+def load_F5(res=None) -> dict:
+    """Open the stored tables of F5_INPUTS, the 12 S8 cell records (json) and, through the frozen MS10 evaluation call, the S9 and S9_ctrl series one record at a time.
+    Returns the content; nothing is simulated and nothing under results/ is written."""
+    res = Path(res) if res is not None else results_dir()
+    for rel in F5_INPUTS:
+        if not (res / rel).is_file():
+            raise F.MissingInputError(f"input file not found: {res / rel}")
+    try:
+        import pandas as pd
+        from ..analysis import a7 as A7
+        from ..analysis import ms10_eval as E
+        out: dict = {"a9": pd.read_parquet(res / F5_INPUTS[0]), "sub": pd.read_parquet(res / F5_INPUTS[1]), "ev": json.loads((res / F5_INPUTS[2]).read_text(encoding="utf-8"))}
+        with open(res / F5_INPUTS[3], newline="", encoding="utf-8") as fh:
+            out["tsv"] = list(csv.DictReader(fh, delimiter="\t"))
+        with open(res / F5_INPUTS[4], newline="", encoding="utf-8") as fh:
+            out["a11"] = list(csv.DictReader(fh))
+        cells = sorted((res / F5_CELL_DIR).glob("*.json"))
+        out["cell_recs"] = {p.stem: json.loads(p.read_text(encoding="utf-8")) for p in cells if not p.name.endswith(".dry.json")}
+        fi, gate = A7.frozen_inputs()
+        out["ch"], out["gate"] = E.load_choices(None), gate
+        by = E.read_lists(("S9", "C2_S9"), fi, table21=True)       # the call of scripts/evaluate_ms10.py, restricted to the two lists F5c draws; one record in memory at a time
+        out["s9"], out["ctrl"] = by["S9"], by["C2_S9"]
+        out["names"] = {"cells": sorted(out["cell_recs"]), "s9": sorted(r["name"] for r in out["s9"]), "ctrl": sorted(r["name"] for r in out["ctrl"])}
+        out["record_files"] = f5_record_files(res, out["names"])
+        out["E"] = E
+        return out
+    except (OSError, ValueError, KeyError, ImportError) as exc:
+        raise F.MissingInputError(f"an F5 input cannot be read: {exc}") from exc
+
+
+def _f5_grid(sub, row_col: str, col_col: str, n_rows: int, n_cols: int, name: str):
+    """(class array [row, col], row axis values, column axis values) of a complete map; the axis values must be constant along the other index."""
+    if len(sub) != n_rows * n_cols or sorted(sub["i"].unique().tolist()) != list(range(n_rows)) or sorted(sub["j"].unique().tolist()) != list(range(n_cols)):
+        raise DataError(f"A9 {name}: {len(sub)} rows, not a complete {n_rows} x {n_cols} grid")
+    cls = np.empty((n_rows, n_cols), dtype="<U8")
+    rows_v, cols_v = np.full(n_rows, np.nan), np.full(n_cols, np.nan)
+    for _, r in sub.iterrows():
+        i, j = int(r["i"]), int(r["j"])
+        cls[i, j] = str(r["class"])
+        for arr, k, v in ((rows_v, i, float(r[row_col])), (cols_v, j, float(r[col_col]))):
+            if np.isnan(arr[k]):
+                arr[k] = v
+            elif arr[k] != v:
+                raise DataError(f"A9 {name}: the axis value of index {k} is not constant ({arr[k]} and {v})")
+    if not set(np.unique(cls)) <= set(F5_MAP_CLASSES):
+        raise DataError(f"A9 {name}: classes {sorted(set(np.unique(cls)))} are not D-tr and D-none")
+    return cls, rows_v, cols_v
+
+
+def _f5_state(agree, tie) -> np.ndarray:
+    """0 agree, 1 disagree (not a tie), 2 tie (a tie is a disagreement by the D24 rule; it is its own state here so that no tie is hidden among the disagreements)."""
+    agree, tie = np.asarray(agree, bool), np.asarray(tie, bool)
+    if (agree & tie).any():
+        raise DataError("a subgrid cell is both agree and tie")
+    return np.where(agree, 0, np.where(tie, 2, 1)).astype(np.int8)
+
+
+def _f5_med(E, xs) -> dict:
+    return E._med_range(xs)
+
+
+def prepare_F5(raw: dict) -> dict:
+    """Pure: stored content -> the arrays and numbers that are drawn. Keys are flat names. Stops (DataError) if a recomputed value differs from a stored one."""
+    d: dict = {}
+    a9, ev, E = raw["a9"], raw["ev"], raw["E"]
+    if len(a9) != 1226 or sorted(a9["map"].astype(str).unique()) != ["1", "2", "headline"]:
+        raise DataError(f"A9 table v2: {len(a9)} rows, maps {sorted(a9['map'].astype(str).unique())}")
+    m1, m2 = a9[a9["map"].astype(str) == "1"], a9[a9["map"].astype(str) == "2"]
+    d["map1_class"], d["map1_Delta"], d["map1_tau_d_ms"] = _f5_grid(m1, "Delta", "tau_d_ms", 30, 30, "map 1")
+    d["map2_class"], d["map2_J0"], d["map2_T_ramp_s"] = _f5_grid(m2, "J0", "T_ramp_s", 25, 13, "map 2")
+    if set(m1["T_ramp_s"]) != {120.0} or set(m2["Delta"]) != {0.3} or set(m2["tau_d_ms"]) != {5.0}:
+        raise DataError("A9 maps: map 1 is not at T_ramp 120 s, or map 2 is not at Delta 0.3 and tau_d 5 ms")
+    for k, c in (("map1", d["map1_class"]), ("map2", d["map2_class"])):
+        d[f"{k}_n"] = int(c.size)
+        d[f"{k}_n_surge"] = int((c == "D-tr").sum())
+        d[f"{k}_n_none"] = int((c == "D-none").sum())
+    d["g5_threshold_cells"] = 0.03 * d["map1_n"]
+    d["g5_triggered"] = bool(d["map1_n_surge"] < d["g5_threshold_cells"])
+    # subgrid agreement: D24 (frozen, FAILED) and P-1 (post hoc)
+    sub = raw["sub"].sort_values(["i", "j"]).reset_index(drop=True)
+    if len(sub) != 225 or sub[["i", "j"]].drop_duplicates().shape[0] != 225:
+        raise DataError(f"A9 subgrid table: {len(sub)} rows")
+    if set(sub["d24_frozen_status"]) != {"FAILED (DL-242)"} or set(sub["p1_status"]) != {"post hoc, feeds no gate (DL-255)"}:
+        raise DataError("A9 subgrid table: the status columns are not 'FAILED (DL-242)' and 'post hoc, feeds no gate (DL-255)'")
+    for i_, j_, c_ in zip(sub["i"], sub["j"], sub["map1_class"]):
+        if d["map1_class"][int(i_), int(j_)] != c_ or d["map1_class"][int(i_), int(j_)] != sub.loc[(sub["i"] == i_) & (sub["j"] == j_), "deterministic_class"].iloc[0]:
+            raise DataError(f"A9 subgrid cell ({i_}, {j_}): the stored map-1 class differs from the map")
+    d["sub_i"], d["sub_j"] = sub["i"].to_numpy(np.int64), sub["j"].to_numpy(np.int64)
+    d["d24_state"], d["p1_state"] = _f5_state(sub["d24_cell_agrees"], sub["d24_tie"]), _f5_state(sub["p1_cell_agrees"], sub["p1_tie"])
+    for k in ("d24", "p1"):
+        d[f"{k}_n_agree"], d[f"{k}_n_disagree"], d[f"{k}_n_tie"] = (int((d[f"{k}_state"] == s).sum()) for s in (0, 1, 2))
+    d["sub_n"] = int(len(sub))
+    d["d24_needed"] = 203                                   # 90 percent of 225 (the stored A11 threshold text names it; checked below)
+    cat = lambda c: "surge" if c in ("S+", "S-rel", "S-abs") else c          # the three Table 2.1 categories: surge, S-sus, NS (reading ours, UNVERIFIED, DL-242)
+    n_cat = 0
+    for _, r in sub.iterrows():
+        cnt: dict = {}
+        for k, v in json.loads(r["d24_ramp_class_counts"]).items():
+            cnt[cat(k)] = cnt.get(cat(k), 0) + int(v)
+        top = sorted(cnt.items(), key=lambda kv: -kv[1])
+        tie = len(top) > 1 and top[0][1] == top[1][1]
+        n_cat += int(not tie and top[0][0] == ("surge" if r["deterministic_class"] == "D-tr" else "NS"))
+    d["d24_n_agree_categories"] = n_cat
+    # the 4 network cells: the stored RB1 cell comparison, matched to map-1 cells by (Delta, tau_d)
+    cells_ev = ev["rb1_cells"]["cells"]
+    by_cell: dict = {}
+    for name, rec in raw["cell_recs"].items():
+        c = rec["config"]
+        by_cell.setdefault((float(c["model"]["Delta"]), float(c["model"]["tau_d_ms"]), float(c["path"]["T_ramp_s"])), []).append(name)
+    if len(by_cell) != 4 or any(len(v) != 3 for v in by_cell.values()):
+        raise DataError(f"S8 cell records: {len(by_cell)} cells, {[len(v) for v in by_cell.values()]} records each")
+    tsv = {r["name"]: r for r in raw["tsv"] if r["list"] == "S8"}
+    ci, cj, cD, ctau, cT, cmap, cmf, cmfon, cnet, cagree = [], [], [], [], [], [], [], [], [], []
+    for g in range(4):
+        ce = cells_ev[str(g)]
+        found = []
+        for (D, t, T), names in by_cell.items():
+            seeds = sorted(names, key=lambda n: int(tsv[n]["seed"]))
+            if [tsv[n]["class"] for n in seeds] == ce["classes"] and all(int(tsv[n]["group"]) == g for n in seeds):
+                found.append((D, t, T, seeds))
+        if len(found) != 1:
+            raise DataError(f"RB1 cell {g}: {len(found)} S8 cell record groups carry its stored classes")
+        D, t, T, seeds = found[0]
+        hit = np.argwhere((np.abs(d["map1_Delta"][:, None] - D) < 1e-9) & (np.abs(d["map1_tau_d_ms"][None, :] - t) < 1e-9))
+        if len(hit) != 1:
+            raise DataError(f"RB1 cell {g}: Delta {D}, tau_d {t} match {len(hit)} map-1 cells (tolerance 1e-9)")
+        i_, j_ = int(hit[0][0]), int(hit[0][1])
+        if d["map1_class"][i_, j_] != ce["stored_120s_class"] or T != 30.0:
+            raise DataError(f"RB1 cell {g}: the stored 120 s class {ce['stored_120s_class']} differs from the map class {d['map1_class'][i_, j_]}, or T_ramp {T} is not 30 s")
+        ci.append(i_), cj.append(j_), cD.append(D), ctau.append(t), cT.append(T), cmap.append(str(d["map1_class"][i_, j_])), cmf.append(ce["ref"]["class"])
+        cmfon.append(float("nan") if ce["ref"]["onset_s"] is None else float(ce["ref"]["onset_s"]))
+        cnet.append(list(ce["classes"])), cagree.append(bool(ce["agrees"]))
+    d["cell_i"], d["cell_j"] = np.array(ci), np.array(cj)
+    d["cell_Delta"], d["cell_tau_d_ms"], d["cell_T_ramp_s"] = np.array(cD), np.array(ctau), np.array(cT)
+    d["cell_map_class"], d["cell_mf30_class"], d["cell_mf30_onset_s"] = np.array(cmap), np.array(cmf), np.array(cmfon)
+    d["cell_net_class"], d["cell_agree"] = np.array(cnet), np.array(cagree)
+    d["cells_n_agree"], d["cells_n_disagree"] = int(d["cell_agree"].sum()), int((~d["cell_agree"]).sum())
+    if (d["cells_n_agree"], ev["rb1_cells"]["n_agree"], ev["rb1_cells"]["disagree"]) != (1, 1, 3):
+        raise DataError("RB1 cells: the stored agreement count is not 1 of 4 (DL-320 says 1 of 4, 3 disagree)")
+    d["g4_triggered"] = bool(ev["g4"]["triggered"])
+    # F5c: recomputed per-seed values against the stored classes and the stored counts, min, median and max
+    ch, tsv_all = raw["ch"], {(r["list"], r["name"]): r for r in raw["tsv"]}
+    names = [m for m, _ in F5_METRICS]
+    stored = ev["N_sweep"]["by_N"]
+    cls = np.empty((4, F5_SEEDS), dtype="<U5")
+    val = {m: np.full((4, F5_SEEDS), np.nan) for m in names}
+    ccls = np.empty((4, F5_CTRL_SEEDS), dtype="<U5")
+    cval = {m: np.full((4, F5_CTRL_SEEDS), np.nan) for m in F5_CONTROL_METRICS}
+    d["metric_undefined"] = np.zeros((4, len(names)), dtype=np.int64)
+    for k, N in enumerate(F5_N):
+        g = sorted([r for r in raw["s9"] if r["N"] == N], key=lambda r: r["seed"])
+        gc = sorted([r for r in raw["ctrl"] if r["N"] == N], key=lambda r: r["seed"])
+        if [r["seed"] for r in g] != list(range(F5_SEEDS)) or [r["seed"] for r in gc] != list(range(F5_CTRL_SEEDS)):
+            raise DataError(f"S9 at N = {N}: seeds {[r['seed'] for r in g]}, controls {[r['seed'] for r in gc]}")
+        st = stored[str(N)]
+        for rows, lst, c_arr in ((g, "S9", cls), (gc, "C2_S9", ccls)):
+            for s, r in enumerate(rows):
+                if r.get("missing") or str(r["class"]) != tsv_all[(lst, r["name"])]["class"] or int(tsv_all[(lst, r["name"])]["N"]) != N:
+                    raise DataError(f"recomputed class {r.get('class')} of {r['name']} differs from the stored class {tsv_all[(lst, r['name'])]['class']} (stop rule)")
+                c_arr[k, s] = str(r["class"])
+        if dict(sorted(Counter_(c for c in cls[k]).items())) != dict(sorted(st["classes"].items())):
+            raise DataError(f"S9 at N = {N}: recomputed class counts differ from the stored {st['classes']} (stop rule)")
+        if dict(sorted(Counter_(c for c in ccls[k]).items())) != dict(sorted(st["controls"]["classes"].items())):
+            raise DataError(f"S9_ctrl at N = {N}: recomputed class counts differ from the stored {st['controls']['classes']} (stop rule)")
+        for mi, m in enumerate(names):
+            xs = [E.metric_of(r, m, ch) for r in g]
+            got, want = _f5_med(E, xs), st["metrics"][m]
+            for key in ("n", "n_undefined", "median", "min", "max"):
+                a, b = got[key], want[key]
+                if not (a == b or (isinstance(a, float) and np.isnan(a) and (b is None or np.isnan(float(b))))):
+                    raise DataError(f"S9 at N = {N}, {m}: recomputed {key} {a!r} differs from the stored {b!r} (stop rule)")
+            val[m][k] = xs
+            d["metric_undefined"][k, mi] = int(got["n_undefined"])
+        for m in F5_CONTROL_METRICS:
+            cval[m][k] = [E.metric_of(r, m, ch) for r in gc]
+    d["n_values"] = np.array(F5_N, dtype=np.int64)
+    d["s9_class"], d["ctrl_class"] = cls, ccls
+    for m in names:
+        d[f"s9_{m}"] = val[m]
+        d[f"stored_{m}"] = np.array([[st_["metrics"][m][q] for q in ("min", "median", "max")] for st_ in (stored[str(N)] for N in F5_N)], dtype=float)
+    for m in F5_CONTROL_METRICS:
+        d[f"ctrl_{m}"] = cval[m]
+    d["s9_stored_counts"] = [dict(sorted(stored[str(N)]["classes"].items())) for N in F5_N]
+    d["ctrl_stored_counts"] = [dict(sorted(stored[str(N)]["controls"]["classes"].items())) for N in F5_N]
+    ref = ev["N_sweep"]["ref"]
+    d["ref_class"], d["ref_onset_s"], d["ref_f_pk_hz"], d["ref_name"] = ref["class"], float(ref["onset_s"]), float(ref["f_pk_hz"]), ref["name"]
+    d["n_rule"] = ev["N_sweep"]["no_worse"]
+    # status rows and the FAIL-row strip from the stored A11 table
+    by = {(r["rb_id"], r["check_id"]): r for r in raw["a11"]}
+    d["status"] = []
+    for key in F5_STATUS:
+        if key not in by:
+            raise DataError(f"A11 table: row {key} is missing")
+        d["status"].append({"rb_id": key[0], "check_id": key[1], "status": by[key]["pass_or_fail"], "value": by[key]["value"], "threshold": by[key]["threshold"]})
+    if d["status"][0]["status"] != "PASS":
+        raise DataError("A11 table: RB4 parameter_perturbation is not PASS (DL-258 says PASS)")
+    d["strip"] = []
+    for key in F5_STRIP:
+        if key not in by or by[key]["pass_or_fail"] != "FAIL":
+            raise DataError(f"A11 table: {key} is not a FAIL row (strip rows are FAIL rows as logged)")
+        x = by[key]
+        d["strip"].append({"rb_id": x["rb_id"], "check_id": x["check_id"], "status": x["pass_or_fail"], "value": x["value"], "threshold": x["threshold"]})
+    if "203 of 225" not in by[("RB2", "noisy_subgrid_agreement")]["threshold"] or "97 of 225" not in by[("RB2", "noisy_subgrid_agreement")]["value"]:
+        raise DataError("A11 table: the RB2 noisy-subgrid row does not read 97 of 225 against 203 of 225")
+    d["rb4_rows"] = int(sum(1 for r in raw["a11"] if r["rb_id"] == "RB4"))
+    return d
+
+
+def Counter_(it) -> dict:
+    out: dict = {}
+    for x in it:
+        out[x] = out.get(x, 0) + 1
+    return out
+
+
+def f5_strip_lines(d: dict) -> list[str]:
+    return [f"{r['rb_id']} {r['check_id']}: {r['status']} ({r['value'] or 'value blank in the table'}; threshold {r['threshold'] or 'blank'}) - shown, not dropped" for r in d["strip"]]
+
+
+def f5_status_lines(d: dict) -> list[str]:
+    s = d
+    lines = ["Table 8.1 triggers: a surge class in < 3% of map-1 cells " + ("OCCURRED" if s["g5_triggered"] else "did NOT occur") + f" (D-tr {s['map1_n_surge']}, D-none {s['map1_n_none']} of {s['map1_n']}; "
+             f"threshold {s['g5_threshold_cells']:.0f} cells; G5 CONTINUE, DL-237, DL-258). The network disagrees with the mean field in {s['cells_n_disagree']} of 4 cells (G4 triggered: {s['g4_triggered']}; DL-323, DL-325).",
+             "Stored status rows that touch F5:"] + [f"    {r['rb_id']} {r['check_id']}: {r['status']} ({r['value'] or 'no value in the table'})" for r in s["status"]]
+    lines += ["FAIL rows of the stored A11 table that touch F5 (PROPOSED strip):"] + ["    " + t for t in f5_strip_lines(s)]
+    return lines
+
+
+def _f5_tick_text(vals, idx, fmt="{:.3g}"):
+    return [fmt.format(float(vals[k])) for k in idx]
+
+
+def _f5_map(ax, cls, x_vals, y_vals, *, title, xlabel, ylabel, mark_cells=True, tick_idx_x=None, tick_idx_y=None):
+    """One regime map, cell by cell as stored: a mesh coloured by class and one class mark per cell (so the class never rests on colour alone)."""
+    from matplotlib.colors import ListedColormap
+    codes = np.vectorize({c: k for k, c in enumerate(F5_MAP_CLASSES)}.get)(cls).astype(float)
+    cmap = ListedColormap([S.get(c).colour for c in F5_MAP_CLASSES])
+    n_r, n_c = cls.shape
+    mesh = ax.pcolormesh(np.arange(n_c + 1) - 0.5, np.arange(n_r + 1) - 0.5, codes, cmap=cmap, vmin=-0.5, vmax=len(F5_MAP_CLASSES) - 0.5, edgecolors=S.F5_COLOURS["cell_edge"],
+                         linewidth=S.F5_SIZES["cell_edge_width"], zorder=1)
+    if mark_cells:
+        for c in F5_MAP_CLASSES:
+            ii, jj = np.nonzero(cls == c)
+            st = S.get(c)
+            ax.plot(jj, ii, ls="none", marker=st.marker, ms=S.F5_SIZES["map_mark"], color=S.figure_colour("bar_edge"), mfc="none", mew=0.35, zorder=2)
+    ax.set_xlim(-0.5, n_c - 0.5)
+    ax.set_ylim(-0.5, n_r - 0.5)
+    ax.set_aspect("auto")
+    tx = tick_idx_x if tick_idx_x is not None else list(range(0, n_c, 5)) + ([n_c - 1] if (n_c - 1) % 5 else [])
+    ty = tick_idx_y if tick_idx_y is not None else list(range(0, n_r, 5)) + ([n_r - 1] if (n_r - 1) % 5 else [])
+    ax.set_xticks(tx, _f5_tick_text(x_vals, tx), fontsize=4.6)
+    ax.set_yticks(ty, _f5_tick_text(y_vals, ty), fontsize=4.6)
+    ax.set_xlabel(xlabel, fontsize=5.4)
+    ax.set_ylabel(ylabel, fontsize=5.4)
+    ax.set_title(title, fontsize=S.FONT_SIZE_PT - 1, loc="left")
+    return mesh
+
+
+def _f5_x(k: int, s: int, control: bool) -> float:
+    return k * F5_SLOT + (F5_CTRL_X0 + s if control else s)
+
+
+def _draw_F5(d: dict, draft: bool):
+    import textwrap
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.colors import ListedColormap
+    from matplotlib.lines import Line2D
+    plt.rcParams.update({"font.family": S.FONT_FAMILY, "font.size": S.FONT_SIZE_PT, "pdf.fonttype": 42})
+    fig = plt.figure(figsize=(7.4, 13.4), constrained_layout=True)
+    gs = fig.add_gridspec(6, 6, height_ratios=[0.85, 3.5, 3.0, 1.9, 2.4, 2.1])
+    fs = S.FONT_SIZE_PT - 1
+    edge, fail, dark = S.figure_colour("bar_edge"), S.figure_colour("fail_text"), S.figure_colour("text_dark")
+    C = S.F5_COLOURS
+
+    # key row
+    kx = fig.add_subplot(gs[0, :])
+    kx.axis("off")
+    hs = [Line2D([], [], ls="none", marker=S.get(c).marker, ms=S.F5_SIZES["key_mark"], color=S.get(c).colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"], label=f"{c} (map cell; mean-field class)") for c in F5_MAP_CLASSES]
+    hs += [Line2D([], [], ls="none", marker=S.get(k).marker, ms=S.F5_SIZES["key_mark"] + 1, color=S.get(k).colour, mew=S.F5_SIZES["net_width"], label=lab)
+           for k, lab in (("network_agree", f"network cell, agrees with the mean field ({d['cells_n_agree']} of 4)"), ("network_disagree", f"network cell, disagrees ({d['cells_n_disagree']} of 4)"))]
+    hs += [Line2D([], [], ls="none", marker=S.F5_STATE_MARKS[k], ms=S.F5_SIZES["key_mark"], color=C[k], mew=1.0, label=lab) for k, lab in
+           (("agree", "subgrid cell agrees"), ("disagree", "subgrid cell disagrees (not a tie)"), ("tie", "subgrid cell is a tie (a disagreement by the D24 rule)"))]
+    kx.legend(handles=hs, loc="center", ncol=2, fontsize=4.8, frameon=False, handlelength=2.0, columnspacing=1.6, labelspacing=0.6)
+
+    # (a) map 1 with the network symbols
+    ax = fig.add_subplot(gs[1, 0:3])
+    _f5_map(ax, d["map1_class"], d["map1_tau_d_ms"], d["map1_Delta"], title=f"(a) map 1, mode D, T_ramp 120 s: D-tr {d['map1_n_surge']}, D-none {d['map1_n_none']} of {d['map1_n']}",
+            xlabel="tau_d (ms), cell index j", ylabel="Delta, cell index i")
+    for agree in (True, False):
+        m = d["cell_agree"] == agree
+        if m.any():
+            st = S.get("network_agree" if agree else "network_disagree")
+            ax.plot(d["cell_j"][m], d["cell_i"][m], ls="none", marker=st.marker, ms=S.F5_SIZES["net_symbol"], color=C["net_halo"], mew=S.F5_SIZES["net_halo_width"], zorder=4)
+            ax.plot(d["cell_j"][m], d["cell_i"][m], ls="none", marker=st.marker, ms=S.F5_SIZES["net_symbol"], color=st.colour, mew=S.F5_SIZES["net_width"], zorder=5)
+
+    # (b) the 4 network cells: map class at 120 s, mean-field companion at 30 s, network seeds at 30 s
+    ax = fig.add_subplot(gs[1, 3:6])
+    cols = ("map 1\n(120 s)", "mean-field\ncompanion\n(30 s)", "network\nseed 0", "network\nseed 1", "network\nseed 2")
+    for r in range(4):
+        pts = [d["cell_map_class"][r], d["cell_mf30_class"][r], *d["cell_net_class"][r]]
+        for c_, cls in enumerate(pts):
+            st = S.get(cls)
+            ax.plot([c_], [r], ls="none", marker=st.marker, ms=S.F5_SIZES["table_mark"], color=st.colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"], zorder=3)
+        ag = S.get("network_agree" if d["cell_agree"][r] else "network_disagree")
+        ax.plot([5.6], [r], ls="none", marker=ag.marker, ms=S.F5_SIZES["net_symbol"], color=ag.colour, mew=S.F5_SIZES["net_width"], zorder=3)
+        ax.text(6.1, r, "agrees" if d["cell_agree"][r] else "disagrees", va="center", ha="left", fontsize=4.8)
+    ax.set_xticks(list(range(5)) + [5.6], list(cols) + ["stored\nRB1"], fontsize=4.4)
+    ax.set_yticks(range(4), [f"cell {r + 1} (i {d['cell_i'][r]}, j {d['cell_j'][r]})\nDelta {d['cell_Delta'][r]:.4g}, tau_d {d['cell_tau_d_ms'][r]:.4g} ms" for r in range(4)], fontsize=4.6)
+    ax.set_xlim(-0.6, 7.4)
+    ax.set_ylim(3.5, -0.6)
+    ax.xaxis.tick_top()
+    ax.set_title("(b) the 4 network cells (N = 1e4): classes as stored", fontsize=fs, loc="left", color=fail, pad=24)
+    ax.tick_params(labelsize=4.8)
+    ax.set_xlabel("The network was run at T_ramp 30 s; the map is at T_ramp 120 s. Both are drawn; no equivalence is claimed.", fontsize=4.4)
+
+    # (c), (d) subgrid agreement: D24 (frozen, FAILED) and P-1 (post hoc), same size and frame, cells at their map-1 indices
+    for pos, key, ttl, bad, post in ((gs[2, 0:2], "d24", f"(c) D24, frozen rule: FAILED, {d['d24_n_agree']} of {d['sub_n']} agree ({100.0 * d['d24_n_agree'] / d['sub_n']:.1f}%; {d['d24_needed']} needed)", True, False),
+                                     (gs[2, 2:4], "p1", f"(d) P-1, post-hoc, feeds no gate: {d['p1_n_agree']} of {d['sub_n']} agree ({100.0 * d['p1_n_agree'] / d['sub_n']:.1f}%)", False, True)):
+        ax = fig.add_subplot(pos)
+        st_ = d[f"{key}_state"]
+        z = np.full((30, 30), np.nan)
+        z[d["sub_i"], d["sub_j"]] = st_
+        cm = ListedColormap([C["agree"], C["disagree"], C["tie"]])
+        ax.pcolormesh(np.arange(31) - 0.5, np.arange(31) - 0.5, np.ma.masked_invalid(z), cmap=cm, vmin=-0.5, vmax=2.5, edgecolors=C["cell_edge"], linewidth=S.F5_SIZES["cell_edge_width"], zorder=1)
+        for s_, nm in enumerate(("agree", "disagree", "tie")):
+            m = st_ == s_
+            if m.any():
+                ax.plot(d["sub_j"][m], d["sub_i"][m], ls="none", marker=S.F5_STATE_MARKS[nm], ms=S.F5_SIZES["state_mark"], color=S.HALO_COLOUR, mew=0.5, zorder=2)
+        ax.set_xlim(-0.5, 29.5)
+        ax.set_ylim(-0.5, 29.5)
+        ax.set_xticks([0, 10, 20, 29], _f5_tick_text(d["map1_tau_d_ms"], [0, 10, 20, 29]), fontsize=4.6)
+        ax.set_yticks([0, 10, 20, 29], _f5_tick_text(d["map1_Delta"], [0, 10, 20, 29]), fontsize=4.6)
+        ax.set_xlabel("tau_d (ms)", fontsize=5.4)
+        ax.set_ylabel("Delta", fontsize=5.4)
+        ax.set_title(textwrap.fill(ttl, 52) + f"\nagree {d[f'{key}_n_agree']}, disagree {d[f'{key}_n_disagree']}, tie {d[f'{key}_n_tie']}", fontsize=fs - 0.8, loc="left", color=fail if bad else dark)
+        if post:
+            for sp in ax.spines.values():
+                sp.set_edgecolor(C["frame_posthoc"])
+                sp.set_linestyle("--")
+                sp.set_linewidth(1.4)
+
+    # (e) map 2
+    ax = fig.add_subplot(gs[2, 4:6])
+    _f5_map(ax, d["map2_class"], d["map2_T_ramp_s"], d["map2_J0"], title=f"(e) map 2, mode D: D-tr {d['map2_n_surge']}, D-none {d['map2_n_none']} of {d['map2_n']}", xlabel="T_ramp (s)",
+            ylabel="J0", tick_idx_x=[0, 3, 6, 9, 12], tick_idx_y=[0, 6, 12, 18, 24])
+
+    # (f) class per seed against N (ramp seeds filled, no-ramp control seeds open)
+    ax = fig.add_subplot(gs[3, :])
+    ycls = {c: k for k, c in enumerate(F5_NET_CLASSES)}
+    for k in range(4):
+        for s in range(F5_SEEDS):
+            st = S.get(str(d["s9_class"][k, s]))
+            ax.plot([_f5_x(k, s, False)], [ycls[str(d["s9_class"][k, s])]], ls="none", marker=st.marker, ms=S.F5_SIZES["seed_mark"], color=st.colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"], zorder=3)
+        for s in range(F5_CTRL_SEEDS):
+            st = S.get(str(d["ctrl_class"][k, s]))
+            ax.plot([_f5_x(k, s, True)], [ycls[str(d["ctrl_class"][k, s])]], ls="none", marker=st.marker, ms=S.F5_SIZES["seed_mark"], mfc="none", mec=st.colour, mew=S.F5_SIZES["control_mark_width"], zorder=3)
+    _f5_n_axis(ax, d)
+    ax.set_yticks(range(len(F5_NET_CLASSES)), list(F5_NET_CLASSES), fontsize=5.0)
+    ax.set_ylim(len(F5_NET_CLASSES) - 0.4, -0.6)
+    ax.set_title("(f) network class of every seed against N (T_ramp 60 s): ramp seeds filled (10 per N), no-ramp control seeds open (3 per N); the mean-field companion is D-tr", fontsize=fs - 0.6, loc="left")
+
+    # (g) to (i) metrics against N: recomputed per-seed points, stored min to max and median
+    for col, (m, lab) in enumerate(F5_METRICS):
+        ax = fig.add_subplot(gs[4, 2 * col:2 * col + 2])
+        lo_all = np.nanmin([np.nanmin(d[f"s9_{m}"]), d[f"stored_{m}"].min()] + ([np.nanmin(d[f"ctrl_{m}"])] if m in F5_CONTROL_METRICS else []))
+        hi_all = np.nanmax([np.nanmax(d[f"s9_{m}"]), d[f"stored_{m}"].max()] + ([np.nanmax(d[f"ctrl_{m}"])] if m in F5_CONTROL_METRICS else []))
+        log = m == "duration_ms" and lo_all > 0
+        for k in range(4):
+            x0 = k * F5_SLOT - 1.3
+            ax.vlines([x0], d[f"stored_{m}"][k, 0], d[f"stored_{m}"][k, 2], colors=S.figure_colour("range_line"), lw=S.F5_SIZES["range_line"], zorder=2)
+            ax.hlines([d[f"stored_{m}"][k, 1]], x0 - 0.6, x0 + 0.6, colors=S.figure_colour("range_line"), lw=1.6, zorder=2)
+            for s in range(F5_SEEDS):
+                y = d[f"s9_{m}"][k, s]
+                if np.isnan(y):
+                    continue
+                st = S.get(str(d["s9_class"][k, s]))
+                ax.plot([_f5_x(k, s, False)], [y], ls="none", marker=st.marker, ms=S.F5_SIZES["seed_mark"], color=st.colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"], zorder=3)
+            if m in F5_CONTROL_METRICS:
+                for s in range(F5_CTRL_SEEDS):
+                    y = d[f"ctrl_{m}"][k, s]
+                    if np.isnan(y):
+                        continue
+                    st = S.get(str(d["ctrl_class"][k, s]))
+                    ax.plot([_f5_x(k, s, True)], [y], ls="none", marker=st.marker, ms=S.F5_SIZES["seed_mark"], mfc="none", mec=st.colour, mew=S.F5_SIZES["control_mark_width"], zorder=3)
+        if m == "f_pk_hz":
+            ax.axhline(d["ref_f_pk_hz"], color=S.get("mean_field").colour, ls=":", lw=S.F5_SIZES["ref_line"], zorder=1)
+        if m == "onset_s":
+            ax.axhline(d["ref_onset_s"], color=S.get("mean_field").colour, ls=":", lw=S.F5_SIZES["ref_line"], zorder=1)
+        if log:
+            ax.set_yscale("log")
+            ax.set_ylim(lo_all / 1.6, hi_all * 4.0)
+        else:
+            span = hi_all - lo_all
+            ax.set_ylim(lo_all - 0.06 * span, hi_all + 0.22 * span)
+        _f5_n_axis(ax, d, small=True)
+        ax.set_ylabel(lab, fontsize=5.4)
+        und = d["metric_undefined"][:, col]
+        ttl = f"({'ghi'[col]}) {lab.split(' (')[0]} against N"
+        ax.set_title(ttl, fontsize=fs, loc="left")
+        ax.text(0.01, 0.99, "undefined seeds: " + ", ".join(f"{int(u)}" for u in und) if und.any() else "", transform=ax.transAxes, ha="left", va="top", fontsize=4.2)
+
+    # status block
+    axs = fig.add_subplot(gs[5, :])
+    axs.axis("off")
+    lines = f5_status_lines(d)
+    lines += ["Panels (a) to (e) are rows of the stored A9 tables, (b) and (f) the stored MS10 evaluation and record classes; the per-seed points of (g) to (i) are RECOMPUTED from stored series with the "
+              "frozen classifier (the MS10 evaluation call) and equal the stored classes, counts, minimum, median and maximum. Grey bar: stored minimum to maximum of the 10 ramp seeds, "
+              "wide tick: stored median; dotted line: mean-field companion at T_ramp 60 s (" + f"{d['ref_class']}, f_pk {d['ref_f_pk_hz']:g} Hz, onset {d['ref_onset_s']:g} s" + "). Controls: no duration was evaluated."]
+    lines = [ln for t_ in lines for ln in textwrap.wrap(t_, width=150, subsequent_indent="        ")]
+    axs.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=5.0, linespacing=1.25)
+    axs.text(0.0, 0.0, F5_FOOTER if draft else "", fontsize=5.0, color=fail, ha="left", va="bottom")
+    return fig
+
+
+def _f5_n_axis(ax, d: dict, small: bool = False):
+    ax.set_xticks([k * F5_SLOT + 4.5 for k in range(4)] , [f"N = {int(n):,}".replace(",", " ") for n in d["n_values"]], fontsize=5.0)
+    for k in range(1, 4):
+        ax.axvline(k * F5_SLOT - 2.5, color=S.F5_COLOURS["frame_posthoc"], lw=0.4, ls=":", zorder=0)
+    ax.set_xlim(-2.6, 4 * F5_SLOT - 2.4)
+    ax.tick_params(labelsize=5.0)
+
+
+def f5_caption_notes(d: dict) -> tuple:
+    """Sentences about what is and is not drawn (13m). Values come from the prepared data; only the wording is typed here."""
+    return (
+        "Panels (a) and (e) draw the stored class of every cell of the two mean-field regime maps, cell by cell as stored (map 1: 30 x 30 cells in (Delta, tau_d), T_ramp 120 s, "
+        f"{d['map1_n_surge']} D-tr and {d['map1_n_none']} D-none; map 2: 25 x 13 cells in (J0, T_ramp), Delta 0.3, tau_d 5 ms, {d['map2_n_surge']} D-tr and {d['map2_n_none']} D-none); the axes are "
+        "cell indices with the stored parameter values as tick labels, nothing is interpolated, smoothed or offset, and every non-surge cell is drawn at the same weight as a surge cell. "
+        "The map statements are for mode D (noise-free mean field); there is no claim that the regime map is robust to noise (MS9(e)-2, DL-242, DL-250), and D8 is undefined in mode N and "
+        "filters nothing (DL-230), so every D8-dependent class is provisional (DL-163, DL-208). The four network symbols in (a) are the stored RB1 cell comparison: the network at N = 1e4 "
+        f"agrees with the mean field at {d['cells_n_agree']} of 4 cells and disagrees at {d['cells_n_disagree']} (DL-320, DL-325, G4-C1); each symbol sits on the map-1 cell with the same "
+        "(Delta, tau_d), matched to 1e-9. The network cells were run at T_ramp 30 s and the map is at T_ramp 120 s: panel (b) shows the map class (120 s), the stored mean-field companion "
+        "class at 30 s (its own run, DL-319) and the three network classes side by side, and the caption makes no claim that the two durations are equivalent.",
+        "Panels (c) and (d) draw the 225-cell noisy subgrid (every cell is the mode-N majority of 10 seeds at sigma 0.0624, checked and not confirmed, G4-C4) at the map-1 indices: (c) the "
+        f"frozen D24 rule, which FAILED ({d['d24_n_agree']} of {d['sub_n']} cells agree = {100.0 * d['d24_n_agree'] / d['sub_n']:.1f}%, {d['d24_needed']} needed; {d['d24_n_tie']} ties are disagreements by the rule; "
+        f"{d['d24_n_agree_categories']} of {d['sub_n']} agree on the three Table 2.1 categories, our reading, UNVERIFIED; DL-242) and (d) the post-hoc view P-1 ({d['p1_n_agree']} of {d['sub_n']} = "
+        f"{100.0 * d['p1_n_agree'] / d['sub_n']:.1f}%, {d['p1_n_tie']} ties), which is post-hoc and feeds no gate (DL-255); it is drawn in its own dashed frame beside D24, at the same size.",
+        "Panels (f) to (i) draw the 40 S9 network records (N = 1e3, 3e3, 1e4, 3e4; 10 seeds each; T_ramp 60 s) and the 12 no-ramp control records (S9_ctrl, 3 seeds each). The class of every "
+        "seed is the stored class (record_classes.tsv). The per-seed f_pk, onset and duration are recomputed from stored series with the frozen classifier, using the same call as the "
+        "MS10 evaluation and no new setting, and are labelled so; the recomputed classes equal the stored classes, and the recomputed counts, minimum, median and maximum equal the stored "
+        "values of ms10_eval.json (a test; a difference stops the build). This is a logged exception to the rule that figures read tables first (UNVERIFIED, DL-490). A seed's x position is "
+        "its slot in the N group (ramp seeds 0 to 9, then the control seeds 0 to 2), a layout that carries no value. The grey bar is the stored minimum to maximum of the ramp seeds and the "
+        "wide tick the stored median; the dotted line is the mean-field companion at T_ramp 60 s. Seeds whose metric is undefined are not drawn and are counted in the panel; the controls "
+        "were evaluated without the duration, so panel (i) has no control points. Network classes cannot separate ramp-driven from non-ramp records (G4-C3): the no-ramp controls reach surge "
+        "classes (DL-325), and no claim of f_pk or class agreement between network and mean field is made (MS11-C2). The surge result is stated for the mean field only (G4-C2). "
+        "RB1 FAILED, RB2 FAILED and D24 FAILED (strip above); RB4 passed. A9 failure labels are not drawn here (F6). The claim-limit IDs listed here are PROPOSED for the reviewer's ruling.",
+    )
+
+
+def make_F5(res=None, out_dir=None, *, tag_build: bool = False, take_home=F5_TAKE_HOME, claim_limit_ids=F5_CLAIM_LIMITS,
+            script="scripts/fig_F5.py", root=None) -> dict:
+    """Build F5 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov)."""
+    F.require_buildable("F5")
+    root = Path(root) if root is not None else repo_root()
+    res = Path(res) if res is not None else root / "results"
+    out = Path(out_dir) if out_dir is not None else root / "figures" / "F5"
+    t = {"start": time.perf_counter()}
+    raw = load_F5(res)
+    t["load"] = time.perf_counter()
+    d = prepare_F5(raw)
+    t["prepare"] = time.perf_counter()
+    rows = []
+    s9_ref = next(r for r in raw["s9"] if r["N"] == 10000 and r["seed"] == 0)
+    ctrl_ref = next(r for r in raw["ctrl"] if r["N"] == 10000 and r["seed"] == 0)
+    recs = {"s8_cell1_seed0": raw["cell_recs"][raw["names"]["cells"][0]],
+            "s9_N1e4_seed0": json.loads((res / F5_S9_DIR / f"{s9_ref['name']}.json").read_text(encoding="utf-8")),
+            "s9_ctrl_N1e4_seed0": json.loads((res / F5_CTRL_DIR / f"{ctrl_ref['name']}.json").read_text(encoding="utf-8"))}
+    for key, rec in recs.items():
+        for r in make_param_table(rec["config"]):
+            rows.append({**r, "panel": key, "section": "", "source_run_id": rec["name"], "source_config_hash12": rec["config_hash12"]})
+    cap = CAP.build_caption("F5", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=[r for r in rows if r["key"] in F5_CAPTION_KEYS],
+                            spectrogram=None, symbol_keys=(), notes=f5_caption_notes(d), limit_labels=CLAIM_LIMIT_LABELS)
+    import matplotlib.pyplot as plt
+    fig = _draw_F5(d, draft=not tag_build)
+    out.mkdir(parents=True, exist_ok=True)
+    pdf, png = out / "F5.pdf", out / "F5.png"
+    fig.savefig(pdf)
+    fig.savefig(png, dpi=S.PNG_DPI)
+    plt.close(fig)
+    t["draw"] = time.perf_counter()
+    cap_path, dig_path = out / "F5_caption.txt", out / "F5_drawn_data_sha256.txt"
+    from .. import provenance as P
+    drawn = drawn_data_sha256(d)
+    P.atomic_write_text(cap_path, cap.text + "\n")
+    P.atomic_write_text(dig_path, drawn + "\n")
+    warnings = []
+    for k, rec in recs.items():
+        if (rec.get("git") or {}).get("dirty"):
+            warnings.append(f"input record {k} ({rec['name']}) was written with git dirty = true")
+    prov = F.write_figure_provenance(
+        "F5", script=script, inputs=[res / p for p in F5_INPUTS] + raw["record_files"], outputs=[pdf, png, cap_path, dig_path], params_rows=rows,
+        modules=["src/mprsurge/plotting/figures.py", "src/mprsurge/plotting/style.py", "src/mprsurge/plotting/captions.py", "src/mprsurge/plotting/nordlie.py",
+                 "src/mprsurge/plotting/figprov.py", "src/mprsurge/analysis/ms10_eval.py", "src/mprsurge/analysis/ms9_classify.py", "src/mprsurge/analysis/surge_metrics.py"],
+        configs=["configs/base.yaml", "configs/ms10/ms10_net.yaml", "configs/ms10/ms10_eval.yaml", "configs/robustness_criteria.yaml"], claim_limits=cap.claim_limits,
+        input_tables=[{"path": res / F5_INPUTS[0], "rows": int(len(raw["a9"]))}, {"path": res / F5_INPUTS[1], "rows": int(len(raw["sub"]))},
+                      {"path": res / F5_INPUTS[3], "rows": len(raw["tsv"])}, {"path": res / F5_INPUTS[4], "rows": len(raw["a11"])}],
+        spectrogram=None, tag_build=tag_build, out_dir=out, root=root, warnings=warnings, wall_time_s=time.perf_counter() - t["start"])
+    nordlie_path = out / "F5_nordlie.md"
+    N.write_nordlie(out / "F5_params.csv", out / "F5_provenance.json", nordlie_path, root=root)
+    t["end"] = time.perf_counter()
+    timing = {"load_s": t["load"] - t["start"], "prepare_s": t["prepare"] - t["load"], "draw_s": t["draw"] - t["prepare"],
+              "provenance_and_nordlie_s": t["end"] - t["draw"], "total_s": t["end"] - t["start"]}
+    return {"prov": prov, "paths": [pdf, png, cap_path, dig_path, out / "F5_params.csv", out / "F5_provenance.json", nordlie_path],
+            "timing_s": timing, "drawn_sha256": drawn, "caption": cap.text}
+
+
 def make_FS6(*args, **kwargs):
     """FS6 is not produced (S14 and S15 were not run, MS12-C1, DL-421): raises figprov.FigureRefused."""
     F.require_buildable("FS6")

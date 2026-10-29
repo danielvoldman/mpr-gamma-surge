@@ -382,3 +382,11 @@ def write_colour_report(directory) -> tuple[Path, Path]:
     atomic_write_text(c, colour_report_csv(rows))
     atomic_write_text(t, colour_report_summary(rows))
     return c, t
+
+# 13m, F5 (DL-490 onward). UNVERIFIED design choices, plain scalars (not entries of STYLE, FIGURE_COLOURS or DIAGRAM_MARKS, so the unique-mark table and the pinned key sets are
+# unchanged): the colours and marks of the three agreement states of a subgrid cell (agree, disagree, tie; the marks differ so that no state rests on colour alone), the frame of the
+# post-hoc panel, and the point sizes and line widths of the F5 drawing code.
+F5_COLOURS = {"agree": "#1b7837", "disagree": "#762a83", "tie": "#bf812d", "frame_posthoc": "#7f7f7f", "cell_edge": "#ffffff", "net_halo": "#ffffff"}
+F5_STATE_MARKS = {"agree": "o", "disagree": "x", "tie": "+"}
+F5_SIZES = {"map_mark": 2.0, "state_mark": 2.0, "net_symbol": 7.5, "net_halo_width": 2.6, "net_width": 1.3, "cell_edge_width": 0.15, "table_mark": 6.0, "seed_mark": 4.2,
+            "control_mark_width": 0.9, "range_line": 0.9, "median_bar": 4.0, "ref_line": 0.8, "key_mark": 5.0}
