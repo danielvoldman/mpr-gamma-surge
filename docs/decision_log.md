@@ -5655,3 +5655,13 @@ Chosen:          as done   Default from: the prompt
 Test:            scripts/ms13_check_hashes.py; fast suite in the next entry
 Status:          13r-3a code done; fast suite pending
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-523  MS13 13r-3a (continued): fast suite at the end of the step    [ID: MS13, 13r, 13r-3a, DL-522]
+Date:            2026-10-30        Author:
+Decision:        FACT. FAST SUITE at 0bb1f65 (clean tree): 1163 passed, 24 deselected, 9 xfailed, 3 warnings, exit 0 taken from pytest itself (output to a file, no pipe), 695.52 s; the earlier failure test_real_comparison_has_no_disagreement passes. scripts/ms13_check_hashes.py: 104 manifest rows, 0 problems. No figure rebuilt, ms13_audit.py not run, nothing simulated, no tag.
+Reason:          instruction of the reviewer (13r-3a continuation prompt)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            fast suite as above
+Status:          13r-3a done; 13r-3b (F4 to F6) next
+Commit/tag:      the commit that adds this entry; no tag
