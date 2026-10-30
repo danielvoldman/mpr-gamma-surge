@@ -29,9 +29,10 @@ ROOT = Path(__file__).resolve().parents[1]
 class Ctx:
     """Reads stored files from <root>/results; caches. root is replaceable (tests alter a copy)."""
 
-    def __init__(self, root=None):
+    def __init__(self, root=None, series_res=None):
         self.root = Path(root) if root is not None else ROOT
         self.res = self.root / "results"
+        self.series_res = Path(series_res) if series_res is not None else self.res          # where the large run-record series (S9 npz) are read from; a test points it at the real results
         self._c: dict = {}
 
     def json(self, rel):
@@ -206,7 +207,7 @@ def f5c(c: Ctx, R: Rows):
     Ns = (1000, 3000, 10000, 30000)
     for key, folder, dk, arrs in (("ramp", "S9/S9", "s9", ("s9_class", "s9_f_pk_hz", "s9_onset_s", "s9_duration_ms")), ("control", "S9/S9_ctrl", "ctrl", ("ctrl_class", "ctrl_f_pk_hz", "ctrl_onset_s", None))):
         per: dict = {N: [] for N in Ns}
-        for pth in sorted(glob.glob(str(c.res / folder / "*.json"))):
+        for pth in sorted(glob.glob(str(c.series_res / folder / "*.json"))):
             if pth.endswith(".dry.json"):
                 continue
             j = json.loads(Path(pth).read_text(encoding="utf-8"))
@@ -722,8 +723,8 @@ def fs5(c: Ctx, R: Rows):
 FUNCS = {"F1": f1, "F2": f2, "F3": f3, "F4": f4, "F5": f5, "F6": f6, "FS1": fs1, "FS2": fs2, "FS3": fs3, "FS4": fs4, "FS5": fs5}
 
 
-def compute(root=None, figures=None) -> list:
-    c = Ctx(root)
+def compute(root=None, figures=None, series_res=None) -> list:
+    c = Ctx(root, series_res)
     R = Rows()
     for fid in (figures or FIGURES):
         if fid in FUNCS:

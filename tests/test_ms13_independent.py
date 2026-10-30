@@ -94,7 +94,7 @@ def test_altered_stored_value_in_a_temporary_copy_is_reported_not_equal(ind, cmp
     i = a9.index[(a9["map"].astype(str) == "1") & (a9["class"] == "D-tr")][0]
     a9.loc[i, "class"] = "D-none"                                  # one stored class word altered, in the copy only
     a9.to_parquet(tmp_path / "results" / F5_FILES[0])
-    rows = ind.compute(root=tmp_path, figures=["F5"])
+    rows = ind.compute(root=tmp_path, figures=["F5"], series_res=RES)       # the 52 large S9 series are read from the real results (read only)
     by = {r["id"]: r for r in rows}
     assert by["F5.map1_surge"]["value"] == 759 and by["F5.map1_none"]["value"] == 141
     res = cmpmod.compare(rows, cmpmod.drawn_sets(["F5"]))
