@@ -118,8 +118,14 @@ def test_no_class_colour_is_used_for_a_non_class_series_in_f2_and_f3(figs):
                 if ln.get_marker() in ("None", "none", "", None) and ln.get_linestyle() in ("None", "none", ""):
                     continue
                 assert to_hex(ln.get_color()).lower() not in classes, (fid, ln.get_label())
-    for k in FG.F1_SEED_KEYS:
-        assert not S.is_class_colour(S.diagram_mark(k).colour)
+    shades = [S.network_seed_colour(i) for i in range(3)]
+    assert shades[0] == S.SOURCE_COLOURS["network"] and len(set(shades)) == 3 and not any(S.is_class_colour(c) for c in shades)
+    f1 = figs["F1"][1]
+    seed_lines = [ln for ax in f1.axes for ln in ax.lines if to_hex(ln.get_color()).lower() in shades and ln.get_linestyle() in ("-", "--", ":")]
+    assert {to_hex(ln.get_color()).lower() for ln in seed_lines} == set(shades)                 # F1: the three seeds are three shades of the network hue
+    assert S.get("mean_field").colour.lower() not in shades
+    with pytest.raises(S.StyleError):
+        S.network_seed_colour(3)
     d2 = figs["F2"][0]
     net = [ln for ax in figs["F2"][1].axes for ln in ax.lines if ln.get_label().startswith("S4 network")]
     assert net and all(to_hex(ln.get_color()).lower() == S.SOURCE_COLOURS["network"].lower() for ln in net)

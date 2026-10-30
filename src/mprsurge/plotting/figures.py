@@ -516,9 +516,9 @@ def _range_ms(values) -> str:
     return f"{CAP.number_text(vs[0])} to {CAP.number_text(vs[-1])} ms ({len(vs)} values)"
 
 
-F3_RULE_25HZ = ('Table 8.1 gives for F3 the rule "25 Hz contour outside the oscillatory region in range -> G2". Outcome: the 25 Hz crossings drawn lie on the cycle branch of the A6 slices where '
-                'they occur (DL-131); G2 was judged on the DL-132 readings and no G2 trigger fired, M3 stays (DL-133); whether this Table 8.1 rule was evaluated on its own is not stated in the '
-                'decision log (UNVERIFIED).')
+F3_RULE_25HZ = ('Table 8.1 gives for F3 the rule "25 Hz contour outside the oscillatory region in range -> G2". DL-131 states that the 25 Hz contour crosses the cycle branch of the A6 slices where '
+                'it occurs, and DL-133 states that no G2 trigger fires and the project stays on M3 (judged on the DL-132 readings); neither entry states an outcome for this Table 8.1 rule itself, '
+                'so reading the crossings on the branch as "not outside the oscillatory region, no G2" is a reading, UNVERIFIED.')
 
 
 def caption_notes(d: dict, a6_J=None) -> tuple:
@@ -3751,7 +3751,7 @@ F1_STRIP = (("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30
 F1_CAPTION_KEYS = ("model.type", "model.ref_point", "model.J", "model.Delta", "model.tau_ms", "model.tau_d_ms", "path.name", "path.profile", "path.T_ramp_s", "path.t_on_s",
                    "path.eta_start", "path.eta_H", "path.eta_peak", "path.J0", "path.J_end", "network.N", "network.het_dist", "network.n_raster", "network.rate_bin_ms",
                    "solver.method", "solver.dt_out_ms", "noise.sigma", "seeds.root_seed")
-F1_SEED_KEYS = ("fs4_s0", "fs4_s1", "fs4_s2")                     # the three network seeds keep the colours and line styles they have in FS4
+F1_SEED_KEYS = ("fs4_s0", "fs4_s1", "fs4_s2")                     # the three network seeds keep the line styles they have in FS4; their colour is the network hue by lightness (13r-3a, G6)
 
 # Ruled (RULED_DL, 13p R13); first proposed for the reviewer's ruling (13l prompt, item B3); every statement is from a logged result (DL numbers in the text) and the numbers are checked against the stored
 # ms10_eval.json and the stored records by tests/test_fig_F1.py.
@@ -3999,8 +3999,8 @@ def _f1_onset_marks(ax, d: dict, *, network: bool):
             ax.plot([x], [0.93], transform=tr, ls="none", marker=st.marker, ms=S.F1_SIZES["onset"], color=st.colour, mec=S.figure_colour("bar_edge"), mew=S.POINT_EDGE_WIDTH["class"],
                     clip_on=False, zorder=6)
         nab = S.diagram_mark("fs4_cross")
-        for key, x in zip(F1_SEED_KEYS, d["raw120_s"]):
-            ax.plot([x], [1.04], transform=tr, ls="none", marker=nab.marker, ms=S.F1_SIZES["onset"], color=S.diagram_mark(key).colour, mew=nab.width, clip_on=False, zorder=6)
+        for i_, x in enumerate(d["raw120_s"]):
+            ax.plot([x], [1.04], transform=tr, ls="none", marker=nab.marker, ms=S.F1_SIZES["onset"], color=S.network_seed_colour(i_), mew=nab.width, clip_on=False, zorder=6)
         # 13o (DL-494 R7): the three raw first crossings stay at their stored positions; at the panel scale they lie on top of each other, which the note says
         ax.text(min(d["raw120_s"]) - 1.0, 1.04, "raw crossings: 3 seeds coincide", transform=tr, ha="right", va="center",
                 fontsize=S.TEXT_SIZES["small"], color=S.figure_colour("text_dark"))
@@ -4025,7 +4025,8 @@ def _draw_F1(d: dict, draft: bool):
     gs = fig.add_gridspec(12, 4, height_ratios=[1.9, 0.8, 1.35, 0.8, 1.05, 1.05, 1.05, 1.05, 1.35, 1.35, 1.7, 1.5], width_ratios=[2, 1, 1, 0.1])
     mf, dtr = S.get("mean_field"), S.get(d["ref_class"])
     p2, edge, hl = S.get("P2"), S.figure_colour("bar_edge"), S.figure_colour("range_line")
-    seeds = [S.diagram_mark(k) for k in F1_SEED_KEYS]
+    from types import SimpleNamespace
+    seeds = [SimpleNamespace(colour=S.network_seed_colour(i_), linestyle=S.diagram_mark(k).linestyle) for i_, k in enumerate(F1_SEED_KEYS)]
     T_END = float(d["path_t_s"][-1])
 
     def tidy(ax, title, ylabel, xlabel=False, red=False, pad=None):
@@ -4060,11 +4061,11 @@ def _draw_F1(d: dict, draft: bool):
     kx = fig.add_subplot(gs[1, 0:3])
     kx.axis("off")
     hs = [Line2D([], [], color=mf.colour, lw=3.0, alpha=0.55, label="mean field (stored record, min to max per pixel column)")]
-    hs += [Line2D([], [], color=m.colour, ls=m.linestyle, lw=1.0, label=f"network N = 1e4, seed {i} (T_ramp 120 s)") for i, m in enumerate(seeds)]
+    hs += [Line2D([], [], color=m.colour, ls=m.linestyle, lw=1.0, label=f"network N = 1e4, seed {i} (T_ramp 120 s; network hue, lightness and line style tell the seeds apart)") for i, m in enumerate(seeds)]
     hs += [Line2D([], [], color=dtr.colour, ls=dtr.linestyle, lw=1.0, label=f"mean-field stored onset ({d['ref_class']}, {d['ref_onset_s']:.3f} s)"),
            Line2D([], [], ls="none", marker=S.get("S-sus").marker, ms=S.F1_SIZES["key"], color=S.get("S-sus").colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"],
                   label=f"network stored classifier onset ({d['cls120'][0]}, {d['onset120_s'][0]:.1f} s, all seeds)"),
-           Line2D([], [], ls="none", marker=S.diagram_mark("fs4_cross").marker, ms=S.F1_SIZES["key"], color=edge, label="network raw first crossing (post hoc), seed colour"),
+           Line2D([], [], ls="none", marker=S.diagram_mark("fs4_cross").marker, ms=S.F1_SIZES["key"], color=edge, label="network raw first crossing (post hoc), seed shade"),
 ]
     kx.legend(handles=hs, loc="center", ncol=2, fontsize=S.TEXT_SIZES["legend"], frameon=False, handlelength=2.4, columnspacing=1.6, labelspacing=0.6)
 

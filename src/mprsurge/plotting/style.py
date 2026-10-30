@@ -494,3 +494,16 @@ PATH_PLAIN = {"P1": "P1 (path_eta)", "P2": "P2 (hypoxia-like path)"}
 # internal codes, defined once per figure that prints them; the wording is the plan's (Table 3.2)
 INTERNAL_CODES = {"ref_ceni": "ref_ceni: validation point (eta_bar, J, Delta) = (1, -20, 0.05), tau_d in {3, 4.95, 8} ms (plan Table 3.2)",
                   "ref_devalle": "ref_devalle: validation point (eta_bar, J, Delta) = (4, -21, 0.3), tau_d = 5 ms (plan Table 3.2)"}
+
+
+# 13r-3a (DL-521, G6): the three network seeds are drawn in the network hue, told apart by lightness (mixed with white by these fractions) and by line style, not by three hues.
+SEED_LIGHTEN = (0.0, 0.35, 0.6)
+
+
+def network_seed_colour(i: int) -> str:
+    """Hex colour of network seed i (0 to 2): SOURCE_COLOURS["network"] mixed with white by SEED_LIGHTEN[i]; an index outside 0 to 2 raises StyleError."""
+    if i not in (0, 1, 2):
+        raise StyleError(f"no seed colour for seed {i!r}")
+    base = SOURCE_COLOURS["network"].lstrip("#")
+    rgb = [int(base[k:k + 2], 16) for k in (0, 2, 4)]
+    return "#" + "".join(f"{round(c + (255 - c) * SEED_LIGHTEN[i]):02x}" for c in rgb)
