@@ -18,7 +18,7 @@ from .claim_labels import CLAIM_LIMIT_LABELS
 from .figprov import value_text
 
 
-NOISE_SIGMA_TAG = " (checked, not confirmed; G4-C4)"          # G5 (13r-2)
+NOISE_SIGMA_TAG = " (checked, not confirmed, G4-C4)"          # G5 (13r-2)
 
 
 class CaptionError(ValueError):

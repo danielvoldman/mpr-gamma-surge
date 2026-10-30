@@ -3424,8 +3424,10 @@ def _f4_noise(ax, d: dict, key: str):
         ax.plot([x_, x_], [np.nanmin(col), np.nanmax(col)], color=nz.colour, lw=3.0, solid_capstyle="butt", zorder=1)
         ax.plot([x_] * len(col), col, ls="none", marker=nz.marker, ms=S.POINT_SIZES["f4_seed_tick"], color=S.figure_colour("range_line"), mew=0.5, zorder=2)
         ax.plot([x_], [np.nanmedian(col)], ls="none", marker=md.marker, ms=md.size, color=S.F4_MARKS["median_colour"], mew=md.width, zorder=4)
-    for x_, n_ in zip(d["noise_eps"], noise_counts(v)):                  # 13r-2 (DL-512 V3): the number of seeds counted at each point, at the top of the axes
-        ax.annotate(str(int(n_)), xy=(x_, 0.985), xycoords=("data", "axes fraction"), va="top", ha="center", fontsize=S.TEXT_SIZES["small"], color=S.figure_colour("range_line"))
+    ax.set_xscale("log")
+    sx = ax.secondary_xaxis("top")                                      # 13r-2 (DL-512 V3): the number of seeds counted at each T_ramp, as labels above the frame (covers no value)
+    sx.set_xticks([float(x_) for x_ in d["noise_eps"]], [str(int(n_)) for n_ in noise_counts(v)])
+    sx.tick_params(labelsize=S.TEXT_SIZES["small"], length=0, pad=1)
 
 
 def _draw_F4(d: dict, draft: bool):

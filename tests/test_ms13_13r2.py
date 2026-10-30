@@ -69,7 +69,7 @@ def test_swept_parameters_are_printed_as_range_or_list_and_noise_sigma_is_tagged
     rows = [{"key": "path.T_ramp_s", "value": v, "panel": "a"} for v in (1.0, 2.0, 4.0, 8.0, 16.0, 32.0)] + [{"key": "noise.sigma", "value": 0.0624, "panel": "a"}]
     s = K.parameter_string(rows, swept={"path.T_ramp_s": [1.0, 2.0, 4.0, 8.0, 16.0, 32.0]})
     assert "path.T_ramp_s=1 to 32 (6 values), swept" in s
-    assert "noise.sigma=0.0624 (checked, not confirmed; G4-C4)" in s
+    assert "noise.sigma=0.0624 (checked, not confirmed, G4-C4)" in s
     assert K.sweep_text([3, 5, 13]) == "3, 5, 13" and K.sweep_text([1e3, 3e3, 1e4, 3e4]) == "1000, 3000, 10000, 30000"
     assert K.sweep_text([1e-4, 2.5e-4, 5e-4, 1e-3]) == "1e-4, 2.5e-4, 5e-4, 0.001"
     assert K.sweep_text(range(1, 14)) == "1 to 13 (13 values)"
@@ -261,5 +261,6 @@ def test_noise_bar_counts_are_the_number_of_seeds_with_a_value():
     import matplotlib.pyplot as plt
     fig, ax = plt.subplots()
     FG._f4_noise(ax, {"noise_eps": np.array([1.0, 2.0, 3.0]), "k": v}, "k")
-    assert [t.get_text() for t in ax.texts] == ["2", "0", "3"]
+    fig.canvas.draw()
+    assert [t.get_text() for sx in ax.child_axes for t in sx.get_xticklabels()] == ["2", "0", "3"]
     plt.close(fig)
