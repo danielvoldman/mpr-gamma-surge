@@ -176,7 +176,7 @@ def test_build_hashes_and_params_agree_with_the_provenance(built):
 def test_caption_names_the_plotted_quantity_states_the_ruled_limits_and_has_no_provenance_hash(built):
     res, out = built
     caption = (out / "F2_caption.txt").read_text(encoding="utf-8")
-    assert caption.startswith("F2. At ref_devalle the limit cycle appears") and "PROPOSED" not in caption        # take-home and claim limits ruled in 13g
+    assert caption.startswith("F2. The N = 1e4 network sweep does not follow the mean-field branch") and "PROPOSED" not in caption        # take-home and claim limits ruled in 13g
     assert "Nothing in this figure is a frequency or a spectral peak" in caption and "voltage variable v" in caption
     assert "not a fold of cycles" in caption and "mean V of non-refractory neurons" in caption and "F2_" not in caption
     from mprsurge.plotting.claim_labels import CLAIM_LIMIT_LABELS as CL                   # 13o (DL-495 T3, R2): the definitions are printed

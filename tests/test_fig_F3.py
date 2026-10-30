@@ -61,7 +61,7 @@ def test_row11_claim_limit_ids_appear_in_the_provenance_claim_limits(built):
     assert set(prov["claim_limits"]) == set(FG.F3_CLAIM_LIMITS) == {"MS11-C7", "MS12-C1", "MS11-C3", "RB9(b) FAIL (plan label)"}           # exact set equality (13o, DL-497 T12)
     caption = (out / "F3_caption.txt").read_text(encoding="utf-8")
     assert all(i in caption for i in FG.F3_CLAIM_LIMITS)
-    assert caption.startswith("F3. On the A6 slices the 100 Hz contour")           # the ruled take-home message (DL-453), no PROPOSED marker
+    assert caption.startswith("F3. RB9(b) FAILED (spectral against cycle frequency")           # the ruled take-home message (DL-453), no PROPOSED marker
     assert "PROPOSED" not in caption
     assert prov["draft"] is True and prov["figure_id"] == "F3" and prov["criteria_sha256"] == F.K.verify_frozen_criteria()["sha256"]
 
@@ -178,7 +178,7 @@ def test_caption_has_the_frequency_type_sentence_and_no_provenance_hash(built):
     assert "J ramp of P2 and P3 is not drawn" in caption and "derived" in caption and "the Nordlie table of F3" in caption and "F3_" not in caption      # 13o (DL-495 T4, R3)
     assert not re.search(r"[0-9a-f]{12,}", caption) and "hash" not in caption.lower() and not re.search(r"\bsha(256)?\b", caption.lower())
     assert "Provenance" not in caption
-    assert "model.Delta" not in caption and "noise.sigma" not in caption          # only the slice and regime keys are listed
+    assert "model.Delta=0.05, 0.1, 0.3, swept" in caption and "noise.sigma" not in caption          # only the slice and regime keys are listed
 
 
 # ---- 13g: layout clean-up (v3)

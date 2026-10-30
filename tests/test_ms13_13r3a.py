@@ -81,7 +81,7 @@ def test_f1_in_panel_line_and_j_ramp_marks(figs):
 
 def test_f1_caption_states_the_stored_crossings_and_onsets(built):
     cap = built["F1"]["caption"]
-    for s in ("50.170 to 50.924 s against the mean-field onset 58.698 s", "network classifier onset is 12.0 s", "by the pre-registered classes the network does not reproduce the mean-field class",
+    for s in ("50.170 to 50.924 s against the mean-field onset 58.698 s", "network classifier onset 12.0 s", "by the pre-registered classes the network does not reproduce the mean-field class",
               "no claim about the visual shape of the traces", "MS11-C2; RB6 network f_pk FAIL, FS4", "consequence (2): the network disagrees with the mean field in 2 or more of the 4 map cells"):
         assert s in cap, s
     assert "all 3 S-sus (3 of 3)" not in cap and "{'" not in cap
