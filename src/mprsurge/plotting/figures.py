@@ -3761,7 +3761,7 @@ F1_TAKE_HOME = (
     "The network raw first crossings are at 50.170 to 50.924 s against the mean-field onset 58.698 s, and the network classifier onset 12.0 s (46.7 s before the mean-field onset; stored, DL-319), "
     "so by the pre-registered classes the network does not reproduce the mean-field class (no claim about the visual shape of the traces, either way); the network f_pk values 49.0, 48.5 and "
     "49.0 Hz are not an agreement claim (MS11-C2; RB6 network f_pk FAIL, FS4). At T_ramp 10 s the 3 seeds are S-abs, S-rel and S-sus (0 of 3 seeds match; not drawn; DL-319). The network controls without a ramp "
-    "reach the surge classes S-abs and S-rel at the 10 s headline, S+ in S9 at N = 3e3 and 1e4 and at map cell (24,26) (DL-325; not drawn); the 120 s headline controls are S-sus 3 of 3 "
+    "reach the surge classes S-abs and S-rel at the 10 s headline, S+ in S9 at N = 3e3 and 1e4 and at map cell (24,26) (DL-325), not drawn; the 120 s headline controls are S-sus 3 of 3 "
     "(DL-319, DL-323), not drawn. Network classes under the frozen criteria therefore cannot separate ramp-driven from non-ramp records (G4-C3, DL-229, DL-231). "
     "RB1 failed (headline 10 s, headline 120 s, cells 1 of 4) and G4 was triggered through consequence (2): the network disagrees with the mean field in 2 or more of the 4 map cells (3 of 4 "
     "disagree), so the plan's consequence is a rerun of RB6 and reporting the affected results as mean-field-only; G4 is report-only and the surge result is stated for the mean field only "
