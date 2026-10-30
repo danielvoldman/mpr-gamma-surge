@@ -135,7 +135,7 @@ TABLE_2_1_MODE_N = ('Mode N: S+ (absolute and relative, transient); S-rel (relat
                     'with no new threshold); S-sus (no termination, either power test); NS (none).')
 TABLE_2_1_MODE_D = "Mode D: D-tr (transient episode); D-sus (sustained, no termination); D-none (no episode)."
 TABLE_2_1_SURGE = 'A "surge class" is D-tr in mode D, or S+, S-rel or S-abs in mode N.'
-TABLE_2_1_AGREE = "Noisy and deterministic runs agree when D-tr meets a surge class, D-sus meets S-sus, and D-none meets NS."
+TABLE_2_1_AGREE = "Noisy and deterministic runs agree when D-tr meets a surge class, D-sus meets S-sus, and D-none meets NS"          # the plan cell has no final full stop
 CLASS_KEY_SOURCE = "plan Table 2.1"
 
 
@@ -151,7 +151,7 @@ def class_key_line(modes: str = "ND", agree: bool = False) -> str:
         parts.append(TABLE_2_1_MODE_D)
     parts.append(TABLE_2_1_SURGE)
     if agree:
-        parts.append(TABLE_2_1_AGREE)
+        parts.append(TABLE_2_1_AGREE + ".")
     return f"Class key ({CLASS_KEY_SOURCE}): " + " ".join(parts)
 
 
@@ -192,16 +192,16 @@ def number_text(x) -> str:
     x = float(x)
     if x == 0.0 or 1e-3 <= abs(x) < 1e5:
         return f"{x:.6g}"
-    m, e = f"{x:.6g}".split("e") if "e" in f"{x:.6g}" else (f"{x:.6g}", "0")
-    return f"{m}e{int(e)}"
+    mant, exp = f"{x:.5e}".split("e")
+    return f"{float(mant):.6g}e{int(exp)}"
 
 
 def sweep_text(values) -> str:
-    """G5: a swept parameter as its range (a to b, n values) or, for three or fewer values, as the list; one number format (value_text)."""
+    """G5: a swept parameter as its range (a to b, n values) or, for five or fewer values, as the list; one number format (value_text)."""
     vs = sorted({float(v) for v in values})
     if not vs:
         raise CaptionError("sweep_text: no values")
-    if len(vs) <= 3:
+    if len(vs) <= 5:
         return ", ".join(number_text(v) for v in vs)
     return f"{number_text(vs[0])} to {number_text(vs[-1])} ({len(vs)} values)"
 

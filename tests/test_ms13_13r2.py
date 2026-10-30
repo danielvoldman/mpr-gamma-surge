@@ -66,18 +66,19 @@ def test_main_failure_must_be_in_sentence_one():
 # ---- G5: parameters sentence --------------------------------------------------------------------------------------------------------------------------------------
 
 def test_swept_parameters_are_printed_as_range_or_list_and_noise_sigma_is_tagged():
-    rows = [{"key": "path.T_ramp_s", "value": v, "panel": "a"} for v in (1.0, 2.0, 4.0, 8.0)] + [{"key": "noise.sigma", "value": 0.0624, "panel": "a"}]
-    s = K.parameter_string(rows, swept={"path.T_ramp_s": [1.0, 2.0, 4.0, 8.0]})
-    assert "path.T_ramp_s=1 to 8 (4 values, swept)" in s
+    rows = [{"key": "path.T_ramp_s", "value": v, "panel": "a"} for v in (1.0, 2.0, 4.0, 8.0, 16.0, 32.0)] + [{"key": "noise.sigma", "value": 0.0624, "panel": "a"}]
+    s = K.parameter_string(rows, swept={"path.T_ramp_s": [1.0, 2.0, 4.0, 8.0, 16.0, 32.0]})
+    assert "path.T_ramp_s=1 to 32 (6 values), swept" in s
     assert "noise.sigma=0.0624 (checked, not confirmed; G4-C4)" in s
     assert K.sweep_text([3, 5, 13]) == "3, 5, 13" and K.sweep_text([1e3, 3e3, 1e4, 3e4]) == "1000, 3000, 10000, 30000"
-    assert K.sweep_text([1e-4, 2.5e-4, 5e-4, 1e-3]) == "0.0001 to 0.001 (4 values)"
+    assert K.sweep_text([1e-4, 2.5e-4, 5e-4, 1e-3]) == "1e-4, 2.5e-4, 5e-4, 0.001"
+    assert K.sweep_text(range(1, 14)) == "1 to 13 (13 values)"
     with pytest.raises(K.CaptionError):
         K.sweep_text([])
 
 
 def test_one_number_format_has_no_plus_or_padded_exponent():
-    for x, want in ((1000.0, "1000"), (1e5, "1e5"), (2.5e-4, "0.00025"), (1e-4, "0.0001"), (3e6, "3e6"), (1e-5, "1e-5"), (0.0, "0"), (0.0624, "0.0624")):
+    for x, want in ((1000.0, "1000"), (1e5, "1e5"), (2.5e-4, "2.5e-4"), (1e-4, "1e-4"), (1e-3, "0.001"), (3e6, "3e6"), (1e-5, "1e-5"), (0.0, "0"), (0.0624, "0.0624")):
         assert K.number_text(x) == want, x
     assert "e+" not in "".join(K.number_text(x) for x in (1e3, 1e5, 1e9, 1e-9, 12345678.0))
 
