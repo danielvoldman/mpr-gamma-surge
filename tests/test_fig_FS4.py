@@ -114,7 +114,7 @@ def test_proposed_take_home_numbers_agree_with_the_stored_tables_to_the_printed_
     rel1 = d["net_rel_change"][:, 0]
     assert float(rel1.min()) == pytest.approx(0.05, abs=5e-3) and float(rel1.max()) == pytest.approx(0.43, abs=5e-3)    # printed 5 to 43 percent (stored 5.0 and 42.9)
     assert d["net_dt"].tolist() == [1e-3, 5e-4, 2.5e-4, 1e-4] and d["net_f_pk_hz"].shape == (3, 4)
-    assert FG.FS4_TAKE_HOME.startswith("PROPOSED (for ruling):")
+    assert "PROPOSED" not in FG.FS4_TAKE_HOME                                         # 13p (DL-501 T28, R13)
 
 
 def test_a_changed_headline_onset_or_a_broken_dt_chain_or_a_changed_status_stops_the_build():
@@ -196,8 +196,8 @@ def test_build_hashes_and_params_agree_with_the_provenance(built):
 def test_caption_names_the_plotted_quantities_marks_the_proposals_and_has_no_provenance_hash(built):
     res, out = built
     caption = (out / "FS4_caption.txt").read_text(encoding="utf-8")
-    assert caption.startswith("FS4. PROPOSED (for ruling):")
-    assert "Claim limits: " + "; ".join(f"{i}: {CL[i][0]} ({', '.join(CL[i][1])})" for i in FG.FS4_CLAIM_LIMITS) + "." in caption and "PROPOSED for the reviewer's ruling" in caption
+    assert caption.startswith("FS4. At the headline")
+    assert "Claim limits: " + "; ".join(f"{i}: {CL[i][0]} ({', '.join(CL[i][1])})" for i in FG.FS4_CLAIM_LIMITS) + "." in caption and "PROPOSED" not in caption        # 13p (DL-501, R13): ruled, no PROPOSED
     assert "FAILS" in caption and "not used as evidence" in caption and "UNVERIFIED" in caption and "Panel (a)" in caption and "Panels (e) and (f)" in caption
     assert not re.search(r"[0-9a-f]{12,}", caption) and "hash" not in caption.lower() and not re.search(r"\bsha(256)?\b", caption.lower())
     assert "Provenance" not in caption and "FS4_" not in caption

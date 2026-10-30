@@ -109,7 +109,7 @@ def test_proposed_take_home_numbers_equal_the_stored_tables_exactly():
     assert d["s6_n_prereg"] == 20 and d["s6_prereg_all_Dtr"] is True and all(c == ["D-tr"] * 4 for c in d["s6_class"])
     assert d["s6_onset_s"][0].tolist() == [8.838, 15.377, 43.386, 98.343] and d["rb7_rows"] == 0 and [r["rb_id"] for r in d["strip"]] == ["G7"]
     txt = FG.F6_TAKE_HOME
-    assert txt.startswith("PROPOSED (for ruling):") and "a 48, c 32, f 24, g 64, h 1" in txt and "13 of 13" in txt and "G7 is NOT PASSED" in txt and "All 20 pre-registered S6 rows" in txt
+    assert txt.startswith("The 169 non-surge cells") and "a 48, c 32, f 24, g 64, h 1" in txt and "13 of 13" in txt and "G7 is NOT PASSED" in txt and "All 20 pre-registered S6 rows" in txt
 
 
 def test_a_labelled_surge_cell_or_a_changed_class_or_a_changed_gate_stops_the_build():
@@ -199,9 +199,9 @@ def test_build_hashes_and_params_agree_with_the_provenance(built):
 def test_caption_names_the_plotted_quantities_marks_the_proposals_and_has_no_provenance_hash(built):
     res, out = built
     caption = (out / "F6_caption.txt").read_text(encoding="utf-8")
-    assert caption.startswith("F6. PROPOSED (for ruling):")
+    assert caption.startswith("F6. The 169 non-surge cells")
     na = FG.F6_NOT_APPLICABLE                                                          # 13o (DL-495 T7, R5): a limit can be carried as not applicable
-    assert "Claim limits: " + "; ".join(f"{i}: {CL[i][0]} ({', '.join(CL[i][1])})" + (f", not applicable here because {na[i]}" if i in na else "") for i in FG.F6_CLAIM_LIMITS) + "." in caption and "PROPOSED for the reviewer's ruling" in caption
+    assert "Claim limits: " + "; ".join(f"{i}: {CL[i][0]} ({', '.join(CL[i][1])})" + (f", not applicable here because {na[i]}" if i in na else "") for i in FG.F6_CLAIM_LIMITS) + "." in caption and "PROPOSED" not in caption        # 13p (DL-501, R13): ruled, no PROPOSED
     assert "NOT PASSED" in caption and "Panel (a)" in caption and "Panel (b)" in caption and "Panels (d) and (e)" in caption and "same weight" in caption
     assert not re.search(r"[0-9a-f]{12,}", caption) and "hash" not in caption.lower() and not re.search(r"\bsha(256)?\b", caption.lower())
     assert "Provenance" not in caption and "F6_" not in caption

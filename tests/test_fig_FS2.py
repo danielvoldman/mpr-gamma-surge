@@ -35,7 +35,7 @@ def built(tmp_path_factory):
 
 
 def _ax(fig, prefix):
-    hits = [a for a in fig.axes if a.get_title().startswith(prefix)]
+    hits = [a for a in fig.axes if a.get_title(loc="left").startswith(prefix)]         # 13p (DL-501 T25, R4): left titles
     assert len(hits) == 1, prefix
     return hits[0]
 
@@ -111,7 +111,7 @@ def test_proposed_take_home_numbers_agree_with_the_stored_arrays_to_the_printed_
     assert 100 * d["fit_s4_up_max_resid_frac"] == pytest.approx(2.42, abs=5e-3) and not d["fit_s4_up_resid_pass"]        # printed 2.42 percent, rule fails
     assert [100 * d[f"k10_rel_change_{t}"] for t in ("8.0", "20.0", "40.0")] == pytest.approx([13.4, 25.0, 42.2], abs=0.05)
     assert d["k10_j_limit"] == 0.1 and not d["k10_pass_all"]                                                             # exact
-    assert FG.FS2_TAKE_HOME.startswith("PROPOSED (for ruling):")
+    assert "PROPOSED" not in FG.FS2_TAKE_HOME                                         # 13p (DL-501 T23, R13)
 
 
 def test_drawn_curves_points_and_traces_equal_the_stored_values_exactly():
@@ -167,7 +167,7 @@ def test_failures_are_shown_in_the_figure_text_and_nothing_is_drawn_for_k4_net()
     fig = FG._draw_FS2(d, True)
     try:
         text = " ".join(" ".join(t.get_text() for a in fig.axes for t in a.texts).split())       # the status block is wrapped; compare on single spaces
-        titles = " ".join(a.get_title() for a in fig.axes)
+        titles = " ".join(a.get_title(loc="left") for a in fig.axes)
         assert "REPORTED FAILURE" in text and "FAIL (REPORTED FAILURE, DL-129)" in text and "not passed as worded" in text
         assert "K4-net: not run, M2 network coupling unsourced" in text and "REPORTED FAILURE" in titles and "NOT reproduced as worded" in titles
         assert "K4-net" not in titles
@@ -188,9 +188,9 @@ def test_build_hashes_and_params_agree_with_the_provenance(built):
 def test_caption_names_the_plotted_quantities_marks_the_proposals_and_has_no_provenance_hash(built):
     res, out = built
     caption = (out / "FS2_caption.txt").read_text(encoding="utf-8")
-    assert caption.startswith("FS2. PROPOSED (for ruling):")
+    assert caption.startswith("FS2. The M3 mean field")
     from mprsurge.plotting.claim_labels import CLAIM_LIMIT_LABELS as CL                   # 13o (DL-495 T8, R2): the definitions are printed
-    assert "Claim limits: MS11-C7: " + CL["MS11-C7"][0] + " (" + ", ".join(CL["MS11-C7"][1]) + ")." in caption and "PROPOSED for the reviewer's ruling" in caption
+    assert "Claim limits: MS11-C7: " + CL["MS11-C7"][0] + " (" + ", ".join(CL["MS11-C7"][1]) + ")." in caption and "PROPOSED" not in caption        # 13p (DL-501, R13): ruled, no PROPOSED
     assert "REPORTED FAILURE" in caption and "POST HOC" in caption and "no smoothing or interpolation" in caption.lower() and "UNVERIFIED" in caption
     assert "single-source" in caption or "single source" in caption
     assert not re.search(r"[0-9a-f]{12,}", caption) and "hash" not in caption.lower() and not re.search(r"\bsha(256)?\b", caption.lower())

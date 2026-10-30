@@ -106,7 +106,7 @@ def test_proposed_take_home_numbers_equal_the_stored_tables_exactly():
     assert d["noise_ctrl_kept"].tolist() == [7, 7, 7]
     assert (d["subgrid_agree"], d["subgrid_cells"], d["subgrid_needed"], d["subgrid_status"]) == (97, 225, 203, "FAILED")
     txt = FG.FS3_TAKE_HOME
-    assert txt.startswith("PROPOSED (for ruling):") and "4, 7, 2 and 5 of 10" in txt and "8 of 10 seeds at 0.5 sigma (PASS) and 7 of 10 at sigma (FAIL)" in txt
+    assert txt.startswith("Finite size") and "4, 7, 2 and 5 of 10" in txt and "8 of 10 seeds at 0.5 sigma (PASS) and 7 of 10 at sigma (FAIL)" in txt
     assert "97 of 225" in txt and "203 needed" in txt and "NOT EVALUABLE" in txt
 
 
@@ -201,8 +201,8 @@ def test_build_hashes_and_params_agree_with_the_provenance(built):
 def test_caption_names_the_plotted_quantities_marks_the_proposals_and_has_no_provenance_hash(built):
     res, out = built
     caption = (out / "FS3_caption.txt").read_text(encoding="utf-8")
-    assert caption.startswith("FS3. PROPOSED (for ruling):")
-    assert "Claim limits: " + "; ".join(f"{i}: {CL[i][0]} ({', '.join(CL[i][1])})" for i in FG.FS3_CLAIM_LIMITS) + "." in caption and "PROPOSED for the reviewer's ruling" in caption
+    assert caption.startswith("FS3. Finite size")
+    assert "Claim limits: " + "; ".join(f"{i}: {CL[i][0]} ({', '.join(CL[i][1])})" for i in FG.FS3_CLAIM_LIMITS) + "." in caption and "PROPOSED" not in caption        # 13p (DL-501, R13): ruled, no PROPOSED
     assert "NOT EVALUABLE" in caption and "FAIL rows" in caption and "Panel (a)" in caption and "Panel (d)" in caption and "Panels (e) and (f)" in caption
     assert not re.search(r"[0-9a-f]{12,}", caption) and "hash" not in caption.lower() and not re.search(r"\bsha(256)?\b", caption.lower())
     assert "Provenance" not in caption and "FS3_" not in caption

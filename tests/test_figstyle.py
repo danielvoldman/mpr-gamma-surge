@@ -290,7 +290,7 @@ FS4_MARK_KEYS = ("fs4_cross", "fs4_l0", "fs4_l1", "fs4_l2", "fs4_s0", "fs4_s1", 
 
 def test_13i_fs4_marks_are_style_keys_outside_the_class_table():
     # exact: the FS4 marks are diagram marks (colours avoid every class/path/control/source colour and the halo; markers avoid every table marker); the three floor
-    # levels differ in marker and colour, the three network seeds differ in marker (their own digit), colour and line style
+    # levels differ in marker and colour, the three network seeds differ in marker (a vertex shape each, 13p DL-501 T33), colour and line style
     marks = [S.diagram_mark(k) for k in FS4_MARK_KEYS]
     assert all(m.key == k for m, k in zip(marks, FS4_MARK_KEYS))
     assert {m.colour.lower() for m in marks}.isdisjoint({s.colour.lower() for s in S.STYLE.values()} | {S.HALO_COLOUR.lower()})

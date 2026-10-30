@@ -119,7 +119,7 @@ def test_proposed_take_home_numbers_agree_with_the_stored_arrays_to_the_printed_
     assert len(d["syn_label"]) == 39 and len({s.split(" | ")[0] for s in d["syn_label"]}) == 26             # 26 synthetic cases, 39 (case, T_ramp) rows
     assert d["tests_n"] == [8, 56] and len(d["tests_xfail_name"]) == 7                                       # exact: 7 strict-xfail marks (6 on functions, 1 on parameters)
     assert sum("(xfail mark on parameters)" in n for n in d["tests_xfail_name"]) == 1
-    assert FG.FS5_TAKE_HOME.startswith("PROPOSED (for ruling):")
+    assert "PROPOSED" not in FG.FS5_TAKE_HOME                                         # 13p (DL-501 T30, R13)
 
 
 def test_the_test_case_reader_lists_functions_and_xfail_marks_from_the_decorators_without_running_anything():
@@ -205,7 +205,7 @@ def test_drawn_markers_lines_bars_and_points_equal_the_stored_values_exactly():
         lf = _ax(fig, "(f)")
         pts = [x for x in lf.get_lines() if x.get_linestyle() == "None"][0]
         assert np.array_equal(pts.get_xdata(), d["rb10_fraction"])
-        panels = [a for a in fig.axes if a.get_title().startswith("(g")]
+        panels = [a for a in fig.axes if a.get_title(loc="left").startswith("(g")]         # 13p (DL-501 T32, R4): left titles
         assert len(panels) == 4
         g1, g2, g3, g4 = panels
         assert np.array_equal(g1.get_lines()[0].get_ydata(), d["rb9a_diff"][0]) and np.array_equal(g1.get_lines()[1].get_ydata(), d["rb9a_diff"][1])
@@ -226,7 +226,7 @@ def test_layout_no_legend_covers_a_line_or_marker_no_text_leaves_the_canvas_and_
     try:
         assert legend_line_hits(fig) == []
         assert clipped_texts(fig) == []
-        texts = " ".join(t.get_text() for a in fig.axes for t in a.texts) + " ".join(a.get_title() for a in fig.axes)
+        texts = " ".join(t.get_text() for a in fig.axes for t in a.texts) + " ".join(a.get_title(loc="left") for a in fig.axes)
         assert "RB9 b_spectral_vs_cycle_headline: FAIL" in texts and "(g2) RB9(b) FAIL" in texts           # the RB9(b) failure is drawn at equal weight, not dropped
         assert "(g1) RB9(a) PASS" in texts and "(g3) RB9(c) PASS" in texts
     finally:
@@ -248,8 +248,8 @@ def test_build_hashes_and_params_agree_with_the_provenance(built):
 def test_caption_names_the_plotted_quantities_marks_the_proposals_and_has_no_provenance_hash(built):
     res, out = built
     caption = (out / "FS5_caption.txt").read_text(encoding="utf-8")
-    assert caption.startswith("FS5. PROPOSED (for ruling):")
-    assert "Claim limits: " + "; ".join(f"{i}: {CL[i][0]} ({', '.join(CL[i][1])})" for i in FG.FS5_CLAIM_LIMITS) + "." in caption and "PROPOSED for the reviewer's ruling" in caption
+    assert caption.startswith("FS5. The surge classifier")
+    assert "Claim limits: " + "; ".join(f"{i}: {CL[i][0]} ({', '.join(CL[i][1])})" for i in FG.FS5_CLAIM_LIMITS) + "." in caption and "PROPOSED" not in caption        # 13p (DL-501, R13): ruled, no PROPOSED
     assert "RB9(b) FAILS" in caption and "UNVERIFIED" in caption
     assert "Panel (a)" in caption and "Panel (c)" in caption and "Panel (d)" in caption and "Panel (e)" in caption and "Panels (f) and (g)" in caption
     assert "DL-430" in caption and "provisional" in caption

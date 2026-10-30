@@ -122,7 +122,8 @@ def test_proposed_take_home_numbers_equal_the_stored_tables(data):
     assert d["a3_ring_class"] == ["damped"] * 13 and round(float(d["a3_offset"][0]), 5) == 0.34575 and round(float(d["a3_offset"][-1]), 5) == 0.00343
     assert d["rb5_fail_rows"] == 0 and [(r["rb_id"], r["check_id"]) for r in d["strip"]] == list(FG.F4_STRIP) and all(r["status"] == "FAIL" for r in d["strip"])
     txt = FG.F4_TAKE_HOME
-    for s in ("PROPOSED (for ruling):", "0 of 6", "58.698 s", "58.879 s", "181 ms", "-0.000760", "-0.0423", "-0.1051", "5.62 s", "0.346 to 0.0034", "RB3(b) DOES NOT MEET", "RB6 solver clause FAIL"):
+    assert "PROPOSED" not in txt                                                     # 13p (DL-501 T15, R13)
+    for s in ("0 of 6", "58.698 s", "58.879 s", "181 ms", "-0.000760", "-0.0423", "-0.1051", "5.62 s", "0.346 to 0.0034", "RB3(b) DOES NOT MEET", "RB6 solver clause FAIL"):
         assert s in txt, s
 
 
@@ -217,8 +218,8 @@ def test_build_hashes_and_params_agree_with_the_provenance(built):
 def test_caption_names_the_plotted_quantities_the_onset_reading_marks_the_proposals_and_has_no_provenance_hash(built):
     res, out = built
     caption = (out / "F4_caption.txt").read_text(encoding="utf-8")
-    assert caption.startswith("F4. PROPOSED (for ruling):")
-    assert "Claim limits: " + "; ".join(f"{i}: {CL[i][0]} ({', '.join(CL[i][1])})" for i in FG.F4_CLAIM_LIMITS) + "." in caption and "PROPOSED for the reviewer's ruling" in caption
+    assert caption.startswith("F4. Onsets do not follow")
+    assert "Claim limits: " + "; ".join(f"{i}: {CL[i][0]} ({', '.join(CL[i][1])})" for i in FG.F4_CLAIM_LIMITS) + "." in caption and "PROPOSED" not in caption        # 13p (DL-501, R13): ruled, no PROPOSED
     for s in ("Panel (a)", "raw first crossing", "classifier-episode onset", "G6-D1", "reported, not judged", "DL-163-D3", "Panels (b) to (e)", "Panels (i) and (j)",
               "A3 table", "A2 ring map", "RB6 solver clause FAIL", "signed", "peak power", "f_pk", "duration", "D-none"):
         assert s in caption, s

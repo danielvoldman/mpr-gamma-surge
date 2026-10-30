@@ -36,7 +36,7 @@ def built(tmp_path_factory):
 
 
 def _axes_by_title(fig, prefix):
-    hits = [ax for ax in fig.axes if ax.get_title().startswith(prefix)]
+    hits = [ax for ax in fig.axes if ax.get_title(loc="left").startswith(prefix)]         # 13p (DL-501 T22, R4): left titles
     assert len(hits) == 1, prefix
     return hits[0]
 
@@ -112,7 +112,7 @@ def test_proposed_take_home_numbers_agree_with_the_stored_arrays_to_the_printed_
     assert d["ring_n_nondamped"] == 0 and d["ring_n_focus"] == 25727                                 # exact: 0 of 25727
     assert d["ring_cyc_inG_max"] == pytest.approx(5.1, abs=0.05)                                     # printed 5.1 (stored 5.1004; DL-089 prints 5.10)
     assert np.array_equal(d["band_hz"], [25.0, 100.0])
-    assert FG.FS1_TAKE_HOME.startswith("PROPOSED (for ruling):")
+    assert "PROPOSED" not in FG.FS1_TAKE_HOME                                         # 13p (DL-501 T20, R13)
 
 
 def test_drawn_maps_and_points_equal_the_stored_values_exactly():
@@ -158,7 +158,7 @@ def test_drawn_maps_and_points_equal_the_stored_values_exactly():
         assert np.array_equal(twin.get_lines()[0].get_ydata(), s5["I"])                                  # exact: the stored forcing
         texts = " ".join(t.get_text() for ax_ in fig.axes for t in ax_.texts)
         assert "K4-net: not run, M2 network coupling unsourced" in texts and "own reading, UNVERIFIED, deferred" in texts
-        assert not [x for x in fig.axes if "K4-net" in x.get_title()]                                   # no K4-net panel and no K4-net data
+        assert not [x for x in fig.axes if "K4-net" in x.get_title(loc="left")]                                   # no K4-net panel and no K4-net data
     finally:
         import matplotlib.pyplot as plt
         plt.close(fig)
@@ -194,9 +194,9 @@ def test_build_hashes_and_params_agree_with_the_provenance(built):
 def test_caption_names_the_plotted_quantities_marks_the_proposals_and_has_no_provenance_hash(built):
     res, out = built
     caption = (out / "FS1_caption.txt").read_text(encoding="utf-8")
-    assert caption.startswith("FS1. PROPOSED (for ruling):")                       # take-home and claim limits are proposals until ruled
+    assert caption.startswith("FS1. The M2 model")                                 # 13p (DL-501 T21, R13): take-home and claim limits ruled
     from mprsurge.plotting.claim_labels import CLAIM_LIMIT_LABELS as CL                   # 13o (DL-495 T8, R2): the definitions are printed
-    assert "Claim limits: MS11-C7: " + CL["MS11-C7"][0] + " (" + ", ".join(CL["MS11-C7"][1]) + ")." in caption and "PROPOSED for the reviewer's ruling" in caption
+    assert "Claim limits: MS11-C7: " + CL["MS11-C7"][0] + " (" + ", ".join(CL["MS11-C7"][1]) + ")." in caption and "PROPOSED" not in caption        # 13p (DL-501, R13): ruled, no PROPOSED
     assert "root count" in caption and "ring map" in caption and "cycles per e-fold" in caption and "K4-net was not run" in caption
     assert "UNVERIFIED" in caption and "No crossing is drawn" in caption and "nothing here is a result for M3" in caption
     assert not re.search(r"[0-9a-f]{12,}", caption) and "hash" not in caption.lower() and not re.search(r"\bsha(256)?\b", caption.lower())
@@ -213,11 +213,11 @@ def test_layout_no_legend_covers_a_line_and_the_k4_numbers_do_not_cross_the_fit_
         assert legend_line_hits(fig) == []
         from figlayout import clipped_texts
         assert clipped_texts(fig) == []                                      # no title, label or legend text leaves the figure canvas
-        axd = [a for a in fig.axes if a.get_title().startswith("(d)")][0]
+        axd = [a for a in fig.axes if a.get_title(loc="left").startswith("(d)")][0]
         from figlayout import texts_below_axes
         assert texts_below_axes(fig, axd, "fit: omega") == []                # the number block lies inside the axes frame
         assert text_line_hits(fig, axd, "fit: omega") == []                  # the two dash-dot window lines and the trace are clear of the number block
-        axe = [a for a in fig.axes if a.get_title().startswith("(e)")][0]
+        axe = [a for a in fig.axes if a.get_title(loc="left").startswith("(e)")][0]
         assert axe.get_ylim()[1] > 1.5 * float(np.max(d["K5_r"]))             # headroom for the legend above the r peaks
     finally:
         plt.close(fig)

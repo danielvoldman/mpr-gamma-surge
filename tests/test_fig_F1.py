@@ -256,8 +256,8 @@ def test_build_hashes_and_params_agree_with_the_provenance(built):
 def test_caption_has_the_spectrogram_settings_the_decimation_and_the_proposals_and_no_provenance_hash(built):
     res, out = built
     caption = (out / "F1_caption.txt").read_text(encoding="utf-8")
-    assert caption.startswith("F1. PROPOSED (for ruling):")
-    assert "Claim limits: " + "; ".join(f"{i}: {CL[i][0]} ({', '.join(CL[i][1])})" for i in FG.F1_CLAIM_LIMITS) + "." in caption and "PROPOSED for the reviewer's ruling" in caption
+    assert caption.startswith("F1. At the headline")
+    assert "Claim limits: " + "; ".join(f"{i}: {CL[i][0]} ({', '.join(CL[i][1])})" for i in FG.F1_CLAIM_LIMITS) + "." in caption and "PROPOSED" not in caption        # 13p (DL-501, R13): ruled, no PROPOSED
     assert "Spectrogram: " in caption and "window_s=2.0" in caption and "step_s=1.0" in caption and '"hann"' in caption and "band_primary_hz=[25.0, 100.0]" in caption
     for s in ("Panels (a) and (b)", "min-to-max envelope per pixel column", "Panels (g) and (h) are NOT stored", "frozen classifier routine", "G4-C3", "RB1 FAILED", "all three stored seeds",
               "N = 1e4", "not hidden", "2.176222"):

@@ -298,9 +298,9 @@ def test_build_hashes_and_params_agree_with_the_provenance(built, raw):
 def test_caption_has_the_mode_d_statement_the_limits_and_no_provenance_hash(built):
     res, out = built
     caption = (out / "F5_caption.txt").read_text(encoding="utf-8")
-    assert caption.startswith("F5. PROPOSED (for ruling):")
+    assert caption.startswith("F5. In mode D")
     na = FG.F5_NOT_APPLICABLE                                                          # 13o (DL-495 T6, R5): a limit can be carried as not applicable
-    assert "Claim limits: " + "; ".join(f"{i}: {CL[i][0]} ({', '.join(CL[i][1])})" + (f", not applicable here because {na[i]}" if i in na else "") for i in FG.F5_CLAIM_LIMITS) + "." in caption and "PROPOSED for the reviewer's ruling" in caption
+    assert "Claim limits: " + "; ".join(f"{i}: {CL[i][0]} ({', '.join(CL[i][1])})" + (f", not applicable here because {na[i]}" if i in na else "") for i in FG.F5_CLAIM_LIMITS) + "." in caption and "PROPOSED" not in caption        # 13p (DL-501, R13): ruled, no PROPOSED
     for s in ("The map statements are for mode D", "no claim that the regime map is robust to noise", "D8 is undefined in mode N", "T_ramp 30 s", "T_ramp 120 s", "no claim that the two durations are equivalent",
               "post-hoc and feeds no gate", "FAILED", "recomputed from stored series with the frozen classifier", "G4-C3", "RB4 passed", "not drawn"):
         assert s in caption, s
