@@ -226,7 +226,7 @@ def f5c(c: Ctx, R: Rows):
             for nm, k_, ak in (("f_pk_hz", "f", arrs[1]), ("onset_s", "on", arrs[2]), ("duration_ms", "du", arrs[3])):
                 if ak is None:
                     continue
-                vals = sorted(r[k_] for r in rs)
+                vals = np.sort(np.array([r[k_] for r in rs], float)).tolist()
                 R.add("F5", f"c_{key}_N{N}_{nm}", f"{key} {nm} per seed at N = {N}, sorted", vals, "frozen classifier on the stored v", shared=sh, tol=("rel", 1e-12), drawn=f"[float(x) for x in np.sort(d['{ak}'][{i}])]")
                 fin = [x for x in vals if x == x]
                 if key == "ramp" and fin:
