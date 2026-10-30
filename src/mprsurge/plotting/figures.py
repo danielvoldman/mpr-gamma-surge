@@ -791,8 +791,8 @@ def _draw_F2(d: dict, draft: bool, strip_lines: list[str]):
     _s4_points(ax2, d, "mf", "mf_v_ptp", "mf")
     _s4_points(ax2, d, "net", "net_v_ptp", "net")
     ax2.set_ylabel("v amplitude (max - min)")
-    ax2.text(0.99, 0.04, f"mean field: up and down coincide, max difference {CAP.number_text(round(d['mf_updown_max_abs_from_0p2'], 4))} relative (stored, from eta_H + 0.2); "
-             "up sweep filled, down sweep hollow and smaller", transform=ax2.transAxes, fontsize=S.TEXT_SIZES["small"], va="bottom", ha="right")
+    ax2.text(0.01, 0.97, f"mean field: up and down coincide,\nmax difference {CAP.number_text(round(d['mf_updown_max_abs_from_0p2'], 4))} relative (stored, from eta_H + 0.2);\n"
+             "up sweep filled, down sweep hollow and smaller", transform=ax2.transAxes, fontsize=S.TEXT_SIZES["small"], va="top", ha="left")
     ax2.set_title("(b) amplitude: A5 cycles, S4 mean field and S4 network (mean V of non-refractory neurons), stored values", loc=S.TITLE_LOC)
     # (c) stored relative difference, network against mean field
     ax3 = fig.add_subplot(gs[2], sharex=ax)
@@ -3756,14 +3756,18 @@ F1_SEED_KEYS = ("fs4_s0", "fs4_s1", "fs4_s2")                     # the three ne
 # Ruled (RULED_DL, 13p R13); first proposed for the reviewer's ruling (13l prompt, item B3); every statement is from a logged result (DL numbers in the text) and the numbers are checked against the stored
 # ms10_eval.json and the stored records by tests/test_fig_F1.py.
 F1_TAKE_HOME = (
-    "At the headline (P2, ref_devalle, T_ramp 120 s) the stored mean-field record is a surge of class D-tr with a spectral peak of 49.0 Hz and onset 58.698 s "
-    "(DL-319); the peak is far above 25 Hz, so the plan's second F1 trigger did not occur. The network at N = 1e4 does not reproduce this class: all 3 stored seeds are S-sus (3 of 3; DL-319, DL-323) with "
-    "classifier onset 12.0 s (46.7 s before the mean-field onset) and f_pk 49.0, 48.5 and 49.0 Hz; at T_ramp 10 s the 3 seeds are S-abs, S-rel and S-sus (0 of 3 seeds at each "
-    "T_ramp, RB1 headline FAIL, DL-319). The network controls without a ramp reach the surge classes S-abs and S-rel at the 10 s headline, S+ in S9 at N = 3e3 and 1e4 and at map cell "
-    "(24,26) (DL-325); the 120 s headline controls are S-sus 3 of 3 (DL-319, DL-323). Network classes under the frozen criteria therefore cannot separate ramp-driven from non-ramp "
-    "records (G4-C3, DL-229, DL-231). RB1 failed (headline 10 s, "
-    "headline 120 s, cells 1 of 4), G4 was triggered through consequence (2) and is report-only; the surge result is stated for the mean field only (DL-320, DL-323, DL-325)."
+    "The network at N = 1e4 does not reproduce the mean-field class at the headline: 0 of 3 seeds match the mean-field class D-tr (all 3 are S-sus; RB1 FAILED, DL-319, DL-323). "
+    "The stored mean-field record is a surge of class D-tr with a spectral peak of 49.0 Hz and onset 58.698 s (DL-319); the peak is far above 25 Hz, so the plan's second F1 trigger did not occur. "
+    "The network raw first crossings are at 50.170 to 50.924 s against the mean-field onset 58.698 s, and the network classifier onset is 12.0 s (46.7 s before the mean-field onset; stored, DL-319), "
+    "so by the pre-registered classes the network does not reproduce the mean-field class (no claim about the visual shape of the traces, either way); the network f_pk values 49.0, 48.5 and "
+    "49.0 Hz are not an agreement claim (MS11-C2; RB6 network f_pk FAIL, FS4). At T_ramp 10 s the 3 seeds are S-abs, S-rel and S-sus (0 of 3 seeds match; not drawn; DL-319). The network controls without a ramp "
+    "reach the surge classes S-abs and S-rel at the 10 s headline, S+ in S9 at N = 3e3 and 1e4 and at map cell (24,26) (DL-325; not drawn); the 120 s headline controls are S-sus 3 of 3 "
+    "(DL-319, DL-323; not drawn). Network classes under the frozen criteria therefore cannot separate ramp-driven from non-ramp records (G4-C3, DL-229, DL-231). "
+    "RB1 failed (headline 10 s, headline 120 s, cells 1 of 4) and G4 was triggered through consequence (2): the network disagrees with the mean field in 2 or more of the 4 map cells (3 of 4 "
+    "disagree), so the plan's consequence is a rerun of RB6 and reporting the affected results as mean-field-only; G4 is report-only and the surge result is stated for the mean field only "
+    "(DL-320, DL-323, DL-325)."
 )
+F1_MAIN_FAILURES = ("does not reproduce the mean-field class", "RB1 FAIL")
 # Ruled (RULED_DL, 13p R13): the limits of docs/ms13_plan.md section 5 whose right-hand column lists F1 and that are defined in docs/claim_limit_labels.md. The plan labels RB1 FAIL (DL-319, DL-320)
 # and G7 not passed (DL-228) were written in plain words; 13o (DL-494 R2, R5; DL-495): both are carried with their definitions (RB1 FAIL added to the label table). Listed, not decided.
 F1_CLAIM_LIMITS = ("MS11-C7", "MS12-C1", "MS9(e)-1", "MS9(e)-5", "DL-163-D1", "G4-C1", "G4-C2", "G4-C3", "MS11-C2", "MS11-C3", "RB1 FAIL (plan label)", "G7 not passed (plan label)")
@@ -3787,7 +3791,7 @@ F1_SCHEMATIC = (
 # box positions in axes fractions (x0, y0, x1, y1) and the arrows between boxes: our layout, UNVERIFIED
 F1_SCHEMATIC_BOXES = {"ramp": (0.0, 0.05, 0.2, 0.95), "model": (0.235, 0.0, 0.585, 1.0), "mf": (0.62, 0.55, 0.81, 0.97), "net": (0.62, 0.03, 0.81, 0.45),
                       "out": (0.835, 0.2, 1.0, 0.8)}
-F1_SCHEMATIC_WRAP = {"ramp": 30, "model": 66, "mf": 32, "net": 32, "out": 29}       # characters per drawn line; a row is wrapped at spaces only, so its words stay verbatim
+F1_SCHEMATIC_WRAP = {"ramp": 30, "model": 66, "mf": 32, "net": 32, "out": 22}       # characters per drawn line; a row is wrapped at spaces only, so its words stay verbatim
 
 
 def f1_count_range(d: dict) -> tuple:
@@ -3885,6 +3889,7 @@ def prepare_F1(raw: dict, crit: dict) -> dict:
     for k in ("eta_start", "eta_H", "eta_peak", "t_on_s", "T_ramp_s", "J0", "J_end"):
         d["path_" + k] = float(p[k])
     d["path_name"], d["path_profile"] = p["name"], p["profile"]
+    d["path_J_lag_frac"], d["path_J_T_frac"] = float(p["J_lag_frac"]), float(p["J_T_frac"])          # 13r-3a (V6): the J ramp start and end are derived from these stored keys
     t = mf["t_ms"] / 1000.0
     d["path_t_s"], d["path_eta"], d["path_J"] = t, mf["eta"], mf["J"]
     if not (np.isclose(mf["eta"][0], p["eta_start"]) and np.isclose(mf["eta"][-1], p["eta_peak"])):
@@ -3961,11 +3966,22 @@ def f1_strip_lines(d: dict) -> list[str]:
     return [strip_line(r) for r in d["strip"]]
 
 
+def _counts_text(c: dict) -> str:
+    return ", ".join(f"{k} {v}" for k, v in c.items())
+
+
+def f1_net_line(d: dict) -> str:
+    """13r-3a (DL-518): the in-panel line of (d) and (f), from the stored classes and the stored RB1 headline_120s value."""
+    v = next(r["value"] for r in d["strip"] if (r["rb_id"], r["check_id"]) == ("RB1", "headline_120s"))
+    return f"network class {', '.join(sorted(set(d['cls120'])))}, mean field {d['ref_class']}; {v} agree (RB1 FAIL)"
+
+
 def f1_status_lines(d: dict) -> list[str]:
     lines = [f"Stored classes (ms10_eval, DL-319): mean-field headline {d['ref_class']} (onset {d['ref_onset_s']:.3f} s, f_pk {d['ref_f_pk_hz']:.1f} Hz). Network N = 1e4, T_ramp 120 s, "
              f"seeds 0 to 2: {', '.join(d['cls120'])}; classifier onset {', '.join(f'{x:.3f}' for x in d['onset120_s'])} s; raw first crossing {', '.join(f'{x:.3f}' for x in d['raw120_s'])} s "
              f"(post hoc, feeds no gate); f_pk {', '.join(f'{x:.2f}' for x in d['fpk120_hz'])} Hz. T_ramp 10 s (not drawn): {', '.join(d['cls10'])}.",
-             f"No-ramp network controls (stored classes, DL-319, not drawn): 120 s {d['ctrl120']}; 10 s {d['ctrl10']} (G4-C3). G4 triggered: {d['g4_triggered']}; RB1 {d['rb1_verdict']}.",
+             f"No-ramp network controls (stored classes, DL-319, not drawn): 120 s {_counts_text(d['ctrl120'])}; 10 s {_counts_text(d['ctrl10'])} (G4-C3). G4 triggered: {d['g4_triggered']}; RB1 {d['rb1_verdict']}.",
+             "red title: the panel shows a FAIL (here (d) and (f): RB1 FAIL).",
              strip_heading("F1")] + ["    " + s for s in f1_strip_lines(d)]
     return lines
 
@@ -3984,9 +4000,9 @@ def _f1_onset_marks(ax, d: dict, *, network: bool):
                     clip_on=False, zorder=6)
         nab = S.diagram_mark("fs4_cross")
         for key, x in zip(F1_SEED_KEYS, d["raw120_s"]):
-            ax.plot([x], [0.93], transform=tr, ls="none", marker=nab.marker, ms=S.F1_SIZES["onset"], color=S.diagram_mark(key).colour, mew=nab.width, clip_on=False, zorder=6)
+            ax.plot([x], [1.04], transform=tr, ls="none", marker=nab.marker, ms=S.F1_SIZES["onset"], color=S.diagram_mark(key).colour, mew=nab.width, clip_on=False, zorder=6)
         # 13o (DL-494 R7): the three raw first crossings stay at their stored positions; at the panel scale they lie on top of each other, which the note says
-        ax.text(min(d["raw120_s"]) - 1.0, 0.8, f"3 seeds coincide ({min(d['raw120_s']):.3f} to {max(d['raw120_s']):.3f} s)", transform=tr, ha="right", va="center",
+        ax.text(min(d["raw120_s"]) - 1.0, 1.04, f"raw first crossings, 3 seeds coincide ({min(d['raw120_s']):.3f} to {max(d['raw120_s']):.3f} s)", transform=tr, ha="right", va="center",
                 fontsize=S.TEXT_SIZES["small"], color=S.figure_colour("text_dark"))
 
 
@@ -4012,8 +4028,8 @@ def _draw_F1(d: dict, draft: bool):
     seeds = [S.diagram_mark(k) for k in F1_SEED_KEYS]
     T_END = float(d["path_t_s"][-1])
 
-    def tidy(ax, title, ylabel, xlabel=False, red=False):
-        ax.set_title(title, loc=S.TITLE_LOC, color=S.figure_colour("fail_text") if red else S.figure_colour("text_dark"))
+    def tidy(ax, title, ylabel, xlabel=False, red=False, pad=None):
+        ax.set_title(title, loc=S.TITLE_LOC, color=S.figure_colour("fail_text") if red else S.figure_colour("text_dark"), **({"pad": pad} if pad else {}))
         ax.set_ylabel(ylabel)
         if xlabel:
             ax.set_xlabel("path time (s)")
@@ -4067,14 +4083,20 @@ def _draw_F1(d: dict, draft: bool):
         ax.text(T_END * 0.995, y_ + 0.08, txt, ha="right", va="bottom", fontsize=S.TEXT_SIZES["small"], color=S.figure_colour("text_dark"), zorder=5)
     ax.text(d["path_t_on_s"] + 0.8, d["path_eta_peak"] + 0.75, f"t_on = {d['path_t_on_s']:g} s", ha="left", va="center", fontsize=S.TEXT_SIZES["small"], color=S.figure_colour("text_dark"))
     ax.text(t_end_ramp - 0.8, d["path_eta_peak"] + 0.75, f"end of ramp = t_on + T_ramp = {t_end_ramp:g} s", ha="right", va="center", fontsize=S.TEXT_SIZES["small"], color=S.figure_colour("text_dark"))
-    tidy(ax, f"(a) ramp protocol of the headline path ({d['path_name']}, {d['path_profile']}, T_ramp {d['path_T_ramp_s']:g} s): eta(t) as stored", "eta")
+    tidy(ax, f"(a) ramp protocol of the headline path (P2, hypoxia-like path: {d['path_name']}, {d['path_profile']}, T_ramp {d['path_T_ramp_s']:g} s): eta_bar(t) as stored", "eta_bar (mean excitability)")
     ax.tick_params(labelbottom=False)
     ax = fig.add_subplot(gs[3, 0:3], sharex=ax)
     ax.plot(d["path_t_s"], d["path_J"], color=S.get("P3").colour, ls="-", lw=S.F1_SIZES["path_line"], zorder=3)
     for x_ in (d["path_t_on_s"], t_end_ramp):
         ax.axvline(x_, color=hl, ls=":", lw=S.F1_SIZES["event_line"], zorder=1)
     ax.set_ylim(d["path_J0"] - 3.0, d["path_J_end"] + 3.0)
-    tidy(ax, f"(b) J(t) as stored (J0 {d['path_J0']:g} to J_end {d['path_J_end']:g}); Delta, I constant (stored)", "J")
+    j0 = d["path_t_on_s"] + d["path_J_lag_frac"] * d["path_T_ramp_s"]
+    j1 = j0 + d["path_J_T_frac"] * d["path_T_ramp_s"]
+    for x_ in (j0, j1):
+        ax.axvline(x_, color=S.get("P3").colour, ls="--", lw=S.F1_SIZES["event_line"], zorder=1)
+    ax.text(j0 - 1.0, d["path_J_end"] + 2.2, f"J ramp starts {j0:g} s (t_on + J_lag_frac x T_ramp; derived from the stored keys)", ha="right", va="center", fontsize=S.TEXT_SIZES["small"])
+    ax.text(j1 - 1.0, d["path_J0"] - 1.6, f"J ramp ends {j1:g} s (start + J_T_frac x T_ramp; derived)", ha="right", va="center", fontsize=S.TEXT_SIZES["small"])
+    tidy(ax, f"(b) J(t) as stored (J0 {d['path_J0']:g} to J_end {d['path_J_end']:g}); Delta, I constant (stored)", "J (coupling)")
     ax.tick_params(labelbottom=False)
 
     # (c) to (f) r(t) and v(t): mean field above network, same y range per quantity
@@ -4082,19 +4104,23 @@ def _draw_F1(d: dict, draft: bool):
         lo_all = min(d[f"{n}_{q}_min"] for n in ("mf", "net0", "net1", "net2"))
         hi_all = max(d[f"{n}_{q}_max"] for n in ("mf", "net0", "net1", "net2"))
         rng = hi_all - lo_all
-        ylim = (lo_all - 0.04 * rng, hi_all + 0.20 * rng)
+        ylim = (lo_all - 0.04 * rng, hi_all + 0.34 * rng)
+        ylab = {"r": "r (rate;\nmodel units, UNVERIFIED)", "v": "v (mean potential;\nmodel units, UNVERIFIED)"}[q]
         a1 = fig.add_subplot(gs[4 + 2 * row, 0:3], sharex=ax)
         _f1_env(a1, d[f"mf_{q}_x"], d[f"mf_{q}_lo"], d[f"mf_{q}_hi"], mf.colour, "-")
         _f1_onset_marks(a1, d, network=False)
         a1.set_ylim(*ylim)
-        tidy(a1, f"({'ce'[row]}) {qn}(t), mean field (stored record)", f"{qn} (stored)")
+        tidy(a1, f"({'ce'[row]}) {qn}(t), mean field (stored record)", ylab)
         a1.tick_params(labelbottom=False)
         a2 = fig.add_subplot(gs[5 + 2 * row, 0:3], sharex=ax)
         for i, m in enumerate(seeds):
             _f1_env(a2, d[f"net{i}_{q}_x"], d[f"net{i}_{q}_lo"], d[f"net{i}_{q}_hi"], m.colour, m.linestyle, fill=False)
         _f1_onset_marks(a2, d, network=True)
         a2.set_ylim(*ylim)
-        tidy(a2, f"({'df'[row]}) {qn}(t), network N = 1e4, seeds 0 to 2 (same y range as the mean field)", f"{qn} (stored)")
+        ttl, _col = S.fail_title(f"({'df'[row]}) {qn}(t), network N = 1e4, seeds 0 to 2 (same y range as the mean field): RB1 FAIL", True)
+        tidy(a2, ttl, ylab, red=True, pad=12)
+        a2.text(0.99, 0.97, f1_net_line(d) + "\nclaim limits G4-C1, G4-C3 (caption)", transform=a2.transAxes, ha="right", va="top", fontsize=S.TEXT_SIZES["small"],
+                color=S.figure_colour("fail_text"), weight="bold", linespacing=1.3)
         a2.tick_params(labelbottom=False)
     # (g), (h) spectrograms of the stored v (frozen routine)
     sp = d["spec_settings"]
@@ -4106,8 +4132,14 @@ def _draw_F1(d: dict, draft: bool):
         a.set_yticks(sorted({0.0, *sp["band_primary_hz"], sp["total_band_hz"][1], 50.0, 75.0, 125.0}))
         if k == 1:
             cb = fig.colorbar(im, cax=fig.add_subplot(gs[8:10, 3]), extend="min")
-            cb.set_label("10 log10 PSD (one range for (g) and (h))")
+            cb.set_label("10 log10 PSD (dB; one range for (g) and (h))")
         a.axvline(d["ref_onset_s"], color=dtr.colour, ls=dtr.linestyle, lw=S.F1_SIZES["event_line"], zorder=4)
+        for b in sp["band_primary_hz"]:
+            a.text(T_END * 0.995, b + 1.5, f"{b:g} Hz (edge of the gamma band 25 to 100 Hz)" if b == sp["band_primary_hz"][0] else f"{b:g} Hz", ha="right", va="bottom", fontsize=S.TEXT_SIZES["small"], color=S.HALO_COLOUR, zorder=5)
+        if name == "mf":
+            nb, nt = d["spec_mf_below_shared"]
+            a.text(0.005, 0.97, f"{nb} of {nt} cells ({100.0 * nb / nt:.1f} percent) lie below the shared dB range (drawn in its lowest colour)", transform=a.transAxes, ha="left", va="top",
+                   fontsize=S.TEXT_SIZES["small"], color=S.HALO_COLOUR, zorder=5)
         a.set_ylim(0, sp["total_band_hz"][1])
         tidy(a, ttl + f" (W {sp['window_s']:g} s, step {sp['step_s']:g} s, {sp['taper']}; shared dB range)", "frequency (Hz)", xlabel=(k == 1))
     # (i) spike counts of seed 0 (13o, DL-494 R7: counts per stored neuron per bin, exact, no smoothing), (j) and (k) the stored spikes of two 1 s windows, marked on (i)
@@ -4127,7 +4159,7 @@ def _draw_F1(d: dict, draft: bool):
             cb.set_label(f"spikes per {d['ras_count_bin_s']:g} s (top colour: {top:g} and more)")
             for lab, w in zip("jk", d["zoom_windows_s"]):
                 a.add_patch(Rectangle((w[0], -0.5), w[1] - w[0], d["ras_n_rows"], fill=False, ec=S.F1_RASTER["window_frame"], lw=S.F1_RASTER["window_width"], zorder=4))
-                a.text(w[1] + 1.0, d["ras_n_rows"] - 3, f"({lab})", ha="left", va="top", fontsize=S.TEXT_SIZES["small"], color=S.F1_RASTER["window_frame"], zorder=5)
+                a.text((w[0] + w[1]) / 2, d["ras_n_rows"] + 4, f"({lab})", ha="center", va="bottom", fontsize=S.TEXT_SIZES["small"], color=S.F1_RASTER["window_frame"], zorder=5, clip_on=False)
             a.set_xlim(0, T_END)
             a.set_ylabel("stored neuron (row)")
         else:
@@ -4136,12 +4168,11 @@ def _draw_F1(d: dict, draft: bool):
             a.set_xlim(*win)
             a.tick_params(labelleft=False)
         a.set_ylim(-0.5 if win is None else -1, d["ras_n_rows"] - 0.5 if win is None else d["ras_n_rows"])
-        tidy(a, ttl, "stored neuron (row)" if win is None else "", xlabel=True)
+        tidy(a, ttl, "stored neuron (row; increasing neuron index)" if win is None else "", xlabel=True, pad=9)
     # status block
     axs = fig.add_subplot(gs[11, 0:3])
     axs.axis("off")
-    lines = [ln for t_ in f1_status_lines(d) for ln in textwrap.wrap(t_, width=150, subsequent_indent="        ")]
-    axs.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=S.TEXT_SIZES["status"], linespacing=1.25)
+    status_block(axs, f1_status_lines(d), size=S.TEXT_SIZES["status"], width=150)
     return _style_text(fig, F1_FOOTER if draft else "")
 
 
@@ -4151,7 +4182,9 @@ def f1_caption_notes(d: dict) -> tuple:
     return (
         "Panels (a) and (b) draw the ramp protocol of the stored headline record (P2, " + d["path_name"] + ", " + d["path_profile"] + ", T_ramp " + f"{d['path_T_ramp_s']:g}" + " s): eta(t) and J(t) are the "
         "stored arrays, and t_on, the end of the ramp and eta_start, eta_H and eta_peak are the stored path values (read from the record, not retyped); the headline is the T_ramp 120 s path, "
-        "so the network records of T_ramp 10 s are not drawn (their stored classes are in the status block).",
+        "so the network records of T_ramp 10 s are not drawn (their stored classes are in the status block). Panel (b) marks the start and the end of the J ramp, " + f"{d['path_t_on_s'] + d['path_J_lag_frac'] * d['path_T_ramp_s']:g} s and "
+        f"{d['path_t_on_s'] + (d['path_J_lag_frac'] + d['path_J_T_frac']) * d['path_T_ramp_s']:g} s" + ": derived from the stored keys (t_on + J_lag_frac x T_ramp; start + J_T_frac x T_ramp), not stored as times. "
+        "In (d) and (f) the in-panel line states the stored result (" + f1_net_line(d) + ") and the red title shows the RB1 FAIL; the pointer names the claim limits G4-C1 and G4-C3 (full text below).",
         "Panels (c) to (f) draw r(t) and v(t) of the stored mean-field record and of the three stored network records at N = 1e4, T_ramp 120 s, seeds 0, 1 and 2, on the same y range per quantity: "
         "all three stored seeds are drawn and none is chosen, and N = 1e4 is the only N of the S8 headline (the 3e4 records belong to S9 and are not drawn here). Each series is a min-to-max "
         "envelope per pixel column (" + f"{F1_COLUMNS}" + " blocks of whole samples; display decimation, UNVERIFIED rule): the extremes of every block and of the whole series are the stored "
@@ -4161,16 +4194,16 @@ def f1_caption_notes(d: dict) -> tuple:
         f"({', '.join(f'{x:.3f}' for x in d['raw120_s'])} s), which lie on top of each other at the panel scale, and a note says that the 3 seeds coincide. Network classes cannot separate ramp-driven from non-ramp "
         "records (G4-C3, DL-325): the no-ramp network controls reach the surge classes " + ", ".join(f"{k} {v}" for k, v in d["ctrl10"].items()) + " at the 10 s headline (stored, DL-319), S+ in S9 at N = 3e3 and 1e4 and at "
         "map cell (24,26) (DL-325; not drawn here); the stored controls of the 120 s headline are " + ", ".join(f"{k} {v}" for k, v in d["ctrl120"].items()) + " (DL-319, DL-323), the class of the three ramp seeds there. "
-        "Only seed 0 is drawn in the raster and the network spectrogram; seeds 1 and 2 are not drawn there. "
+        "Only seed 0 is drawn in the raster and the network spectrogram; seeds 1 and 2 are not drawn there. The three raw first crossings are marked in a strip above (d) and (f) at their stored times. "
         "RB1 FAILED (headline 10 s, headline 120 s, cells 1 of 4; DL-319, DL-320) and G7 is not passed (DL-228: the NC1 network is S+); G4 was triggered and is report-only (DL-323).",
         "Panels (g) and (h) are NOT stored: they are computed from the stored v of the mean-field record and of network seed 0 by the frozen classifier routine "
         "analysis.surge_metrics.spectrogram_v with the frozen settings printed above (no new setting; UNVERIFIED reading of the script rule that a figure script never simulates). Only the "
         f"rows from 0 to {sp['total_band_hz'][1]:g} Hz (the total band) are drawn; the power is shown as 10 log10 PSD on ONE colour range for both panels, from " + f"{d['spec_shared_db_range'][0]:.2f} dB (the minimum of the network panel) to {d['spec_shared_db_range'][1]:.2f} dB "
         f"(the larger of the two maxima). The stored mean-field range is {d['spec_db_range']['mf'][0]:.2f} to {d['spec_db_range']['mf'][1]:.2f} dB, so {d['spec_mf_below_shared'][0]} of "
         f"{d['spec_mf_below_shared'][1]} mean-field cells lie below the shared minimum and are drawn in its lowest colour (arrow on the colour bar; their values are in the drawn data); a range that "
-        "covers both would flatten the network panel (display choice, UNVERIFIED). The dashed lines are the edges of the primary band. The window time axis is the classifier's (sample i at i/fs); the stored network time stamp is the end of the 1 ms bin. "
+        "covers both would flatten the network panel (display choice, UNVERIFIED). The dashed lines at 25 and 100 Hz are the edges of the primary band (labelled on the panel). The window time axis is the classifier's (sample i at i/fs); the stored network time stamp is the end of the 1 ms bin. "
         f"Panel (i) draws, for the 300 stored neurons of seed 0, the number of stored spikes per neuron in each {d['ras_count_bin_s']:g} s bin from 0 s, computed from the stored spikes "
-        f"(display aggregation, UNVERIFIED; every count is exact, nothing is smoothed, and the counts sum to the {int(d['ras_count'].sum())} stored spikes; {d['ras_n_active_rows']} of the "
+        f"(rows are the stored neurons in increasing neuron index; display aggregation, UNVERIFIED; every count is exact, nothing is smoothed, and the counts sum to the {int(d['ras_count'].sum())} stored spikes; {d['ras_n_active_rows']} of the "
         f"{d['ras_n_rows']} rows spike); the colour range runs from 0 to {f1_count_range(d)[0]:g} spikes, the {S.F1_RASTER['top_percentile']:g}th percentile of the counts, and the "
         f"{f1_count_range(d)[1]} of {f1_count_range(d)[2]} cells above it (up to {int(d['ras_count'].max())}) take the top colour (arrow on the colour bar; display choice, UNVERIFIED); panels (j) and (k) draw the spikes as stored in windows of {F1_ZOOM_S:g} s that start at the stored network classifier onset and at the stored "
         "mean-field onset, and the two windows are framed on (i). The schematic above (a) is our layout of labels written in the plan (UNVERIFIED as a drawing); it carries no equation "
@@ -4198,7 +4231,8 @@ def make_F1(res=None, out_dir=None, *, tag_build: bool = False, take_home=F1_TAK
         for r in make_param_table(rec["config"]):
             rows.append({**r, "panel": key, "section": "", "source_run_id": rec["name"], "source_config_hash12": rec["config_hash12"]})
     cap = CAP.build_caption("F1", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=[r for r in rows if r["key"] in F1_CAPTION_KEYS],
-                            spectrogram=d["spec_settings"], symbol_keys=(), notes=f1_caption_notes(d), limit_labels=CLAIM_LIMIT_LABELS)
+                            spectrogram=d["spec_settings"], symbol_keys=(), notes=f1_caption_notes(d), limit_labels=CLAIM_LIMIT_LABELS,
+                            class_key=CAP.class_key_line("ND", agree=True), classifier_line=CAP.classifier_line(crit), main_failures=F1_MAIN_FAILURES)
     import matplotlib.pyplot as plt
     fig = _draw_F1(d, draft=not tag_build)
     out.mkdir(parents=True, exist_ok=True)
