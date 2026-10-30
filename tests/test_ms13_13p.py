@@ -178,7 +178,8 @@ def test_fs3_no_count_label_of_panel_e_is_crossed_by_a_gate_line():
 
 
 def test_fs3_label_rule_moves_a_label_off_the_gate_line_and_keeps_it_inside_its_segment():
-    assert FG._fs3_label_y(0.7, 0.2, 0.8) == pytest.approx(0.85, abs=1e-12) and FG._fs3_label_y(0.7, 0.2, None) == pytest.approx(0.8, abs=1e-12)
+    assert FG._fs3_label_y(0.5, 0.25, 0.625) == 0.6875 and FG._fs3_label_y(0.5, 0.25, None) == 0.625          # exact binary values; a tie takes the upper part (DL-502 (b))
+    assert FG._fs3_label_y(0.5, 0.25, 0.6) == pytest.approx(0.675, abs=1e-12)                                     # the larger (upper) part 0.6 to 0.75: its middle (abs 1e-12, not binary-exact)
     assert FG._fs3_label_y(0.0, 0.2, 0.8) == pytest.approx(0.1, abs=1e-12)          # gate outside the segment: the middle
     y = FG._fs3_label_y(0.6, 0.3, 0.75)
     assert 0.6 < y < 0.9 and abs(y - 0.75) >= S.FS3_GATE_CLEAR

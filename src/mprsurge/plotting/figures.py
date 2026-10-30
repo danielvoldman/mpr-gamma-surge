@@ -960,7 +960,7 @@ def _draw_FS1(d: dict, draft: bool):
     axd.set_title("(d) K4: step I = 0 to 3 at (-5, 15); axis cut at 600 ms", loc=S.TITLE_LOC)
     axd.legend(loc="upper right", bbox_to_anchor=(0.66, 1.0), fontsize=T["legend"], frameon=True, framealpha=0.95)      # between the two window lines
     tr = transforms.blended_transform_factory(axd.transData, axd.transAxes)
-    axd.text(0.5 * (d["k4_t_start_ms"] + d["k4_t_end_ms"]), 0.33,
+    axd.text(0.5 * (d["k4_t_start_ms"] + d["k4_t_end_ms"]), 0.40,
              f"fit: omega {d['k4_omega_fit']:.4f}\n     decay {d['k4_decay_fit']:.5f} per tau\nlinearised: omega {d['k4_omega_lin']:.4f}\n     decay {d['k4_decay_lin']:.5f}\n"
              f"rel. err. {d['k4_rel_err_frequency']:.2g} (freq.)\n     {d['k4_rel_err_decay']:.2g} (decay)\ntolerance {d['k4_tol_frequency']:g}; {'pass' if d['k4_pass'] else 'FAIL'}\n"
              f"{d['k4_cycles']:.1f} tail cycles", transform=tr, fontsize=T["small"], va="top", ha="center", multialignment="left", zorder=5,
