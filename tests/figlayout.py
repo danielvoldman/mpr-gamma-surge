@@ -101,3 +101,12 @@ def texts_below_axes(fig, ax, prefix: str) -> list:
     fig.canvas.draw()
     rend = fig.canvas.get_renderer()
     return [t.get_text()[:30] for t in ax.texts if t.get_text().startswith(prefix) and t.get_window_extent(rend).y0 < ax.bbox.y0]
+
+
+def red_titles_without_fail(fig) -> list:
+    """13r-2 (DL-511 G2): the left titles of axes whose title colour is the figure's red (style fail_text) but whose text lacks the word FAIL. Red is defined once per figure as
+    'the panel shows a FAIL'."""
+    from matplotlib.colors import to_hex
+    from mprsurge.plotting import style as S
+    red = S.figure_colour("fail_text").lower()
+    return [ax.get_title(loc="left") for ax in fig.axes if ax.get_title(loc="left") and to_hex(ax._left_title.get_color()).lower() == red and "FAIL" not in ax.get_title(loc="left")]

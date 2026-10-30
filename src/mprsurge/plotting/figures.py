@@ -77,8 +77,10 @@ _SLICE = re.compile(r"^eta_tau_D([0-9.]+)_td([0-9.]+)$")
 
 # 13p (DL-500 R13, DL-501): every take-home, claim-limit list and strip is ruled; the footer and the strip heading name the ruling entries of each figure
 # (the entries that accepted its take-home, limits and strip; DL-494 where R5 changed or ruled on its list; DL-500 for R13 itself). The DRAFT note stays while untagged.
-RULED_DL = {"F1": ("DL-488", "DL-494", "DL-500"), "F2": ("DL-464", "DL-494", "DL-500"), "F3": ("DL-453", "DL-457", "DL-494", "DL-500"),
-            "F4": ("DL-485", "DL-494", "DL-500"), "F5": ("DL-492", "DL-494", "DL-500"), "F6": ("DL-482", "DL-494", "DL-500"), "FS1": ("DL-472", "DL-494", "DL-500"),
+# 13r-2 (DL-511 G12): the footers and strip headings of F1 to F6 also cite the 13r rulings and verifications (DL-511, DL-512); FS1 to FS5 follow in 13s.
+RULED_DL = {"F1": ("DL-488", "DL-494", "DL-500", "DL-511", "DL-512"), "F2": ("DL-464", "DL-494", "DL-500", "DL-511", "DL-512"),
+            "F3": ("DL-453", "DL-457", "DL-494", "DL-500", "DL-511", "DL-512"), "F4": ("DL-485", "DL-494", "DL-500", "DL-511", "DL-512"),
+            "F5": ("DL-492", "DL-494", "DL-500", "DL-511", "DL-512"), "F6": ("DL-482", "DL-494", "DL-500", "DL-511", "DL-512"), "FS1": ("DL-472", "DL-494", "DL-500"),
             "FS2": ("DL-472", "DL-500"), "FS3": ("DL-482", "DL-485", "DL-494", "DL-500"), "FS4": ("DL-477", "DL-494", "DL-500"), "FS5": ("DL-477", "DL-494", "DL-500")}
 
 
@@ -89,6 +91,46 @@ def draft_footer(fig_id: str, head: str = "DRAFT", extra: str = "") -> str:
 
 def strip_heading(fig_id: str) -> str:
     return f"FAIL rows of the stored A11 table that touch {fig_id} (as ruled: {', '.join(RULED_DL[fig_id])}):"
+
+
+A11_BLANK_EXPLAINED = {("RB1", "overall"): "verdict over its three parts (headline, cells, N rule); the parts are in the note column of the stored table"}
+
+
+def strip_line(r: dict, *, tail: str = " - shown, not dropped") -> str:
+    """13r-2 (DL-511 G2, DL-512): one FAIL-strip line from a stored A11 row (keys rb_id, check_id, status, value, threshold). A blank value or threshold is explained from the
+    columns of the stored table where they settle it (A11_BLANK_EXPLAINED), else it reads 'blank in the stored table'; '(n failed)' is explained (MS11 rule, DL-346)."""
+    key = (r["rb_id"], r["check_id"])
+    why = A11_BLANK_EXPLAINED.get(key)
+    val = r["value"] or (f"value blank: {why}" if why else "value blank in the stored table")
+    thr = f"threshold {r['threshold']}" if r["threshold"] else ("threshold blank: no single threshold, see value" if why else "threshold blank in the stored table")
+    note = f" {CAP.FAILED_RUNS_NOTE}" if "failed)" in str(r["value"]) else ""
+    return f"{r['rb_id']} {r['check_id']}: {r['status']} ({val}; {thr}){note}{tail}"
+
+
+def status_block(ax, lines, *, size: float, width: int = 150, linespacing: float = 1.25, x: float = 0.0, y: float = 1.0) -> int:
+    """13r-2 (DL-511 G2): draw status lines top-down from axes-fraction (x, y); every line (and its wrapped continuation) that contains FAIL is bold, the others are normal. Lines are
+    wrapped at `width` characters with an 8-space continuation indent. Returns the number of drawn lines (one text each, so a test can read the weights)."""
+    import textwrap
+    n = 0
+    for ln in lines:
+        bold = "FAIL" in ln
+        for piece in textwrap.wrap(ln, width=width, subsequent_indent="        ") or [""]:
+            ax.annotate(piece, xy=(x, y), xycoords="axes fraction", xytext=(0.0, -n * size * linespacing), textcoords="offset points", va="top", ha="left", fontsize=size,
+                        fontweight="bold" if bold else "normal", annotation_clip=False)
+            n += 1
+    return n
+
+
+def claim_pointer(label_id: str) -> str:
+    """13r-2 (DL-511 G10): the short on-panel pointer to a claim limit that changes how a panel reads; the full definition stays in the caption."""
+    if label_id not in CLAIM_LIMIT_LABELS:
+        raise CAP.CaptionError(f"claim-limit label {label_id!r} is not defined in the label table")
+    return f"claim limit {label_id}: {CLAIM_LIMIT_LABELS[label_id][0]} (caption)"
+
+
+def noise_counts(v) -> np.ndarray:
+    """13r-2 (DL-511, DL-512 V3): per T_ramp the number of seeds with a value (the seeds counted in the bar and in the median)."""
+    return np.sum(~np.isnan(np.asarray(v, dtype=float)), axis=1)
 
 
 FOOTER = draft_footer("F3", head="DRAFT v3")
@@ -215,6 +257,10 @@ def _style_text(fig, draft_text: str = ""):
         if lg is not None:
             for t in lg.get_texts():
                 t.set_fontsize(T["legend"])
+    from matplotlib.text import Text
+    for t_ in fig.findobj(Text):                                  # 13r-2 (DL-511 G2): no text on any figure is smaller than the tick-label size
+        if t_.get_text() and t_.get_fontsize() < S.MIN_TEXT_PT:
+            t_.set_fontsize(S.MIN_TEXT_PT)
     if draft_text:
         t = fig.text(S.DRAFT_NOTE["x"], S.DRAFT_NOTE["y"], draft_text, fontsize=T["footer"], color=S.figure_colour("fail_text"), ha="left", va="bottom")
         t.set_gid("draft_note")
@@ -420,10 +466,8 @@ def _params_rows(raw: dict) -> list[dict]:
 def strip_lines(d: dict) -> list[str]:
     out = []
     for r in d["strip"]:
-        val = r["value"] if r["value"] else "value blank in the table"
         note = STRIP_NOTE.get(r["check_id"], "")
-        thr = f"threshold {r['threshold']}" if r["threshold"] else "threshold blank in the table"
-        out.append(f"{r['rb_id']} {r['check_id']}: {r['status']} ({val}; {thr})" + (f"; {note}" if note else ""))
+        out.append(strip_line(r, tail=f"; {note}" if note else ""))
     return out
 
 
@@ -3340,7 +3384,7 @@ def prepare_F4(raw: dict) -> dict:
         raise DataError("A11 table: RB3(a) or RB5 rows disagree with the A7 table")
     return d
 def f4_strip_lines(d: dict) -> list[str]:
-    return [f"{r['rb_id']} {r['check_id']}: {r['status']} ({r['value'] or 'value blank in the table'}; threshold {r['threshold'] or 'blank'}) - shown, not dropped" for r in d["strip"]]
+    return [strip_line(r) for r in d["strip"]]
 
 
 def _f4_series(ax, x, y, path: str, profile: str, *, ms: float = S.POINT_SIZES["f4_series"], z: int = 3):
@@ -3380,6 +3424,8 @@ def _f4_noise(ax, d: dict, key: str):
         ax.plot([x_, x_], [np.nanmin(col), np.nanmax(col)], color=nz.colour, lw=3.0, solid_capstyle="butt", zorder=1)
         ax.plot([x_] * len(col), col, ls="none", marker=nz.marker, ms=S.POINT_SIZES["f4_seed_tick"], color=S.figure_colour("range_line"), mew=0.5, zorder=2)
         ax.plot([x_], [np.nanmedian(col)], ls="none", marker=md.marker, ms=md.size, color=S.F4_MARKS["median_colour"], mew=md.width, zorder=4)
+    for x_, n_ in zip(d["noise_eps"], noise_counts(v)):                  # 13r-2 (DL-512 V3): the number of seeds counted at each point, at the top of the axes
+        ax.annotate(str(int(n_)), xy=(x_, 0.985), xycoords=("data", "axes fraction"), va="top", ha="center", fontsize=S.TEXT_SIZES["small"], color=S.figure_colour("range_line"))
 
 
 def _draw_F4(d: dict, draft: bool):
@@ -3415,8 +3461,8 @@ def _draw_F4(d: dict, draft: bool):
            Line2D([], [], ls="none", marker=cls_m.marker, ms=cls_m.size, color=cls_m.colour, label="classifier-onset reading (secondary); raw crossing = path mark (primary)"),
            Line2D([], [], color=ref.colour, ls=ref.linestyle, lw=ref.width, label="quasi-static reference: onset at eta_H (delay 0)"),
            Line2D([], [], ls="none", marker=S.get("D-none").marker, ms=S.POINT_SIZES["f4_none"], color=S.get("D-none").colour, mec=edge, mew=0.3, label="no raw crossing / no episode (D-none), at the axis foot"),
-           Line2D([], [], color=S.get("noise").colour, lw=3.0, label="noise: stored min to max of 10 seeds (sigma 0.0624, checked, not confirmed)"),
-           Line2D([], [], ls="none", marker=md.marker, ms=md.size, color=S.F4_MARKS["median_colour"], mew=md.width, label="stored median of the seeds"),
+           Line2D([], [], color=S.get("noise").colour, lw=3.0, label="noise: min to max of the seeds with a value (sigma 0.0624, checked, not confirmed)"),
+           Line2D([], [], ls="none", marker=md.marker, ms=md.size, color=S.F4_MARKS["median_colour"], mew=md.width, label="median of the seeds with a value (count at the top of each panel)"),
            Line2D([], [], ls="none", marker=S.F4_MARKS["hold_marker"], ms=S.POINT_SIZES["f4_key"], mfc="none", mec=S.F4_MARKS["hold_colour"], mew=S.F4_MARKS["hold_width"],
                   label=f"onset during the hold: delay = eta_peak - eta_H ({d['hold_delay_max']:.3g})"),
            Line2D([], [], ls="none", marker=fail.marker, ms=S.POINT_SIZES["f4_key"], color=fail.colour, label="RB6 FAIL: not used as evidence")]
@@ -3553,8 +3599,8 @@ def f4_caption_notes(d: dict) -> tuple:
         f"An open square marks the {d['n_hold']} drawn delays in panels (a) and (g) whose stored onset lies after t_on + T_ramp on P1 or P2: onset during the hold; the eta-based "
         f"delay equals its maximum eta_peak - eta_H there ({d['hold_delay_max']:.3g}; UNVERIFIED reading of the stored values, no decision-log entry discusses it). P5 has no hold: "
         "its onsets after t_on + T_ramp lie on the way down and stay below that maximum.",
-        "Panels (b) to (e) draw the stored peak power (absolute and relative), f_pk and duration of the same runs; the grey bars are the stored minimum to maximum of the 10 mode-N seeds at "
-        "sigma 0.0624 (checked, not confirmed, G4-C4), the dark bar marks their stored median; nothing is smoothed or offset. Runs with no episode (D-none) and the one run with no raw crossing are "
+        "Panels (b) to (e) draw the stored peak power (absolute and relative), f_pk and duration of the same runs; the noise bars are drawn for the 10 mode-N seeds at "
+        "sigma 0.0624 (checked, not confirmed, G4-C4): " + CAP.NOISE_BAR_TEXT + "; nothing is smoothed or offset. Runs with no episode (D-none) and the one run with no raw crossing are "
         "drawn at the foot of the axes, not dropped. f_pk is the classifier's spectral peak (MS11-C3). Panel (f) draws, for P5, the up delay, the offset on the way down (eta_off - eta_H) "
         "and the hysteresis width as stored; panel (g) the P1 linear delay at the start distances 0.5, 1.5 and 3.0. Panel (h) repeats the delay for the noisy runs beside the noise-free P2 "
         "line; the RB2 gate FAILED (7 of 10 seeds keep the headline class, MS11-C1; noisy subgrid 97 of 225, D24 failed, DL-242), so no claim of robustness to noise is made.",
@@ -3841,7 +3887,7 @@ def prepare_F1(raw: dict, crit: dict) -> dict:
 
 
 def f1_strip_lines(d: dict) -> list[str]:
-    return [f"{r['rb_id']} {r['check_id']}: {r['status']} ({r['value'] or 'value blank in the table'}; threshold {r['threshold'] or 'blank'}) - shown, not dropped" for r in d["strip"]]
+    return [strip_line(r) for r in d["strip"]]
 
 
 def f1_status_lines(d: dict) -> list[str]:
@@ -4400,7 +4446,7 @@ def Counter_(it) -> dict:
 
 
 def f5_strip_lines(d: dict) -> list[str]:
-    return [f"{r['rb_id']} {r['check_id']}: {r['status']} ({r['value'] or 'value blank in the table'}; threshold {r['threshold'] or 'blank'}) - shown, not dropped" for r in d["strip"]]
+    return [strip_line(r) for r in d["strip"]]
 
 
 def f5_status_lines(d: dict) -> list[str]:

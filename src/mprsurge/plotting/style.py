@@ -413,9 +413,9 @@ F5_SIZES = {"map_mark": 2.0, "state_mark": 2.0, "net_symbol": 9.5, "net_halo_wid
 # ---- 13o (DL-494 R1, R4, R6 to R12). UNVERIFIED design choices, plain scalars outside STYLE, FIGURE_COLOURS and DIAGRAM_MARKS (the unique-mark table and the pinned key sets
 # are unchanged). The plan gives no font, size or layout (M13-14 (vii)).
 
-# R4: one text style for every figure. Font sizes in points per role; panel titles are left-aligned; the DRAFT note sits at the bottom left of the canvas in the fail_text colour,
+# R4: one text style for every figure (13r-2, DL-511 G2: "small" raised from 4.6 to the tick size 5.0). Font sizes in points per role; panel titles are left-aligned; the DRAFT note sits at the bottom left of the canvas in the fail_text colour,
 # in a band that the layout keeps free (fraction of the figure height).
-TEXT_SIZES = {"panel_title": 6.8, "axis_label": 5.8, "tick": 5.0, "legend": 5.0, "note": 5.0, "small": 4.6, "status": 5.0, "footer": 5.0, "schematic": 5.2, "schematic_head": 5.8}
+TEXT_SIZES = {"panel_title": 6.8, "axis_label": 5.8, "tick": 5.0, "legend": 5.0, "note": 5.0, "small": 5.0, "status": 5.0, "footer": 5.0, "schematic": 5.2, "schematic_head": 5.8}
 TITLE_LOC = "left"
 DRAFT_NOTE = {"x": 0.012, "y": 0.004, "band": 0.012}
 
@@ -453,3 +453,44 @@ FS5_REPORTED = {"marker": _polygon(16), "colour": "#4a148c", "width": 0.8}      
 FS5_TEXT_DARK_ABOVE = 0.6                    # FS5 (c): shade fraction from which the cell text is white
 FS_LAYOUT = {"fs1_k5_ratios": (1.0, 0.42), "fs5_row0_ratios": (1.6, 1.0), "fs5_b_wrap": 62, "fs4_row_ratios": (1.6, 1.8, 1.9, 1.35, 1.9),
              "fs5_g_ratios": (1.0, 0.85, 1.45, 1.0)}
+
+
+# ---- 13r-2 (DL-511 G2, G6, G9, G10; DL-512). UNVERIFIED design choices, plain scalars outside STYLE, FIGURE_COLOURS and DIAGRAM_MARKS (the pinned key sets are unchanged). ----
+# G2: no text on any figure is smaller than the tick-label size; the draw code raises every smaller text to it (figures._style_text) and the table below is checked by a test.
+MIN_TEXT_PT = TEXT_SIZES["tick"]
+RED_TITLE_RULE = "red title: the panel shows a FAIL"                   # G2: defined once per figure; a red title (figure_colour("fail_text")) must contain the word FAIL
+
+
+def fail_title(title: str, failed: bool) -> tuple:
+    """G2: (title, colour name) of a panel title. A panel that shows a failed check has the word FAIL in its title text and the red title colour; the word is added (as ': FAIL')
+    only if the title does not contain it."""
+    if not failed:
+        return title, "text_dark"
+    return (title if "FAIL" in title else f"{title}: FAIL"), "fail_text"
+
+
+# G6: seeds, levels and variants are told apart by these marks and colours (diagram marks of the table, none of them a class colour or class marker); one colour per source
+# across figures: the mean field is STYLE["mean_field"] (black), the network is SOURCE_COLOURS["network"]. Classes use class colours and class markers only.
+SERIES_MARK_KEYS = {"seed": ("fs4_s0", "fs4_s1", "fs4_s2"), "level": ("fs4_l0", "fs4_l1", "fs4_l2")}
+SOURCE_COLOURS = {"mean_field": _TABLE["source"]["mean_field"][0], "network": "#3b6b6b"}
+
+
+def series_mark(kind: str, index: int) -> "DiagramMark":
+    """G6: the diagram mark of seed `index` or level `index` (kind 'seed' or 'level'); an unknown kind or an index beyond three raises StyleError."""
+    try:
+        return diagram_mark(SERIES_MARK_KEYS[kind][index])
+    except (KeyError, IndexError):
+        raise StyleError(f"no series mark for kind {kind!r}, index {index!r}") from None
+
+
+def is_class_colour(hex_colour: str) -> bool:
+    return hex_colour.lower() in {v[0].lower() for v in _TABLE["class"].values()}
+
+
+# G9: plain labels. The symbols the figures print for eta_bar and tau_d, the unit of each axis quantity, and the plain name of P2 (the plan's wording, not "hypoxia").
+PLAIN_LABELS = {"eta_bar": "eta_bar (mean excitability)", "tau_d": "tau_d (synaptic decay time, ms)", "Delta": "Delta (heterogeneity)", "J": "J (coupling)",
+                "eps": "eps (ramp rate, 1/tau)", "T_ramp": "T_ramp (s)", "f_pk": "f_pk (Hz)", "onset": "onset (s)", "duration": "duration (s)", "delay": "delay (eta_bar - eta_H)"}
+PATH_PLAIN = {"P1": "P1 (path_eta)", "P2": "P2 (hypoxia-like path)"}
+# internal codes, defined once per figure that prints them; the wording is the plan's (Table 3.2)
+INTERNAL_CODES = {"ref_ceni": "ref_ceni: validation point (eta_bar, J, Delta) = (1, -20, 0.05), tau_d in {3, 4.95, 8} ms (plan Table 3.2)",
+                  "ref_devalle": "ref_devalle: validation point (eta_bar, J, Delta) = (4, -21, 0.3), tau_d = 5 ms (plan Table 3.2)"}
