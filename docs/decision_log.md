@@ -5575,3 +5575,13 @@ Chosen:          as done   Default from: 13r-2 prompt
 Test:            scripts/ms13_check_hashes.py; fast suite in the next entry
 Status:          13r-2 code done; fast suite pending
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-515  MS13 13r-2: fast suite at the end of the step    [ID: MS13, 13r, 13r-2, DL-514]
+Date:            2026-10-30        Author:
+Decision:        FACT. FAST SUITE at c313e97 (the commit of DL-514, clean tree): 1154 passed, 24 deselected, 9 xfailed, 3 warnings, exit 0 taken from pytest itself (output to a file, no pipe), 639.94 s; 1129 of the baseline plus the 25 tests of tests/test_ms13_13r2.py. No test failed. The two extra warnings are numpy "All-NaN slice" RuntimeWarnings raised by the new V3 test (a T_ramp with no seed value, as the helper is meant to handle). scripts/ms13_check_hashes.py: 104 manifest rows, 0 problems. ms13_audit.py was not run. No figure rebuilt, nothing simulated, no tag.
+Reason:          instruction of the reviewer (13r-2 prompt)
+Options:         -
+Chosen:          as done   Default from: 13r-2 prompt
+Test:            fast suite as above
+Status:          13r-2 done; 13r-3 (F1 to F6 per-figure items) next
+Commit/tag:      the commit that adds this entry; no tag
