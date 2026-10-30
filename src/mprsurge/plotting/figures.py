@@ -4002,7 +4002,7 @@ def _f1_onset_marks(ax, d: dict, *, network: bool):
         for key, x in zip(F1_SEED_KEYS, d["raw120_s"]):
             ax.plot([x], [1.04], transform=tr, ls="none", marker=nab.marker, ms=S.F1_SIZES["onset"], color=S.diagram_mark(key).colour, mew=nab.width, clip_on=False, zorder=6)
         # 13o (DL-494 R7): the three raw first crossings stay at their stored positions; at the panel scale they lie on top of each other, which the note says
-        ax.text(min(d["raw120_s"]) - 1.0, 1.04, f"raw first crossings, 3 seeds coincide ({min(d['raw120_s']):.3f} to {max(d['raw120_s']):.3f} s)", transform=tr, ha="right", va="center",
+        ax.text(min(d["raw120_s"]) - 1.0, 1.04, "raw crossings: 3 seeds coincide", transform=tr, ha="right", va="center",
                 fontsize=S.TEXT_SIZES["small"], color=S.figure_colour("text_dark"))
 
 
@@ -4083,7 +4083,7 @@ def _draw_F1(d: dict, draft: bool):
         ax.text(T_END * 0.995, y_ + 0.08, txt, ha="right", va="bottom", fontsize=S.TEXT_SIZES["small"], color=S.figure_colour("text_dark"), zorder=5)
     ax.text(d["path_t_on_s"] + 0.8, d["path_eta_peak"] + 0.75, f"t_on = {d['path_t_on_s']:g} s", ha="left", va="center", fontsize=S.TEXT_SIZES["small"], color=S.figure_colour("text_dark"))
     ax.text(t_end_ramp - 0.8, d["path_eta_peak"] + 0.75, f"end of ramp = t_on + T_ramp = {t_end_ramp:g} s", ha="right", va="center", fontsize=S.TEXT_SIZES["small"], color=S.figure_colour("text_dark"))
-    tidy(ax, f"(a) ramp protocol of the headline path (P2, hypoxia-like path: {d['path_name']}, {d['path_profile']}, T_ramp {d['path_T_ramp_s']:g} s): eta_bar(t) as stored", "eta_bar (mean excitability)")
+    tidy(ax, f"(a) ramp protocol of the headline path (P2, hypoxia-like path, {d['path_profile']}, T_ramp {d['path_T_ramp_s']:g} s): eta_bar(t) as stored", "eta_bar (mean excitability)")
     ax.tick_params(labelbottom=False)
     ax = fig.add_subplot(gs[3, 0:3], sharex=ax)
     ax.plot(d["path_t_s"], d["path_J"], color=S.get("P3").colour, ls="-", lw=S.F1_SIZES["path_line"], zorder=3)
@@ -4094,9 +4094,9 @@ def _draw_F1(d: dict, draft: bool):
     j1 = j0 + d["path_J_T_frac"] * d["path_T_ramp_s"]
     for x_ in (j0, j1):
         ax.axvline(x_, color=S.get("P3").colour, ls="--", lw=S.F1_SIZES["event_line"], zorder=1)
-    ax.text(j0 - 1.0, d["path_J_end"] + 2.2, f"J ramp starts {j0:g} s (t_on + J_lag_frac x T_ramp; derived from the stored keys)", ha="right", va="center", fontsize=S.TEXT_SIZES["small"])
-    ax.text(j1 - 1.0, d["path_J0"] - 1.6, f"J ramp ends {j1:g} s (start + J_T_frac x T_ramp; derived)", ha="right", va="center", fontsize=S.TEXT_SIZES["small"])
-    tidy(ax, f"(b) J(t) as stored (J0 {d['path_J0']:g} to J_end {d['path_J_end']:g}); Delta, I constant (stored)", "J (coupling)")
+    ax.text(j0 + 1.0, d["path_J_end"] - 7.0, f"J ramp starts {j0:g} s (derived)", ha="left", va="center", fontsize=S.TEXT_SIZES["small"])
+    ax.text(j1 - 1.0, d["path_J0"] + 4.0, f"J ramp ends {j1:g} s (derived)", ha="right", va="center", fontsize=S.TEXT_SIZES["small"])
+    tidy(ax, f"(b) J(t) as stored (J0 {d['path_J0']:g} to J_end {d['path_J_end']:g}); the J ramp times are derived from the stored keys (caption)", "J (coupling)")
     ax.tick_params(labelbottom=False)
 
     # (c) to (f) r(t) and v(t): mean field above network, same y range per quantity
@@ -4135,7 +4135,7 @@ def _draw_F1(d: dict, draft: bool):
             cb.set_label("10 log10 PSD (dB; one range for (g) and (h))")
         a.axvline(d["ref_onset_s"], color=dtr.colour, ls=dtr.linestyle, lw=S.F1_SIZES["event_line"], zorder=4)
         for b in sp["band_primary_hz"]:
-            a.text(T_END * 0.995, b + 1.5, f"{b:g} Hz (edge of the gamma band 25 to 100 Hz)" if b == sp["band_primary_hz"][0] else f"{b:g} Hz", ha="right", va="bottom", fontsize=S.TEXT_SIZES["small"], color=S.HALO_COLOUR, zorder=5)
+            a.text(T_END * 0.995, b + 1.5, f"{b:g} Hz", ha="right", va="bottom", fontsize=S.TEXT_SIZES["small"], color=S.HALO_COLOUR, zorder=5)
         if name == "mf":
             nb, nt = d["spec_mf_below_shared"]
             a.text(0.005, 0.97, f"{nb} of {nt} cells ({100.0 * nb / nt:.1f} percent) lie below the shared dB range (drawn in its lowest colour)", transform=a.transAxes, ha="left", va="top",
