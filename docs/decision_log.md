@@ -5615,3 +5615,13 @@ Chosen:          as planned   Default from: 13r-3a prompt
 Test:            tests/test_ms13_13r3a.py; tests/test_fig_F1.py
 Status:          13r-3a in progress
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-519  MS13 13r-3a: test text edits E2 to E5 (logged before the edit) and two code corrections    [ID: MS13, 13r, 13r-3a, DL-516, DL-517, DL-518]
+Date:            2026-10-30        Author:
+Decision:        FACT. After F1 to F3 were changed (DL-516 to DL-518) six existing tests failed on text only. CODE CORRECTIONS (no test edit): (a) the F1 take-home now reads "the network classifier onset 12.0 s", so the existing test string "classifier onset 12.0 s" holds; (b) the coincidence note of captions.coincide_note says "not moved" instead of "no offset", because tests/test_fig_F3.py forbids the word "offset" in the F3 caption (the sentence means the same). TEST TEXT EDITS (expected text only; no data assertion changes): E2 tests/test_fig_F1.py::test_caption_has_the_spectrogram_settings_...: the caption now starts with the failure sentence, "F1. At the headline" becomes "F1. The network at N = 1e4 does not reproduce the mean-field class" (G3). E3 tests/test_fig_F2.py::test_caption_names_the_plotted_quantity_...: "F2. At ref_devalle the limit cycle appears" becomes "F2. The N = 1e4 network sweep does not follow the mean-field branch" (G3). E4 tests/test_fig_F3.py::test_row11_claim_limit_ids_...: "F3. On the A6 slices the 100 Hz contour" becomes "F3. RB9(b) FAILED (spectral against cycle frequency" (G3). E5 tests/test_fig_F3.py::test_caption_has_the_frequency_type_sentence_...: the assertion that model.Delta is not in the caption becomes the assertion that "model.Delta=0.05, 0.1, 0.3, swept" is in it (G5: the swept slice parameters are listed as lists; noise.sigma stays absent). The remaining assertions of these tests are unchanged.
+Reason:          instruction of the reviewer (13r-3a prompt)
+Options:         -
+Chosen:          as done   Default from: 13r-3a prompt
+Test:            tests/test_fig_F1.py, tests/test_fig_F2.py, tests/test_fig_F3.py
+Status:          13r-3a in progress
+Commit/tag:      the commit that adds this entry; no tag
