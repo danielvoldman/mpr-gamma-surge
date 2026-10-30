@@ -62,7 +62,8 @@ LEVELS_HZ = (25.0, 100.0)                   # read back from a6_summary.json and
 # Accepted by the reviewer (13e prompt, DL-453); every statement is from a logged result (DL-131, DL-132) and is checked against the stored A6 arrays
 # by tests/test_fig_F3.py (counts and ranges) where the array holds it.
 F3_TAKE_HOME = (
-    "On the A6 slices the 100 Hz contour does not occur for eta_bar 0 to 8 (largest cycle frequency 73.7 Hz), and the 25 Hz "
+    "RB9(b) FAILED (spectral against cycle frequency at the headline: 4.391 Hz against 0.5 Hz, DL-388), so the frequency shading is a limit-cycle frequency with no confirmed "
+    "match to the spectral peak. On the A6 slices the 100 Hz contour does not occur for eta_bar 0 to 8 (largest cycle frequency 73.7 Hz), and the 25 Hz "
     "contour crosses the cycle branch only on some slices (Delta 0.05 from tau_d 3 ms, Delta 0.1 from 5 ms, Delta 0.3 only at 13, 22 and 36 ms; "
     "DL-131), with the cycle at ref_devalle at 32.0 to 39.7 Hz (DL-131, DL-132)."
 )
@@ -71,7 +72,9 @@ F3_TAKE_HOME = (
 # label RB9(b) FAIL, which the plan's section 5 table lists for F3, is carried with its definition.
 F3_CLAIM_LIMITS = ("MS11-C7", "MS12-C1", "MS11-C3", "RB9(b) FAIL (plan label)")
 # keys of the A4 and A6 run records that define the plotted slices and the regime; the full list stays in F3_params.csv and the Nordlie table
-CAPTION_KEYS = ("model.type", "model.ref_point", "model.tau_ms", "model.J")
+CAPTION_KEYS = ("model.type", "model.ref_point", "model.tau_ms", "model.J", "model.tau_d_ms", "model.Delta")
+F3_MAIN_FAILURES = ("RB9(b) FAIL",)
+F3_PATH_LS = {"P1": "-", "P2": "--", "P3": ":"}        # 13r-3a: distinct line styles for the coincident P1, P2, P3 (F3-local; the style table is unchanged)
 
 _SLICE = re.compile(r"^eta_tau_D([0-9.]+)_td([0-9.]+)$")
 
@@ -309,6 +312,16 @@ def note_100hz(d: dict, D: str) -> str:
     return f"100 Hz contour: {n} crossings"
 
 
+def shared_groups(d: dict) -> list:
+    """The groups of paths whose stored eta_start, eta_peak, Delta and tau_d are equal (the end Delta equals the start Delta); only groups of two or more."""
+    groups: dict = {}
+    for k in PATH_ORDER:
+        if d[f"{k}_Delta_end_derived"] != d[f"{k}_Delta"]:
+            continue
+        groups.setdefault((d[f"{k}_eta_start"], d[f"{k}_eta_peak"], d[f"{k}_Delta"], d[f"{k}_tau_d_ms"]), []).append(k)
+    return [g for g in groups.values() if len(g) > 1]
+
+
 def shared_position_sentence(d: dict) -> str:
     """Caption sentence on the paths that share a stored position; the numbers are the stored ones, the grouping is computed."""
     groups: dict = {}
@@ -322,7 +335,7 @@ def shared_position_sentence(d: dict) -> str:
     (e0, e1, dl, td), g = shared[0]
     names = ", ".join(g[:-1]) + " and " + g[-1]
     return (f"Every arrow is drawn at its stored position and no shift is applied: {names} start at the same eta_bar {e0:.3f}, peak at {e1:.3f} and sit at "
-            f"Delta {dl:g}, tau_d {td:g} ms, so they lie on top of each other and are told apart by line width, transparency and marker size; "
+            f"Delta {dl:g}, tau_d {td:g} ms ({CAP.coincide_note(g, 'eta_bar, Delta and tau_d')}), so they lie on top of each other and are told apart by line width, transparency, line style and marker size; "
             "the path strip lists every arrow on its own row, and its rows are labels, not a parameter axis.")
 
 
@@ -331,7 +344,7 @@ def _arrow(ax, x0, x1, y0, y1, k, gid):
     st = S.get(k)
     lw, alpha, msz, head = PATH_DRAW[k]
     ann = ax.annotate("", xy=(x1, y1), xytext=(x0, y0), xycoords="data", textcoords="data", zorder=PATH_Z[k],
-                      arrowprops=dict(arrowstyle="-|>", color=st.colour, lw=lw, ls=st.linestyle, alpha=alpha, shrinkA=0, shrinkB=0, mutation_scale=head))
+                      arrowprops=dict(arrowstyle="-|>", color=st.colour, lw=lw, ls=F3_PATH_LS.get(k, st.linestyle), alpha=alpha, shrinkA=0, shrinkB=0, mutation_scale=head))
     ann.set_gid(f"arrow:{gid}")
     (mk,) = ax.plot([x0], [y0], ls="none", marker=st.marker, ms=msz, color=st.colour, mec=S.HALO_COLOUR, mew=0.5, alpha=max(alpha, 0.6),
                     zorder=PATH_Z[k] + 0.5, clip_on=False)
@@ -352,14 +365,14 @@ def _draw_paths(ax, d: dict, *, plane: str, y0: float):
 
 def _draw_strip(ax, d: dict):
     """Path strip aligned to the eta axis: one row per arrow, x = the stored eta_bar, y = row number (a label, not a parameter)."""
-    names = {"P1": "P1 eta ramp", "P2": "P2 hypoxia", "P3": "P3 drive", "P4a": "P4a Delta up", "P4b": "P4b Delta down", "P5": "P5 up"}
+    names = {"P1": "P1 eta ramp", "P2": "P2 hypoxia-like path", "P3": "P3 drive", "P4a": "P4a Delta up", "P4b": "P4b Delta down", "P5": "P5 up"}
     labels = []
     for i, (k, leg) in enumerate(STRIP_ROWS):
         a, b = d[f"{k}_eta_start"], d[f"{k}_eta_peak"]
         x0, x1 = (a, b) if leg == 0 else (b, a)
         st = S.get(k)
         ann = ax.annotate("", xy=(x1, i), xytext=(x0, i), xycoords="data", textcoords="data", zorder=5,
-                          arrowprops=dict(arrowstyle="-|>", color=st.colour, lw=S.F3_MARKS["strip_arrow_width"], ls=st.linestyle, shrinkA=0, shrinkB=0,
+                          arrowprops=dict(arrowstyle="-|>", color=st.colour, lw=S.F3_MARKS["strip_arrow_width"], ls=F3_PATH_LS.get(k, st.linestyle), shrinkA=0, shrinkB=0,
                                           mutation_scale=S.F3_MARKS["strip_head"]))
         ann.set_gid(f"arrow:strip:{k}:{leg}")
         (mk,) = ax.plot([x0], [i], ls="none", marker=st.marker, ms=S.F3_MARKS["strip_start_size"], color=st.colour, mec=S.HALO_COLOUR, mew=0.4, zorder=6, clip_on=False)
@@ -367,9 +380,10 @@ def _draw_strip(ax, d: dict):
         labels.append((names[k] if leg == 0 else "P5 return") + f" ({d[f'{k}_T_ramp_s']:g} s)")
     ax.set_ylim(len(STRIP_ROWS) - 0.5, -0.5)
     ax.set_yticks(range(len(STRIP_ROWS)), labels)
-    ax.tick_params(axis="x", labelbottom=False, length=2)
+    ax.tick_params(axis="x", labelbottom=True, length=2)
     ax.tick_params(axis="y", length=2)
-    ax.set_title("path strip: one row per arrow, rows are labels", loc=S.TITLE_LOC)
+    ax.set_xlabel(r"$\bar\eta$ (mean excitability)")
+    ax.set_title("(e) path strip: one row per arrow, rows are labels", loc=S.TITLE_LOC)
 
 
 def _draw_F3(d: dict, draft: bool, strip_lines: list[str]):
@@ -406,12 +420,15 @@ def _draw_F3(d: dict, draft: bool, strip_lines: list[str]):
             _draw_paths(ax, d, plane="tau_d", y0=d["P1_tau_d_ms"])
             hopf_mark(ax, d["headline_tau_d_ms"])
         ax.set_yscale("log")
-        ax.set_xlabel(r"$\bar\eta$")
-        ax.set_ylabel(r"$\tau_d$ (ms)" if j == 0 else "")
+        ax.set_yticks([1, 2, 5, 10, 20, 50], ["1", "2", "5", "10", "20", "50"])
+        ax.minorticks_off()
+        ax.set_xlabel(r"$\bar\eta$ (mean excitability)")
+        ax.set_ylabel(r"$\tau_d$ (synaptic decay time, ms), log axis" if j == 0 else "")
         ax.set_title(rf"({'abc'[j]}) $\Delta$ = {D}" + "\n" + note_100hz(d, D).replace(", maximum", ",\nmaximum"), loc=S.TITLE_LOC)
         ax.set_xlim(0, 8)
     cb = fig.colorbar(sc, cax=fig.add_subplot(gs[0, 3]))
     cb.set_label("limit-cycle frequency (Hz)")
+    cb.ax.text(0.5, 1.02, "RB9(b)\nFAIL", transform=cb.ax.transAxes, ha="center", va="bottom", fontsize=S.TEXT_SIZES["small"], weight="bold", color=S.figure_colour("fail_text"))
     axd = fig.add_subplot(gs[2, 0:2])
     axd.plot(d["a4_Delta_eta_H"], d["a4_Delta"], ls=mf.linestyle, color=mf.colour, lw=1.0)
     _draw_paths(axd, d, plane="Delta", y0=d["P1_Delta"])
@@ -420,8 +437,10 @@ def _draw_F3(d: dict, draft: bool, strip_lines: list[str]):
     axd.set_yscale("log")
     axd.set_xlim(0, 8)
     axd.set_ylim(min(d["a4_Delta"].min(), *ends) * 0.8, max(d["a4_Delta"].max(), *ends) * 1.25)
-    axd.set_xlabel(r"$\bar\eta$")
-    axd.set_ylabel(r"$\Delta$")
+    axd.set_yticks([0.01, 0.03, 0.1, 0.3, 1.0], ["0.01", "0.03", "0.1", "0.3", "1"])
+    axd.minorticks_off()
+    axd.set_xlabel(r"$\bar\eta$ (mean excitability)")
+    axd.set_ylabel(r"$\Delta$ (heterogeneity), log axis")
     axd.set_title(r"(d) ($\bar\eta$, $\Delta$): Hopf curve and paths", loc=S.TITLE_LOC)
     axs = fig.add_subplot(gs[1, 0:2], sharex=axd)
     _draw_strip(axs, d)
@@ -431,23 +450,44 @@ def _draw_F3(d: dict, draft: bool, strip_lines: list[str]):
     def wrap(s):
         return "\n".join(textwrap.wrap(s, 44))
 
-    handles = [Line2D([], [], ls="none", marker=mf.marker, ms=S.F3_MARKS["slice_hopf_size"], color=mf.colour, label="Hopf point of an A6 slice"),
+    from matplotlib.legend_handler import HandlerTuple
+    handles = [Line2D([], [], ls="none", marker=mf.marker, ms=S.F3_MARKS["slice_hopf_size"], color=mf.colour, label=wrap("Hopf point of an A6 slice (black tri-up mark; not a class)")),
                Line2D([], [], ls="none", marker=m25.marker, ms=m25.size - 2, mew=m25.width, color=m25.colour, mec=S.HALO_COLOUR, label="25 Hz crossing of an A6 slice"),
                Line2D([], [], ls=mf.linestyle, color=mf.colour, lw=1.0,
-                      label=wrap(f"Hopf curve (A4 record: Delta {d['a4_curve_Delta']:g}, J {d['a4_curve_J']:g}, tau_d {d['a4_curve_tau_d_ms']:g} ms)")),
+                      label=wrap(f"(c) Hopf curve, tau_d against eta_bar (A4 record: Delta {d['a4_curve_Delta']:g}, J {d['a4_curve_J']:g})")),
+               Line2D([], [], ls=mf.linestyle, color=mf.colour, lw=1.0,
+                      label=wrap(f"(d) Hopf curve, Delta against eta_bar (A4 record: J {d['a4_curve_J']:g}, tau_d {d['a4_curve_tau_d_ms']:g} ms)")),
                Line2D([], [], ls="none", marker=hp.marker, ms=S.F3_MARKS["a6_hopf_size"], mew=S.F3_MARKS["a6_hopf_width"], color=hp.colour,
                       label=wrap(f"A6 Hopf point, Delta {d['headline_Delta']:g}, tau_d {d['headline_tau_d_ms']:g} ms (not the A4 curve)"))]
-    names = {"P1": "eta ramp", "P2": "hypoxia, eta part", "P3": f"drive, eta part, I_amp {d['P3_I_amp']:g}", "P4a": "Delta up", "P4b": "Delta down",
+    hh = list(handles)
+    ll = [h.get_label() for h in handles]
+    names = {"P1": "eta ramp", "P2": "hypoxia-like path, eta part", "P3": f"drive, eta part, I_amp {d['P3_I_amp']:g}", "P4a": "Delta up", "P4b": "Delta down",
              "P5": "eta up, then return"}
-    for k in PATH_ORDER:
+
+    def path_handle(k):
         st = S.get(k)
-        handles.append(Line2D([], [], ls=st.linestyle, marker=st.marker, ms=S.F3_MARKS["key_path_size"], lw=2, color=st.colour, label=wrap(f"{k} {names[k]} (T_ramp {d[f'{k}_T_ramp_s']:g} s)")))
-    leg = axt.legend(handles=handles, loc="upper left", bbox_to_anchor=(0.0, 1.0), fontsize=S.TEXT_SIZES["legend"], ncol=1, frameon=False, borderaxespad=0, labelspacing=0.55)
+        return Line2D([], [], ls=F3_PATH_LS.get(k, st.linestyle), marker=st.marker, ms=S.F3_MARKS["key_path_size"], lw=2, color=st.colour)
+
+    grouped = shared_groups(d)
+    done = set()
+    for k in PATH_ORDER:
+        if k in done:
+            continue
+        g = next((x for x in grouped if k in x), None)
+        if g:
+            done.update(g)
+            hh.append(tuple(path_handle(x) for x in g))
+            ll.append(wrap(f"{', '.join(g[:-1])} and {g[-1]}: identical in eta_bar, Delta, tau_d (stored); " + "; ".join(f"{x} {names[x]} (T_ramp {d[f'{x}_T_ramp_s']:g} s)" for x in g)))
+        else:
+            hh.append(path_handle(k))
+            ll.append(wrap(f"{k} {names[k]} (T_ramp {d[f'{k}_T_ramp_s']:g} s)"))
+    leg = axt.legend(hh, ll, loc="upper left", bbox_to_anchor=(0.0, 1.0), fontsize=S.TEXT_SIZES["legend"], ncol=1, frameon=False, borderaxespad=0, labelspacing=0.55,
+                     handler_map={tuple: HandlerTuple(ndivide=None)})
     leg.set_in_layout(False)
     axb = fig.add_subplot(gs[3, :])
     axb.axis("off")
-    t1 = axb.text(0.0, 1.0, "FAIL rows of the stored A11 table that touch F3 (not recomputed):", va="top", fontsize=S.TEXT_SIZES["status"], weight="bold")
-    t2 = axb.text(0.0, 0.8, "\n".join(strip_lines) if strip_lines else "none", va="top", fontsize=S.TEXT_SIZES["status"])
+    t1 = axb.text(0.0, 1.0, "FAIL rows of the stored A11 table that touch F3 (not recomputed; red text: the frequency shading shows an RB9(b) FAIL):", va="top", fontsize=S.TEXT_SIZES["status"], weight="bold")
+    t2 = axb.text(0.0, 0.8, "\n".join(strip_lines) if strip_lines else "none", va="top", fontsize=S.TEXT_SIZES["status"], weight="bold")
     t3 = axb.text(0.0, 0.42, "Not drawn: (eta, Delta) frequency shading (A6 has no Delta slices), the J plane, the J ramp of P2 and P3, the sigmoid and "
                   "start-distance variants.", va="top", fontsize=S.TEXT_SIZES["status"])
     for t in (t1, t2, t3):
@@ -471,17 +511,26 @@ def strip_lines(d: dict) -> list[str]:
     return out
 
 
-def caption_notes(d: dict) -> tuple:
-    """Sentences about what is and is not drawn (13e, DL-453). Values come from the prepared data; only the wording is typed here."""
+F3_RULE_25HZ = ('Table 8.1 gives for F3 the rule "25 Hz contour outside the oscillatory region in range -> G2". Outcome: the 25 Hz crossings drawn lie on the cycle branch of the A6 slices where '
+                'they occur (DL-131); G2 was judged on the DL-132 readings and no G2 trigger fired, M3 stays (DL-133); whether this Table 8.1 rule was evaluated on its own is not stated in the '
+                'decision log (UNVERIFIED).')
+
+
+def caption_notes(d: dict, a6_J=None) -> tuple:
+    """Sentences about what is and is not drawn (13e, DL-453; 13r-3a, DL-516). Values come from the prepared data; only the wording is typed here. a6_J: the model.J of the stored A6 record."""
     t_ramp = sorted({d[f"{k}_T_ramp_s"] for k in PATH_ORDER})
     if d["c100_total_crossings"] == 0:
         hz100 = f"No 100 Hz contour in range on any slice; the largest cycle frequency is {d['f_max_hz']:.1f} Hz."
     else:
         hz100 = f"{d['c100_total_crossings']} crossings of the 100 Hz contour."
     return (
-        "Colour and contours show the limit-cycle frequency of the continuation (A6), not the classifier's spectral peak; there is no interpolation between slices.",
+        "Colour and contours show the limit-cycle frequency of the continuation (A6), not the classifier's spectral peak; there is no interpolation between slices."
+        + (f" The frequencies are at fixed J = {a6_J:g} (the stored A6 record; the A6 J slices are not drawn)." if a6_J is not None else ""),
+        F3_RULE_25HZ,
+        "The black tri-up mark is the Hopf point of an A6 slice and the black line the A4 Hopf curve (the mean-field source colour; neither is a class). "
+        "The tau_d axes and the Delta axis are logarithmic (tick labels are plain numbers).",
         hz100,
-        "Panels (a) to (c) are the A6 (eta, tau_d) slices; panel (d) shows the Hopf curve only, because A6 stores no Delta slices (UNVERIFIED reading of Table 8.1).",
+        "Panels (a) to (c) are the A6 (eta, tau_d) slices (tau_d " + CAP.sweep_text(d["D0.3_tau_d_ms"]) + " ms; Delta " + CAP.sweep_text([float(x) for x in DELTAS]) + "); panel (e) is the path strip; panel (d) shows the Hopf curve only, because A6 stores no Delta slices (UNVERIFIED reading of Table 8.1).",
         f"The A4 curve and the A6 Hopf points are separate markers (A4 record: Delta {d['a4_curve_Delta']:g}, J {d['a4_curve_J']:g}); no claim that they agree.",
         (f"Arrows show the stored linear-profile path values (T_ramp {', '.join(f'{x:g}' for x in t_ramp)} s; the path values are identical at every stored "
          f"T_ramp). P3 is drawn for I_amp {d['P3_I_amp']:g} only. The J ramp of P2 and P3 is not drawn. The end Delta of P4a and P4b is derived (stored Delta "
@@ -504,7 +553,8 @@ def make_F3(res=None, out_dir=None, *, tag_build: bool = False, take_home=F3_TAK
     t["prepare"] = time.perf_counter()
     rows = _params_rows(raw)
     cap = CAP.build_caption("F3", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=[r for r in rows if r["key"] in CAPTION_KEYS],
-                            spectrogram=None, symbol_keys=PATH_ORDER + ("mean_field",), notes=caption_notes(d))
+                            spectrogram=None, symbol_keys=PATH_ORDER, notes=caption_notes(d, a6_J=float(raw["records"]["A6"]["config"]["model"]["J"])),
+                            main_failures=F3_MAIN_FAILURES, swept={"model.tau_d_ms": d["D0.3_tau_d_ms"], "model.Delta": [float(x) for x in DELTAS]})
     import matplotlib.pyplot as plt
     fig = _draw_F3(d, draft=not tag_build, strip_lines=strip_lines(d))
     out.mkdir(parents=True, exist_ok=True)
