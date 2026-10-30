@@ -206,4 +206,4 @@ def test_strip_text_says_when_the_stored_threshold_is_blank():
     lines = FG.strip_lines(d)
     assert len(lines) == 4 and not any("threshold )" in s for s in lines)               # exact
     blank = [r for r in d["strip"] if not r["threshold"]]
-    assert len([s for s in lines if "threshold blank in the table" in s]) == len(blank) == 1
+    assert len([s for s in lines if "threshold blank: no single threshold, see value" in s]) == len(blank) == 1
