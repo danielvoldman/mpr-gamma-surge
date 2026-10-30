@@ -277,7 +277,7 @@ def _wrap_footer(fig, t) -> float:
     (the symmetric right margin is a design choice, UNVERIFIED). Returns the drawn height of the added lines as a fraction of the figure height (0 for one line), by
     which the free band grows; a footer that fits on one line keeps its text and band."""
     rend = fig.canvas.get_renderer()
-    room = fig.bbox.width * (1.0 - 2.0 * S.DRAFT_NOTE["x"])
+    room = fig.bbox.width * (1.0 - 2.0 * S.DRAFT_NOTE["x"]) * 0.96          # 13r-3a (DL-522): the PNG at 200 dpi draws the text about 2 percent wider than this measurement at the figure dpi
     lines: list[str] = []
     for w in t.get_text().split(" "):
         if lines:
