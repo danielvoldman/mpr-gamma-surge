@@ -776,7 +776,7 @@ def _draw_F2(d: dict, draft: bool, strip_lines: list[str]):
                     label="A5 stable cycle maximum and minimum of v" if (name, ycol) == ("up", "vmax") else None)
     _vline_hopf(ax, d, label="eta_H: the Hopf point's eta_bar (line)")
     ax.plot([d["eta_H"]], [d["hopf_v_interp"]], ls="none", marker=hp.marker, ms=hp.size * 0.7, color=hp.colour, mew=hp.width, zorder=2.5,
-            label=f"Hopf point, eta_bar {d['eta_H']:.3f} ({d['hopf_type']})")
+            label=f"Hopf point, eta_bar {d['eta_H']:.3f} ({d['hopf_type'].lower()}: squared amplitude grows linearly from it, plan)")
     for key, kind, lab in (("mf", "mf", "S4 mean field"), ("net", "net", "S4 network N = 1e4, mean V of non-refractory neurons (different definition)")):
         _s4_points(ax, d, key, f"{key}_vmax", kind, label=f"{lab}: max and min of v")
         _s4_points(ax, d, key, f"{key}_vmin", kind)
@@ -791,8 +791,8 @@ def _draw_F2(d: dict, draft: bool, strip_lines: list[str]):
     _s4_points(ax2, d, "mf", "mf_v_ptp", "mf")
     _s4_points(ax2, d, "net", "net_v_ptp", "net")
     ax2.set_ylabel("v amplitude (max - min)")
-    ax2.text(0.01, 0.97, f"mean field: up and down coincide, max difference {CAP.number_text(round(d['mf_updown_max_abs_from_0p2'], 4))} relative (stored, from eta_H + 0.2); "
-             "up sweep filled, down sweep hollow and smaller", transform=ax2.transAxes, fontsize=S.TEXT_SIZES["small"], va="top", ha="left")
+    ax2.text(0.99, 0.04, f"mean field: up and down coincide, max difference {CAP.number_text(round(d['mf_updown_max_abs_from_0p2'], 4))} relative (stored, from eta_H + 0.2); "
+             "up sweep filled, down sweep hollow and smaller", transform=ax2.transAxes, fontsize=S.TEXT_SIZES["small"], va="bottom", ha="right")
     ax2.set_title("(b) amplitude: A5 cycles, S4 mean field and S4 network (mean V of non-refractory neurons), stored values", loc=S.TITLE_LOC)
     # (c) stored relative difference, network against mean field
     ax3 = fig.add_subplot(gs[2], sharex=ax)
@@ -809,7 +809,7 @@ def _draw_F2(d: dict, draft: bool, strip_lines: list[str]):
     ax3.set_title(r"(c) v amplitude, network (mean V of non-refractory neurons, different definition) against mean field: information only, no criterion;"
                   "\n" r"stored relative difference, drawn above $\bar\eta_H$ + 0.1 only", loc=S.TITLE_LOC)
     ax3.text(0.99, 0.97, "not drawn at and below eta_H: the mean-field amplitude there is ~0 or still\nrelaxing, so the stored relative difference is not a measure (largest |stored value|\n"
-             f"below eta_H - 0.1: {d['cmp_rel_v_below_max_abs']:.2g}). Network below eta_H: no rest, v amplitude\n"
+             f"below eta_H - 0.1: {CAP.number_text(float(format(d['cmp_rel_v_below_max_abs'], '.2g')))}). Network below eta_H: no rest, v amplitude\n"
              f"{d['net_floor_v_ptp_min']:.2f} to {d['net_floor_v_ptp_max']:.2f} (panel b).", transform=ax3.transAxes, fontsize=S.TEXT_SIZES["small"], va="top", ha="right")
     # legend and strip
     axl = fig.add_subplot(gs[3])
@@ -837,7 +837,7 @@ def f2_caption_notes(d: dict) -> tuple:
         f"Panel (c) draws the stored relative differences above eta_H + 0.1; there the v amplitude differs by {100 * d['cmp_rel_v_above_min']:+.1f} to "
         f"{100 * d['cmp_rel_v_above_max']:+.1f} percent (the plotted fraction x 100) and the r amplitude by {100 * d['cmp_rel_r_above_min']:+.1f} to {100 * d['cmp_rel_r_above_max']:+.1f} percent (stored; not drawn). "
         f"Below eta_H the network does not rest ({d['net_floor_steps']} steps: v amplitude {d['net_floor_v_ptp_min']:.2f} to {d['net_floor_v_ptp_max']:.2f}, r amplitude "
-        f"{d['net_floor_r_ptp_min']:.3f} to {d['net_floor_r_ptp_max']:.3f}; not drawn).",
+        f"{d['net_floor_r_ptp_min']:.3f} to {d['net_floor_r_ptp_max']:.3f} (not drawn)).",
         f"The mean-field up and down sweeps coincide (largest difference {CAP.number_text(round(d['mf_updown_max_abs_from_0p2'], 4))} relative from eta_H + 0.2, stored); the up sweep is drawn filled and the down "
         "sweep hollow and smaller. The steps within 0.1 of eta_H are shaded (still relaxing, DL-127). The network symbols are the mean V of non-refractory neurons, a different definition of v.",
         "In the params table model.eta_bar is the base value of each record; the swept parameter is s4.param. The claim-limit list was ruled in 13g; the placement of G4-C2 on F2 and the choice of the four RB1 rows for the FAIL-row list are UNVERIFIED readings of the plan.",
