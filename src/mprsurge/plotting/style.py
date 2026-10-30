@@ -451,4 +451,5 @@ FS2_DIFF_MARKS = {"d_freq": r"$\bullet$", "d_mean": r"$\circ$", "d_ptp": r"$\dia
 FS3_GATE_CLEAR = 0.045                       # FS3 (e): a count label whose centre lies closer than this (share of seeds) to the RB2 gate line is moved inside its segment (R16)
 FS5_REPORTED = {"marker": _polygon(16), "colour": "#4a148c", "width": 0.8}       # FS5 (g3): open ring around a point that is reported, not judged (R18)
 FS5_TEXT_DARK_ABOVE = 0.6                    # FS5 (c): shade fraction from which the cell text is white
-FS_LAYOUT = {"fs1_k5_ratios": (1.0, 0.42), "fs5_row0_ratios": (1.6, 1.0), "fs5_b_wrap": 62, "fs4_row_ratios": (1.6, 1.8, 1.9, 1.35, 2.25)}
+FS_LAYOUT = {"fs1_k5_ratios": (1.0, 0.42), "fs5_row0_ratios": (1.6, 1.0), "fs5_b_wrap": 62, "fs4_row_ratios": (1.6, 1.8, 1.9, 1.35, 1.9),
+             "fs5_g_ratios": (1.0, 0.85, 1.45, 1.0)}

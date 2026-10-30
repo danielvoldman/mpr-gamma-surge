@@ -960,7 +960,7 @@ def _draw_FS1(d: dict, draft: bool):
     axd.set_title("(d) K4: step I = 0 to 3 at (-5, 15); axis cut at 600 ms", loc=S.TITLE_LOC)
     axd.legend(loc="upper right", bbox_to_anchor=(0.66, 1.0), fontsize=T["legend"], frameon=True, framealpha=0.95)      # between the two window lines
     tr = transforms.blended_transform_factory(axd.transData, axd.transAxes)
-    axd.text(0.5 * (d["k4_t_start_ms"] + d["k4_t_end_ms"]), 0.42,
+    axd.text(0.5 * (d["k4_t_start_ms"] + d["k4_t_end_ms"]), 0.33,
              f"fit: omega {d['k4_omega_fit']:.4f}\n     decay {d['k4_decay_fit']:.5f} per tau\nlinearised: omega {d['k4_omega_lin']:.4f}\n     decay {d['k4_decay_lin']:.5f}\n"
              f"rel. err. {d['k4_rel_err_frequency']:.2g} (freq.)\n     {d['k4_rel_err_decay']:.2g} (decay)\ntolerance {d['k4_tol_frequency']:g}; {'pass' if d['k4_pass'] else 'FAIL'}\n"
              f"{d['k4_cycles']:.1f} tail cycles", transform=tr, fontsize=T["small"], va="top", ha="center", multialignment="left", zorder=5,
@@ -1368,7 +1368,7 @@ def _draw_FS2(d: dict, draft: bool):
     n_co = coincident_marks(axk, pts, S.FS_SIZES["fs2_coincide_mark"])
     n_all = len(pts.get_xdata())
     distinct = len(set(zip(np.asarray(pts.get_xdata()).tolist(), np.asarray(pts.get_ydata()).tolist()))) == n_all
-    axk.text(0.98, 0.97, f"{n_co} of {n_all} coincide at the drawn size\n(" + ("stored values all differ" if distinct else "some stored values are equal") + ")",
+    axk.text(0.98, 0.80, f"{n_co} of {n_all} coincide at the drawn size\n(" + ("stored values all differ" if distinct else "some stored values are equal") + ")",
              transform=axk.transAxes, ha="right", va="top", fontsize=T["small"], color=S.figure_colour("text_dark")).set_gid("coincide_note")
     return fig
 
@@ -1735,7 +1735,7 @@ def _draw_FS5(d: dict, draft: bool):
     T = S.TEXT_SIZES
     edge = S.figure_colour("bar_edge")
     fig = plt.figure(figsize=(7.4, 14.4), constrained_layout=True)
-    gs = fig.add_gridspec(5, 6, height_ratios=[4.3, 1.9, 1.9, 1.7, 1.5])
+    gs = fig.add_gridspec(5, 6, height_ratios=[4.3, 1.9, 1.9, 2.0, 1.25])
     classes = d["class_order"]
     var = d["variants"]
     # row 0: (a) and a wider (b) column (13p, R18: the test-name list is readable)
@@ -1840,7 +1840,7 @@ def _draw_FS5(d: dict, draft: bool):
     axf.set_title("(f) RB10: " + ("headline class unchanged, nine variants" if d["rb10_headline_all_pass"] else "headline class changed under a variant"), loc=S.TITLE_LOC)
     axf.legend(loc="lower right", fontsize=T["legend"], frameon=True, framealpha=0.95)
     # (g) RB9, frequency mapping: four small panels of the stored values
-    sub = gs[3, :].subgridspec(1, 4, wspace=0.55)
+    sub = gs[3, :].subgridspec(1, 4, wspace=0.3, width_ratios=list(S.FS_LAYOUT["fs5_g_ratios"]))
     pt = S.diagram_mark("fs5_pt")
     a1 = fig.add_subplot(sub[0, 0])
     for i, tau in enumerate(d["rb9a_tau_ms"]):
@@ -1860,7 +1860,7 @@ def _draw_FS5(d: dict, draft: bool):
     a2.errorbar([1], [d["rb9b_f_cycle"]], yerr=[d["rb9b_bound"]], ls="none", marker=cy.marker, ms=cy.size, color=cy.colour, capsize=3, lw=1.0, zorder=4, label="cycle freq. +- 1/W")
     a2.set_xlim(-0.6, 1.6)
     a2.set_ylim(38.0, 51.0)
-    a2.set_xticks([0, 1], ["spectral", "cycle"])
+    a2.set_xticks([0, 1], ["spectral", "cycle"], rotation=30, ha="right")
     a2.set_title("(g2) RB9(b) " + ("PASS" if d["rb9b_within"] else "FAIL") + "\nheadline", loc=S.TITLE_LOC)
     a2.set_ylabel("frequency (Hz)")
     a2.text(0.5, 0.08, f"diff {d['rb9b_diff']:.3f} Hz > {d['rb9b_bound']:g} Hz\nmap 1: {d['rb9b_map1_within']}/{d['rb9b_map1_n']} in\nmap 2: {d['rb9b_map2_within']}/{d['rb9b_map2_n']} in",
@@ -1876,13 +1876,13 @@ def _draw_FS5(d: dict, draft: bool):
     a3.set_xticks(xs3, ["map 1", "map 2", "subgrid"], rotation=30, ha="right")
     a3.set_xlim(-0.5, 2.5)
     a3.set_ylim(-0.09, 0.78)
-    a3.set_title("(g3) RB9(c) PASS, judged on map 1\nband 30 to 120 Hz", loc=S.TITLE_LOC)
+    a3.set_title("(g3) RB9(c) PASS, judged on map 1;\nband 30 to 120 Hz", loc=S.TITLE_LOC)
     a3.set_ylabel("fraction of cells that change class")
     a3.legend(loc="upper left", fontsize=T["legend"], frameon=True, framealpha=0.95)
     for x_, c_, n_ in zip(xs3, d["rb9c_changed"], d["rb9c_n"]):
-        lab = f"{int(c_)}/{int(n_)}" + ("" if x_ == 0 else "\nreported, not judged")
         hi = c_ / n_ > 0.2
-        a3.text(x_ - (0.2 if hi else 0.0), c_ / n_ + (0.0 if hi else -0.035), lab, ha="right" if hi else "center", va="center" if hi else "top", fontsize=T["small"])
+        a3.text(x_ - (0.25 if hi else 0.0), c_ / n_ + (0.0 if hi else 0.06), f"{int(c_)}/{int(n_)}" + ("" if x_ == 0 else "\n(reported)"), ha="right" if hi else "center",
+                va="center" if hi else "bottom", fontsize=T["small"])
     a4 = fig.add_subplot(sub[0, 3])
     for i, (tau, f, c) in enumerate(zip(d["rb9d_tau_ms"], d["rb9d_f_pk"], d["rb9d_class"])):
         st = S.get(c)
@@ -1891,7 +1891,7 @@ def _draw_FS5(d: dict, draft: bool):
     a4.plot(d["rb9d_tau_ms"], d["rb9d_headline_f"] * d["rb9d_expected_ratio"], ls="none", marker=ex.marker, ms=ex.size, color=ex.colour, zorder=3, label="headline x 10/tau")
     a4.set_xticks(d["rb9d_tau_ms"], [f"{t:g}" for t in d["rb9d_tau_ms"]])
     a4.set_xlim(7.0, 13.0)
-    a4.set_ylim(38.0, 76.0)
+    a4.set_ylim(38.0, 82.0)
     a4.set_xlabel("tau (ms)")
     a4.set_title("(g4) RB9(d)\nreported only", loc=S.TITLE_LOC)
     a4.set_ylabel("peak frequency (Hz)")
