@@ -32,6 +32,8 @@ def _norm(text: str) -> str:
 
 
 def same(a, b, tol) -> bool:
+    if isinstance(a, dict) or isinstance(b, dict):
+        return isinstance(a, dict) and isinstance(b, dict) and set(a) == set(b) and all(same(a[k], b[k], tol) for k in a)
     if isinstance(a, (list, tuple)) or isinstance(b, (list, tuple, np.ndarray)):
         a, b = list(a), list(np.asarray(b).tolist() if isinstance(b, np.ndarray) else b)
         return len(a) == len(b) and all(same(x, y, tol) for x, y in zip(a, b))

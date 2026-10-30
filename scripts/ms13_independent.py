@@ -440,7 +440,7 @@ def f4(c: Ctx, R: Rows):
     R.add("F4", "m2_rows", "M2 saddle-node ramp runs", len(a3), "A3/a3_sn_ramp.parquet", printed=(r"damped at all (\d+) T_ramp", 1), drawn="len(d['a3_eps'])")
     R.add("F4", "m2_damped", "M2 runs with ring class damped", int((a3["ring_class"] == "damped").sum()), "A3/a3_sn_ramp.parquet: ring_class", shared="stored class column", drawn="sum(1 for x in d['a3_ring_class'] if x == 'damped')")
     R.add("F4", "m2_offset_first", "jump offset from the fold at the smallest T_ramp", float(a3["offset"].iloc[0]), "A3/a3_sn_ramp.parquet: offset", printed=(r"falls from (\d+\.\d+) to", 1))
-    R.add("F4", "m2_offset_last", "jump offset from the fold at the largest T_ramp", float(a3["offset"].iloc[-1]), "A3/a3_sn_ramp.parquet: offset", printed=(r"falls from \d+\.\d+ to (\d+\.\d+)\)", 1))
+    R.add("F4", "m2_offset_last", "jump offset from the fold at the largest T_ramp", float(a3["offset"].iloc[-1]), "A3/a3_sn_ramp.parquet: offset", printed=(r"to (\d+\.\d+) \(DL-109", 1))
     for f_ in ("p1_linear", "p1_sigmoid", "p2_linear", "p2_sigmoid", "p5_linear", "p5_sigmoid"):
         sub = a7[a7["family"] == f_].sort_values("T_ramp_s")
         for col in ("delay_eta_cross", "f_pk_hz", "peak_power_abs", "duration_s"):
@@ -570,7 +570,7 @@ def fs3(c: Ctx, R: Rows):
         R.add("FS3", f"s10_{shape}_sabs", f"S10 {shape} seeds of class S-abs", cl.count("S-abs"), "ms10/10g/record_classes.tsv", shared=sh, printed=((r"Gaussian and uniform give S-abs in (\d+) of 3", 1) if shape == "gaussian" else None))
     lo = [x["class"] for x in sorted((r for r in tsv if r["list"] == "S10" and r["shape"] == "lorentzian"), key=lambda r: int(r["seed"]))]
     for k in range(3):
-        R.add("FS3", f"s10_lor_{k}", f"S10 Lorentzian seed {k} class", lo[k], "ms10/10g/record_classes.tsv", shared=sh, printed=(r"Lorentzian seeds give (S-\w+), (S-\w+), (S-\w+) so", k + 1))
+        R.add("FS3", f"s10_lor_{k}", f"S10 Lorentzian seed {k} class", lo[k], "ms10/10g/record_classes.tsv", shared=sh, printed=(r"Lorentzian seeds give (S-\w+), (S-\w+), (S-\w+), so", k + 1))
     ev = c.json("A11/a11_evaluators.json")["evaluators"]["rb2"]
     sh2 = "stored A11 evaluator output (rb2)"
     gate = {g["sigma_factor"]: g for g in ev["gate"]}
@@ -660,8 +660,17 @@ def fs5(c: Ctx, R: Rows):
     a9 = c.pq("A9/a9_regime_map_v2.parquet")
     hl = a9[a9["headline_marker"].fillna(False).astype(bool)].iloc[0]
     R.add("FS5", "rb9b_spectral", "spectral peak of the headline (Hz), A9 table", float(hl["f_pk_hz"]), "A9/a9_regime_map_v2.parquet: headline row f_pk_hz", printed=(r"\((\d+\.\d) Hz spectral peak", 1), tol=0.0, drawn="d['rb9b_f_spectral']")
-    R.add("FS5", "rb9b_cycle", "Hopf cycle frequency of the headline (Hz), A9 table", float(hl["hopf_f_hz"]), "A9/a9_regime_map_v2.parquet: headline row hopf_f_hz", printed=(r"against a (\d+\.\d+) Hz cycle", 1), tol=("rel", 1e-12), drawn="d['rb9b_f_cycle']")
-    R.add("FS5", "rb9b_diff", "spectral peak minus cycle frequency (Hz)", float(hl["f_pk_hz"]) - float(hl["hopf_f_hz"]), "A9 table", printed=(r"Hz, (\d+\.\d+) Hz against 1/W", 1), tol=1e-9, drawn="d['rb9b_diff']")
+    rec = "S5/ramp/S5ramp/S5ramp_0000_240de3ef73be"
+    h7 = c.pq("A7/a7_ramp_metrics.parquet").query("family == 'S5ramp'").iloc[0]
+    from mprsurge.analysis import surge_metrics as SM
+    fs = 1000.0 / float(c.json(rec + ".json")["config"]["solver"]["dt_out_ms"])
+    ph = np.unwrap(np.angle(SM._analytic(np.asarray(c.npz(rec + ".npz")["v"], float), fs, SM.G_BAND)))
+    a_, b_ = max(0, int(round(float(h7["onset_s"]) * fs))), min(len(ph) - 1, int(round(float(h7["end_s"]) * fs)))
+    fc = float((ph[b_] - ph[a_]) / (2 * np.pi) / ((b_ - a_) / fs))
+    shf = "frozen band-pass analytic signal (surge_metrics._analytic, band G)"
+    R.add("FS5", "rb9b_cycle", "cycle frequency over the flagged episode of the headline (Hz)", fc, "S5ramp .npz v, A7 S5ramp onset_s and end_s; phase change of the analytic signal", shared=shf, printed=(r"against a (\d+\.\d+) Hz cycle", 1),
+          tol=("rel", 1e-9), drawn="d['rb9b_f_cycle']")
+    R.add("FS5", "rb9b_diff", "spectral peak minus cycle frequency (Hz)", abs(float(hl["f_pk_hz"]) - fc), "same", shared=shf, printed=(r"Hz, (\d+\.\d+) Hz against 1/W", 1), tol=("rel", 1e-9), drawn="d['rb9b_diff']")
     R.add("FS5", "rb9b_bound", "RB9(b) bound 1/W (Hz), W = 2 s", 1.0 / 2.0, "frozen window W = 2 s for T_ramp 120 s", shared="frozen window rule", printed=(r"against 1/W = (0\.\d+) Hz", 1), drawn="d['rb9b_bound']", tol=0.0)
     R.add("FS5", "map1_surge_cells", "map-1 D-tr cells", int(((a9["map"].astype(str) == "1") & (a9["class"] == "D-tr")).sum()), "A9 table", drawn="d['rb9b_map1_n']")
     R.add("FS5", "map2_surge_cells", "map-2 D-tr cells", int(((a9["map"].astype(str) == "2") & (a9["class"] == "D-tr")).sum()), "A9 table", drawn="d['rb9b_map2_n']")
