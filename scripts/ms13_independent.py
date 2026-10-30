@@ -200,7 +200,7 @@ def f5c(c: Ctx, R: Rows):
     import glob
     from mprsurge.analysis import a7 as A7
     from mprsurge.analysis import surge_metrics as SM
-    fi, _gate = A7.frozen_inputs(c.root)
+    fi, _gate = A7.frozen_inputs(ROOT)
     sh = "frozen classifier (surge_metrics.classify_mode_n) and the frozen threshold"
     tsv = {r["name"]: r["class"] for r in c.csv("ms10/10g/record_classes.tsv", "	")}
     ev = c.json("ms10/eval/ms10_eval.json")["N_sweep"]["by_N"]
