@@ -3758,7 +3758,7 @@ F1_SEED_KEYS = ("fs4_s0", "fs4_s1", "fs4_s2")                     # the three ne
 F1_TAKE_HOME = (
     "The network at N = 1e4 does not reproduce the mean-field class at the headline: 0 of 3 seeds match the mean-field class D-tr (all 3 are S-sus; RB1 FAILED, DL-319, DL-323). "
     "The stored mean-field record is a surge of class D-tr with a spectral peak of 49.0 Hz and onset 58.698 s (DL-319); the peak is far above 25 Hz, so the plan's second F1 trigger did not occur. "
-    "The network raw first crossings are at 50.170 to 50.924 s against the mean-field onset 58.698 s, and the network classifier onset is 12.0 s (46.7 s before the mean-field onset; stored, DL-319), "
+    "The network raw first crossings are at 50.170 to 50.924 s against the mean-field onset 58.698 s, and the network classifier onset 12.0 s (46.7 s before the mean-field onset; stored, DL-319), "
     "so by the pre-registered classes the network does not reproduce the mean-field class (no claim about the visual shape of the traces, either way); the network f_pk values 49.0, 48.5 and "
     "49.0 Hz are not an agreement claim (MS11-C2; RB6 network f_pk FAIL, FS4). At T_ramp 10 s the 3 seeds are S-abs, S-rel and S-sus (0 of 3 seeds match; not drawn; DL-319). The network controls without a ramp "
     "reach the surge classes S-abs and S-rel at the 10 s headline, S+ in S9 at N = 3e3 and 1e4 and at map cell (24,26) (DL-325; not drawn); the 120 s headline controls are S-sus 3 of 3 "

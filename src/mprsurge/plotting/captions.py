@@ -183,7 +183,7 @@ def coincide_note(series, what: str = "stored values") -> str:
     names = [str(s) for s in series]
     if len(names) < 2:
         raise CaptionError("coincide_note needs at least two series")
-    return f"{', '.join(names[:-1])} and {names[-1]} coincide ({what} equal; drawn at their stored positions, no offset)"
+    return f"{', '.join(names[:-1])} and {names[-1]} coincide ({what} equal; drawn at their stored positions, not moved)"
 
 
 def number_text(x) -> str:
