@@ -3999,18 +3999,18 @@ def _f1_onset_marks(ax, d: dict, *, network: bool):
             ax.plot([x], [0.93], transform=tr, ls="none", marker=st.marker, ms=S.F1_SIZES["onset"], color=st.colour, mec=S.figure_colour("bar_edge"), mew=S.POINT_EDGE_WIDTH["class"],
                     clip_on=False, zorder=6)
         nab = S.diagram_mark("fs4_cross")
-        for i_, x in enumerate(d["raw120_s"]):
+        for i_, x in reversed(list(enumerate(d["raw120_s"]))):
             ax.plot([x], [1.04], transform=tr, ls="none", marker=nab.marker, ms=S.F1_SIZES["onset"], color=S.network_seed_colour(i_), mew=nab.width, clip_on=False, zorder=6)
         # 13o (DL-494 R7): the three raw first crossings stay at their stored positions; at the panel scale they lie on top of each other, which the note says
         ax.text(min(d["raw120_s"]) - 1.0, 1.04, "raw crossings: 3 seeds coincide", transform=tr, ha="right", va="center",
                 fontsize=S.TEXT_SIZES["small"], color=S.figure_colour("text_dark"))
 
 
-def _f1_env(ax, xc, lo, hi, colour, ls, fill=True):
+def _f1_env(ax, xc, lo, hi, colour, ls, fill=True, z=3):
     if fill:
         ax.fill_between(xc, lo, hi, color=colour, alpha=S.F1_SIZES["envelope_alpha"], lw=0, zorder=2)
     for y in (lo, hi):
-        ax.plot(xc, y, color=colour, ls=ls, lw=S.F1_SIZES["envelope_line"], zorder=3)
+        ax.plot(xc, y, color=colour, ls=ls, lw=S.F1_SIZES["envelope_line"], zorder=z)
 
 
 def _draw_F1(d: dict, draft: bool):
@@ -4115,7 +4115,7 @@ def _draw_F1(d: dict, draft: bool):
         a1.tick_params(labelbottom=False)
         a2 = fig.add_subplot(gs[5 + 2 * row, 0:3], sharex=ax)
         for i, m in enumerate(seeds):
-            _f1_env(a2, d[f"net{i}_{q}_x"], d[f"net{i}_{q}_lo"], d[f"net{i}_{q}_hi"], m.colour, m.linestyle, fill=False)
+            _f1_env(a2, d[f"net{i}_{q}_x"], d[f"net{i}_{q}_lo"], d[f"net{i}_{q}_hi"], m.colour, m.linestyle, fill=False, z=3.5 - 0.1 * i)       # seed 0 on top
         _f1_onset_marks(a2, d, network=True)
         a2.set_ylim(*ylim)
         ttl, _col = S.fail_title(f"({'df'[row]}) {qn}(t), network N = 1e4, seeds 0 to 2 (same y range as the mean field): RB1 FAIL", True)

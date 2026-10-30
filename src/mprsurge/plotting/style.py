@@ -497,7 +497,7 @@ INTERNAL_CODES = {"ref_ceni": "ref_ceni: validation point (eta_bar, J, Delta) = 
 
 
 # 13r-3a (DL-521, G6): the three network seeds are drawn in the network hue, told apart by lightness (mixed with white by these fractions) and by line style, not by three hues.
-SEED_LIGHTEN = (0.0, 0.35, 0.6)
+SEED_LIGHTEN = (0.0, 0.25, 0.45)
 
 
 def network_seed_colour(i: int) -> str:
