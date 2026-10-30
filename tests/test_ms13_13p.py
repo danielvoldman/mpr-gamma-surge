@@ -99,7 +99,12 @@ def test_the_provenance_files_of_the_eleven_recorded_builds_name_one_commit_clea
     recs = [json.loads(p.read_text(encoding="utf-8")) for p in paths]
     assert len({r["git"]["commit"] for r in recs}) == 1                                # exact: one build commit (R19)
     assert all(r["git"]["dirty"] is False and r["draft"] is True for r in recs)
-    assert len({tuple(sorted((m["path"], m["sha256"]) for m in r["modules"])) for r in recs}) == 1      # every record names the same build code
+    by_path: dict = {}
+    for r in recs:                                                                     # figures record different module sets (F1, F5 add analysis modules)
+        for m in r["modules"]:
+            by_path.setdefault(m["path"], set()).add(m["sha256"])
+    assert all(len(h) == 1 for h in by_path.values()), by_path                         # every module has one hash over the eleven records: one build code
+    assert {"src/mprsurge/plotting/figures.py", "src/mprsurge/plotting/style.py", "src/mprsurge/plotting/captions.py"} <= set(by_path)
 
 
 def test_draft_note_at_the_bottom_and_left_titles_in_fs1_to_fs5():
