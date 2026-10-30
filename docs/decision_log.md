@@ -5525,3 +5525,13 @@ Chosen:          as done   Default from: 13q prompt, DL-508
 Test:            tests/test_ms13_independent.py (7 tests)
 Status:          13q done; fast suite in the next entry
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-510  MS13 13q (continued): fast suite after the independent recomputation    [ID: MS13, 13q, DL-509]
+Date:            2026-10-30        Author:
+Decision:        FACT. FAST SUITE at 4f7e72c: 1129 passed, 24 deselected, 9 xfailed, 1 warning, exit 0 taken from pytest itself (output redirected to a file, no pipe), 603.14 s; 1122 of DL-507 plus the 7 new tests. No test failed. No tag.
+Reason:          instruction of the reviewer (13q prompt)
+Options:         -
+Chosen:          as done   Default from: 13q prompt
+Test:            fast suite as above
+Status:          13q done; open items for the reviewer in the report
+Commit/tag:      the commit that adds this entry; no tag
