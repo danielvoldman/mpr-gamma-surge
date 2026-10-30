@@ -251,7 +251,7 @@ def fs1(c: Ctx, R: Rows):
     R.add("FS1", "cusp_eta", "cusp eta/Delta", float(cu[1]), "A1: cusp_r_eta_J[1]", tol=("rel", 1e-12), drawn="d['cusp_eta']")
     R.add("FS1", "cusp_J", "cusp J/sqrt(Delta)", float(cu[2]), "A1: cusp_r_eta_J[2]", tol=("rel", 1e-12), drawn="d['cusp_J']")
     nr = np.asarray(a1["n_roots"])
-    R.add("FS1", "roots_shape", "n_roots grid shape", list(nr.shape), "A1: n_roots", drawn="list(d['n_roots_T'].shape)")
+    R.add("FS1", "roots_shape", "n_roots grid shape (eta, J)", list(nr.shape), "A1: n_roots", drawn="list(d['n_roots_T'].shape)[::-1]")
     R.add("FS1", "roots_max", "largest root count", int(nr.max()), "A1: n_roots", drawn="int(d['n_roots_T'].max())")
     foc = np.asarray(a2["ring_is_focus"]).astype(bool)
     ing = np.asarray(a2["ring_in_G"]).astype(bool)
@@ -307,7 +307,8 @@ def f3(c: Ctx, R: Rows):
     dv = s6["devalle"]
     R.add("F3", "ref_fmin", "cycle frequency at the start of the ref_devalle region (Hz)", dv["f_min_region"], "A6/a6_summary.json:devalle.f_min_region", printed=(r"cycle at ref_devalle at (\d+\.\d)", 1))
     R.add("F3", "ref_fmax", "cycle frequency at the end of the ref_devalle region (Hz)", dv["f_max_region"], "A6/a6_summary.json:devalle.f_max_region", printed=(r"to (\d+\.\d) Hz \(DL-131", 1))
-    R.add("F3", "ref_etaH", "Hopf point of ref_devalle", dv["eta_H"], "A6/a6_summary.json:devalle.eta_H", tol=("rel", 1e-12), drawn="d['headline_hopf_eta']")
+    R.add("F3", "ref_etaH", "Hopf point of ref_devalle (continuation value)", dv["hopf_param_julia"], "A6/a6_summary.json:devalle.hopf_param_julia", tol=("rel", 1e-12), drawn="d['headline_hopf_eta']")
+    R.add("F3", "ref_etaH_nominal", "nominal Hopf point of the paths", dv["eta_H"], "A6/a6_summary.json:devalle.eta_H", tol=("rel", 1e-12), drawn="d['P2_eta_H']")
     # the path records
     paths = {"P1": "S5/ramp/p1_linear/p1_linear_0008_333859d6472b.json", "P2": "S5/ramp/S5ramp/S5ramp_0000_240de3ef73be.json", "P3": "S6/S6_P3/S6_P3_0006_5fb237a3d3fd.json",
              "P4a": "S6/S6_P4a/S6_P4a_0002_42415b96d00c.json", "P4b": "S6/S6_P4b/S6_P4b_0002_7be4a3067a9d.json", "P5": "S5/ramp/p5_linear/p5_linear_0008_da88da96d075.json"}
@@ -367,13 +368,306 @@ def f2(c: Ctx, R: Rows):
     R.add("F2", "net_rel_above_min", "smallest relative difference (percent) above eta_bar 3.0", 100.0 * float(np.nanmin(rv[above])), "S4/s4_net_summary.npz: cmp_rel_v_ptp", printed=(r"to (-\d+\.\d) percent above", 1),
           tol=("rel", 1e-9), drawn="100*d['cmp_rel_v_above_min']")
     nv = np.asarray(ns["net_v_ptp"], float)
-    below = npar < etaH - 1e-9
-    R.add("F2", "net_floor_n", "network steps below the Hopf point", int(below.sum()), "S4/s4_net_summary.npz", drawn="d['net_floor_steps']")
+    below = npar < etaH - 0.1                                  # DL-129: steps within 0.1 of eta_H are not judged (the step at the Hopf point itself is not 'below')
+    R.add("F2", "net_floor_n", "network steps more than 0.1 below the Hopf point", int(below.sum()), "S4/s4_net_summary.npz", drawn="d['net_floor_steps']")
     R.add("F2", "net_floor_min", "smallest network v amplitude below the Hopf point", float(np.nanmin(nv[below])), "S4/s4_net_summary.npz: net_v_ptp", printed=(r"v amplitude (0\.\d+) to", 1), tol=("rel", 1e-9), drawn="d['net_floor_v_ptp_min']")
     R.add("F2", "net_floor_max", "largest network v amplitude below the Hopf point", float(np.nanmax(nv[below])), "S4/s4_net_summary.npz: net_v_ptp", printed=(r"v amplitude 0\.\d+ to (0\.\d+);", 1), tol=("rel", 1e-9), drawn="d['net_floor_v_ptp_max']")
 
 
-FUNCS = {"F5": f5, "F6": f6, "FS1": fs1, "F3": f3, "F2": f2}
+# ---------------------------------------------------------------------------------------------------- F4
+def f4(c: Ctx, R: Rows):
+    a7 = c.pq("A7/a7_ramp_metrics.parquet")
+    s = "A7/a7_ramp_metrics.parquet"
+    R.add("F4", "a7_rows", "rows of the A7 table", len(a7), s)
+    for f_, n_ in sorted(_tally(a7["family"]).items()):
+        R.add("F4", f"rows_{f_}", f"A7 rows of family {f_}", n_, s + ": family")
+    md = a7[a7["mode"] == "D"]
+    inr = md[md["in_range"].fillna(False).astype(bool)]
+    test = inr[~inr["eta_const_at_t_pred"].fillna(False).astype(bool)]
+    steps = [float(x) for x in test["match_err_steps"]]
+    R.add("F4", "n_in_range", "mode-D runs inside the RB3(a) range", len(inr), s + ": in_range", drawn="d['n_in_range']")
+    R.add("F4", "n_testable", "testable in-range runs", len(test), s + ": eta_const_at_t_pred", printed=(r"0 of (\d+) testable", 1), drawn="d['n_testable']")
+    R.add("F4", "n_within", "testable runs within one A4 step", sum(1 for x in steps if x <= 1.0), s + ": match_err_steps", printed=(r"(\d+) of \d+ testable", 1), drawn="d['n_testable_within_one_step']")
+    R.add("F4", "n_const", "in-range runs with eta constant at the predicted time", len(inr) - len(test), s, printed=(r"(\d+) more in-range runs", 1))
+    R.add("F4", "steps_sorted", "match errors in steps, sorted", sorted(steps), s + ": match_err_steps", tol=("rel", 1e-12), drawn="[float(x) for x in d['testable_match_steps']]")
+    printed_steps = [r"\((\d+\.\d), \d+\.\d, \d+\.\d, \d+\.\d, \d+\.\d and \d+\.\d steps", r"\d+\.\d, (\d+\.\d), \d+\.\d, \d+\.\d, \d+\.\d and \d+\.\d steps",
+                     r"\d+\.\d, \d+\.\d, (\d+\.\d), \d+\.\d, \d+\.\d and \d+\.\d steps", r"\d+\.\d, \d+\.\d, \d+\.\d, (\d+\.\d), \d+\.\d and \d+\.\d steps",
+                     r"\d+\.\d, \d+\.\d, \d+\.\d, \d+\.\d, (\d+\.\d) and \d+\.\d steps", r"\d+\.\d, \d+\.\d, \d+\.\d, \d+\.\d, \d+\.\d and (\d+\.\d) steps"]
+    for i, x in enumerate(steps[:6]):
+        R.add("F4", f"step_{i}", f"match error in steps of testable run {i} (table order)", x, s + ": match_err_steps", tol=0.05, printed=(printed_steps[i], 1))
+    R.add("F4", "n_nocross", "mode-D runs without a raw crossing", int(md["delay_eta_cross"].isna().sum()), s + ": delay_eta_cross", drawn="d['n_nocross']")
+    R.add("F4", "n_none", "mode-D runs of class D-none", int((md["cls"] == "D-none").sum()), s + ": cls", shared="stored class column", drawn="d['n_none_class']")
+    h = a7[a7["family"] == "S5ramp"].iloc[0]
+    rd = a7[a7["family"] == "radau"].iloc[0]
+    R.add("F4", "head_onset", "noise-free headline onset (s)", float(h["onset_s"]), s + ": S5ramp.onset_s", printed=(r"headline onset \((\d+\.\d+) s\)", 1), drawn="d['head_onset_s']", tol=("rel", 1e-12))
+    R.add("F4", "head_pred", "predicted entry time (s)", float(h["t_pred_s"]), s + ": S5ramp.t_pred_s", printed=(r"predicted entry \((\d+\.\d) s\)", 1), drawn="d['head_t_pred_s']", tol=("rel", 1e-12))
+    R.add("F4", "head_dop", "headline onset, DOP853 (raw crossing, s)", float(h["onset_cross_s"]), s + ": S5ramp.onset_cross_s", printed=(r"DOP853 (\d+\.\d+) s", 1), drawn="d['head_onset_cross_s']", tol=("rel", 1e-12))
+    R.add("F4", "head_radau", "headline onset, Radau (raw crossing, s)", float(rd["onset_cross_s"]), s + ": radau.onset_cross_s", printed=(r"Radau (\d+\.\d+) s", 1), drawn="d['head_radau_onset_cross_s']", tol=("rel", 1e-12))
+    R.add("F4", "radau_ms", "Radau minus DOP853 (ms)", round((float(rd["onset_cross_s"]) - float(h["onset_cross_s"])) * 1000.0, 6), s, printed=(r"(\d+) ms against the 1 ms bound", 1), drawn="d['head_radau_minus_default_ms']", tol=1e-6)
+    R.add("F4", "head_delay_pred", "predicted delay in eta units", float(h["delay_eta_pred"]), s + ": S5ramp.delay_eta_pred", tol=("rel", 1e-12), drawn="d['head_delay_eta_pred']")
+    levels = []
+    idents = []
+    for lvl, f_ in enumerate(("floor_l0", "floor_l1", "floor_l2")):
+        sub = a7[a7["family"] == f_]
+        dt0 = sub[np.isclose(sub["heun_dt_tau"].astype(float), 1e-3, rtol=0, atol=0)]
+        levels.append((float(np.median(dt0["delay_eta_cross"].astype(float))), float(np.median(dt0["delay_eta"].astype(float)))))
+        base, ident = None, True
+        for dt in (1e-3, 5e-4, 2.5e-4, 1e-4):
+            sd = sub[np.isclose(sub["heun_dt_tau"].astype(float), dt, rtol=0, atol=0)].sort_values("seed")["delay_eta_cross"].astype(float).to_numpy()
+            base = sd if base is None else base
+            ident &= bool(np.array_equal(base, sd, equal_nan=True))
+        idents.append(ident)
+        R.add("F4", f"floor{lvl}_dt_identical", f"floor level {lvl}: raw-crossing delays equal at the four Heun dt", ident, s + ": heun_dt_tau, delay_eta_cross")
+    R.add("F4", "floor_dt_identical", "raw-crossing delays equal at all four dt for all levels", all(idents), s, drawn="d['floor_dt_identical']")
+    pr = [r"(-0\.000760)", r"(-0\.0423)", r"(-0\.1051) in eta"]
+    for i, (mc, ml) in enumerate(levels):
+        R.add("F4", f"floor{i}_median_cross", f"median raw-crossing delay at floor level {i}", mc, s, printed=(pr[i], 1), tol=("rel", 1e-12), drawn=f"float(d['floor_median_cross'][{i}])")
+        R.add("F4", f"floor{i}_median_cls", f"median classifier-onset delay at floor level {i}", ml, s, tol=("rel", 1e-12), shared="stored delay from the frozen classifier onset",
+              printed=((r"tie at (-1\.5) at", 1) if i < 2 else None), drawn=f"float(d['floor_median_cls'][{i}])")
+    nz = a7[a7["family"] == "p2_noise"]
+    R.add("F4", "noise_rows", "noisy ramp runs (13 T_ramp x 10 seeds)", len(nz), s + ": p2_noise", drawn="int(np.size(d['noise_delay_eta_cross']))")
+    R.add("F4", "noise_sigma", "noise sigma", float(nz["sigma"].iloc[0]), s + ": p2_noise.sigma", printed=(r"sigma (0\.\d+),", 1), tol=("rel", 1e-12))
+    med = nz.groupby("T_ramp_s")["delay_eta_cross"].apply(lambda x: float(np.nanmedian(x.astype(float)))).sort_index()
+    ts = list(med.index)
+    first = None
+    for i in range(len(ts)):
+        if all(med.iloc[j] < 0 for j in range(i, len(ts))):
+            first = ts[i]
+            break
+    R.add("F4", "noise_median_negative_from", "smallest T_ramp from which the median raw-crossing delay stays negative (s)", first, s + ": p2_noise.delay_eta_cross", printed=(r"negative from T_ramp (\d+\.\d+) s", 1))
+    R.add("F4", "noise_T_ramps", "T_ramp values of the noisy runs", len(ts), s, drawn="len(d['noise_eps'])")
+    a3 = c.pq("A3/a3_sn_ramp.parquet").sort_values("T_ramp_s")
+    R.add("F4", "m2_rows", "M2 saddle-node ramp runs", len(a3), "A3/a3_sn_ramp.parquet", printed=(r"damped at all (\d+) T_ramp", 1), drawn="len(d['a3_eps'])")
+    R.add("F4", "m2_damped", "M2 runs with ring class damped", int((a3["ring_class"] == "damped").sum()), "A3/a3_sn_ramp.parquet: ring_class", shared="stored class column", drawn="sum(1 for x in d['a3_ring_class'] if x == 'damped')")
+    R.add("F4", "m2_offset_first", "jump offset from the fold at the smallest T_ramp", float(a3["offset"].iloc[0]), "A3/a3_sn_ramp.parquet: offset", printed=(r"falls from (\d+\.\d+) to", 1))
+    R.add("F4", "m2_offset_last", "jump offset from the fold at the largest T_ramp", float(a3["offset"].iloc[-1]), "A3/a3_sn_ramp.parquet: offset", printed=(r"falls from \d+\.\d+ to (\d+\.\d+)\)", 1))
+    for f_ in ("p1_linear", "p1_sigmoid", "p2_linear", "p2_sigmoid", "p5_linear", "p5_sigmoid"):
+        sub = a7[a7["family"] == f_].sort_values("T_ramp_s")
+        for col in ("delay_eta_cross", "f_pk_hz", "peak_power_abs", "duration_s"):
+            R.add("F4", f"{f_}_{col}", f"{col} of {f_} sorted by T_ramp", [float(x) for x in sub[col].astype(float)], s, tol=("rel", 1e-12),
+                  drawn=f"[float(x) for x in d['{f_}_{col}'][np.argsort(d['{f_}_T_ramp_s'])]]")
+
+
+def a7_onset(c: Ctx):
+    return float(c.pq("A7/a7_ramp_metrics.parquet").query("family == 'S5ramp'")["onset_s"].iloc[0])
+
+
+# ---------------------------------------------------------------------------------------------------- F1
+def f1(c: Ctx, R: Rows):
+    import glob
+    rec = "S5/ramp/S5ramp/S5ramp_0000_240de3ef73be"
+    z = c.npz(rec + ".npz")
+    R.add("F1", "mf_n", "samples of the mean-field headline record", len(z["t_ms"]), rec + ".npz: t_ms", drawn="d['mf_n']")
+    for k, nm in (("r_min", "r"), ("r_max", "r"), ("v_min", "v"), ("v_max", "v")):
+        fn = np.min if k.endswith("min") else np.max
+        R.add("F1", f"mf_{k}", f"{k.split('_')[1]} of {nm} (mean field)", float(fn(z[nm])), rec + f".npz: {nm}", tol=("rel", 1e-12), drawn=f"d['mf_{k}']")
+    R.add("F1", "eta_start", "eta at the first sample", float(z["eta"][0]), rec + ".npz: eta", tol=("rel", 1e-12), drawn="d['path_eta_start']")
+    R.add("F1", "eta_peak", "largest eta", float(np.max(z["eta"])), rec + ".npz: eta", tol=("rel", 1e-12), drawn="d['path_eta_peak']")
+    R.add("F1", "J_start", "J at the first sample", float(z["J"][0]), rec + ".npz: J", tol=("rel", 1e-12), drawn="d['path_J0']")
+    R.add("F1", "J_end", "J at the last sample", float(z["J"][-1]), rec + ".npz: J", tol=("rel", 1e-12), drawn="d['path_J_end']")
+    cfg = c.json(rec + ".json")["config"]["path"]
+    R.add("F1", "t_on", "ramp start t_on (s)", float(cfg["t_on_s"]), rec + ".json:config.path.t_on_s", tol=0.0, drawn="d['path_t_on_s']")
+    R.add("F1", "T_ramp", "T_ramp (s)", float(cfg["T_ramp_s"]), rec + ".json:config.path.T_ramp_s", tol=0.0, printed=(r"T_ramp (\d+) s\)", 1), drawn="d['path_T_ramp_s']")
+    net = []
+    for p in sorted(glob.glob(str(c.res / "S8" / "S8_head" / "*.json"))):
+        j = json.loads(Path(p).read_text(encoding="utf-8"))
+        net.append((float(j["config"]["path"]["T_ramp_s"]), int(j["seed"]["spawn_key"][-1]), Path(p).stem))
+    R.add("F1", "net_records", "stored S8 headline records", len(net), "S8/S8_head/*.json", drawn="6")
+    n120 = sorted((s_, n_) for t_, s_, n_ in net if t_ == 120.0)
+    for k, (sd, nm) in enumerate(n120):
+        zz = c.npz(f"S8/S8_head/{nm}.npz")
+        R.add("F1", f"net{k}_n", f"samples of the 120 s network record, seed {sd}", len(zz["r"]), f"S8/S8_head/{nm}.npz: r", drawn=f"d['net{k}_n']")
+        for nmv, fn, lab in (("r", np.min, "min"), ("r", np.max, "max"), ("v", np.min, "min"), ("v", np.max, "max")):
+            R.add("F1", f"net{k}_{nmv}_{lab}", f"{lab} of {nmv}, network seed {sd}", float(fn(zz[nmv])), f"S8/S8_head/{nm}.npz: {nmv}", tol=("rel", 1e-12), drawn=f"d['net{k}_{nmv}_{lab}']")
+    if n120:
+        zz = c.npz(f"S8/S8_head/{n120[0][1]}.npz")
+        R.add("F1", "ras_spikes", "spikes of the 300 drawn neurons (seed 0)", len(zz["raster_t_ms"]), "raster_t_ms", drawn="len(d['ras_t_s'])")
+        R.add("F1", "ras_rows", "drawn neurons", len(zz["raster_j"]), "raster_j", drawn="d['ras_n_rows']")
+        R.add("F1", "ras_active", "drawn neurons that spike at least once", len(np.unique(zz["raster_neuron"])), "raster_neuron", drawn="d['ras_n_active_rows']")
+    ev = c.json("ms10/eval/ms10_eval.json")["rb1_headline"]
+    sh = "stored class and metrics of the original evaluator"
+    s120, s10 = ev["120.0"]["seeds"], ev["10.0"]["seeds"]
+    mfo = a7_onset(c)
+    R.add("F1", "cls120", "classes of the three 120 s network seeds", [x["class"] for x in s120], "ms10_eval.json:rb1_headline.120.0.seeds", shared=sh, drawn="list(d['cls120'])")
+    R.add("F1", "n_ssus120", "120 s seeds of class S-sus", sum(1 for x in s120 if x["class"] == "S-sus"), "same", shared=sh, printed=(r"all 3 stored seeds are S-sus \((\d+) of 3", 1))
+    R.add("F1", "onset120", "classifier onsets of the 120 s seeds (s)", [float(x["onset_s"]) for x in s120], "same", shared=sh, tol=0.0, drawn="[float(x) for x in d['onset120_s']]")
+    R.add("F1", "onset120_text", "common classifier onset of the 120 s seeds (s)", sorted(set(float(x["onset_s"]) for x in s120))[0], "same", shared=sh, printed=(r"classifier onset (\d+\.\d) s", 1))
+    R.add("F1", "onset_gap", "mean-field onset minus the network classifier onset (s)", mfo - float(s120[0]["onset_s"]), "A7 S5ramp.onset_s minus ms10_eval.json", shared=sh, printed=(r"\((\d+\.\d) s before the mean-field", 1), tol=1e-9)
+    for k, x in enumerate(s120):
+        R.add("F1", f"fpk120_{k}", f"f_pk of the 120 s seed {k} (Hz)", float(x["f_pk_hz"]), "ms10_eval.json:rb1_headline.120.0.seeds", shared=sh, tol=0.0, printed=(r"f_pk (\d+\.\d), (\d+\.\d) and (\d+\.\d) Hz", k + 1),
+              drawn=f"float(d['fpk120_hz'][{k}])")
+    R.add("F1", "cls10", "classes of the three 10 s network seeds", [x["class"] for x in s10], "ms10_eval.json:rb1_headline.10.0.seeds", shared=sh, drawn="list(d['cls10'])")
+    for k in range(3):
+        R.add("F1", f"cls10_{k}", f"class of 10 s seed {k}", s10[k]["class"], "same", shared=sh, printed=(r"the 3 seeds are (S-\w+), (S-\w+) and (S-\w+) \(", k + 1))
+    for T in ("120.0", "10.0"):
+        R.add("F1", f"pass_{T}", f"seeds that pass RB1 at T_ramp {T}", int(ev[T]["pass_count"]), f"ms10_eval.json:rb1_headline.{T}.pass_count", shared=sh)
+    R.add("F1", "pass_text", "seeds that pass at each T_ramp (A11 text)", _nums(_a11(c, "RB1", "headline_10s")["value"])[0], "A11 RB1.headline_10s", shared="stored A11 table", printed=(r"\((\d+) of 3 seeds at each", 1))
+    R.add("F1", "ctrl120", "classes of the 120 s no-ramp controls", ev["120.0"]["controls"]["classes"], "ms10_eval.json:rb1_headline.120.0.controls", shared=sh, drawn="d['ctrl120']")
+    R.add("F1", "ctrl10", "classes of the 10 s no-ramp controls", ev["10.0"]["controls"]["classes"], "ms10_eval.json:rb1_headline.10.0.controls", shared=sh, drawn="d['ctrl10']")
+    R.add("F1", "ref_class", "mean-field reference class", ev["120.0"]["ref"]["class"], "ms10_eval.json:rb1_headline.120.0.ref", shared=sh, drawn="d['ref_class']")
+    a7 = c.pq("A7/a7_ramp_metrics.parquet")
+    R.add("F1", "ref_fpk", "mean-field spectral peak (Hz), A7 table", float(a7[a7["family"] == "S5ramp"]["f_pk_hz"].iloc[0]), "A7/a7_ramp_metrics.parquet: S5ramp.f_pk_hz", printed=(r"spectral peak of (\d+\.\d) Hz", 1), drawn="d['ref_f_pk_hz']", tol=0.0)
+    R.add("F1", "ref_onset", "mean-field onset (s), A7 table", mfo, "A7/a7_ramp_metrics.parquet: S5ramp.onset_s", printed=(r"and onset (\d+\.\d+) s", 1), drawn="d['ref_onset_s']", tol=("rel", 1e-12))
+    R.add("F1", "a_ref", "A_ref", float(c.json("A8/a8_aref.json")["chosen"]["A_ref"]), "A8/a8_aref.json:chosen.A_ref", tol=("rel", 1e-12), drawn="d['a_ref']")
+    R.add("F1", "rb1_verdict", "RB1 verdict", _a11(c, "RB1", "overall")["pass_or_fail"], "A11 RB1.overall", shared="stored A11 table", drawn="d['rb1_verdict']")
+    from mprsurge.analysis import surge_metrics as SM
+    fs = 1000.0 / float(c.json(rec + ".json")["config"]["solver"]["dt_out_ms"])
+    t, f, S = SM.spectrogram_v(z["v"], fs, 2.0, 1.0)
+    R.add("F1", "spec_windows", "windows of the mean-field spectrogram (W 2 s, step 1 s)", len(t), "frozen surge_metrics.spectrogram_v on the stored v", shared="frozen spectrogram routine", drawn="len(d['spec_t_s'])")
+
+
+# ---------------------------------------------------------------------------------------------------- FS2
+def fs2(c: Ctx, R: Rows):
+    a4 = c.npz("A4/a4_hopf_curves.npz")
+    a5 = c.npz("A5/a5_cycles.npz")
+    chk = c.json("A5/check/a5_check.json")
+    a6 = c.json("A6/a6_summary.json")
+    sh = "stored check file of the original analysis"
+    R.add("FS2", "hopf_a4", "Hopf tau_d of ceni from the A4 curves (ms)", float(a4["ceni_hopf_tau_d_ms"][0]), "A4/a4_hopf_curves.npz: ceni_hopf_tau_d_ms", printed=(r"tau_d (\d+\.\d+) ms, not", 1), tol=("rel", 1e-12), drawn="d['hopf_a4_ms']")
+    R.add("FS2", "hopf_a5", "Hopf tau_d of ceni from the A5 branch (ms)", float(a5["ceni_hopf_tau_d_ms"][0]) if "ceni_hopf_tau_d_ms" in a5 else float("nan"), "A5/a5_cycles.npz: ceni_hopf_tau_d_ms", tol=("rel", 1e-9), drawn="d['hopf_a5_ms']")
+    R.add("FS2", "hopf_check", "Hopf tau_d in the K7 check file (ms)", chk["k7_amplitude"]["hopf_ms"], "A5/check/a5_check.json:k7_amplitude.hopf_ms", tol=("rel", 1e-12), drawn="d['hopf_check_ms']", shared=sh)
+    R.add("FS2", "k9_max", "largest Delta/eta_bar (K9)", float(np.max(a4["k9_ratio"])), "A4/a4_hopf_curves.npz: k9_ratio", printed=(r"Delta/eta_bar (0\.\d+) at eta_bar", 1), tol=("rel", 1e-12), drawn="float(np.max(d['k9_ratio']))")
+    R.add("FS2", "k9_eta", "eta_bar of the K9 rows", [float(x) for x in a4["k9_eta_bar"]], "A4: k9_eta_bar", tol=0.0, drawn="[float(x) for x in d['k9_eta_bar']]")
+    R.add("FS2", "k11_dev", "largest deviation of Im lambda/(2 pi r*) from 1 (K11)", float(np.max(np.abs(np.asarray(a4["k11_ratio"], float) - 1.0))), "A4: k11_ratio", printed=(r"deviation from 1 (\d\.\de-\d)", 1),
+          tol=("rel", 1e-12), drawn="d['k11_max_dev']")
+    R.add("FS2", "k11_n", "K11 rows", len(a4["k11_ratio"]), "A4: k11_ratio", drawn="len(d['k11_ratio'])")
+    for J, pat in (("8.0", r"frequency is (\d+\.\d), "), ("20.0", r"frequency is \d+\.\d, (\d+\.\d) and"), ("40.0", r"and (\d+\.\d) percent at 8")):
+        fr = np.asarray(a6["k10"]["J_dependence"][J]["linear_freq_hz"], float)
+        R.add("FS2", f"k10_{J}", f"relative change of the linear frequency with J at tau_d {J} ms (percent)", 100.0 * float((fr.max() - fr.min()) / fr.mean()), "A6/a6_summary.json:k10.J_dependence.*.linear_freq_hz",
+              printed=(pat, 1), tol=("rel", 1e-9), drawn=f"100*d['k10_rel_change_{J}']")
+    sn = c.json("S3/s3_net_summary.json")["K8"]
+    R.add("FS2", "k8_rel", "K8 network frequency relative to the mean field (percent, absolute)", 100.0 * abs((sn["f_net_hz"] - sn["f_mf_hz"]) / sn["f_mf_hz"]), "S3/s3_net_summary.json:K8", printed=(r"within (0\.\d+) percent", 1),
+          tol=("rel", 1e-9), drawn="-100*d['k8_net_rel_diff']")
+    R.add("FS2", "k8_tol", "K8 tolerance (percent)", 100.0 * float(sn["tol"]), "S3/s3_net_summary.json:K8.tol", printed=(r"tolerance (\d+) percent;", 1), drawn="100*d['k8_net_tol']", tol=1e-9)
+    R.add("FS2", "k7_resid", "K7 largest residual of the amplitude-squared line (percent)", 100.0 * chk["k7_amplitude"]["s4_up"]["max_resid_frac"], "A5/check/a5_check.json:k7_amplitude.s4_up", shared=sh,
+          printed=(r"residual rule \((\d+\.\d+) against", 1), tol=("rel", 1e-9), drawn="100*d['fit_s4_up_max_resid_frac']")
+    R.add("FS2", "k7_bound", "K7 residual bound (percent)", 100.0 * float(chk["rel_tol"]), "A5/check/a5_check.json:rel_tol", printed=(r"against (\d+) percent", 1), shared=sh, tol=1e-9)
+    R.add("FS2", "k7_fit_points", "K7 fit points (S4 up)", int(chk["k7_amplitude"]["s4_up"]["n_points"]), "A5/check/a5_check.json", shared=sh, drawn="int(d['fit_s4_up_n_points'])")
+
+
+# ---------------------------------------------------------------------------------------------------- FS3
+def fs3(c: Ctx, R: Rows):
+    tsv = c.csv("ms10/10g/record_classes.tsv", "\t")
+    sh = "stored class column of the original evaluator"
+    pats = [r"in (\d+), \d+, \d+ and \d+ of 10 seeds", r"in \d+, (\d+), \d+ and \d+ of 10 seeds", r"in \d+, \d+, (\d+) and \d+ of 10 seeds", r"in \d+, \d+, \d+ and (\d+) of 10 seeds"]
+    cpat = {3000: r"\((\d+) of 3 at 3e3", 10000: r"(\d+) of 3 at 1e4"}
+    for i, N in enumerate((1000, 3000, 10000, 30000)):
+        cl = [r["class"] for r in tsv if r["list"] == "S9" and int(r["N"]) == N]
+        R.add("FS3", f"s9_surge_N{N}", f"S9 seeds in a surge class at N = {N}", sum(1 for x in cl if x in SURGE), "ms10/10g/record_classes.tsv", shared=sh, drawn=f"int(d['s9_surge'][{i}])", printed=(pats[i], 1))
+        R.add("FS3", f"s9_n_N{N}", f"S9 records at N = {N}", len(cl), "ms10/10g/record_classes.tsv", shared=sh, drawn=f"int(d['s9_seeds'][{i}])")
+        for k, kl in enumerate(CLASSES):
+            R.add("FS3", f"s9_N{N}_{kl}", f"S9 seeds of class {kl} at N = {N}", cl.count(kl), "ms10/10g/record_classes.tsv", shared=sh, drawn=f"int(d['s9_count'][{i}][{k}])")
+        cc = [r["class"] for r in tsv if r["list"] == "C2_S9" and int(r["N"]) == N]
+        R.add("FS3", f"ctrl_surge_N{N}", f"no-ramp controls in a surge class at N = {N}", sum(1 for x in cc if x in SURGE), "ms10/10g/record_classes.tsv", shared=sh, drawn=f"int(d['s9_ctrl_surge'][{i}])",
+              printed=((cpat[N], 1) if N in cpat else None))
+        R.add("FS3", f"ctrl_n_N{N}", f"no-ramp control records at N = {N}", len(cc), "ms10/10g/record_classes.tsv", shared=sh, drawn=f"int(d['s9_ctrl_n'][{i}])")
+    n4 = sum(1 for r in tsv if r["list"] == "S9" and int(r["N"]) == 10000 and r["class"] in SURGE)
+    n3 = sum(1 for r in tsv if r["list"] == "S9" and int(r["N"]) == 30000 and r["class"] in SURGE)
+    R.add("FS3", "nrule_1e4", "S9 surge seeds at N = 1e4 (N rule)", n4, "ms10/10g/record_classes.tsv", shared=sh, printed=(r"against (\d+) at 1e4", 1), drawn="d['nrule_count_1e4']")
+    R.add("FS3", "nrule_3e4", "S9 surge seeds at N = 3e4 (N rule)", n3, "ms10/10g/record_classes.tsv", shared=sh, printed=(r"passes \((\d+) seeds at 3e4", 1), drawn="d['nrule_count_3e4']")
+    for shape in ("gaussian", "uniform"):
+        cl = [r["class"] for r in tsv if r["list"] == "S10" and r["shape"] == shape]
+        R.add("FS3", f"s10_{shape}_sabs", f"S10 {shape} seeds of class S-abs", cl.count("S-abs"), "ms10/10g/record_classes.tsv", shared=sh, printed=((r"Gaussian and uniform give S-abs in (\d+) of 3", 1) if shape == "gaussian" else None))
+    lo = [x["class"] for x in sorted((r for r in tsv if r["list"] == "S10" and r["shape"] == "lorentzian"), key=lambda r: int(r["seed"]))]
+    for k in range(3):
+        R.add("FS3", f"s10_lor_{k}", f"S10 Lorentzian seed {k} class", lo[k], "ms10/10g/record_classes.tsv", shared=sh, printed=(r"Lorentzian seeds give (S-\w+), (S-\w+), (S-\w+) so", k + 1))
+    ev = c.json("A11/a11_evaluators.json")["evaluators"]["rb2"]
+    sh2 = "stored A11 evaluator output (rb2)"
+    gate = {g["sigma_factor"]: g for g in ev["gate"]}
+    R.add("FS3", "s11_kept_05", "S11 seeds that keep the headline class at 0.5 sigma", gate[0.5]["kept"], "A11/a11_evaluators.json:rb2.gate", shared=sh2, printed=(r"kept in (\d+) of 10 seeds at 0\.5 sigma", 1), drawn="int(d['gate_kept'][0])")
+    R.add("FS3", "s11_kept_10", "S11 seeds that keep the headline class at sigma", gate[1.0]["kept"], "A11/a11_evaluators.json:rb2.gate", shared=sh2, printed=(r"and (\d+) of 10 at sigma \(FAIL\)", 1), drawn="int(d['gate_kept'][1])")
+    for g in ev["controls"]:
+        R.add("FS3", f"s11_ctrl_{g['sigma_factor']}", f"constant-parameter controls that reach the primary reading at sigma factor {g['sigma_factor']}", g["kept_primary"], "A11/a11_evaluators.json:rb2.controls", shared=sh2,
+              printed=((r"controls reach (\d+) of 10 at every sigma", 1) if g["sigma_factor"] == 0.5 else None))
+    sg = c.pq("A9/a9_subgrid_agreement.parquet")
+    R.add("FS3", "subgrid_agree", "subgrid cells that agree (D24)", int(sg["d24_cell_agrees"].astype(bool).sum()), "A9/a9_subgrid_agreement.parquet", printed=(r"in (\d+) of 225 cells against", 1), drawn="d['subgrid_agree']")
+    R.add("FS3", "subgrid_cells", "subgrid cells", len(sg), "A9/a9_subgrid_agreement.parquet", printed=(r"in \d+ of (\d+) cells against", 1), drawn="d['subgrid_cells']")
+    R.add("FS3", "subgrid_needed", "subgrid cells needed", math.ceil(0.9 * len(sg)), "A9/a9_subgrid_agreement.parquet", printed=(r"against (\d+) needed", 1), drawn="d['subgrid_needed']")
+    R.add("FS3", "rb8_verdict", "RB8 verdict", c.json("ms10/eval/ms10_eval.json")["rb8"]["verdict"], "ms10_eval.json:rb8.verdict", shared="stored evaluator output", drawn="d['rb8_verdict']")
+
+
+# ---------------------------------------------------------------------------------------------------- FS4
+def fs4(c: Ctx, R: Rows):
+    a7 = c.pq("A7/a7_ramp_metrics.parquet")
+    s = "A7/a7_ramp_metrics.parquet"
+    head = a7[a7["family"].isin(["S5ramp", "delta0", "rtol", "radau"])]
+    R.add("FS4", "head_rows", "headline numerics rows (S5ramp, delta0 x 2, rtol x 2, radau)", len(head), s + ": family", drawn="len(d['head_class'])")
+    R.add("FS4", "head_Dtr", "headline numerics rows of class D-tr", int((head["cls"] == "D-tr").sum()), s + ": cls", shared="stored class column", drawn="sum(1 for x in d['head_class'] if x == 'D-tr')")
+    on = head[head["family"] != "radau"]["onset_cross_s"].astype(float)
+    base_on = float(head[head["family"] == "S5ramp"]["onset_cross_s"].iloc[0])
+    R.add("FS4", "onset_common", "raw-crossing onset of the five non-Radau rows (s), largest spread", float(on.max() - on.min()), s, tol=0.0)
+    R.add("FS4", "onset_default", "raw-crossing onset, default settings (s)", base_on, s, printed=(r"onset is (\d+\.\d+) s everywhere", 1), tol=("rel", 1e-12))
+    rad = float(head[head["family"] == "radau"]["onset_cross_s"].iloc[0])
+    R.add("FS4", "onset_radau", "Radau raw-crossing onset (s)", rad, s, printed=(r"Radau, which gives (\d+\.\d+) s", 1), tol=("rel", 1e-12))
+    R.add("FS4", "radau_ms", "Radau minus default (ms)", round((rad - base_on) * 1000.0, 6), s, printed=(r"(\d+) ms against the 1 ms bound", 1), drawn="d['head_radau_minus_default_ms']", tol=1e-6)
+    for lvl in ("floor_l0", "floor_l1", "floor_l2"):
+        sub = a7[a7["family"] == lvl]
+        base, same_ = None, True
+        for dt in (1e-3, 5e-4, 2.5e-4, 1e-4):
+            v = sub[np.isclose(sub["heun_dt_tau"].astype(float), dt, rtol=0, atol=0)].sort_values("seed")["delay_eta_cross"].astype(float).to_numpy()
+            base = v if base is None else base
+            same_ &= bool(np.array_equal(base, v, equal_nan=True))
+        R.add("FS4", f"{lvl}_dt_same", f"{lvl}: floored delay unchanged across the four Heun dt", same_, s)
+    ev = c.json("A11/a11_evaluators.json")["evaluators"]
+    sh = "stored A11 evaluator output (rb6_network)"
+    pr = ev["rb6_network"]["per_reading"]
+    ce = pr["classifier_episode_fpk"]
+    rel = [abs(float(r["rel"])) for r in ce["rows"] if r.get("rel") is not None]
+    R.add("FS4", "net_ce_pass", "seeds that pass the classifier-episode f_pk bound", int(ce["n_pass"]), "A11/a11_evaluators.json:rb6_network", shared=sh, printed=(r"\((\d+) of 3 seeds pass\)", 1), drawn="d['net_ce_n_pass']")
+    psd_key = [k for k in pr if k != "classifier_episode_fpk"][0]
+    R.add("FS4", "net_psd_pass", "seeds that pass the PSD-argmax f_pk bound", int(pr[psd_key]["n_pass"]), "A11/a11_evaluators.json:rb6_network", shared=sh, printed=(r"passes in (\d+) of 3", 1), drawn="d['net_psd_n_pass']")
+    R.add("FS4", "net_rel_min", "smallest classifier-episode f_pk change (percent, rounded)", int(round(100 * min(rel))), "A11/a11_evaluators.json:rb6_network", shared=sh, printed=(r"by (\d+) to \d+ percent against", 1))
+    R.add("FS4", "net_rel_max", "largest classifier-episode f_pk change (percent, rounded)", int(round(100 * max(rel))), "A11/a11_evaluators.json:rb6_network", shared=sh, printed=(r"by \d+ to (\d+) percent against", 1))
+    R.add("FS4", "net_status", "RB6 network row status", ev["rb6_network"]["status"], "A11/a11_evaluators.json:rb6_network", shared=sh, drawn="d['net_status']")
+    d5 = ev["rb5_delta0"]["rows"]
+    R.add("FS4", "rb5_delta0_rows", "rows of the RB5 delta0 evaluation", len(d5), "A11/a11_evaluators.json:rb5_delta0", shared=sh)
+    R.add("FS4", "rb5_delta0_Dtr", "RB5 delta0 rows of class D-tr", sum(1 for r in d5 if r["class"] == "D-tr"), "A11/a11_evaluators.json:rb5_delta0", shared=sh)
+    R.add("FS4", "rb5_delta0_shift", "RB5 delta0 largest absolute onset shift (s)", max(abs(float(r["onset_shift_s"])) for r in d5), "A11/a11_evaluators.json:rb5_delta0", shared=sh, tol=0.0)
+
+
+# ---------------------------------------------------------------------------------------------------- FS5
+def fs5(c: Ctx, R: Rows):
+    s8 = c.csv("A8/a8_sensitivity.csv")
+    s = "A8/a8_sensitivity.csv"
+    syn = {r["record"] for r in s8 if r["dataset"] == "synthetic"}
+    variants = sorted({r["variant"] for r in s8})
+    R.add("FS5", "rows", "stored classifications", len(s8), s)
+    R.add("FS5", "synthetic_cases", "synthetic cases", len(syn), s + ": dataset, record", printed=(r"on (\d+) synthetic cases", 1))
+    R.add("FS5", "variants", "variants of the classifier (V0 and the changed ones)", len(variants), s + ": variant", drawn="len(d['variants'])")
+    wn = c.csv("A8/sensitivity/a8_whitenoise.csv")
+    Ws = sorted({float(r["W_s"]) for r in wn})
+    wp = [r"(\d+), \d+, \d+ and \d+ of 500", r"\d+, (\d+), \d+ and \d+ of 500", r"\d+, \d+, (\d+) and \d+ of 500", r"\d+, \d+, \d+ and (\d+) of 500"]
+    for k, W in enumerate(Ws):
+        rows_ = [r for r in wn if float(r["W_s"]) == W and r["variant"] == "V0"]
+        den = int(rows_[0]["denominator"])
+        ns = sum(int(r["count"]) for r in rows_ if r["class"] == "NS")
+        R.add("FS5", f"white_nonNS_W{W:.3f}", f"white-noise records not NS at W = {W:.3f} s (variant V0)", den - ns, "A8/sensitivity/a8_whitenoise.csv", drawn=f"int(d['white_nonNS'][{k}])", printed=((wp[k], 1) if k < 4 else None))
+        R.add("FS5", f"white_den_W{W:.3f}", f"white-noise records at W = {W:.3f} s", den, "A8/sensitivity/a8_whitenoise.csv", drawn=f"int(d['white_den'][{k}])")
+    ev = c.json("A11/a11_evaluators.json")["evaluators"]
+    sh = "stored A11 evaluator output"
+    rb10 = ev["rb10"]["variants"]
+    R.add("FS5", "rb10_worst", "largest fraction of map-1 cells that change class under a variant (percent)", 100.0 * max(float(v["worst_fraction"]) for v in rb10.values()), "A11/a11_evaluators.json:rb10", shared=sh,
+          printed=(r"at most (\d+\.\d+) percent of the 900", 1), tol=0.005)
+    R.add("FS5", "rb10_cells", "map-1 cells evaluated for RB10", int(max(v["n_evaluated"] for v in rb10.values())), "A11/a11_evaluators.json:rb10", shared=sh, printed=(r"of the (\d+) map-1 cells", 1), drawn="d['rb10_n_cells']")
+    R.add("FS5", "rb10_variants", "variants evaluated for RB10", len(rb10), "A11/a11_evaluators.json:rb10", shared=sh, drawn="len(d['rb10_variant'])")
+    R.add("FS5", "rb10_headline_all_pass", "headline class unchanged under all variants", all(v["headline"] == "PASS" for v in rb10.values()), "A11/a11_evaluators.json:rb10", shared=sh, drawn="d['rb10_headline_all_pass']")
+    ru = c.json("A11/rb9a_unit_level.json")
+    R.add("FS5", "rb9a_value", "RB9(a) unit-level largest relative difference", float(ru["max_rel_diff"]), "A11/rb9a_unit_level.json:max_rel_diff", printed=(r"\((\d\.\de-\d) against", 1), tol=("rel", 1e-12), drawn="d['rb9a_value']")
+    R.add("FS5", "rb9a_tol", "RB9(a) frozen tolerance", float(ru["tolerance_frozen"]), "A11/rb9a_unit_level.json:tolerance_frozen", printed=(r"against (0\.\d+);", 1), tol=0.0, drawn="d['rb9a_tol']")
+    c9 = ev["rb9c"]
+    R.add("FS5", "rb9c_changed", "RB9(c) map-1 cells changed", int(c9["n_changed"]), "A11/a11_evaluators.json:rb9c", shared=sh, printed=(r"RB9\(c\) passes \((\d+) of", 1))
+    R.add("FS5", "rb9c_cells", "RB9(c) map-1 cells evaluated", int(c9["n_evaluated"]), "A11/a11_evaluators.json:rb9c", shared=sh, printed=(r"RB9\(c\) passes \(\d+ of (\d+) cells", 1))
+    a9 = c.pq("A9/a9_regime_map_v2.parquet")
+    hl = a9[a9["headline_marker"].fillna(False).astype(bool)].iloc[0]
+    R.add("FS5", "rb9b_spectral", "spectral peak of the headline (Hz), A9 table", float(hl["f_pk_hz"]), "A9/a9_regime_map_v2.parquet: headline row f_pk_hz", printed=(r"\((\d+\.\d) Hz spectral peak", 1), tol=0.0, drawn="d['rb9b_f_spectral']")
+    R.add("FS5", "rb9b_cycle", "Hopf cycle frequency of the headline (Hz), A9 table", float(hl["hopf_f_hz"]), "A9/a9_regime_map_v2.parquet: headline row hopf_f_hz", printed=(r"against a (\d+\.\d+) Hz cycle", 1), tol=("rel", 1e-12), drawn="d['rb9b_f_cycle']")
+    R.add("FS5", "rb9b_diff", "spectral peak minus cycle frequency (Hz)", float(hl["f_pk_hz"]) - float(hl["hopf_f_hz"]), "A9 table", printed=(r"Hz, (\d+\.\d+) Hz against 1/W", 1), tol=1e-9, drawn="d['rb9b_diff']")
+    R.add("FS5", "rb9b_bound", "RB9(b) bound 1/W (Hz), W = 2 s", 1.0 / 2.0, "frozen window W = 2 s for T_ramp 120 s", shared="frozen window rule", printed=(r"against 1/W = (0\.\d+) Hz", 1), drawn="d['rb9b_bound']", tol=0.0)
+    R.add("FS5", "map1_surge_cells", "map-1 D-tr cells", int(((a9["map"].astype(str) == "1") & (a9["class"] == "D-tr")).sum()), "A9 table", drawn="d['rb9b_map1_n']")
+    R.add("FS5", "map2_surge_cells", "map-2 D-tr cells", int(((a9["map"].astype(str) == "2") & (a9["class"] == "D-tr")).sum()), "A9 table", drawn="d['rb9b_map2_n']")
+
+
+FUNCS = {"F1": f1, "F2": f2, "F3": f3, "F4": f4, "F5": f5, "F6": f6, "FS1": fs1, "FS2": fs2, "FS3": fs3, "FS4": fs4, "FS5": fs5}
 
 
 def compute(root=None, figures=None) -> list:
