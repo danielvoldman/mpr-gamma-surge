@@ -5445,3 +5445,13 @@ Chosen:          as planned   Default from: DL-494, DL-500
 Test:            T14 to T33; tests/test_ms13_13p.py (new)
 Status:          open until the result entry
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-502  MS13 13p: test run 1 of the figure tests; one fix of a new test; one FS1 layout fix; the provenance test waits for the build    [ID: MS13, 13p, FS1, FS3, DL-500, DL-501]
+Date:            2026-10-29        Author:
+Decision:        FACT and PLAN. Run of tests/test_ms13_13p.py, test_ms13_13o, test_figstyle, test_claim_labels, test_ms13_style_keys, test_figprov and test_fig_F1 to F6 and FS1 to FS5 at commit b81ae37 (not the fast suite): 184 passed, 3 failed. Every failure is traced: (a) tests/test_ms13_13p.py test_the_provenance_files_of_the_eleven_recorded_builds_name_one_commit_clean_and_draft: the recorded builds under figures/ are still those of e7440cc, 0a77bdc, 5ab4e51 and 03ce64f; the test is meant for the one build of step D (R19) and is re-run after it; no edit. (b) tests/test_ms13_13p.py test_fs3_label_rule_moves_a_label_off_the_gate_line_and_keeps_it_inside_its_segment (a test written in this step, DL-477 ruling 3): it expected the upper part on a tie for the segment 0.7 to 0.9 with the gate at 0.8, but in binary floating point 0.8 - 0.7 is larger than 0.9 - 0.8, so the rule correctly takes the lower part (0.75); the new test is corrected to exactly representable values (segment 0.5 to 0.75, gate 0.625, tie, upper part 0.6875); the figure rule is unchanged. (c) tests/test_fig_FS1.py test_layout_no_legend_covers_a_line_and_the_k4_numbers_do_not_cross_the_fit_window_lines (pre-existing): the K4 number block, moved down to 0.33 of the axes after trial render 1 (342fd5d), now reaches below the axes frame (texts_below_axes); a defect of the 13p layout, fixed in the code (top of the block at 0.40 of the axes, still between the two window lines and clear of the trace), not in the test, as in DL-497 (c). The FS1 drawn-data test also had its "no K4-net title" check moved to get_title(loc="left") (same reason as T22; without it the check would be vacuous with left titles). Commit order: this entry, then the fix commit, then the re-run.
+Reason:          rulings of DL-494 and DL-500; DL-477 ruling 3 for the new test
+Options:         -
+Chosen:          as planned   Default from: DL-500, DL-501
+Test:            re-run of the same set after the fix
+Status:          open until the result entry
+Commit/tag:      the commit that adds this entry; no tag
