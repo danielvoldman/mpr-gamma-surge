@@ -216,11 +216,31 @@ def _style_text(fig, draft_text: str = ""):
             for t in lg.get_texts():
                 t.set_fontsize(T["legend"])
     if draft_text:
-        b = S.DRAFT_NOTE["band"]
-        fig.get_layout_engine().set(rect=(0.0, b, 1.0, 1.0 - b))
         t = fig.text(S.DRAFT_NOTE["x"], S.DRAFT_NOTE["y"], draft_text, fontsize=T["footer"], color=S.figure_colour("fail_text"), ha="left", va="bottom")
         t.set_gid("draft_note")
+        b = S.DRAFT_NOTE["band"] + _wrap_footer(fig, t)
+        fig.get_layout_engine().set(rect=(0.0, b, 1.0, 1.0 - b))
     return fig
+
+
+def _wrap_footer(fig, t) -> float:
+    """13p (DL-505): the shared footer wrap. Words are joined greedily while the drawn line fits the canvas width less the left margin DRAFT_NOTE["x"] on both sides
+    (the symmetric right margin is a design choice, UNVERIFIED). Returns the drawn height of the added lines as a fraction of the figure height (0 for one line), by
+    which the free band grows; a footer that fits on one line keeps its text and band."""
+    rend = fig.canvas.get_renderer()
+    room = fig.bbox.width * (1.0 - 2.0 * S.DRAFT_NOTE["x"])
+    lines: list[str] = []
+    for w in t.get_text().split(" "):
+        if lines:
+            t.set_text(lines[-1] + " " + w)
+            if t.get_window_extent(rend).width <= room:
+                lines[-1] += " " + w
+                continue
+        lines.append(w)
+    t.set_text(lines[0])
+    h1 = t.get_window_extent(rend).height
+    t.set_text("\n".join(lines))
+    return (t.get_window_extent(rend).height - h1) / fig.bbox.height
 
 
 

@@ -119,6 +119,36 @@ def test_draft_note_at_the_bottom_and_left_titles_in_fs1_to_fs5():
             plt.close(fig)
 
 
+def _drawn(fig_id):
+    raw = getattr(FG, f"load_{fig_id}")()
+    if fig_id == "F1":
+        return FG._draw_F1(FG.prepare_F1(raw, FG.F.K.load_frozen_criteria()[0]), True)
+    d = getattr(FG, f"prepare_{fig_id}")(raw)
+    if fig_id in ("F2", "F3"):
+        return getattr(FG, f"_draw_{fig_id}")(d, True, FG.strip_lines(d))
+    if fig_id == "F6":
+        return FG._draw_F6(d, True, FG.f6_column_labels(raw))
+    return getattr(FG, f"_draw_{fig_id}")(d, True)
+
+
+def test_every_footer_is_wrapped_inside_the_canvas_for_all_eleven_figures():
+    import matplotlib.pyplot as plt
+    for f in FIGS:                                                                     # 13p (DL-505): the shared footer wrap, as each make_<ID> draws it
+        fig = _drawn(f)
+        try:
+            fig.canvas.draw()
+            rend = fig.canvas.get_renderer()
+            notes = [t for t in fig.texts if t.get_gid() == "draft_note"]
+            assert len(notes) == 1, f
+            box, canvas = notes[0].get_window_extent(rend), fig.bbox
+            assert canvas.x0 <= box.x0 and box.x1 <= canvas.x1 and canvas.y0 <= box.y0 and box.y1 <= canvas.y1, (f, box.bounds, canvas.bounds)   # exact, drawn artist
+            assert notes[0].get_text().replace("\n", " ") == FOOTERS[f], f              # the wrap only breaks lines
+            if "\n" not in notes[0].get_text():
+                assert fig.get_layout_engine().get()["rect"][1] == S.DRAFT_NOTE["band"], f   # a one-line footer keeps its band
+        finally:
+            plt.close(fig)
+
+
 # ---- R14 FS1
 
 def test_fs1_k4_numbers_lie_between_the_fit_window_lines_and_the_forcing_has_its_own_axes():

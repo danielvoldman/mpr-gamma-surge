@@ -185,7 +185,7 @@ def test_audit_detects_a_changed_input(aroot):
 
 def test_audit_detects_a_caption_string_its_test_requires(aroot):
     base, r0, _ = _flags(aroot)
-    assert r0["required_missing"] == [] and len(r0["required"]["in"]) > 5
+    assert r0["required_missing"] == [] and len(r0["required"]["in"]) >= 5            # 13p (DL-505 T34): 5 since T27 (DL-501); removing one is still flagged below
     p = aroot / f"figures/{FIG}/{FIG}_caption.txt"
     p.write_text(p.read_text(encoding="utf-8").replace("NOT EVALUABLE", "n.e."), encoding="utf-8")
     flags, r, _ = _flags(aroot)
