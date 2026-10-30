@@ -50,3 +50,7 @@ LIST ONLY. Collected from the decision log from DL-419 onward and from docs/ms13
 32. The module docstring of src/mprsurge/plotting/figures.py still says only make_F3, make_F2 and make_FS6 exist.
 33. Captions carry a full Parameters dump (F1 caption 9,733 characters, about 60 percent repeated per-seed keys).
 34. Tools: scripts/ms13_check_hashes.py with docs/ms13_figure_manifest.csv replaces ad hoc hashing; scripts/ms13_audit.py regenerates docs/ms13_audit.md; scripts/ms13_contact_sheets.py writes the git-ignored figures/_review/.
+
+## F. Added in 13r (DL-511, DL-512)
+
+35. F4 (j) and FS4: the 84 classifier-onset delays of -1.5 are onsets at the ramp start (onset_s = t_on_s = 5.0 s; delay = eta_start - eta_H = -1.5). Statement on the figures: "classifier onset at or before the ramp start; the eta-based delay equals its minimum eta_start - eta_H (-1.5); the classifier-onset reading is saturated at these levels". No gate verdict changes (D2, DL-511).
