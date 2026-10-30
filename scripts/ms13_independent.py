@@ -533,19 +533,19 @@ def f1(c: Ctx, R: Rows):
     s120, s10 = ev["120.0"]["seeds"], ev["10.0"]["seeds"]
     mfo = a7_onset(c)
     R.add("F1", "cls120", "classes of the three 120 s network seeds", [x["class"] for x in s120], "ms10_eval.json:rb1_headline.120.0.seeds", shared=sh, drawn="list(d['cls120'])")
-    R.add("F1", "n_ssus120", "120 s seeds of class S-sus", sum(1 for x in s120 if x["class"] == "S-sus"), "same", shared=sh, printed=(r"all 3 stored seeds are S-sus \((\d+) of 3", 1))
+    R.add("F1", "n_ssus120", "120 s seeds of class S-sus", sum(1 for x in s120 if x["class"] == "S-sus"), "same", shared=sh, printed=(r"\(all (\d+) are S-sus", 1))
     R.add("F1", "onset120", "classifier onsets of the 120 s seeds (s)", [float(x["onset_s"]) for x in s120], "same", shared=sh, tol=0.0, drawn="[float(x) for x in d['onset120_s']]")
     R.add("F1", "onset120_text", "common classifier onset of the 120 s seeds (s)", sorted(set(float(x["onset_s"]) for x in s120))[0], "same", shared=sh, printed=(r"classifier onset (\d+\.\d) s", 1))
     R.add("F1", "onset_gap", "mean-field onset minus the network classifier onset (s)", mfo - float(s120[0]["onset_s"]), "A7 S5ramp.onset_s minus ms10_eval.json", shared=sh, printed=(r"\((\d+\.\d) s before the mean-field", 1), tol=1e-9)
     for k, x in enumerate(s120):
-        R.add("F1", f"fpk120_{k}", f"f_pk of the 120 s seed {k} (Hz)", float(x["f_pk_hz"]), "ms10_eval.json:rb1_headline.120.0.seeds", shared=sh, tol=0.0, printed=(r"f_pk (\d+\.\d), (\d+\.\d) and (\d+\.\d) Hz", k + 1),
+        R.add("F1", f"fpk120_{k}", f"f_pk of the 120 s seed {k} (Hz)", float(x["f_pk_hz"]), "ms10_eval.json:rb1_headline.120.0.seeds", shared=sh, tol=0.0, printed=(r"f_pk values (\d+\.\d), (\d+\.\d) and (\d+\.\d) Hz", k + 1),
               drawn=f"float(d['fpk120_hz'][{k}])")
     R.add("F1", "cls10", "classes of the three 10 s network seeds", [x["class"] for x in s10], "ms10_eval.json:rb1_headline.10.0.seeds", shared=sh, drawn="list(d['cls10'])")
     for k in range(3):
         R.add("F1", f"cls10_{k}", f"class of 10 s seed {k}", s10[k]["class"], "same", shared=sh, printed=(r"the 3 seeds are (S-\w+), (S-\w+) and (S-\w+) \(", k + 1))
     for T in ("120.0", "10.0"):
         R.add("F1", f"pass_{T}", f"seeds that pass RB1 at T_ramp {T}", int(ev[T]["pass_count"]), f"ms10_eval.json:rb1_headline.{T}.pass_count", shared=sh)
-    R.add("F1", "pass_text", "seeds that pass at each T_ramp (A11 text)", _nums(_a11(c, "RB1", "headline_10s")["value"])[0], "A11 RB1.headline_10s", shared="stored A11 table", printed=(r"\((\d+) of 3 seeds at each", 1))
+    R.add("F1", "pass_text", "seeds that pass at each T_ramp (A11 text)", _nums(_a11(c, "RB1", "headline_10s")["value"])[0], "A11 RB1.headline_10s", shared="stored A11 table", printed=(r"S-rel and S-sus \((\d+) of 3 seeds match", 1))
     R.add("F1", "ctrl120", "classes of the 120 s no-ramp controls", ev["120.0"]["controls"]["classes"], "ms10_eval.json:rb1_headline.120.0.controls", shared=sh, drawn="d['ctrl120']")
     R.add("F1", "ctrl10", "classes of the 10 s no-ramp controls", ev["10.0"]["controls"]["classes"], "ms10_eval.json:rb1_headline.10.0.controls", shared=sh, drawn="d['ctrl10']")
     R.add("F1", "ref_class", "mean-field reference class", ev["120.0"]["ref"]["class"], "ms10_eval.json:rb1_headline.120.0.ref", shared=sh, drawn="d['ref_class']")
