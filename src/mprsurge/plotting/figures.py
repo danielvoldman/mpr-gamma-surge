@@ -511,6 +511,11 @@ def strip_lines(d: dict) -> list[str]:
     return out
 
 
+def _range_ms(values) -> str:
+    vs = sorted(float(v) for v in values)
+    return f"{CAP.number_text(vs[0])} to {CAP.number_text(vs[-1])} ms ({len(vs)} values)"
+
+
 F3_RULE_25HZ = ('Table 8.1 gives for F3 the rule "25 Hz contour outside the oscillatory region in range -> G2". Outcome: the 25 Hz crossings drawn lie on the cycle branch of the A6 slices where '
                 'they occur (DL-131); G2 was judged on the DL-132 readings and no G2 trigger fired, M3 stays (DL-133); whether this Table 8.1 rule was evaluated on its own is not stated in the '
                 'decision log (UNVERIFIED).')
@@ -530,7 +535,7 @@ def caption_notes(d: dict, a6_J=None) -> tuple:
         "The black tri-up mark is the Hopf point of an A6 slice and the black line the A4 Hopf curve (the mean-field source colour; neither is a class). "
         "The tau_d axes and the Delta axis are logarithmic (tick labels are plain numbers).",
         hz100,
-        "Panels (a) to (c) are the A6 (eta, tau_d) slices (tau_d " + CAP.sweep_text(d["D0.3_tau_d_ms"]) + " ms; Delta " + CAP.sweep_text([float(x) for x in DELTAS]) + "); panel (e) is the path strip; panel (d) shows the Hopf curve only, because A6 stores no Delta slices (UNVERIFIED reading of Table 8.1).",
+        "Panels (a) to (c) are the A6 (eta, tau_d) slices (tau_d " + _range_ms(d["D0.3_tau_d_ms"]) + "; Delta " + CAP.sweep_text([float(x) for x in DELTAS]) + "); panel (e) is the path strip; panel (d) shows the Hopf curve only, because A6 stores no Delta slices (UNVERIFIED reading of Table 8.1).",
         f"The A4 curve and the A6 Hopf points are separate markers (A4 record: Delta {d['a4_curve_Delta']:g}, J {d['a4_curve_J']:g}); no claim that they agree.",
         (f"Arrows show the stored linear-profile path values (T_ramp {', '.join(f'{x:g}' for x in t_ramp)} s; the path values are identical at every stored "
          f"T_ramp). P3 is drawn for I_amp {d['P3_I_amp']:g} only. The J ramp of P2 and P3 is not drawn. The end Delta of P4a and P4b is derived (stored Delta "
@@ -606,18 +611,20 @@ F2_INPUTS = (
 F2_RECORDS = {"A5": F2_INPUTS[2], "S4_mf": F2_INPUTS[3], "S4_net": F2_INPUTS[5]}
 F2_STRIP_RB = ("RB1",)       # network against mean field. UNVERIFIED reading: Table 7.2 'Where' names F2 for no RB id; RB1 is listed because F2 draws network symbols
 F2_JUDGED_ABOVE = 0.1        # DL-129 (D-3, CP23): steps within 0.1 of eta_H are excluded from the amplitude comparison; the relative difference is drawn above it only
-F2_CAPTION_KEYS = ("model.type", "model.ref_point", "model.tau_ms", "model.tau_d_ms", "model.J", "model.Delta", "network.N", "s4.param", "s4.step_s", "s4.read_s",
+F2_CAPTION_KEYS = ("model.type", "model.ref_point", "model.tau_ms", "model.tau_d_ms", "model.J", "model.Delta", "model.eta_bar", "network.N", "s4.param", "s4.step_s", "s4.read_s",
                    "s4.n_points", "s4.indices")
 
 # Accepted as proposed by the reviewer (13g prompt, DL-460); every statement is from a logged result (DL numbers in the text) and the numbers are checked
 # against the stored arrays by tests/test_fig_F2.py.
 F2_TAKE_HOME = (
-    "At ref_devalle the limit cycle appears at eta_bar 2.896 in a supercritical Hopf bifurcation, with no fold of cycles and stable "
+    "The N = 1e4 network sweep does not follow the mean-field branch closely: its v amplitude differs from the mean field by +13.2 to -2.5 percent above eta_bar 3.0 (a different "
+    "definition of v; information only, no criterion; DL-128, DL-129), below the Hopf point it does not rest (v amplitude 0.22 to 0.31; DL-128), and RB1 FAILED (strip; "
+    "UNVERIFIED reading of why RB1 touches F2). At ref_devalle the limit cycle appears at eta_bar 2.896 in a supercritical Hopf bifurcation (plan: the squared amplitude grows linearly from "
+    "the Hopf point, no hysteresis), with no fold of cycles and stable "
     "cycles to eta_bar 8 (A5; DL-126). The quasi-static mean-field sweeps up and down (S4) lie on that branch with no hysteresis loop from 0.2 above the "
-    "Hopf point (largest up-down difference in the v amplitude 1.2e-3 relative, stored arrays; A5 against S4 at most 1.84e-3, DL-129). The N = 1e4 network "
-    "sweep follows the branch less closely: its v amplitude differs from the mean field by +13.2 to -2.5 percent above eta_bar 3.0 (a different "
-    "definition of v; information only, no criterion; DL-128, DL-129), and below the Hopf point it does not rest (v amplitude 0.22 to 0.31; DL-128)."
+    "Hopf point (largest up-down difference in the v amplitude 1.2e-3 relative, stored arrays; A5 against S4 at most 1.84e-3 (not drawn), DL-129)."
 )
+F2_MAIN_FAILURES = ("does not follow the mean-field branch",)
 # Ruled in the 13g prompt: MS11-C7 (every figure), MS12-C1 (F1 to F6, as ruled for F3, DL-453), G4-C2 (network symbols are drawn; the table lists F1, F5 and
 # FS3 for G4-C1 to C3 and does not list F2: UNVERIFIED reading). MS11-C3 and G6-D1 are left out (no frequency, no onset drawn).
 F2_CLAIM_LIMITS = ("MS11-C7", "MS12-C1", "G4-C2")
@@ -723,9 +730,11 @@ def prepare_F2(raw: dict) -> dict:
     return d
 
 
-def _vline_hopf(ax, d: dict):
+def _vline_hopf(ax, d: dict, label=None):
     hp = S.diagram_mark("hopf_point")
-    ax.axvline(d["eta_H"], color=hp.colour, ls=hp.linestyle, lw=hp.width, zorder=1)
+    ax.axvline(d["eta_H"], color=hp.colour, ls=hp.linestyle, lw=hp.width, zorder=1, label=label)
+    ax.axvspan(d["eta_H"] - F2_JUDGED_ABOVE, d["eta_H"] + F2_JUDGED_ABOVE, color=S.FS_COLOURS["patch_edge"], alpha=0.18, lw=0, zorder=0,
+               label=("steps within 0.1 of eta_H: still relaxing (DL-127)" if label else None))
 
 
 def _s4_points(ax, d: dict, key: str, ycol: str, kind: str, *, label: str | None = None, mask=None):
@@ -737,8 +746,12 @@ def _s4_points(ax, d: dict, key: str, ycol: str, kind: str, *, label: str | None
         st = S.diagram_mark(f"s4_{kind}_{direction}")
         # 13o (DL-494 R12): the network symbols are drawn smaller than their 13f size so the A5 line under them stays visible
         size, width = (S.F2_MARKS["net_size"], S.F2_MARKS["net_width"]) if kind == "net" else (st.size, st.width)
-        ax.plot(d[f"{key}_param"][m], d[ycol][m], ls="none", marker=st.marker, ms=size, mew=width, mfc=st.colour if st.filled else "none",
-                mec=st.colour, color=st.colour, zorder=5 if kind == "net" else 4, clip_on=False,
+        colour = S.SOURCE_COLOURS["network" if kind == "net" else "mean_field"]            # 13r-3a (G6): one colour per source
+        hollow = kind == "mf" and direction == "down"                                       # the down sweep is hollow and smaller, so it is told apart from the up sweep it coincides with
+        if hollow:
+            size = size * 0.75
+        ax.plot(d[f"{key}_param"][m], d[ycol][m], ls="none", marker=st.marker, ms=size, mew=width, mfc="none" if hollow or not st.filled else colour,
+                mec=colour, color=colour, zorder=5 if kind == "net" else 4, clip_on=False,
                 label=(f"{label}, {direction} sweep" if label else None))
 
 
@@ -761,14 +774,14 @@ def _draw_F2(d: dict, draft: bool, strip_lines: list[str]):
         for ycol in ("vmax", "vmin"):
             ax.plot(d[f"a5_{name}_param"], d[f"a5_{name}_{ycol}"], color=cyc.colour, lw=cyc.width, zorder=3,
                     label="A5 stable cycle maximum and minimum of v" if (name, ycol) == ("up", "vmax") else None)
-    _vline_hopf(ax, d)
-    ax.plot([d["eta_H"]], [d["hopf_v_interp"]], ls="none", marker=hp.marker, ms=hp.size, color=hp.colour, mew=hp.width, zorder=6,
+    _vline_hopf(ax, d, label="eta_H: the Hopf point's eta_bar (line)")
+    ax.plot([d["eta_H"]], [d["hopf_v_interp"]], ls="none", marker=hp.marker, ms=hp.size * 0.7, color=hp.colour, mew=hp.width, zorder=2.5,
             label=f"Hopf point, eta_bar {d['eta_H']:.3f} ({d['hopf_type']})")
-    for key, kind, lab in (("mf", "mf", "S4 mean field"), ("net", "net", "S4 network N = 1e4")):
+    for key, kind, lab in (("mf", "mf", "S4 mean field"), ("net", "net", "S4 network N = 1e4, mean V of non-refractory neurons (different definition)")):
         _s4_points(ax, d, key, f"{key}_vmax", kind, label=f"{lab}: max and min of v")
         _s4_points(ax, d, key, f"{key}_vmin", kind)
     ax.set_xlim(*xlim)
-    ax.set_ylabel("v")
+    ax.set_ylabel("v (mean potential)")
     ax.set_title(r"(a) $\bar\eta$ diagram at ref_devalle: fixed point and cycle maximum and minimum of v", loc=S.TITLE_LOC)
     # (b) amplitude
     ax2 = fig.add_subplot(gs[1], sharex=ax)
@@ -778,7 +791,9 @@ def _draw_F2(d: dict, draft: bool, strip_lines: list[str]):
     _s4_points(ax2, d, "mf", "mf_v_ptp", "mf")
     _s4_points(ax2, d, "net", "net_v_ptp", "net")
     ax2.set_ylabel("v amplitude (max - min)")
-    ax2.set_title("(b) amplitude: A5 cycles, S4 mean field and S4 network, stored values", loc=S.TITLE_LOC)
+    ax2.text(0.01, 0.97, f"mean field: up and down coincide, max difference {CAP.number_text(round(d['mf_updown_max_abs_from_0p2'], 4))} relative (stored, from eta_H + 0.2); "
+             "up sweep filled, down sweep hollow and smaller", transform=ax2.transAxes, fontsize=S.TEXT_SIZES["small"], va="top", ha="left")
+    ax2.set_title("(b) amplitude: A5 cycles, S4 mean field and S4 network (mean V of non-refractory neurons), stored values", loc=S.TITLE_LOC)
     # (c) stored relative difference, network against mean field
     ax3 = fig.add_subplot(gs[2], sharex=ax)
     above = d["net_above_mask"] == 1.0
@@ -789,9 +804,10 @@ def _draw_F2(d: dict, draft: bool, strip_lines: list[str]):
     v = d["cmp_rel_v_ptp"][above]
     lo, hi = min(float(v.min()), 0.0), max(float(v.max()), 0.0)
     ax3.set_ylim(lo - 0.12 * (hi - lo), hi + 0.12 * (hi - lo))
-    ax3.set_ylabel("(network - MF) / MF")
-    ax3.set_xlabel(r"$\bar\eta$")
-    ax3.set_title(r"(c) stored relative difference of the v amplitude, drawn above $\bar\eta_H$ + 0.1 only", loc=S.TITLE_LOC)
+    ax3.set_ylabel("(network - mean field) / mean field\n(fraction; 0.1 = 10 percent)")
+    ax3.set_xlabel(r"$\bar\eta$ (mean excitability)")
+    ax3.set_title(r"(c) v amplitude, network (mean V of non-refractory neurons, different definition) against mean field: information only, no criterion;"
+                  "\n" r"stored relative difference, drawn above $\bar\eta_H$ + 0.1 only", loc=S.TITLE_LOC)
     ax3.text(0.99, 0.97, "not drawn at and below eta_H: the mean-field amplitude there is ~0 or still\nrelaxing, so the stored relative difference is not a measure (largest |stored value|\n"
              f"below eta_H - 0.1: {d['cmp_rel_v_below_max_abs']:.2g}). Network below eta_H: no rest, v amplitude\n"
              f"{d['net_floor_v_ptp_min']:.2f} to {d['net_floor_v_ptp_max']:.2f} (panel b).", transform=ax3.transAxes, fontsize=S.TEXT_SIZES["small"], va="top", ha="right")
@@ -800,9 +816,9 @@ def _draw_F2(d: dict, draft: bool, strip_lines: list[str]):
     axl.axis("off")
     h, l = ax.get_legend_handles_labels()
     axl.legend(h, l, loc="upper left", bbox_to_anchor=(0.0, 1.0), fontsize=S.TEXT_SIZES["legend"], ncol=2, frameon=False, borderaxespad=0)
-    axl.text(0.0, 0.40, "FAIL rows of the stored A11 table that touch F2 through the network symbols (not recomputed; UNVERIFIED reading):",
-             va="top", fontsize=S.TEXT_SIZES["status"], weight="bold")
-    axl.text(0.0, 0.33, "\n".join(strip_lines) if strip_lines else "none", va="top", fontsize=S.TEXT_SIZES["status"])
+    status_block(axl, ["FAIL rows of the stored A11 table that touch F2 through the network symbols (not recomputed; UNVERIFIED reading):"] + (list(strip_lines) if strip_lines else ["none"])
+                 + ["Why RB1 rows are listed here: F2 draws network symbols and RB1 is the network-against-mean-field check; Table 7.2 names no RB id for F2 (UNVERIFIED reading)."],
+                 size=S.TEXT_SIZES["status"], y=0.40)
     return _style_text(fig, F2_FOOTER if draft else "")
 
 
@@ -812,16 +828,18 @@ def f2_caption_notes(d: dict) -> tuple:
     return (
         "Plotted: the voltage variable v and its maximum and minimum (panel a) and its amplitude max - min (panel b). Nothing in this figure is a frequency or a spectral peak.",
         "A5 cycles are the continuation from the Hopf point; the up and the down continuation retrace one branch, and the entry labelled fold at the turn-around next to "
-        f"the Hopf point ({turn}) is that turn-around, not a fold of cycles (DL-126). The v of the Hopf marker is interpolated linearly between the stored fixed points (derived).",
+        f"the Hopf point ({turn}; not drawn) is that turn-around, not a fold of cycles (DL-126). The v of the Hopf marker is interpolated linearly between the stored fixed points (derived).",
         f"S4 symbols are the maximum and minimum of v over the last 1 s of each 2 s step ({d['mf_param'].size} mean-field steps, {d['net_param'].size} network steps); "
         "their difference equals the stored v amplitude of S4 to 1e-12. Steps within 0.1 of eta_H are drawn: there the 2 s step is still relaxing (DL-127), and no "
         "amplitude comparison is made.",
         "Network v is the mean V of non-refractory neurons within the cut, not the mean-field v (DL-128); the network values are single runs (one seed) and are drawn "
         "without error bars. No agreement criterion is applied to them (none is in the plan), so network symbols have one shape per sweep direction.",
         f"Panel (c) draws the stored relative differences above eta_H + 0.1; there the v amplitude differs by {100 * d['cmp_rel_v_above_min']:+.1f} to "
-        f"{100 * d['cmp_rel_v_above_max']:+.1f} percent and the r amplitude by {100 * d['cmp_rel_r_above_min']:+.1f} to {100 * d['cmp_rel_r_above_max']:+.1f} percent (stored). "
+        f"{100 * d['cmp_rel_v_above_max']:+.1f} percent (the plotted fraction x 100) and the r amplitude by {100 * d['cmp_rel_r_above_min']:+.1f} to {100 * d['cmp_rel_r_above_max']:+.1f} percent (stored; not drawn). "
         f"Below eta_H the network does not rest ({d['net_floor_steps']} steps: v amplitude {d['net_floor_v_ptp_min']:.2f} to {d['net_floor_v_ptp_max']:.2f}, r amplitude "
-        f"{d['net_floor_r_ptp_min']:.3f} to {d['net_floor_r_ptp_max']:.3f}).",
+        f"{d['net_floor_r_ptp_min']:.3f} to {d['net_floor_r_ptp_max']:.3f}; not drawn).",
+        f"The mean-field up and down sweeps coincide (largest difference {CAP.number_text(round(d['mf_updown_max_abs_from_0p2'], 4))} relative from eta_H + 0.2, stored); the up sweep is drawn filled and the down "
+        "sweep hollow and smaller. The steps within 0.1 of eta_H are shaded (still relaxing, DL-127). The network symbols are the mean V of non-refractory neurons, a different definition of v.",
         "In the params table model.eta_bar is the base value of each record; the swept parameter is s4.param. The claim-limit list was ruled in 13g; the placement of G4-C2 on F2 and the choice of the four RB1 rows for the FAIL-row list are UNVERIFIED readings of the plan.",
     )
 
@@ -839,7 +857,8 @@ def make_F2(res=None, out_dir=None, *, tag_build: bool = False, take_home=F2_TAK
     d = prepare_F2(raw)
     t["prepare"] = time.perf_counter()
     rows = _params_rows(raw)
-    cap = CAP.build_caption("F2", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=[r for r in rows if r["key"] in F2_CAPTION_KEYS],
+    cap = CAP.build_caption("F2", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=[r for r in rows if r["key"] in F2_CAPTION_KEYS], main_failures=F2_MAIN_FAILURES,
+                            swept={"model.eta_bar": d["mf_param"]},
                             spectrogram=None, symbol_keys=(), notes=f2_caption_notes(d))
     import matplotlib.pyplot as plt
     fig = _draw_F2(d, draft=not tag_build, strip_lines=strip_lines(d))
