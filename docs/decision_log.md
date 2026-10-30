@@ -5565,3 +5565,13 @@ Chosen:          as done   Default from: 13r-2 prompt
 Test:            tests/test_ms13_13r2.py; the edited F2 test
 Status:          13r-2 in progress
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-514  MS13 13r-2: files written and their hashes; manifest rows of the shared files    [ID: MS13, 13r, 13r-2, DL-513]
+Date:            2026-10-30        Author:
+Decision:        FACT. FULL SHA-256 (working copy equals LF blob, no CR): src/mprsurge/plotting/captions.py 24818665f13b86ea848bd1bcd3ea2d88d1d414b55b2d0e3f45dfe67f876b2d26; src/mprsurge/plotting/style.py 55fb32ba3622b777e9116a1fe322eabdc773637ff924ead87523be07a79c65f9; src/mprsurge/plotting/figures.py f1974fc1e9ef859af5879bd651f085c29e73945b64faa706ae85f6b1880a5d8d; tests/figlayout.py ed624c774af692a0df852919530b6d37f62d273e6c2e0bdc798ebb1a78a9349f; tests/test_ms13_13r2.py 9196254839a06eafe5ed2ac19f159fc2a751a851b9f314f91960b7d2a4cf7348; tests/test_fig_F2.py 527a0362ddb98e8fd027468cf0bade7adb7ba4702d1776e99463323bd7006dea. The manifest rows of src/mprsurge/plotting/style.py, src/mprsurge/plotting/figures.py and tests/test_fig_F2.py are rewritten with these hashes (scripts/ms13_check_hashes.py --write-manifest, the only write); no figure output row changed (no figure rebuilt, drawn-data digests unchanged). The seven failing tests of tests/test_ms13_review_aids.py (real files against the manifest) then pass again. The order slip of 4ec5c91 (a first affected-tests run preceded that commit) is reported, not hidden: the run found the two code faults named in DL-513 (4).
+Reason:          instruction of the reviewer (13r-2 prompt)
+Options:         -
+Chosen:          as done   Default from: 13r-2 prompt
+Test:            scripts/ms13_check_hashes.py; fast suite in the next entry
+Status:          13r-2 code done; fast suite pending
+Commit/tag:      the commit that adds this entry; no tag
