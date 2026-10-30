@@ -90,3 +90,15 @@ Exact counts of rows per figure are fixed when the module is run and are reporte
 ## 6. Stop rule
 
 Any independent value that disagrees with a printed or drawn value stops the step: both values, the quantity and the figure are reported, nothing is patched.
+
+## 7. Coverage as run (added after the module was written; nothing above is changed)
+
+Quantities NOT recomputed, although the sections above name their sources (reported, not dropped):
+- F1: the spectrogram is recomputed only as a window count (frozen routine); the dB range, the peak bin and the shared range are not; the per-second spike-count tally is not.
+- F2: the per-step S4 amplitudes are read from the stored summaries (`s4_summary.npz`, `s4_net_summary.npz`), not recomputed from the S4 series; the series are only counted.
+- F4: the noisy arrays per seed, the start-distance families (sd05, sd30), the A3 per-T arrays and the hold-flag count are not compared with the drawn arrays; the six family tables (delay, f_pk, power, duration per T_ramp) are.
+- F6: the per-cell failure-label arrays, the S6 onset and f_pk tables and the NC1 mode-N count arrays are not compared with the drawn arrays; tallies are.
+- FS1: no K5 number; the K4-net statement is text. FS2: K7 is read from the stored check file (shared); the K8 existence statements (limit cycle at 5 ms, fixed point at 50 ms) are not recomputed.
+- FS4: the zero onset shift at T_ramp 10 s and 316.2278 s and the delta0 and rtol settings are read from the stored RB5 rows (shared). FS5: "2 of the plan's 8 A8 ring items" (DL-161, DL-163), the class changes per variant (panel c) and the reachability shares are not recomputed.
+- F5: cell agreement uses our reading of the Table 2.1 correspondence (D-tr with a surge class, D-none with NS or S-sus), UNVERIFIED; the original evaluator's own cell flags are carried as a shared row.
+Reading of two definitions that the first run exposed (the module, not a figure, was changed): see the 13q result entry.
