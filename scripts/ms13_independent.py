@@ -190,6 +190,49 @@ def f5(c: Ctx, R: Rows):
     for N in (10000, 30000):
         n_s = sum(1 for r in tsv if r["list"] == "S9" and int(r["N"]) == N and r["class"] in SURGE)
         R.add("F5", f"nrule_{N}", f"S9 seeds in a surge class at N = {N}", n_s, "ms10/10g/record_classes.tsv", shared="stored class column", drawn=f"d['n_rule']['count_{'1e4' if N == 10000 else '3e4'}']")
+    f5c(c, R)
+
+
+
+def f5c(c: Ctx, R: Rows):
+    """F5c: per-seed class, f_pk, onset and duration of the S9 and S9_ctrl records, recomputed from the stored v by the FROZEN classifier (shared), then min, median and max per N."""
+    import glob
+    from mprsurge.analysis import a7 as A7
+    from mprsurge.analysis import surge_metrics as SM
+    fi, _gate = A7.frozen_inputs(c.root)
+    sh = "frozen classifier (surge_metrics.classify_mode_n) and the frozen threshold"
+    tsv = {r["name"]: r["class"] for r in c.csv("ms10/10g/record_classes.tsv", "	")}
+    ev = c.json("ms10/eval/ms10_eval.json")["N_sweep"]["by_N"]
+    Ns = (1000, 3000, 10000, 30000)
+    for key, folder, dk, arrs in (("ramp", "S9/S9", "s9", ("s9_class", "s9_f_pk_hz", "s9_onset_s", "s9_duration_ms")), ("control", "S9/S9_ctrl", "ctrl", ("ctrl_class", "ctrl_f_pk_hz", "ctrl_onset_s", None))):
+        per: dict = {N: [] for N in Ns}
+        for pth in sorted(glob.glob(str(c.res / folder / "*.json"))):
+            if pth.endswith(".dry.json"):
+                continue
+            j = json.loads(Path(pth).read_text(encoding="utf-8"))
+            cfg = j["config"]
+            with np.load(Path(pth).with_suffix(".npz")) as z:
+                v = z["v"]
+            res = SM.classify_mode_n(v, 1000.0 / float(cfg["network"]["rate_bin_ms"]), float(cfg["path"]["t_on_s"]), float(cfg["path"]["T_ramp_s"]), fi["threshold"])
+            ep = res.episode
+            per[int(cfg["network"]["N"])].append({"name": Path(pth).stem, "cls": res.cls, "f": float(ep.f_pk_hz) if ep is not None else float("nan"),
+                                                 "on": float(ep.onset_s) if ep is not None else float("nan"), "du": 1000.0 * float(ep.duration_s) if ep is not None else float("nan")})
+        for i, N in enumerate(Ns):
+            rs = per[N]
+            R.add("F5", f"c_{key}_N{N}_n", f"{key} records read at N = {N}", len(rs), f"results/{folder}/*.json,npz", shared=sh, drawn=f"d['{arrs[0]}'].shape[1]")
+            R.add("F5", f"c_{key}_N{N}_class_matches_stored", f"{key} records at N = {N} whose reclassified class equals the stored class column", sum(1 for r in rs if r["cls"] == tsv.get(r["name"])),
+                  "frozen classifier on the stored v against ms10/10g/record_classes.tsv", shared=sh, drawn=f"d['{arrs[0]}'].shape[1]")
+            R.add("F5", f"c_{key}_N{N}_classes", f"{key} reclassified class words at N = {N}, sorted", sorted(r["cls"] for r in rs), "frozen classifier on the stored v", shared=sh, drawn=f"sorted(str(x) for x in d['{arrs[0]}'][{i}])")
+            for nm, k_, ak in (("f_pk_hz", "f", arrs[1]), ("onset_s", "on", arrs[2]), ("duration_ms", "du", arrs[3])):
+                if ak is None:
+                    continue
+                vals = sorted(r[k_] for r in rs)
+                R.add("F5", f"c_{key}_N{N}_{nm}", f"{key} {nm} per seed at N = {N}, sorted", vals, "frozen classifier on the stored v", shared=sh, tol=("rel", 1e-12), drawn=f"[float(x) for x in np.sort(d['{ak}'][{i}])]")
+                fin = [x for x in vals if x == x]
+                if key == "ramp" and fin:
+                    st = ev[str(N)]["metrics"][nm]
+                    R.add("F5", f"c_{key}_N{N}_{nm}_med_min_max", f"{key} {nm} at N = {N}: median, min, max over the defined seeds", [float(np.median(fin)), min(fin), max(fin)],
+                          "frozen classifier; stored: ms10_eval.json:N_sweep", shared=sh, tol=("rel", 1e-12), drawn=f"[{st['median']!r}, {st['min']!r}, {st['max']!r}]")
 
 
 # ---------------------------------------------------------------------------------------------------- F6
