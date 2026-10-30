@@ -15,6 +15,7 @@ import csv
 import io
 from dataclasses import dataclass
 from itertools import combinations
+from math import cos, pi, sin
 from pathlib import Path
 
 UNVERIFIED = "UNVERIFIED"
@@ -127,6 +128,20 @@ class DiagramMark:
 _SQUARE = ((-1.0, -1.0), (1.0, -1.0), (1.0, 1.0), (-1.0, 1.0), (-1.0, -1.0))
 _DIAMOND = ((0.0, -1.4), (1.4, 0.0), (0.0, 1.4), (-1.4, 0.0), (0.0, -1.4))
 _BAR = ((-1.0, -0.22), (1.0, -0.22), (1.0, 0.22), (-1.0, 0.22), (-1.0, -0.22))
+
+
+def _polygon(n: int, rot_deg: float = 90.0) -> tuple:
+    """Closed vertex marker of a regular n-gon (13p): one vertex at rot_deg, unit radius."""
+    pts = tuple((round(cos(pi * (rot_deg + 360.0 * k / n) / 180.0), 6), round(sin(pi * (rot_deg + 360.0 * k / n) / 180.0), 6)) for k in range(n))
+    return pts + (pts[0],)
+
+
+# 13p (DL-500 R17, R18): vertex shapes for the FS4 seed marks and the FS5 window marks (the digits and the card-suit glyphs are replaced); none equals another mark.
+_PLUS = ((-0.35, -1.0), (0.35, -1.0), (0.35, -0.35), (1.0, -0.35), (1.0, 0.35), (0.35, 0.35), (0.35, 1.0), (-0.35, 1.0), (-0.35, 0.35), (-1.0, 0.35), (-1.0, -0.35),
+         (-0.35, -0.35), (-0.35, -1.0))
+_STAR4 = tuple((round((1.15 if k % 2 == 0 else 0.42) * cos(pi * (90.0 + 45.0 * k) / 180.0), 6), round((1.15 if k % 2 == 0 else 0.42) * sin(pi * (90.0 + 45.0 * k) / 180.0), 6))
+               for k in range(8))
+_STAR4 = _STAR4 + (_STAR4[0],)
 DIAGRAM_MARKS = {
     "a5_cycle": DiagramMark("a5_cycle", "#111111", None, "line", "-", 0.0, 1.2, True),
     "a5_fixed_stable": DiagramMark("a5_fixed_stable", "#7a7a7a", None, "line", "-", 0.0, 2.2, True),
@@ -160,12 +175,13 @@ DIAGRAM_MARKS = {
     # 13i, FS5 (classifier tests and sensitivity; frequency mapping). UNVERIFIED design choices. One mark per window W of the reachability panel (the windows of
     # the plan's T_ramp ladder, in increasing order), the two taus of RB9(a), the RB9(b) frequencies, the 1/tau expectation of RB9(d), a point for a stored
     # fraction and the 'not run' cell of the class matrix.
-    "w_0": DiagramMark("w_0", "#440154", r"$\clubsuit$", "club (W 0.2 s)", "-", 7.0, 0.8, True),
-    "w_1": DiagramMark("w_1", "#3b528b", r"$\spadesuit$", "spade (W 0.333 s)", "--", 7.0, 0.8, True),
-    "w_2": DiagramMark("w_2", "#21918c", r"$\heartsuit$", "heart outline (W 0.593 s)", "-.", 7.0, 0.8, True),
-    "w_3": DiagramMark("w_3", "#4c9a2a", r"$\diamondsuit$", "diamond suit outline (W 1.054 s)", ":", 7.0, 0.8, True),
-    "w_4": DiagramMark("w_4", "#9c7a00", r"$\bowtie$", "bowtie (W 1.874 s)", (0, (5, 1, 1, 1, 1, 1)), 7.0, 0.8, True),
-    "w_5": DiagramMark("w_5", "#5a5a00", r"$\dagger$", "dagger (W 2 s)", (0, (1, 3)), 7.0, 0.8, True),
+    # 13p (DL-500 R18): the six window marks are vertex polygons (no card-suit, bowtie or dagger glyph); filled and open alternate; colours and line styles unchanged.
+    "w_0": DiagramMark("w_0", "#440154", _polygon(4, 45.0), "filled square (W 0.2 s)", "-", 6.0, 0.8, True),
+    "w_1": DiagramMark("w_1", "#3b528b", _polygon(4), "open diamond (W 0.333 s)", "--", 6.0, 0.9, False),
+    "w_2": DiagramMark("w_2", "#21918c", _polygon(3), "filled triangle up (W 0.593 s)", "-.", 6.0, 0.8, True),
+    "w_3": DiagramMark("w_3", "#4c9a2a", _polygon(3, 270.0), "open triangle down (W 1.054 s)", ":", 6.0, 0.9, False),
+    "w_4": DiagramMark("w_4", "#9c7a00", _polygon(5), "filled pentagon (W 1.874 s)", (0, (5, 1, 1, 1, 1, 1)), 6.0, 0.8, True),
+    "w_5": DiagramMark("w_5", "#5a5a00", _polygon(6), "open hexagon (W 2 s)", (0, (1, 3)), 6.0, 0.9, False),
     "rb9a_0": DiagramMark("rb9a_0", "#34495e", r"$\bullet$", "filled dot (tau 10 ms)", "none", 6.0, 1.0, True),
     "rb9a_1": DiagramMark("rb9a_1", "#a04000", r"$\circ$", "open circle (tau 20 ms)", "none", 6.0, 1.0, False),
     "fs5_spectral": DiagramMark("fs5_spectral", "#34495e", r"$\bullet$", "filled dot (spectral peak)", "none", 7.0, 1.0, True),
@@ -174,14 +190,15 @@ DIAGRAM_MARKS = {
     "fs5_pt": DiagramMark("fs5_pt", "#4a148c", r"$\star$", "star outline (stored fraction)", "none", 7.0, 1.0, True),
     "not_run": DiagramMark("not_run", "#555555", r"$\times$", "cross (not run)", "none", 4.0, 0.6, True),
     # 13i, FS4 (numerics). UNVERIFIED design choices. The raw first crossing is a small nabla on the class marker of the classifier onset; the D43 floor levels
-    # are three vertex shapes; the three network seeds are their own digits (marker, colour and line style differ); the PSD-argmax reading is a circled dot.
+    # are three vertex shapes; the three network seeds differ in marker, colour and line style (13p: vertex shapes, not digits); the PSD-argmax reading is a large open circle.
     "fs4_cross": DiagramMark("fs4_cross", "#262626", r"$\nabla$", "nabla (raw first crossing)", "none", 4.5, 0.6, True),
     "fs4_l0": DiagramMark("fs4_l0", "#7a3b00", _SQUARE, "open square (floor level 0)", "none", 5.0, 1.0, False),
     "fs4_l1": DiagramMark("fs4_l1", "#005f73", _DIAMOND, "open diamond (floor level 1)", "none", 5.0, 1.0, False),
     "fs4_l2": DiagramMark("fs4_l2", "#6b2d5c", ((-1.0, -1.0), (1.0, -1.0), (0.0, 1.3), (-1.0, -1.0)), "open triangle (floor level 2)", "none", 5.0, 1.0, False),
-    "fs4_s0": DiagramMark("fs4_s0", "#264653", r"$\mathbf{0}$", "digit 0 (network seed 0)", "-", 7.0, 0.8, True),
-    "fs4_s1": DiagramMark("fs4_s1", "#9c4f00", r"$\mathbf{1}$", "digit 1 (network seed 1)", "--", 7.0, 0.8, True),
-    "fs4_s2": DiagramMark("fs4_s2", "#5f0f40", r"$\mathbf{2}$", "digit 2 (network seed 2)", ":", 7.0, 0.8, True),
+    # 13p (DL-500 R17): the three network seeds are filled vertex shapes (circle, plus, four-point star), no longer digits; colours and line styles unchanged (F1 uses only those).
+    "fs4_s0": DiagramMark("fs4_s0", "#264653", _polygon(12), "filled circle (network seed 0)", "-", 5.5, 0.8, True),
+    "fs4_s1": DiagramMark("fs4_s1", "#9c4f00", _PLUS, "filled plus (network seed 1)", "--", 6.0, 0.8, True),
+    "fs4_s2": DiagramMark("fs4_s2", "#5f0f40", _STAR4, "filled four-point star (network seed 2)", ":", 7.0, 0.8, True),
     "fs4_psd": DiagramMark("fs4_psd", "#333333", r"$\bigcirc$", "large open circle (PSD argmax reading)", "none", 10.0, 0.7, False),
     "fs4_vp100": DiagramMark("fs4_vp100", "#34495e", r"$\bullet$", "filled dot (V_p +-100)", "none", 6.0, 1.0, True),
     "fs4_vp200": DiagramMark("fs4_vp200", "#a04000", r"$\circ$", "open circle (V_p +-200)", "none", 6.0, 1.0, False),
@@ -418,3 +435,20 @@ F4_MARKS = {"median_colour": "#1a1a1a", "hold_marker": "s", "hold_colour": "#b35
 
 # R10, F6: the three P3 amplitudes drawn with distinct fills and sizes (same P3 colour and shape: concentric, so coincident values stay visible), and P4b under P2 drawn larger.
 F6_MARKS = {"p3_fill": {0.5: "full", 1.0: "none", 2.0: "left"}, "p3_size": {0.5: 3.4, 1.0: 7.0, 2.0: 5.2}, "p4b_size": 6.5, "line_width": 0.9, "separator": "#9a9a9a"}
+
+# ---- 13p (DL-500 R1, R4, R14 to R18). UNVERIFIED design choices, plain scalars outside STYLE, FIGURE_COLOURS and DIAGRAM_MARKS (the pinned key sets are unchanged): the colours
+# and point sizes that the FS1 to FS5 drafts drew as literals (same values), and the new marks of R14 to R18.
+FS_COLOURS = {"patch_edge": "#7a7a7a",       # edge of a key patch and of a number box; the zero line of FS2 (h); the separator line of FS5 (a)
+              "no_data": "#f2f2f2",          # FS1 (b), (c): background where no stable focus lies in the band
+              "mark_dark": "#222222",        # FS2 (h) difference marks
+              "text_on_light": "#111111",    # FS5 (c) cell text on a light shade
+              "text_on_dark": "#ffffff",     # FS5 (c) cell text on a dark shade
+              "cell_edge": "#ffffff",        # FS5 (c) cell edges
+              "box_face": "#ffffff"}         # face of a number box (FS1 (d), FS4 (a), FS5 (g2))
+FS_SIZES = {"fs2_diff": 7.0, "fs4_class": 6.5, "fs4_class_b": 7.0, "fs4_floor_T": 6.0, "fs5_class": 4.2, "fs5_class_g4": 5.5, "fs5_reported_ring": 11.0,
+            "fs2_coincide_mark": 8.0}        # fs2_coincide_mark: the drawn size of the K11 asterisk that the coincidence count of FS2 (j) compares centre distances with
+FS2_DIFF_MARKS = {"d_freq": r"$\bullet$", "d_mean": r"$\circ$", "d_ptp": r"$\diamond$"}      # FS2 (h): the three stored differences (the 13h glyphs, now style keys)
+FS3_GATE_CLEAR = 0.045                       # FS3 (e): a count label whose centre lies closer than this (share of seeds) to the RB2 gate line is moved inside its segment (R16)
+FS5_REPORTED = {"marker": _polygon(16), "colour": "#4a148c", "width": 0.8}       # FS5 (g3): open ring around a point that is reported, not judged (R18)
+FS5_TEXT_DARK_ABOVE = 0.6                    # FS5 (c): shade fraction from which the cell text is white
+FS_LAYOUT = {"fs1_k5_ratios": (1.0, 0.42), "fs5_row0_ratios": (1.6, 1.0), "fs5_b_wrap": 62, "fs4_row_ratios": (1.6, 1.8, 1.9, 1.35, 2.25)}

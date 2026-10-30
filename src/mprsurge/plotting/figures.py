@@ -5,7 +5,7 @@ and <ID>_params.csv into figures/<ID>/ through figprov. The step order is fixed:
 data), draw (matplotlib), then caption, provenance and the Nordlie table. The drawn data of prepare_<ID> is what test row 9 hashes.
 
 Layout is a design choice, UNVERIFIED (docs/ms13_conventions.md). Colours, marks, sizes and the text style are style.py keys (13c onward; 13o, DL-494 R1 and R4: one text
-style for every figure, applied by _style_text). Take-home messages and claim-limit lists are as ruled or PROPOSED per figure (see the comments at each declaration);
+style for every figure, applied by _style_text). Take-home messages, claim-limit lists and strips are ruled for every figure (RULED_DL; 13p, DL-500 R13);
 captions print every claim limit with its definition (13o, R2) and group the parameters by key (R3).
 """
 from __future__ import annotations
@@ -74,7 +74,24 @@ F3_CLAIM_LIMITS = ("MS11-C7", "MS12-C1", "MS11-C3", "RB9(b) FAIL (plan label)")
 CAPTION_KEYS = ("model.type", "model.ref_point", "model.tau_ms", "model.J")
 
 _SLICE = re.compile(r"^eta_tau_D([0-9.]+)_td([0-9.]+)$")
-FOOTER = "DRAFT v3: untagged build. Layout, colour map and contour marks are UNVERIFIED design choices (style.py)."
+
+# 13p (DL-500 R13, DL-501): every take-home, claim-limit list and strip is ruled; the footer and the strip heading name the ruling entries of each figure
+# (the entries that accepted its take-home, limits and strip; DL-494 where R5 changed or ruled on its list; DL-500 for R13 itself). The DRAFT note stays while untagged.
+RULED_DL = {"F1": ("DL-488", "DL-494", "DL-500"), "F2": ("DL-464", "DL-494", "DL-500"), "F3": ("DL-453", "DL-457", "DL-494", "DL-500"),
+            "F4": ("DL-485", "DL-494", "DL-500"), "F5": ("DL-492", "DL-494", "DL-500"), "F6": ("DL-482", "DL-494", "DL-500"), "FS1": ("DL-472", "DL-494", "DL-500"),
+            "FS2": ("DL-472", "DL-500"), "FS3": ("DL-482", "DL-485", "DL-494", "DL-500"), "FS4": ("DL-477", "DL-494", "DL-500"), "FS5": ("DL-477", "DL-494", "DL-500")}
+
+
+def draft_footer(fig_id: str, head: str = "DRAFT", extra: str = "") -> str:
+    return (f"{head}: untagged build. Layout, marks, colours and panel choices are UNVERIFIED (style.py); take-home and claim limits as ruled "
+            f"({', '.join(RULED_DL[fig_id])})." + (f" {extra}" if extra else ""))
+
+
+def strip_heading(fig_id: str) -> str:
+    return f"FAIL rows of the stored A11 table that touch {fig_id} (as ruled: {', '.join(RULED_DL[fig_id])}):"
+
+
+FOOTER = draft_footer("F3", head="DRAFT v3")
 
 
 class DataError(F.FigureError):
@@ -490,7 +507,7 @@ F2_TAKE_HOME = (
 # Ruled in the 13g prompt: MS11-C7 (every figure), MS12-C1 (F1 to F6, as ruled for F3, DL-453), G4-C2 (network symbols are drawn; the table lists F1, F5 and
 # FS3 for G4-C1 to C3 and does not list F2: UNVERIFIED reading). MS11-C3 and G6-D1 are left out (no frequency, no onset drawn).
 F2_CLAIM_LIMITS = ("MS11-C7", "MS12-C1", "G4-C2")
-F2_FOOTER = "DRAFT v2: untagged build. Layout, marks and colours are UNVERIFIED design choices (style.py). G4-C2 and the RB1 FAIL-row list are UNVERIFIED readings."
+F2_FOOTER = draft_footer("F2", head="DRAFT v2", extra="G4-C2 and the RB1 FAIL-row list are UNVERIFIED readings.")
 
 
 def load_F2(res=None) -> dict:
@@ -763,20 +780,20 @@ FS1_STRIP_RB = ()            # Table 7.2 'Where' names FS1 for no RB check (UNVE
 FS1_K4NET = "K4-net: not run, M2 network coupling unsourced (open item 1, T51); non-blocking (DL-113). No source was supplied (DL-119)."
 FS1_K5 = "K5 (DL-064, DL-082): own reading, UNVERIFIED, deferred (unchanged; docs/ms11_close.md). The K5 trace is the stored S1 run."
 
-# PROPOSED for the reviewer's ruling (13h prompt, item 3); every statement is from a logged result (DL numbers in the text) and the numbers are checked
+# Ruled (RULED_DL, 13p R13); first proposed for the reviewer's ruling (13h prompt, item 3); every statement is from a logged result (DL numbers in the text) and the numbers are checked
 # against the stored arrays by tests/test_fig_FS1.py.
 FS1_TAKE_HOME = (
-    "PROPOSED (for ruling): The M2 model, kept as the damped-ring comparison (DL-111), passes the replication checks K1 to K4 on the stored A1, A2 and S1 results "
+    "The M2 model, kept as the damped-ring comparison (DL-111), passes the replication checks K1 to K4 on the stored A1, A2 and S1 results "
     "(DL-086, DL-089, DL-091): the root-count boundary lies within one cell of the formula fold at half spacing for 20 of 20 r values (18 of 20 at base spacing; "
     "the two cusp points need half spacing), (-5, 15) has a saddle, a stable focus and a stable node, and the K4 step response rings at the linearised "
     "frequency and decay to 2.1e-4 and 6.1e-3 relative. K5 passes only on our own UNVERIFIED reading and its source check is deferred, and K4-net was not run "
     "(unsourced coupling; DL-119). No stable focus on the A1 grid is non-damped (0 of 25727; the linearised rate has standard error 0, DL-092), and the largest "
     "cycles per e-fold inside the 25 to 100 Hz band is 5.1 (DL-089)."
 )
-# PROPOSED: MS11-C7 is the only limit in docs/ms13_plan.md section 5 that lists FS1 ('every figure'). MS12-C1 lists F1 to F6 and FS6, not FS1; no other
+# Ruled (RULED_DL, 13p R13): MS11-C7 is the only limit in docs/ms13_plan.md section 5 that lists FS1 ('every figure'). MS12-C1 lists F1 to F6 and FS6, not FS1; no other
 # limit of the table names FS1 (listed, not decided).
 FS1_CLAIM_LIMITS = ("MS11-C7",)
-FS1_FOOTER = "DRAFT: untagged build. Layout, marks and colours are UNVERIFIED design choices (style.py). Take-home message and claim-limit list are PROPOSED."
+FS1_FOOTER = draft_footer("FS1")
 
 
 def load_FS1(res=None) -> dict:
@@ -876,13 +893,15 @@ def _draw_FS1(d: dict, draft: bool):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    from matplotlib import transforms
     from matplotlib.colors import ListedColormap
     plt.rcParams.update({"font.family": S.FONT_FAMILY, "font.size": S.FONT_SIZE_PT, "pdf.fonttype": 42})
+    T = S.TEXT_SIZES
     fold, cusp, kpt = S.diagram_mark("m2_fold"), S.diagram_mark("m2_cusp"), S.diagram_mark("m2_k_point")
     k4t, k5t, frc = S.diagram_mark("s1_k4_trace"), S.diagram_mark("s1_k5_trace"), S.diagram_mark("s1_forcing")
     win, rst = S.diagram_mark("k4_window"), S.diagram_mark("k4_r_star")
     fig = plt.figure(figsize=(7.4, 9.0), constrained_layout=True)
-    gs = fig.add_gridspec(5, 2, height_ratios=[1.5, 1.5, 1.0, 0.95, 0.06])
+    gs = fig.add_gridspec(5, 2, height_ratios=[1.5, 1.5, *S.FS_LAYOUT["fs1_k5_ratios"], 0.95])
     xl, yl = r"$\bar\eta/\Delta$", r"$J/\sqrt{\Delta}$"
     eta, J = d["eta"], d["J"]
     ext = dict(shading="nearest", rasterized=True)
@@ -902,34 +921,34 @@ def _draw_FS1(d: dict, draft: bool):
     mark_k(ax)
     from matplotlib.patches import Patch
     h, l = ax.get_legend_handles_labels()
-    h = [Patch(fc=S.ROOT_COUNT_COLOURS[1], ec="#7a7a7a", lw=0.5), Patch(fc=S.ROOT_COUNT_COLOURS[3], ec="#7a7a7a", lw=0.5)] + h
+    h = [Patch(fc=S.ROOT_COUNT_COLOURS[1], ec=S.FS_COLOURS["patch_edge"], lw=0.5), Patch(fc=S.ROOT_COUNT_COLOURS[3], ec=S.FS_COLOURS["patch_edge"], lw=0.5)] + h
     l = ["1 root (A1 grid node)", "3 roots (A1 grid node)"] + l
-    ax.legend(h, l, loc="lower left", fontsize=5.4, frameon=True, framealpha=0.95, borderaxespad=0.3)
+    ax.legend(h, l, loc="lower left", fontsize=T["legend"], frameon=True, framealpha=0.95, borderaxespad=0.3)
     ax.set_xlim(eta.min(), eta.max())
     ax.set_ylim(J.min(), J.max())
     ax.set_xlabel(xl)
     ax.set_ylabel(yl)
-    ax.set_title("(a) M2 fixed points: number of roots (A1, base grid)", fontsize=S.FONT_SIZE_PT)
+    ax.set_title("(a) M2 fixed points: number of roots (A1, base grid)", loc=S.TITLE_LOC)
     # (b) ring frequency of the stable focus
     axb = fig.add_subplot(gs[0, 1], sharex=ax, sharey=ax)
     m = axb.pcolormesh(eta, J, d["ring_freq_T"], cmap=S.FREQUENCY_CMAP, **ext)
-    axb.set_facecolor("#f2f2f2")
+    axb.set_facecolor(S.FS_COLOURS["no_data"])
     mark_k(axb)
-    fig.colorbar(m, ax=axb, pad=0.02, fraction=0.06).set_label("ring frequency (Hz, tau = %g ms)" % d["tau_ms"], fontsize=6)
+    fig.colorbar(m, ax=axb, pad=0.02, fraction=0.06).set_label("ring frequency (Hz, tau = %g ms)" % d["tau_ms"])
     axb.set_xlabel(xl)
-    axb.set_title("(b) A2 ring map: frequency of the stable focus", fontsize=S.FONT_SIZE_PT)
+    axb.set_title("(b) A2 ring map: frequency of the stable focus", loc=S.TITLE_LOC)
     # (c) cycles per e-fold in the band
     axc = fig.add_subplot(gs[1, 0], sharex=ax, sharey=ax)
-    axc.set_facecolor("#f2f2f2")
+    axc.set_facecolor(S.FS_COLOURS["no_data"])
     mc = axc.pcolormesh(eta, J, d["ring_cyc_inG_T"], cmap=S.CYCLES_CMAP, **ext)
     mark_k(axc)
-    fig.colorbar(mc, ax=axc, pad=0.02, fraction=0.06).set_label("cycles per e-fold", fontsize=6)
+    fig.colorbar(mc, ax=axc, pad=0.02, fraction=0.06).set_label("cycles per e-fold")
     axc.set_xlabel(xl)
     axc.text(0.0, -0.27, "grey: stable focus outside the band, or no focus." + "\n" + f"{d['ring_n_nondamped']} of {d['ring_n_focus']} foci are non-damped.",
-             transform=axc.transAxes, fontsize=6.0, va="top", ha="left")
+             transform=axc.transAxes, fontsize=T["note"], va="top", ha="left")
     axc.set_ylabel(yl)
-    axc.set_title("(c) A2 ring map: cycles per e-fold, 25 to 100 Hz band", fontsize=S.FONT_SIZE_PT)
-    # (d) K4 step response
+    axc.set_title("(c) A2 ring map: cycles per e-fold, 25 to 100 Hz band", loc=S.TITLE_LOC)
+    # (d) K4 step response; 13p (R14): the number block is centred between the two fit-window lines, in a box
     axd = fig.add_subplot(gs[1, 1])
     axd.plot(d["K4_t_ms"], d["K4_r"], color=k4t.colour, lw=k4t.width, ls=k4t.linestyle, label="S1 K4 r(t), stored", zorder=3)
     axd.axhline(d["k4_r_star"], color=rst.colour, lw=rst.width, ls=rst.linestyle, label=f"focus r* = {d['k4_r_star']:.4f} (A2)", zorder=2)
@@ -938,38 +957,41 @@ def _draw_FS1(d: dict, draft: bool):
     axd.set_xlim(0.0, 600.0)
     axd.set_xlabel("t (ms)")
     axd.set_ylabel("r")
-    axd.set_title("(d) K4: step I = 0 to 3 at (-5, 15); axis cut at 600 ms", fontsize=S.FONT_SIZE_PT)
-    axd.legend(loc="upper right", bbox_to_anchor=(0.66, 1.0), fontsize=5.0, frameon=True, framealpha=0.95)      # between the two window lines
-    axd.text(0.22, 0.40, f"fit: omega {d['k4_omega_fit']:.4f}\n     decay {d['k4_decay_fit']:.5f} per tau\nlinearised: omega {d['k4_omega_lin']:.4f}\n     decay {d['k4_decay_lin']:.5f}\n"
+    axd.set_title("(d) K4: step I = 0 to 3 at (-5, 15); axis cut at 600 ms", loc=S.TITLE_LOC)
+    axd.legend(loc="upper right", bbox_to_anchor=(0.66, 1.0), fontsize=T["legend"], frameon=True, framealpha=0.95)      # between the two window lines
+    tr = transforms.blended_transform_factory(axd.transData, axd.transAxes)
+    axd.text(0.5 * (d["k4_t_start_ms"] + d["k4_t_end_ms"]), 0.42,
+             f"fit: omega {d['k4_omega_fit']:.4f}\n     decay {d['k4_decay_fit']:.5f} per tau\nlinearised: omega {d['k4_omega_lin']:.4f}\n     decay {d['k4_decay_lin']:.5f}\n"
              f"rel. err. {d['k4_rel_err_frequency']:.2g} (freq.)\n     {d['k4_rel_err_decay']:.2g} (decay)\ntolerance {d['k4_tol_frequency']:g}; {'pass' if d['k4_pass'] else 'FAIL'}\n"
-             f"{d['k4_cycles']:.1f} tail cycles", transform=axd.transAxes, fontsize=5.0, va="top", ha="left")
-    # (e) K5 sinusoid
+             f"{d['k4_cycles']:.1f} tail cycles", transform=tr, fontsize=T["small"], va="top", ha="center", multialignment="left", zorder=5,
+             bbox=dict(boxstyle="square,pad=0.3", fc=S.FS_COLOURS["box_face"], ec=S.FS_COLOURS["patch_edge"], lw=0.4)).set_gid("k4_numbers")
+    # (e) K5 sinusoid: r(t) above, the forcing I(t) in its own panel below on the same time axis (13p, R14)
     axe = fig.add_subplot(gs[2, :])
     axe.plot(d["K5_t_ms"], d["K5_r"], color=k5t.colour, lw=k5t.width, ls=k5t.linestyle, label="S1 K5: r(t), stored series", zorder=3)
     axe.set_xlim(d["K5_t_ms"].min(), d["K5_t_ms"].max())
-    axe.set_xlabel("t (ms)")
     axe.set_ylabel("r")
-    axe2 = axe.twinx()
+    axe.set_ylim(0.0, 4.8)                       # headroom: the legend sits above the r peaks
+    axe.tick_params(labelbottom=False)
+    axe.set_title("(e) K5 sinusoidal forcing: own reading, UNVERIFIED, source check deferred (DL-064, DL-082)", loc=S.TITLE_LOC)
+    axe2 = fig.add_subplot(gs[3, :], sharex=axe)
     axe2.plot(d["K5_t_ms"], d["K5_I"], color=frc.colour, lw=frc.width, ls=frc.linestyle, label="forcing I(t), stored", zorder=1)
     axe2.set_ylabel("forcing I", color=frc.colour)
-    axe.set_ylim(0.0, 4.8)                       # headroom: the legend sits above the r peaks and the forcing peaks
-    axe2.set_ylim(-4.8, 4.8)
-    axe.set_title("(e) K5 sinusoidal forcing: own reading, UNVERIFIED, source check deferred (DL-064, DL-082)", fontsize=S.FONT_SIZE_PT)
+    axe2.tick_params(axis="y", colors=frc.colour)
+    axe2.spines["left"].set_color(frc.colour)
+    axe2.set_ylim(-3.9, 3.9)
+    axe2.set_xlabel("t (ms)")
     h1, l1 = axe.get_legend_handles_labels()
     h2, l2 = axe2.get_legend_handles_labels()
-    axe.legend(h1 + h2, l1 + l2, loc="upper right", fontsize=5.4, frameon=True, framealpha=0.95, ncol=2)
+    axe.legend(h1 + h2, l1 + l2, loc="upper right", fontsize=T["legend"], frameon=True, framealpha=0.95, ncol=2)
     # (f) A0 table and status lines
-    axf = fig.add_subplot(gs[3, :])
+    axf = fig.add_subplot(gs[4, :])
     axf.axis("off")
     lines = ["(f) Stored A0 replication table (K1 to K5; every row passes on definitions marked UNVERIFIED in the table):"]
     for t, p, mm, tol in zip(d["a0_target"], d["a0_pass"], d["a0_measured"], d["a0_tolerance"]):
         lines += textwrap.wrap(f"{t}: {p}. {mm}. Criterion: {tol}.", width=150, subsequent_indent="    ")
     lines += ["", FS1_K5, FS1_K4NET, "FAIL rows of the stored A11 table that touch FS1: none (Table 7.2 names no RB check for FS1; UNVERIFIED reading)."]
-    axf.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=5.7, linespacing=1.25)
-    axg = fig.add_subplot(gs[4, :])
-    axg.axis("off")
-    axg.text(0.0, 0.5, FS1_FOOTER if draft else "", fontsize=5.5, color="#7f0000", ha="left", va="center")
-    return fig
+    axf.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=T["status"], linespacing=1.25)
+    return _style_text(fig, FS1_FOOTER if draft else "")
 
 
 def fs1_caption_notes(d: dict) -> tuple:
@@ -985,7 +1007,7 @@ def fs1_caption_notes(d: dict) -> tuple:
         f"{d['K4_t_ms'].max():g} ms, ending at r = {d['k4_end_r']:.4f}. The fit window is {d['k4_t_start_tau']:g} to {d['k4_t_end_tau']:g} tau (tau = {d['tau_ms']:g} ms, UNVERIFIED mapping, DL-082); the fit and linearisation numbers are the stored A2 values.",
         "Panel (e) is the stored S1 K5 run; its burst definition, tolerance and time mapping are our own readings (UNVERIFIED, DL-082), and the check against the primary source is deferred. No crossing is drawn.",
         "K4-net was not run and has no panel (the M2 network coupling is unsourced; DL-119). The S1 records exist as two copies (15 and 17 Oct) with equal arrays; the copy cited by the A0 table is drawn.",
-        "The claim-limit ID listed here is PROPOSED for the reviewer's ruling. M2 is the comparison model (DL-111): nothing here is a result for M3.",
+        "M2 is the comparison model (DL-111): nothing here is a result for M3.",
     )
 
 
@@ -1068,18 +1090,18 @@ FS2_K11 = 0.01               # plan Table 7.1 K11: Im lambda / (2 pi r*) = 1 +- 
 FS2_K8_TOL = 0.05            # plan Table 7.1 K8: network peak within 5 percent
 FS2_K7_PAPER_MS = 4.95       # the paper's value (plan Table 7.1 K7); the S3 cell at 4.95 ms is the stored run at that value
 
-# PROPOSED for the reviewer's ruling (13h prompt, item 3); every statement is from a logged result (DL numbers in the text) and the numbers are checked
+# Ruled (RULED_DL, 13p R13); first proposed for the reviewer's ruling (13h prompt, item 3); every statement is from a logged result (DL numbers in the text) and the numbers are checked
 # against the stored arrays by tests/test_fig_FS2.py. FS2 reports K7, K9, K10 and K11 as they stand, failures included.
 FS2_TAKE_HOME = (
-    "PROPOSED (for ruling): The M3 mean field reproduces the K8 existence checks (limit cycle at tau_d 5 ms, fixed point at 50 ms; the N = 5e4 network peak is within 0.09 "
+    "The M3 mean field reproduces the K8 existence checks (limit cycle at tau_d 5 ms, fixed point at 50 ms; the N = 5e4 network peak is within 0.09 "
     "percent of the mean field, tolerance 5 percent; DL-116, DL-119), K9 (largest Delta/eta_bar 0.14531 at eta_bar 1, 2 and 4; DL-115) and K11 (largest deviation from 1 "
     "7.1e-4; DL-115). It does not reproduce K7 as stated: the Hopf point is at tau_d 4.12 ms, not 4.95 ms (a recorded departure, DL-074, DL-076, DL-079), and the "
     "amplitude-squared line misses its residual rule (2.42 against 2 percent; a REPORTED FAILURE, DL-129, DL-130). K10 is not reproduced as worded: the J dependence of the "
     "frequency is 13.4, 25.0 and 42.2 percent at 8, 20 and 40 ms against the 10 percent limit (DL-131, DL-132; single source, UNVERIFIED)."
 )
-# PROPOSED: MS11-C7 is the only limit in docs/ms13_plan.md section 5 that lists FS2 ('every figure'); no other limit of the table names FS2 (listed, not decided).
+# Ruled (RULED_DL, 13p R13): MS11-C7 is the only limit in docs/ms13_plan.md section 5 that lists FS2 ('every figure'); no other limit of the table names FS2 (listed, not decided).
 FS2_CLAIM_LIMITS = ("MS11-C7",)
-FS2_FOOTER = "DRAFT: untagged build. Layout, marks and colours are UNVERIFIED design choices (style.py). Take-home message and claim-limit list are PROPOSED."
+FS2_FOOTER = draft_footer("FS2")
 
 
 def load_FS2(res=None) -> dict:
@@ -1190,8 +1212,20 @@ def _fs2_trace(ax, d: dict, series: list, title: str):
     for key, mark in series:
         st = S.diagram_mark(mark)
         ax.plot(d[f"tr_{key}_t"], d[f"tr_{key}_r"], color=st.colour, lw=st.width, ls=st.linestyle, zorder=3 if mark == "s3_mf" else 2)
-    ax.set_title(title, fontsize=6.2)
-    ax.tick_params(labelsize=5.5)
+    ax.set_title(title, loc=S.TITLE_LOC)
+
+
+def coincident_marks(ax, line, size_pt: float) -> int:
+    """13p (DL-500 R15): how many marks of `line` lie, in the drawn panel, closer than one mark size (points) to another mark of the same line. A display fact of the
+    current layout, not a property of the stored values (the rule is ours, UNVERIFIED). Call after the figure has been drawn."""
+    fig = ax.figure
+    xy = ax.transData.transform(np.column_stack([line.get_xdata(), line.get_ydata()])) * 72.0 / fig.dpi
+    near = np.zeros(len(xy), dtype=bool)
+    for i in range(len(xy)):
+        dist = np.hypot(*(xy - xy[i]).T)
+        dist[i] = np.inf
+        near[i] = bool((dist < size_pt).any())
+    return int(near.sum())
 
 
 def _draw_FS2(d: dict, draft: bool):
@@ -1200,6 +1234,7 @@ def _draw_FS2(d: dict, draft: bool):
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     plt.rcParams.update({"font.family": S.FONT_FAMILY, "font.size": S.FONT_SIZE_PT, "pdf.fonttype": 42})
+    T = S.TEXT_SIZES
     cyc, hp = S.diagram_mark("a5_cycle"), S.diagram_mark("hopf_point")
     mf, n1, n5 = S.diagram_mark("s3_mf"), S.diagram_mark("s3_net_1e4"), S.diagram_mark("s3_net_5e4")
     paper, tol = S.diagram_mark("k7_paper"), S.diagram_mark("tol_band")
@@ -1215,8 +1250,8 @@ def _draw_FS2(d: dict, draft: bool):
     ax.set_xlabel(r"$\tau_d$ (ms)")
     ax.set_ylabel("v amplitude")
     ax.set_xlim(2.5, 10.5)
-    ax.set_title("(a) K7: ref_ceni amplitude of v against tau_d", fontsize=S.FONT_SIZE_PT)
-    ax.legend(loc="lower right", fontsize=5.4, frameon=True, framealpha=0.95)
+    ax.set_title("(a) K7: ref_ceni amplitude of v against tau_d", loc=S.TITLE_LOC)
+    ax.legend(loc="lower right", fontsize=T["legend"], frameon=True, framealpha=0.95)
     # (b) K7 amplitude half: A^2 against tau_d with the stored fits
     axb = fig.add_subplot(gs[0, 3:6])
     for name in ("up", "down"):
@@ -1235,15 +1270,15 @@ def _draw_FS2(d: dict, draft: bool):
     axb.set_ylim(0.0, 11.0)                         # headroom: the legend sits right of the Hopf line and above the A5 branch (its largest value in the window is 6.8)
     axb.set_xlabel(r"$\tau_d$ (ms); axis cut at 6 ms, the A5 branch runs to 10 ms")
     axb.set_ylabel("v amplitude squared")
-    axb.set_title("(b) K7 amplitude half: REPORTED FAILURE (residual)", fontsize=S.FONT_SIZE_PT)
-    axb.legend(loc="upper right", fontsize=5.0, frameon=True, framealpha=0.95)
+    axb.set_title("(b) K7 amplitude half: REPORTED FAILURE (residual)", loc=S.TITLE_LOC)
+    axb.legend(loc="upper right", fontsize=T["legend"], frameon=True, framealpha=0.95)
     # (c) traces
     sub = gs[1, :].subgridspec(2, 5, wspace=0.28, height_ratios=[0.16, 1.0])
     axl = fig.add_subplot(sub[0, :])                    # key of the line colours of (c) to (g)
     axl.axis("off")
     from matplotlib.lines import Line2D
     axl.legend([Line2D([], [], color=m.colour, lw=m.width) for m in (mf, n1, n5)],
-               ["mean field", "network N = 1e4 (all panels)", "network N = 5e4 (devalle 5 ms only)"], loc="center", ncol=3, fontsize=5.4, frameon=False)
+               ["mean field", "network N = 1e4 (all panels)", "network N = 5e4 (devalle 5 ms only)"], loc="center", ncol=3, fontsize=T["legend"], frameon=False)
     specs = [("ceni 3 ms", [("mf_ceni_3.0", "s3_mf"), ("net_ceni_3ms", "s3_net_1e4")]), ("ceni 4.95 ms", [("mf_ceni_4.95", "s3_mf"), ("net_ceni_4.95ms", "s3_net_1e4")]),
              ("ceni 8 ms", [("mf_ceni_8.0", "s3_mf"), ("net_ceni_8ms", "s3_net_1e4")]),
              ("devalle 5 ms", [("mf_devalle_5.0", "s3_mf"), ("net_devalle_5ms", "s3_net_1e4"), ("net_k8_5e4_5ms", "s3_net_5e4")]),
@@ -1251,25 +1286,24 @@ def _draw_FS2(d: dict, draft: bool):
     for i, (title, series) in enumerate(specs):
         axt = fig.add_subplot(sub[1, i])
         _fs2_trace(axt, d, series, f"({'cdefg'[i]}) {title}")
-        axt.set_xlabel("t (ms)", fontsize=5.5)
+        axt.set_xlabel("t (ms)")
         if i == 0:
-            axt.set_ylabel("r (1/tau), last 400 ms", fontsize=5.5)
+            axt.set_ylabel("r (1/tau), last 400 ms")
     # (h) frequency and differences, network against mean field (stored)
     axd = fig.add_subplot(gs[2, 0:2])
     names = d["net_cells"]
     xs = np.arange(len(names), dtype=float)
     for q, glyph, lab in (("f_rel_diff", "d_freq", "peak frequency"), ("r_mean_rel_diff", "d_mean", "r mean"), ("r_fit_ptp_rel_diff", "d_ptp", "fitted r amplitude")):
-        mk = {"d_freq": r"$\bullet$", "d_mean": r"$\circ$", "d_ptp": r"$\diamond$"}[glyph]
-        axd.plot(xs, 100 * d[f"net_{q}"], ls="none", marker=mk, ms=7, color="#222222", label=lab, zorder=4)
+        axd.plot(xs, 100 * d[f"net_{q}"], ls="none", marker=S.FS2_DIFF_MARKS[glyph], ms=S.FS_SIZES["fs2_diff"], color=S.FS_COLOURS["mark_dark"], label=lab, zorder=4)
     axd.axhline(100 * FS2_K8_TOL, color=tol.colour, ls=tol.linestyle, lw=tol.width, label="K8 tolerance, 5 percent (frequency)")
     axd.axhline(-100 * FS2_K8_TOL, color=tol.colour, ls=tol.linestyle, lw=tol.width)
-    axd.axhline(0.0, color="#7a7a7a", lw=0.5, zorder=1)
+    axd.axhline(0.0, color=S.FS_COLOURS["patch_edge"], lw=0.5, zorder=1)
     axd.set_xticks(xs)
-    axd.set_xticklabels([n.replace("_", " ").replace("k8 5e4 5ms", "devalle 5ms N 5e4") for n in names], rotation=40, ha="right", fontsize=5.5)
+    axd.set_xticklabels([n.replace("_", " ").replace("k8 5e4 5ms", "devalle 5ms N 5e4") for n in names], rotation=40, ha="right")
     axd.set_ylim(-7.0, 31.0)                     # headroom: the legend sits above the largest stored difference (18.3 percent, fitted amplitude at ceni 4.95 ms)
     axd.set_ylabel("(network - MF) / MF (percent)")
-    axd.set_title("(h) S3 network against mean field", fontsize=S.FONT_SIZE_PT)
-    axd.legend(loc="upper left", fontsize=5.0, frameon=True, framealpha=0.95)
+    axd.set_title("(h) S3 network against mean field", loc=S.TITLE_LOC)
+    axd.legend(loc="upper left", fontsize=T["legend"], frameon=True, framealpha=0.95)
     # (i) K9
     axe = fig.add_subplot(gs[2, 2:4])
     k9 = S.diagram_mark("k9_pt")
@@ -1280,8 +1314,8 @@ def _draw_FS2(d: dict, draft: bool):
     axe.set_xlim(0.5, 4.5)
     axe.set_xlabel(r"$\bar\eta$")
     axe.set_ylabel(r"$\Delta/\bar\eta$")
-    axe.set_title("(i) K9 ratio scaling", fontsize=S.FONT_SIZE_PT)
-    axe.legend(loc="lower right", fontsize=5.0, frameon=True, framealpha=0.95)
+    axe.set_title("(i) K9 ratio scaling", loc=S.TITLE_LOC)
+    axe.legend(loc="lower right", fontsize=T["legend"], frameon=True, framealpha=0.95)
     # (j) K11
     axk = fig.add_subplot(gs[2, 4:6])
     k11 = S.diagram_mark("k11_pt")
@@ -1290,13 +1324,13 @@ def _draw_FS2(d: dict, draft: bool):
         axk.axhline(1.0 + sgn * FS2_K11, color=tol.colour, ls=tol.linestyle, lw=tol.width, label="plan: 1 +- 0.01" if sgn == -1 else None)
     axk.set_xscale("log")
     axk.set_xticks([5e-4, 1e-3, 2e-3, 5e-3])
-    axk.set_xticklabels(["5e-4", "1e-3", "2e-3", "5e-3"], fontsize=6)
+    axk.set_xticklabels(["5e-4", "1e-3", "2e-3", "5e-3"])
     axk.minorticks_off()
     axk.set_ylim(0.980, 1.014)
     axk.set_xlabel("-J at the Hopf point")
     axk.set_ylabel("ratio")
-    axk.set_title("(j) K11, Delta = 1e-4", fontsize=S.FONT_SIZE_PT)
-    axk.legend(loc="lower left", fontsize=5.0, frameon=True, framealpha=0.95)
+    axk.set_title("(j) K11, Delta = 1e-4", loc=S.TITLE_LOC)
+    axk.legend(loc="lower left", fontsize=T["legend"], frameon=True, framealpha=0.95)
     # (k) K10 frequency against tau_d
     axf = fig.add_subplot(gs[3, 0:3])
     k10 = S.diagram_mark("k10_curve")
@@ -1307,8 +1341,8 @@ def _draw_FS2(d: dict, draft: bool):
         axf.axhline(yv, color=tol.colour, ls=tol.linestyle, lw=tol.width, label=lab)
     axf.set_xlabel(r"$\tau_d$ (ms)")
     axf.set_ylabel("frequency (Hz)")
-    axf.set_title("(k) K10 frequency against tau_d (band and monotone parts)", fontsize=S.FONT_SIZE_PT)
-    axf.legend(loc="center right", bbox_to_anchor=(1.0, 0.68), fontsize=5.0, frameon=True, framealpha=0.95)
+    axf.set_title("(k) K10 frequency against tau_d (band and monotone parts)", loc=S.TITLE_LOC)
+    axf.legend(loc="center right", bbox_to_anchor=(1.0, 0.68), fontsize=T["legend"], frameon=True, framealpha=0.95)
     # (l) K10 J dependence: stored linear frequency
     axg = fig.add_subplot(gs[3, 3:6])
     for tau, key in (("8.0", "k10_j8"), ("20.0", "k10_j20"), ("40.0", "k10_j40")):
@@ -1317,17 +1351,25 @@ def _draw_FS2(d: dict, draft: bool):
                  label=f"tau_d {float(tau):g} ms: change {100 * d[f'k10_rel_change_{tau}']:.1f} percent (limit {100 * d['k10_j_limit']:.0f})")
     axg.set_xlabel("J")
     axg.set_ylabel("linear Im lambda frequency (Hz)")
-    axg.set_title("(l) K10 J dependence: NOT reproduced as worded", fontsize=S.FONT_SIZE_PT)
+    axg.set_title("(l) K10 J dependence: NOT reproduced as worded", loc=S.TITLE_LOC)
     axg.set_ylim(top=25.0)                       # headroom: the legend sits above the first marker of the 8 ms line
-    axg.legend(loc="upper left", fontsize=5.0, frameon=True, framealpha=0.95)
+    axg.legend(loc="upper left", fontsize=T["legend"], frameon=True, framealpha=0.95)
     # status block
     axs = fig.add_subplot(gs[4, :])
     axs.axis("off")
     lines = ["Status of each check, from the stored values (a failure is shown, not dropped):"]
     for text in fs2_status_lines(d):
         lines += textwrap.wrap(text, width=150, subsequent_indent="    ")
-    axs.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=5.7, linespacing=1.25)
-    axs.text(0.0, 0.0, FS2_FOOTER if draft else "", fontsize=5.5, color="#7f0000", ha="left", va="bottom")
+    axs.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=T["status"], linespacing=1.25)
+    fig = _style_text(fig, FS2_FOOTER if draft else "")
+    # (j) 13p (DL-500 R15): the asterisks stay at their stored positions; the count of marks that overlap at the drawn size is printed (after the layout is final)
+    fig.canvas.draw()
+    pts = axk.get_lines()[0]
+    n_co = coincident_marks(axk, pts, S.FS_SIZES["fs2_coincide_mark"])
+    n_all = len(pts.get_xdata())
+    distinct = len(set(zip(np.asarray(pts.get_xdata()).tolist(), np.asarray(pts.get_ydata()).tolist()))) == n_all
+    axk.text(0.98, 0.97, f"{n_co} of {n_all} coincide at the drawn size\n(" + ("stored values all differ" if distinct else "some stored values are equal") + ")",
+             transform=axk.transAxes, ha="right", va="top", fontsize=T["small"], color=S.figure_colour("text_dark")).set_gid("coincide_note")
     return fig
 
 
@@ -1358,7 +1400,7 @@ def fs2_caption_notes(d: dict) -> tuple:
         "Panels (i) and (j) are the stored K9 and K11 arrays of the A4 run, with the plan's tolerance bands. Panels (k) and (l) are the K10 readouts: (k) the A4 linear frequency against tau_d, "
         "(l) the stored linear frequency at J of -40, -30, -20, -10 and -5 for three tau_d; the linear frequency is not a cycle frequency (DL-131).",
         "The A6 frequency map file is opened for one check only (the ref_devalle slice reproduces the stored cycle frequency at eta_bar 4); no frequency map is drawn. S3 cells of the K8 N = 5e4 run have a single seed.",
-        "The claim-limit ID listed here is PROPOSED for the reviewer's ruling. K7, K9 to K11 are single-source checks (CP1, CP11); K10 is UNVERIFIED single source.",
+        "K7, K9 to K11 are single-source checks (CP1, CP11); K10 is UNVERIFIED single source.",
     )
 
 
@@ -1442,20 +1484,20 @@ FS5_RB9A_TOL = 0.005                    # plan Table 7.2 RB9(a): within 0.5 perc
 FS5_RB9C_BOUND = 0.05                   # plan Table 7.2 RB9(c): <= 5 percent of cells (read back and checked)
 FS5_WHITE_CLASSES = ("S+", "S-rel", "S-abs", "S-sus", "NS")
 
-# PROPOSED for the reviewer's ruling (13i prompt, item B3); every statement is from a logged result (DL numbers in the text) and the numbers are checked
+# Ruled (RULED_DL, 13p R13); first proposed for the reviewer's ruling (13i prompt, item B3); every statement is from a logged result (DL numbers in the text) and the numbers are checked
 # against the stored arrays by tests/test_fig_FS5.py.
 FS5_TAKE_HOME = (
-    "PROPOSED (for ruling): The surge classifier, with its D8 call provisional, was run on 26 synthetic cases and on stored mean-field records under nine "
+    "The surge classifier, with its D8 call provisional, was run on 26 synthetic cases and on stored mean-field records under nine "
     "variants (A8; DL-147): which classes change is drawn per variant. The plan's D8 estimator fails 2 of the plan's 8 A8 ring items (DL-161, DL-163), and short "
     "windows give false surges: 306, 400, 172 and 24 of 500 white-noise records are not NS at W = 0.2, 0.333, 0.593 and 1.054 s (DL-147, DL-163). RB10 passes "
     "(headline class unchanged under all nine variants; at most 1.67 percent of the 900 map-1 cells change class against the 10 percent bound; DL-388). "
     "RB9(a) passes at unit level (1.2e-8 against 0.005; DL-351, DL-388), RB9(c) passes (14 of 900 cells), RB9(b) FAILS (49.0 Hz spectral peak against a "
     "44.609 Hz cycle frequency, 4.391 Hz against 1/W = 0.5 Hz; DL-388), and RB9(d) is reported only."
 )
-# PROPOSED: the limits of docs/ms13_plan.md section 5 whose right-hand column lists FS5 (MS9 (e)-5, DL-163 departures 1, 2 and 4, MS11-C3, MS11-C4, MS11-C7,
+# Ruled (RULED_DL, 13p R13): the limits of docs/ms13_plan.md section 5 whose right-hand column lists FS5 (MS9 (e)-5, DL-163 departures 1, 2 and 4, MS11-C3, MS11-C4, MS11-C7,
 # MS11-C9); MS12-C1 lists F1 to F6 and FS6, not FS5. The RB9(b) FAIL row (DL-388) is in the FAIL-row strip. Listed, not decided.
-FS5_CLAIM_LIMITS = ("MS11-C7", "MS9(e)-5", "DL-163-D1", "DL-163-D2", "DL-163-D4", "MS11-C3", "MS11-C4", "MS11-C9")
-FS5_FOOTER = "DRAFT: untagged build. Layout, marks, colours and panel choices are UNVERIFIED (style.py); take-home and claim limits are PROPOSED."
+FS5_CLAIM_LIMITS = ("MS11-C7", "MS9(e)-5", "DL-163-D1", "DL-163-D2", "DL-163-D4", "MS11-C3", "MS11-C4", "MS11-C9", "RB9(b) FAIL (plan label)")      # 13p (DL-494 R5): plan label added
+FS5_FOOTER = draft_footer("FS5")
 
 
 def load_FS5(res=None, root=None) -> dict:
@@ -1672,6 +1714,17 @@ def fs5_strip_lines(d: dict) -> list[str]:
     return out
 
 
+def _fs5_wrap_name(text: str, width: int) -> list[str]:
+    """A long test name breaks after an underscore, never inside a word; the continuation is indented."""
+    out = []
+    ln = text
+    while len(ln) > width and "_" in ln[:width]:
+        cut = ln[:width].rindex("_") + 1
+        out.append(ln[:cut])
+        ln = "    " + ln[cut:]
+    return out + [ln]
+
+
 def _draw_FS5(d: dict, draft: bool):
     import textwrap
     import matplotlib
@@ -1679,12 +1732,16 @@ def _draw_FS5(d: dict, draft: bool):
     import matplotlib.pyplot as plt
     from matplotlib.patches import Patch, Rectangle
     plt.rcParams.update({"font.family": S.FONT_FAMILY, "font.size": S.FONT_SIZE_PT, "pdf.fonttype": 42})
+    T = S.TEXT_SIZES
+    edge = S.figure_colour("bar_edge")
     fig = plt.figure(figsize=(7.4, 14.4), constrained_layout=True)
     gs = fig.add_gridspec(5, 6, height_ratios=[4.3, 1.9, 1.9, 1.7, 1.5])
     classes = d["class_order"]
     var = d["variants"]
+    # row 0: (a) and a wider (b) column (13p, R18: the test-name list is readable)
+    top = gs[0, :].subgridspec(1, 2, width_ratios=list(S.FS_LAYOUT["fs5_row0_ratios"]))
     # (a) synthetic classes under the ten variants: one marker per cell, shape and colour from the class table
-    ax = fig.add_subplot(gs[0, 0:4])
+    ax = fig.add_subplot(top[0, 0])
     nrow = len(d["syn_label"])
     ys = np.arange(nrow, dtype=float)
     for ci, name in enumerate(classes):
@@ -1697,57 +1754,53 @@ def _draw_FS5(d: dict, draft: bool):
             ax.plot(xx, yy, ls="none", marker=mk.marker, ms=mk.size, color=mk.colour, mew=mk.width, label="not run (window does not fit)", zorder=4)
         else:
             st = S.get(name)
-            ax.plot(xx, yy, ls="none", marker=st.marker, ms=4.2, color=st.colour, mec="#333333", mew=0.25, label=f"{name} ({int(sel.sum())})", zorder=4)
+            ax.plot(xx, yy, ls="none", marker=st.marker, ms=S.FS_SIZES["fs5_class"], color=st.colour, mec=edge, mew=0.25, label=f"{name} ({int(sel.sum())})", zorder=4)
     n_rows_n = d["syn_mode"].count("N")
-    ax.axhline(n_rows_n - 0.5, color="#7a7a7a", lw=0.6, zorder=1)
+    ax.axhline(n_rows_n - 0.5, color=S.FS_COLOURS["patch_edge"], lw=0.6, zorder=1)
     ax.set_ylim(nrow - 0.5, -0.5)
     ax.set_xlim(-0.6, len(var) - 0.4)
-    ax.set_xticks(range(len(var)), var, rotation=40, ha="right", fontsize=5.5)
-    ax.set_yticks(ys, d["syn_label"], fontsize=4.8)
+    ax.set_xticks(range(len(var)), var, rotation=40, ha="right")
+    ax.set_yticks(ys, d["syn_label"])
     ax.tick_params(length=2)
-    ax.set_title("(a) A8 synthetic cases: class under each variant (mode N above the line, D below)", fontsize=S.FONT_SIZE_PT - 1, loc="left")
+    ax.set_title("(a) A8 synthetic cases: class under each variant (mode N above the line, D below)", loc=S.TITLE_LOC)
     h_a, l_a = ax.get_legend_handles_labels()
     # (b) the stored test cases, read as a list
-    axb = fig.add_subplot(gs[0, 4:6])
+    axb = fig.add_subplot(top[0, 1])
     axb.axis("off")
-    lines = ["(b) from test source text, not from results/"] + textwrap.wrap("The stored synthetic tests, read as a list (never run here):", width=44)
+    wrap = S.FS_LAYOUT["fs5_b_wrap"]
+    lines = ["(b) from test source text, not from results/"] + textwrap.wrap("The stored synthetic tests, read as a list (never run here):", width=wrap)
     lines += [f"{Path(f).name}: {n} test functions" for f, n in zip(d["tests_file"], d["tests_n"])]
-    lines += textwrap.wrap(f"{len(d['tests_xfail_name'])} strict-xfail marks (expected failures), on functions or on parameters:", width=44)
+    lines += textwrap.wrap(f"{len(d['tests_xfail_name'])} strict-xfail marks (expected failures), on functions or on parameters:", width=wrap)
     for nm, rs in zip(d["tests_xfail_name"], d["tests_xfail_reason"]):
-        ln = f"- {nm}:"
-        while len(ln) > 44 and "_" in ln[:44]:                                      # a long test name breaks after an underscore, never inside a word
-            cut = ln[:44].rindex("_") + 1
-            lines.append(ln[:cut])
-            ln = "    " + ln[cut:]
-        lines.append(ln)
-        lines += textwrap.wrap(rs, width=44, initial_indent="    ", subsequent_indent="    ")
-    axb.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=4.8, linespacing=1.2)
-    axb.legend(h_a, l_a, loc="lower left", ncol=2, fontsize=5.0, frameon=True, framealpha=0.95, title="class (cells)", title_fontsize=5.0)
+        lines += _fs5_wrap_name(f"- {nm}:", wrap)
+        lines += textwrap.wrap(rs, width=wrap, initial_indent="    ", subsequent_indent="    ")
+    axb.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=T["note"], linespacing=1.2)
+    axb.legend(h_a, l_a, loc="lower left", ncol=3, fontsize=T["legend"], frameon=True, framealpha=0.95, title="class (cells)", title_fontsize=T["legend"])
     # (c) class changes against V0
     axc = fig.add_subplot(gs[1, 0:4])
     frac = d["chg_changed"] / d["chg_n"][:, None]
-    m = axc.pcolormesh(np.arange(frac.shape[1] + 1) - 0.5, np.arange(frac.shape[0] + 1) - 0.5, frac, cmap=S.CHANGE_CMAP, vmin=0.0, vmax=1.0, shading="flat", edgecolor="#ffffff", lw=0.6)
+    axc.pcolormesh(np.arange(frac.shape[1] + 1) - 0.5, np.arange(frac.shape[0] + 1) - 0.5, frac, cmap=S.CHANGE_CMAP, vmin=0.0, vmax=1.0, shading="flat",
+                   edgecolor=S.FS_COLOURS["cell_edge"], lw=0.6)
     for i in range(frac.shape[0]):
         for j in range(frac.shape[1]):
             nr = int(d["chg_not_run"][i, j])
-            axc.text(j, i, f"{int(d['chg_changed'][i, j])}/{int(d['chg_n'][i])}" + (f"\n{nr} not run" if nr else ""), ha="center", va="center", fontsize=4.6,
-                     color="#111111" if frac[i, j] < 0.6 else "#ffffff")
-    axc.set_xticks(range(frac.shape[1]), var[1:], rotation=40, ha="right", fontsize=5.5)
-    axc.set_yticks(range(frac.shape[0]), FS5_GROUP_LABELS, fontsize=5.5)
+            axc.text(j, i, f"{int(d['chg_changed'][i, j])}/{int(d['chg_n'][i])}" + (f"\n{nr} not run" if nr else ""), ha="center", va="center", fontsize=T["small"],
+                     color=S.FS_COLOURS["text_on_light"] if frac[i, j] < S.FS5_TEXT_DARK_ABOVE else S.FS_COLOURS["text_on_dark"])
+    axc.set_xticks(range(frac.shape[1]), var[1:], rotation=40, ha="right")
+    axc.set_yticks(range(frac.shape[0]), FS5_GROUP_LABELS)
     axc.set_ylim(frac.shape[0] - 0.5, -0.5)
-    axc.set_title("(c) class changes against V0: records changed / records (shade: fraction, 0 to 1)", fontsize=S.FONT_SIZE_PT - 1, loc="left")
-    # (d) reachability of the rho levels
+    axc.set_title("(c) class changes against V0: records changed / records (shade: fraction, 0 to 1)", loc=S.TITLE_LOC)
+    # (d) reachability of the rho levels. 13p (R18): the window marks are vertex polygons (style keys w_0 to w_5), no card-suit glyphs
     axd = fig.add_subplot(gs[1, 4:6])
     for i, w in enumerate(d["reach_W"]):
         mk = S.diagram_mark(f"w_{i}")
-        axd.plot(d["reach_level"], d["reach_share"][i], color=mk.colour, ls=mk.linestyle, lw=0.8, marker=mk.marker, ms=mk.size - 1, zorder=3,
-                 label=f"W {w:.3g} s ({int(d['reach_n_cells'][i])} cells)")
-    axd.set_xlabel("baseline rho level", fontsize=6)
-    axd.set_ylabel("share of cells at or above", fontsize=6)
+        axd.plot(d["reach_level"], d["reach_share"][i], color=mk.colour, ls=mk.linestyle, lw=0.8, marker=mk.marker, ms=mk.size, mfc=mk.colour if mk.filled else "none",
+                 mew=mk.width, zorder=3, label=f"W {w:.3g} s ({int(d['reach_n_cells'][i])} cells)")
+    axd.set_xlabel("baseline rho level")
+    axd.set_ylabel("share of cells at or above")
     axd.set_ylim(0.0, 1.05)
-    axd.set_title("(d) baseline rho reachability", fontsize=S.FONT_SIZE_PT - 1, loc="left")
-    axd.tick_params(labelsize=5.5)
-    axd.legend(loc="lower left", fontsize=4.6, frameon=True, framealpha=0.95)
+    axd.set_title("(d) baseline rho reachability", loc=S.TITLE_LOC)
+    axd.legend(loc="lower left", fontsize=T["legend"], frameon=True, framealpha=0.95)
     # (e) white noise at V0
     axe = fig.add_subplot(gs[2, 0:3])
     bottom = np.zeros(len(d["white_W"]))
@@ -1757,22 +1810,22 @@ def _draw_FS5(d: dict, draft: bool):
         st = S.get(name)
         h = d["white_count"][:, ci] / d["white_den"]
         for x_, b_, h_ in zip(xw, bottom, h):         # Rectangles, not Axes.bar: bar rounds the height in the last bit ((b + h) - b), the stored share must be drawn exactly
-            axe.add_patch(Rectangle((x_ - 0.35, b_), 0.7, h_, fc=st.colour, ec="#333333", lw=0.3, hatch=S.CLASS_HATCH[name], zorder=3))
-        legend_h.append(Patch(fc=st.colour, ec="#333333", lw=0.3, hatch=S.CLASS_HATCH[name], label=name))
+            axe.add_patch(Rectangle((x_ - 0.35, b_), 0.7, h_, fc=st.colour, ec=edge, lw=0.3, hatch=S.CLASS_HATCH[name], zorder=3))
+        legend_h.append(Patch(fc=st.colour, ec=edge, lw=0.3, hatch=S.CLASS_HATCH[name], label=name))
         for x_, b_, h_, c_ in zip(xw, bottom, h, d["white_count"][:, ci]):
             if h_ >= 0.07:
-                axe.text(x_, b_ + h_ / 2, f"{int(c_)}", ha="center", va="center", fontsize=4.8, bbox=dict(boxstyle="square,pad=0.1", fc="#ffffff", ec="none", alpha=0.8), zorder=5)
+                axe.text(x_, b_ + h_ / 2, f"{int(c_)}", ha="center", va="center", fontsize=T["small"],
+                         bbox=dict(boxstyle="square,pad=0.1", fc=S.figure_colour("label_box"), ec="none", alpha=0.8), zorder=5)
         bottom = bottom + h
     for x_, n_, den in zip(xw, d["white_nonNS"], d["white_den"]):
-        axe.text(x_, 1.015, f"{int(n_)}", ha="center", va="bottom", fontsize=5.5, fontweight="bold")
-    axe.set_xticks(xw, [f"{w:.3g}" for w in d["white_W"]], fontsize=5.5)
+        axe.text(x_, 1.015, f"{int(n_)}", ha="center", va="bottom", fontsize=T["status"], fontweight="bold")
+    axe.set_xticks(xw, [f"{w:.3g}" for w in d["white_W"]])
     axe.set_ylim(0.0, 1.42)
-    axe.set_xlabel("window W (s)", fontsize=6)
-    axe.set_ylabel("share of 500 white-noise records", fontsize=6)
-    axe.set_title("(e) white noise through the classifier (V0); bold: records not NS", fontsize=S.FONT_SIZE_PT - 1, loc="left")
-    axe.tick_params(labelsize=5.5)
+    axe.set_xlabel("window W (s)")
+    axe.set_ylabel("share of 500 white-noise records")
+    axe.set_title("(e) white noise through the classifier (V0); bold: records not NS", loc=S.TITLE_LOC)
     axe.set_xlim(-0.6, len(xw) - 0.4)
-    axe.legend(handles=legend_h, loc="upper center", ncol=5, fontsize=5.0, frameon=True, framealpha=0.95, handletextpad=0.3, columnspacing=0.8)
+    axe.legend(handles=legend_h, loc="upper center", ncol=5, fontsize=T["legend"], frameon=True, framealpha=0.95, handletextpad=0.3, columnspacing=0.8)
     # (f) RB10
     axf = fig.add_subplot(gs[2, 3:6])
     mk10 = S.diagram_mark("fs5_pt")
@@ -1780,13 +1833,12 @@ def _draw_FS5(d: dict, draft: bool):
     axf.plot(d["rb10_fraction"], yv, ls="none", marker=mk10.marker, ms=mk10.size, color=mk10.colour, mew=mk10.width, zorder=4, label=f"map-1 cells that change class (of {d['rb10_n_cells']})")
     tol = S.diagram_mark("tol_band")
     axf.axvline(FS5_RB10_BOUND, color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label="plan bound 0.10", zorder=2)
-    axf.set_yticks(yv, d["rb10_variant"], fontsize=5.5)
+    axf.set_yticks(yv, d["rb10_variant"])
     axf.set_ylim(len(yv) - 0.5, -0.5)
     axf.set_xlim(-0.005, 0.30)
-    axf.set_xlabel("fraction of map-1 cells that change class", fontsize=6)
-    axf.set_title("(f) RB10: " + ("headline class unchanged, nine variants" if d["rb10_headline_all_pass"] else "headline class changed under a variant"), fontsize=S.FONT_SIZE_PT - 1, loc="left")
-    axf.tick_params(labelsize=5.5)
-    axf.legend(loc="lower right", fontsize=5.0, frameon=True, framealpha=0.95)
+    axf.set_xlabel("fraction of map-1 cells that change class")
+    axf.set_title("(f) RB10: " + ("headline class unchanged, nine variants" if d["rb10_headline_all_pass"] else "headline class changed under a variant"), loc=S.TITLE_LOC)
+    axf.legend(loc="lower right", fontsize=T["legend"], frameon=True, framealpha=0.95)
     # (g) RB9, frequency mapping: four small panels of the stored values
     sub = gs[3, :].subgridspec(1, 4, wspace=0.55)
     pt = S.diagram_mark("fs5_pt")
@@ -1798,50 +1850,52 @@ def _draw_FS5(d: dict, draft: bool):
     a1.set_yscale("log")
     a1.set_ylim(1e-10, 3e-2)
     a1.set_xlim(-0.5, 2.5)
-    a1.set_xticks([0, 1, 2], ["r*tau", "v", "s*tau"], fontsize=5.5)
-    a1.set_title("(g1) RB9(a) PASS\nunit level", fontsize=6.0)
-    a1.tick_params(labelsize=5.0)
-    a1.legend(loc="center", bbox_to_anchor=(0.5, 0.62), fontsize=4.4, frameon=True, framealpha=0.95)
-    a1.set_ylabel("relative difference", fontsize=5.5)
+    a1.set_xticks([0, 1, 2], ["r*tau", "v", "s*tau"])
+    a1.set_title("(g1) RB9(a) PASS\nunit level", loc=S.TITLE_LOC)
+    a1.legend(loc="center", bbox_to_anchor=(0.5, 0.62), fontsize=T["legend"], frameon=True, framealpha=0.95)
+    a1.set_ylabel("relative difference")
     a2 = fig.add_subplot(sub[0, 1])
     sp, cy = S.diagram_mark("fs5_spectral"), S.diagram_mark("fs5_cycle")
     a2.plot([0], [d["rb9b_f_spectral"]], ls="none", marker=sp.marker, ms=sp.size, color=sp.colour, zorder=4, label="spectral peak")
     a2.errorbar([1], [d["rb9b_f_cycle"]], yerr=[d["rb9b_bound"]], ls="none", marker=cy.marker, ms=cy.size, color=cy.colour, capsize=3, lw=1.0, zorder=4, label="cycle freq. +- 1/W")
     a2.set_xlim(-0.6, 1.6)
     a2.set_ylim(38.0, 51.0)
-    a2.set_xticks([0, 1], ["spectral", "cycle"], fontsize=5.5)
-    a2.set_title("(g2) RB9(b) " + ("PASS" if d["rb9b_within"] else "FAIL") + "\nheadline", fontsize=6.0)
-    a2.set_ylabel("frequency (Hz)", fontsize=5.5)
-    a2.tick_params(labelsize=5.0)
+    a2.set_xticks([0, 1], ["spectral", "cycle"])
+    a2.set_title("(g2) RB9(b) " + ("PASS" if d["rb9b_within"] else "FAIL") + "\nheadline", loc=S.TITLE_LOC)
+    a2.set_ylabel("frequency (Hz)")
     a2.text(0.5, 0.08, f"diff {d['rb9b_diff']:.3f} Hz > {d['rb9b_bound']:g} Hz\nmap 1: {d['rb9b_map1_within']}/{d['rb9b_map1_n']} in\nmap 2: {d['rb9b_map2_within']}/{d['rb9b_map2_n']} in",
-            transform=a2.transAxes, ha="center", va="bottom", fontsize=4.6, bbox=dict(boxstyle="square,pad=0.2", fc="#ffffff", ec="#7a7a7a", lw=0.4))
+            transform=a2.transAxes, ha="center", va="bottom", fontsize=T["small"], bbox=dict(boxstyle="square,pad=0.2", fc=S.FS_COLOURS["box_face"], ec=S.FS_COLOURS["patch_edge"], lw=0.4))
+    # (g3) 13p (R18): the verdict is judged on map 1; map 2 and the subgrid are reported, not judged (an open ring and a label mark them; the stored points stay line 0)
     a3 = fig.add_subplot(sub[0, 2])
     xs3 = np.arange(3, dtype=float)
-    a3.plot(xs3, d["rb9c_changed"] / d["rb9c_n"], ls="none", marker=pt.marker, ms=pt.size, color=pt.colour, mew=pt.width, zorder=4)
-    a3.axhline(d["rb9c_bound"], color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label="bound 0.05", zorder=2)
-    a3.set_xticks(xs3, ["map 1", "map 2", "subgrid"], fontsize=5.5, rotation=30, ha="right")
+    fr3 = d["rb9c_changed"] / d["rb9c_n"]
+    a3.plot(xs3, fr3, ls="none", marker=pt.marker, ms=pt.size, color=pt.colour, mew=pt.width, zorder=4)
+    a3.axhline(d["rb9c_bound"], color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label="bound 0.05 (map 1)", zorder=2)
+    a3.plot(xs3[1:], fr3[1:], ls="none", marker=S.FS5_REPORTED["marker"], ms=S.FS_SIZES["fs5_reported_ring"], mfc="none", mec=S.FS5_REPORTED["colour"],
+            mew=S.FS5_REPORTED["width"], zorder=3, label="reported, not judged", gid="rb9c_reported")
+    a3.set_xticks(xs3, ["map 1", "map 2", "subgrid"], rotation=30, ha="right")
     a3.set_xlim(-0.5, 2.5)
-    a3.set_ylim(-0.09, 0.64)
-    a3.set_title("(g3) RB9(c) PASS\nband 30 to 120 Hz", fontsize=6.0)
-    a3.set_ylabel("fraction of cells that change class", fontsize=5.0)
-    a3.tick_params(labelsize=5.0)
-    a3.legend(loc="upper left", fontsize=4.6, frameon=True, framealpha=0.95)
+    a3.set_ylim(-0.09, 0.78)
+    a3.set_title("(g3) RB9(c) PASS, judged on map 1\nband 30 to 120 Hz", loc=S.TITLE_LOC)
+    a3.set_ylabel("fraction of cells that change class")
+    a3.legend(loc="upper left", fontsize=T["legend"], frameon=True, framealpha=0.95)
     for x_, c_, n_ in zip(xs3, d["rb9c_changed"], d["rb9c_n"]):
-        a3.text(x_ - (0.15 if c_ / n_ > 0.2 else 0.0), c_ / n_ + (0.0 if c_ / n_ > 0.2 else -0.03), f"{int(c_)}/{int(n_)}", ha="right" if c_ / n_ > 0.2 else "center", va="center" if c_ / n_ > 0.2 else "top", fontsize=4.4)
+        lab = f"{int(c_)}/{int(n_)}" + ("" if x_ == 0 else "\nreported, not judged")
+        hi = c_ / n_ > 0.2
+        a3.text(x_ - (0.2 if hi else 0.0), c_ / n_ + (0.0 if hi else -0.035), lab, ha="right" if hi else "center", va="center" if hi else "top", fontsize=T["small"])
     a4 = fig.add_subplot(sub[0, 3])
     for i, (tau, f, c) in enumerate(zip(d["rb9d_tau_ms"], d["rb9d_f_pk"], d["rb9d_class"])):
         st = S.get(c)
-        a4.plot([tau], [f], ls="none", marker=st.marker, ms=5.5, color=st.colour, mec="#333333", mew=0.4, zorder=4, label=f"{c}" if i == 0 else None)
+        a4.plot([tau], [f], ls="none", marker=st.marker, ms=S.FS_SIZES["fs5_class_g4"], color=st.colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"], zorder=4, label=f"{c}" if i == 0 else None)
     ex = S.diagram_mark("fs5_expected")
     a4.plot(d["rb9d_tau_ms"], d["rb9d_headline_f"] * d["rb9d_expected_ratio"], ls="none", marker=ex.marker, ms=ex.size, color=ex.colour, zorder=3, label="headline x 10/tau")
-    a4.set_xticks(d["rb9d_tau_ms"], [f"{t:g}" for t in d["rb9d_tau_ms"]], fontsize=5.5)
+    a4.set_xticks(d["rb9d_tau_ms"], [f"{t:g}" for t in d["rb9d_tau_ms"]])
     a4.set_xlim(7.0, 13.0)
     a4.set_ylim(38.0, 76.0)
-    a4.set_xlabel("tau (ms)", fontsize=5.5)
-    a4.set_title("(g4) RB9(d)\nreported only", fontsize=6.0)
-    a4.set_ylabel("peak frequency (Hz)", fontsize=5.5)
-    a4.tick_params(labelsize=5.0)
-    a4.legend(loc="upper center", fontsize=4.4, frameon=True, framealpha=0.95)
+    a4.set_xlabel("tau (ms)")
+    a4.set_title("(g4) RB9(d)\nreported only", loc=S.TITLE_LOC)
+    a4.set_ylabel("peak frequency (Hz)")
+    a4.legend(loc="upper center", fontsize=T["legend"], frameon=True, framealpha=0.95)
     # status block
     axs = fig.add_subplot(gs[4, :])
     axs.axis("off")
@@ -1853,9 +1907,8 @@ def _draw_FS5(d: dict, draft: bool):
               "frequency-mapping panel is UNVERIFIED: the RB9 numbers are the stored A11 evaluator values).",
               "Panel (a) classes are the stored A8 classifications, D8 call provisional (DL-137); (b) lists test functions and their strict-xfail marks from the test files."):
         lines += textwrap.wrap(s, width=135, subsequent_indent="    ")
-    axs.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=5.6, linespacing=1.25)
-    axs.text(0.0, 0.0, FS5_FOOTER if draft else "", fontsize=5.5, color="#7f0000", ha="left", va="bottom")
-    return fig
+    axs.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=T["status"], linespacing=1.25)
+    return _style_text(fig, FS5_FOOTER if draft else "")
 
 
 def fs5_caption_notes(d: dict) -> tuple:
@@ -1864,7 +1917,7 @@ def fs5_caption_notes(d: dict) -> tuple:
     return (
         f"Panel (a) draws every stored classification of the 26 synthetic cases (39 rows: mode N at T_ramp 120 s and 3 s, mode D at 120 s) under V0 and the nine variants; "
         "the class is the stored one and the D8 call is provisional (DL-137). The expected class of each case is not stored and is not drawn; the strict-xfail marks of the test files are listed in (b). Panel (b) is from test source text, not from results/: the two test files are read as text, never run, and are listed among the inputs of the provenance record.",
-        f"Panel (c) counts, per group and variant, the records whose class differs from V0 ({n_chg} changes over all groups and variants; checked against the stored a8_sens_summary.json); "
+        f"Panel (c) counts, per group and variant, the records whose class differs from V0 ({n_chg} changes over all groups and variants; checked against the stored A8 sensitivity summary); "
         "records the window x2 variant could not run are counted as not run, not as unchanged.",
         "Panel (d) is the stored reachability table: the share of cells whose mean-over-seeds baseline rho is at or above each level, per window (UNVERIFIED arithmetic, DL-146; the plan's "
         "four numbers do not follow one formula, so both forms are stored and the 1/f levels are drawn).",
@@ -1872,7 +1925,7 @@ def fs5_caption_notes(d: dict) -> tuple:
         "Panels (f) and (g) are the stored RB10 and RB9 values from the A11 evaluator file; the A11 table leaves the RB9(b) value blank, so its numbers are read from the evaluator file. "
         "In (g2), 'in' counts the map cells whose spectral and cycle frequencies agree within 1/W (reported as a fraction, no gate fraction; DL-352). "
         "RB9(a) is a unit-level test on a 1 s eta ramp, not the headline path (DL-351); RB9(d) is post hoc and feeds no gate (DL-367). The headline path is not drawn here.",
-        "The frequency-mapping panel reading (A8 plus A6 plus the RB9 rows) is an UNVERIFIED assumption beyond the plan (DL-430). The claim-limit IDs listed here are PROPOSED for the reviewer's ruling.",
+        "The frequency-mapping panel reading (A8 plus A6 plus the RB9 rows) is an UNVERIFIED assumption beyond the plan (DL-430).",
     )
 
 
@@ -1945,20 +1998,20 @@ FS4_DT = (1e-3, 5e-4, 2.5e-4, 1e-4)    # the network dt ladder, in units of tau 
 FS4_HEAD_ROWS = (("S5ramp", None, "default: delta0 1e-6, rtol 1e-10"), ("delta0", 1e-9, "delta0 1e-9"), ("delta0", 1e-3, "delta0 1e-3"), ("rtol", 1e-8, "rtol 1e-8"),
                  ("rtol", 1e-12, "rtol 1e-12"), ("radau", None, "Radau, rtol 1e-10"))
 
-# PROPOSED for the reviewer's ruling (13i prompt, item B3); every statement is from a logged result (DL numbers in the text) and the numbers are checked against
+# Ruled (RULED_DL, 13p R13); first proposed for the reviewer's ruling (13i prompt, item B3); every statement is from a logged result (DL numbers in the text) and the numbers are checked against
 # the stored tables by tests/test_fig_FS4.py.
 FS4_TAKE_HOME = (
-    "PROPOSED (for ruling): At the headline (P2, ref_devalle, T_ramp 120 s, noise-free) the class is D-tr under every setting tried: delta0 1e-9, 1e-6 and 1e-3, "
+    "At the headline (P2, ref_devalle, T_ramp 120 s, noise-free) the class is D-tr under every setting tried: delta0 1e-9, 1e-6 and 1e-3, "
     "rtol 1e-8, 1e-10 and 1e-12, and DOP853 against Radau. The onset is 58.698 s everywhere except under Radau, which gives 58.879 s: 181 ms against the 1 ms bound, "
     "so the RB6 solver clause FAILS and is unexplained (DL-184, DL-189, DL-208). The Heun dt ladder 1e-3 to 1e-4 tau leaves the floored delay unchanged at the 1 ms "
     "output grid (DL-184, DL-190). At T_ramp 10 s and 316.2278 s the class is D-tr under delta0 and rtol with zero onset shift (DL-387). The network f_pk is not stable "
     "under halving dt: the classifier-episode f_pk changes by 5 to 43 percent against the 2 percent bound (0 of 3 seeds pass) and the PSD-argmax reading passes in 2 "
     "of 3, so the RB6 network row FAILS (DL-387, DL-394). Results that rest on the network f_pk are shown labelled FAIL and are not used as evidence."
 )
-# PROPOSED: the limits of docs/ms13_plan.md section 5 whose right-hand column lists FS4 (MS9 (e)-5, G6-D2, G6-D3, G4-C6, MS11-C2, MS11-C5, MS11-C6, MS11-C7, MS11-C8);
+# Ruled (RULED_DL, 13p R13): the limits of docs/ms13_plan.md section 5 whose right-hand column lists FS4 (MS9 (e)-5, G6-D2, G6-D3, G4-C6, MS11-C2, MS11-C5, MS11-C6, MS11-C7, MS11-C8);
 # MS12-C1 lists F1 to F6 and FS6, not FS4. The RB6 FAIL rows (DL-387) are in the FAIL-row strip. Listed, not decided.
-FS4_CLAIM_LIMITS = ("MS11-C7", "MS9(e)-5", "G6-D2", "G6-D3", "G4-C6", "MS11-C2", "MS11-C5", "MS11-C6", "MS11-C8")
-FS4_FOOTER = "DRAFT: untagged build. Layout, marks, colours and panel choices are UNVERIFIED (style.py); take-home and claim limits are PROPOSED."
+FS4_CLAIM_LIMITS = ("MS11-C7", "MS9(e)-5", "G6-D2", "G6-D3", "G4-C6", "MS11-C2", "MS11-C5", "MS11-C6", "MS11-C8", "RB6 FAIL (plan label)")      # 13p (DL-494 R5): plan label added
+FS4_FOOTER = draft_footer("FS4")
 
 
 def load_FS4(res=None) -> dict:
@@ -2094,38 +2147,40 @@ def _draw_FS4(d: dict, draft: bool):
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     plt.rcParams.update({"font.family": S.FONT_FAMILY, "font.size": S.FONT_SIZE_PT, "pdf.fonttype": 42})
-    fig = plt.figure(figsize=(7.4, 13.4), constrained_layout=True)
-    gs = fig.add_gridspec(5, 6, height_ratios=[1.6, 1.8, 1.9, 1.9, 2.25])
+    T = S.TEXT_SIZES
+    fig = plt.figure(figsize=(7.4, 12.6), constrained_layout=True)
+    gs = fig.add_gridspec(5, 6, height_ratios=list(S.FS_LAYOUT["fs4_row_ratios"]))
     tol = S.diagram_mark("tol_band")
     fcl = S.diagram_mark("fs4_cross")
+    edge = S.figure_colour("bar_edge")
     # (a) headline numerics: one row per setting, the stored classifier onset (class marker) and the raw first crossing (small cross)
     ax = fig.add_subplot(gs[0, 0:4])
     n = len(d["head_label"])
     for i in range(n):
         st = S.get(d["head_class"][i])
-        ax.plot([d["head_onset_s"][i]], [i], ls="none", marker=st.marker, ms=6.5, color=st.colour, mec="#333333", mew=0.4, zorder=4, label=f"{d['head_class'][i]} (classifier onset)" if i == 0 else None)
+        ax.plot([d["head_onset_s"][i]], [i], ls="none", marker=st.marker, ms=S.FS_SIZES["fs4_class"], color=st.colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"], zorder=4,
+                label=f"{d['head_class'][i]} (classifier onset)" if i == 0 else None)
         ax.plot([d["head_onset_cross_s"][i]], [i], ls="none", marker=fcl.marker, ms=fcl.size, color=fcl.colour, mew=fcl.width, zorder=5, label="raw first crossing" if i == 0 else None)
-    ax.set_yticks(range(n), d["head_label"], fontsize=5.8)
+    ax.set_yticks(range(n), d["head_label"])
     ax.set_ylim(n - 0.5, -0.5)
     ax.set_xlim(58.65, 58.93)
-    ax.set_xlabel("onset (s)", fontsize=6)
-    ax.set_title("(a) headline, T_ramp 120 s: onset under each numerical setting", fontsize=S.FONT_SIZE_PT - 1, loc="left")
-    ax.text(0.99, 0.42, f"RB6 solver clause: FAIL\nRadau - default = {d['head_radau_minus_default_ms']:g} ms\nagainst the 1 ms bound", transform=ax.transAxes, ha="right", va="center", fontsize=5.4,
-            color="#7f0000", bbox=dict(boxstyle="square,pad=0.25", fc="#ffffff", ec="#7f0000", lw=0.5))
-    ax.tick_params(labelsize=5.5)
-    ax.legend(loc="upper right", fontsize=5.0, frameon=True, framealpha=0.95)
+    ax.set_xlabel("onset (s)")
+    ax.set_title("(a) headline, T_ramp 120 s: onset under each numerical setting", loc=S.TITLE_LOC)
+    ax.text(0.99, 0.42, f"RB6 solver clause: FAIL\nRadau - default = {d['head_radau_minus_default_ms']:g} ms\nagainst the 1 ms bound", transform=ax.transAxes, ha="right", va="center",
+            fontsize=T["note"], color=S.figure_colour("fail_text"), bbox=dict(boxstyle="square,pad=0.25", fc=S.FS_COLOURS["box_face"], ec=S.figure_colour("fail_text"), lw=0.5))
+    ax.legend(loc="upper right", fontsize=T["legend"], frameon=True, framealpha=0.95)
     # (b) MS11 delta0 and rtol at T_ramp 10 s and 316.2278 s
     axb = fig.add_subplot(gs[0, 4:6])
     for j in range(4):
         for i in range(2):
             st = S.get(d["ms11_class"][i][j])
-            axb.plot([j], [i], ls="none", marker=st.marker, ms=7, color=st.colour, mec="#333333", mew=0.4, zorder=4)
-            axb.text(j, i + 0.32, f"shift {d['ms11_onset_shift_s'][i, j]:g} s", ha="center", va="center", fontsize=4.6)
-    axb.set_xticks(range(4), d["ms11_col_label"], fontsize=5.0, rotation=35, ha="right")
-    axb.set_yticks(range(2), [f"T_ramp {t:g} s" for t in d["ms11_T"]], fontsize=5.5)
+            axb.plot([j], [i], ls="none", marker=st.marker, ms=S.FS_SIZES["fs4_class_b"], color=st.colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"], zorder=4)
+            axb.text(j, i + 0.32, f"shift {d['ms11_onset_shift_s'][i, j]:g} s", ha="center", va="center", fontsize=T["small"])
+    axb.set_xticks(range(4), d["ms11_col_label"], rotation=35, ha="right")
+    axb.set_yticks(range(2), [f"T_ramp {t:g} s" for t in d["ms11_T"]])
     axb.set_ylim(1.6, -0.5)
     axb.set_xlim(-0.6, 3.6)
-    axb.set_title("(b) MS11: class, onset shift", fontsize=S.FONT_SIZE_PT - 1, loc="left")
+    axb.set_title("(b) MS11: class, onset shift", loc=S.TITLE_LOC)
     # (c) floors: delay against the Heun dt, both onset readings
     for col, (q, ttl) in enumerate((("cross", "(c) D43 floor, raw first crossing"), ("class", "(c2) D43 floor, classifier onset"))):
         axc = fig.add_subplot(gs[1, col * 2:col * 2 + 2])
@@ -2135,79 +2190,75 @@ def _draw_FS4(d: dict, draft: bool):
             for i, dt in enumerate(d["floor_dt"]):
                 axc.plot([dt] * arr.shape[1], arr[i], ls="none", marker=mk.marker, ms=mk.size, color=mk.colour, mew=mk.width, zorder=3, label=f"level {L}" if i == 0 else None)
         axc.set_xscale("log")
-        axc.set_xlabel("Heun dt (tau)", fontsize=6)
-        axc.set_ylabel("delay (eta_bar)" if col == 0 else "", fontsize=6)
-        axc.set_title(ttl, fontsize=S.FONT_SIZE_PT - 1, loc="left")
-        axc.tick_params(labelsize=5.5)
+        axc.set_xlabel("Heun dt (tau)")
+        axc.set_ylabel("delay (eta_bar)" if col == 0 else "")
+        axc.set_title(ttl, loc=S.TITLE_LOC)
         axc.set_ylim((-0.125, 0.055) if q == "cross" else (-1.64, -0.62))       # headroom: the legend row sits above the highest points
-        axc.legend(loc="upper center", ncol=3, fontsize=4.8, frameon=True, framealpha=0.95, handletextpad=0.2, columnspacing=0.8)
+        axc.legend(loc="upper center", ncol=3, fontsize=T["legend"], frameon=True, framealpha=0.95, handletextpad=0.2, columnspacing=0.8)
     # (d) floor medians at the other T_ramp (reported only)
     axd = fig.add_subplot(gs[1, 4:6])
-    for i, T in enumerate(d["ms11_T"]):
-        axd.plot([0, 1, 2], d["floorT_median"][i], ls="-" if i == 0 else "--", lw=0.8, marker=S.diagram_mark(f"w_{i}").marker, ms=6, color=S.diagram_mark(f"w_{i}").colour, zorder=3,
-                 label=f"T_ramp {T:g} s: {d['floorT_direction'][i]}")
-    axd.set_xticks([0, 1, 2], ["level 0", "level 1", "level 2"], fontsize=5.5)
+    for i, T_ in enumerate(d["ms11_T"]):
+        mk = S.diagram_mark(f"w_{i}")
+        axd.plot([0, 1, 2], d["floorT_median"][i], ls="-" if i == 0 else "--", lw=0.8, marker=mk.marker, ms=S.FS_SIZES["fs4_floor_T"], color=mk.colour,
+                 mfc=mk.colour if mk.filled else "none", mew=mk.width, zorder=3, label=f"T_ramp {T_:g} s: {d['floorT_direction'][i]}")
+    axd.set_xticks([0, 1, 2], ["level 0", "level 1", "level 2"])
     axd.set_xlim(-0.4, 2.4)
     axd.set_ylim(-1.95, -0.55)
-    axd.set_ylabel("median delay, classifier onset", fontsize=5.5)
-    axd.set_title("(d) floor, 10 s and 316 s", fontsize=S.FONT_SIZE_PT - 1, loc="left")
-    axd.tick_params(labelsize=5.5)
-    axd.legend(loc="lower center", fontsize=4.6, frameon=True, framealpha=0.95)
+    axd.set_ylabel("median delay, classifier onset")
+    axd.set_title("(d) floor, 10 s and 316 s", loc=S.TITLE_LOC)
+    axd.legend(loc="lower center", fontsize=T["legend"], frameon=True, framealpha=0.95)
     lo_, hi_ = int(d["floorT_raw_noonset_seeds"].min()), int(d["floorT_raw_noonset_seeds"].max())
-    axd.text(0.5, 0.97, "raw crossing: no onset in " + (f"{lo_}" if lo_ == hi_ else f"{lo_} to {hi_}") + " of 10 seeds", transform=axd.transAxes, ha="center", va="top", fontsize=4.6)
-    # (e) network f_pk against dt per seed: FAIL
+    axd.text(0.5, 0.97, "raw crossing: no onset in " + (f"{lo_}" if lo_ == hi_ else f"{lo_} to {hi_}") + " of 10 seeds", transform=axd.transAxes, ha="center", va="top", fontsize=T["small"])
+    # (e) network f_pk against dt per seed: FAIL. 13p (R17): each seed is a filled vertex shape of its own (fs4_s0 to fs4_s2), named in the legend
     axe = fig.add_subplot(gs[2, 0:3])
+    psd = S.diagram_mark("fs4_psd")
     for s_ in range(3):
         mk = S.diagram_mark(f"fs4_s{s_}")
-        axe.plot(d["net_dt"], d["net_f_pk_hz"][s_], color=mk.colour, ls=mk.linestyle, lw=0.8, marker=mk.marker, ms=mk.size, zorder=3, label=f"seed {s_}")
-        psd = S.diagram_mark("fs4_psd")
+        axe.plot(d["net_dt"], d["net_f_pk_hz"][s_], color=mk.colour, ls=mk.linestyle, lw=0.8, marker=mk.marker, ms=mk.size, mew=mk.width, zorder=3, label=f"seed {s_}")
         axe.plot(d["net_dt"][:2], d["net_psd_f_pk_hz"][s_], ls="none", marker=psd.marker, ms=psd.size, color=mk.colour, mew=psd.width, zorder=4, label="open: PSD argmax" if s_ == 0 else None)
     axe.set_xscale("log")
     axe.invert_xaxis()
-    axe.set_xlabel("network dt (tau), decreasing", fontsize=6)
-    axe.set_ylabel("f_pk (Hz)", fontsize=6)
-    axe.set_title("(e) network f_pk against dt: RB6 " + d["net_status"] + " (not used as evidence)", fontsize=S.FONT_SIZE_PT - 1, loc="left", color="#7f0000")
-    axe.tick_params(labelsize=5.5)
+    axe.set_xlabel("network dt (tau), decreasing")
+    axe.set_ylabel("f_pk (Hz)")
+    axe.set_title("(e) network f_pk against dt: RB6 " + d["net_status"] + " (not used as evidence)", loc=S.TITLE_LOC, color=S.figure_colour("fail_text"))
     axe.set_ylim(40.0, 125.0)
-    axe.legend(loc="upper center", ncol=4, fontsize=4.6, frameon=True, framealpha=0.95, handletextpad=0.3, columnspacing=1.0, markerscale=0.55, handlelength=2.0)
+    axe.legend(loc="upper center", ncol=4, fontsize=T["legend"], frameon=True, framealpha=0.95, handletextpad=0.3, columnspacing=1.0, markerscale=0.8, handlelength=2.0)
     # (f) relative change of f_pk per halving of dt against the 2 percent bound
     axf = fig.add_subplot(gs[2, 3:6])
     for s_ in range(3):
         mk = S.diagram_mark(f"fs4_s{s_}")
-        axf.plot([0, 1, 2], d["net_rel_change"][s_], ls="none", marker=mk.marker, ms=mk.size, color=mk.colour, zorder=3, label=f"seed {s_}")
+        axf.plot([0, 1, 2], d["net_rel_change"][s_], ls="none", marker=mk.marker, ms=mk.size, color=mk.colour, mew=mk.width, zorder=3, label=f"seed {s_}")
     axf.axhline(FS4_RB6_FPK_BOUND, color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label="bound 0.02", zorder=2)
-    axf.set_xticks([0, 1, 2], ["1e-3 to 5e-4", "5e-4 to 2.5e-4", "2.5e-4 to 1e-4"], fontsize=5.2)
+    axf.set_xticks([0, 1, 2], ["1e-3 to 5e-4", "5e-4 to 2.5e-4", "2.5e-4 to 1e-4"])
     axf.set_xlim(-0.5, 2.5)
     axf.set_ylim(-0.03, 0.78)
-    axf.set_ylabel("relative change of f_pk", fontsize=6)
-    axf.set_title("(f) classifier-episode f_pk per halving of dt", fontsize=S.FONT_SIZE_PT - 1, loc="left")
-    axf.tick_params(labelsize=5.5)
-    axf.legend(loc="upper left", fontsize=4.8, frameon=True, framealpha=0.95, markerscale=0.6, labelspacing=0.5)
-    # (g) network classes by V_p, dt and seed (information only)
+    axf.set_ylabel("relative change of f_pk")
+    axf.set_title("(f) classifier-episode f_pk per halving of dt", loc=S.TITLE_LOC)
+    axf.legend(loc="upper left", fontsize=T["legend"], frameon=True, framealpha=0.95, labelspacing=0.5)
+    # (g) network classes by V_p, dt and seed (information only). 13p (R17): a lower row and tighter limits (compact)
     axg = fig.add_subplot(gs[3, 0:3])
     for i, row in enumerate(d["netcls_class"]):
         for s_, c in enumerate(row):
             st = S.get(c)
-            axg.plot([s_], [i], ls="none", marker=st.marker, ms=6.5, color=st.colour, mec="#333333", mew=0.4, zorder=4)
-            axg.text(s_ + 0.22, i, c, va="center", fontsize=4.6)
-    axg.set_yticks(range(len(d["netcls_row"])), d["netcls_row"], fontsize=5.3)
-    axg.set_xticks(range(3), ["seed 0", "seed 1", "seed 2"], fontsize=5.5)
-    axg.set_xlim(-0.5, 2.9)
-    axg.set_ylim(len(d["netcls_row"]) - 0.5, -0.5)
-    axg.set_title("(g) network class by dt and V_p: information only (G4-C3 stands)", fontsize=S.FONT_SIZE_PT - 1, loc="left")
+            axg.plot([s_], [i], ls="none", marker=st.marker, ms=S.FS_SIZES["fs4_class"], color=st.colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"], zorder=4)
+            axg.text(s_ + 0.16, i, c, va="center", fontsize=T["small"])
+    axg.set_yticks(range(len(d["netcls_row"])), d["netcls_row"])
+    axg.set_xticks(range(3), ["seed 0", "seed 1", "seed 2"])
+    axg.set_xlim(-0.35, 2.65)
+    axg.set_ylim(len(d["netcls_row"]) - 0.6, -0.4)
+    axg.set_title("(g) network class by dt and V_p: information only (G4-C3 stands)", loc=S.TITLE_LOC)
     # (h) V_p comparison, reported only
     axh = fig.add_subplot(gs[3, 3:6])
     v1, v2 = S.diagram_mark("fs4_vp100"), S.diagram_mark("fs4_vp200")
     xx = np.arange(len(d["vp_seed"]), dtype=float)
     axh.plot(xx, d["vp_f100_hz"], ls="none", marker=v1.marker, ms=v1.size, color=v1.colour, zorder=3, label="V_p +-100")
     axh.plot(xx, d["vp_f200_hz"], ls="none", marker=v2.marker, ms=v2.size, color=v2.colour, mew=v2.width, zorder=4, label="V_p +-200")
-    axh.set_xticks(xx, [f"{dt:g}\ns{int(s)}".replace("\\n", "\n") for dt, s in zip(d["vp_dt"], d["vp_seed"])], fontsize=4.8)
+    axh.set_xticks(xx, [f"{dt:g}\ns{int(s)}".replace("\\n", "\n") for dt, s in zip(d["vp_dt"], d["vp_seed"])])
     axh.set_ylim(40.0, 118.0)
     axh.set_xlim(-0.5, len(xx) - 0.5)
-    axh.set_ylabel("f_pk (Hz)", fontsize=6)
-    axh.set_title("(h) V_p +-100 against +-200 (reported only)", fontsize=S.FONT_SIZE_PT - 1, loc="left")
-    axh.tick_params(labelsize=5.5)
-    axh.legend(loc="upper left", fontsize=4.8, frameon=True, framealpha=0.95)
+    axh.set_ylabel("f_pk (Hz)")
+    axh.set_title("(h) V_p +-100 against +-200 (reported only)", loc=S.TITLE_LOC)
+    axh.legend(loc="upper left", fontsize=T["legend"], frameon=True, framealpha=0.95)
     # status block
     axs = fig.add_subplot(gs[4, :])
     axs.axis("off")
@@ -2217,9 +2268,8 @@ def _draw_FS4(d: dict, draft: bool):
               "Panels (a) to (d) are noise-free or floored mean-field runs; (e) to (h) are network runs at N = 1e4, 3 seeds, one T_ramp (G4-C1 to G4-C6 apply; the f_pk reading is UNVERIFIED, M11-6)."):
         lines += textwrap.wrap(s, width=135, subsequent_indent="    ")
     lines = [ln for t_ in lines for ln in textwrap.wrap(t_, width=135, subsequent_indent="        ")]
-    axs.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=5.6, linespacing=1.25)
-    axs.text(0.0, 0.0, FS4_FOOTER if draft else "", fontsize=5.5, color="#7f0000", ha="left", va="bottom")
-    return fig
+    axs.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=T["status"], linespacing=1.25)
+    return _style_text(fig, FS4_FOOTER if draft else "")
 
 
 def fs4_caption_notes(d: dict) -> tuple:
@@ -2234,7 +2284,7 @@ def fs4_caption_notes(d: dict) -> tuple:
         "Panels (e) and (f) draw the stored network f_pk at each dt rung and its relative change per halving; (f) uses the classifier-episode reading, and the PSD-argmax reading of the "
         "first halving is drawn as open marks in (e). The 5 to 43 percent of the take-home is the first halving, 1e-3 to 5e-4 tau, of (f); the later halvings are drawn as stored. RB6 network FAILS under both readings (0 of 3 and 2 of 3 seeds pass; the row is FAIL if any evaluable seed fails, DL-348). "
         "Network f_pk results are labelled FAIL and are not used as evidence. Panel (g) and (h) are information only (DL-349).",
-        "The network classes in (g) are not evidence of a ramp-driven surge (G4-C3); one seed per cell. The claim-limit IDs listed here are PROPOSED for the reviewer's ruling.",
+        "The network classes in (g) are not evidence of a ramp-driven surge (G4-C3); one seed per cell.",
     )
 
 
@@ -2314,21 +2364,22 @@ FS3_SIGMA = (0.5, 1.0, 2.0)
 FS3_T = (10.0, 30.0, 120.0, 300.0)
 FS3_RB2_KEPT_NEEDED = 8                                         # plan Table 7.2 RB2: headline class kept in >= 8 of 10 seeds
 
-# PROPOSED for the reviewer's ruling (13j prompt, item B3); every statement is from a logged result (DL numbers in the text) and the numbers are checked against
+# Ruled (RULED_DL, 13p R13); first proposed for the reviewer's ruling (13j prompt, item B3); every statement is from a logged result (DL numbers in the text) and the numbers are checked against
 # the stored tables by tests/test_fig_FS3.py.
 FS3_TAKE_HOME = (
-    "PROPOSED (for ruling): Finite size (S9, P2, T_ramp 60 s, 10 seeds per N; mean-field class D-tr): the network gives a surge class in 4, 7, 2 and 5 of 10 seeds at "
+    "Finite size (S9, P2, T_ramp 60 s, 10 seeds per N; mean-field class D-tr): the network gives a surge class in 4, 7, 2 and 5 of 10 seeds at "
     "N = 1e3, 3e3, 1e4 and 3e4; the RB1 N rule passes (5 seeds at 3e4 against 2 at 1e4), but no-ramp controls also reach surge classes (2 of 3 at 3e3, 1 of 3 at 1e4 and "
     "at 3e4), so the network classes do not separate ramp-driven from non-ramp records (DL-320, DL-321, DL-325). Heterogeneity shape (S10, N = 1e4, 3 seeds): Gaussian and "
     "uniform give S-abs in 3 of 3 seeds each and the Lorentzian seeds give S-sus, S-abs, S-sus, so RB8 is NOT EVALUABLE and no claim about shape robustness is made "
     "(DL-322, DL-325). Noise (S11, T_ramp 120 s, 10 seeds): the headline class is kept in 8 of 10 seeds at 0.5 sigma (PASS) and 7 of 10 at sigma (FAIL), and "
     "constant-parameter controls reach 7 of 10 at every sigma; the noisy subgrid agrees in 97 of 225 cells against 203 needed (D24 failed) (DL-242, DL-336, DL-387, DL-394)."
 )
-# PROPOSED: the limits of docs/ms13_plan.md section 5 whose right-hand column lists FS3, in the label table of docs/claim_limit_labels.md (MS9(e)-1, MS9(e)-2, MS9(e)-5,
+# Ruled (RULED_DL, 13p R13): the limits of docs/ms13_plan.md section 5 whose right-hand column lists FS3, in the label table of docs/claim_limit_labels.md (MS9(e)-1, MS9(e)-2, MS9(e)-5,
 # DL-163-D4, G4-C1 to G4-C5, MS11-C1, MS11-C2, MS11-C7); the plan labels "RB2 FAIL" and "D24 failed" are written in plain words with their DL numbers in the take-home and
 # the strip. MS12-C1 lists F1 to F6 and FS6, not FS3. Listed, not decided.
-FS3_CLAIM_LIMITS = ("MS11-C7", "MS9(e)-1", "MS9(e)-2", "MS9(e)-5", "DL-163-D4", "G4-C1", "G4-C2", "G4-C3", "G4-C4", "G4-C5", "MS11-C1", "MS11-C2")
-FS3_FOOTER = "DRAFT: untagged build. Layout, marks, colours and panel choices are UNVERIFIED (style.py); take-home and claim limits are PROPOSED."
+FS3_CLAIM_LIMITS = ("MS11-C7", "MS9(e)-1", "MS9(e)-2", "MS9(e)-5", "DL-163-D4", "G4-C1", "G4-C2", "G4-C3", "G4-C4", "G4-C5", "MS11-C1", "MS11-C2",
+                    "RB2 FAIL (plan label)", "D24 failed (plan label)")      # 13p (DL-494 R5, DL-501): the two plan labels the section 5 table lists for FS3
+FS3_FOOTER = draft_footer("FS3")
 
 
 def load_FS3(res=None) -> dict:
@@ -2465,10 +2516,21 @@ def fs3_strip_lines(d: dict) -> list[str]:
     return [f"{r['rb_id']} {r['check_id']}: {r['status']} ({r['value'] or 'value blank in the table'}; threshold {r['threshold'] or 'blank'}) - shown, not dropped" for r in d["strip"]]
 
 
-def _fs3_stack(ax, xs, counts, den, width=0.7, label_min=0.09):
-    """Stacked class bars as Rectangles (the stored share is drawn exactly); returns legend handles."""
+def _fs3_label_y(b_: float, h_: float, avoid) -> float:
+    """13p (DL-500 R16): the y of a count label inside its segment [b_, b_ + h_]: the middle, unless that lies within S.FS3_GATE_CLEAR of a gate line at `avoid`
+    (None: no gate on this bar); then the middle of the larger part of the segment on either side of the line (the upper part on a tie)."""
+    y = b_ + h_ / 2
+    if avoid is None or abs(y - avoid) >= S.FS3_GATE_CLEAR or not (b_ < avoid < b_ + h_):
+        return y
+    lower, upper = avoid - b_, b_ + h_ - avoid
+    return b_ + lower / 2 if lower > upper else avoid + upper / 2
+
+
+def _fs3_stack(ax, xs, counts, den, width=0.7, label_min=0.09, avoid=None):
+    """Stacked class bars as Rectangles (the stored share is drawn exactly); returns legend handles. avoid: per bar the y of a gate line the count labels keep clear of, or None."""
     from matplotlib.patches import Patch, Rectangle
     bottom = np.zeros(len(xs))
+    avoid = [None] * len(xs) if avoid is None else list(avoid)
     handles = []
     for ci, name in enumerate(FS3_CLASSES):
         st = S.get(name)
@@ -2477,9 +2539,11 @@ def _fs3_stack(ax, xs, counts, den, width=0.7, label_min=0.09):
             if h_ > 0:
                 ax.add_patch(Rectangle((x_ - width / 2, b_), width, h_, fc=st.colour, ec=S.figure_colour("bar_edge"), lw=0.3, hatch=S.CLASS_HATCH[name], zorder=3))
         handles.append(Patch(fc=st.colour, ec=S.figure_colour("bar_edge"), lw=0.3, hatch=S.CLASS_HATCH[name], label=name))
-        for x_, b_, h_, c_ in zip(xs, bottom, h, counts[:, ci]):
+        for x_, b_, h_, c_, a_ in zip(xs, bottom, h, counts[:, ci], avoid):
             if h_ >= label_min:
-                ax.text(x_, b_ + h_ / 2, f"{int(c_)}", ha="center", va="center", fontsize=4.8, bbox=dict(boxstyle="square,pad=0.1", fc=S.figure_colour("label_box"), ec="none", alpha=0.8), zorder=5)
+                t = ax.text(x_, _fs3_label_y(b_, h_, a_), f"{int(c_)}", ha="center", va="center", fontsize=S.TEXT_SIZES["small"],
+                            bbox=dict(boxstyle="square,pad=0.1", fc=S.figure_colour("label_box"), ec="none", alpha=0.8), zorder=5)
+                t.set_gid("count_label")
         bottom = bottom + h
     return handles
 
@@ -2491,108 +2555,104 @@ def _draw_FS3(d: dict, draft: bool):
     import matplotlib.pyplot as plt
     from matplotlib.patches import Rectangle
     plt.rcParams.update({"font.family": S.FONT_FAMILY, "font.size": S.FONT_SIZE_PT, "pdf.fonttype": 42})
+    T = S.TEXT_SIZES
     fig = plt.figure(figsize=(7.4, 12.6), constrained_layout=True)
     gs = fig.add_gridspec(4, 6, height_ratios=[2.2, 1.7, 2.3, 2.5])
     tol = S.diagram_mark("tol_band")
     pt = S.diagram_mark("fs3_median")
-    fs = S.FONT_SIZE_PT - 1
     # (a) S9: classes per N (10 seeds) beside the no-ramp controls (3), equal weight
     ax = fig.add_subplot(gs[0, 0:4])
     xs = np.arange(4, dtype=float)
     h_a = _fs3_stack(ax, xs - 0.2, d["s9_count"], d["s9_seeds"][:, None].astype(float), width=0.36)
     _fs3_stack(ax, xs + 0.2, d["s9_ctrl_count"], d["s9_ctrl_n"][:, None].astype(float), width=0.36, label_min=0.2)
     for x_, s_, n_, cs, cn in zip(xs, d["s9_surge"], d["s9_seeds"], d["s9_ctrl_surge"], d["s9_ctrl_n"]):
-        ax.text(x_ - 0.2, 1.02, f"{int(s_)}/{int(n_)}", ha="center", va="bottom", fontsize=5.2, fontweight="bold")
-        ax.text(x_ + 0.2, 1.02, f"{int(cs)}/{int(cn)}", ha="center", va="bottom", fontsize=5.2, fontweight="bold", color=S.figure_colour("range_line"))
-    ax.set_xticks(np.concatenate([xs - 0.2, xs + 0.2]), [f"ramp\nN {int(n_):g}" for n_ in d["N"]] + [f"no-ramp\nN {int(n_):g}" for n_ in d["N"]], fontsize=4.6)
+        ax.text(x_ - 0.2, 1.02, f"{int(s_)}/{int(n_)}", ha="center", va="bottom", fontsize=T["status"], fontweight="bold")
+        ax.text(x_ + 0.2, 1.02, f"{int(cs)}/{int(cn)}", ha="center", va="bottom", fontsize=T["status"], fontweight="bold", color=S.figure_colour("range_line"))
+    ax.set_xticks(np.concatenate([xs - 0.2, xs + 0.2]), [f"ramp\nN {int(n_):g}" for n_ in d["N"]] + [f"no-ramp\nN {int(n_):g}" for n_ in d["N"]])
     ax.set_xlim(-0.6, 3.6)
     ax.set_ylim(0.0, 1.3)
-    ax.set_ylabel("share of seeds", fontsize=6)
-    ax.set_title("(a) S9 (60 s): class per N; bold = surge classes", fontsize=fs, loc="left")
-    ax.tick_params(labelsize=5.2)
-    ax.legend(handles=h_a, loc="upper left", ncol=5, fontsize=4.8, frameon=True, framealpha=0.95, handlelength=1.4, columnspacing=0.8)
+    ax.set_ylabel("share of seeds")
+    ax.set_title("(a) S9 (60 s): class per N; bold = surge classes", loc=S.TITLE_LOC)
+    ax.legend(handles=h_a, loc="upper left", ncol=5, fontsize=T["legend"], frameon=True, framealpha=0.95, handlelength=1.4, columnspacing=0.8)
     # (b) f_pk relative error against the mean field per N
     axb = fig.add_subplot(gs[0, 4:6])
     for x_, lo, md, hi in zip(xs, d["s9_fpk_err_min"], d["s9_fpk_err_median"], d["s9_fpk_err_max"]):
         axb.plot([x_, x_], [lo, hi], color=S.figure_colour("range_line"), lw=1.0, zorder=2)
         axb.plot([x_], [md], ls="none", marker=pt.marker, ms=pt.size, color=pt.colour, mew=pt.width, zorder=4)
-    axb.set_xticks(xs, [f"{int(n_):g}" for n_ in d["N"]], fontsize=5.2)
+    axb.set_xticks(xs, [f"{int(n_):g}" for n_ in d["N"]])
     axb.set_xlim(-0.5, 3.5)
     axb.set_ylim(-0.04, 0.46)
-    axb.set_xlabel("N", fontsize=6)
-    axb.set_ylabel("f_pk relative error", fontsize=5.6)
-    axb.set_title("(b) f_pk error vs MF", fontsize=fs, loc="left")
-    axb.tick_params(labelsize=5.2)
+    axb.set_xlabel("N")
+    axb.set_ylabel("f_pk relative error")
+    axb.set_title("(b) f_pk error vs MF", loc=S.TITLE_LOC)
     # (c) onset error against the mean field per N
     axc = fig.add_subplot(gs[1, 0:3])
     for x_, lo, md, hi in zip(xs, d["s9_onset_err_min"], d["s9_onset_err_median"], d["s9_onset_err_max"]):
         axc.plot([x_, x_], [lo, hi], color=S.figure_colour("range_line"), lw=1.0, zorder=2)
         axc.plot([x_], [md], ls="none", marker=pt.marker, ms=pt.size, color=pt.colour, mew=pt.width, zorder=4)
-    axc.set_xticks(xs, [f"{int(n_):g}" for n_ in d["N"]], fontsize=5.2)
+    axc.set_xticks(xs, [f"{int(n_):g}" for n_ in d["N"]])
     axc.set_xlim(-0.5, 3.5)
     axc.set_ylim(0.0, 31.0)
-    axc.set_xlabel("N", fontsize=6)
-    axc.set_ylabel("onset error (s)", fontsize=5.6)
-    axc.set_title("(c) S9 onset error vs MF", fontsize=fs, loc="left")
-    axc.tick_params(labelsize=5.2)
+    axc.set_xlabel("N")
+    axc.set_ylabel("onset error (s)")
+    axc.set_title("(c) S9 onset error vs MF", loc=S.TITLE_LOC)
     # (d) S10 shape: the stored per-seed classes; RB8 NOT EVALUABLE
     axd = fig.add_subplot(gs[1, 3:6])
     for i in range(3):
         for j in range(3):
             st = S.get(d["shape_class"][i][j])
             axd.plot([j], [i], ls="none", marker=st.marker, ms=S.POINT_SIZES["fs3_shape"], color=st.colour, mec=S.figure_colour("bar_edge"), mew=S.POINT_EDGE_WIDTH["class"], zorder=4)
-            axd.text(j + 0.2, i, d["shape_class"][i][j], va="center", fontsize=4.8)
+            axd.text(j + 0.2, i, d["shape_class"][i][j], va="center", fontsize=T["small"])
     nz = [c for c, k in zip(FS3_CLASSES, d["shape_ctrl_counts"]) for _ in range(int(k))]
     for j, c in enumerate(nz):
         st = S.get(c)
         axd.plot([j], [3.0], ls="none", marker=st.marker, ms=S.POINT_SIZES["fs3_shape"], color=st.colour, mec=S.figure_colour("bar_edge"), mew=S.POINT_EDGE_WIDTH["class"], zorder=4)
-        axd.text(j + 0.2, 3.0, c, va="center", fontsize=4.8)
-    axd.set_yticks(range(4), list(FS3_SHAPES) + ["lorentzian, no-ramp (counts)"], fontsize=5.0)
-    axd.set_xticks(range(3), ["seed 0", "seed 1", "seed 2"], fontsize=5.2)
+        axd.text(j + 0.2, 3.0, c, va="center", fontsize=T["small"])
+    axd.set_yticks(range(4), list(FS3_SHAPES) + ["lorentzian, no-ramp (counts)"])
+    axd.set_xticks(range(3), ["seed 0", "seed 1", "seed 2"])
     axd.set_xlim(-0.5, 2.9)
     axd.set_ylim(3.6, -0.5)
-    axd.set_title("(d) S10 shape: RB8 " + d["rb8_verdict"], fontsize=fs, loc="left", color=S.figure_colour("fail_text"))
-    # (e) S11 noise: classes per sigma factor and T_ramp; the 120 s bars are the RB2 gate
+    axd.set_title("(d) S10 shape: RB8 " + d["rb8_verdict"], loc=S.TITLE_LOC, color=S.figure_colour("fail_text"))
+    # (e) S11 noise: classes per sigma factor and T_ramp; the 120 s bars are the RB2 gate. 13p (R16): no count label lies on the dashed gate line
     axe = fig.add_subplot(gs[2, 0:4])
     xe = np.arange(12, dtype=float) + np.repeat(np.arange(3), 4) * 0.5
-    _fs3_stack(axe, xe, d["noise_count"], np.full((12, 1), 10.0), width=0.8, label_min=0.12)
+    gate_y = FS3_RB2_KEPT_NEEDED / 10.0
+    _fs3_stack(axe, xe, d["noise_count"], np.full((12, 1), 10.0), width=0.8, label_min=0.12, avoid=[gate_y if g else None for g in d["noise_gated"]])
     for x_, k, g in zip(xe, d["noise_kept"], d["noise_gated"]):
-        axe.text(x_, 1.02, f"{int(k)}", ha="center", va="bottom", fontsize=5.4, fontweight="bold")
+        axe.text(x_, 1.02, f"{int(k)}", ha="center", va="bottom", fontsize=T["status"], fontweight="bold")
         if g:
-            axe.text(x_, 1.1, d["gate_status"][0 if x_ < 4 else 1], ha="center", va="bottom", fontsize=5.0, fontweight="bold", color=S.figure_colour("fail_text") if (x_ > 4) else S.figure_colour("text_dark"))
-            axe.plot([x_ - 0.4, x_ + 0.4], [FS3_RB2_KEPT_NEEDED / 10.0] * 2, color=S.figure_colour("gate_line"), ls=tol.linestyle, lw=tol.width + 0.4, zorder=6)
-    axe.set_xticks(xe, [f"{t:g}\nx{s_:g}" for t, s_ in zip(d["noise_T"], d["noise_sigma"])], fontsize=4.8)
-    axe.set_xlabel("T_ramp (s) and sigma factor", fontsize=6)
+            axe.text(x_, 1.1, d["gate_status"][0 if x_ < 4 else 1], ha="center", va="bottom", fontsize=T["status"], fontweight="bold",
+                     color=S.figure_colour("fail_text") if (x_ > 4) else S.figure_colour("text_dark"))
+            axe.plot([x_ - 0.4, x_ + 0.4], [gate_y] * 2, color=S.figure_colour("gate_line"), ls=tol.linestyle, lw=tol.width + 0.4, zorder=6, gid="rb2_gate")
+    axe.set_xticks(xe, [f"{t:g}\nx{s_:g}" for t, s_ in zip(d["noise_T"], d["noise_sigma"])])
+    axe.set_xlabel("T_ramp (s) and sigma factor")
     axe.set_ylim(0.0, 1.26)
     axe.set_xlim(-0.6, float(xe[-1]) + 0.6)
-    axe.set_ylabel("share of 10 seeds", fontsize=6)
-    axe.set_title("(e) S11 noise: classes; dashed = RB2 gate (>= 8 of 10)", fontsize=fs, loc="left", color=S.figure_colour("fail_text"))
-    axe.tick_params(labelsize=5.2)
+    axe.set_ylabel("share of 10 seeds")
+    axe.set_title("(e) S11 noise: classes; dashed = RB2 gate (>= 8 of 10)", loc=S.TITLE_LOC, color=S.figure_colour("fail_text"))
     # (f) the DL-251 constant-parameter controls
     axf = fig.add_subplot(gs[2, 4:6])
     xf = np.arange(3, dtype=float)
     _fs3_stack(axf, xf, d["noise_ctrl_count"], np.full((3, 1), 10.0), width=0.7, label_min=0.12)
     for x_, k in zip(xf, d["noise_ctrl_kept"]):
-        axf.text(x_, 1.02, f"{int(k)}", ha="center", va="bottom", fontsize=5.4, fontweight="bold")
-    axf.set_xticks(xf, [f"x {s_:g}" for s_ in FS3_SIGMA], fontsize=5.2)
+        axf.text(x_, 1.02, f"{int(k)}", ha="center", va="bottom", fontsize=T["status"], fontweight="bold")
+    axf.set_xticks(xf, [f"x {s_:g}" for s_ in FS3_SIGMA])
     axf.set_xlim(-0.6, 2.6)
     axf.set_ylim(0.0, 1.14)
-    axf.set_xlabel("sigma factor", fontsize=6)
-    axf.set_title("(f) no-ramp controls", fontsize=fs, loc="left")
-    axf.tick_params(labelsize=5.2)
+    axf.set_xlabel("sigma factor")
+    axf.set_title("(f) no-ramp controls", loc=S.TITLE_LOC)
     # (g) the noisy subgrid, carried in from MS9
     axg = fig.add_subplot(gs[3, 0:2])
     axg.add_patch(Rectangle((-0.3, 0), 0.6, d["subgrid_agree"], fc=S.figure_colour("subgrid_bar"), ec=S.figure_colour("bar_edge"), lw=0.4, zorder=3))
     axg.axhline(d["subgrid_needed"], color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label="needed (D24, 90 percent)", zorder=2)
-    axg.text(0.0, d["subgrid_agree"] / 2, f"{d['subgrid_agree']} of {d['subgrid_cells']}", ha="center", va="center", fontsize=5.6,
+    axg.text(0.0, d["subgrid_agree"] / 2, f"{d['subgrid_agree']} of {d['subgrid_cells']}", ha="center", va="center", fontsize=T["note"],
              bbox=dict(boxstyle="square,pad=0.15", fc=S.figure_colour("label_box"), ec="none", alpha=0.85), zorder=5)
     axg.set_xlim(-0.8, 0.8)
     axg.set_ylim(0, d["subgrid_cells"] * 1.25)
-    axg.set_xticks([0], ["cells that agree"], fontsize=5.2)
-    axg.set_ylabel(f"cells (of {d['subgrid_cells']})", fontsize=6)
-    axg.set_title("(g) noisy subgrid: " + d["subgrid_status"], fontsize=fs, loc="left", color=S.figure_colour("fail_text"))
-    axg.tick_params(labelsize=5.2)
-    axg.legend(loc="upper right", fontsize=4.6, frameon=True, framealpha=0.95)
+    axg.set_xticks([0], ["cells that agree"])
+    axg.set_ylabel(f"cells (of {d['subgrid_cells']})")
+    axg.set_title("(g) noisy subgrid: " + d["subgrid_status"], loc=S.TITLE_LOC, color=S.figure_colour("fail_text"))
+    axg.legend(loc="upper right", fontsize=T["legend"], frameon=True, framealpha=0.95)
     # status block
     axs = fig.add_subplot(gs[3, 2:6])
     axs.axis("off")
@@ -2601,9 +2661,8 @@ def _draw_FS3(d: dict, draft: bool):
     lines += ["Panels (a) to (d) are network runs (N = 1e4 unless N is varied) at T_ramp 60 s; (e) and (f) are mean-field runs with noise (S11, DL-336). All panels are rows of the "
               "stored MS10 evaluator file and the stored A11 files; no series is drawn. A surge class here is S+, S-rel or S-abs (frozen Table 2.1; S-rel is not ramp evidence in mode N, MS9(e)-2)."]
     lines = [ln for t_ in lines for ln in textwrap.wrap(t_, width=88, subsequent_indent="        ")]
-    axs.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=5.0, linespacing=1.25)
-    axs.text(0.0, 0.0, "\n".join(textwrap.wrap(FS3_FOOTER, 80)) if draft else "", fontsize=5.0, color=S.figure_colour("fail_text"), ha="left", va="bottom")
-    return fig
+    axs.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=T["status"], linespacing=1.25)
+    return _style_text(fig, FS3_FOOTER if draft else "")
 
 
 def fs3_caption_notes(d: dict) -> tuple:
@@ -2620,7 +2679,6 @@ def fs3_caption_notes(d: dict) -> tuple:
         "line are the gate (kept in at least 8 of 10 seeds at 0.5 sigma and sigma; 2 sigma is reported only); the no-ramp controls of (f) are the post-hoc amendment of DL-251 and feed no gate. "
         "Panel (g) is the subgrid agreement carried in from MS9 and not re-evaluated here (D24 failed, DL-242). The FAIL rows listed are the RB2 rows and, because panels (a) to (c) draw the S9 N-sweep records, the RB1 rows "
         "(UNVERIFIED reading); they are shown, not dropped. "
-        "The claim-limit IDs listed here are PROPOSED for the reviewer's ruling.",
     )
 
 
@@ -2700,21 +2758,21 @@ F6_T = tuple(float(x) for x in (1.0, 1.7782794100389228, 3.1622776601683795, 5.6
 F6_S6_T = (10.0, 30.0, 120.0, 300.0)
 F6_S6_ROWS = (("P3", 0.5, "P3, I_amp 0.5"), ("P3", 1.0, "P3, I_amp 1"), ("P3", 2.0, "P3, I_amp 2"), ("P4a", None, "P4a"), ("P4b", None, "P4b"), ("P2", None, "P2 (comparators)"))
 
-# PROPOSED for the reviewer's ruling (13j prompt, item B3); every statement is from a logged result (DL numbers in the text) and the numbers are checked against
+# Ruled (RULED_DL, 13p R13); first proposed for the reviewer's ruling (13j prompt, item B3); every statement is from a logged result (DL numbers in the text) and the numbers are checked against
 # the stored tables by tests/test_fig_F6.py.
 F6_TAKE_HOME = (
-    "PROPOSED (for ruling): The 169 non-surge cells of map 1 (140) and map 2 (29) each carry an A9 failure label (primary label a 48, c 32, f 24, g 64, h 1); the labels are our "
+    "The 169 non-surge cells of map 1 (140) and map 2 (29) each carry an A9 failure label (primary label a 48, c 32, f 24, g 64, h 1); the labels are our "
     "operational rules and label (c) is a flag, not a demonstrated cause (DL-244, DL-249, DL-270). The mean-field negative control NC1 is D-none at 13 of 13 T_ramp and at the 5 map "
     "cells, NC3 is D-none at 13 of 13, and NC2 is D-tr at 13 of 13 T_ramp with I = 0 and with I = 1 (DL-221, DL-252); the NC1 network run (N = 1e4, mode N, 120 s, 1 seed) is S+ "
     "(provisional), so G7 is NOT PASSED (DL-220, DL-221, DL-228). All 20 pre-registered S6 rows (P3 at I_amp 0.5, 1 and 2, P4a and P4b at T_ramp 10, 30, 120 and 300 s) are D-tr, so "
     "a surge is not found under P3 only (DL-235)."
 )
-# PROPOSED: the limits of docs/ms13_plan.md section 5 whose right-hand column lists F6, in the label table of docs/claim_limit_labels.md (MS9(e)-1, MS9(e)-3 to MS9(e)-6, DL-163-D1,
+# Ruled (RULED_DL, 13p R13): the limits of docs/ms13_plan.md section 5 whose right-hand column lists F6, in the label table of docs/claim_limit_labels.md (MS9(e)-1, MS9(e)-3 to MS9(e)-6, DL-163-D1,
 # DL-163-D2, G4-C3, MS11-C7, MS12-C1). 13o (DL-494 R5, DL-495): the plan label G7 not passed is carried with its definition, and MS9(e)-6 is carried as not applicable
 # (the R5 pattern). Listed, not decided.
 F6_CLAIM_LIMITS = ("MS11-C7", "MS12-C1", "MS9(e)-1", "MS9(e)-3", "MS9(e)-4", "MS9(e)-5", "MS9(e)-6", "DL-163-D1", "DL-163-D2", "G4-C3", "G7 not passed (plan label)")
 F6_NOT_APPLICABLE = {"MS9(e)-6": "neither the D31 boundary nor J_exit,static, the exit extension of P3 and P4, is drawn"}
-F6_FOOTER = "DRAFT: untagged build. Layout, marks, colours and panel choices are UNVERIFIED (style.py); take-home and claim limits are PROPOSED."
+F6_FOOTER = draft_footer("F6")
 
 
 def load_F6(res=None) -> dict:
@@ -2972,7 +3030,7 @@ def f6_caption_notes(d: dict) -> tuple:
         "Rows with identical stored values are drawn at their stored positions, told apart by their marks (the three P3 amplitudes as concentric marks of different fill and "
         "size, P4b larger than P2), and each panel names them in a note (coincide). "
         "RB7 (Table 7.2 names F6) has no row in the A11 table, so the FAIL-row strip holds the G7 gate row only. J_exit,static, the extension of P3 and P4 (MS9(e)-6), is not drawn. "
-        "The failures and the non-surge regimes are drawn at the same weight as the surge cells. The claim-limit IDs listed here are PROPOSED for the reviewer's ruling.",
+        "The failures and the non-surge regimes are drawn at the same weight as the surge cells.",
     )
 
 
@@ -3053,10 +3111,10 @@ F4_STATUS_RB = ("RB2", "RB3", "RB5", "RB6")
 F4_CAPTION_KEYS = ("model.type", "model.ref_point", "path.name", "path.profile", "path.T_ramp_s", "solver.method", "solver.rtol", "solver.delta0", "noise.scheme", "noise.sigma")
 F4_METRICS = ("T_ramp_s", "delay_eta_cross", "delay_eta", "delay_eta_pred", "peak_power_abs", "peak_power_rel", "f_pk_hz", "duration_s", "match_err_steps")
 
-# PROPOSED for the reviewer's ruling (13k prompt, item B3); every statement is from a logged result (DL numbers in the text) and the numbers are checked against the
+# Ruled (RULED_DL, 13p R13); first proposed for the reviewer's ruling (13k prompt, item B3); every statement is from a logged result (DL numbers in the text) and the numbers are checked against the
 # stored tables by tests/test_fig_F4.py.
 F4_TAKE_HOME = (
-    "PROPOSED (for ruling): Onsets do not follow the A4 entry-exit prediction on the runs inside the RB3(a) range: 0 of 6 testable in-range runs are within one A4 step "
+    "Onsets do not follow the A4 entry-exit prediction on the runs inside the RB3(a) range: 0 of 6 testable in-range runs are within one A4 step "
     "(33.1, 20.6, 12.7, 7.6, 4.4 and 25.1 steps; 3 more in-range runs have eta constant at the predicted time), and the noise-free headline onset (58.698 s) lies far "
     "before the predicted entry (115.2 s), so G6 was ruled PASSED WITH DEPARTURES (DL-188, DL-208). The noise-free onset is solver-dependent (DOP853 58.698 s, Radau 58.879 s, "
     "181 ms against the 1 ms bound: RB6 solver clause FAIL, unexplained) and the floored delay does not depend on the Heun step at the 1 ms output grid (DL-189, DL-190). "
@@ -3065,14 +3123,14 @@ F4_TAKE_HOME = (
     "confirmed, DL-325) the median raw-crossing delay of the 10 seeds is negative from T_ramp 5.62 s on and the classes are mixed (A7 table, DL-180; RB2 FAIL, DL-387, DL-394). The M2 ramp through the saddle-node "
     "is damped at all 13 T_ramp and its jump offset from the fold falls from 0.346 to 0.0034 (DL-109, DL-110)."
 )
-# PROPOSED: the limits of docs/ms13_plan.md section 5 whose right-hand column lists F4 and that are defined in docs/claim_limit_labels.md; G6-D1 and DL-163 departure 3 (DL-163-D3)
+# Ruled (RULED_DL, 13p R13): the limits of docs/ms13_plan.md section 5 whose right-hand column lists F4 and that are defined in docs/claim_limit_labels.md; G6-D1 and DL-163 departure 3 (DL-163-D3)
 # were added to that table in 13l (DL-485 ruling); the plan labels RB2 FAIL and
 # D24 failed were written in plain words with their DL numbers; 13o (DL-494 R2, R5): they are carried with their definitions. Listed, not decided.
 F4_CLAIM_LIMITS = ("MS11-C7", "MS12-C1", "MS9(e)-2", "MS9(e)-5", "G6-D1", "G6-D2", "G6-D3", "DL-163-D1", "DL-163-D2", "DL-163-D3", "DL-163-D4", "G4-C4", "MS11-C1", "MS11-C3", "MS11-C6",
                    "RB2 FAIL (plan label)", "D24 failed (plan label)")
 # 13o (DL-494 R8): paths whose eta holds eta_peak after t_on + T_ramp (ramps.py; P5, path_updown, turns down instead and has no hold)
 F4_HOLD_PATHS = ("path_eta", "path_hypoxia")
-F4_FOOTER = "DRAFT: untagged build. Layout, marks, colours and panel choices are UNVERIFIED (style.py); take-home and claim limits are PROPOSED."
+F4_FOOTER = draft_footer("F4")
 
 
 def _f4_record_path(row_family: str, run_id: str) -> str:
@@ -3454,7 +3512,7 @@ def f4_status_lines(d: dict) -> list[str]:
     for s_ in d["rb_status"]:
         by_rb.setdefault(s_.split(" ")[0], []).append(s_.split(" ", 1)[1])
     lines = ["Stored status of the RB2, RB3, RB5 and RB6 rows of the A11 table (a failure is shown, not dropped):"] + [f"    {k}: " + "; ".join(v) for k, v in by_rb.items()]
-    lines += ["FAIL rows of the stored A11 table that touch F4 (PROPOSED strip):"] + ["    " + s for s in f4_strip_lines(d)]
+    lines += [strip_heading("F4")] + ["    " + s for s in f4_strip_lines(d)]
     lines += [f"RB3(a): {d['n_in_range']} runs inside the range, {d['n_testable']} testable, {d['n_testable_within_one_step']} within one A4 step (match error in steps: "
               + ", ".join(f"{x:.1f}" for x in d["testable_match_steps"]) + "); runs outside the range are reported, not judged. RB5 has no FAIL row."]
     lines += [f"{d['n_nocross']} run has no raw crossing and {d['n_none_class']} mode-D runs are D-none (no episode metrics); they are drawn at the axis foot, not dropped."]
@@ -3483,7 +3541,7 @@ def f4_caption_notes(d: dict) -> tuple:
         "Panels (i) and (j) draw the D43-floored runs at the headline (levels 0, 1, 2; 10 seeds; four Heun steps 1e-3 to 1e-4 tau drawn as concentric marks, which coincide at the 1 ms "
         "output grid, DL-190) under the raw crossing and under the classifier onset; the median of the seeds is the bar. The delays are signed (DL-186 clarification 8). Panels (k) and (l) "
         "are the M2 ramp through the saddle-node from the A3 table (the ring class and the fitted ring rate); the A2 ring map is a static map with no ramp and is not drawn here. "
-        "Delays are on the 1 ms output grid. Every D8-dependent class is provisional (D8 open). The claim-limit IDs listed here are PROPOSED for the reviewer's ruling.",
+        "Delays are on the 1 ms output grid. Every D8-dependent class is provisional (D8 open).",
     )
 
 
@@ -3558,10 +3616,10 @@ F1_CAPTION_KEYS = ("model.type", "model.ref_point", "model.J", "model.Delta", "m
                    "solver.method", "solver.dt_out_ms", "noise.sigma", "seeds.root_seed")
 F1_SEED_KEYS = ("fs4_s0", "fs4_s1", "fs4_s2")                     # the three network seeds keep the colours and line styles they have in FS4
 
-# PROPOSED for the reviewer's ruling (13l prompt, item B3); every statement is from a logged result (DL numbers in the text) and the numbers are checked against the stored
+# Ruled (RULED_DL, 13p R13); first proposed for the reviewer's ruling (13l prompt, item B3); every statement is from a logged result (DL numbers in the text) and the numbers are checked against the stored
 # ms10_eval.json and the stored records by tests/test_fig_F1.py.
 F1_TAKE_HOME = (
-    "PROPOSED (for ruling): At the headline (P2, ref_devalle, T_ramp 120 s) the stored mean-field record is a surge of class D-tr with a spectral peak of 49.0 Hz and onset 58.698 s "
+    "At the headline (P2, ref_devalle, T_ramp 120 s) the stored mean-field record is a surge of class D-tr with a spectral peak of 49.0 Hz and onset 58.698 s "
     "(DL-319); the peak is far above 25 Hz, so the plan's second F1 trigger did not occur. The network at N = 1e4 does not reproduce this class: all 3 stored seeds are S-sus (3 of 3; DL-319, DL-323) with "
     "classifier onset 12.0 s (46.7 s before the mean-field onset) and f_pk 49.0, 48.5 and 49.0 Hz; at T_ramp 10 s the 3 seeds are S-abs, S-rel and S-sus (0 of 3 seeds at each "
     "T_ramp, RB1 headline FAIL, DL-319). The network controls without a ramp reach the surge classes S-abs and S-rel at the 10 s headline, S+ in S9 at N = 3e3 and 1e4 and at map cell "
@@ -3569,7 +3627,7 @@ F1_TAKE_HOME = (
     "records (G4-C3, DL-229, DL-231). RB1 failed (headline 10 s, "
     "headline 120 s, cells 1 of 4), G4 was triggered through consequence (2) and is report-only; the surge result is stated for the mean field only (DL-320, DL-323, DL-325)."
 )
-# PROPOSED: the limits of docs/ms13_plan.md section 5 whose right-hand column lists F1 and that are defined in docs/claim_limit_labels.md. The plan labels RB1 FAIL (DL-319, DL-320)
+# Ruled (RULED_DL, 13p R13): the limits of docs/ms13_plan.md section 5 whose right-hand column lists F1 and that are defined in docs/claim_limit_labels.md. The plan labels RB1 FAIL (DL-319, DL-320)
 # and G7 not passed (DL-228) were written in plain words; 13o (DL-494 R2, R5; DL-495): both are carried with their definitions (RB1 FAIL added to the label table). Listed, not decided.
 F1_CLAIM_LIMITS = ("MS11-C7", "MS12-C1", "MS9(e)-1", "MS9(e)-5", "DL-163-D1", "G4-C1", "G4-C2", "G4-C3", "MS11-C2", "MS11-C3", "RB1 FAIL (plan label)", "G7 not passed (plan label)")
 # 13o (DL-494 R7): panel (i) is a spike-count image, counts per stored neuron per bin of this length (display aggregation, UNVERIFIED; the count is exact, nothing is smoothed)
@@ -3601,7 +3659,7 @@ def f1_count_range(d: dict) -> tuple:
     top = float(np.percentile(d["ras_count"], S.F1_RASTER["top_percentile"]))
     return top, int((d["ras_count"] > top).sum()), int(d["ras_count"].size)
 F1_SCHEMATIC_ARROWS = (("ramp", "model"), ("model", "mf"), ("model", "net"), ("mf", "out"), ("net", "out"))
-F1_FOOTER = "DRAFT: untagged build. Layout, marks, colours and panel choices are UNVERIFIED (style.py); take-home and claim limits are PROPOSED."
+F1_FOOTER = draft_footer("F1")
 
 
 def envelope_minmax(x, y, n_cols: int):
@@ -3771,7 +3829,7 @@ def f1_status_lines(d: dict) -> list[str]:
              f"seeds 0 to 2: {', '.join(d['cls120'])}; classifier onset {', '.join(f'{x:.3f}' for x in d['onset120_s'])} s; raw first crossing {', '.join(f'{x:.3f}' for x in d['raw120_s'])} s "
              f"(post hoc, feeds no gate); f_pk {', '.join(f'{x:.2f}' for x in d['fpk120_hz'])} Hz. T_ramp 10 s (not drawn): {', '.join(d['cls10'])}.",
              f"No-ramp network controls (stored classes, DL-319, not drawn): 120 s {d['ctrl120']}; 10 s {d['ctrl10']} (G4-C3). G4 triggered: {d['g4_triggered']}; RB1 {d['rb1_verdict']}.",
-             "FAIL rows of the stored A11 table that touch F1 (PROPOSED strip):"] + ["    " + s for s in f1_strip_lines(d)]
+             strip_heading("F1")] + ["    " + s for s in f1_strip_lines(d)]
     return lines
 
 
@@ -3980,7 +4038,7 @@ def f1_caption_notes(d: dict) -> tuple:
         f"{f1_count_range(d)[1]} of {f1_count_range(d)[2]} cells above it (up to {int(d['ras_count'].max())}) take the top colour (arrow on the colour bar; display choice, UNVERIFIED); panels (j) and (k) draw the spikes as stored in windows of {F1_ZOOM_S:g} s that start at the stored network classifier onset and at the stored "
         "mean-field onset, and the two windows are framed on (i). The schematic above (a) is our layout of labels written in the plan (UNVERIFIED as a drawing); it carries no equation "
         "and no value. A_ref (reading a) is " + f"{d['a_ref']:.6f}" + " (A8). Peak frequencies are the classifier's spectral peaks (MS11-C3). "
-        "Every D8-dependent class is provisional (D8 open). The claim-limit IDs listed here are PROPOSED for the reviewer's ruling.",
+        "Every D8-dependent class is provisional (D8 open).",
     )
 
 
@@ -4072,12 +4130,12 @@ F5_CAPTION_KEYS = ("model.type", "model.ref_point", "model.J", "model.Delta", "m
                    "network.N", "network.het_dist", "solver.method", "noise.sigma", "seeds.root_seed")
 F5_SLOT = 17.0                                        # x width of one N group on the F5c axes: 10 ramp seeds, a gap, 3 control seeds (a layout slot, carries no value)
 F5_CTRL_X0 = 11.0
-F5_FOOTER = "DRAFT: untagged build. Layout, marks, colours and panel choices are UNVERIFIED (style.py); take-home and claim limits are PROPOSED."
+F5_FOOTER = draft_footer("F5")
 
-# PROPOSED for the reviewer's ruling (13m prompt, step 3); every statement is from a logged result (DL numbers in the text) and the numbers are checked against the stored tables
+# Ruled (RULED_DL, 13p R13); first proposed for the reviewer's ruling (13m prompt, step 3); every statement is from a logged result (DL numbers in the text) and the numbers are checked against the stored tables
 # by tests/test_fig_F5.py.
 F5_TAKE_HOME = (
-    "PROPOSED (for ruling): In mode D (noise-free mean field) the surge class D-tr fills 760 of the 900 cells of map 1 (84.4%, T_ramp 120 s; D-none 140) and 296 of the 325 cells of "
+    "In mode D (noise-free mean field) the surge class D-tr fills 760 of the 900 cells of map 1 (84.4%, T_ramp 120 s; D-none 140) and 296 of the 325 cells of "
     "map 2 (D-none 29), so a surge class is not confined to a few cells and G5 continues; RB4 passed (0 of 14 changed, 64 of 64 unchanged) (DL-235, DL-237, DL-258, DL-260). The map "
     "statements are mode D and make no claim that the regime map is robust to noise: on the 225-cell noisy subgrid the frozen D24 rule FAILED (97 of 225 cells agree = 43.1%, 203 "
     "needed; 118 of 225 on the three Table 2.1 categories, our reading), and the post-hoc view P-1 (173 of 225 = 76.9%) feeds no gate (DL-242, DL-255). The network at N = 1e4 "
@@ -4085,7 +4143,7 @@ F5_TAKE_HOME = (
     "seeds per N fall in S-sus and S-abs (S+ in 6 seeds at N = 3e3, NS in 1 at N = 1e4), and the no-ramp controls also reach surge classes, so network classes do not separate "
     "ramp-driven from non-ramp records (DL-321, DL-325, G4-C3)."
 )
-# PROPOSED: the limits of docs/ms13_plan.md section 5 whose right-hand column lists F5 and that are defined in docs/claim_limit_labels.md (17 labels). The plan labels RB1 FAIL, RB2
+# Ruled (RULED_DL, 13p R13): the limits of docs/ms13_plan.md section 5 whose right-hand column lists F5 and that are defined in docs/claim_limit_labels.md (17 labels). The plan labels RB1 FAIL, RB2
 # FAIL and D24 failed are written in plain words with their DL numbers in the take-home, the caption and the strip. MS9(e)-3 and MS9(e)-4 are listed for F5 by the plan although F5
 # draws no A9 failure label (F6 does); they are kept because the plan's table lists them. Listed, not decided. 13o (DL-494 R2, R5, R9; DL-495): the plan labels RB1 FAIL, RB2 FAIL
 # and D24 failed are carried with their definitions, and MS9(e)-3 and MS9(e)-4 are carried as not applicable (no A9 failure label is drawn).
@@ -4330,7 +4388,7 @@ def f5_status_lines(d: dict) -> list[str]:
     lines = ["Table 8.1 triggers: a surge class in < 3% of map-1 cells " + ("OCCURRED" if s["g5_triggered"] else "did NOT occur") + f" (D-tr {s['map1_n_surge']}, D-none {s['map1_n_none']} of {s['map1_n']}; "
              f"threshold {s['g5_threshold_cells']:.0f} cells; G5 CONTINUE, DL-237, DL-258). The network disagrees with the mean field in {s['cells_n_disagree']} of 4 cells (G4 triggered: {s['g4_triggered']}; DL-323, DL-325).",
              "Stored status rows that touch F5:"] + [f"    {r['rb_id']} {r['check_id']}: {r['status']} ({r['value'] or 'no value in the table'})" for r in s["status"]]
-    lines += ["FAIL rows of the stored A11 table that touch F5 (PROPOSED strip):"] + ["    " + t for t in f5_strip_lines(s)]
+    lines += [strip_heading("F5")] + ["    " + t for t in f5_strip_lines(s)]
     return lines
 
 
@@ -4553,7 +4611,7 @@ def f5_caption_notes(d: dict) -> tuple:
         "wide tick the stored median; the dotted line is the mean-field companion at T_ramp 60 s. Seeds whose metric is undefined are not drawn and are counted in the panel; the controls "
         "were evaluated without the duration, so panel (i) has no control points. Network classes cannot separate ramp-driven from non-ramp records (G4-C3): the no-ramp controls reach surge "
         "classes (DL-325), and no claim of f_pk or class agreement between network and mean field is made (MS11-C2). The surge result is stated for the mean field only (G4-C2). "
-        "RB1 FAILED, RB2 FAILED and D24 FAILED (strip above); RB4 passed. A9 failure labels are not drawn here (F6). The claim-limit IDs listed here are PROPOSED for the reviewer's ruling.",
+        "RB1 FAILED, RB2 FAILED and D24 FAILED (strip above); RB4 passed. A9 failure labels are not drawn here (F6).",
     )
 
 
