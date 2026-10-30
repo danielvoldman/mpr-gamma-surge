@@ -670,7 +670,7 @@ def fs5(c: Ctx, R: Rows):
     shf = "frozen band-pass analytic signal (surge_metrics._analytic, band G)"
     R.add("FS5", "rb9b_cycle", "cycle frequency over the flagged episode of the headline (Hz)", fc, "S5ramp .npz v, A7 S5ramp onset_s and end_s; phase change of the analytic signal", shared=shf, printed=(r"against a (\d+\.\d+) Hz cycle", 1),
           tol=("rel", 1e-9), drawn="d['rb9b_f_cycle']")
-    R.add("FS5", "rb9b_diff", "spectral peak minus cycle frequency (Hz)", abs(float(hl["f_pk_hz"]) - fc), "same", shared=shf, printed=(r"Hz, (\d+\.\d+) Hz against 1/W", 1), tol=("rel", 1e-9), drawn="d['rb9b_diff']")
+    R.add("FS5", "rb9b_diff", "spectral peak minus cycle frequency (Hz)", abs(float(hl["f_pk_hz"]) - fc), "same", shared=shf, printed=(r"frequency, (\d+\.\d+) Hz against 1/W", 1), tol=("rel", 1e-9), drawn="d['rb9b_diff']")
     R.add("FS5", "rb9b_bound", "RB9(b) bound 1/W (Hz), W = 2 s", 1.0 / 2.0, "frozen window W = 2 s for T_ramp 120 s", shared="frozen window rule", printed=(r"against 1/W = (0\.\d+) Hz", 1), drawn="d['rb9b_bound']", tol=0.0)
     R.add("FS5", "map1_surge_cells", "map-1 D-tr cells", int(((a9["map"].astype(str) == "1") & (a9["class"] == "D-tr")).sum()), "A9 table", drawn="d['rb9b_map1_n']")
     R.add("FS5", "map2_surge_cells", "map-2 D-tr cells", int(((a9["map"].astype(str) == "2") & (a9["class"] == "D-tr")).sum()), "A9 table", drawn="d['rb9b_map2_n']")
