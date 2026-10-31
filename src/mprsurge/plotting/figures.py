@@ -3104,7 +3104,7 @@ def _draw_F6(d: dict, draft: bool, columns: dict | None = None):
     axb.set_xlabel("T_ramp (s)")
     axb.set_ylim(4.75, -0.5)
     axb.set_xlim(-0.6, 12.6)
-    axb.set_title("(b) negative controls NC1 to NC3 against T_ramp (classes; mode-N rows show the modal class and the other classes as counts)", loc=S.TITLE_LOC)
+    axb.set_title("(b) negative controls NC1 to NC3 against T_ramp (classes; mode-N row: modal class, others as counts)", loc=S.TITLE_LOC)
     # (c) NC1 at the 5 map cells and the NC1 network run; 13o (DL-494 R10): the network run has its own column at its stored condition, not the column of a map cell
     axc = fig.add_subplot(gs[2, 0:4])
     cols = columns or {"cells": [f"cell {j + 1}" for j in range(len(d["nc1_cells_class"]))], "network": "network run\n(condition not given)"}
