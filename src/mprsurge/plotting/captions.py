@@ -198,6 +198,11 @@ def number_text(x) -> str:
 
 def sweep_text(values) -> str:
     """G5: a swept parameter as its range (a to b, n values) or, for five or fewer values, as the list; one number format (value_text)."""
+    if any(isinstance(v, str) for v in values):                       # 13r-3b: a swept name list (paths, profiles) is printed as the list, in order of first appearance
+        names = list(dict.fromkeys(str(v) for v in values))
+        if not names:
+            raise CaptionError("sweep_text: no values")
+        return ", ".join(names)
     vs = sorted({float(v) for v in values})
     if not vs:
         raise CaptionError("sweep_text: no values")
