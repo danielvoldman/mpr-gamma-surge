@@ -4753,7 +4753,7 @@ def _draw_F5(d: dict, draft: bool):
     from matplotlib.lines import Line2D
     plt.rcParams.update({"font.family": S.FONT_FAMILY, "font.size": S.FONT_SIZE_PT, "pdf.fonttype": 42})
     fig = plt.figure(figsize=(7.4, 14.4), constrained_layout=True)
-    gs = fig.add_gridspec(7, 6, height_ratios=[1.0, 3.5, 3.1, 0.55, 1.9, 2.4, 2.9])
+    gs = fig.add_gridspec(7, 6, height_ratios=[1.0, 3.5, 3.1, 0.8, 1.9, 2.4, 2.9])
     edge, fail, dark = S.figure_colour("bar_edge"), S.figure_colour("fail_text"), S.figure_colour("text_dark")
     C = S.F5_COLOURS
 
@@ -4835,7 +4835,7 @@ def _draw_F5(d: dict, draft: bool):
 
     # (e) map 2
     ax = fig.add_subplot(gs[2, 4:6])
-    _f5_map(ax, d["map2_class"], d["map2_T_ramp_s"], d["map2_J0"], title=f"(e) map 2, mode D: D-tr {d['map2_n_surge']},\nD-none {d['map2_n_none']} of {d['map2_n']}; no network runs", xlabel="T_ramp (s)",
+    _f5_map(ax, d["map2_class"], d["map2_T_ramp_s"], d["map2_J0"], title=f"(e) map 2, mode D:\nD-tr {d['map2_n_surge']}, D-none {d['map2_n_none']} of {d['map2_n']}\nno network runs", xlabel="T_ramp (s)",
             ylabel="J0", tick_idx_x=[0, 3, 6, 9, 12], tick_idx_y=[0, 6, 12, 18, 24])
 
     # one key for (f) to (i): the classes (marks) and filled (ramp seed) against open (no-ramp control)
