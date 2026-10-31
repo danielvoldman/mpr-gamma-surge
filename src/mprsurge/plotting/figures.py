@@ -4752,8 +4752,8 @@ def _draw_F5(d: dict, draft: bool):
     from matplotlib.colors import ListedColormap
     from matplotlib.lines import Line2D
     plt.rcParams.update({"font.family": S.FONT_FAMILY, "font.size": S.FONT_SIZE_PT, "pdf.fonttype": 42})
-    fig = plt.figure(figsize=(7.4, 14.4), constrained_layout=True)
-    gs = fig.add_gridspec(7, 6, height_ratios=[1.0, 3.5, 3.1, 0.8, 1.9, 2.4, 2.9])
+    fig = plt.figure(figsize=(7.4, 15.2), constrained_layout=True)
+    gs = fig.add_gridspec(7, 6, height_ratios=[1.0, 3.5, 3.1, 0.8, 1.9, 2.4, 3.7])
     edge, fail, dark = S.figure_colour("bar_edge"), S.figure_colour("fail_text"), S.figure_colour("text_dark")
     C = S.F5_COLOURS
 
