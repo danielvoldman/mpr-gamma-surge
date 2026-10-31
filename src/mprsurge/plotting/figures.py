@@ -5060,7 +5060,7 @@ def _f1j_schematic(fig, top: float, height: float):
     SC = S.F1_SCHEMATIC
     # boxes in inches (x0, y0, x1, y1) inside the schematic axes: our layout, UNVERIFIED
     wd = W - 0.2
-    boxes = {"ramp": (0.0, 0.0, 1.3, height), "model": (1.38, 0.0, 3.7, height), "mf": (3.78, 0.0, 4.9, 0.8), "net": (3.78, 0.88, 4.9, height), "out": (4.98, 0.0, wd, height)}
+    boxes = {"ramp": (0.0, 0.0, 1.25, height), "model": (1.33, 0.0, 3.68, height), "mf": (3.76, 0.0, 4.92, 0.8), "net": (3.76, 0.88, 4.92, height), "out": (5.0, 0.0, wd, height)}
     faces = {"ramp": SC["ramp_face"], "net": SC["net_face"]}
     char_w = 0.0505                                           # inches per character of the 8 pt text (an estimate for the wrap; the checker measures the real boxes)
     for key, head, rows in F1J_SCHEMATIC:
