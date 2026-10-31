@@ -3058,8 +3058,8 @@ def _draw_F6(d: dict, draft: bool, columns: dict | None = None):
     import matplotlib.pyplot as plt
     from matplotlib.patches import Rectangle
     plt.rcParams.update({"font.family": S.FONT_FAMILY, "font.size": S.FONT_SIZE_PT, "pdf.fonttype": 42})
-    fig = plt.figure(figsize=(7.4, 11.6), constrained_layout=True)
-    gs = fig.add_gridspec(4, 10, height_ratios=[2.3, 2.5, 2.4, 2.9])
+    fig = plt.figure(figsize=(7.4, 12.4), constrained_layout=True)
+    gs = fig.add_gridspec(5, 10, height_ratios=[2.3, 2.5, 2.4, 1.0, 2.9])
     # (a) A9 failure labels on the non-surge cells: primary (filled) and any-label (open) counts per label, map 1 and map 2
     ax = fig.add_subplot(gs[0, 0:10])
     xs = np.arange(len(F6_LABELS), dtype=float)
@@ -3123,6 +3123,8 @@ def _draw_F6(d: dict, draft: bool, columns: dict | None = None):
     axc.set_title("(c) NC1: 5 map cells and the network run" + NLX + "G7 NOT PASSED (1 network seed, S+): FAIL", loc=S.TITLE_LOC, color=S.figure_colour("fail_text"))
     # (d), (e) S6 and the P2 comparators against T_ramp; 13o (DL-494 R10): the three P3 amplitudes are concentric marks (fill and size), P4b is drawn larger than P2, so rows with
     # identical stored values stay visible at their stored positions; a note names every group of identical rows
+    axk = fig.add_subplot(gs[3, :])          # the key of (d) and (e) has its own row, so its long labels cannot collapse the layout
+    axk.axis("off")
     for col, key, ttl, yl in ((4, "s6_onset_s", "(d) onset, P3, P4a, P4b, P2", "onset (s), log axis"), (7, "s6_f_pk_hz", "(e) f_pk", "f_pk (Hz)")):
         axd = fig.add_subplot(gs[2, col:col + 3])
         for i, (path, amp, lab) in enumerate(F6_S6_ROWS):
@@ -3151,11 +3153,11 @@ def _draw_F6(d: dict, draft: bool, columns: dict | None = None):
             cm0 = S.get(d["s6_class"][0][0])
             h_.append(Line2D([], [], ls="none", marker=cm0.marker, ms=S.F6_MARKS["class_mark_size"] + 2.0, color=cm0.colour, mec=S.figure_colour("bar_edge"), mew=0.2))
             l_.append(f"{cm0.key}: the class of every drawn point (small mark on each point)")
-            axd.legend(h_, l_, loc="upper center", bbox_to_anchor=(0.5, -0.3), ncol=1, fontsize=S.TEXT_SIZES["legend"], frameon=False)
+            axk.legend(h_, l_, loc="center", ncol=2, fontsize=S.TEXT_SIZES["legend"], frameon=False, columnspacing=2.0)
         else:
             axd.set_ylim(36.0, 60.0)
     # status block
-    axs = fig.add_subplot(gs[3, :])
+    axs = fig.add_subplot(gs[4, :])
     axs.axis("off")
     lines = ["Stored status rows of the A11 table that touch F6 (a failure is shown, not dropped):"] + ["    " + s_ for s_ in d["rb_status"]]
     lines += ["FAIL rows of the stored A11 table that touch F6:"] + ["    " + s_ for s_ in f6_strip_lines(d)]
