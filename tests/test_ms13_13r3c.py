@@ -120,7 +120,7 @@ def test_f6_items(built, figs):
     for s in ("NC1 (primary): the hypoxia path with eta_bar falling by the same amount", "NC2: the full path with I(t) = 0 versus I(t) on (drive off against drive on)", "NC3 (exploratory): inhibition raised while eta_bar falls",
               "any-label bars are hatched (diagonal lines for map 1, dots for map 2)", "not counted for G7 per DL-220 (4)", FG.F6_A10_SENTENCE):
         assert s in cap, s
-    assert "S-rel 1 of 10, 1 of 10, 1 of 10, 1 of 10, 2 of 10 at T_ramp 10, 178, 316, 562, 1000 s (6 of 130 runs)" in cap
+    assert "S-rel 1 of 10, 1 of 10, 1 of 10, 1 of 10, 2 of 10 at T_ramp 10, 177.8, 316.2, 562.3, 1000 s (6 of 130 runs)" in cap
     assert "is not found under P3 only" not in cap and "the surge is not confined to P3" in cap
     axb = next(ax for ax in fig.axes if ax.get_title(loc="left").startswith("(b)"))
     labs = [t.get_text().split("\n")[0] for t in axb.get_yticklabels()]
