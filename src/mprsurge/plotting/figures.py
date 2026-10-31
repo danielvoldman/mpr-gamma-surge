@@ -4786,8 +4786,9 @@ def _draw_F5(d: dict, draft: bool):
             ax.plot(d["cell_j"][m], d["cell_i"][m], ls="none", marker=mk, ms=S.F5_SIZES["net_symbol"] + 3.0, mfc=C["net_halo"], mec=C["net_halo"], mew=S.F5_SIZES["net_halo_width"], zorder=4)
             ax.plot(d["cell_j"][m], d["cell_i"][m], ls="none", marker=mk, ms=S.F5_SIZES["net_symbol"], mfc=st.colour, mec=C["net_outline"], mew=0.9, zorder=5)
     for r_ in range(4):
-        ax.annotate("/".join(d["cell_net_class"][r_]), xy=(d["cell_j"][r_], d["cell_i"][r_]), xytext=(0, -13), textcoords="offset points", ha="center", va="top",
+        ann_ = ax.annotate("/".join(d["cell_net_class"][r_]), xy=(d["cell_j"][r_], d["cell_i"][r_]), xytext=(0, -13), textcoords="offset points", ha="center", va="top",
                     fontsize=S.TEXT_SIZES["small"], zorder=6, bbox=dict(boxstyle="square,pad=0.1", fc=S.HALO_COLOUR, ec="none", alpha=0.85))
+        ann_.set_in_layout(False)
 
     # (b) the 4 network cells: map class at 120 s, mean-field companion at 30 s, network seeds at 30 s
     ax = fig.add_subplot(gs[1, 3:6])
