@@ -7,7 +7,11 @@ Objects tested (display space, pixels at the figure's dpi; the pad is the config
              unfilled: the outline), annotation arrows (as lines), rasterized artists count as images;
   frames     the frame of every axes that has one, the figure edge.
 Pair tests: text-text; text-artist; legend-artist; legend-text; text-frame (other axes, and own axes for in-axes texts); text and legend against the figure edge; clipped text
-(clip_on and the box leaves its axes); marker-marker between different non-rasterized artists of one axes.
+(clip_on and the box leaves its axes); marker-marker between different artists of one axes (also artists of the same name) and within one artist (a line of marks);
+13t-1c (DL-563 S3, DL-564): marker-arrow (an annotation arrow patch, shaft and head, against a marker; the marker at the arrow's start vertex is the start circle and is not tested),
+marker-line (a line against a marker of another artist, the width of the line counts), marker-tick (the segments of a LineCollection, the median and range ticks, against a marker),
+marker-frame (a marker that crosses or comes within the pad of its axes frame) and marker-cell (a marker wider or taller than the cell of the mesh of its axes). A gap of at least the
+pad is clear.
 A hit is (kind, panel, a, b). An allow-list entry (AllowEntry) removes hits whose kind, panel and descriptors match; every entry carries a reason.
 """
 from __future__ import annotations
@@ -16,7 +20,7 @@ import re
 from dataclasses import dataclass, field
 
 import numpy as np
-from matplotlib.collections import PathCollection, QuadMesh
+from matplotlib.collections import LineCollection, PathCollection, QuadMesh
 from matplotlib.image import AxesImage
 from matplotlib.legend import Legend
 from matplotlib.lines import Line2D
@@ -125,6 +129,12 @@ class _Art:
     clip: Bbox | None = None
     rasterized: bool = False
     gid: str = ""
+    ident: int = 0                 # id of the matplotlib artist (13t-1c: two artists of the same name are two artists)
+    sub: str = ""                  # for kind "line": "line", "arrow" or "tick"
+    lw_px: float = 0.0             # line width in pixels (a line, tick or arrow outline)
+    start: np.ndarray | None = None   # the start vertex of an arrow (display)
+    all_pts: np.ndarray | None = None  # marker centres before the clip to the axes (the frame test needs the partly visible ones)
+    scatter: bool = False          # a PathCollection: its own points are not tested against each other (a dense scatter is the data)
 
 
 def marker_half_extent(marker, size_pt: float, edge_pt: float, dpi: float) -> tuple[float, float]:
@@ -151,14 +161,15 @@ def _line_art(ln: Line2D, ax, dpi: float, panel: str) -> list[_Art]:
     name = f"line:{ln.get_gid() or ln.get_label()}"
     clip = ax.bbox if ln.get_clip_on() else None
     if ln.get_linestyle() not in ("None", "none", "", " ") and ln.get_linewidth() > 0:
-        out.append(_Art(name, ax, "line", pts=pts, clip=clip, gid=ln.get_gid() or ""))
+        out.append(_Art(name, ax, "line", pts=pts, clip=clip, gid=ln.get_gid() or "", ident=id(ln), sub="line", lw_px=float(ln.get_linewidth()) * dpi / 72.0))
     if ln.get_marker() not in ("None", "none", "", " ", None):
         pm = pts[np.isfinite(pts).all(axis=1)]
+        pall = pm
         if clip is not None:
             pm = pm[(pm[:, 0] >= clip.x0) & (pm[:, 0] <= clip.x1) & (pm[:, 1] >= clip.y0) & (pm[:, 1] <= clip.y1)]
         if len(pm):
             hw, hh = marker_half_extent(ln.get_marker(), float(ln.get_markersize()), float(ln.get_markeredgewidth()), dpi)
-            out.append(_Art(name.replace("line:", "marks:"), ax, "marks", pts=pm, hw=hw, hh=hh, rasterized=bool(ln.get_rasterized()), gid=ln.get_gid() or ""))
+            out.append(_Art(name.replace("line:", "marks:"), ax, "marks", pts=pm, hw=hw, hh=hh, rasterized=bool(ln.get_rasterized()), gid=ln.get_gid() or "", ident=id(ln), all_pts=pall))
     return out
 
 
@@ -197,11 +208,29 @@ def _collect(fig, rend) -> tuple[list, list, list, list]:
             if isinstance(t, Annotation) and t.arrow_patch is not None and t.get_visible():
                 path = t.arrow_patch.get_path()
                 tr = t.arrow_patch.get_transform()
-                for poly in tr.transform_path(path).to_polygons(closed_only=False):
-                    arts.append(_Art(f"arrow:{t.get_gid() or _short(t.get_text())}", ax, "line", pts=np.asarray(poly), clip=None, gid=t.get_gid() or ""))
+                polys = tr.transform_path(path).to_polygons(closed_only=False)
+                lwp = float(t.arrow_patch.get_linewidth()) * dpi / 72.0
+                tail = np.asarray(polys[0][0], float) if len(polys) and len(polys[0]) else None          # the first vertex of the arrow path is its tail (shrinkA is 0 in the figures)
+                for poly in polys:
+                    arts.append(_Art(f"arrow:{t.get_gid() or _short(t.get_text())}", ax, "line", pts=np.asarray(poly), clip=None, gid=t.get_gid() or "", ident=id(t), sub="arrow", lw_px=lwp, start=tail))
         for c in ax.collections:
             if not c.get_visible():
                 continue
+            if isinstance(c, LineCollection):                      # hlines, vlines: the median and range ticks are segments, not an image
+                lwp = float(np.max(c.get_linewidth())) * dpi / 72.0 if len(c.get_linewidth()) else 0.0
+                for seg in c.get_segments():
+                    sp = c.get_transform().transform(np.asarray(seg, float))
+                    arts.append(_Art(f"ticks:{c.get_gid() or c.get_label()}", ax, "line", pts=sp, clip=ax.bbox if c.get_clip_on() else None, gid=c.get_gid() or "", ident=id(c), sub="tick", lw_px=lwp))
+                continue
+            if isinstance(c, QuadMesh):                            # the cell size of a mesh, for the marker-cell test
+                try:
+                    co = np.asarray(c.get_coordinates(), float)
+                    pxy = c.get_transform().transform(co.reshape(-1, 2)).reshape(co.shape)
+                    cw = float(np.min(np.abs(np.diff(pxy[..., 0], axis=1))))
+                    ch = float(np.min(np.abs(np.diff(pxy[..., 1], axis=0))))
+                    arts.append(_Art(f"mesh:{c.get_gid() or 'QuadMesh'}", ax, "mesh", hw=cw, hh=ch, ident=id(c)))
+                except Exception:
+                    pass
             if isinstance(c, PathCollection) and not c.get_rasterized():
                 off = c.get_offset_transform().transform(np.asarray(c.get_offsets(), float))
                 sizes = np.asarray(c.get_sizes(), float)
@@ -209,7 +238,7 @@ def _collect(fig, rend) -> tuple[list, list, list, list]:
                 pm = off[np.isfinite(off).all(axis=1)]
                 pm = pm[(pm[:, 0] >= ax.bbox.x0) & (pm[:, 0] <= ax.bbox.x1) & (pm[:, 1] >= ax.bbox.y0) & (pm[:, 1] <= ax.bbox.y1)]
                 if len(pm):
-                    arts.append(_Art(f"marks:{c.get_gid() or c.get_label()}", ax, "marks", pts=pm, hw=r, hh=r))
+                    arts.append(_Art(f"marks:{c.get_gid() or c.get_label()}", ax, "marks", pts=pm, hw=r, hh=r, ident=id(c), all_pts=off[np.isfinite(off).all(axis=1)], scatter=True))
             else:
                 try:
                     dl = c.get_datalim(ax.transData)
@@ -331,20 +360,33 @@ def check(fig, *, pad_pt: float = 0.5, allow=()) -> tuple[list[Hit], list[tuple[
                 if ax2 is not ax and not _overlap(lb, fbox):
                     continue
                 hits.append(Hit("legend-frame", pan, lname, f"frame of panel {fpan}"))
-    # marker against marker (different, non-rasterized artists of one axes)
+    # marker against marker: different artists of one axes (also artists of one name; rasterized marks too), with the pad; and within one artist (a line of marks)
     from scipy.spatial import cKDTree
     by_ax: dict = {}
     for a in arts:
-        if a.kind == "marks" and not a.rasterized:
+        if a.kind == "marks":
             by_ax.setdefault(id(a.ax), []).append(a)
+
+    def pan(ax_):
+        return panel_letter(ax_, list(fig.axes).index(ax_))
+
     for group in by_ax.values():
         for i in range(len(group)):
+            A = group[i]
+            if not A.scatter and len(A.pts) > 1:                  # inside one line of marks: two centres closer than the two marks are wide plus the pad
+                rx, ry = 2 * A.hw + pad, 2 * A.hh + pad
+                tree = cKDTree(A.pts)
+                for ia, ib in tree.query_pairs(max(rx, ry), p=np.inf):
+                    dd = np.abs(A.pts[ia] - A.pts[ib])
+                    if dd[0] < rx and dd[1] < ry:
+                        hits.append(Hit("marker-marker", pan(A.ax), A.name, A.name + " (same artist)"))
+                        break
             for j in range(i + 1, len(group)):
-                A, B = group[i], group[j]
-                if A.name == B.name:
+                B = group[j]
+                if A.ident == B.ident:
                     continue
                 tree = cKDTree(B.pts)
-                rx, ry = A.hw + B.hw, A.hh + B.hh
+                rx, ry = A.hw + B.hw + pad, A.hh + B.hh + pad
                 near = tree.query_ball_point(A.pts, max(rx, ry), p=np.inf)
                 hit_ = False
                 for pa, idx in zip(A.pts, near):
@@ -354,8 +396,50 @@ def check(fig, *, pad_pt: float = 0.5, allow=()) -> tuple[list[Hit], list[tuple[
                             hit_ = True
                             break
                 if hit_:
-                    ax_ = A.ax
-                    hits.append(Hit("marker-marker", panel_letter(ax_, list(fig.axes).index(ax_)), A.name, B.name))
+                    hits.append(Hit("marker-marker", pan(A.ax), A.name, B.name))
+    # marker against lines of other artists (separators, reference lines, curves), against annotation arrows and against the ticks of a LineCollection; the width of the line counts
+    lines_by_ax: dict = {}
+    for a in arts:
+        if a.kind == "line":
+            lines_by_ax.setdefault(id(a.ax), []).append(a)
+    for gid_, group in by_ax.items():
+        for M in group:
+            for L in lines_by_ax.get(gid_, ()):
+                if L.ident == M.ident:
+                    continue
+                kind = {"line": "marker-line", "arrow": "marker-arrow", "tick": "marker-tick"}[L.sub]
+                lo = L.pts[np.isfinite(L.pts).all(axis=1)]
+                if not len(lo):
+                    continue
+                reach_x, reach_y = M.hw + pad + L.lw_px / 2.0, M.hh + pad + L.lw_px / 2.0
+                cand = M.pts[(M.pts[:, 0] >= lo[:, 0].min() - reach_x) & (M.pts[:, 0] <= lo[:, 0].max() + reach_x) & (M.pts[:, 1] >= lo[:, 1].min() - reach_y) & (M.pts[:, 1] <= lo[:, 1].max() + reach_y)]
+                for c_ in cand[:4000]:
+                    if L.sub == "arrow" and L.start is not None and abs(c_[0] - L.start[0]) <= M.hw + pad and abs(c_[1] - L.start[1]) <= M.hh + pad:
+                        continue                                  # the start circle of an arrow sits on its tail
+                    if segments_hit_box(L.pts, Bbox.from_extents(c_[0] - reach_x, c_[1] - reach_y, c_[0] + reach_x, c_[1] + reach_y), L.clip):
+                        hits.append(Hit(kind, pan(M.ax), M.name, L.name))
+                        break
+    # marker against the frame of its own axes (a marker that crosses the frame, or comes within the pad of it)
+    for gid_, group in by_ax.items():
+        for M in group:
+            fbox = M.ax.bbox
+            pts = M.all_pts if M.all_pts is not None else M.pts
+            for c_ in pts:
+                if _frame_hit(Bbox.from_extents(c_[0] - M.hw, c_[1] - M.hh, c_[0] + M.hw, c_[1] + M.hh), fbox, pad):
+                    hits.append(Hit("marker-frame", pan(M.ax), M.name, f"frame of panel {pan(M.ax)}"))
+                    break
+    # marker against its cell: a mark wider or taller than the cell of the mesh of its axes (less the pad)
+    meshes: dict = {}
+    for a in arts:
+        if a.kind == "mesh":
+            meshes[id(a.ax)] = a
+    for gid_, group in by_ax.items():
+        mesh = meshes.get(gid_)
+        if mesh is None:
+            continue
+        for M in group:
+            if 2 * M.hw + pad > mesh.hw + 1e-9 or 2 * M.hh + pad > mesh.hh + 1e-9:
+                hits.append(Hit("marker-cell", pan(M.ax), M.name, f"cell of the mesh of panel {pan(M.ax)} ({mesh.hw:.1f} x {mesh.hh:.1f} px)"))
     # one hit per distinct (kind, panel, a, b)
     seen, uniq = set(), []
     for h in hits:

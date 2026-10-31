@@ -146,6 +146,94 @@ def test_checker_is_silent_on_a_clean_figure_and_allow_list_needs_a_match():
     plt.close(fig)
 
 
+# 13t-1c (DL-563 S3, DL-564): the checker gaps found by the independent review of the first build; every case below must be flagged, and a clear case must stay silent.
+PT = 1.0 / 151.2           # one point in data units on the toy axes (0 to 1 over 2.1 in at 100 dpi)
+
+
+def _toy01():
+    fig, ax = _toy()
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    return fig, ax
+
+
+def _kinds(fig):
+    bad = CO.check(fig)[0]
+    plt.close(fig)
+    return {h.kind for h in bad}
+
+
+def test_s3_two_overlapping_markers_are_flagged_also_with_the_same_name_and_the_pad_counts():
+    fig, ax = _toy01()
+    ax.plot([0.4], [0.5], "s", ms=8, mew=0, gid="same name")
+    ax.plot([0.4 + 4 * PT], [0.5], "o", ms=8, mew=0, gid="same name")
+    assert "marker-marker" in _kinds(fig)
+    fig, ax = _toy01()                                              # a gap of 0.2 pt is below the pad of 0.5 pt: touching; a gap of 1 pt is clear
+    ax.plot([0.4], [0.5], "o", ms=6, mew=0, gid="a")
+    ax.plot([0.4 + 6.2 * PT], [0.5], "o", ms=6, mew=0, gid="b")
+    assert "marker-marker" in _kinds(fig)
+    fig, ax = _toy01()
+    ax.plot([0.4], [0.5], "o", ms=6, mew=0, gid="a")
+    ax.plot([0.4 + 7.0 * PT], [0.5], "o", ms=6, mew=0, gid="b")
+    assert _kinds(fig) == set()
+
+
+def test_s3_marks_of_one_line_that_overlap_each_other_are_flagged():
+    fig, ax = _toy01()
+    ax.plot([0.4, 0.4 + 3 * PT], [0.5, 0.5], "o", ls="none", ms=8, mew=0, gid="one line")
+    assert "marker-marker" in _kinds(fig)
+
+
+def test_s3_an_arrowhead_on_a_dot_is_flagged_and_the_start_circle_of_the_arrow_is_not():
+    fig, ax = _toy01()
+    ax.annotate("", xy=(0.8, 0.5), xytext=(0.2, 0.5), arrowprops=dict(arrowstyle="-|>", lw=1.0, shrinkA=0, shrinkB=0, mutation_scale=8), gid="arr")
+    ax.plot([0.2], [0.5], "o", ms=5, mew=0, gid="start circle")
+    assert "marker-arrow" not in _kinds(fig)
+    fig, ax = _toy01()
+    ax.annotate("", xy=(0.8, 0.5), xytext=(0.2, 0.5), arrowprops=dict(arrowstyle="-|>", lw=1.0, shrinkA=0, shrinkB=0, mutation_scale=8), gid="arr")
+    ax.plot([0.8], [0.5], "o", ms=5, mew=0, gid="end dot")
+    bad = CO.check(fig)[0]
+    plt.close(fig)
+    assert any(h.kind == "marker-arrow" and "end dot" in h.a for h in bad)
+
+
+def test_s3_a_marker_on_the_frame_is_flagged_and_one_inside_is_not():
+    fig, ax = _toy01()
+    ax.plot([0.0], [0.5], "o", ms=6, mew=0, clip_on=False, gid="on the frame")
+    ax.plot([0.5], [0.5], "o", ms=6, mew=0, gid="inside")
+    bad = CO.check(fig)[0]
+    plt.close(fig)
+    assert [h.a for h in bad if h.kind == "marker-frame"] == ["marks:on the frame"]
+
+
+def test_s3_a_median_tick_on_a_marker_and_a_marker_on_a_separator_line_are_flagged():
+    fig, ax = _toy01()
+    ax.hlines([0.5], 0.4, 0.6, colors="k", lw=1.6)
+    ax.plot([0.5], [0.5], "o", ms=4, mew=0, gid="on the tick")
+    ax.plot([0.5], [0.8], "o", ms=4, mew=0, gid="clear of the tick")
+    bad = CO.check(fig)[0]
+    plt.close(fig)
+    assert [h.a for h in bad if h.kind == "marker-tick"] == ["marks:on the tick"]
+    fig, ax = _toy01()
+    ax.axvline(0.3, lw=0.4)
+    ax.plot([0.3], [0.6], "o", ms=4, mew=0, gid="on the separator")
+    ax.plot([0.7], [0.6], "o", ms=4, mew=0, gid="away")
+    bad = CO.check(fig)[0]
+    plt.close(fig)
+    assert [h.a for h in bad if h.kind == "marker-line"] == ["marks:on the separator"]
+
+
+def test_s3_a_marker_larger_than_its_cell_is_flagged():
+    import numpy as np
+    fig, ax = _toy01()
+    ax.pcolormesh(np.arange(11) / 10.0, np.arange(11) / 10.0, np.zeros((10, 10)))                    # cells of 15 pt
+    ax.plot([0.55], [0.55], "o", ms=20, mew=0, gid="too big")
+    ax.plot([0.25], [0.25], "o", ms=8, mew=0, gid="fits")
+    bad = CO.check(fig)[0]
+    plt.close(fig)
+    assert [h.a for h in bad if h.kind == "marker-cell"] == ["marks:too big"]
+
+
 def test_letters_in_reading_order_detects_a_swap():
     fig = plt.figure(figsize=(4, 4))
     for title, pos in (("(a) one", [0.1, 0.6, 0.3, 0.3]), ("(b) two", [0.6, 0.6, 0.3, 0.3]), ("(c) three", [0.1, 0.1, 0.3, 0.3])):
