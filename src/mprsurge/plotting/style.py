@@ -432,7 +432,8 @@ F1_RASTER = {"window_frame": "#d95f02", "window_width": 0.6, "top_percentile": 9
 
 # R8, F4: the stored median of the seeds (its own colour, not the P1 purple of the fs3_median mark), and the mark of a delay whose stored onset lies in the hold.
 F4_MARKS = {"median_colour": "#1a1a1a", "hold_marker": "s", "hold_colour": "#404040", "hold_size": 8.0, "hold_width": 0.9,        # 13r-3b (DL-525): a neutral outline, no path colour
-            "untestable": _DIAMOND, "nocross": _BAR, "nocross_colour": "#404040"}          # ring of an untestable in-range run; mark of a run with no raw crossing (not a class)
+            "untestable": _DIAMOND, "nocross": _BAR, "nocross_colour": "#404040",
+            "fail_ring": "o", "fail_ring_size": 13.0, "fail_ring_width": 1.4, "legend_mark_size": 3.0}          # ring of an untestable in-range run; mark of a run with no raw crossing (not a class)
 
 # R10, F6: the three P3 amplitudes drawn with distinct fills and sizes (same P3 colour and shape: concentric, so coincident values stay visible), and P4b under P2 drawn larger.
 F6_MARKS = {"p3_fill": {0.5: "full", 1.0: "none", 2.0: "left"}, "p3_size": {0.5: 3.4, 1.0: 7.0, 2.0: 5.2}, "p4b_size": 6.5, "line_width": 0.9, "separator": "#9a9a9a"}

@@ -103,7 +103,7 @@ def test_parameters_sentence_lists_the_swept_ranges_and_the_noise_tag(built):
     cap = built["F4"]["caption"]
     assert "path.T_ramp_s=" in cap and "(13 values), swept" in cap
     assert "path.name=path_eta, path_hypoxia, path_updown, swept" in cap and "path.profile=linear, sigmoid, swept" in cap
-    assert "noise.sigma=0.0624 (checked, not confirmed, G4-C4)" in cap
+    assert "noise.sigma=0.0624 [S5_headline, S5_noise], 1.59e-09 [S13_floor] (checked, not confirmed, G4-C4)" in cap
 
 
 def test_rings_carry_the_stored_errors_and_the_untestable_runs_have_their_own_ring(f4):
@@ -114,7 +114,7 @@ def test_rings_carry_the_stored_errors_and_the_untestable_runs_have_their_own_ri
     assert sorted(t.get_text() for t in axg.texts if t.get_text()[0].isdigit()) == ["12.7", "20.6", "33.1", "4.4", "7.6"]
     untest = [ln for ln in axa.lines if ln.get_marker() is S.F4_MARKS["untestable"] or (not isinstance(ln.get_marker(), str) and np.array_equal(np.asarray(ln.get_marker()), np.asarray(S.F4_MARKS["untestable"])))]
     assert sum(len(ln.get_xdata()) for ln in untest) == 3
-    assert int(d["p1_linear_eta_const"].sum() + d["p1_sigmoid_eta_const"].sum()) == 3
+    assert int(sum((d[f"{f}_in_range"] & d[f"{f}_eta_const"]).sum() for f in ("p1_linear", "p1_sigmoid", "p2_linear", "p2_sigmoid", "p5_linear", "p5_sigmoid"))) == 3
 
 
 def test_coincidence_and_reading_notes_are_computed_from_the_stored_arrays(f4, built):

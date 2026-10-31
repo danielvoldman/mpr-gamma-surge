@@ -3598,7 +3598,7 @@ def _draw_F4(d: dict, draft: bool):
            Line2D([], [], color=S.figure_colour("range_line"), ls=":", lw=0.8, label="dotted line in (e): 1.0 s = floor of the frozen classifier (one window, T_ramp >= 60 s)"),
            Line2D([], [], ls="none", marker=S.F4_MARKS["hold_marker"], ms=S.POINT_SIZES["f4_key"], mfc="none", mec=S.F4_MARKS["hold_colour"], mew=S.F4_MARKS["hold_width"],
                   label=f"open square = eta_peak - eta_H ({d['hold_delay_max']:.3g}): onset during the hold (UNVERIFIED reading)"),
-           Line2D([], [], ls="none", marker="o", ms=S.POINT_SIZES["f4_key"], mfc="none", mec=S.figure_colour("fail_text"), mew=1.4, label="red ring: RB6 FAIL at the headline, not used as evidence")]
+           Line2D([], [], ls="none", marker=S.F4_MARKS["fail_ring"], ms=S.POINT_SIZES["f4_key"], mfc="none", mec=S.figure_colour("fail_text"), mew=S.F4_MARKS["fail_ring_width"], label="red ring: RB6 FAIL at the headline, not used as evidence")]
     kx.legend(handles=hs, loc="center", ncol=2, fontsize=S.TEXT_SIZES["legend"], frameon=False, handlelength=2.2, columnspacing=1.2, labelspacing=0.5)
 
     # (a) delay against eps, signed, raw crossing primary
@@ -3616,7 +3616,7 @@ def _draw_F4(d: dict, draft: bool):
             st = S.get(path)
             ax.plot(x, d[f"{fam}_delay_eta_pred"], color=st.colour, ls=pred.linestyle, lw=pred.width, zorder=2)
     ax.axhline(0.0, color=ref.colour, ls=ref.linestyle, lw=ref.width, zorder=1)
-    ax.plot([d["head_eps"]], [d["head_delay_eta_cross"]], ls="none", marker="o", ms=13.0, mfc="none", mec=S.figure_colour("fail_text"), mew=1.4, zorder=6)      # RB6 FAIL: a ring round the headline point
+    ax.plot([d["head_eps"]], [d["head_delay_eta_cross"]], ls="none", marker=S.F4_MARKS["fail_ring"], ms=S.F4_MARKS["fail_ring_size"], mfc="none", mec=S.figure_colour("fail_text"), mew=S.F4_MARKS["fail_ring_width"], zorder=6)      # RB6 FAIL: a ring round the headline point
     ax.annotate("headline (T_ramp 120 s, noise-free): RB6 solver clause FAIL", xy=(d["head_eps"], d["head_delay_eta_cross"]), xytext=(d["head_eps"], 2.2), fontsize=S.TEXT_SIZES["small"],
                 color=S.figure_colour("fail_text"), ha="center", va="bottom", arrowprops=dict(arrowstyle="-", lw=0.5, color=S.figure_colour("fail_text")))
     ax.set_ylim(-0.25, 3.45)
@@ -3656,7 +3656,8 @@ def _draw_F4(d: dict, draft: bool):
         _f4_none_marks(ax, x, np.isnan(d[f"{fam}_delay_eta_cross"]), kind="crossing")
     ax.axhline(0.0, color=ref.colour, ls=ref.linestyle, lw=ref.width, zorder=1)
     p5 = S.get("P5")
-    ax.legend(handles=[Line2D([], [], color=p5.colour, ls=p5.linestyle, marker=p5.marker, ms=3.0, lw=0.8, label="up delay (raw crossing)"),
+    ax.set_ylim(ax.get_ylim()[0], 3.9)                  # headroom for the legend above every curve
+    ax.legend(handles=[Line2D([], [], color=p5.colour, ls=p5.linestyle, marker=p5.marker, ms=S.F4_MARKS["legend_mark_size"], lw=0.8, label="up delay (raw crossing)"),
                        Line2D([], [], color=down.colour, ls="-", marker=down.marker, ms=down.size - 2.5, lw=0.8, label="down offset (eta_off - eta_H)"),
                        Line2D([], [], color=hyst.colour, ls=hyst.linestyle, lw=hyst.width, label="hysteresis width"),
                        Line2D([], [], color=S.figure_colour("range_line"), ls="-", lw=0.8, label="solid: linear profile; dotted/dashed: sigmoid")],
