@@ -5685,3 +5685,13 @@ Chosen:          as planned   Default from: the prompt
 Test:            tests/test_ms13_13r3b.py; tests/test_fig_F4.py; tests/test_fig_F1.py
 Status:          13r-3b in progress
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-526  MS13 13r-3b: F1 coincide note (logged before the code change); F4 trial renders    [ID: MS13, 13r, 13r-3b, F1, F4, DL-525]
+Date:            2026-10-30        Author:
+Decision:        FACT AND PLAN. F4 TRIAL RENDERS (looked at, three rounds after the base render): round 1 showed the note box of (a) covering the 2.0 curves and the headline text, the band label of (b) to (e) printed over the D-none marks, the 1.0 s floor text of (e) over the medians, the title of (g) cut at the right edge, the annotation of (i) over the level-1 points; round 2 (band made 15 percent high with marks above and name below, the floor text moved to the key legend, the note widened with more headroom in (a), the annotation moved) left the (g) title cut and the headline text partly under the note box; round 3 shortened the (g) title and lowered the headline text; the ring labels of (g) overprinted each other and now alternate above and below. In the last render nothing overlaps; (g) remains the densest panel. F1: the three network seeds have the same stored classifier onset (12.000 s, ms10_eval, DL-319), so one class mark stands for three; the figure now says so where the mark is ("3 seeds coincide (12.000 s)", count and value from the stored lists) and the caption carries the G7 note from captions.coincide_note: the three seeds coincide in their stored classifier onsets (equal values); their r(t) and v(t) traces and raw first crossings (50.170 to 50.924 s, stored) lie on top of each other at the panel scale (not equal; drawn at their stored positions, not moved). No data and no drawn-data key change from this entry.
+Reason:          instruction of the reviewer (13r-3b prompt)
+Options:         -
+Chosen:          as planned   Default from: the prompt
+Test:            tests/test_ms13_13r3b.py
+Status:          13r-3b in progress
+Commit/tag:      the commit that adds this entry; no tag
