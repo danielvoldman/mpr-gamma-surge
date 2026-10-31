@@ -102,7 +102,11 @@ PHRASES = (
     ("threshold within 1/W)", "threshold: within the inverse of the window length)"),
     ("DL-131 states that the 25 Hz contour crosses the cycle branch of the A6 slices where it occurs, and DL-133 states that no G2 trigger fires and the project stays on M3 (judged on the DL-132 readings); neither entry states an outcome for this Table 8.1 rule itself",
      "The project log records that the 25 Hz contour crosses the cycle branch of the A6 slices where it occurs and that no G2 trigger fires, so the project stays on M3; it does not state an outcome for this Table 8.1 rule itself"),
-    ("this Table 8.1 rule itself, so reading", "this Table 8.1 rule itself, so reading"),
+    ("The full parameter list is in the Nordlie table of ", "The full parameter list is in the parameter table of the supplement sheet of "),
+    ("as listed on the draft figure (shown, not dropped; the full list with value, threshold and decision-log entries is in the supplement sheet of ",
+     "as listed in the stored table (shown, not dropped; the full list with value, threshold and decision-log entries is in the supplement sheet of "),
+    ("row is listed in the strip because panel (g)", "row is listed below because panel (g)"),
+    ("and the red title shows the RB1 FAIL", "and the red title shows FAIL"),
 )
 # a coded parenthetical that only repeats the statement it follows: removed (the claim-limit paragraph carries the full limit)
 DELETE = ("(G4-C1)", "(G4-C2)", "(G4-C3)", "(MS11-C2)", "(MS11-C3)", "(MS9(e)-2)", ", G4-C1)", ", G4-C3)")
