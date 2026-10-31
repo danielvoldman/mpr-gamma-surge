@@ -6007,3 +6007,13 @@ Chosen:          as listed   Default from: the prompt
 Test:            tests/test_ms13_13t.py
 Status:          13t-1b in progress
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-558  MS13 13t-1b: one more test text edit (E7), logged before the edit    [ID: MS13, 13t, 13t-1b, DL-557]
+Date:            2026-10-31        Author:
+Decision:        FACT. The run of tests/test_ms13_13t.py on the code of DL-556 and the edits E1 to E6 and the new tests of DL-557 gave 57 passed and 1 failed: test_f3_journal_has_one_combined_path_and_p4a_p4b_separate looks for the legend text 'P1, P2, P3, P5: identical in', which the 1.9 in legend column now wraps over two lines (the legend entry is wrapped at 22 characters, DL-556). EDIT E7 (expected text only): the legend texts of that test are compared after their line breaks are replaced by spaces ('" ".join(t.split())'); the expected string and the data are unchanged.
+Reason:          the wrap of a legend entry at 6.3 in (layout)
+Options:         -
+Chosen:          as listed   Default from: the prompt
+Test:            tests/test_ms13_13t.py
+Status:          13t-1b in progress
+Commit/tag:      the commit that adds this entry; no tag
