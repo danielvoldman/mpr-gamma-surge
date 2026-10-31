@@ -5786,3 +5786,13 @@ Chosen:          as done   Default from: the prompt
 Test:            scripts/ms13_check_hashes.py; fast suite in the next entry
 Status:          13r-4 build done; fast suite pending
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-536  MS13 13r closed: the 13r-4 suite result, rulings, close items    [ID: MS13, 13r, 13r-4, DL-534, DL-535]
+Date:            2026-10-30        Author:
+Decision:        FACT AND RULED (reviewer, 13r close prompt; no run in this step, no suite, no rebuild, no tag). (a) FAST SUITE at the end of 13r-4 (HEAD 274623c): 1180 passed, 24 deselected, 9 xfailed, 1 failed, exit 1 taken from pytest itself (720 s). The one failure is tests/test_ms13_13p.py::test_the_provenance_files_of_the_eleven_recorded_builds_name_one_commit_clean_and_draft: F1 to F6 record build commit 503726b2141c670bf2eb0a6e229cba42f8333362, FS1 to FS5 record 9021f2cc2d597af9535b94d2d7a36dab5239c655 (rule R19 wants one commit). (b) RULING: this failure is accepted as expected until the 13s rebuild of all eleven figures from one commit; the test and the rule are not changed; 13s must end with the fast suite at 0 failed. (c) RULING: the F2 status text touching the DRAFT footer and the larger-than-needed gap above the F6 status text are fixed in 13s, not now; the F2 and F6 drawn-data digests must not change when they are fixed. (d) docs/ms13_close_items.md gains items 37 (P4b colour, olive, shared style, DL-532), 38 (NC1 S-rel reading for G7, DL-220 (4), UNVERIFIED against Table 2.1) and 39 (the pair coincidences of F4 (a)); item 36 (the 1.59e-09 departure) is already there. FULL SHA-256 of docs/ms13_close_items.md (working copy, LF): d15db7e4d6323634dee3ad5e45d97c33deda8e7e5e0f635a967f6c7941b8662c. (e) STATE: 13r is closed with F1 to F6 as rebuilt untagged drafts at 503726b; FS1 to FS5 and the single-commit rebuild follow in 13s. No tag, no push.
+Reason:          instruction of the reviewer (13r close prompt)
+Options:         -
+Chosen:          as ruled   Default from: the prompt
+Test:            none run (docs-only)
+Status:          13r closed; 13s next
+Commit/tag:      the commit that adds this entry; no tag
