@@ -4,75 +4,80 @@
   {
    "id": "J10-raw-crossings-marker-on-text",
    "figure": "F1",
-   "status": "passing",
-   "note": "no text near the marks: the coincide note is in the key; the three marks coincide by stored value (allow-listed, DL-547)"
+   "status": "failing",
+   "note": "no text near the marks: the coincide note is in the key; the three marks coincide by stored value (allow-listed, DL-547); 13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "J10-cell-count-text-over-spectrogram",
    "figure": "F1",
-   "status": "passing",
-   "note": "sentence is in the caption only"
+   "status": "failing",
+   "note": "sentence is in the caption only; 13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "J10-j-k-labels-on-frame-of-i",
    "figure": "F1",
-   "status": "passing",
-   "note": "solid and dashed frames, no letters over the frame"
+   "status": "failing",
+   "note": "solid and dashed frames, no letters over the frame; 13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "J10-schematic-text-wrap",
    "figure": "F1",
-   "status": "passing",
-   "note": "hanging indent, text wholly inside its box; the plan row 't_on' has no description in the plan and stays a one-word row"
+   "status": "failing",
+   "note": "hanging indent, text wholly inside its box; the plan row 't_on' has no description in the plan and stays a one-word row; 13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "J10-long-legend",
    "figure": "F1",
-   "status": "passing",
-   "note": "seven entries, shorter wording, four rows"
+   "status": "failing",
+   "note": "seven entries, shorter wording, four rows; 13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "J10-eta-bar-symbol",
    "figure": "F1",
-   "status": "passing",
-   "note": "eta-bar drawn with a bar over the Greek letter on axes, titles and legend; the schematic keeps the plan's own labels verbatim (eta-bar written as in the plan)"
+   "status": "failing",
+   "note": "eta-bar drawn with a bar over the Greek letter on axes, titles and legend; the schematic keeps the plan's own labels verbatim (eta-bar written as in the plan); 13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "J10-dense-status-block",
    "figure": "F1",
-   "status": "passing",
-   "note": "moved to the caption and the supplement"
+   "status": "failing",
+   "note": "moved to the caption and the supplement; 13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "J9-two-column-grid-letters-a-to-k",
    "figure": "F1",
-   "status": "passing",
-   "note": "7.5 x 8.7 in, letters a to k in reading order"
+   "status": "failing",
+   "note": "7.5 x 8.7 in, letters a to k in reading order; 13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "J12-letters-in-reading-order",
    "figure": "F3",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "J12-one-combined-path-P1-P2-P3-P5",
    "figure": "F3",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "J12-short-titles",
    "figure": "F3",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "J12-legend-8pt-no-five-line-wrap",
    "figure": "F3",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "J12-empty-space-beside-d-used",
    "figure": "F3",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "J12-hopf-marker-small-or-ring",
@@ -101,248 +106,374 @@
   {
    "id": "check:A-collisions",
    "figure": "F1",
-   "status": "passing",
-   "note": "0 unlisted hits; allow-list in collide.JOURNAL_ALLOW (DL-547)"
+   "status": "failing",
+   "note": "0 unlisted hits; allow-list in collide.JOURNAL_ALLOW (DL-547); 13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:B-pdf",
    "figure": "F1",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:size-and-shape",
    "figure": "F1",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:text-min-8pt",
    "figure": "F1",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:fonts-embedded-no-type3",
    "figure": "F1",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:line-width-min",
    "figure": "F1",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:cmap-list",
    "figure": "F1",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:non-colour-distinction",
    "figure": "F1",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:panel-letters-in-order",
    "figure": "F1",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:file-names",
    "figure": "F1",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:draft-FAIL-lines-visible",
    "figure": "F1",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:drawn-data-digest-equals-draft",
    "figure": "F1",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:draft-files-byte-identical",
    "figure": "F1",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:no-draft-dl-provenance-text-on-image",
    "figure": "F1",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:supplement-lists-every-strip-row",
    "figure": "F1",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:png-crops-looked-at",
    "figure": "F1",
-   "status": "passing",
-   "note": "full image and the four 2x quadrant crops read for each figure (F1: build 2 crops and the build-3 full image)"
+   "status": "failing",
+   "note": "full image and the four 2x quadrant crops read for each figure (F1: build 2 crops and the build-3 full image); 13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:A-collisions",
    "figure": "F3",
-   "status": "passing",
-   "note": "0 unlisted hits; allow-list in collide.JOURNAL_ALLOW (DL-547)"
+   "status": "failing",
+   "note": "0 unlisted hits; allow-list in collide.JOURNAL_ALLOW (DL-547); 13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:B-pdf",
    "figure": "F3",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:size-and-shape",
    "figure": "F3",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:text-min-8pt",
    "figure": "F3",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:fonts-embedded-no-type3",
    "figure": "F3",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:line-width-min",
    "figure": "F3",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:cmap-list",
    "figure": "F3",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:non-colour-distinction",
    "figure": "F3",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:panel-letters-in-order",
    "figure": "F3",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:file-names",
    "figure": "F3",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:draft-FAIL-lines-visible",
    "figure": "F3",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:drawn-data-digest-equals-draft",
    "figure": "F3",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:draft-files-byte-identical",
    "figure": "F3",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:no-draft-dl-provenance-text-on-image",
    "figure": "F3",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:supplement-lists-every-strip-row",
    "figure": "F3",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:png-crops-looked-at",
    "figure": "F3",
-   "status": "passing",
-   "note": "full image and the four 2x quadrant crops read for each figure (F1: build 2 crops and the build-3 full image)"
+   "status": "failing",
+   "note": "full image and the four 2x quadrant crops read for each figure (F1: build 2 crops and the build-3 full image); 13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:A-collisions",
    "figure": "F5",
-   "status": "passing",
-   "note": "0 unlisted hits; allow-list in collide.JOURNAL_ALLOW (DL-547)"
+   "status": "failing",
+   "note": "0 unlisted hits; allow-list in collide.JOURNAL_ALLOW (DL-547); 13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:B-pdf",
    "figure": "F5",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:size-and-shape",
    "figure": "F5",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:text-min-8pt",
    "figure": "F5",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:fonts-embedded-no-type3",
    "figure": "F5",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:line-width-min",
    "figure": "F5",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:cmap-list",
    "figure": "F5",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:non-colour-distinction",
    "figure": "F5",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:panel-letters-in-order",
    "figure": "F5",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:file-names",
    "figure": "F5",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:draft-FAIL-lines-visible",
    "figure": "F5",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:drawn-data-digest-equals-draft",
    "figure": "F5",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:draft-files-byte-identical",
    "figure": "F5",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:no-draft-dl-provenance-text-on-image",
    "figure": "F5",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:supplement-lists-every-strip-row",
    "figure": "F5",
-   "status": "passing"
+   "status": "failing",
+   "note": "13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
   },
   {
    "id": "check:png-crops-looked-at",
    "figure": "F5",
-   "status": "passing",
-   "note": "full image and the four 2x quadrant crops read for each figure (F1: build 2 crops and the build-3 full image)"
+   "status": "failing",
+   "note": "full image and the four 2x quadrant crops read for each figure (F1: build 2 crops and the build-3 full image); 13t-1b: layout is redone at 6.3 x 8.0 in (R1), to be re-checked (DL-554); the 13t-1 result was passing at 7.5 in"
+  },
+  {
+   "id": "R1-main-files-png-tiff-600dpi-pdf-extra",
+   "figure": "F1",
+   "status": "failing",
+   "note": "R1: main PNG and TIFF 600 dpi, PDF extra, no svg/wmf/emf, width 6.3 in, height at most 8.0 in"
+  },
+  {
+   "id": "R1-main-files-png-tiff-600dpi-pdf-extra",
+   "figure": "F3",
+   "status": "failing",
+   "note": "R1: main PNG and TIFF 600 dpi, PDF extra, no svg/wmf/emf, width 6.3 in, height at most 8.0 in"
+  },
+  {
+   "id": "R1-main-files-png-tiff-600dpi-pdf-extra",
+   "figure": "F5",
+   "status": "failing",
+   "note": "R1: main PNG and TIFF 600 dpi, PDF extra, no svg/wmf/emf, width 6.3 in, height at most 8.0 in"
+  },
+  {
+   "id": "R1-relayout-6.3in-all-text-8pt-no-collision",
+   "figure": "F1",
+   "status": "failing",
+   "note": "if it does not fit 6.3 x 8.0 in: STOP that figure, report two options; do not split, do not drop a panel or a failure"
+  },
+  {
+   "id": "R1-relayout-6.3in-all-text-8pt-no-collision",
+   "figure": "F3",
+   "status": "failing",
+   "note": "relayout at 6.3 in"
+  },
+  {
+   "id": "R1-relayout-6.3in-all-text-8pt-no-collision",
+   "figure": "F5",
+   "status": "failing",
+   "note": "if it does not fit 6.3 x 8.0 in: STOP that figure, report two options; do not split, do not drop a panel or a failure"
+  },
+  {
+   "id": "R2-cvd-manual-row",
+   "figure": "F1",
+   "status": "failing",
+   "note": "verifier row cvd reads MANUAL (user checks final PNGs with an online simulator; UNVERIFIED), no exit code effect"
+  },
+  {
+   "id": "R4-F5-a-title-FAIL",
+   "figure": "F5",
+   "status": "failing",
+   "note": "title of (a) carries FAIL (RB1 cells), red"
+  },
+  {
+   "id": "R4-F5-g-title-FAIL",
+   "figure": "F5",
+   "status": "failing",
+   "note": "title of (g) carries FAIL (RB6 network f_pk), red"
+  },
+  {
+   "id": "R4-F1-caption-other-failed-checks",
+   "figure": "F1",
+   "status": "failing",
+   "note": "one caption sentence on RB6 solver onset 181 ms against 1 ms, RB2 headline class 7 of 10, RB3(b) classifier onset; values from the stored A11 table"
+  },
+  {
+   "id": "R6-F1-raw-crossings-wording-no-coincide",
+   "figure": "F1",
+   "status": "failing",
+   "note": "journal text, alt text, caption: overlap at this scale, stored values 50.170 to 50.924 s; coincide only for equal stored values (the 12.000 s classifier onsets); close item 40 for the draft label"
+  },
+  {
+   "id": "R7-F1-spectrogram-edge-slivers-caption",
+   "figure": "F1",
+   "status": "failing",
+   "note": "caption sentence from the stored window length 2 s, step 1 s and the stored time vector; else 'blank in the stored record; cause not determined (UNVERIFIED)'"
+  },
+  {
+   "id": "R8-F5-cd-cell-marks-readable-and-in-key",
+   "figure": "F5",
+   "status": "failing",
+   "note": "replace the in-cell bracket/x/plus glyphs by a mark or hatch distinguishable at the cell size, shown in the key as plotted; two attempts at most"
+  },
+  {
+   "id": "R10-F1-source-data-zip-note",
+   "figure": "F1",
+   "status": "failing",
+   "note": "supplement notes that the 28 MB source-data CSV is to be zipped for the Zenodo record"
   }
  ]
 }

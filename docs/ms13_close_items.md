@@ -59,3 +59,7 @@ LIST ONLY. Collected from the decision log from DL-419 onward and from docs/ms13
 37. Shared style: the P4b colour is now olive (#8a8f1c, was teal #3f9f96), so that P4b differs in hue from P3; one colour per path in every figure at its next build (DL-532).
 38. F6 and the NC1 mode-N rows: the supplementary S-rel counts (1 of 10 at T_ramp 10, 177.8, 316.2 and 562.3 s, 2 of 10 at 1000 s; 6 of 130) are "not counted for G7 per DL-220 (4)" (supplementary, feeds no gate); S-rel is a surge class by Table 2.1, so this reading of G7 is UNVERIFIED.
 39. F4 (a): the coincidences of stored raw-crossing values are pairs computed from the stored arrays (P1 linear = P5 linear at 11 of 13 T_ramp, P1 sigmoid = P5 sigmoid at 11, P1 linear = P1 sigmoid at 2); the 13r-3b prompt named a P1 linear, P1 sigmoid and P5 linear group, which the stored values do not form (DL-525).
+
+## G. Added in 13t-1b (DL-554)
+
+40. F1 draft (figures/F1/F1.png, F1.pdf, caption): the label "raw crossings: 3 seeds coincide" and the caption sentence "a note says that the 3 seeds coincide" disagree with the stored raw first crossings (50.170, 50.924 and 50.857 s, span 0.754 s; only the three classifier onsets, 12.000 s, are equal). The drafts are left unchanged by ruling (R6); the same correction ("overlap at this scale: stored values 50.170 to 50.924 s") is to be made in the draft label and caption at the next rebuild of the drafts. The journal text already carries it.
