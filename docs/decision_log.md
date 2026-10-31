@@ -5765,3 +5765,13 @@ Chosen:          as done   Default from: the prompt
 Test:            fast suite as above
 Status:          13r-3c done; 13r-4 (rebuild F1 to F6, audit, contact sheets) next
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-534  MS13 13r-4: pre-checks and the expected drawn-data digest changes of the rebuild (logged before the build)    [ID: MS13, 13r, 13r-4, DL-533]
+Date:            2026-10-30        Author:
+Decision:        FACT AND PLAN (13r-4 prompt). PRE-CHECKS all match: cwd C:\dev\mpr-gamma-surge; HEAD 68a4403, tree clean; no tag fig-*-v*; criteria-loader gate against tag criteria-frozen (commit dd8330c5eaacd63d21e7b7969430988d00862769), criteria SHA-256 c7d2f36b74ea611c8777c1b408d5085333e55230834c27e5f0eb839f1162fa05; configs/S13.yaml 317db87e69afcb09111a33e78640869b3f588e64390d110655aaa3a7cff52388; configs/A4_grids.yaml cf6a60bec781c6f7e53b7f92b747ff745fcc5dc4794c0b83768e0aa4a4e56401; configs/S5_cells.yaml fe8590ce81bc8c537f9c92e2afbee80685aaaa52c757474912b243fe9ed38790; docs/decision_log.md working copy and LF blob 456588575379b5ed0ce75642748e07040ef7bf16be2b0aedd9931e7310a4cac6 (after DL-533); MS11 digest cdafcc0831580ea4b9f7dfd8e095deb50e8b86db2974f556cf7ffe7d75637f53 over 724 records; results/A11/a11_robustness.csv b4f26b003d88f7d13dcb582786da32c1a2fe4e3b8de051ce1f494e81a1d8cffb; scripts/ms13_check_hashes.py 104 rows, 0 problems. EXPECTED DIGEST CHANGES of the rebuild (only these three are allowed; any other change or any other value is a STOP): F1 1e2577b7caa5f27cfb35242b6e0793d87163dc5236fb2a115f17f9bf3dff017b to bfdba12d9fc09fbfdc0514b6c5859a13a21948ea9db7e16ec4b1f845e11b8839 (DL-518: the stored J-ramp keys path_J_lag_frac and path_J_T_frac); F4 5998d78bcb272c3398cbde98b78d04a249cbe8595cd9e608f64cd32d6fc439b5 to fb05eb9226c9f4d6242ec4ba5fb15f4429eff3680468dc89447bcdf7f2343d6a (DL-527: the stored A7 ring columns); F5 fe2e6a40c949c7d8dafff71a29ba37427c69bd87c1e36289820de1e25762fd50 to 4a32b1c3061260eaf9defd322a6a3304ce2b190468459a338cf9f9b5849de2c8 (DL-532: the RB6 network f_pk strip row); F2 3584f8faee5d704a1f172ad4185c133324ddb9f196f32d05d80f3ca5ef28a932, F3 e12a1086fbe84d1f121618b82dfe61afd7e7b951c1d67b541e782e3e74d1bbc6 and F6 4dafe2ab2f5ee3c2b505f82d4f50a3a8b96a9bb1c9cdfb5379b7a3e6f7e2c532 unchanged. The build uses the commit that adds this entry (draft true, git dirty false); no code changes in this step; figures stay untagged drafts; no tag, no push.
+Reason:          instruction of the reviewer (13r-4 prompt)
+Options:         -
+Chosen:          as planned   Default from: the prompt
+Test:            drawn-data digest files after the build; scripts/ms13_check_hashes.py
+Status:          13r-4 in progress
+Commit/tag:      the commit that adds this entry; no tag
