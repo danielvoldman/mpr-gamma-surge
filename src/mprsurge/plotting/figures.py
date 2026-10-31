@@ -3494,9 +3494,10 @@ def _f4_band(ax, label, logy=False):
             bbox=dict(boxstyle="square,pad=0.1", fc=S.HALO_COLOUR, ec="none", alpha=0.7))
 
 
-def _f4_ring(ax, x, y, mask, const=None, err=None):
-    """Rings of the runs inside the RB3(a) range (13r-3b, DL-525): the testable ones (octagon ring; the stored match error in A4 steps is printed beside it when err is given) and the
-    untestable ones (eta constant at the predicted time; diamond ring)."""
+def _f4_ring(ax, x, y, mask, const=None, err=None, row=None):
+    """Rings of the runs inside the RB3(a) range (13r-3b, DL-525): the testable ones (octagon ring; the stored match error in A4 steps is printed with it when err is given) and the
+    untestable ones (eta constant at the predicted time; diamond ring). row=None prints each label just above its ring; row=y (axes fraction) prints the labels in a row at that
+    height, left to right in order of x, each joined to its ring by a thin line (used where rings crowd the data)."""
     rg = S.diagram_mark("f4_inrange")
     m = np.asarray(mask, bool)
     c = np.zeros_like(m) if const is None else np.asarray(const, bool)
@@ -3505,10 +3506,12 @@ def _f4_ring(ax, x, y, mask, const=None, err=None):
     if t_.any():
         ax.plot(xs[t_], ys[t_], ls="none", marker=rg.marker, ms=rg.size, mfc="none", mec=rg.colour, mew=rg.width, zorder=5)
         if err is not None:
-            for j_, k in enumerate(np.where(t_)[0]):          # neighbouring labels alternate above and below the ring so they do not overprint
-                up = j_ % 2 == 0
-                ax.annotate(f"{float(err[k]):.1f}", xy=(xs[k], ys[k]), xytext=(-9 if up else 9, 9 if up else -9), textcoords="offset points", ha="right" if up else "left", va="bottom" if up else "top",
-                            fontsize=S.TEXT_SIZES["small"], zorder=7)
+            for j_, k in enumerate(np.where(t_)[0]):
+                if row is None:
+                    ax.annotate(f"{float(err[k]):.1f}", xy=(xs[k], ys[k]), xytext=(0, 11), textcoords="offset points", ha="center", va="bottom", fontsize=S.TEXT_SIZES["small"], zorder=7)
+                else:
+                    ax.annotate(f"{float(err[k]):.1f}", xy=(xs[k], ys[k]), xycoords="data", xytext=(0.42 + 0.1 * j_, row), textcoords="axes fraction", ha="center", va="center",
+                                fontsize=S.TEXT_SIZES["small"], zorder=7, arrowprops=dict(arrowstyle="-", lw=0.4, color=S.figure_colour("range_line"), shrinkA=2, shrinkB=7))
     if u_.any():
         ax.plot(xs[u_], ys[u_], ls="none", marker=S.F4_MARKS["untestable"], ms=rg.size * 0.8, mfc="none", mec=rg.colour, mew=rg.width, zorder=5)
 
@@ -3672,7 +3675,7 @@ def _draw_F4(d: dict, draft: bool):
         x = d[f"{tag}_eps"]
         y = d[f"{tag}_delay_eta_cross"]
         ax.plot(x, y, color=p1.colour, ls=ls, lw=0.8, marker=p1.marker, ms=S.POINT_SIZES["f4_series_p5"], fillstyle=fill, mec=p1.colour, mew=0.7, zorder=3)
-        _f4_ring(ax, x, y, d[f"{tag}_in_range"], const=d[f"{tag}_eta_const"], err=d[f"{tag}_match_err_steps"])
+        _f4_ring(ax, x, y, d[f"{tag}_in_range"], const=d[f"{tag}_eta_const"], err=d[f"{tag}_match_err_steps"], row=0.3)
         _f4_hold(ax, x, y, d[f"{tag}_hold_cross"])
         _f4_none_marks(ax, x, np.isnan(y), kind="crossing")
     ax.axhline(0.0, color=ref.colour, ls=ref.linestyle, lw=ref.width, zorder=1)
