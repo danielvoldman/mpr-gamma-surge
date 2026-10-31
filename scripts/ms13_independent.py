@@ -434,9 +434,9 @@ def f4(c: Ctx, R: Rows):
     R.add("F4", "n_within", "testable runs within one A4 step", sum(1 for x in steps if x <= 1.0), s + ": match_err_steps", printed=(r"(\d+) of \d+ testable", 1), drawn="d['n_testable_within_one_step']")
     R.add("F4", "n_const", "in-range runs with eta constant at the predicted time", len(inr) - len(test), s, printed=(r"(\d+) more in-range runs", 1))
     R.add("F4", "steps_sorted", "match errors in steps, sorted", sorted(steps), s + ": match_err_steps", tol=("rel", 1e-12), drawn="[float(x) for x in d['testable_match_steps']]")
-    printed_steps = [r"\((\d+\.\d), \d+\.\d, \d+\.\d, \d+\.\d, \d+\.\d and \d+\.\d steps", r"\d+\.\d, (\d+\.\d), \d+\.\d, \d+\.\d, \d+\.\d and \d+\.\d steps",
-                     r"\d+\.\d, \d+\.\d, (\d+\.\d), \d+\.\d, \d+\.\d and \d+\.\d steps", r"\d+\.\d, \d+\.\d, \d+\.\d, (\d+\.\d), \d+\.\d and \d+\.\d steps",
-                     r"\d+\.\d, \d+\.\d, \d+\.\d, \d+\.\d, (\d+\.\d) and \d+\.\d steps", r"\d+\.\d, \d+\.\d, \d+\.\d, \d+\.\d, \d+\.\d and (\d+\.\d) steps"]
+    printed_steps = [r"are (\d+\.\d), \d+\.\d, \d+\.\d, \d+\.\d, \d+\.\d and \d+\.\d A4 steps", r"\d+\.\d, (\d+\.\d), \d+\.\d, \d+\.\d, \d+\.\d and \d+\.\d A4 steps",
+                     r"\d+\.\d, \d+\.\d, (\d+\.\d), \d+\.\d, \d+\.\d and \d+\.\d A4 steps", r"\d+\.\d, \d+\.\d, \d+\.\d, (\d+\.\d), \d+\.\d and \d+\.\d A4 steps",
+                     r"\d+\.\d, \d+\.\d, \d+\.\d, \d+\.\d, (\d+\.\d) and \d+\.\d A4 steps", r"\d+\.\d, \d+\.\d, \d+\.\d, \d+\.\d, \d+\.\d and (\d+\.\d) A4 steps"]
     for i, x in enumerate(steps[:6]):
         R.add("F4", f"step_{i}", f"match error in steps of testable run {i} (table order)", x, s + ": match_err_steps", tol=0.05, printed=(printed_steps[i], 1))
     R.add("F4", "n_nocross", "mode-D runs without a raw crossing", int(md["delay_eta_cross"].isna().sum()), s + ": delay_eta_cross", drawn="d['n_nocross']")
