@@ -6117,3 +6117,13 @@ Chosen:          as done   Default from: the prompt
 Test:            scripts/ms13_verify_export.py; independent comparison; scripts/ms13_check_hashes.py; tests/test_ms13_13t.py
 Status:          13t-1c built and checked; S14 stopped
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-569  MS13 13t-1c: fast suite at the end of the step; 13t-1c built and checked, no tag    [ID: MS13, 13t, 13t-1c, DL-568]
+Date:            2026-10-31        Author:
+Decision:        FACT. FAST SUITE at the end of 13t-1c (HEAD at the start of the run: c8e6ed0a14a46e41acadc3666198c2c0ed0751b1, the commit of the manifest row, checklist and progress): 1271 passed, 24 deselected, 9 xfailed, 0 failed, exit 0 taken from pytest itself (794.02 s). Against the start of the step (1250 passed): +21 tests, all in tests/test_ms13_13t.py (6 checker regression tests, DL-564; 15 new tests, DL-566); no earlier data assertion changed; test text edits E8 to E12 (DL-566). 13t-1c is built and checked: the F1, F3 and F5 journal versions are in figures/journal/ (untagged drafts, no tag, no push, no upload); 13t-2 (F2, F4, F6, FS1 to FS5) follows after the user has ruled on the open points of DL-568. The first reviewing subagent's folder C:\Users\Alpha\AppData\Local\Temp\review_crops (24 PNG crops, 4.1 MB) is outside the project and was not deleted.
+Reason:          instruction of the reviewer (13t-1c prompt)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            fast suite
+Status:          13t-1c closed; 13t-2 not started
+Commit/tag:      the commit that adds this entry; no tag
