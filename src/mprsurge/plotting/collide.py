@@ -399,7 +399,7 @@ JOURNAL_ALLOW = {
     ),
     "F1": tuple(
         AllowEntry("marker-marker", pl, r"raw first crossing seed \d", r"raw first crossing seed \d",
-                   "G7: the three stored raw first-crossing times lie within about 0.01 in of each other at the panel scale; they keep their stored positions and the key says the 3 seeds coincide")
+                   "R3, R6: the three stored raw first-crossing times (50.170 to 50.924 s, not equal) overlap at the figure scale; they keep their stored positions and the key says that they overlap at this scale")
         for pl in ("d", "f")),
     "F5": (),
 }

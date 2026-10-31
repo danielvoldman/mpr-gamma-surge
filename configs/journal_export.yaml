@@ -1,10 +1,13 @@
-# MS13 13t: journal-export settings (DL-545, J4). EVERY VALUE IN THIS FILE IS UNVERIFIED: the journal is not chosen, no journal requirement is claimed.
-# The values are the intersection of what is known (a double-column width of at most 7.5 in = 190 mm, a height of at most 8.75 in, text of at least 8 pt at the
-# final physical size, an embedded real font, vector text and lines). Change a value here and nowhere else; the export code reads this file only.
+# MS13 13t: journal-export settings (DL-545 J4; superseded in part by DL-554 R1). EVERY VALUE IN THIS FILE IS UNVERIFIED: no journal requirement is claimed.
+# Target venue (DL-554 R1): Peer Community Journal (PCJ) after a Peer Community In recommendation. PCJ prefers jpg, tiff or png figures, forbids svg, wmf and emf, states no
+# resolution, size or colour rule and places figures in line with the text inside 2.54 cm margins. The MAIN files are a PNG and a flattened TIFF; the PDF is an extra.
+# Change a value here and nowhere else; the export code reads this file only.
 page:
-  double_column_width_in: 7.5          # UNVERIFIED: at most 7.5 in (190 mm)
-  single_column_width_mm: 84           # UNVERIFIED: the sources disagree whether 84 or 174 mm is the single column; a second setting, not used by the pilot
-  max_height_in: 8.75                  # UNVERIFIED
+  main_width_in: 6.3                   # UNVERIFIED: the PCJ template and page size were not read; A4 minus two 2.54 cm margins is 15.9 cm = 6.26 in
+  main_max_height_in: 8.0              # UNVERIFIED: so that a caption fits on the page
+  double_column_width_in: 7.5          # UNVERIFIED: the second setting for other journals (190 mm), not used by the pilot
+  double_column_max_height_in: 8.75    # UNVERIFIED: the second setting for other journals, not used by the pilot
+  single_column_width_mm: 84           # UNVERIFIED: the sources disagree whether 84 or 174 mm is the single column; a third setting, not used by the pilot
 text:
   min_pt: 8                            # UNVERIFIED: all text at least 8 pt at the FINAL physical size (replaces the draft tick-label rule for the export only)
   title_pt: 8                          # panel titles; not below min_pt
@@ -21,11 +24,14 @@ colour:
   min_text_contrast: 4.5               # text against its background (ratio, UNVERIFIED; the WCAG AA figure for normal text)
   min_lightness_difference: 15         # CIELAB L* difference below which two colours count as too close in the greyscale report (UNVERIFIED threshold)
 output:
-  dpi: 300                             # savefig dpi for the PNG and for rasterized artists in the PDF. matplotlib has no per-artist dpi: rasterized artists use the savefig dpi
-  tiff_dpi: 600                        # flattened RGB, LZW, no alpha
+  pdf_dpi: 300                         # UNVERIFIED: dpi of the rasterized parts of the PDF (an extra) and the dpi of the figure object (layout, collision checks). matplotlib has no per-artist dpi
+  png_dpi: 600                         # UNVERIFIED default (DL-554 R1): the main PNG
+  tiff_dpi: 600                        # UNVERIFIED default (DL-554 R1): the main TIFF, flattened RGB, LZW, no alpha
   tiff: true
-  eps: true                            # kept only if it builds without error and no artist uses transparency (EPS does not carry it)
+  eps: true                            # an extra: kept only if it builds without error and no artist uses transparency (EPS does not carry it)
+  forbidden_formats: [svg, wmf, emf]   # PCJ forbids them (DL-554 R1): never written
   pdf_size_flag_mb: 5                  # UNVERIFIED; arXiv and Zenodo limits are to be checked by hand at MS15
+  raster_size_flag_mb: 10              # UNVERIFIED (DL-554 R1): a PNG or TIFF above this size is flagged
   rasterize: [spectrogram, spike-count image, spike raster, dense scatter, map cell marks]   # drawn with rasterized=True; text, axes, ticks, lines and legends stay vector
 collision:
   pad_pt: 0.5                          # two objects closer than this count as touching (UNVERIFIED)

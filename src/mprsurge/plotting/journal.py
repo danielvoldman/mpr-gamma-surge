@@ -1,6 +1,7 @@
-"""MS13 13t journal export: settings, rc parameters, saving, the supplement sheet, the source-data table (DL-545 J4, J5, J14; DL-546).
+"""MS13 13t journal export: settings, rc parameters, saving, the supplement sheet, the source-data table (DL-545 J4, J5, J14; DL-546; DL-554 R1 for the venue).
 
-Every setting is read from configs/journal_export.yaml (UNVERIFIED; no journal requirement is claimed). The drawing code of the figures is in figures.py (mode="journal"); this
+Every setting is read from configs/journal_export.yaml (UNVERIFIED; no journal requirement is claimed). Main files: PNG and TIFF at 600 dpi, width 6.3 in, height at most 8.0 in;
+the PDF is an extra; SVG, WMF and EMF are never written (DL-554 R1). The drawing code of the figures is in figures.py (mode="journal"); this
 module holds what is shared: the config, the matplotlib settings (font, sizes, embedded fonts), the final text and line-width guard, the output writers (PDF, PNG, TIFF, EPS)
 and the supplement and source-data writers. It reads no results and simulates nothing.
 """
@@ -54,14 +55,17 @@ def rc_params(cfg: dict) -> dict:
     return {"font.family": fam, "font.size": pt, "axes.labelsize": pt, "axes.titlesize": cfg["text"]["title_pt"], "xtick.labelsize": pt, "ytick.labelsize": pt, "legend.fontsize": pt,
             "pdf.fonttype": cfg["text"]["pdf_fonttype"], "ps.fonttype": cfg["text"]["ps_fonttype"], "mathtext.fontset": "custom", "mathtext.rm": fam, "mathtext.it": f"{fam}:italic",
             "mathtext.bf": f"{fam}:bold", "mathtext.default": "it", "axes.linewidth": 0.6, "xtick.major.width": 0.6, "ytick.major.width": 0.6, "xtick.major.size": 3.0,
-            "ytick.major.size": 3.0, "figure.dpi": cfg["output"]["dpi"], "savefig.dpi": cfg["output"]["dpi"], "savefig.facecolor": "white", "figure.facecolor": "white"}
+            "ytick.major.size": 3.0, "figure.dpi": cfg["output"]["pdf_dpi"], "savefig.dpi": cfg["output"]["pdf_dpi"], "savefig.facecolor": "white", "figure.facecolor": "white"}
 
 
-def page_size(cfg: dict, height_in: float, width: str = "double") -> tuple[float, float]:
-    """(width, height) in inches; the height is checked against the page maximum."""
-    w = cfg["page"]["double_column_width_in"] if width == "double" else cfg["page"]["single_column_width_mm"] / 25.4
-    if height_in > cfg["page"]["max_height_in"] + 1e-9:
-        raise JournalError(f"figure height {height_in} in is above the page maximum {cfg['page']['max_height_in']} in")
+def page_size(cfg: dict, height_in: float, width: str = "main") -> tuple[float, float]:
+    """(width, height) in inches; the height is checked against the maximum of the setting. width: "main" (6.3 x 8.0 in, DL-554 R1), "double" (7.5 x 8.75 in, the second setting for
+    other journals) or "single" (84 mm)."""
+    pg = cfg["page"]
+    w, hmax = {"main": (pg["main_width_in"], pg["main_max_height_in"]), "double": (pg["double_column_width_in"], pg["double_column_max_height_in"]),
+               "single": (pg["single_column_width_mm"] / 25.4, pg["double_column_max_height_in"])}[width]
+    if height_in > hmax + 1e-9:
+        raise JournalError(f"figure height {height_in} in is above the page maximum {hmax} in")
     return float(w), float(height_in)
 
 
@@ -90,7 +94,7 @@ def finish(fig, cfg: dict) -> dict:
                 sp.set_linewidth(lw)
                 n_line += 1
     w, h = fig.get_size_inches()
-    if w > cfg["page"]["double_column_width_in"] + 1e-9 or h > cfg["page"]["max_height_in"] + 1e-9:
+    if w > cfg["page"]["main_width_in"] + 1e-9 or h > cfg["page"]["main_max_height_in"] + 1e-9:
         raise JournalError(f"figure size {w:.3f} x {h:.3f} in is above the page size of the config")
     return {"text_raised": n_text, "lines_thickened": n_line}
 
@@ -110,30 +114,35 @@ def valid_name(name: str, cfg: dict) -> bool:
 
 
 def save_all(fig, out_dir, stem: str, cfg: dict) -> dict:
-    """Write <stem>.pdf, <stem>.png (and <stem>.tiff, <stem>.eps if they build cleanly) into out_dir; returns {'paths': {...}, 'notes': [...]} (the notes say what was skipped and why)."""
+    """Write the MAIN files <stem>.png (png_dpi) and <stem>.tiff (tiff_dpi; flattened RGB, LZW, no alpha) and the extras <stem>.pdf (pdf_dpi for rasterized parts) and <stem>.eps (only
+    if it builds cleanly) into out_dir; returns {'paths': {...}, 'notes': [...]} (the notes say what was skipped and why). No SVG, WMF or EMF is ever written (DL-554 R1)."""
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     if not valid_name(stem + ".pdf", cfg):
         raise JournalError(f"file name {stem!r} has characters outside the allowed set")
     paths, notes = {}, []
-    dpi = cfg["output"]["dpi"]
+    o = cfg["output"]
     pdf, png = out / f"{stem}.pdf", out / f"{stem}.png"
-    fig.savefig(pdf, format="pdf", dpi=dpi, metadata={"CreationDate": None})
-    fig.savefig(png, format="png", dpi=dpi)
-    paths["pdf"], paths["png"] = pdf, png
-    if cfg["output"].get("tiff"):
+    fig.savefig(png, format="png", dpi=o["png_dpi"])
+    paths["png"] = png
+    if o.get("tiff"):
         try:
             from PIL import Image
-            buf = io.BytesIO()
-            fig.savefig(buf, format="png", dpi=cfg["output"]["tiff_dpi"])
-            buf.seek(0)
-            im = Image.open(buf).convert("RGB")                           # flattened onto the white figure face, no alpha
+            if o["tiff_dpi"] == o["png_dpi"]:
+                im = Image.open(png).convert("RGB")                       # the same render as the PNG, flattened onto the white figure face, no alpha
+            else:
+                buf = io.BytesIO()
+                fig.savefig(buf, format="png", dpi=o["tiff_dpi"])
+                buf.seek(0)
+                im = Image.open(buf).convert("RGB")
             tif = out / f"{stem}.tiff"
-            im.save(tif, compression="tiff_lzw", dpi=(cfg["output"]["tiff_dpi"],) * 2)
+            im.save(tif, compression="tiff_lzw", dpi=(o["tiff_dpi"],) * 2)
             paths["tiff"] = tif
         except Exception as exc:                                          # reported, not hidden
             notes.append(f"TIFF not written: {type(exc).__name__}: {exc}")
-    if cfg["output"].get("eps"):
+    fig.savefig(pdf, format="pdf", dpi=o["pdf_dpi"], metadata={"CreationDate": None})
+    paths["pdf"] = pdf
+    if o.get("eps"):
         if uses_transparency(fig):
             notes.append("EPS not written: the figure uses transparency (alpha below 1), which EPS does not carry, so the EPS would differ from the PDF")
         else:
@@ -141,7 +150,7 @@ def save_all(fig, out_dir, stem: str, cfg: dict) -> dict:
             try:
                 with warnings.catch_warnings(record=True) as w:
                     warnings.simplefilter("always")
-                    fig.savefig(eps, format="eps", dpi=dpi)
+                    fig.savefig(eps, format="eps", dpi=o["pdf_dpi"])
                 if w:
                     eps.unlink(missing_ok=True)
                     notes.append("EPS not written: " + "; ".join(str(x.message) for x in w))

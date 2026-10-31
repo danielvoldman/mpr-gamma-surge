@@ -226,6 +226,12 @@ def bad_file_names(folder, pattern: str) -> list[str]:
     return [str(p.relative_to(folder)) for p in Path(folder).rglob("*") if p.is_file() and not rx.match(p.name)]
 
 
+def forbidden_format_files(folder, forbidden) -> list[str]:
+    """Files under folder whose extension is a forbidden format (svg, wmf, emf: PCJ forbids them, DL-554 R1)."""
+    bad = {"." + f.lower().lstrip(".") for f in forbidden}
+    return [str(p.relative_to(folder)) for p in Path(folder).rglob("*") if p.is_file() and p.suffix.lower() in bad]
+
+
 def case_mismatches(names, folder) -> list[str]:
     """Names (relative to folder) that exist only with a different letter case on disk."""
     folder = Path(folder)

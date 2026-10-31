@@ -1,4 +1,4 @@
-"""MS13 13t (DL-545 J15, DL-546): the one verification command for the journal export.
+"""MS13 13t (DL-545 J15, DL-546; DL-554 R1, R2): the one verification command for the journal export.
 
   .venv/Scripts/python.exe scripts/ms13_verify_export.py [F1 F3 F5] [--dir figures/journal]
 
@@ -6,8 +6,9 @@ For every figure it redraws the journal figure object (reads results/ only, writ
 plotting/collide.py), the PDF checks (B), and the J1 to J14 tests: size and shape within the config, no text below the minimum size, fonts embedded and none Type 3, line width,
 colour maps, non-colour distinction, panel letters in order, file names, every draft FAIL line of the strip present in the caption, the drawn-data digest equal to the draft's,
 the draft files byte-identical to docs/ms13_figure_manifest.csv, no draft, decision-log or provenance text on the image, the supplement lists every strip row, caption sentence 1
-names the main failure, text contrast, red-green pairs, the greyscale lightness report and the TIFF and EPS where they exist. It prints a table figure x check with PASS / FAIL (and
-STOP for a check that cannot be run with an installed package) and exits non-zero on any FAIL. The collision allow-list entries that were used are printed with their reasons.
+names the main failure, text contrast, red-green pairs, the greyscale lightness report, the main PNG (600 dpi) and TIFF (600 dpi, LZW, RGB) at 6.3 x 8.0 in at most, no SVG, WMF or
+EMF, and the file sizes (a PDF above 5 MB, a PNG or TIFF above 10 MB are flagged). It prints a table figure x check with PASS / FAIL (and MANUAL for the colour-vision check, which the
+user does with an online simulator, R2) and exits non-zero on any FAIL (a MANUAL row never does). The collision allow-list entries that were used are printed with their reasons.
 """
 from __future__ import annotations
 
@@ -28,7 +29,7 @@ from mprsurge.plotting import style as S
 
 PILOT = ("F1", "F3", "F5")
 CHECKS = ("A collisions", "B pdf", "size+shape", "text>=8pt", "fonts", "line width", "cmaps", "non-colour", "letters", "file names", "FAIL lines", "digest", "drafts identical",
-          "image text", "supplement", "sentence 1", "contrast", "red-green", "greyscale", "cvd", "tiff", "pdf size")
+          "image text", "supplement", "sentence 1", "contrast", "red-green", "greyscale", "cvd", "png+tiff", "no svg/wmf/emf", "file sizes")
 MAIN_FAILURES = {"F1": FG.F1_MAIN_FAILURES, "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES}
 STRIP = {"F1": FG.f1_strip_lines, "F3": FG.strip_lines, "F5": FG.f5_strip_lines}
 SCHEMATIC_FACES = {"ramp": S.F1_SCHEMATIC["ramp_face"], "net": S.F1_SCHEMATIC["net_face"], "model": S.F1_SCHEMATIC["box_face"], "mf": S.F1_SCHEMATIC["box_face"], "out": S.F1_SCHEMATIC["box_face"]}
@@ -68,9 +69,9 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         mb = r["mediabox"]
         from PIL import Image
         wpx, hpx = Image.open(png).size
-        okz = (W <= cfg["page"]["double_column_width_in"] + 1e-9 and H <= cfg["page"]["max_height_in"] + 1e-9 and mb is not None and abs(mb[2] / 72.0 - W) < 0.02 and abs(mb[3] / 72.0 - H) < 0.02
-               and (wpx, hpx) == (round(W * cfg["output"]["dpi"]), round(H * cfg["output"]["dpi"])))
-        res["size+shape"] = ("PASS" if okz else "FAIL", f"{W:.3f} x {H:.3f} in (page max {cfg['page']['double_column_width_in']} x {cfg['page']['max_height_in']}); png {wpx} x {hpx} px")
+        okz = (W <= cfg["page"]["main_width_in"] + 1e-9 and H <= cfg["page"]["main_max_height_in"] + 1e-9 and mb is not None and abs(mb[2] / 72.0 - W) < 0.02 and abs(mb[3] / 72.0 - H) < 0.02
+               and (wpx, hpx) == (round(W * cfg["output"]["png_dpi"]), round(H * cfg["output"]["png_dpi"])))
+        res["size+shape"] = ("PASS" if okz else "FAIL", f"{W:.3f} x {H:.3f} in (page max {cfg['page']['main_width_in']} x {cfg['page']['main_max_height_in']}); png {wpx} x {hpx} px at {cfg['output']['png_dpi']} dpi")
         info["inches"] = (W, H)
         # text, lines, cmaps, non-colour
         t_bad = JC.text_sizes(fig, cfg["text"]["min_pt"])
@@ -125,18 +126,30 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         close = JC.close_in_lightness(fig, cfg["colour"]["min_lightness_difference"])
         info["close"] = close
         res["greyscale"] = ("PASS" if not nc else "FAIL", f"{len(close)} series-colour pairs closer than L* {cfg['colour']['min_lightness_difference']} (each also differs in a non-colour attribute)")
-        res["cvd"] = ("STOP", "no installed package simulates colour-vision deficiency; not run, nothing home-made")
-        # exports
+        res["cvd"] = ("MANUAL", "user checks the final PNGs with an online simulator; UNVERIFIED (no package installed, nothing home-made; DL-554 R2)")
+        # exports: the main files (PNG and TIFF at 600 dpi), the forbidden formats, the sizes
         tif = out / f"{fid}_journal.tiff"
+        pdpi = cfg["output"]["png_dpi"]
+        im_png = Image.open(png)
+        png_dpi = tuple(round(x) for x in im_png.info.get("dpi", (0, 0)))
         if tif.is_file():
             t = JC.tiff_report(tif)
-            okt = t["mode"] == "RGB" and t["dpi"] == (cfg["output"]["tiff_dpi"],) * 2 and str(t["compression"]).lower() in ("tiff_lzw", "lzw")
-            res["tiff"] = ("PASS" if okt else "FAIL", f"{t['mode']}, {t['dpi']} dpi, {t['compression']}")
+            okt = (t["mode"] == "RGB" and t["dpi"] == (cfg["output"]["tiff_dpi"],) * 2 and str(t["compression"]).lower() in ("tiff_lzw", "lzw") and t["size"] == (wpx, hpx)
+                   and png_dpi == (pdpi, pdpi))
+            res["png+tiff"] = ("PASS" if okt else "FAIL", f"PNG {wpx} x {hpx} px {png_dpi} dpi; TIFF {t['size'][0]} x {t['size'][1]} px, {t['mode']}, {t['dpi']} dpi, {t['compression']}")
         else:
-            res["tiff"] = ("FAIL", "TIFF missing")
-        size_mb = pdf.stat().st_size / 1e6
-        res["pdf size"] = ("PASS" if size_mb <= cfg["output"]["pdf_size_flag_mb"] else "FAIL", f"{pdf.stat().st_size / 1024:.0f} KB PDF, {png.stat().st_size / 1024:.0f} KB PNG")
-        info["bytes"] = {"pdf": pdf.stat().st_size, "png": png.stat().st_size}
+            res["png+tiff"] = ("FAIL", "TIFF missing")
+        fb = JC.forbidden_format_files(base, cfg["output"]["forbidden_formats"])
+        res["no svg/wmf/emf"] = ("PASS" if not fb else "FAIL", f"{len(fb)} files with a forbidden extension" + (f": {fb[0]}" if fb else ""))
+        big = []
+        if pdf.stat().st_size / 1e6 > cfg["output"]["pdf_size_flag_mb"]:
+            big.append(f"PDF {pdf.stat().st_size / 1e6:.1f} MB")
+        for f_ in (png, tif):
+            if f_.is_file() and f_.stat().st_size / 1e6 > cfg["output"]["raster_size_flag_mb"]:
+                big.append(f"{f_.suffix[1:].upper()} {f_.stat().st_size / 1e6:.1f} MB")
+        res["file sizes"] = ("PASS" if not big else "FAIL", f"{pdf.stat().st_size / 1024:.0f} KB PDF, {png.stat().st_size / 1024:.0f} KB PNG, {(tif.stat().st_size / 1024) if tif.is_file() else 0:.0f} KB TIFF"
+                             + (f"; FLAGGED: {', '.join(big)}" if big else ""))
+        info["bytes"] = {"pdf": pdf.stat().st_size, "png": png.stat().st_size, "tiff": tif.stat().st_size if tif.is_file() else None}
     return res, info
 
 
@@ -168,7 +181,7 @@ def main(argv=None) -> int:
         for c in infos[f].get("close", []):
             print(f"{f} greyscale close pair: {c}")
     n_fail = sum(1 for f in a.ids for c in CHECKS if table[f][c][0] == "FAIL")
-    print(f"\n{n_fail} FAIL, {sum(1 for f in a.ids for c in CHECKS if table[f][c][0] == 'STOP')} STOP")
+    print(f"\n{n_fail} FAIL, {sum(1 for f in a.ids for c in CHECKS if table[f][c][0] == 'MANUAL')} MANUAL (no exit-code effect)")
     return 1 if n_fail else 0
 
 
