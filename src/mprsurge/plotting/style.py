@@ -406,7 +406,11 @@ def write_colour_report(directory) -> tuple[Path, Path]:
 # colours that no class, path, control or source key uses; "net_outline" is the dark stroke around the white halo of the network symbols (the agree glyph on the blue D-tr tiles).
 F5_COLOURS = {"agree": "#a6d854", "disagree": "#e7298a", "tie": "#bf812d", "frame_posthoc": "#7f7f7f", "cell_edge": "#ffffff", "net_halo": "#ffffff", "net_outline": "#1a1a1a"}
 F5_STATE_MARKS = {"agree": "o", "disagree": "x", "tie": "+"}
-F5_SIZES = {"map_mark": 2.0, "state_mark": 2.0, "net_symbol": 9.5, "net_halo_width": 3.6, "net_width": 1.3, "cell_edge_width": 0.15, "table_mark": 6.0, "seed_mark": 4.2,
+# 13r-3c (DL-530): outlined distinct shapes for the network cells (hexagram agrees, heptagon disagrees; not class or path markers) and the hatch that separates D-none from D-tr in greyscale
+F5_NET_MARKS = {"agree": (6, 1, 0), "disagree": (7, 0, 0)}
+F5_HATCH = {"D-none": "////", "width": 0.5}
+F5_KEY_CLASSES = ("S+", "S-rel", "S-abs", "S-sus", "NS")
+F5_SIZES = {"map_mark": 2.0, "state_mark": 2.0, "net_symbol": 13.0, "net_halo_width": 3.6, "net_width": 1.3, "cell_edge_width": 0.15, "table_mark": 6.0, "seed_mark": 4.2,
             "control_mark_width": 0.9, "range_line": 0.9, "median_bar": 4.0, "ref_line": 0.8, "key_mark": 5.0,
             "net_outline_width": 1.2, "map_mark_width": 0.35, "state_mark_width": 0.5, "key_state_width": 1.0, "median_line": 1.6, "median_half_width": 0.6}
 

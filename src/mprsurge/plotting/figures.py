@@ -4408,17 +4408,21 @@ F5_NET_CLASSES = ("S+", "S-rel", "S-abs", "S-sus", "NS")
 F5_MAP_CLASSES = ("D-tr", "D-none")
 F5_METRICS = (("f_pk_hz", "f_pk (Hz)"), ("onset_s", "onset (s)"), ("duration_ms", "duration (ms)"))
 F5_CONTROL_METRICS = ("f_pk_hz", "onset_s")           # the evaluation read the controls without the Table 2.1 fields: no duration (S9_ctrl)
-F5_STRIP = (("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30s"), ("RB1", "overall"), ("RB2", "noisy_subgrid_agreement"), ("RB2", "headline_class_kept_1.0_sigma"))
+F5_STRIP = (("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30s"), ("RB1", "overall"), ("RB2", "noisy_subgrid_agreement"), ("RB2", "headline_class_kept_1.0_sigma"),
+            ("RB6", "network_fpk_halving_dt"))           # 13r-3c (DL-530): the RB6 network f_pk row joins the strip (panel (g) draws network f_pk)
 F5_STATUS = (("RB4", "parameter_perturbation"), ("RB1", "n_rule_60s"))
 F5_CAPTION_KEYS = ("model.type", "model.ref_point", "model.J", "model.Delta", "model.tau_ms", "model.tau_d_ms", "path.name", "path.profile", "path.T_ramp_s", "path.eta_H",
                    "network.N", "network.het_dist", "solver.method", "noise.sigma", "seeds.root_seed")
 F5_SLOT = 17.0                                        # x width of one N group on the F5c axes: 10 ramp seeds, a gap, 3 control seeds (a layout slot, carries no value)
 F5_CTRL_X0 = 11.0
 F5_FOOTER = draft_footer("F5")
+F5_MAIN_FAILURES = ("Mean field only", "3 of 4 cells", "43.1 percent", "203 needed")
+F5_LINE_A = "Mean field only; network disagrees at 3 of 4 cells; noisy subgrid 43.1 percent (203 needed)"
 
 # Ruled (RULED_DL, 13p R13); first proposed for the reviewer's ruling (13m prompt, step 3); every statement is from a logged result (DL numbers in the text) and the numbers are checked against the stored tables
 # by tests/test_fig_F5.py.
 F5_TAKE_HOME = (
+    "Mean field only; network disagrees at 3 of 4 cells; noisy subgrid 43.1 percent (203 needed). "
     "In mode D (noise-free mean field) the surge class D-tr fills 760 of the 900 cells of map 1 (84.4%, T_ramp 120 s; D-none 140) and 296 of the 325 cells of "
     "map 2 (D-none 29), so a surge class is not confined to a few cells and G5 continues; RB4 passed (0 of 14 changed, 64 of 64 unchanged) (DL-235, DL-237, DL-258, DL-260). The map "
     "statements are mode D and make no claim that the regime map is robust to noise: on the 225-cell noisy subgrid the frozen D24 rule FAILED (97 of 225 cells agree = 43.1%, 203 "
@@ -4673,14 +4677,38 @@ def f5_status_lines(d: dict) -> list[str]:
              f"threshold {s['g5_threshold_cells']:.0f} cells; G5 CONTINUE, DL-237, DL-258). The network disagrees with the mean field in {s['cells_n_disagree']} of 4 cells (G4 triggered: {s['g4_triggered']}; DL-323, DL-325).",
              "Stored status rows that touch F5:"] + [f"    {r['rb_id']} {r['check_id']}: {r['status']} ({r['value'] or 'no value in the table'})" for r in s["status"]]
     lines += [strip_heading("F5")] + ["    " + t for t in f5_strip_lines(s)]
+    lines += ["RB6 network_fpk_halving_dt is listed because panel (g) draws the network f_pk (UNVERIFIED reading); MS11-C2: no claim of f_pk agreement between network and mean field."]
     return lines
 
 
 def _f5_tick_text(vals, idx, fmt="{:.3g}"):
-    return [fmt.format(float(vals[k])) for k in idx]
+    return [CAP.number_text(float(fmt.format(float(vals[k])))) for k in idx]          # 13r-3c (DL-529): one number format, never 1e+03
 
 
-def _f5_map(ax, cls, x_vals, y_vals, *, title, xlabel, ylabel, mark_cells=True, tick_idx_x=None, tick_idx_y=None):
+def f5_onset_sentence(d: dict) -> str:
+    """13r-3c (DL-530): the drawn network onsets against the stored mean-field companion onset; counts and range are computed from the drawn values."""
+    o = np.asarray(d["s9_onset_s"], dtype=float)
+    n, n_below = int(np.sum(~np.isnan(o))), int(np.sum(o < d["ref_onset_s"]))
+    return (f"Panel (h): {n_below} of the {n} drawn network onsets ({np.nanmin(o):.1f} to {np.nanmax(o):.1f} s) are earlier than the stored mean-field companion onset "
+            f"{d['ref_onset_s']:.3f} s (T_ramp 60 s).")
+
+
+def f5_duration_sentence(d: dict) -> str:
+    return ("Panel (i): the stored minimum duration is " + f"{float(np.min(d['stored_duration_ms'])):g}" + " ms at all four N, a pinned value that is the floor of the frozen classifier (" + CAP.DURATION_FLOOR_TEXT
+            + "); no mean-field duration reference is drawn because the stored companion reference (class, f_pk, onset) has no duration field.")
+
+
+def f5_subgrid_spacing(d: dict) -> str:
+    idx = np.unique(d["sub_j"])
+    steps = sorted({int(x) for x in np.diff(idx)})
+    return f"the 225 subgrid cells sit at their map-1 indices (steps of {' and '.join(str(x) for x in steps)} cells: uneven spacing; the gaps are cells outside the subgrid)"
+
+
+F5_RB1_RULE = ("RB1 rule (DL-320): a cell agrees only if 3 of 3 seeds match the mean-field companion class; RB1 needs at least 3 of 4 cells; agreement is read on the Table 2.1 categories "
+               "(D-tr meets S+, S-rel or S-abs; D-none meets NS), our reading, UNVERIFIED as in DL-242")
+
+
+def _f5_map(ax, cls, x_vals, y_vals, *, title, xlabel, ylabel, mark_cells=True, tick_idx_x=None, tick_idx_y=None, margin=0.0):
     """One regime map, cell by cell as stored: a mesh coloured by class and one class mark per cell (so the class never rests on colour alone)."""
     from matplotlib.colors import ListedColormap
     codes = np.vectorize({c: k for k, c in enumerate(F5_MAP_CLASSES)}.get)(cls).astype(float)
@@ -4688,13 +4716,17 @@ def _f5_map(ax, cls, x_vals, y_vals, *, title, xlabel, ylabel, mark_cells=True, 
     n_r, n_c = cls.shape
     mesh = ax.pcolormesh(np.arange(n_c + 1) - 0.5, np.arange(n_r + 1) - 0.5, codes, cmap=cmap, vmin=-0.5, vmax=len(F5_MAP_CLASSES) - 0.5, edgecolors=S.F5_COLOURS["cell_edge"],
                          linewidth=S.F5_SIZES["cell_edge_width"], zorder=1)
+    import matplotlib.pyplot as plt
+    plt.rcParams["hatch.linewidth"] = S.F5_HATCH["width"]
+    none_cells = np.ma.masked_where(cls != "D-none", np.ones(cls.shape))
+    ax.pcolor(np.arange(n_c + 1) - 0.5, np.arange(n_r + 1) - 0.5, none_cells, cmap=ListedColormap([(0.0, 0.0, 0.0, 0.0)]), hatch=S.F5_HATCH["D-none"], edgecolor=S.HALO_COLOUR, linewidth=0, zorder=1.5)
     if mark_cells:
         for c in F5_MAP_CLASSES:
             ii, jj = np.nonzero(cls == c)
             st = S.get(c)
             ax.plot(jj, ii, ls="none", marker=st.marker, ms=S.F5_SIZES["map_mark"], color=S.figure_colour("bar_edge"), mfc="none", mew=S.F5_SIZES["map_mark_width"], zorder=2)
-    ax.set_xlim(-0.5, n_c - 0.5)
-    ax.set_ylim(-0.5, n_r - 0.5)
+    ax.set_xlim(-0.5 - margin, n_c - 0.5 + margin)
+    ax.set_ylim(-0.5 - margin, n_r - 0.5 + margin)
     ax.set_aspect("auto")
     tx = tick_idx_x if tick_idx_x is not None else list(range(0, n_c, 5)) + ([n_c - 1] if (n_c - 1) % 5 else [])
     ty = tick_idx_y if tick_idx_y is not None else list(range(0, n_r, 5)) + ([n_r - 1] if (n_r - 1) % 5 else [])
@@ -4719,8 +4751,8 @@ def _draw_F5(d: dict, draft: bool):
     from matplotlib.colors import ListedColormap
     from matplotlib.lines import Line2D
     plt.rcParams.update({"font.family": S.FONT_FAMILY, "font.size": S.FONT_SIZE_PT, "pdf.fonttype": 42})
-    fig = plt.figure(figsize=(7.4, 13.4), constrained_layout=True)
-    gs = fig.add_gridspec(6, 6, height_ratios=[0.85, 3.5, 3.0, 1.9, 2.4, 2.1])
+    fig = plt.figure(figsize=(7.4, 14.4), constrained_layout=True)
+    gs = fig.add_gridspec(7, 6, height_ratios=[1.0, 3.5, 3.1, 0.55, 1.9, 2.4, 2.9])
     edge, fail, dark = S.figure_colour("bar_edge"), S.figure_colour("fail_text"), S.figure_colour("text_dark")
     C = S.F5_COLOURS
 
@@ -4728,24 +4760,32 @@ def _draw_F5(d: dict, draft: bool):
     kx = fig.add_subplot(gs[0, :])
     kx.axis("off")
     hs = [Line2D([], [], ls="none", marker=S.get(c).marker, ms=S.F5_SIZES["key_mark"], color=S.get(c).colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"], label=f"{c} (map cell; mean-field class)") for c in F5_MAP_CLASSES]
-    hs += [Line2D([], [], ls="none", marker=S.get(k).marker, ms=S.F5_SIZES["key_mark"] + 1, color=S.get(k).colour, mew=S.F5_SIZES["net_width"], label=lab)
-           for k, lab in (("network_agree", f"network cell, agrees with the mean field ({d['cells_n_agree']} of 4)"), ("network_disagree", f"network cell, disagrees ({d['cells_n_disagree']} of 4)"))]
-    hs += [Line2D([], [], ls="none", marker=S.F5_STATE_MARKS[k], ms=S.F5_SIZES["key_mark"], color=C[k], mew=S.F5_SIZES["key_state_width"], label=lab) for k, lab in
+    hs += [Line2D([], [], ls="none", marker=S.F5_NET_MARKS[k.split("_")[1]], ms=S.F5_SIZES["key_mark"] + 3, mfc=S.get(k).colour, mec=C["net_outline"], mew=0.9, label=lab)
+           for k, lab in (("network_agree", f"network cell (T_ramp 30 s), agrees with the mean field ({d['cells_n_agree']} of 4)"),
+                          ("network_disagree", f"network cell (T_ramp 30 s), disagrees ({d['cells_n_disagree']} of 4)"))]
+    from matplotlib.legend_handler import HandlerTuple
+    from matplotlib.patches import Patch
+    hs += [(tuple((Patch(fc=C[k], ec="none"), Line2D([], [], ls="none", marker=S.F5_STATE_MARKS[k], ms=S.F5_SIZES["key_mark"], color=S.HALO_COLOUR, mew=S.F5_SIZES["key_state_width"]))), lab) for k, lab in
            (("agree", "subgrid cell agrees"), ("disagree", "subgrid cell disagrees (not a tie)"), ("tie", "subgrid cell is a tie (a disagreement by the D24 rule)"))]
-    kx.legend(handles=hs, loc="center", ncol=2, fontsize=S.TEXT_SIZES["legend"], frameon=False, handlelength=2.0, columnspacing=1.6, labelspacing=0.6)
+    hh = [h if not isinstance(h, tuple) else h[0] for h in hs]
+    ll = [h.get_label() if not isinstance(h, tuple) else h[1] for h in hs]
+    kx.legend(hh, ll, loc="center", ncol=2, fontsize=S.TEXT_SIZES["legend"], frameon=False, handlelength=2.0, columnspacing=1.6, labelspacing=0.6, handler_map={tuple: HandlerTuple(ndivide=None)})
 
     # (a) map 1 with the network symbols
     ax = fig.add_subplot(gs[1, 0:3])
     _f5_map(ax, d["map1_class"], d["map1_tau_d_ms"], d["map1_Delta"], title=f"(a) map 1, mode D, T_ramp 120 s: D-tr {d['map1_n_surge']}, D-none {d['map1_n_none']} of {d['map1_n']}",
-            xlabel="tau_d (ms), cell index j", ylabel="Delta, cell index i")
+            xlabel="tau_d (ms), cell index j\n" + F5_LINE_A, ylabel="Delta, cell index i", margin=1.2)
     for agree in (True, False):
         m = d["cell_agree"] == agree
         if m.any():
             st = S.get("network_agree" if agree else "network_disagree")
-            # 13o (DL-494 R9): the white halo carries a dark outline, so the agree glyph stays visible on the blue D-tr tiles
-            ax.plot(d["cell_j"][m], d["cell_i"][m], ls="none", marker=st.marker, ms=S.F5_SIZES["net_symbol"], color=C["net_halo"], mew=S.F5_SIZES["net_halo_width"], zorder=4,
-                    path_effects=[patheffects.Stroke(linewidth=S.F5_SIZES["net_halo_width"] + 2 * S.F5_SIZES["net_outline_width"], foreground=C["net_outline"]), patheffects.Normal()])
-            ax.plot(d["cell_j"][m], d["cell_i"][m], ls="none", marker=st.marker, ms=S.F5_SIZES["net_symbol"], color=st.colour, mew=S.F5_SIZES["net_width"], zorder=5)
+            mk = S.F5_NET_MARKS["agree" if agree else "disagree"]
+            # 13r-3c (DL-530): larger filled shapes with a dark outline on a white halo, inside the axes (the map has a margin of one cell)
+            ax.plot(d["cell_j"][m], d["cell_i"][m], ls="none", marker=mk, ms=S.F5_SIZES["net_symbol"] + 3.0, mfc=C["net_halo"], mec=C["net_halo"], mew=S.F5_SIZES["net_halo_width"], zorder=4)
+            ax.plot(d["cell_j"][m], d["cell_i"][m], ls="none", marker=mk, ms=S.F5_SIZES["net_symbol"], mfc=st.colour, mec=C["net_outline"], mew=0.9, zorder=5)
+    for r_ in range(4):
+        ax.annotate("/".join(d["cell_net_class"][r_]), xy=(d["cell_j"][r_], d["cell_i"][r_]), xytext=(0, -13), textcoords="offset points", ha="center", va="top",
+                    fontsize=S.TEXT_SIZES["small"], zorder=6, bbox=dict(boxstyle="square,pad=0.1", fc=S.HALO_COLOUR, ec="none", alpha=0.85))
 
     # (b) the 4 network cells: map class at 120 s, mean-field companion at 30 s, network seeds at 30 s
     ax = fig.add_subplot(gs[1, 3:6])
@@ -4756,19 +4796,19 @@ def _draw_F5(d: dict, draft: bool):
             st = S.get(cls)
             ax.plot([c_], [r], ls="none", marker=st.marker, ms=S.F5_SIZES["table_mark"], color=st.colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"], zorder=3)
         ag = S.get("network_agree" if d["cell_agree"][r] else "network_disagree")
-        ax.plot([5.6], [r], ls="none", marker=ag.marker, ms=S.F5_SIZES["net_symbol"], color=ag.colour, mew=S.F5_SIZES["net_width"], zorder=3)
+        ax.plot([5.6], [r], ls="none", marker=S.F5_NET_MARKS["agree" if d["cell_agree"][r] else "disagree"], ms=S.F5_SIZES["net_symbol"], mfc=ag.colour, mec=C["net_outline"], mew=0.9, zorder=3)
         ax.text(6.1, r, "agrees" if d["cell_agree"][r] else "disagrees", va="center", ha="left", fontsize=S.TEXT_SIZES["small"])
     # 13o (DL-494 R9): the column labels sit below the panel, so the title of (b) is level with the title of (a)
     ax.set_xticks(list(range(5)) + [5.6], list(cols) + ["stored\nRB1"])
     ax.set_yticks(range(4), [f"cell {r + 1} (i {d['cell_i'][r]}, j {d['cell_j'][r]})\nDelta {d['cell_Delta'][r]:.4g}, tau_d {d['cell_tau_d_ms'][r]:.4g} ms" for r in range(4)])
     ax.set_xlim(-0.6, 7.4)
     ax.set_ylim(3.5, -0.6)
-    ax.set_title("(b) the 4 network cells (N = 1e4): classes as stored", loc=S.TITLE_LOC, color=fail)
-    ax.set_xlabel("The network was run at T_ramp 30 s; the map is at T_ramp 120 s.\nBoth are drawn; no equivalence is claimed.")
+    ax.set_title(f"(b) the 4 network cells (N = 1e4): classes as stored; RB1 cells FAIL ({d['cells_n_agree']} of 4 agree)", loc=S.TITLE_LOC, color=fail)
+    ax.set_xlabel("The network was run at T_ramp 30 s; the map is at T_ramp 120 s. Both are drawn; no equivalence is claimed.\n" + textwrap.fill(F5_RB1_RULE, 78))
 
     # (c), (d) subgrid agreement: D24 (frozen, FAILED) and P-1 (post hoc), same size and frame, cells at their map-1 indices
     for pos, key, ttl, bad, post in ((gs[2, 0:2], "d24", f"(c) D24, frozen rule: FAILED, {d['d24_n_agree']} of {d['sub_n']} agree ({100.0 * d['d24_n_agree'] / d['sub_n']:.1f}%; {d['d24_needed']} needed)", True, False),
-                                     (gs[2, 2:4], "p1", f"(d) P-1, post-hoc, feeds no gate: {d['p1_n_agree']} of {d['sub_n']} agree ({100.0 * d['p1_n_agree'] / d['sub_n']:.1f}%)", False, True)):
+                                     (gs[2, 2:4], "p1", f"(d) P-1, post-hoc, feeds no gate: {d['p1_n_agree']} of {d['sub_n']} agree ({100.0 * d['p1_n_agree'] / d['sub_n']:.1f}%), below the {d['d24_needed']} needed", False, True)):
         ax = fig.add_subplot(pos)
         st_ = d[f"{key}_state"]
         z = np.full((30, 30), np.nan)
@@ -4783,7 +4823,7 @@ def _draw_F5(d: dict, draft: bool):
         ax.set_ylim(-0.5, 29.5)
         ax.set_xticks([0, 10, 20, 29], _f5_tick_text(d["map1_tau_d_ms"], [0, 10, 20, 29]))
         ax.set_yticks([0, 10, 20, 29], _f5_tick_text(d["map1_Delta"], [0, 10, 20, 29]))
-        ax.set_xlabel("tau_d (ms)")
+        ax.set_xlabel("tau_d (ms); cells at their map-1 indices\n(uneven spacing)")
         ax.set_ylabel("Delta")
         ax.set_title(textwrap.fill(ttl, 52) + f"\nagree {d[f'{key}_n_agree']}, disagree {d[f'{key}_n_disagree']}, tie {d[f'{key}_n_tie']}", loc=S.TITLE_LOC, color=fail if bad else dark)
         if post:
@@ -4796,9 +4836,17 @@ def _draw_F5(d: dict, draft: bool):
     ax = fig.add_subplot(gs[2, 4:6])
     _f5_map(ax, d["map2_class"], d["map2_T_ramp_s"], d["map2_J0"], title=f"(e) map 2, mode D:\nD-tr {d['map2_n_surge']}, D-none {d['map2_n_none']} of {d['map2_n']}", xlabel="T_ramp (s)",
             ylabel="J0", tick_idx_x=[0, 3, 6, 9, 12], tick_idx_y=[0, 6, 12, 18, 24])
+    ax.text(0.5, -0.36, "no network runs on map 2", transform=ax.transAxes, ha="center", va="top", fontsize=S.TEXT_SIZES["small"])
 
+    # one key for (f) to (i): the classes (marks) and filled (ramp seed) against open (no-ramp control)
+    k2 = fig.add_subplot(gs[3, :])
+    k2.axis("off")
+    h2 = [Line2D([], [], ls="none", marker=S.get(c).marker, ms=S.F5_SIZES["key_mark"], color=S.get(c).colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"], label=c) for c in S.F5_KEY_CLASSES]
+    h2 += [Line2D([], [], ls="none", marker=S.get("S-sus").marker, ms=S.F5_SIZES["key_mark"], color=dark, mec=dark, label="filled: ramp seed (10 per N)"),
+           Line2D([], [], ls="none", marker=S.get("S-sus").marker, ms=S.F5_SIZES["key_mark"], mfc="none", mec=dark, mew=S.F5_SIZES["control_mark_width"], label="open: no-ramp control seed (3 per N)")]
+    k2.legend(handles=h2, loc="center", ncol=7, fontsize=S.TEXT_SIZES["legend"], frameon=False, columnspacing=1.2, handletextpad=0.4)
     # (f) class per seed against N (ramp seeds filled, no-ramp control seeds open)
-    ax = fig.add_subplot(gs[3, :])
+    ax = fig.add_subplot(gs[4, :])
     ycls = {c: k for k, c in enumerate(F5_NET_CLASSES)}
     for k in range(4):
         for s in range(F5_SEEDS):
@@ -4810,11 +4858,12 @@ def _draw_F5(d: dict, draft: bool):
     _f5_n_axis(ax, d)
     ax.set_yticks(range(len(F5_NET_CLASSES)), list(F5_NET_CLASSES))
     ax.set_ylim(len(F5_NET_CLASSES) - 0.4, -0.6)
-    ax.set_title("(f) network class of every seed against N (T_ramp 60 s): ramp seeds filled (10 per N), no-ramp control seeds open (3 per N);\nthe mean-field companion at T_ramp 60 s is D-tr", loc=S.TITLE_LOC)
+    ax.set_title("(f) network class of every seed against N (T_ramp 60 s); the mean-field companion at T_ramp 60 s is D-tr", loc=S.TITLE_LOC)
+    ax.text(0.995, 0.03, "claim limits G4-C3, MS9(e)-2 (caption)", transform=ax.transAxes, ha="right", va="bottom", fontsize=S.TEXT_SIZES["small"], color=fail, weight="bold")
 
     # (g) to (i) metrics against N: recomputed per-seed points, stored min to max and median
     for col, (m, lab) in enumerate(F5_METRICS):
-        ax = fig.add_subplot(gs[4, 2 * col:2 * col + 2])
+        ax = fig.add_subplot(gs[5, 2 * col:2 * col + 2])
         lo_all = np.nanmin([np.nanmin(d[f"s9_{m}"]), d[f"stored_{m}"].min()] + ([np.nanmin(d[f"ctrl_{m}"])] if m in F5_CONTROL_METRICS else []))
         hi_all = np.nanmax([np.nanmax(d[f"s9_{m}"]), d[f"stored_{m}"].max()] + ([np.nanmax(d[f"ctrl_{m}"])] if m in F5_CONTROL_METRICS else []))
         log = m == "duration_ms" and lo_all > 0
@@ -4839,6 +4888,8 @@ def _draw_F5(d: dict, draft: bool):
             ax.axhline(d["ref_f_pk_hz"], color=S.get("mean_field").colour, ls=":", lw=S.F5_SIZES["ref_line"], zorder=1)
         if m == "onset_s":
             ax.axhline(d["ref_onset_s"], color=S.get("mean_field").colour, ls=":", lw=S.F5_SIZES["ref_line"], zorder=1)
+        if m == "duration_ms":
+            ax.axhline(float(np.min(d["stored_duration_ms"])), color=S.figure_colour("range_line"), ls="--", lw=0.6, zorder=1)
         if log:
             ax.set_yscale("log")
             ax.set_ylim(lo_all / 1.6, hi_all * 4.0)
@@ -4846,21 +4897,21 @@ def _draw_F5(d: dict, draft: bool):
             span = hi_all - lo_all
             ax.set_ylim(lo_all - 0.06 * span, hi_all + 0.22 * span)
         _f5_n_axis(ax, d, small=True)
-        ax.set_ylabel(lab)
+        ax.set_ylabel(lab + (", log axis" if log else ""))
         und = d["metric_undefined"][:, col]
         ttl = f"({'ghi'[col]}) {lab.split(' (')[0]} against N"
         ax.set_title(ttl, loc=S.TITLE_LOC)
         ax.text(0.01, 0.99, "undefined seeds: " + ", ".join(f"{int(u)}" for u in und) if und.any() else "", transform=ax.transAxes, ha="left", va="top", fontsize=S.TEXT_SIZES["small"])
 
     # status block
-    axs = fig.add_subplot(gs[5, :])
+    axs = fig.add_subplot(gs[6, :])
     axs.axis("off")
     lines = f5_status_lines(d)
     lines += ["Panels (a) to (e) are rows of the stored A9 tables, (b) and (f) the stored MS10 evaluation and record classes; the per-seed points of (g) to (i) are RECOMPUTED from stored series with the "
               "frozen classifier (the MS10 evaluation call) and equal the stored classes, counts, minimum, median and maximum. Grey bar: stored minimum to maximum of the 10 ramp seeds, "
               "wide tick: stored median; dotted line: mean-field companion at T_ramp 60 s (" + f"{d['ref_class']}, f_pk {d['ref_f_pk_hz']:g} Hz, onset {d['ref_onset_s']:g} s" + "). Controls: no duration was evaluated."]
-    lines = [ln for t_ in lines for ln in textwrap.wrap(t_, width=150, subsequent_indent="        ")]
-    axs.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=S.TEXT_SIZES["status"], linespacing=1.25)
+    lines += [f5_onset_sentence(d), f5_duration_sentence(d), "red title: the panel shows a FAIL (here (b) and (c))."]
+    status_block(axs, lines, size=S.TEXT_SIZES["status"], width=150)
     return _style_text(fig, F5_FOOTER if draft else "")
 
 
@@ -4896,6 +4947,11 @@ def f5_caption_notes(d: dict) -> tuple:
         "were evaluated without the duration, so panel (i) has no control points. Network classes cannot separate ramp-driven from non-ramp records (G4-C3): the no-ramp controls reach surge "
         "classes (DL-325), and no claim of f_pk or class agreement between network and mean field is made (MS11-C2). The surge result is stated for the mean field only (G4-C2). "
         "RB1 FAILED, RB2 FAILED and D24 FAILED (strip above); RB4 passed. A9 failure labels are not drawn here (F6).",
+        "The words of claim limit MS9(e)-1 (control flagged 10 of 10 seeds; ramp 10 of 10) are " + CAP.FLAGGED_CLAUSE + ". Map 2 has no network runs. " + F5_RB1_RULE + ". "
+        "In (a) the network symbols are larger (hexagram: the cell agrees, heptagon: it disagrees; both outlined) and the network classes of the three seeds are written beside each; "
+        "D-none cells carry a hatch in the maps so that D-tr and D-none differ in greyscale. The plotted white marks of (c) and (d) are the marks of the key; " + f5_subgrid_spacing(d) + ". "
+        + f5_onset_sentence(d) + " " + f5_duration_sentence(d) + " One key (above (f)) gives the classes and filled (ramp seed) against open (no-ramp control) for (f) to (i). "
+        "The RB6 network f_pk row is listed in the strip because panel (g) draws network f_pk (UNVERIFIED reading).",
     )
 
 
@@ -4920,8 +4976,10 @@ def make_F5(res=None, out_dir=None, *, tag_build: bool = False, take_home=F5_TAK
     for key, rec in recs.items():
         for r in make_param_table(rec["config"]):
             rows.append({**r, "panel": key, "section": "", "source_run_id": rec["name"], "source_config_hash12": rec["config_hash12"]})
+    crit, _ = F.K.load_frozen_criteria(root)
     cap = CAP.build_caption("F5", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=[r for r in rows if r["key"] in F5_CAPTION_KEYS],
-                            spectrogram=None, symbol_keys=(), notes=f5_caption_notes(d), not_applicable=F5_NOT_APPLICABLE)
+                            spectrogram=None, symbol_keys=(), notes=f5_caption_notes(d), not_applicable=F5_NOT_APPLICABLE,
+                            class_key=CAP.class_key_line("ND", agree=True), classifier_line=CAP.classifier_line(crit), main_failures=F5_MAIN_FAILURES, swept={"network.N": list(F5_N)})
     import matplotlib.pyplot as plt
     fig = _draw_F5(d, draft=not tag_build)
     out.mkdir(parents=True, exist_ok=True)
