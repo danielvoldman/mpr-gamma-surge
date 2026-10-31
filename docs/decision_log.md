@@ -5917,3 +5917,13 @@ Chosen:          as done   Default from: the prompt
 Test:            tests/test_ms13_13t.py, 13o, 13p pass (67 passed); scripts/ms13_verify_export.py on the second build
 Status:          13t-1 in progress
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-549  MS13 13t-1: F1 journal vertical spacing after the look at the second recorded F1 (logged with the code commit)    [ID: MS13, 13t, 13t-1, DL-548]
+Date:            2026-10-31        Author:
+Decision:        FACT. The 2x crops of the second recorded F1 (commit b7fd19f) showed the first legend row about 0.03 in below the schematic boxes (not touching, but crowded; the checker was silent). The legend is now anchored at its top edge with 0.6 in of room, and the panels were made a little lower to pay for it (the time panels a/b 0.72 in, c to f 0.86 in, g and h 0.82 in; i, j, k 0.8 in); the figure stays 7.5 x 8.7 in. Layout only: no text, no drawn value, the drawn-data digest is unchanged. Also seen in the same crops and left as they are: (1) the spectrograms (g) and (h) show a thin white strip at the left and the right edge: the first spectrogram window is centred at 1 s and the last at about 164 s, so the shared time axis 0 to 165 s has no window there (the draft shows the same); (2) the three raw first crossings of (d) and (f) are one blob (listed in the allow-list, DL-547 (5)); (3) the F3 slice Hopf mark and 25 Hz bar touch at tau_d 3 ms in (a) and at 5 ms in (b) (listed). The third recorded build is made from the commit that adds this entry.
+Reason:          instruction of the reviewer (13t-1 prompt, J15)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            tests/test_ms13_13t.py; scripts/ms13_verify_export.py
+Status:          13t-1 in progress
+Commit/tag:      the commit that adds this entry; no tag

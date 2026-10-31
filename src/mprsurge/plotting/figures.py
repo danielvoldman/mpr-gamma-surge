@@ -4944,7 +4944,7 @@ def _draw_F1_journal(d: dict):
     _f1j_schematic(fig, 0.03, 1.55)
 
     # key row
-    kx = _ax_in(fig, 0.1, 1.62, 7.3, 0.45)
+    kx = _ax_in(fig, 0.1, 1.64, 7.3, 0.6)
     kx.axis("off")
     kx.set_gid("legend axes")
     sus = S.get(d["cls120"][0])
@@ -4955,7 +4955,8 @@ def _draw_F1_journal(d: dict):
     ls_ = ["mean field (stored record)", "network seed 0", "network seed 1", "network seed 2", f"mean-field onset ({d['ref_class']}, {d['ref_onset_s']:.3f}{NB}s)",
            f"network classifier onset ({d['cls120'][0]}, {d['onset120_s'][0]:.1f}{NB}s; the 3 seeds coincide)", "network raw first crossing (post hoc; seeds 0, 1, 2 as circle, plus, star; they coincide)"]
     from matplotlib.legend_handler import HandlerTuple
-    kx.legend(hs, ls_, loc="center", ncol=2, frameon=False, handlelength=2.4, columnspacing=1.2, labelspacing=0.25, handler_map={tuple: HandlerTuple(ndivide=None)}).set_in_layout(False)
+    kx.legend(hs, ls_, loc="upper center", bbox_to_anchor=(0.5, 1.0), borderaxespad=0.0, ncol=2, frameon=False, handlelength=2.4, columnspacing=1.2, labelspacing=0.25,
+              handler_map={tuple: HandlerTuple(ndivide=None)}).set_in_layout(False)
 
     t_on, t_end_ramp = d["path_t_on_s"], d["path_t_on_s"] + d["path_T_ramp_s"]
 
@@ -4971,7 +4972,7 @@ def _draw_F1_journal(d: dict):
             pass
 
     # (a) eta(t); (b) J(t)
-    ax_a = _ax_in(fig, L, 2.35, WD, 0.75)
+    ax_a = _ax_in(fig, L, 2.5, WD, 0.72)
     ax_a.plot(d["path_t_s"], d["path_eta"], color=p2.colour, ls=p2.linestyle, lw=S.F1_SIZES["path_line"], zorder=3)
     levels = (d["path_eta_start"], d["path_eta_H"], d["path_eta_peak"])
     for y_ in levels:
@@ -4984,7 +4985,7 @@ def _draw_F1_journal(d: dict):
     ax_a.text(t_on + 2.0, d["path_eta_peak"] + 0.62, "t_on", ha="left", va="center")
     ax_a.text(t_end_ramp - 2.0, d["path_eta_peak"] + 0.62, "end of ramp", ha="right", va="center")
     tp(ax_a, "a", "ramp protocol", JETA, left=True)
-    ax_b = _ax_in(fig, R, 2.35, WD, 0.75, sharex=ax_a)
+    ax_b = _ax_in(fig, R, 2.5, WD, 0.72, sharex=ax_a)
     ax_b.plot(d["path_t_s"], d["path_J"], color=S.get("P3").colour, ls="-", lw=S.F1_SIZES["path_line"], zorder=3)
     for x_ in (t_on, t_end_ramp):
         ax_b.axvline(x_, color=hl, ls=":", lw=S.F1_SIZES["event_line"], zorder=1)
@@ -4996,19 +4997,19 @@ def _draw_F1_journal(d: dict):
     tp(ax_b, "b", "coupling J(t)", "J (coupling)", left=False)
 
     # (c) to (f): r(t), v(t), mean field left, network right, the same y range per quantity (shared)
-    tops = {"r": 3.43, "v": 4.66}
+    tops = {"r": 3.52, "v": 4.68}
     for row, q in enumerate(("r", "v")):
         lo_all = min(d[f"{n}_{q}_min"] for n in ("mf", "net0", "net1", "net2"))
         hi_all = max(d[f"{n}_{q}_max"] for n in ("mf", "net0", "net1", "net2"))
         rng = hi_all - lo_all
         ylim = (lo_all - 0.04 * rng, hi_all + 0.95 * rng)
         ylab = f"{q} (model units)"
-        a1 = _ax_in(fig, L, tops[q], WD, 0.9, sharex=ax_a)
+        a1 = _ax_in(fig, L, tops[q], WD, 0.86, sharex=ax_a)
         _f1_env(a1, d[f"mf_{q}_x"], d[f"mf_{q}_lo"], d[f"mf_{q}_hi"], mf.colour, "-")
         _f1_onset_marks(a1, d, network=False, journal=True)
         a1.set_ylim(*ylim)
         tp(a1, "ce"[row], f"{q}(t), mean field", ylab, left=True)
-        a2 = _ax_in(fig, R, tops[q], WD, 0.9, sharex=ax_a, sharey=a1)
+        a2 = _ax_in(fig, R, tops[q], WD, 0.86, sharex=ax_a, sharey=a1)
         for i, m in enumerate(seeds):
             _f1_env(a2, d[f"net{i}_{q}_x"], d[f"net{i}_{q}_lo"], d[f"net{i}_{q}_hi"], m.colour, m.linestyle, fill=False, z=3.5 - 0.1 * i)
         _f1_onset_marks(a2, d, network=True, journal=True)
@@ -5024,7 +5025,7 @@ def _draw_F1_journal(d: dict):
     sp = d["spec_settings"]
     ims = []
     for k, (name, ttl) in enumerate((("mf", "spectrogram, mean field"), ("net0", "spectrogram, network seed 0"))):
-        a = _ax_in(fig, (L, R)[k], 5.89, WD, 0.85, sharex=ax_a)
+        a = _ax_in(fig, (L, R)[k], 5.86, WD, 0.82, sharex=ax_a)
         im = a.pcolormesh(d["spec_t_s"], d["spec_f_hz"], d[f"spec_{name}_db"], shading="nearest", cmap=S.SPECTROGRAM_CMAP, vmin=d["spec_shared_db_range"][0], vmax=d["spec_shared_db_range"][1], rasterized=True)
         ims.append(im)
         for b in sp["band_primary_hz"]:
@@ -5036,13 +5037,13 @@ def _draw_F1_journal(d: dict):
         tp(a, "gh"[k], ttl, "frequency (Hz)" if k == 0 else "", left=(k == 0), xlabel=True)
         if k == 1:
             a.tick_params(labelleft=False)
-    cax = _ax_in(fig, 6.98, 5.89, 0.09, 0.85)
+    cax = _ax_in(fig, 6.98, 5.86, 0.09, 0.82)
     cb = fig.colorbar(ims[1], cax=cax, extend="min")
     cax.set_title("PSD (dB)", loc="center", pad=3)
     cax.set_gid("colour bar spectrogram")
 
     # (i) spike counts of seed 0, (j) and (k) the stored spikes of two 1 s windows, framed on (i) (j solid, k dashed; no letters over the frame)
-    top_i = 7.5
+    top_i = 7.38
     win_style = {"j": "-", "k": "--"}
     tick = S.RASTER_MARKS["zoom"]
     a_i = _ax_in(fig, L, top_i, 2.0, 0.8)
