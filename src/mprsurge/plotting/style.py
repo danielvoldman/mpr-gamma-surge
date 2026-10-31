@@ -64,7 +64,7 @@ _TABLE = {
         "P3": ("#01665e", "H", "rotated hexagon", "-"),
         "P4": ("#c51b7d", "*", "star", "-"),
         "P4a": ("#cc4c9b", "P", "plus (filled)", "--"),      # 13o (DL-494 R10, R11): darker than the 13c #f1b6da, which was hard to read on white and on the shading
-        "P4b": ("#3f9f96", "X", "cross (filled)", "--"),      # 13o (DL-494 R10): darker than the 13c #80cdc1
+        "P4b": ("#8a8f1c", "X", "cross (filled)", "--"),      # 13o (DL-494 R10): darker than the 13c #80cdc1
         "P5": ("#543005", "8", "octagon", "-."),
     },
     "control": {
@@ -241,7 +241,7 @@ FIGURE_COLOURS = {
     "map1_fill": "#6a6a6a",      # F6 map 1 bars
     "map2_fill": "#b5b5b5",      # F6 map 2 bars
 }
-FIGURE_HATCHES = {"map1_any": "//", "map2_any": ".."}
+FIGURE_HATCHES = {"map1_any": "//", "map2_any": "..."}
 POINT_SIZES = {"fs3_shape": 7.0, "f6_control": 6.5, "f6_network_run": 9.0, "f6_s6_line": 4.5, "f6_s6_line_large": 5.5,
                "f4_series": 4.2, "f4_series_small": 3.4, "f4_series_p5": 3.6, "f4_none": 4.0, "f4_seed_tick": 5.0, "f4_key": 7.0, "f4_m2": 5.0, "f4_floor_rungs": (9.0, 7.0, 5.0, 3.0)}
 POINT_EDGE_WIDTH = {"class": 0.4, "class_large": 0.5}
@@ -440,7 +440,7 @@ F4_MARKS = {"median_colour": "#1a1a1a", "hold_marker": "s", "hold_colour": "#404
             "fail_ring": "o", "fail_ring_size": 13.0, "fail_ring_width": 1.4, "legend_mark_size": 3.0}          # ring of an untestable in-range run; mark of a run with no raw crossing (not a class)
 
 # R10, F6: the three P3 amplitudes drawn with distinct fills and sizes (same P3 colour and shape: concentric, so coincident values stay visible), and P4b under P2 drawn larger.
-F6_MARKS = {"p3_fill": {0.5: "full", 1.0: "none", 2.0: "left"}, "p3_size": {0.5: 3.4, 1.0: 7.0, 2.0: 5.2}, "p4b_size": 6.5, "line_width": 0.9, "separator": "#9a9a9a"}
+F6_MARKS = {"p3_fill": {0.5: "full", 1.0: "none", 2.0: "left"}, "p3_size": {0.5: 3.4, 1.0: 7.0, 2.0: 5.2}, "p4b_size": 6.5, "line_width": 0.9, "separator": "#9a9a9a", "class_mark_size": 2.6, "legend_handle_height": 1.7}
 
 # ---- 13p (DL-500 R1, R4, R14 to R18). UNVERIFIED design choices, plain scalars outside STYLE, FIGURE_COLOURS and DIAGRAM_MARKS (the pinned key sets are unchanged): the colours
 # and point sizes that the FS1 to FS5 drafts drew as literals (same values), and the new marks of R14 to R18.

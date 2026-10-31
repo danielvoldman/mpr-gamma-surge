@@ -2883,7 +2883,7 @@ F6_INPUTS = (
 )
 F6_RECORDS = {"S6_P3": F6_INPUTS[4], "S12_NC1": F6_INPUTS[5], "S12_NC1_net": F6_INPUTS[6]}
 F6_STRIP_RB = ("G7",)                                 # FAIL rows of the stored A11 table that touch F6: G7 (NC1 network S+). Table 7.2 names F6 for RB7, which has no A11 row (UNVERIFIED reading)
-F6_CAPTION_KEYS = ("model.type", "model.ref_point", "path.name", "path.T_ramp_s", "network.N", "model.I_drive", "noise.sigma")
+F6_CAPTION_KEYS = ("model.type", "model.ref_point", "path.name", "path.T_ramp_s", "path.I_amp", "network.N", "model.I_drive", "noise.sigma")
 F6_LABELS = ("a", "b", "c", "d", "e", "f", "g", "h")
 # wording of the labels: the short forms listed in docs/claim_limit_labels.md (second table, DL-482), each beside its verbatim source; label (c) is shown as the MS9(e)-3 short form
 F6_LABEL_WORDS = {k: v[0] for k, v in A9_LABELS.items()}
@@ -2895,12 +2895,18 @@ F6_S6_ROWS = (("P3", 0.5, "P3, I_amp 0.5"), ("P3", 1.0, "P3, I_amp 1"), ("P3", 2
 # Ruled (RULED_DL, 13p R13); first proposed for the reviewer's ruling (13j prompt, item B3); every statement is from a logged result (DL numbers in the text) and the numbers are checked against
 # the stored tables by tests/test_fig_F6.py.
 F6_TAKE_HOME = (
+    "G7 NOT PASSED (1 network seed, S+): the NC1 network run (N = 1e4, mode N, 120 s, 1 seed) is S+ (provisional) where the plan expects no surge class (DL-220, DL-221, DL-228). "
     "The 169 non-surge cells of map 1 (140) and map 2 (29) each carry an A9 failure label (primary label a 48, c 32, f 24, g 64, h 1); the labels are our "
     "operational rules and label (c) is a flag, not a demonstrated cause (DL-244, DL-249, DL-270). The mean-field negative control NC1 is D-none at 13 of 13 T_ramp and at the 5 map "
-    "cells, NC3 is D-none at 13 of 13, and NC2 is D-tr at 13 of 13 T_ramp with I = 0 and with I = 1 (DL-221, DL-252); the NC1 network run (N = 1e4, mode N, 120 s, 1 seed) is S+ "
+    "cells, NC3 is D-none at 13 of 13, and NC2 is D-tr at 13 of 13 T_ramp with I = 0 and with I = 1 (DL-221, DL-252); the NC1 network run is S+ "
     "(provisional), so G7 is NOT PASSED (DL-220, DL-221, DL-228). All 20 pre-registered S6 rows (P3 at I_amp 0.5, 1 and 2, P4a and P4b at T_ramp 10, 30, 120 and 300 s) are D-tr, so "
-    "a surge is not found under P3 only (DL-235)."
+    "the surge is not confined to P3 (DL-235)."
 )
+F6_MAIN_FAILURES = ("G7 NOT PASSED (1 network seed, S+)",)
+F6_NC_DEFINITIONS = ("NC1 (primary): the hypoxia path with eta_bar falling by the same amount; J, Delta, tau_d fixed; I = 0; expected no surge class (NS, or D-none in mode D) at every ramp rate (plan section 2.4). "
+                     "NC2: the full path with I(t) = 0 versus I(t) on (drive off against drive on); the plan states no expected class, it dissociates local from non-local drive. "
+                     "NC3 (exploratory): inhibition raised while eta_bar falls; the plan states no expected class and flags that stronger inhibition alone may not suppress the oscillations")
+F6_A10_SENTENCE = "No P2-against-P3 region comparison (the A10 comparison of the P2 and P3 regions) is drawn; panels (d) and (e) show the stored onset and f_pk of the S6 rows and the P2 references only"
 # Ruled (RULED_DL, 13p R13): the limits of docs/ms13_plan.md section 5 whose right-hand column lists F6, in the label table of docs/claim_limit_labels.md (MS9(e)-1, MS9(e)-3 to MS9(e)-6, DL-163-D1,
 # DL-163-D2, G4-C3, MS11-C7, MS12-C1). 13o (DL-494 R5, DL-495): the plan label G7 not passed is carried with its definition, and MS9(e)-6 is carried as not applicable
 # (the R5 pattern). Listed, not decided.
@@ -3021,8 +3027,11 @@ def f6_column_labels(raw: dict) -> dict:
             or float(net["T_ramp_s"].iloc[0]) != float(pth["T_ramp_s"]):
         raise DataError("A10 NC1 network row and the stored NC1 network record name different conditions")
     return {"cells": [f"Delta {float(D):.3g}\ntau_d {float(t):.3g} ms" for D, t in zip(cells["Delta"], cells["tau_d_ms"])],
-            "network": f"network run, N = {int(c['network']['N'])}\n{m['ref_point']}: Delta {float(m['Delta']):g}, tau_d {float(m['tau_d_ms']):g} ms\n"
+            "network": "network N = " + f"{int(c['network']['N']):.0e}".replace("e+0", "e") + ", 1 seed" + f"\n{m['ref_point']}: Delta {float(m['Delta']):g}, tau_d {float(m['tau_d_ms']):g} ms\n"
                        f"{pth['name']}, T_ramp {float(pth['T_ramp_s']):g} s"}
+
+
+NLX = chr(10)
 
 
 def _coincident_rows(rows) -> list:
@@ -3049,10 +3058,10 @@ def _draw_F6(d: dict, draft: bool, columns: dict | None = None):
     import matplotlib.pyplot as plt
     from matplotlib.patches import Rectangle
     plt.rcParams.update({"font.family": S.FONT_FAMILY, "font.size": S.FONT_SIZE_PT, "pdf.fonttype": 42})
-    fig = plt.figure(figsize=(7.4, 10.2), constrained_layout=True)
-    gs = fig.add_gridspec(4, 6, height_ratios=[2.3, 2.3, 2.2, 1.1])
+    fig = plt.figure(figsize=(7.4, 11.6), constrained_layout=True)
+    gs = fig.add_gridspec(4, 10, height_ratios=[2.3, 2.5, 2.4, 2.9])
     # (a) A9 failure labels on the non-surge cells: primary (filled) and any-label (open) counts per label, map 1 and map 2
-    ax = fig.add_subplot(gs[0, 0:6])
+    ax = fig.add_subplot(gs[0, 0:10])
     xs = np.arange(len(F6_LABELS), dtype=float)
     w = 0.19
     for k, (m, off, fc) in enumerate((("map 1", -1.5 * w, S.figure_colour("map1_fill")), ("map 2", -0.5 * w, S.figure_colour("map2_fill")))):
@@ -3071,10 +3080,12 @@ def _draw_F6(d: dict, draft: bool, columns: dict | None = None):
     from matplotlib.patches import Patch
     ax.legend(handles=[Patch(fc=S.figure_colour("map1_fill"), ec=S.figure_colour("bar_edge_dark"), lw=0.4, label="map 1, primary"), Patch(fc=S.figure_colour("map2_fill"), ec=S.figure_colour("bar_edge_dark"), lw=0.4, label="map 2, primary"),
                        Patch(fc=S.figure_colour("open_fill"), ec=S.figure_colour("bar_edge_dark"), lw=0.8, hatch=S.figure_hatch("map1_any"), label="map 1, any label"), Patch(fc=S.figure_colour("open_fill"), ec=S.figure_colour("bar_edge_dark"), lw=0.8, hatch=S.figure_hatch("map2_any"), label="map 2, any label")],
-              loc="upper left", ncol=4, fontsize=S.TEXT_SIZES["legend"], frameon=True, framealpha=0.95)
+              loc="upper left", ncol=4, fontsize=S.TEXT_SIZES["legend"], frameon=True, framealpha=0.95, handleheight=S.F6_MARKS["legend_handle_height"], handlelength=2.6)
     # (b) negative controls against T_ramp
-    axb = fig.add_subplot(gs[1, 0:6])
-    rows = [("NC1 mean field", d["nc1_mf_class"]), ("NC1 mode N (10 seeds)", None), ("NC2, I = 0", d["nc2_I0_class"]), ("NC2, I = 1", d["nc2_I1_class"]), ("NC3", d["nc3_class"])]
+    axb = fig.add_subplot(gs[1, 0:10])
+    rows = [("NC1 mean field, mode D (noise-free)" + NLX + "expected: no surge class (D-none)", d["nc1_mf_class"]), ("NC1 mean field + noise, 10 seeds (mode N)" + NLX + "expected: no surge class (NS)", None),
+            ("NC2 drive off (I = 0)" + NLX + "expected class: not stated in the plan", d["nc2_I0_class"]), ("NC2 drive on (I = 1)" + NLX + "expected class: not stated in the plan", d["nc2_I1_class"]),
+            ("NC3 (exploratory)" + NLX + "expected class: not stated in the plan", d["nc3_class"])]
     for i, (lab, cls) in enumerate(rows):
         for j in range(13):
             if cls is None:
@@ -3089,13 +3100,13 @@ def _draw_F6(d: dict, draft: bool, columns: dict | None = None):
                 st = S.get(cls[j])
                 axb.plot([j], [i], ls="none", marker=st.marker, ms=S.POINT_SIZES["f6_control"], color=st.colour, mec=S.figure_colour("bar_edge"), mew=S.POINT_EDGE_WIDTH["class"], zorder=4)
     axb.set_yticks(range(5), [r[0] for r in rows])
-    axb.set_xticks(range(13), [f"{t:.3g}" for t in d["nc_T"]])
+    axb.set_xticks(range(13), [CAP.number_text(float(f"{t:.3g}")) for t in d["nc_T"]])
     axb.set_xlabel("T_ramp (s)")
     axb.set_ylim(4.75, -0.5)
     axb.set_xlim(-0.6, 12.6)
     axb.set_title("(b) negative controls NC1 to NC3 against T_ramp (classes; mode-N rows show the modal class and the other classes as counts)", loc=S.TITLE_LOC)
     # (c) NC1 at the 5 map cells and the NC1 network run; 13o (DL-494 R10): the network run has its own column at its stored condition, not the column of a map cell
-    axc = fig.add_subplot(gs[2, 0:2])
+    axc = fig.add_subplot(gs[2, 0:4])
     cols = columns or {"cells": [f"cell {j + 1}" for j in range(len(d["nc1_cells_class"]))], "network": "network run\n(condition not given)"}
     for j, c in enumerate(d["nc1_cells_class"]):
         st = S.get(c)
@@ -3109,43 +3120,55 @@ def _draw_F6(d: dict, draft: bool, columns: dict | None = None):
     axc.set_xticks(list(range(len(cols["cells"]))) + [x_net], cols["cells"] + [cols["network"]], rotation=90)
     axc.set_xlim(-0.6, x_net + 0.9)
     axc.set_ylim(1.3, -0.6)
-    axc.set_title("(c) NC1: 5 map cells (mean field) | network run", loc=S.TITLE_LOC, color=S.figure_colour("fail_text"))
+    axc.set_title("(c) NC1: 5 map cells and the network run" + NLX + "G7 NOT PASSED (1 network seed, S+): FAIL", loc=S.TITLE_LOC, color=S.figure_colour("fail_text"))
     # (d), (e) S6 and the P2 comparators against T_ramp; 13o (DL-494 R10): the three P3 amplitudes are concentric marks (fill and size), P4b is drawn larger than P2, so rows with
     # identical stored values stay visible at their stored positions; a note names every group of identical rows
-    for col, key, ttl, yl in ((2, "s6_onset_s", "(d) onset, P3, P4a, P4b, P2", "onset (s)"), (4, "s6_f_pk_hz", "(e) f_pk", "f_pk (Hz)")):
-        axd = fig.add_subplot(gs[2, col:col + 2])
+    for col, key, ttl, yl in ((4, "s6_onset_s", "(d) onset, P3, P4a, P4b, P2", "onset (s), log axis"), (7, "s6_f_pk_hz", "(e) f_pk", "f_pk (Hz)")):
+        axd = fig.add_subplot(gs[2, col:col + 3])
         for i, (path, amp, lab) in enumerate(F6_S6_ROWS):
             st = S.get(path)
             if path == "P3":
                 fill, size = S.F6_MARKS["p3_fill"][amp], S.F6_MARKS["p3_size"][amp]
             else:
                 fill, size = "full", S.F6_MARKS["p4b_size"] if path == "P4b" else S.POINT_SIZES["f6_s6_line"]
+            if path == "P2":
+                lab = "P2: S5 comparators (filled, 10 s and 120 s), S6 references (open, 30 s and 300 s)"
             axd.plot(d["s6_T"], d[key][i], color=st.colour, ls=st.linestyle, lw=S.F6_MARKS["line_width"], marker=st.marker, ms=size, fillstyle=fill, mec=st.colour, zorder=3, label=lab)
+            if path == "P2":                                  # the supplementary S6 references (30 s and 300 s) are open, the S5 comparators stay filled
+                axd.plot(d["s6_T"][[1, 3]], d[key][i][[1, 3]], ls="none", marker=st.marker, ms=size, mfc=S.HALO_COLOUR, mec=st.colour, zorder=4)
+            for k_, cl_ in enumerate(d["s6_class"][i]):       # the class of every point, by its class mark
+                cm_ = S.get(cl_)
+                axd.plot([d["s6_T"][k_]], [d[key][i][k_]], ls="none", marker=cm_.marker, ms=S.F6_MARKS["class_mark_size"], color=cm_.colour, mec=S.figure_colour("bar_edge"), mew=0.2, zorder=6)
         axd.set_xscale("log")
         if key == "s6_onset_s":
             axd.set_yscale("log")
         axd.set_xlabel("T_ramp (s)")
         axd.set_ylabel(yl)
         axd.set_title(ttl, loc=S.TITLE_LOC)
-        groups = _coincident_rows(list(d[key]))
-        if groups:
-            names = [ln for g in groups for ln in textwrap.wrap(" = ".join(F6_S6_ROWS[i][2] for i in g), 40, subsequent_indent="  ")]
-            axd.text(0.02, 0.98, "coincide (identical stored values):\n" + "\n".join(names), transform=axd.transAxes, ha="left", va="top",
-                     fontsize=S.TEXT_SIZES["small"])
         if key == "s6_onset_s":
-            axd.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), ncol=2, fontsize=S.TEXT_SIZES["legend"], frameon=False)
+            from matplotlib.lines import Line2D
+            h_, l_ = axd.get_legend_handles_labels()
+            cm0 = S.get(d["s6_class"][0][0])
+            h_.append(Line2D([], [], ls="none", marker=cm0.marker, ms=S.F6_MARKS["class_mark_size"] + 2.0, color=cm0.colour, mec=S.figure_colour("bar_edge"), mew=0.2))
+            l_.append(f"{cm0.key}: the class of every drawn point (small mark on each point)")
+            axd.legend(h_, l_, loc="upper center", bbox_to_anchor=(0.5, -0.3), ncol=1, fontsize=S.TEXT_SIZES["legend"], frameon=False)
         else:
             axd.set_ylim(36.0, 60.0)
     # status block
     axs = fig.add_subplot(gs[3, :])
     axs.axis("off")
-    lines = ["Stored status rows of the A11 table that touch F6 (a failure is shown, not dropped):"] + ["    " + s for s in d["rb_status"]]
-    lines += ["FAIL rows of the stored A11 table that touch F6:"] + ["    " + s for s in f6_strip_lines(d)]
+    lines = ["Stored status rows of the A11 table that touch F6 (a failure is shown, not dropped):"] + ["    " + s_ for s_ in d["rb_status"]]
+    lines += ["FAIL rows of the stored A11 table that touch F6:"] + ["    " + s_ for s_ in f6_strip_lines(d)]
     lines += [f"RB7 (Table 7.2 names F6) has {d['rb7_rows']} rows in the stored A11 table; nothing is drawn for it (UNVERIFIED reading)."]
+    lines += [F6_NC_DEFINITIONS + ".", F6_A10_SENTENCE + "."]
+    for key_, nm_ in (("s6_onset_s", "(d) onset"), ("s6_f_pk_hz", "(e) f_pk")):
+        grp = _coincident_rows(list(d[key_]))
+        if grp:
+            lines.append(f"{nm_}: rows with identical stored values coincide, drawn at their stored positions: " + "; ".join(" = ".join(F6_S6_ROWS[i][2] for i in g) for g in grp) + ".")
     lines += ["Panels are rows of the stored A9 table v2, A10 table and A7 S6 table; no series is drawn. The S6 and comparator classes are D-tr in all " + f"{len(d['s6_class']) * len(F6_S6_T)}" +
-              " rows drawn (provisional, D8 open, DL-137). The P2 line joins the S5 comparators (10 s, 120 s) and the supplementary S6 P2 references (30 s, 300 s)."]
-    lines = [ln for t_ in lines for ln in textwrap.wrap(t_, width=135, subsequent_indent="        ")]
-    axs.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", fontsize=S.TEXT_SIZES["status"], linespacing=1.25)
+              " rows drawn (provisional, D8 open, DL-137). The P2 line joins the S5 comparators (10 s, 120 s, filled) and the supplementary S6 P2 references (30 s, 300 s, open).",
+              "red title: the panel shows a FAIL (here (c): G7)."]
+    status_block(axs, lines, size=S.TEXT_SIZES["status"], width=135)
     return _style_text(fig, F6_FOOTER if draft else "")
 
 
@@ -3165,6 +3188,13 @@ def f6_caption_notes(d: dict) -> tuple:
         "size, P4b larger than P2), and each panel names them in a note (coincide). "
         "RB7 (Table 7.2 names F6) has no row in the A11 table, so the FAIL-row strip holds the G7 gate row only. J_exit,static, the extension of P3 and P4 (MS9(e)-6), is not drawn. "
         "The failures and the non-surge regimes are drawn at the same weight as the surge cells.",
+        "Panel (a): the any-label bars are hatched (diagonal lines for map 1, dots for map 2) and the legend shows the patterns; the (c) label rule is unchanged: the label table (DL-482) gives each A9 label a short form and DL numbers, no rule. "
+        + F6_NC_DEFINITIONS + ". Panel (b) rows: NC1 mean field, mode D (noise-free); NC1 mean field + noise, 10 seeds (mode N); NC2 drive off (I = 0) and drive on (I = 1); NC3. "
+        + "The NC1 mean field + noise rows (supplementary, 10 seeds per T_ramp) contain S-rel " + ", ".join(f"{int(c_[FS3_CLASSES.index('S-rel')])} of {int(n_)}" for c_, n_ in zip(d["nc1_modeN_count"], d["nc1_modeN_n"]) if c_[FS3_CLASSES.index("S-rel")] > 0)
+        + " at T_ramp " + ", ".join(f"{t_:.4g}" for t_, c_ in zip(d["nc_T"], d["nc1_modeN_count"]) if c_[FS3_CLASSES.index("S-rel")] > 0) + " s (" + f"{int(d['nc1_modeN_count'][:, FS3_CLASSES.index('S-rel')].sum())} of {int(d['nc1_modeN_n'].sum())}"
+        + " runs); these runs are not counted for G7 per DL-220 (4) (supplementary mode N, feeds no gate); S-rel is a surge class by Table 2.1, so how G7 reads these supplementary runs is UNVERIFIED. "
+        "In (d) and (e) the S5 comparators of P2 (10 s, 120 s) are filled and the supplementary S6 P2 references (30 s, 300 s) are open; the small mark on every point is its class (all D-tr); "
+        "rows with identical stored values (named in the status text under the panels) are drawn at their stored positions. " + F6_A10_SENTENCE + ". The P3 and P4b hues differ (teal and olive).",
     )
 
 
@@ -3184,8 +3214,11 @@ def make_F6(res=None, out_dir=None, *, tag_build: bool = False, take_home=F6_TAK
     for key, rec in raw["records"].items():
         for r in make_param_table(rec["config"]):
             rows.append({**r, "panel": key, "section": "", "source_run_id": rec["name"], "source_config_hash12": rec["config_hash12"]})
+    crit, _ = F.K.load_frozen_criteria(root)
     cap = CAP.build_caption("F6", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=[r for r in rows if r["key"] in F6_CAPTION_KEYS],
-                            spectrogram=None, symbol_keys=(), notes=f6_caption_notes(d), not_applicable=F6_NOT_APPLICABLE)
+                            spectrogram=None, symbol_keys=(), notes=f6_caption_notes(d), not_applicable=F6_NOT_APPLICABLE,
+                            class_key=CAP.class_key_line("ND"), classifier_line=CAP.classifier_line(crit), main_failures=F6_MAIN_FAILURES,
+                            swept={"path.T_ramp_s": list(d["nc_T"]), "path.I_amp": [0.5, 1.0, 2.0]})
     import matplotlib.pyplot as plt
     fig = _draw_F6(d, draft=not tag_build, columns=f6_column_labels(raw))
     out.mkdir(parents=True, exist_ok=True)
