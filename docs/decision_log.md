@@ -5826,3 +5826,13 @@ Chosen:          as planned   Default from: the prompt
 Test:            tests/test_ms13_13s.py; tests/test_ms13_13r2.py
 Status:          13s in progress
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-540  MS13 13s: independent comparison after the rebuild, six pattern updates by the DL-521 and DL-524 rule (logged before the edit)    [ID: MS13, 13s, DL-521, DL-524, DL-538]
+Date:            2026-10-30        Author:
+Decision:        FACT AND RULE APPLIED. The eleven figures were rebuilt once from commit 7278a1726d7426e81c51c275f08dc8df39f6d000 (tree clean, draft true, git dirty false for all eleven; no stderr output; nothing simulated). The drawn-data digests of all eleven are unchanged against the DL-535 and earlier recorded values (F1 bfdba12d..8839, F2 3584f8fa..a932, F3 e12a1086..bbc6, F4 fb05eb92..3d6a, F5 4a32b1c3..c8de2, F6 4dafe2ab..c532, FS1 e19ae701..f9b0, FS2 72fc4361..62af, FS3 93bf2508..b258, FS4 188b383f..d6d, FS5 66238f8b..31a5); no ruled content change of drawn data was expected (DL-538) and none occurred. The first run of scripts/ms13_independent_compare.py gave 500 rows, 451 equal, 1 not equal, 6 unresolved, 42 without comparison. All seven are caption rewordings of 13s, not value differences (independent and drawn values are equal in all seven): FS1.k1_base (the text is now "18 of 20 at base spacing (not drawn; ..."), FS1.k4_rel_freq and k4_rel_decay ("decays to" for "decay to"), FS2.k7_resid ("residual rule, 2.42 against" for "residual rule (2.42 against"), FS3.subgrid_needed (the first "against N needed" of the caption is now the RB2 gate "against 8 needed" of sentence 1; the cell count is "cells against 203 needed"), FS4.onset_radau ("Radau gives onset 58.879 s" for "Radau, which gives 58.879 s"), FS4.net_ce_pass ("0 of 3 seeds pass;" for "(0 of 3 seeds pass)"). By the rule of DL-521 and DL-524 the patterns of scripts/ms13_independent.py are updated to find the same numbers in the reworded captions; values come from the stored records, the independent value, drawn value and tolerance of each row are unchanged, nothing is loosened. Scripts/ms13_independent.py is the only file edited for this; docs/ms13_independent_results.md and .csv are rewritten by the comparison.
+Reason:          rule of DL-521 and DL-524
+Options:         -
+Chosen:          as ruled   Default from: DL-521, DL-524
+Test:            scripts/ms13_independent_compare.py
+Status:          13s in progress
+Commit/tag:      the commit that adds this entry; no tag

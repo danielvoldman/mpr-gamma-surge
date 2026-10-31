@@ -287,7 +287,7 @@ def fs1(c: Ctx, R: Rows):
     a2 = c.npz("A2/a2_ring_map.npz")
     R.add("FS1", "k1_n", "K1 r values", len(a1["k1_r"]), "A1/a1_fixedpoints_2d.npz: k1_r", printed=(r"for (\d+) of \d+ r values", 1), drawn="d['k1_n']")
     R.add("FS1", "k1_half", "K1 r values passed at half spacing", int(np.asarray(a1["k1_pass_half"]).astype(bool).sum()), "A1: k1_pass_half", printed=(r"for \d+ of (\d+) r values", 1), drawn="d['k1_pass_half']")
-    R.add("FS1", "k1_base", "K1 r values passed at base spacing", int(np.asarray(a1["k1_pass_base"]).astype(bool).sum()), "A1: k1_pass_base", printed=(r"\((\d+) of \d+ at base", 1), drawn="d['k1_pass_base']")
+    R.add("FS1", "k1_base", "K1 r values passed at base spacing", int(np.asarray(a1["k1_pass_base"]).astype(bool).sum()), "A1: k1_pass_base", printed=(r", (\d+) of \d+ at base", 1), drawn="d['k1_pass_base']")
     R.add("FS1", "grid_eta", "eta grid points", len(a1["eta_over_Delta"]), "A1: eta_over_Delta", drawn="len(d['eta'])")
     R.add("FS1", "grid_J", "J grid points", len(a1["J_over_sqrtDelta"]), "A1: J_over_sqrtDelta", drawn="len(d['J'])")
     cu = np.asarray(a1["cusp_r_eta_J"], float)
@@ -310,9 +310,9 @@ def fs1(c: Ctx, R: Rows):
     R.add("FS1", "ring_freq_min", "smallest ring frequency over foci", float(np.nanmin(np.where(foc, fq, np.nan))), "A2: ring_freq_hz", tol=("rel", 1e-12), drawn="d['ring_freq_min']")
     R.add("FS1", "ring_freq_max", "largest ring frequency over foci", float(np.nanmax(np.where(foc, fq, np.nan))), "A2: ring_freq_hz", tol=("rel", 1e-12), drawn="d['ring_freq_max']")
     R.add("FS1", "k4_rel_freq", "K4 relative error of the frequency", abs(float(a2["k4_omega_fit"]) - float(a2["k4_omega_lin"])) / float(a2["k4_omega_lin"]), "A2: k4_omega_fit, k4_omega_lin",
-          printed=(r"decay to (\d+\.\d+e-\d+)", 1), tol=("rel", 1e-9), drawn="d['k4_rel_err_frequency']")
+          printed=(r"decays? to (\d+\.\d+e-\d+)", 1), tol=("rel", 1e-9), drawn="d['k4_rel_err_frequency']")
     R.add("FS1", "k4_rel_decay", "K4 relative error of the decay", abs(float(a2["k4_decay_fit"]) - float(a2["k4_decay_lin"])) / float(a2["k4_decay_lin"]), "A2: k4_decay_fit, k4_decay_lin",
-          printed=(r"frequency and decay to \d+\.\d+e-\d+ and (\d+\.\d+e-\d+)", 1), tol=("rel", 1e-9), drawn="d['k4_rel_err_decay']")
+          printed=(r"frequency and decays? to \d+\.\d+e-\d+ and (\d+\.\d+e-\d+)", 1), tol=("rel", 1e-9), drawn="d['k4_rel_err_decay']")
     rep = c.csv("A0/a0_replication.csv")
     R.add("FS1", "a0_rows", "rows of the A0 replication table", len(rep), "A0/a0_replication.csv", drawn="len(d['a0_target'])")
     R.add("FS1", "a0_pass", "A0 rows that pass", [r["pass"] for r in rep], "A0/a0_replication.csv: pass", drawn="[str(x) for x in d['a0_pass']]")
@@ -584,7 +584,7 @@ def fs2(c: Ctx, R: Rows):
           tol=("rel", 1e-9), drawn="-100*d['k8_net_rel_diff']")
     R.add("FS2", "k8_tol", "K8 tolerance (percent)", 100.0 * float(sn["tol"]), "S3/s3_net_summary.json:K8.tol", printed=(r"tolerance (\d+) percent;", 1), drawn="100*d['k8_net_tol']", tol=1e-9)
     R.add("FS2", "k7_resid", "K7 largest residual of the amplitude-squared line (percent)", 100.0 * chk["k7_amplitude"]["s4_up"]["max_resid_frac"], "A5/check/a5_check.json:k7_amplitude.s4_up", shared=sh,
-          printed=(r"residual rule \((\d+\.\d+) against", 1), tol=("rel", 1e-9), drawn="100*d['fit_s4_up_max_resid_frac']")
+          printed=(r"residual rule,? \(?(\d+\.\d+) against", 1), tol=("rel", 1e-9), drawn="100*d['fit_s4_up_max_resid_frac']")
     R.add("FS2", "k7_bound", "K7 residual bound (percent)", 100.0 * float(chk["rel_tol"]), "A5/check/a5_check.json:rel_tol", printed=(r"against (\d+) percent", 1), shared=sh, tol=1e-9)
     R.add("FS2", "k7_fit_points", "K7 fit points (S4 up)", int(chk["k7_amplitude"]["s4_up"]["n_points"]), "A5/check/a5_check.json", shared=sh, drawn="int(d['fit_s4_up_n_points'])")
 
@@ -626,7 +626,7 @@ def fs3(c: Ctx, R: Rows):
     sg = c.pq("A9/a9_subgrid_agreement.parquet")
     R.add("FS3", "subgrid_agree", "subgrid cells that agree (D24)", int(sg["d24_cell_agrees"].astype(bool).sum()), "A9/a9_subgrid_agreement.parquet", printed=(r"in (\d+) of 225 cells against", 1), drawn="d['subgrid_agree']")
     R.add("FS3", "subgrid_cells", "subgrid cells", len(sg), "A9/a9_subgrid_agreement.parquet", printed=(r"in \d+ of (\d+) cells against", 1), drawn="d['subgrid_cells']")
-    R.add("FS3", "subgrid_needed", "subgrid cells needed", math.ceil(0.9 * len(sg)), "A9/a9_subgrid_agreement.parquet", printed=(r"against (\d+) needed", 1), drawn="d['subgrid_needed']")
+    R.add("FS3", "subgrid_needed", "subgrid cells needed", math.ceil(0.9 * len(sg)), "A9/a9_subgrid_agreement.parquet", printed=(r"cells against (\d+) needed", 1), drawn="d['subgrid_needed']")
     R.add("FS3", "rb8_verdict", "RB8 verdict", c.json("ms10/eval/ms10_eval.json")["rb8"]["verdict"], "ms10_eval.json:rb8.verdict", shared="stored evaluator output", drawn="d['rb8_verdict']")
 
 
@@ -642,7 +642,7 @@ def fs4(c: Ctx, R: Rows):
     R.add("FS4", "onset_common", "raw-crossing onset of the five non-Radau rows (s), largest spread", float(on.max() - on.min()), s, tol=0.0)
     R.add("FS4", "onset_default", "raw-crossing onset, default settings (s)", base_on, s, printed=(r"onset is (\d+\.\d+) s everywhere", 1), tol=("rel", 1e-12))
     rad = float(head[head["family"] == "radau"]["onset_cross_s"].iloc[0])
-    R.add("FS4", "onset_radau", "Radau raw-crossing onset (s)", rad, s, printed=(r"Radau, which gives (\d+\.\d+) s", 1), tol=("rel", 1e-12))
+    R.add("FS4", "onset_radau", "Radau raw-crossing onset (s)", rad, s, printed=(r"Radau gives onset (\d+\.\d+) s", 1), tol=("rel", 1e-12))
     R.add("FS4", "radau_ms", "Radau minus default (ms)", round((rad - base_on) * 1000.0, 6), s, printed=(r"(\d+) ms against the 1 ms bound", 1), drawn="d['head_radau_minus_default_ms']", tol=1e-6)
     for lvl in ("floor_l0", "floor_l1", "floor_l2"):
         sub = a7[a7["family"] == lvl]
@@ -657,7 +657,7 @@ def fs4(c: Ctx, R: Rows):
     pr = ev["rb6_network"]["per_reading"]
     ce = pr["classifier_episode_fpk"]
     rel = [abs(float(r["rel"])) for r in ce["rows"] if r.get("rel") is not None]
-    R.add("FS4", "net_ce_pass", "seeds that pass the classifier-episode f_pk bound", int(ce["n_pass"]), "A11/a11_evaluators.json:rb6_network", shared=sh, printed=(r"\((\d+) of 3 seeds pass\)", 1), drawn="d['net_ce_n_pass']")
+    R.add("FS4", "net_ce_pass", "seeds that pass the classifier-episode f_pk bound", int(ce["n_pass"]), "A11/a11_evaluators.json:rb6_network", shared=sh, printed=(r"(\d+) of 3 seeds pass[;)]", 1), drawn="d['net_ce_n_pass']")
     psd_key = [k for k in pr if k != "classifier_episode_fpk"][0]
     R.add("FS4", "net_psd_pass", "seeds that pass the PSD-argmax f_pk bound", int(pr[psd_key]["n_pass"]), "A11/a11_evaluators.json:rb6_network", shared=sh, printed=(r"passes in (\d+) of 3", 1), drawn="d['net_psd_n_pass']")
     R.add("FS4", "net_rel_min", "smallest classifier-episode f_pk change (percent, rounded)", int(round(100 * min(rel))), "A11/a11_evaluators.json:rb6_network", shared=sh, printed=(r"by (\d+) to \d+ percent against", 1))
