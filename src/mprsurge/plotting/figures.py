@@ -5764,7 +5764,7 @@ def _f5j_n_axis(ax, d: dict):
     ax.set_xticks([k * F5J_SLOT + 8.0 for k in range(4)], [f"N = {n:.0e}".replace("e+0", "e") for n in d["n_values"]])
     for k in range(1, 4):
         ax.axvline(k * F5J_SLOT - 1.0, color=S.F5J_COLOURS["separator"], lw=0.4, ls="-", zorder=0)
-    ax.set_xlim(-1.6, 4 * F5J_SLOT - 1.6)
+    ax.set_xlim(-1.6, 4 * F5J_SLOT - 0.4)
 
 
 def _draw_F5_journal(d: dict):
