@@ -873,7 +873,7 @@ F1_JOURNAL_REWORD = (
     ("and the red title shows the RB1 FAIL; the pointer names the claim limits G4-C1 and G4-C3 (full text below).", "and the red title shows the RB1 FAIL; the claim limits G4-C1 and G4-C3 apply to (d) and (f) (full text below)."),
     ("The three raw first crossings are marked in a strip above (d) and (f) at their stored times.", "The three raw first crossings are marked inside (d) and (f) at their stored times."),
     ("(labelled on the panel)", "(marked by the tick labels 25 and 100)"),
-    ("and the two windows are framed on (i).", "and the two windows are framed on (i) (j: solid frame, k: dashed frame)."),
+    ("and the two windows are framed on (i).", "and the two windows are framed on (i) (j: solid frame, k: dashed frame; each frame is as wide as its 1 s window, so on the 165 s axis it looks like a bar)."),
 )
 
 
@@ -919,12 +919,12 @@ def _f1_edge_bands(d: dict) -> str:
 
 
 F1_ABBREV = ("Abbreviations on the image: eta-bar = mean excitability, J = signed coupling (plan labels of the schematic), r = rate and v = mean potential (model units, UNVERIFIED), t_on = the stored time at which the "
-             "ramp starts (the end of the ramp is t_on + T_ramp), PSD = power spectral density (the colour bar of (g) and (h) is 10 log10 PSD in dB), RB1 and G7 = check and gate IDs of the stored A11 table "
-             "(plan section 7).")
+             "ramp starts (the end of the ramp is t_on + T_ramp), PSD = power spectral density (the colour bar of (g) and (h) is 10 log10 PSD in dB), RB1, RB2, RB3(b), RB6 and G7 = check and gate IDs of the stored A11 table "
+             "(plan section 7), M3 = the model of the schematic (plan label), F4 and FS4 = figures of this paper.")
 F3_ABBREV = ("Abbreviations on the image: eta-bar = mean excitability, Delta = heterogeneity half-width, J = signed coupling, tau_d = synaptic decay time (plan labels of the F1 schematic); A4 and A6 = the "
              "stored Hopf-curve record (A4/a4_hopf_curves) and the stored frequency-map record (A6/a6_freq_map); RB9(b) = a check ID of the stored A11 table (plan section 7); P1 to P5 = the plan's paths, "
              "with the ramp duration T_ramp of each stored record in the strip row labels.")
-F5_ABBREV = ("Abbreviations on the image: Delta = heterogeneity half-width, tau_d = synaptic decay time, J0 = the stored J at which the path starts (map 2), T_ramp = ramp duration, N = network size, "
+F5_ABBREV = ("Abbreviations on the image: Delta = heterogeneity half-width, tau_d = synaptic decay time, J0 = the stored J at which the path starts (map 2), T_ramp = ramp duration, N = network size, i and j = the row and column index of a map-1 cell, "
              "f_pk = the classifier's spectral peak frequency (MS11-C3), D24 = the frozen agreement rule of the noisy subgrid and P-1 = its post-hoc view (DL-242, DL-255), RB1 and RB2 = check IDs of the "
              "stored A11 table (plan section 7). In (c) and (d) the dark mark in a cell is an open circle (the cell agrees), a cross (disagrees) or a plus (a tie).")
 
@@ -984,7 +984,7 @@ def _f1_alt_text(d: dict) -> dict:
         "a": (f"A line rising linearly from eta_bar {d['path_eta_start']:.3f} to {d['path_eta_peak']:.3f} between {d['path_t_on_s']:g} s and {d['path_t_on_s'] + d['path_T_ramp_s']:g} s, flat before and after; "
               f"dotted guide lines mark the three stored levels and a dashed vertical line the mean-field onset at {d['ref_onset_s']:.3f} s."),
         "b": (f"The coupling J(t) from {d['path_J0']:g} to {d['path_J_end']:g}: flat, then a linear rise between the two dashed lines, then flat."),
-        "c": (f"The mean-field rate r(t) as a grey band (minimum to maximum per pixel column): below {float(np.max(d['mf_r_hi'][d['mf_r_x'] < d['ref_onset_s']])):.2f} before the dash-dotted onset line at "
+        "c": (f"The mean-field rate r(t) as a grey band (minimum to maximum per pixel column): below {np.ceil(float(np.max(d['mf_r_hi'][d['mf_r_x'] < d['ref_onset_s']])) * 1000.0) / 1000.0:.3f} before the dash-dotted onset line at "
               f"{d['ref_onset_s']:.3f} s, then an oscillation whose upper edge peaks at {d['mf_r_max']:.2f} and returns near the baseline after the ramp."),
         "d": (f"The network rate r(t) for three seeds as thin lines on the same y range as (c); the red title carries RB1 FAIL and the text states: network class {', '.join(sorted(set(d['cls120'])))}, "
               f"mean field {d['ref_class']}, 0 of 3 seeds agree. A filled triangle marks the classifier onset at {d['onset120_s'][0]:.1f} s and an open circle, plus and star (one per seed, overlapping at this scale) the raw first crossings, stored at {min(d['raw120_s']):.3f} to {max(d['raw120_s']):.3f} s."),
@@ -993,8 +993,8 @@ def _f1_alt_text(d: dict) -> dict:
         "g": (f"A spectrogram of the mean-field v (window {sp['window_s']:g} s, step {sp['step_s']:g} s, {sp['taper']}) with frequency 0 to {sp['total_band_hz'][1]:g} Hz: bright rising ridges "
               f"start at the onset time; dashed lines at {sp['band_primary_hz'][0]:g} and {sp['band_primary_hz'][1]:g} Hz; the colour bar (magma) gives PSD in dB."),
         "h": ("The same spectrogram for network seed 0, on the same colour range: rising ridges from the onset time on a noisy background."),
-        "i": (f"A grey image of spike counts per stored neuron ({d['ras_n_rows']} rows) per {d['ras_count_bin_s']:g} s bin for seed 0; counts rise during the ramp; the top colour is {top:g} spikes and more "
-              f"({n_above} of {n_all} cells); a solid and a dashed orange frame mark the two windows shown in (j) and (k)."),
+        "i": (f"A colour image (cividis) of spike counts per stored neuron ({d['ras_n_rows']} rows) per {d['ras_count_bin_s']:g} s bin for seed 0; counts rise during the ramp; the top colour is {top:g} spikes and more "
+              f"({n_above} of {n_all} cells); a solid and a dashed orange vertical bar (the frame of a 1 s window, which is thin on a 165 s axis) mark the two windows shown in (j) and (k)."),
         "j": (f"Spike marks of the stored neurons in the 1 s window from {d['zoom_windows_s'][0][0]:.3f} s (solid frame in (i))."),
         "k": (f"Spike marks in the 1 s window from {d['zoom_windows_s'][1][0]:.3f} s (dashed frame in (i)), the stored mean-field onset: regular vertical volleys."),
     }
@@ -1026,6 +1026,17 @@ def _f5_source_rows(d: dict) -> list:
     return rows
 
 
+def _f5_class_sentence(d: dict) -> str:
+    """Where each class occurs, from the stored class arrays: the N values of the ramp seeds and of the control seeds (alt text of F5 (f))."""
+    nt = [f"{n:.0e}".replace("e+0", "e") for n in d["n_values"]]
+    out = []
+    for c in F5_NET_CLASSES:
+        ramp = [nt[k] for k in range(len(nt)) if (np.asarray(d["s9_class"][k]) == c).any()]
+        ctrl = [nt[k] for k in range(len(nt)) if (np.asarray(d["ctrl_class"][k]) == c).any()]
+        out.append(f"{c}: ramp seeds at N = {', '.join(ramp) or 'none'}, control seeds at N = {', '.join(ctrl) or 'none'}")
+    return "By class (filled ramp seeds, open control seeds): " + "; ".join(out) + "."
+
+
 def _f5_alt_text(d: dict) -> dict:
     return {
         "a": (f"A 30 by 30 map of the mean-field class (blue D-tr {d['map1_n_surge']} cells, green hatched D-none {d['map1_n_none']} cells of {d['map1_n']}); D-none cells fill the upper right. "
@@ -1038,7 +1049,7 @@ def _f5_alt_text(d: dict) -> dict:
         "d": (f"The same cells under the post-hoc view P-1 in a dashed frame: agree {d['p1_n_agree']}, disagree {d['p1_n_disagree']}, tie {d['p1_n_tie']}; this view feeds no gate."),
         "e": (f"A 25 by 13 mean-field map over T_ramp and J0: D-tr {d['map2_n_surge']} cells, D-none {d['map2_n_none']} cells of {d['map2_n']}; D-none cells (hatched) lie along the top edge. No network runs."),
         "f": ("The network class of every seed against N (1e3, 3e3, 1e4, 3e4): 10 ramp seeds filled and 3 no-ramp control seeds open per N, on the classes S+, S-rel, S-abs, S-sus and NS; "
-              "S-sus and S-abs dominate, S+ occurs at N = 3e3, NS at 1e3 and 1e4."),
+              + _f5_class_sentence(d)),
         "g": (f"f_pk against N: per-seed points by class, a grey bar from the stored minimum to the maximum and a tick at the median for each N, and a dotted line at the mean-field companion {d['ref_f_pk_hz']:g} Hz. "
               "The title is red and reads FAIL: the panel draws network f_pk (RB6 network f_pk FAIL)."),
         "h": (f"Onset against N with the same marks, and a dotted line at the mean-field companion onset {d['ref_onset_s']:g} s."),
@@ -5068,10 +5079,10 @@ def _draw_F1_journal(d: dict):
     for x_ in (t_on, t_end_ramp):
         ax_a.axvline(x_, color=hl, ls=":", lw=S.F1_SIZES["event_line"], zorder=1)
     ax_a.axvline(d["ref_onset_s"], color=dtr.colour, ls=F1J_ONSET_LS, lw=S.F1_SIZES["event_line"], zorder=1)
-    ax_a.set_ylim(d["path_eta_start"] - 0.4, d["path_eta_peak"] + 1.8)
+    ax_a.set_ylim(d["path_eta_start"] - 0.4, d["path_eta_peak"] + 2.15)
     ax_a.set_yticks(list(levels), [f"{v:.3f}" for v in levels])
-    ax_a.text(t_on + 3.5, d["path_eta_peak"] + 0.95, "t_on", ha="left", va="center")
-    ax_a.text(t_end_ramp - 3.5, d["path_eta_peak"] + 0.95, "end of ramp", ha="right", va="center")
+    ax_a.text(t_on + 3.5, d["path_eta_peak"] + 1.0, "t_on", ha="left", va="center")
+    ax_a.text(t_end_ramp - 3.5, d["path_eta_peak"] + 1.0, "end of ramp", ha="right", va="center")
     tp(ax_a, "a", "ramp protocol", JETA, left=True)
     ax_b = _ax_in(fig, R, F1J_ROWS["ab"][0], WD, F1J_ROWS["ab"][1], sharex=ax_a)
     ax_b.plot(d["path_t_s"], d["path_J"], color=S.get("P3").colour, ls="-", lw=S.F1_SIZES["path_line"], zorder=3)
@@ -5825,7 +5836,7 @@ def _draw_F5(d: dict, draft: bool, mode: str = "draft"):
 # ---- F5 journal (13t, DL-546) ----------------------------------------------------------------------------------------------------------------------
 
 F5J_SLOT, F5J_RAMP_X0, F5J_CTRL_X0 = 15.2, 1.3, 11.7      # journal layout slot of one N group: 10 ramp seeds, a gap, 3 control seeds (a layout slot, carries no value; the draft uses F5_SLOT)
-F5J_MARK = {"seed": 2.5, "seed_edge": 0.25, "control": 2.2, "control_edge": 0.5, "state": 4.4, "state_edge": 0.9}      # 13t-1b (6.3 in, R8): seed marks (pt), in-cell marks of (c) and (d) (pt)
+F5J_MARK = {"seed": 2.5, "seed_edge": 0.25, "control": 2.2, "control_edge": 0.5, "state": 4.2, "state_edge": 0.8, "median_half_width": 0.45, "bar_offset": 0.2}      # 13t-1b (6.3 in, R8): seed marks (pt), in-cell marks of (c) and (d) (pt)
 F5J_ROWS = {"a": (0.95, 2.4), "b": (0.95, 1.05), "cd": (2.65, 1.3), "e": (4.1, 0.8), "fg": (5.65, 0.7), "hi": (6.9, 0.7)}      # (top of the axes, height) in inches from the top edge; layout only
 F5_NOT_ON_IMAGE = ("The network was run at T_ramp 30 s and the map is at T_ramp 120 s; both are drawn and no equivalence is claimed.")
 
@@ -5924,8 +5935,8 @@ def _draw_F5_journal(d: dict):
             if m.any():
                 (mk,) = ax.plot(d["sub_j"][m], d["sub_i"][m], ls="none", marker=S.F5_STATE_MARKS[nm], ms=M["state"], color=dark, mfc="none", mew=M["state_edge"], zorder=2, rasterized=True)
                 mk.set_gid(f"{key} {nm}")
-        ax.set_xlim(-1.0, 30.0)
-        ax.set_ylim(-1.0, 30.0)
+        ax.set_xlim(-1.6, 30.6)
+        ax.set_ylim(-1.6, 30.6)
         ax.set_xticks([0, 10, 20, 29], _f5_tick_text(d["map1_tau_d_ms"], [0, 10, 20, 29]))
         ax.set_yticks([0, 10, 20, 29], _f5_tick_text(d["map1_Delta"], [0, 10, 20, 29]))
         ax.set_xlabel(f"{JTAU} (ms)")
@@ -5971,9 +5982,9 @@ def _draw_F5_journal(d: dict):
         hi_all = np.nanmax([np.nanmax(d[f"s9_{m}"]), d[f"stored_{m}"].max()] + ([np.nanmax(d[f"ctrl_{m}"])] if m in F5_CONTROL_METRICS else []))
         log = m == "duration_ms" and lo_all > 0
         for k in range(4):
-            x0 = k * F5J_SLOT
+            x0 = k * F5J_SLOT + M["bar_offset"]
             ax.vlines([x0], d[f"stored_{m}"][k, 0], d[f"stored_{m}"][k, 2], colors=S.figure_colour("range_line"), lw=S.F5_SIZES["range_line"], zorder=2)
-            ax.hlines([d[f"stored_{m}"][k, 1]], x0 - S.F5_SIZES["median_half_width"], x0 + S.F5_SIZES["median_half_width"], colors=S.figure_colour("range_line"), lw=S.F5_SIZES["median_line"], zorder=2)
+            ax.hlines([d[f"stored_{m}"][k, 1]], x0 - M["median_half_width"], x0 + M["median_half_width"], colors=S.figure_colour("range_line"), lw=S.F5_SIZES["median_line"], zorder=2)
             for s in range(F5_SEEDS):
                 y = d[f"s9_{m}"][k, s]
                 if np.isnan(y):
