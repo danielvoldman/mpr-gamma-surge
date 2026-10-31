@@ -2179,7 +2179,7 @@ FS4_TAKE_HOME = (
 )
 FS4_MAIN_FAILURES = ("RB6 solver clause FAILS", "181 ms", "RB6 network f_pk row FAILS")
 FS4_D3_WORDS = {"not monotone": "not strictly monotone"}          # 13s (DL-537 D3): the stored word is kept in the drawn data; the drawing says "not strictly monotone"
-FS4_READING = ("Plan Table 8.1 FS4: \"Any RB6 failure -> affected results unused\". Project reading (DL-429; docs/ms13_conventions.md section 9; UNVERIFIED reading of the plan row): results touched "
+FS4_READING = ("Plan Table 8.1 FS4: \"Any RB6 failure -> affected results unused\". Project reading (DL-429; the conventions of M13-9; UNVERIFIED reading of the plan row): results touched "
                "by an RB6 failure are not used as evidence in any claim and are still shown labelled FAIL (plan section 7).")
 # Ruled (RULED_DL, 13p R13): the limits of docs/ms13_plan.md section 5 whose right-hand column lists FS4 (MS9 (e)-5, G6-D2, G6-D3, G4-C6, MS11-C2, MS11-C5, MS11-C6, MS11-C7, MS11-C8);
 # MS12-C1 lists F1 to F6 and FS6, not FS4. The RB6 FAIL rows (DL-387) are in the FAIL-row strip. Listed, not decided.
