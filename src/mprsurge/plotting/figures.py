@@ -3505,8 +3505,10 @@ def _f4_ring(ax, x, y, mask, const=None, err=None):
     if t_.any():
         ax.plot(xs[t_], ys[t_], ls="none", marker=rg.marker, ms=rg.size, mfc="none", mec=rg.colour, mew=rg.width, zorder=5)
         if err is not None:
-            for k in np.where(t_)[0]:
-                ax.annotate(f"{float(err[k]):.1f}", xy=(xs[k], ys[k]), xytext=(0, 11), textcoords="offset points", ha="center", va="bottom", fontsize=S.TEXT_SIZES["small"], zorder=7)
+            for j_, k in enumerate(np.where(t_)[0]):          # neighbouring labels alternate above and below the ring so they do not overprint
+                up = j_ % 2 == 0
+                ax.annotate(f"{float(err[k]):.1f}", xy=(xs[k], ys[k]), xytext=(0, 11 if up else -11), textcoords="offset points", ha="center", va="bottom" if up else "top",
+                            fontsize=S.TEXT_SIZES["small"], zorder=7)
     if u_.any():
         ax.plot(xs[u_], ys[u_], ls="none", marker=S.F4_MARKS["untestable"], ms=rg.size * 0.8, mfc="none", mec=rg.colour, mew=rg.width, zorder=5)
 
