@@ -5947,3 +5947,13 @@ Chosen:          as done   Default from: the prompt
 Test:            scripts/ms13_verify_export.py (exit 0); scripts/ms13_independent_compare.py; scripts/ms13_check_hashes.py; fast suite in the next entry
 Status:          13t-1 built and checked; fast suite pending
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-552  MS13 13t-1: fast suite at the end of the step; 13t-1 built and checked, no tag    [ID: MS13, 13t, 13t-1, DL-551]
+Date:            2026-10-31        Author:
+Decision:        FACT. FAST SUITE at the end of 13t-1 (HEAD at the start of the run: the commit that adds DL-551, code commit d48158827181e38d613c67a8263ca3a2bcf82687): 1237 passed, 24 deselected, 9 xfailed, 0 failed, exit 0 taken from pytest itself (757.87 s). Against the start of the step (1192 passed): +45 tests, all in tests/test_ms13_13t.py (config 2, checker on toy figures 4, colour and font checks 4, the three journal builds: zero unlisted collisions 3, draft-fault regression 1, size/letters/text/fonts/lines/colour 3, letters 1, PDF fonts 3, exported files 3, provenance 3, digest equality 3, draft files byte-identical 1, strip lines in the caption 3, sentence 1 3, no draft text on the image 3, supplement 3, F3 combined path 1, red titles 1); no earlier test or data assertion changed. The intermediate suite on the first code state gave 9 failures (2 literal-rule tests, fixed in code; 7 manifest tests, resolved by DL-551). 13t-1 is built and checked: F1, F3 and F5 journal versions exist in figures/journal/ (untagged drafts, no tag, no push, no upload); 13t-2 (F2, F4, F6, FS1 to FS5) follows after the reviewer has looked at the pilot. OPEN for the reviewer: the allow-list (DL-547 (5)); the points of DL-550 "not changed" (F1 strip membership, FAIL in the title of F5 (a) and (g)); the manifest rows rewritten in DL-551; CVD simulation (no installed package); reading (a) of DL-545 (no mathtext subscripts, tau_d written with an underscore). Scratch files of the step were deleted (the scratchpad of the session: trial scripts, trial renders, a scratch build, crops, the reviewer's crops).
+Reason:          instruction of the reviewer (13t-1 prompt)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            fast suite
+Status:          13t-1 closed; 13t-2 not started
+Commit/tag:      the commit that adds this entry; no tag
