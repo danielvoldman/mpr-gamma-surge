@@ -416,7 +416,7 @@ F5_SIZES = {"map_mark": 2.0, "state_mark": 2.0, "net_symbol": 13.0, "net_halo_wi
 
 # 13t (DL-546), F5 journal export: the seed marks of (f) to (i) are 3.0 pt so that the 13 seeds of one N group (10 ramp, 3 control) do not touch at the journal width. UNVERIFIED design choice.
 F5J_COLOURS = {"net_disagree": "#fb6a4a", "separator": "#bdbdbd"}      # 13t (J13): journal-export fill of the network-disagree symbol (lighter than STYLE["network_disagree"]); UNVERIFIED design choice
-F5J_SIZES = {"seed_mark": 3.0, "seed_edge": 0.3, "control_mark": 2.6, "control_edge": 0.6}
+F5J_SIZES = {"seed_mark": 2.8, "seed_edge": 0.3, "control_mark": 2.4, "control_edge": 0.6}
 
 # ---- 13o (DL-494 R1, R4, R6 to R12). UNVERIFIED design choices, plain scalars outside STYLE, FIGURE_COLOURS and DIAGRAM_MARKS (the unique-mark table and the pinned key sets
 # are unchanged). The plan gives no font, size or layout (M13-14 (vii)).

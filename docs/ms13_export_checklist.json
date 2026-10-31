@@ -4,67 +4,75 @@
   {
    "id": "J10-raw-crossings-marker-on-text",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing",
+   "note": "no text near the marks: the coincide note is in the key; the three marks coincide by stored value (allow-listed, DL-547)"
   },
   {
    "id": "J10-cell-count-text-over-spectrogram",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing",
+   "note": "sentence is in the caption only"
   },
   {
    "id": "J10-j-k-labels-on-frame-of-i",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing",
+   "note": "solid and dashed frames, no letters over the frame"
   },
   {
    "id": "J10-schematic-text-wrap",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing",
+   "note": "hanging indent, text wholly inside its box; the plan row 't_on' has no description in the plan and stays a one-word row"
   },
   {
    "id": "J10-long-legend",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing",
+   "note": "seven entries, shorter wording, four rows"
   },
   {
    "id": "J10-eta-bar-symbol",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing",
+   "note": "eta-bar drawn with a bar over the Greek letter on axes, titles and legend; the schematic keeps the plan's own labels verbatim (eta-bar written as in the plan)"
   },
   {
    "id": "J10-dense-status-block",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing",
+   "note": "moved to the caption and the supplement"
   },
   {
    "id": "J9-two-column-grid-letters-a-to-k",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing",
+   "note": "7.5 x 8.7 in, letters a to k in reading order"
   },
   {
    "id": "J12-letters-in-reading-order",
    "figure": "F3",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "J12-one-combined-path-P1-P2-P3-P5",
    "figure": "F3",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "J12-short-titles",
    "figure": "F3",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "J12-legend-8pt-no-five-line-wrap",
    "figure": "F3",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "J12-empty-space-beside-d-used",
    "figure": "F3",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "J12-hopf-marker-small-or-ring",
@@ -93,242 +101,248 @@
   {
    "id": "check:A-collisions",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing",
+   "note": "0 unlisted hits; allow-list in collide.JOURNAL_ALLOW (DL-547)"
   },
   {
    "id": "check:B-pdf",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:size-and-shape",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:text-min-8pt",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:fonts-embedded-no-type3",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:line-width-min",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:cmap-list",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:non-colour-distinction",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:panel-letters-in-order",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:file-names",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:draft-FAIL-lines-visible",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:drawn-data-digest-equals-draft",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:draft-files-byte-identical",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:no-draft-dl-provenance-text-on-image",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:supplement-lists-every-strip-row",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:png-crops-looked-at",
    "figure": "F1",
-   "status": "failing"
+   "status": "passing",
+   "note": "full image and the four 2x quadrant crops read for each figure (F1: build 2 crops and the build-3 full image)"
   },
   {
    "id": "check:A-collisions",
    "figure": "F3",
-   "status": "failing"
+   "status": "passing",
+   "note": "0 unlisted hits; allow-list in collide.JOURNAL_ALLOW (DL-547)"
   },
   {
    "id": "check:B-pdf",
    "figure": "F3",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:size-and-shape",
    "figure": "F3",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:text-min-8pt",
    "figure": "F3",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:fonts-embedded-no-type3",
    "figure": "F3",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:line-width-min",
    "figure": "F3",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:cmap-list",
    "figure": "F3",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:non-colour-distinction",
    "figure": "F3",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:panel-letters-in-order",
    "figure": "F3",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:file-names",
    "figure": "F3",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:draft-FAIL-lines-visible",
    "figure": "F3",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:drawn-data-digest-equals-draft",
    "figure": "F3",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:draft-files-byte-identical",
    "figure": "F3",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:no-draft-dl-provenance-text-on-image",
    "figure": "F3",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:supplement-lists-every-strip-row",
    "figure": "F3",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:png-crops-looked-at",
    "figure": "F3",
-   "status": "failing"
+   "status": "passing",
+   "note": "full image and the four 2x quadrant crops read for each figure (F1: build 2 crops and the build-3 full image)"
   },
   {
    "id": "check:A-collisions",
    "figure": "F5",
-   "status": "failing"
+   "status": "passing",
+   "note": "0 unlisted hits; allow-list in collide.JOURNAL_ALLOW (DL-547)"
   },
   {
    "id": "check:B-pdf",
    "figure": "F5",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:size-and-shape",
    "figure": "F5",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:text-min-8pt",
    "figure": "F5",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:fonts-embedded-no-type3",
    "figure": "F5",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:line-width-min",
    "figure": "F5",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:cmap-list",
    "figure": "F5",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:non-colour-distinction",
    "figure": "F5",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:panel-letters-in-order",
    "figure": "F5",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:file-names",
    "figure": "F5",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:draft-FAIL-lines-visible",
    "figure": "F5",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:drawn-data-digest-equals-draft",
    "figure": "F5",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:draft-files-byte-identical",
    "figure": "F5",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:no-draft-dl-provenance-text-on-image",
    "figure": "F5",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:supplement-lists-every-strip-row",
    "figure": "F5",
-   "status": "failing"
+   "status": "passing"
   },
   {
    "id": "check:png-crops-looked-at",
    "figure": "F5",
-   "status": "failing"
+   "status": "passing",
+   "note": "full image and the four 2x quadrant crops read for each figure (F1: build 2 crops and the build-3 full image)"
   }
  ]
 }
