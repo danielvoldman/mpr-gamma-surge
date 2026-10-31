@@ -5735,3 +5735,13 @@ Chosen:          as planned   Default from: the prompt
 Test:            tests/test_ms13_13r3c.py; tests/test_fig_F5.py; tests/test_fig_F6.py
 Status:          13r-3c in progress
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-531  MS13 13r-3c: test text edits E6 to E9 (logged before the edit) and render-driven code corrections    [ID: MS13, 13r, 13r-3c, DL-530]
+Date:            2026-10-30        Author:
+Decision:        FACT. After F5 and F6 were changed (DL-530) six existing tests failed. CODE CORRECTIONS (no test edit): (a) the F5 layout test (no stored point under a text) failed because the network class labels of (a) sat on map cells; the labels now stand in a margin above the map, joined to their symbols by thin lines, so no cell mark lies under a text; (b) the F6 drawn-lines test reads every line of (d) and (e); the S6 reference overlay and the class marks are drawn as scatter collections, so the six series stay the only lines. TEST TEXT EDITS (expected text only; no data assertion changes): E6 tests/test_fig_F5.py::test_caption_has_the_mode_d_statement_...: caption.startswith("F5. In mode D") becomes caption.startswith("F5. Mean field only; network disagrees at 3 of 4 cells; noisy subgrid 43.1 percent (203 needed)") (G3). E7 tests/test_fig_F6.py::test_proposed_take_home_numbers_equal_the_stored_tables_exactly: txt.startswith("The 169 non-surge cells") becomes txt.startswith("G7 NOT PASSED (1 network seed, S+)") (G3); the other substrings of that assertion (a 48, c 32, f 24, g 64, h 1; 13 of 13; G7 is NOT PASSED; All 20 pre-registered S6 rows) are unchanged and still hold. E8 tests/test_fig_F6.py::test_caption_names_the_plotted_quantities_...: caption.startswith("F6. The 169 non-surge cells") becomes caption.startswith("F6. G7 NOT PASSED (1 network seed, S+)"). E9 tests/test_ms13_13o.py::test_f6_network_run_column_label_equals_its_stored_condition: the expected first line "network run, N = <N as integer>" becomes "network N = 1e4, 1 seed" (the record type, DL-530 (2)); the Delta, tau_d, path and T_ramp lines of the expected label are unchanged and read from the stored record as before.
+Reason:          instruction of the reviewer (13r-3c prompt)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            tests/test_fig_F5.py, tests/test_fig_F6.py, tests/test_ms13_13o.py
+Status:          13r-3c in progress
+Commit/tag:      the commit that adds this entry; no tag
