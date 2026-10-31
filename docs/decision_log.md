@@ -6127,3 +6127,13 @@ Chosen:          as done   Default from: the prompt
 Test:            fast suite
 Status:          13t-1c closed; 13t-2 not started
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-570  MS13 13t-1c: erratum to DL-568 (9) and DL-569    [ID: MS13, 13t, 13t-1c, DL-568, DL-569]
+Date:            2026-10-31        Author:
+Decision:        ERRATUM. DL-568 (9) and DL-569 say that C:\Users\Alpha\AppData\Local\Temp\review_crops holds 24 PNG crops; it holds 23 PNG files (4.1 MB): F1 7 (F1_a_top, F1_half, F1_legend_glyph, F1_q1 to F1_q4), F3 5 (F3_half, F3_q1 to F3_q4), F5 11 (F5_c_zoom, F5_dummy, F5_e_zoom, F5_fh_right, F5_g_full, F5_half, F5_legend_mid, F5_q1 to F5_q4). Nothing else changed; the folder is not deleted.
+Reason:          correction of a count in a log entry written in this step
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            directory listing
+Status:          closed
+Commit/tag:      the commit that adds this entry; no tag
