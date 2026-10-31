@@ -1033,7 +1033,7 @@ def _f5_class_sentence(d: dict) -> str:
     for c in F5_NET_CLASSES:
         ramp = [nt[k] for k in range(len(nt)) if (np.asarray(d["s9_class"][k]) == c).any()]
         ctrl = [nt[k] for k in range(len(nt)) if (np.asarray(d["ctrl_class"][k]) == c).any()]
-        out.append(f"{c}: ramp seeds at N = {', '.join(ramp) or 'none'}, control seeds at N = {', '.join(ctrl) or 'none'}")
+        out.append(f"{c}: ramp seeds " + (f"at N = {', '.join(ramp)}" if ramp else "at no N") + ", control seeds " + (f"at N = {', '.join(ctrl)}" if ctrl else "at no N"))
     return "By class (filled ramp seeds, open control seeds): " + "; ".join(out) + "."
 
 

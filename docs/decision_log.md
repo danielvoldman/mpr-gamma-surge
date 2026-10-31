@@ -6027,3 +6027,13 @@ Chosen:          as listed   Default from: the prompt
 Test:            tests, scripts/ms13_verify_export.py, looks at the PNGs
 Status:          13t-1b in progress
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-560  MS13 13t-1b: one more wording fix of the F5 alt text (f), found when the rebuilt alt text was read    [ID: MS13, 13t, 13t-1b, DL-559]
+Date:            2026-10-31        Author:
+Decision:        FACT. The class-by-N sentence of the F5 alt text (f) that DL-559 (3) made computed read 'ramp seeds at N = none' for a class that occurs at no N (S-rel). The wording is changed to 'ramp seeds at no N' and 'control seeds at no N' (the same computed sentence, wording only; no value changes). The build from the commit that adds this entry replaces the build from 2353d54 (superseded, nothing was recorded from it).
+Reason:          reading of the rebuilt alt text
+Options:         -
+Chosen:          as listed   Default from: the prompt
+Test:            tests/test_ms13_13t.py (58 passed), the rebuild
+Status:          13t-1b in progress
+Commit/tag:      the commit that adds this entry and the wording fix; no tag
