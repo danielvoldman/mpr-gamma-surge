@@ -63,3 +63,10 @@ LIST ONLY. Collected from the decision log from DL-419 onward and from docs/ms13
 ## G. Added in 13t-1b (DL-554)
 
 40. F1 draft (figures/F1/F1.png, F1.pdf, caption): the label "raw crossings: 3 seeds coincide" and the caption sentence "a note says that the 3 seeds coincide" disagree with the stored raw first crossings (50.170, 50.924 and 50.857 s, span 0.754 s; only the three classifier onsets, 12.000 s, are equal). The drafts are left unchanged by ruling (R6); the same correction ("overlap at this scale: stored values 50.170 to 50.924 s") is to be made in the draft label and caption at the next rebuild of the drafts. The journal text already carries it.
+
+## H. Added in 13t-1c (DL-563)
+
+41. F5 (f) to (i): seed marks 2.5 pt (ramp) and 2.2 pt (control), neighbouring marks touch; (c), (d) state marks (4.2 pt) larger than their 3.0 pt cells; stopped under S14, the allow-list entries are PROVISIONAL until the user rules (DL-565, DL-568).
+42. The journal captions are in plain words with the ruled text paired in the supplement (DL-565); the Parameters line keeps the stored key names.
+43. Stored FAIL rows sigma_check S8_baseline_std (NOT INSIDE) and RB3 a_inrange_runs (0 of 6) are named in no F1, F3 or F5 caption (strip membership not changed without a ruling; DL-567).
+

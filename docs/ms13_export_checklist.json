@@ -478,164 +478,164 @@
   {
    "id": "S1-F5-a-e-cell-marks-readable-or-none",
    "figure": "F5",
-   "status": "failing",
-   "note": "a mark readable at the cell size and in the key as plotted, or no mark where the cell is too small (colour and hatching stay, classes in the supplement); marks never exceed their cell (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "a mark readable at the cell size and in the key as plotted, or no mark where the cell is too small (colour and hatching stay, classes in the supplement); marks never exceed their cell (13t-1c, DL-563); recorded build c90a6c8 (DL-568): passing: attempt 1 (3 pt mark) failed for the D-none cell, attempt 2 no mark in (a) and (e)"
   },
   {
    "id": "S2-F3-no-end-dot-under-arrowhead",
    "figure": "F3",
-   "status": "failing",
-   "note": "no end dot where an arrowhead marks the path end in (c), (d), (e); start circle kept; coincident stored points one combined mark (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "no end dot where an arrowhead marks the path end in (c), (d), (e); start circle kept; coincident stored points one combined mark (13t-1c, DL-563); recorded build c90a6c8 (DL-568)"
   },
   {
    "id": "S3-checker-arrow-marker-marker-frame-separator-tick",
    "figure": "all",
-   "status": "failing",
-   "note": "checker covers arrow patches against markers, marker against marker across artists, marker against frame and separator lines, tick-like marks against markers (pad 0.5 pt) (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "checker covers arrow patches against markers, marker against marker across artists, marker against frame and separator lines, tick-like marks against markers (pad 0.5 pt) (13t-1c, DL-563); recorded build c90a6c8 (DL-568)"
   },
   {
    "id": "S3-regression-tests-synthetic-cases",
    "figure": "all",
-   "status": "failing",
-   "note": "tests: two overlapping markers, an arrowhead on a dot, a marker on the frame, a median tick on a marker are flagged (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "tests: two overlapping markers, an arrowhead on a dot, a marker on the frame, a median tick on a marker are flagged (13t-1c, DL-563); recorded build c90a6c8 (DL-568)"
   },
   {
    "id": "S3-extended-checker-zero-unlisted-F1",
    "figure": "F1",
-   "status": "failing",
-   "note": "extended checker: 0 unlisted hits; every allow-list entry has a reason and is listed for approval (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "extended checker: 0 unlisted hits; every allow-list entry has a reason and is listed for approval (13t-1c, DL-563); recorded build c90a6c8 (DL-568)"
   },
   {
    "id": "S3-extended-checker-zero-unlisted-F3",
    "figure": "F3",
-   "status": "failing",
-   "note": "extended checker: 0 unlisted hits; every allow-list entry has a reason and is listed for approval (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "extended checker: 0 unlisted hits; every allow-list entry has a reason and is listed for approval (13t-1c, DL-563); recorded build c90a6c8 (DL-568)"
   },
   {
    "id": "S3-extended-checker-zero-unlisted-F5",
    "figure": "F5",
-   "status": "failing",
-   "note": "extended checker: 0 unlisted hits; every allow-list entry has a reason and is listed for approval (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "extended checker: 0 unlisted hits; every allow-list entry has a reason and is listed for approval (13t-1c, DL-563); recorded build c90a6c8 (DL-568): passing with PROVISIONAL allow-list entries for S14 (F5 (c), (d) cell marks, (f) to (i) neighbouring seeds); for the user's approval"
   },
   {
    "id": "S4-plain-caption-F1",
    "figure": "F1",
-   "status": "failing",
-   "note": "journal caption in plain words: abbreviations defined, no DL numbers or ruling codes, every claim limit with the same meaning and numbers (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "journal caption in plain words: abbreviations defined, no DL numbers or ruling codes, every claim limit with the same meaning and numbers (13t-1c, DL-563); recorded build c90a6c8 (DL-568)"
   },
   {
    "id": "S4-plain-caption-F3",
    "figure": "F3",
-   "status": "failing",
-   "note": "journal caption in plain words: abbreviations defined, no DL numbers or ruling codes, every claim limit with the same meaning and numbers (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "journal caption in plain words: abbreviations defined, no DL numbers or ruling codes, every claim limit with the same meaning and numbers (13t-1c, DL-563); recorded build c90a6c8 (DL-568)"
   },
   {
    "id": "S4-plain-caption-F5",
    "figure": "F5",
-   "status": "failing",
-   "note": "journal caption in plain words: abbreviations defined, no DL numbers or ruling codes, every claim limit with the same meaning and numbers (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "journal caption in plain words: abbreviations defined, no DL numbers or ruling codes, every claim limit with the same meaning and numbers (13t-1c, DL-563); recorded build c90a6c8 (DL-568)"
   },
   {
    "id": "S4-supplement-pairing-table",
    "figure": "all",
-   "status": "failing",
-   "note": "supplement table pairs each plain sentence with the verbatim ruled text, its DL numbers and codes (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "supplement table pairs each plain sentence with the verbatim ruled text, its DL numbers and codes (13t-1c, DL-563); recorded build c90a6c8 (DL-568)"
   },
   {
    "id": "S4-before-after-claim-limits-listed",
    "figure": "all",
-   "status": "failing",
-   "note": "before and after of every claim limit of F1, F3, F5 in the report for approval (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "before and after of every claim limit of F1, F3, F5 in the report for approval (13t-1c, DL-563); recorded build c90a6c8 (DL-568)"
   },
   {
    "id": "S5-F1-jk-ticks-labelled-or-removed",
    "figure": "F1",
-   "status": "failing",
-   "note": "y ticks of (j) and (k) labelled, or removed with 'rows as in (i)' (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "y ticks of (j) and (k) labelled, or removed with 'rows as in (i)' (13t-1c, DL-563); recorded build c90a6c8 (DL-568)"
   },
   {
    "id": "S6-F1-other-failed-checks-sentence",
    "figure": "F1",
-   "status": "failing",
-   "note": "R4 sentence reworded from the stored locations; location of each of the three checked (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "R4 sentence reworded from the stored locations; location of each of the three checked (13t-1c, DL-563); recorded build c90a6c8 (DL-568)"
   },
   {
    "id": "S7-new-fresh-subagent-review",
    "figure": "all",
-   "status": "failing",
-   "note": "a new fresh subagent reviews the final exports; findings pasted unedited; fixed and not fixed stated (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "a new fresh subagent reviews the final exports; findings pasted unedited; fixed and not fixed stated (13t-1c, DL-563); recorded build c90a6c8 (DL-568): passing: report pasted; fixes in DL-567; open: strip membership of sigma_check and RB3 a_inrange_runs (the user's ruling)"
   },
   {
    "id": "S8-temp-review-crops-folder-reported",
    "figure": "all",
-   "status": "failing",
-   "note": "contents of C:\\Users\\Alpha\\AppData\\Local\\Temp\\review_crops reported, not deleted (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "contents of C:\\Users\\Alpha\\AppData\\Local\\Temp\\review_crops reported, not deleted (13t-1c, DL-563); recorded build c90a6c8 (DL-568)"
   },
   {
    "id": "S9-F1-schematic-no-code-names-and-wrap",
    "figure": "F1",
-   "status": "failing",
-   "note": "schematic box text without code names or internal IDs; no one-word-per-line boxes; mean field and outputs boxes widened (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "schematic box text without code names or internal IDs; no one-word-per-line boxes; mean field and outputs boxes widened (13t-1c, DL-563); recorded build c90a6c8 (DL-568)"
   },
   {
    "id": "S9-no-code-names-on-any-journal-image",
    "figure": "all",
-   "status": "failing",
-   "note": "no code names (path_hypoxia, T_ramp_s, tau_d_ms, I_drive, ...) on any journal image (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "no code names (path_hypoxia, T_ramp_s, tau_d_ms, I_drive, ...) on any journal image (13t-1c, DL-563); recorded build c90a6c8 (DL-568)"
   },
   {
    "id": "S10-F1-event-strip-above-d-f",
    "figure": "F1",
-   "status": "failing",
-   "note": "classifier-onset triangle and raw-crossing marks in a labelled strip above the axes (event times; height has no meaning), or the note on the panel (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "classifier-onset triangle and raw-crossing marks in a labelled strip above the axes (event times; height has no meaning), or the note on the panel (13t-1c, DL-563); recorded build c90a6c8 (DL-568): passing: strip above (d) and (f), attempt 1"
   },
   {
    "id": "S11-F1-colour-bar-psd-expanded",
    "figure": "F1",
-   "status": "failing",
-   "note": "colour bar label 'power spectral density (dB)' (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "colour bar label 'power spectral density (dB)' (13t-1c, DL-563); recorded build c90a6c8 (DL-568)"
   },
   {
    "id": "S11-F5-e-J0-defined",
    "figure": "F5",
-   "status": "failing",
-   "note": "F5 (e) y axis J0 with its stored meaning (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "F5 (e) y axis J0 with its stored meaning (13t-1c, DL-563); recorded build c90a6c8 (DL-568)"
   },
   {
    "id": "S11-F5-d-P-1-defined",
    "figure": "F5",
-   "status": "failing",
-   "note": "F5 (d) P-1 with its stored meaning, or the statement that the log does not give it (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "F5 (d) P-1 with its stored meaning, or the statement that the log does not give it (13t-1c, DL-563); recorded build c90a6c8 (DL-568)"
   },
   {
    "id": "S11-F5-a-cell-index-i-j",
    "figure": "F5",
-   "status": "failing",
-   "note": "F5 (a) axis labels 'cell index i, j' (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "F5 (a) axis labels 'cell index i, j' (13t-1c, DL-563); recorded build c90a6c8 (DL-568)"
   },
   {
    "id": "S12-F3-e-title-paths-one-row-per-path",
    "figure": "F3",
-   "status": "failing",
-   "note": "F3 (e) title '(e) paths, one row per path' (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "F3 (e) title '(e) paths, one row per path' (13t-1c, DL-563); recorded build c90a6c8 (DL-568)"
   },
   {
    "id": "S13-tau-d-label-without-underscore",
    "figure": "all",
-   "status": "failing",
-   "note": "tau-d on the image (tau followed by a plain d), defined once as synaptic decay time; underscore form kept in supplement and source data; PNG looked at (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "tau-d on the image (tau followed by a plain d), defined once as synaptic decay time; underscore form kept in supplement and source data; PNG looked at (13t-1c, DL-563); recorded build c90a6c8 (DL-568): passing: 'τd' on the images; the new subagent remarked that Arial's tau reads like a small T; the underscore form is one constant (JTAU) away"
   },
   {
    "id": "S14-F5-crowding-check-marks-3pt-touch-fgi",
    "figure": "F5",
-   "status": "failing",
-   "note": "no F5 mark below 3 pt, no marks touching, (f) to (i) readable; else stop the item with 2 or 3 options (13t-1c, DL-563)"
+   "status": "stopped",
+   "note": "no F5 mark below 3 pt, no marks touching, (f) to (i) readable; else stop the item with 2 or 3 options (13t-1c, DL-563); recorded build c90a6c8 (DL-568): STOPPED: seed marks 2.5 pt and 2.2 pt, neighbouring marks touch, (c), (d) marks exceed their cells; options in the step report; the user's ruling is open"
   },
   {
    "id": "S14-pilot-sheet-png",
    "figure": "all",
-   "status": "failing",
-   "note": "figures/journal/_review/pilot_sheet.png with F1, F3, F5 side by side at final size (13t-1c, DL-563)"
+   "status": "passing",
+   "note": "figures/journal/_review/pilot_sheet.png with F1, F3, F5 side by side at final size (13t-1c, DL-563); recorded build c90a6c8 (DL-568)"
   }
  ]
 }
