@@ -246,12 +246,12 @@ def test_on_panel_pointer_is_short_and_comes_from_the_label_table():
         FG.claim_pointer("NOT-A-LIMIT")
 
 
-def test_footers_of_f1_to_f6_cite_the_new_rulings_and_the_fs_footers_do_not_yet():
+def test_footers_of_f1_to_f6_cite_the_new_rulings_and_the_fs_footers_cite_them_and_the_13s_entries():
     for fid in ("F1", "F2", "F3", "F4", "F5", "F6"):
         assert FG.RULED_DL[fid][-2:] == ("DL-511", "DL-512"), fid
         assert "DL-511, DL-512" in FG.draft_footer(fid) and "DL-511, DL-512" in FG.strip_heading(fid)
     for fid in ("FS1", "FS2", "FS3", "FS4", "FS5"):
-        assert "DL-511" not in FG.RULED_DL[fid], fid                    # 13s
+        assert FG.RULED_DL[fid][-4:] == ("DL-511", "DL-512", "DL-537", "DL-538"), fid          # 13s (DL-539 E10)
 
 
 def test_noise_bar_counts_are_the_number_of_seeds_with_a_value():

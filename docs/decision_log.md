@@ -5816,3 +5816,13 @@ Chosen:          as planned   Default from: the prompt
 Test:            tests/test_ms13_13s.py (new); the edited tests are logged in DL-539 before the edit
 Status:          13s in progress
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-539  MS13 13s: test text edit E10 (logged before the edit) and the new tests of 13s    [ID: MS13, 13s, DL-537, DL-538]
+Date:            2026-10-30        Author:
+Decision:        FACT AND PLAN. The code change of DL-538 is committed (commit "feat(ms13): 13s FS1 to FS5 ..."). Running the affected tests gave: all of tests/test_fig_FS1.py to test_fig_FS5.py pass unchanged (no FS caption text assertion needed an edit; the kept substrings are the starts "FS1. The M2 model", "FS2. The M3 mean field", "FS3. Finite size", "FS4. At the headline", "FS5. The surge classifier" and the words the tests name); the single-commit test R19 fails as expected until the 13s rebuild; the seven manifest tests of tests/test_ms13_review_aids.py fail because the manifest rows of style.py and figures.py are older than the files (as in DL-513 (5); rewritten once after the rebuild by scripts/ms13_check_hashes.py --write-manifest); one test text must change. TEST TEXT EDIT E10 (expected TEXT only, no data assertion): tests/test_ms13_13r2.py::test_footers_of_f1_to_f6_cite_the_new_rulings_and_the_fs_footers_do_not_yet: its second half asserted "DL-511" not in RULED_DL of FS1 to FS5 ("13s"); by G12 and DL-538 the FS footers now end with ("DL-511", "DL-512", "DL-537", "DL-538"); the assertion becomes that, and the test is renamed ..._and_the_fs_footers_cite_them_and_the_13s_entries. NEW TESTS tests/test_ms13_13s.py: class key verbatim in the captions of FS3, FS4, FS5 (and absent where no class is drawn: FS1, FS2); no text below the tick size in any of FS1 to FS5 (every Text, and FS_SIZES["fs5_class"]); FAIL in every red title of FS1 to FS5 and the red-title note present; sentence 1 of each FS caption names its main failure; the D2 statement in the FS4 caption and in no other FS caption; "the claim is stated for Lorentzian heterogeneity only" in the FS3 caption and the take-home; "not strictly monotone" in the FS4 legend and no "not monotone" drawn; the parameters sentence of FS1 to FS5 carries swept ranges and noise.sigma only where noise is drawn (FS3 with the G4-C4 tag; not FS1, FS2, FS4, FS5); the F2 and F6 drawn-data digests equal the DL-535 values; the F2 status text lies above the DRAFT footer.
+Reason:          instruction of the reviewer (13s prompt)
+Options:         -
+Chosen:          as planned   Default from: the prompt
+Test:            tests/test_ms13_13s.py; tests/test_ms13_13r2.py
+Status:          13s in progress
+Commit/tag:      the commit that adds this entry; no tag
