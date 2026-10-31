@@ -6047,3 +6047,13 @@ Chosen:          as done   Default from: the prompt
 Test:            scripts/ms13_verify_export.py; independent comparison; scripts/ms13_check_hashes.py
 Status:          13t-1b built and checked
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-562  MS13 13t-1b: fast suite at the end of the step; 13t-1b built and checked, no tag    [ID: MS13, 13t, 13t-1b, DL-561]
+Date:            2026-10-31        Author:
+Decision:        FACT. FAST SUITE at the end of 13t-1b (HEAD at the start of the run: the commit that rewrites the manifest row of figures.py; code commit 2756a4c33c60d5d6973200c75a3e459e3a6689e5): 1250 passed, 24 deselected, 9 xfailed, 0 failed, exit 0 taken from pytest itself (949.12 s). Against the start of the step (1237 passed): +13 tests, all in tests/test_ms13_13t.py (R1 4, R2 1, R3 1, R4 2, R6 2, R7 1, R8 1, R10 1); no earlier data assertion changed; test text edits E1 to E7 (DL-557, DL-558). 13t-1b is built and checked: the F1, F3 and F5 journal versions are in figures/journal/ (untagged drafts, no tag, no push, no upload); 13t-2 (F2, F4, F6, FS1 to FS5) follows after the reviewer has looked at the pilot. OPEN for the reviewer: see DL-561 (the not-fixed list of DL-559; the colour-vision check by hand). Scratch files of the step (trial renders, crops, the reviewer's crops in the temp folder) are outside the project; the temp crops folder of the reviewing subagent (review_crops) is the only stray non-project folder.
+Reason:          instruction of the reviewer (13t-1b prompt)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            fast suite
+Status:          13t-1b closed; 13t-2 not started
+Commit/tag:      the commit that adds this entry; no tag
