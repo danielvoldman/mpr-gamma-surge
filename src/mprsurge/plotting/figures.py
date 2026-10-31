@@ -3477,10 +3477,10 @@ def _f4_none_marks(ax, x, mask, kind="episode"):
             kw = dict(marker=st.marker, ms=S.POINT_SIZES["f4_none"], color=st.colour, mec=S.figure_colour("bar_edge"), mew=0.3)
         else:
             kw = dict(marker=S.F4_MARKS["nocross"], ms=S.POINT_SIZES["f4_none"] + 2.0, color=S.F4_MARKS["nocross_colour"], mec=S.F4_MARKS["nocross_colour"], mew=0.6)
-        ax.plot(np.asarray(x)[mask], [F4_BAND_FRAC / 2.0] * int(mask.sum()), ls="none", transform=ax.get_xaxis_transform(), clip_on=False, zorder=6, **kw)
+        ax.plot(np.asarray(x)[mask], [F4_BAND_FRAC * 0.7] * int(mask.sum()), ls="none", transform=ax.get_xaxis_transform(), clip_on=False, zorder=6, **kw)
 
 
-F4_BAND_FRAC = 0.1          # height of the foot band as a share of the final axes height
+F4_BAND_FRAC = 0.15         # height of the foot band as a share of the final axes height (marks in its upper part, its name in the lower part)
 
 
 def _f4_band(ax, label, logy=False):
@@ -3490,7 +3490,7 @@ def _f4_band(ax, label, logy=False):
     new_lo = lo / (hi / lo) ** (f / (1.0 - f)) if logy else lo - (hi - lo) * f / (1.0 - f)
     ax.set_ylim(new_lo, hi)
     ax.axhspan(new_lo, lo, color=S.FS_COLOURS["patch_edge"], alpha=0.14, lw=0, zorder=0)
-    ax.text(0.5, f / 2.0, label, transform=ax.transAxes, ha="center", va="center", fontsize=S.TEXT_SIZES["small"], color=S.figure_colour("range_line"), zorder=3,
+    ax.text(0.5, f * 0.27, label, transform=ax.transAxes, ha="center", va="center", fontsize=S.TEXT_SIZES["small"], color=S.figure_colour("range_line"), zorder=3,
             bbox=dict(boxstyle="square,pad=0.1", fc=S.HALO_COLOUR, ec="none", alpha=0.7))
 
 
@@ -3506,7 +3506,7 @@ def _f4_ring(ax, x, y, mask, const=None, err=None):
         ax.plot(xs[t_], ys[t_], ls="none", marker=rg.marker, ms=rg.size, mfc="none", mec=rg.colour, mew=rg.width, zorder=5)
         if err is not None:
             for k in np.where(t_)[0]:
-                ax.annotate(f"{float(err[k]):.1f}", xy=(xs[k], ys[k]), xytext=(0, 9), textcoords="offset points", ha="center", va="bottom", fontsize=S.TEXT_SIZES["small"], zorder=7)
+                ax.annotate(f"{float(err[k]):.1f}", xy=(xs[k], ys[k]), xytext=(0, 11), textcoords="offset points", ha="center", va="bottom", fontsize=S.TEXT_SIZES["small"], zorder=7)
     if u_.any():
         ax.plot(xs[u_], ys[u_], ls="none", marker=S.F4_MARKS["untestable"], ms=rg.size * 0.8, mfc="none", mec=rg.colour, mew=rg.width, zorder=5)
 
@@ -3593,6 +3593,7 @@ def _draw_F4(d: dict, draft: bool):
            Line2D([], [], ls="none", marker=S.get("D-none").marker, ms=S.POINT_SIZES["f4_none"], color=S.get("D-none").colour, mec=edge, mew=0.3, label="no episode, class D-none (band at the foot of (b) to (e))"),
            Line2D([], [], color=S.get("noise").colour, lw=3.0, label="P2 noise (mode N, sigma 0.0624, checked, not confirmed): min to max of the seeds with a value"),
            Line2D([], [], ls="none", marker=md.marker, ms=md.size, color=S.F4_MARKS["median_colour"], mew=md.width, label="median of the seeds with a value (seeds counted: number above each panel)"),
+           Line2D([], [], color=S.figure_colour("range_line"), ls=":", lw=0.8, label="dotted line in (e): 1.0 s = floor of the frozen classifier (one window, T_ramp >= 60 s)"),
            Line2D([], [], ls="none", marker=S.F4_MARKS["hold_marker"], ms=S.POINT_SIZES["f4_key"], mfc="none", mec=S.F4_MARKS["hold_colour"], mew=S.F4_MARKS["hold_width"],
                   label=f"open square = eta_peak - eta_H ({d['hold_delay_max']:.3g}): onset during the hold (UNVERIFIED reading)"),
            Line2D([], [], ls="none", marker="o", ms=S.POINT_SIZES["f4_key"], mfc="none", mec=S.figure_colour("fail_text"), mew=1.4, label="red ring: RB6 FAIL at the headline, not used as evidence")]
@@ -3616,13 +3617,13 @@ def _draw_F4(d: dict, draft: bool):
     ax.plot([d["head_eps"]], [d["head_delay_eta_cross"]], ls="none", marker="o", ms=13.0, mfc="none", mec=S.figure_colour("fail_text"), mew=1.4, zorder=6)      # RB6 FAIL: a ring round the headline point
     ax.annotate("headline (T_ramp 120 s, noise-free): RB6 solver clause FAIL", xy=(d["head_eps"], d["head_delay_eta_cross"]), xytext=(d["head_eps"], 2.55), fontsize=S.TEXT_SIZES["small"],
                 color=S.figure_colour("fail_text"), ha="center", va="bottom", arrowprops=dict(arrowstyle="-", lw=0.5, color=S.figure_colour("fail_text")))
-    ax.set_ylim(-0.25, 3.15)
+    ax.set_ylim(-0.25, 3.45)
     _f4_band(ax, "no raw crossing", logy=False)
     eq_raw, eq_cls = f4_equal_runs(d, "delay_eta_cross"), f4_reading_equal(d)
-    note = ["stored raw-crossing values coincide (drawn at their stored positions): " + "; ".join(f"{a_} = {b_} at {n_} of 13 T_ramp" for a_, b_, n_ in eq_raw),
+    note = ["stored raw-crossing values coincide (drawn at their stored positions): " + "; ".join(f"{a_} = {b_} at {n_} of 13" for a_, b_, n_ in eq_raw),
             "classifier reading = raw reading at " + "; ".join(f"{n_} of 13 ({a_})" for a_, n_ in eq_cls),
             "claim limits G6-D1, G6-D2 (caption)"]
-    ax.text(0.995, 0.985, "\n".join(textwrap.fill(t_, 78, subsequent_indent="  ") for t_ in note), transform=ax.transAxes, ha="right", va="top", fontsize=S.TEXT_SIZES["small"],
+    ax.text(0.995, 0.985, "\n".join(textwrap.fill(t_, 118, subsequent_indent="  ") for t_ in note), transform=ax.transAxes, ha="right", va="top", fontsize=S.TEXT_SIZES["small"],
             bbox=dict(boxstyle="square,pad=0.15", fc=S.HALO_COLOUR, ec="none", alpha=0.8), zorder=8)
     tidy(ax, "(a) delay against ramp rate (signed): raw first crossing, noise-free (mode D); RB3(a) and RB6 FAIL", "delay (eta_bar - eta_H)", red=True)
 
@@ -3640,8 +3641,6 @@ def _draw_F4(d: dict, draft: bool):
         if logy:
             ax.set_yscale("log")
             ax.axhline(1.0, color=S.figure_colour("range_line"), ls=":", lw=0.6, zorder=1)
-            ax.text(0.99, 0.12, "dotted: 1.0 s = floor of the frozen classifier\n(one window, T_ramp >= 60 s; caption)", transform=ax.transAxes, ha="right", va="bottom", fontsize=S.TEXT_SIZES["small"],
-                    bbox=dict(boxstyle="square,pad=0.1", fc=S.HALO_COLOUR, ec="none", alpha=0.7))
         _f4_band(ax, "no episode (D-none)", logy=logy)
         tidy(ax, title, yl)
 
@@ -3677,7 +3676,7 @@ def _draw_F4(d: dict, draft: bool):
     ax.text(0.02, 0.97, "start distance: 0.5 dotted, 1.5 solid, 3.0 dashed", transform=ax.transAxes, fontsize=S.TEXT_SIZES["small"], va="top", ha="left")
     ax.set_ylim(-0.1, 2.45)
     _f4_band(ax, "no raw crossing", logy=False)
-    tidy(ax, "(g) start state (P1 linear): RB3(a) testable rings", "delay (eta_bar - eta_H)")
+    tidy(ax, "(g) start state (P1 linear); ring labels in A4 steps", "delay (eta_bar - eta_H)")
 
     # (h) noise band on the delay
     ax = fig.add_subplot(gs[4, 0:2])
@@ -3703,7 +3702,7 @@ def _draw_F4(d: dict, draft: bool):
         ax.set_title(title, loc=S.TITLE_LOC, color=S.figure_colour("fail_text") if key == "floor_delay_cls" else S.figure_colour("text_dark"))
         ax.set_ylabel("delay (eta_bar - eta_H)")
         if key == "floor_delay_cross":
-            ax.annotate("headline delay (G6-D2):\nD43-floored, level 0", xy=(0, d[med][0]), xytext=(0.3, d[med][0] - 0.03), textcoords="data", fontsize=S.TEXT_SIZES["small"],
+            ax.annotate("headline delay (G6-D2):\nD43-floored, level 0", xy=(0, d[med][0]), xytext=(-0.4, d[med][0] - 0.075), textcoords="data", fontsize=S.TEXT_SIZES["small"],
                         arrowprops=dict(arrowstyle="-", lw=0.5, color=S.figure_colour("range_line")), va="top")
         else:
             ax.text(0.04, 0.55, textwrap.fill(CAP.D2_STATEMENT, 36), transform=ax.transAxes, ha="left", va="center", fontsize=S.TEXT_SIZES["small"],
