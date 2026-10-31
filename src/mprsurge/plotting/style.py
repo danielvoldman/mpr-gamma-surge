@@ -451,13 +451,13 @@ FS_COLOURS = {"patch_edge": "#7a7a7a",       # edge of a key patch and of a numb
               "text_on_dark": "#ffffff",     # FS5 (c) cell text on a dark shade
               "cell_edge": "#ffffff",        # FS5 (c) cell edges
               "box_face": "#ffffff"}         # face of a number box (FS1 (d), FS4 (a), FS5 (g2))
-FS_SIZES = {"fs2_diff": 7.0, "fs4_class": 6.5, "fs4_class_b": 7.0, "fs4_floor_T": 6.0, "fs5_class": 4.2, "fs5_class_g4": 5.5, "fs5_reported_ring": 11.0,
+FS_SIZES = {"fs2_diff": 7.0, "fs4_class": 6.5, "fs4_class_b": 7.0, "fs4_floor_T": 6.0, "fs5_class": 5.0, "fs5_class_g4": 5.5, "fs5_reported_ring": 11.0,
             "fs2_coincide_mark": 8.0}        # fs2_coincide_mark: the drawn size of the K11 asterisk that the coincidence count of FS2 (j) compares centre distances with
 FS2_DIFF_MARKS = {"d_freq": r"$\bullet$", "d_mean": r"$\circ$", "d_ptp": r"$\diamond$"}      # FS2 (h): the three stored differences (the 13h glyphs, now style keys)
 FS3_GATE_CLEAR = 0.045                       # FS3 (e): a count label whose centre lies closer than this (share of seeds) to the RB2 gate line is moved inside its segment (R16)
 FS5_REPORTED = {"marker": _polygon(16), "colour": "#4a148c", "width": 0.8}       # FS5 (g3): open ring around a point that is reported, not judged (R18)
 FS5_TEXT_DARK_ABOVE = 0.6                    # FS5 (c): shade fraction from which the cell text is white
-FS_LAYOUT = {"fs1_k5_ratios": (1.0, 0.42), "fs5_row0_ratios": (1.6, 1.0), "fs5_b_wrap": 62, "fs4_row_ratios": (1.6, 1.8, 1.9, 1.35, 1.9),
+FS_LAYOUT = {"fs1_k5_ratios": (1.0, 0.42), "fs5_row0_ratios": (1.6, 1.0), "fs5_b_wrap": 62, "fs4_row_ratios": (1.6, 1.8, 1.9, 1.35, 2.9),
              "fs5_g_ratios": (1.0, 0.85, 1.45, 1.0)}
 
 
