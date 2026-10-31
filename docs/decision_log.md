@@ -5907,3 +5907,13 @@ Chosen:          as done   Default from: the prompt
 Test:            tests/test_ms13_13t.py (45 tests); tests/test_ms13_13o.py, 13p.py, style_keys pass; the fast suite on this code state (before the manifest rewrite) gave 1228 passed, 9 failed: 2 literal-rule tests (fixed above) and 7 tests of scripts/ms13_check_hashes.py in tests/test_ms13_review_aids.py, which fail because the shared rows figures.py and style.py of the manifest changed (DL-546 (2)); scripts/ms13_verify_export.py
 Status:          13t-1 in progress; code committed before the recorded build
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-548  MS13 13t-1: render-driven corrections of the journal text found by looking at the first recorded PNGs (logged with the code commit)    [ID: MS13, 13t, 13t-1, DL-547]
+Date:            2026-10-31        Author:
+Decision:        FACT. The first journal build of F1, F3 and F5 (commit bfd2ad7) passed scripts/ms13_verify_export.py, and looking at the three recorded PNGs at the final size showed four things that the checker does not see; they are corrected in text and layout only (no drawn value, the drawn-data digests are unchanged). (1) F3 (a) to (c) titles read "Delta = x: FAIL"; they now read "Delta = x, RB9(b) FAIL" (they name the failed check). (2) F3 legend: a symbol and its value could break across two lines ("Delta" / "0.3", "tau_d" / "5 ms"); the legend labels now keep each symbol and its value together with no-break spaces. (3) F5 (a): the in-panel statement "Mean field only; network disagrees at 3 of 4 cells" was red, but the red-title definition is "the panel shows a FAIL" and the title of (a) is not red; the statement is now dark bold and the caption's red-title sentence names (b) and (c) only (as the draft). (4) Nothing else changed. A second recorded build is made from the commit that adds this entry; the first build (bfd2ad7) is superseded and its files are overwritten (they are git-ignored outputs, never tagged).
+Reason:          instruction of the reviewer (13t-1 prompt, J15: look at the PNGs and fix before the next commit)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            tests/test_ms13_13t.py, 13o, 13p pass (67 passed); scripts/ms13_verify_export.py on the second build
+Status:          13t-1 in progress
+Commit/tag:      the commit that adds this entry; no tag

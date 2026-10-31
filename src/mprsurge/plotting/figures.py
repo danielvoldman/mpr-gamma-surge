@@ -611,7 +611,7 @@ def _draw_F3_journal(d: dict):
         ax.minorticks_off()
         ax.set_xlabel(JETA + " (mean excitability)")
         ax.set_ylabel(f"{JTAU} (ms), log axis" if j == 0 else "")
-        _journal_title(ax, "abc"[j], f"Δ = {D}", fail=True)
+        _journal_title(ax, "abc"[j], f"Δ = {D}, RB9(b) FAIL", fail=True)
         ax.set_xlim(0, 8)
         if j > 0:
             ax.tick_params(labelleft=False)
@@ -658,9 +658,9 @@ def _draw_F3_journal(d: dict):
     hh.append(Line2D([], [], ls="none", marker=m25.marker, ms=m25.size - 2, mew=m25.width, color=m25.colour, mec=S.HALO_COLOUR))
     ll.append("25 Hz crossing of an A6 slice")
     hh.append(Line2D([], [], ls=mf.linestyle, color=mf.colour, lw=1.0))
-    ll.append(_jwrap(f"Hopf curve, A4 record (c: Δ {d['a4_curve_Delta']:g}, J {d['a4_curve_J']:g}; d: J {d['a4_curve_J']:g}, {JTAU} {d['a4_curve_tau_d_ms']:g}{NB}ms)", 30))
+    ll.append(_jwrap(f"Hopf curve, A4 record (c: Δ{NB}{d['a4_curve_Delta']:g}, J{NB}{d['a4_curve_J']:g}; d: J{NB}{d['a4_curve_J']:g}, {JTAU}{NB}{d['a4_curve_tau_d_ms']:g}{NB}ms)", 30))
     hh.append(Line2D([], [], ls="none", marker=hp.marker, ms=S.F3_MARKS["a6_hopf_size"] + 2.0, mew=S.F3_MARKS["a6_hopf_width"], color=hp.colour))
-    ll.append(_jwrap(f"A6 Hopf point (Δ {d['headline_Delta']:g}, {JTAU} {d['headline_tau_d_ms']:g}{NB}ms)", 30))
+    ll.append(_jwrap(f"A6 Hopf point (Δ{NB}{d['headline_Delta']:g}, {JTAU}{NB}{d['headline_tau_d_ms']:g}{NB}ms)", 30))
     grp = _f3_combined_group(d)
     hh.append(Line2D([], [], ls="-", marker=cbm["marker"], mfc=S.HALO_COLOUR, mec=cbm["colour"], color=cbm["colour"], lw=cbm["width"], ms=cbm["size"]))
     ll.append(_jwrap(f"{', '.join(grp)}: identical in {JETA}, Δ, {JTAU} (stored)", 30))
@@ -5794,7 +5794,7 @@ def _draw_F5_journal(d: dict):
                           arrowprops=dict(arrowstyle="-", lw=0.4, color=S.figure_colour("range_line"), shrinkA=1, shrinkB=9))
         ann.set_in_layout(False)
     first = F5_LINE_A.split("; ")
-    ax.text(0.5, 0.995, f"{first[0]};\n{first[1]}", transform=ax.transAxes, ha="center", va="top", color=fail, fontweight="bold")
+    ax.text(0.5, 0.995, f"{first[0]};\n{first[1]}", transform=ax.transAxes, ha="center", va="top", color=dark, fontweight="bold")
 
     # (b) the 4 network cells: rows are the sources, columns the cells (the cell's map indices are in the column label)
     ax = _ax_in(fig, 5.0, 0.95, 2.45, 1.1)
@@ -5991,7 +5991,7 @@ def make_F5(res=None, out_dir=None, *, tag_build: bool = False, take_home=F5_TAK
     if journal:
         notes = _journalise(notes, F5_JOURNAL_REWORD)
         notes = notes + CAP.journal_extras("F5", strip_lines=f5_strip_lines(d), body_text=take_home + " " + " ".join(notes), moved_notes=(_f5_cells_note(d), _f5_undefined_note(d), F5_NOT_ON_IMAGE),
-                                           pointers=(_limit_pointers("(f)", ("G4-C3", "MS9(e)-2")),), red_note="Red title: the panel shows a FAIL (here (a): the red statement; (b) and (c)).")
+                                           pointers=(_limit_pointers("(f)", ("G4-C3", "MS9(e)-2")),), red_note="Red title: the panel shows a FAIL (here (b) and (c)).")
     cap = CAP.build_caption("F5", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=[r for r in rows if r["key"] in F5_CAPTION_KEYS],
                             spectrogram=None, symbol_keys=(), notes=notes, not_applicable=F5_NOT_APPLICABLE,
                             class_key=CAP.class_key_line("ND", agree=True), classifier_line=CAP.classifier_line(crit), main_failures=F5_MAIN_FAILURES, swept={"network.N": list(F5_N)})
