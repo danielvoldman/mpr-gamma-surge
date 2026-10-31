@@ -72,9 +72,9 @@ def _jrc():
 # ---- the settings file ----
 
 def test_config_values_and_font(cfg):
-    assert cfg["page"]["double_column_width_in"] <= 7.5 and cfg["page"]["max_height_in"] <= 8.75
+    assert cfg["page"]["main_width_in"] == 6.3 and cfg["page"]["main_max_height_in"] == 8.0 and cfg["page"]["double_column_width_in"] <= 7.5 and cfg["page"]["double_column_max_height_in"] <= 8.75
     assert cfg["text"]["min_pt"] >= 8 and cfg["text"]["pdf_fonttype"] == 42 and cfg["text"]["ps_fonttype"] == 42
-    assert cfg["lines"]["min_width_pt"] >= 0.3 and cfg["output"]["dpi"] == 300 and cfg["output"]["tiff_dpi"] == 600
+    assert cfg["lines"]["min_width_pt"] >= 0.3 and cfg["output"]["pdf_dpi"] == 300 and cfg["output"]["png_dpi"] == 600 and cfg["output"]["tiff_dpi"] == 600
     assert set(cfg["colour"]["allowed_cmaps"]) == {"magma", "viridis", "cividis"}
     assert not set(cfg["colour"]["allowed_cmaps"]) & set(cfg["colour"]["forbidden_cmaps"])
     fam, fallback = J.font_choice(cfg)
@@ -84,8 +84,8 @@ def test_config_values_and_font(cfg):
 
 def test_page_size_refuses_a_figure_that_is_too_tall(cfg):
     with pytest.raises(J.JournalError):
-        J.page_size(cfg, cfg["page"]["max_height_in"] + 0.5)
-    assert J.page_size(cfg, 8.0) == (cfg["page"]["double_column_width_in"], 8.0)
+        J.page_size(cfg, cfg["page"]["main_max_height_in"] + 0.5)
+    assert J.page_size(cfg, 8.0) == (cfg["page"]["main_width_in"], 8.0)
 
 
 # ---- the collision checker on synthetic figures (the checker is tested before it is trusted on the figures) ----
@@ -242,7 +242,7 @@ def test_checker_finds_the_known_faults_of_the_draft_f1_and_f3():
 def test_size_shape_letters_text_fonts_lines_colour(figs, cfg, fid):
     fig, d, _ = figs[fid]
     w, h = fig.get_size_inches()
-    assert w <= cfg["page"]["double_column_width_in"] + 1e-9 and h <= cfg["page"]["max_height_in"] + 1e-9
+    assert w <= cfg["page"]["main_width_in"] + 1e-9 and h <= cfg["page"]["main_max_height_in"] + 1e-9
     assert CO.letters_in_order(fig)[0], CO.letters_in_order(fig)
     assert not JC.text_sizes(fig, cfg["text"]["min_pt"])
     assert not JC.line_widths(fig, cfg["lines"]["min_width_pt"])
@@ -268,7 +268,7 @@ def test_pdf_fonts_embedded_no_type3_and_sizes(built, cfg, fid):
     assert not r["type3"] and r["descriptors"] > 0 and r["fontfile2"] + r["fontfile3"] >= r["descriptors"]
     assert r["tf_sizes"] and min(r["tf_sizes"]) >= cfg["text"]["min_pt"]
     w, h = r["mediabox"][2] / 72.0, r["mediabox"][3] / 72.0
-    assert w <= cfg["page"]["double_column_width_in"] + 0.01 and h <= cfg["page"]["max_height_in"] + 0.01
+    assert w <= cfg["page"]["main_width_in"] + 0.01 and h <= cfg["page"]["main_max_height_in"] + 0.01
     if J.font_choice(cfg)[0] != "DejaVu Sans":
         assert any(J.font_choice(cfg)[0] in f for f in r["basefonts"])
 
@@ -280,7 +280,8 @@ def test_exported_files_png_tiff_names(built, figs, cfg, fid):
     out = base / fid
     from PIL import Image
     W, H = figs[fid][0].get_size_inches()
-    assert Image.open(out / f"{fid}_journal.png").size == (round(W * 300), round(H * 300))
+    im = Image.open(out / f"{fid}_journal.png")
+    assert im.size == (round(W * cfg["output"]["png_dpi"]), round(H * cfg["output"]["png_dpi"])) and tuple(round(x) for x in im.info["dpi"]) == (600, 600)
     t = JC.tiff_report(out / f"{fid}_journal.tiff")
     assert t["mode"] == "RGB" and t["dpi"] == (600, 600) and str(t["compression"]).lower() in ("tiff_lzw", "lzw")
     assert not JC.bad_file_names(base, cfg["files"]["name_pattern"])
@@ -374,7 +375,7 @@ def test_f3_journal_has_one_combined_path_and_p4a_p4b_separate(figs):
     assert not any(g.startswith("arrow:tau_d:P1") or g.startswith("arrow:Delta:P2") for g in gids)
     assert {"arrow:Delta:P4a", "arrow:Delta:P4b"} <= set(gids)
     legend_texts = [t.get_text() for ax in fig.axes if ax.get_legend() for t in ax.get_legend().get_texts()]
-    assert any("P1, P2, P3, P5: identical in" in t for t in legend_texts)
+    assert any("P1, P2, P3, P5: identical in" in " ".join(t.split()) for t in legend_texts)
 
 
 @needs
@@ -390,3 +391,167 @@ def test_titles_with_fail_are_red_and_carry_the_word(figs):
                 assert "FAIL" in t
     titles = {fid: [ax.get_title(loc="left") for ax in figs[fid][0].axes] for fid in PILOT}
     assert sum("FAIL" in t for t in titles["F3"]) == 3 and sum("FAIL" in t for t in titles["F1"]) == 2
+
+
+# ---- 13t-1b (DL-554, DL-556, DL-557): the PCJ settings, FAIL titles, wording of coincide, edge bands, in-cell marks ----
+
+def test_r1_save_all_writes_png_and_tiff_main_files_and_never_svg_wmf_emf(tmp_path, cfg):
+    import matplotlib.pyplot as plt
+    from PIL import Image
+    fig = plt.figure(figsize=(1.5, 1.0))
+    fig.add_axes([0.2, 0.2, 0.6, 0.6]).plot([0, 1], [0, 1])
+    saved = J.save_all(fig, tmp_path, "toy_journal", cfg)
+    plt.close(fig)
+    assert {"png", "tiff", "pdf"} <= set(saved["paths"])
+    names = {p.suffix for p in tmp_path.iterdir()}
+    assert {".png", ".tiff", ".pdf"} <= names and not names & {".svg", ".wmf", ".emf"}
+    png, tif = Image.open(tmp_path / "toy_journal.png"), Image.open(tmp_path / "toy_journal.tiff")
+    assert png.size == tif.size == (900, 600) and tuple(round(x) for x in png.info["dpi"]) == (600, 600)
+    assert tif.mode == "RGB" and tuple(round(x) for x in tif.info["dpi"]) == (600, 600)
+    assert cfg["output"]["forbidden_formats"] == ["svg", "wmf", "emf"] and not JC.forbidden_format_files(tmp_path, cfg["output"]["forbidden_formats"])
+    (tmp_path / "x.svg").write_text("<svg/>")
+    assert JC.forbidden_format_files(tmp_path, cfg["output"]["forbidden_formats"]) == ["x.svg"]
+
+
+@needs
+@pytest.mark.parametrize("fid", PILOT)
+def test_r1_main_png_and_tiff_are_600_dpi_6p3_in_wide_at_most_8_in_high_and_the_pdf_is_an_extra(built, figs, cfg, fid):
+    from PIL import Image
+    base = built["base"] / "journal"
+    out = base / fid
+    W, H = figs[fid][0].get_size_inches()
+    assert abs(W - 6.3) < 1e-9 and H <= 8.0 + 1e-9
+    png, tif = Image.open(out / f"{fid}_journal.png"), Image.open(out / f"{fid}_journal.tiff")
+    assert png.size == tif.size == (round(6.3 * 600), round(H * 600))
+    assert (out / f"{fid}_journal.pdf").is_file()
+    assert not JC.forbidden_format_files(base, cfg["output"]["forbidden_formats"])
+    r = JC.pdf_report(out / f"{fid}_journal.pdf")
+    assert abs(r["mediabox"][2] / 72.0 - 6.3) < 0.02
+    for f in (out / f"{fid}_journal.png", out / f"{fid}_journal.tiff"):
+        assert f.stat().st_size / 1e6 <= cfg["output"]["raster_size_flag_mb"], f.name
+    assert (out / f"{fid}_journal.pdf").stat().st_size / 1e6 <= cfg["output"]["pdf_size_flag_mb"]
+
+
+@needs
+def test_r2_verifier_cvd_row_is_manual_and_the_three_builds_have_no_fail(built, cfg):
+    import csv
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("ms13_verify_export", ROOT / "scripts" / "ms13_verify_export.py")
+    VE = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(VE)
+    with open(ROOT / "docs" / "ms13_figure_manifest.csv", newline="", encoding="utf-8") as fh:
+        manifest = {(r["figure"], r["file"]): r["sha256"] for r in csv.DictReader(fh)}
+    for fid in PILOT:
+        res, _ = VE.check_figure(fid, built["base"] / "journal", ROOT, manifest)
+        assert res["cvd"][0] == "MANUAL" and "online simulator" in res["cvd"][1]
+        assert [c for c, (st, _) in res.items() if st == "FAIL"] == [], (fid, {c: v for c, v in res.items() if v[0] == "FAIL"})
+        assert set(VE.CHECKS) == set(res)
+
+
+@needs
+def test_r3_f3_caption_says_that_the_headline_hopf_point_is_the_5_ms_slice_point(built, figs):
+    cap = built["out"]["F3"]["caption"]
+    d = figs["F3"][1]
+    assert f"the Hopf point of the tau_d {d['headline_tau_d_ms']:g} ms slice of the Delta {d['headline_Delta']:g} panel" in cap and "drawn twice and not moved" in cap
+    assert f"eta_bar {d['headline_hopf_eta']:.3f}" in cap
+    assert all(e.reason.strip() for e in CO.JOURNAL_ALLOW["F3"]) and len(CO.JOURNAL_ALLOW["F3"]) == 3
+
+
+@needs
+def test_r4_f5_titles_a_and_g_carry_fail_and_are_red_and_the_f1_caption_has_the_other_failed_checks(built, figs):
+    from matplotlib.colors import to_hex
+    from mprsurge.plotting import style as S
+    red = S.figure_colour("fail_text").lower()
+    fig = figs["F5"][0]
+    titles = {ax.get_gid().split(":")[1]: ax for ax in fig.axes if (ax.get_gid() or "").startswith("panel:")}
+    for letter in "agbc":
+        ax = titles[letter]
+        assert "FAIL" in ax.get_title(loc="left") and to_hex(ax._left_title.get_color()).lower() == red, letter
+    assert sum("FAIL" in ax.get_title(loc="left") for ax in fig.axes) == 4
+    assert "FAIL" not in titles["h"].get_title(loc="left") and "FAIL" not in titles["i"].get_title(loc="left")
+    cap = built["out"]["F1"]["caption"]
+    assert ("Other failed checks on the headline path (RB6 solver onset 181 ms against 1 ms; RB2 headline class 7 of 10 seeds at the noise level used; RB3(b) classifier onset) "
+            "are shown in F4 and FS4.") in cap
+    alt5 = (built["base"] / "journal" / "supplement" / "F5_alt_text.txt").read_text(encoding="utf-8")
+    assert "RB1 cells: FAIL" in alt5 and "RB6 network f_pk FAIL" in alt5
+
+
+@needs
+def test_r4_other_failed_checks_sentence_needs_fail_rows_in_the_stored_table():
+    a11 = FG.load_F1(RES)["a11"]
+    assert FG._f1_other_failures(a11).startswith("Other failed checks on the headline path (RB6 solver onset 181 ms against 1 ms;")
+    bad = [{**r, "pass_or_fail": "PASS"} if (r["rb_id"], r["check_id"]) == ("RB6", "solver_onset_headline") else r for r in a11]
+    with pytest.raises(FG.DataError):
+        FG._f1_other_failures(bad)
+
+
+@needs
+def test_r6_raw_first_crossings_overlap_and_only_equal_stored_values_coincide(built, figs):
+    d = figs["F1"][1]
+    r0, r1 = min(d["raw120_s"]), max(d["raw120_s"])
+    assert len(set(d["raw120_s"])) == 3 and len(set(d["onset120_s"])) == 1                      # stored: raw crossings differ, classifier onsets are equal
+    assert (f"{r0:.3f}", f"{r1:.3f}") == ("50.170", "50.924")
+    legend = [t.get_text() for ax in figs["F1"][0].axes if ax.get_legend() for t in ax.get_legend().get_texts()]
+    raw = [t for t in legend if "raw first crossing" in t]
+    assert len(raw) == 1 and "coincide" not in raw[0] and "overlap at this scale: stored values 50.170 to 50.924" in raw[0]
+    ons = [t for t in legend if "classifier onset" in t]
+    assert len(ons) == 1 and "the 3 seeds coincide" in ons[0]
+    cap = built["out"]["F1"]["caption"]
+    assert "a note says that the 3 seeds coincide" not in cap and "the key says that the 3 seeds coincide" not in cap
+    assert "overlap at this scale (stored values 50.170 to 50.924 s, not equal; the key says so)" in cap
+    for m in re.finditer(r"coincide", cap):                                                    # every use of the word is about the equal classifier onsets
+        ctx = cap[max(0, m.start() - 160):m.end() + 160]
+        assert "classifier onset" in ctx or "S-sus" in ctx or "12.0" in ctx, ctx
+    alt = (built["base"] / "journal" / "supplement" / "F1_alt_text.txt").read_text(encoding="utf-8")
+    assert "coincide" not in alt and "50.170 to 50.924" in alt
+
+
+def test_r6_reword_helper_stops_if_the_stored_raw_crossings_were_equal():
+    with pytest.raises(FG.DataError):
+        FG._f1_stored_reword({"raw120_s": [50.0, 50.0, 50.0]})
+    pairs = FG._f1_stored_reword({"raw120_s": [50.924, 50.170, 50.857]})
+    assert "50.170 to 50.924" in pairs[0][1]
+
+
+@needs
+def test_r7_edge_band_sentence_is_computed_from_the_stored_time_vector(built, figs):
+    d = figs["F1"][1]
+    t = d["spec_t_s"]
+    s_ = FG._f1_edge_bands(d)
+    assert s_ in built["out"]["F1"]["caption"]
+    assert f"{d['spec_settings']['window_s']:g} s long with a step of {d['spec_settings']['step_s']:g} s" in s_
+    assert f"{t.size} centres from {t[0]:g} to {t[-1]:g} s" in s_
+    assert "path time 0 to 0.5 s and 164.5 to 165 s has no stored window and no cell" in s_
+    d2 = {**d, "spec_t_s": t[[0, 1, 3]]}                                                        # a non-uniform vector is not settled by the stored times
+    assert "cause not determined (UNVERIFIED)" in FG._f1_edge_bands(d2)
+
+
+@needs
+def test_r8_in_cell_marks_of_f5_c_and_d_are_readable_and_in_the_key_as_plotted(figs):
+    from matplotlib.lines import Line2D
+    from matplotlib.colors import to_hex
+    from mprsurge.plotting import style as S
+    fig = figs["F5"][0]
+    plotted = {}
+    for ax in fig.axes:
+        for ln in ax.lines:
+            g = ln.get_gid() or ""
+            if g[:3] in ("d24", "p1 ") and g.split()[-1] in ("agree", "disagree", "tie"):
+                plotted.setdefault(g.split()[-1], set()).add((ln.get_marker(), ln.get_markersize(), ln.get_markeredgewidth(), to_hex(ln.get_color())))
+    assert set(plotted) == {"agree", "disagree", "tie"}
+    for nm, marks in plotted.items():
+        assert len(marks) == 1
+        (mk, ms, mew, col), = marks
+        assert mk == S.F5_STATE_MARKS[nm] and ms >= 4.0 and col.lower() == S.figure_colour("text_dark").lower()
+    key = [ax for ax in fig.axes if ax.get_gid() == "legend axes (a to e)"][0].get_legend()
+    keyed = {(ln.get_marker(), ln.get_markersize(), ln.get_markeredgewidth()) for ln in key.findobj(Line2D)}
+    for nm, marks in plotted.items():
+        (mk, ms, mew, col), = marks
+        assert (mk, ms, mew) in keyed, nm
+
+
+@needs
+def test_r10_f1_supplement_names_the_zip_of_the_source_data(built):
+    sup = (built["base"] / "journal" / "supplement" / "F1_supplement.md").read_text(encoding="utf-8")
+    assert "F1_source_data.csv is" in sup and "to be zipped for the Zenodo record" in sup
+    assert "zipped" not in (built["base"] / "journal" / "supplement" / "F3_supplement.md").read_text(encoding="utf-8")
