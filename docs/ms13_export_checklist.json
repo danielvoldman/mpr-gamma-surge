@@ -1,0 +1,334 @@
+{
+ "note": "status changes to passing only after scripts/ms13_verify_export.py passes for the item AND the recorded PNG crops were looked at (J15)",
+ "items": [
+  {
+   "id": "J10-raw-crossings-marker-on-text",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "J10-cell-count-text-over-spectrogram",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "J10-j-k-labels-on-frame-of-i",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "J10-schematic-text-wrap",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "J10-long-legend",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "J10-eta-bar-symbol",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "J10-dense-status-block",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "J9-two-column-grid-letters-a-to-k",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "J12-letters-in-reading-order",
+   "figure": "F3",
+   "status": "failing"
+  },
+  {
+   "id": "J12-one-combined-path-P1-P2-P3-P5",
+   "figure": "F3",
+   "status": "failing"
+  },
+  {
+   "id": "J12-short-titles",
+   "figure": "F3",
+   "status": "failing"
+  },
+  {
+   "id": "J12-legend-8pt-no-five-line-wrap",
+   "figure": "F3",
+   "status": "failing"
+  },
+  {
+   "id": "J12-empty-space-beside-d-used",
+   "figure": "F3",
+   "status": "failing"
+  },
+  {
+   "id": "J12-hopf-marker-small-or-ring",
+   "figure": "F2",
+   "status": "failing",
+   "note": "13t-2"
+  },
+  {
+   "id": "J12-c-title-one-line",
+   "figure": "F2",
+   "status": "failing",
+   "note": "13t-2"
+  },
+  {
+   "id": "J12-eta-bar-and-ref-devalle-names",
+   "figure": "F2",
+   "status": "failing",
+   "note": "13t-2"
+  },
+  {
+   "id": "J12-empty-band-above-status",
+   "figure": "F2",
+   "status": "failing",
+   "note": "13t-2"
+  },
+  {
+   "id": "check:A-collisions",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "check:B-pdf",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "check:size-and-shape",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "check:text-min-8pt",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "check:fonts-embedded-no-type3",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "check:line-width-min",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "check:cmap-list",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "check:non-colour-distinction",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "check:panel-letters-in-order",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "check:file-names",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "check:draft-FAIL-lines-visible",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "check:drawn-data-digest-equals-draft",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "check:draft-files-byte-identical",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "check:no-draft-dl-provenance-text-on-image",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "check:supplement-lists-every-strip-row",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "check:png-crops-looked-at",
+   "figure": "F1",
+   "status": "failing"
+  },
+  {
+   "id": "check:A-collisions",
+   "figure": "F3",
+   "status": "failing"
+  },
+  {
+   "id": "check:B-pdf",
+   "figure": "F3",
+   "status": "failing"
+  },
+  {
+   "id": "check:size-and-shape",
+   "figure": "F3",
+   "status": "failing"
+  },
+  {
+   "id": "check:text-min-8pt",
+   "figure": "F3",
+   "status": "failing"
+  },
+  {
+   "id": "check:fonts-embedded-no-type3",
+   "figure": "F3",
+   "status": "failing"
+  },
+  {
+   "id": "check:line-width-min",
+   "figure": "F3",
+   "status": "failing"
+  },
+  {
+   "id": "check:cmap-list",
+   "figure": "F3",
+   "status": "failing"
+  },
+  {
+   "id": "check:non-colour-distinction",
+   "figure": "F3",
+   "status": "failing"
+  },
+  {
+   "id": "check:panel-letters-in-order",
+   "figure": "F3",
+   "status": "failing"
+  },
+  {
+   "id": "check:file-names",
+   "figure": "F3",
+   "status": "failing"
+  },
+  {
+   "id": "check:draft-FAIL-lines-visible",
+   "figure": "F3",
+   "status": "failing"
+  },
+  {
+   "id": "check:drawn-data-digest-equals-draft",
+   "figure": "F3",
+   "status": "failing"
+  },
+  {
+   "id": "check:draft-files-byte-identical",
+   "figure": "F3",
+   "status": "failing"
+  },
+  {
+   "id": "check:no-draft-dl-provenance-text-on-image",
+   "figure": "F3",
+   "status": "failing"
+  },
+  {
+   "id": "check:supplement-lists-every-strip-row",
+   "figure": "F3",
+   "status": "failing"
+  },
+  {
+   "id": "check:png-crops-looked-at",
+   "figure": "F3",
+   "status": "failing"
+  },
+  {
+   "id": "check:A-collisions",
+   "figure": "F5",
+   "status": "failing"
+  },
+  {
+   "id": "check:B-pdf",
+   "figure": "F5",
+   "status": "failing"
+  },
+  {
+   "id": "check:size-and-shape",
+   "figure": "F5",
+   "status": "failing"
+  },
+  {
+   "id": "check:text-min-8pt",
+   "figure": "F5",
+   "status": "failing"
+  },
+  {
+   "id": "check:fonts-embedded-no-type3",
+   "figure": "F5",
+   "status": "failing"
+  },
+  {
+   "id": "check:line-width-min",
+   "figure": "F5",
+   "status": "failing"
+  },
+  {
+   "id": "check:cmap-list",
+   "figure": "F5",
+   "status": "failing"
+  },
+  {
+   "id": "check:non-colour-distinction",
+   "figure": "F5",
+   "status": "failing"
+  },
+  {
+   "id": "check:panel-letters-in-order",
+   "figure": "F5",
+   "status": "failing"
+  },
+  {
+   "id": "check:file-names",
+   "figure": "F5",
+   "status": "failing"
+  },
+  {
+   "id": "check:draft-FAIL-lines-visible",
+   "figure": "F5",
+   "status": "failing"
+  },
+  {
+   "id": "check:drawn-data-digest-equals-draft",
+   "figure": "F5",
+   "status": "failing"
+  },
+  {
+   "id": "check:draft-files-byte-identical",
+   "figure": "F5",
+   "status": "failing"
+  },
+  {
+   "id": "check:no-draft-dl-provenance-text-on-image",
+   "figure": "F5",
+   "status": "failing"
+  },
+  {
+   "id": "check:supplement-lists-every-strip-row",
+   "figure": "F5",
+   "status": "failing"
+  },
+  {
+   "id": "check:png-crops-looked-at",
+   "figure": "F5",
+   "status": "failing"
+  }
+ ]
+}
