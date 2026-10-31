@@ -3689,7 +3689,7 @@ def _draw_F4(d: dict, draft: bool):
     _f4_noise(ax, d, "noise_delay_eta_cross")
     _f4_series(ax, d["p2_linear_eps"], d["p2_linear_delay_eta_cross"], "P2", "linear", ms=S.POINT_SIZES["f4_series_p5"])
     ax.axhline(0.0, color=ref.colour, ls=ref.linestyle, lw=ref.width, zorder=1)
-    ax.text(0.01, 0.03, "claim limit MS11-C1 (caption)", transform=ax.transAxes, ha="left", va="bottom", fontsize=S.TEXT_SIZES["small"], color=S.figure_colour("fail_text"), weight="bold")
+    ax.text(0.01, 0.97, "claim limit MS11-C1 (caption)", transform=ax.transAxes, ha="left", va="top", fontsize=S.TEXT_SIZES["small"], color=S.figure_colour("fail_text"), weight="bold")
     tidy(ax, "(h) noise band, P2, mode N: RB2 FAIL", "delay (eta_bar - eta_H)", red=True)
 
     # (i) and (j): the D43 floor at the headline, per level, 4 Heun rungs x 10 seeds, both onset readings
