@@ -118,7 +118,7 @@ def test_f6_network_run_column_label_equals_its_stored_condition():
     import matplotlib.pyplot as plt
     raw = FG.load_F6()
     rec = json.loads((RES / FG.F6_RECORDS["S12_NC1_net"]).read_text(encoding="utf-8"))["config"]          # read independently of load_F6
-    want = (f"network run, N = {int(rec['network']['N'])}\n{rec['model']['ref_point']}: Delta {float(rec['model']['Delta']):g}, tau_d {float(rec['model']['tau_d_ms']):g} ms\n"
+    want = (f"network N = {int(rec['network']['N']):.0e}".replace("e+0", "e") + ", 1 seed" + f"\n{rec['model']['ref_point']}: Delta {float(rec['model']['Delta']):g}, tau_d {float(rec['model']['tau_d_ms']):g} ms\n"
             f"{rec['path']['name']}, T_ramp {float(rec['path']['T_ramp_s']):g} s")
     cols = FG.f6_column_labels(raw)
     assert cols["network"] == want

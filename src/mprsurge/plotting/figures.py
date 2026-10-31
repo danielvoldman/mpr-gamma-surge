@@ -3137,10 +3137,10 @@ def _draw_F6(d: dict, draft: bool, columns: dict | None = None):
                 lab = "P2: S5 comparators (filled, 10 s and 120 s), S6 references (open, 30 s and 300 s)"
             axd.plot(d["s6_T"], d[key][i], color=st.colour, ls=st.linestyle, lw=S.F6_MARKS["line_width"], marker=st.marker, ms=size, fillstyle=fill, mec=st.colour, zorder=3, label=lab)
             if path == "P2":                                  # the supplementary S6 references (30 s and 300 s) are open, the S5 comparators stay filled
-                axd.plot(d["s6_T"][[1, 3]], d[key][i][[1, 3]], ls="none", marker=st.marker, ms=size, mfc=S.HALO_COLOUR, mec=st.colour, zorder=4)
+                axd.scatter(d["s6_T"][[1, 3]], d[key][i][[1, 3]], marker=st.marker, s=size ** 2, facecolors=S.HALO_COLOUR, edgecolors=st.colour, linewidths=0.8, zorder=4)
             for k_, cl_ in enumerate(d["s6_class"][i]):       # the class of every point, by its class mark
                 cm_ = S.get(cl_)
-                axd.plot([d["s6_T"][k_]], [d[key][i][k_]], ls="none", marker=cm_.marker, ms=S.F6_MARKS["class_mark_size"], color=cm_.colour, mec=S.figure_colour("bar_edge"), mew=0.2, zorder=6)
+                axd.scatter([d["s6_T"][k_]], [d[key][i][k_]], marker=cm_.marker, s=S.F6_MARKS["class_mark_size"] ** 2, c=cm_.colour, edgecolors=S.figure_colour("bar_edge"), linewidths=0.2, zorder=6)
         axd.set_xscale("log")
         if key == "s6_onset_s":
             axd.set_yscale("log")
@@ -4745,7 +4745,7 @@ F5_RB1_RULE = ("RB1 rule (DL-320): a cell agrees only if 3 of 3 seeds match the 
                "(D-tr meets S+, S-rel or S-abs; D-none meets NS), our reading, UNVERIFIED as in DL-242")
 
 
-def _f5_map(ax, cls, x_vals, y_vals, *, title, xlabel, ylabel, mark_cells=True, tick_idx_x=None, tick_idx_y=None, margin=0.0):
+def _f5_map(ax, cls, x_vals, y_vals, *, title, xlabel, ylabel, mark_cells=True, tick_idx_x=None, tick_idx_y=None, margin=0.0, top_margin=0.0):
     """One regime map, cell by cell as stored: a mesh coloured by class and one class mark per cell (so the class never rests on colour alone)."""
     from matplotlib.colors import ListedColormap
     codes = np.vectorize({c: k for k, c in enumerate(F5_MAP_CLASSES)}.get)(cls).astype(float)
@@ -4763,7 +4763,7 @@ def _f5_map(ax, cls, x_vals, y_vals, *, title, xlabel, ylabel, mark_cells=True, 
             st = S.get(c)
             ax.plot(jj, ii, ls="none", marker=st.marker, ms=S.F5_SIZES["map_mark"], color=S.figure_colour("bar_edge"), mfc="none", mew=S.F5_SIZES["map_mark_width"], zorder=2)
     ax.set_xlim(-0.5 - margin, n_c - 0.5 + margin)
-    ax.set_ylim(-0.5 - margin, n_r - 0.5 + margin)
+    ax.set_ylim(-0.5 - margin, n_r - 0.5 + margin + top_margin)
     ax.set_aspect("auto")
     tx = tick_idx_x if tick_idx_x is not None else list(range(0, n_c, 5)) + ([n_c - 1] if (n_c - 1) % 5 else [])
     ty = tick_idx_y if tick_idx_y is not None else list(range(0, n_r, 5)) + ([n_r - 1] if (n_r - 1) % 5 else [])
@@ -4811,7 +4811,7 @@ def _draw_F5(d: dict, draft: bool):
     # (a) map 1 with the network symbols
     ax = fig.add_subplot(gs[1, 0:3])
     _f5_map(ax, d["map1_class"], d["map1_tau_d_ms"], d["map1_Delta"], title=f"(a) map 1, mode D, T_ramp 120 s: D-tr {d['map1_n_surge']}, D-none {d['map1_n_none']} of {d['map1_n']}",
-            xlabel="tau_d (ms), cell index j\n" + textwrap.fill(F5_LINE_A, 50), ylabel="Delta, cell index i", margin=1.2)
+            xlabel="tau_d (ms), cell index j\n" + textwrap.fill(F5_LINE_A, 50), ylabel="Delta, cell index i", margin=1.2, top_margin=4.0)
     for agree in (True, False):
         m = d["cell_agree"] == agree
         if m.any():
@@ -4820,9 +4820,12 @@ def _draw_F5(d: dict, draft: bool):
             # 13r-3c (DL-530): larger filled shapes with a dark outline on a white halo, inside the axes (the map has a margin of one cell)
             ax.plot(d["cell_j"][m], d["cell_i"][m], ls="none", marker=mk, ms=S.F5_SIZES["net_symbol"] + 3.0, mfc=C["net_halo"], mec=C["net_halo"], mew=S.F5_SIZES["net_halo_width"], zorder=4)
             ax.plot(d["cell_j"][m], d["cell_i"][m], ls="none", marker=mk, ms=S.F5_SIZES["net_symbol"], mfc=st.colour, mec=C["net_outline"], mew=0.9, zorder=5)
-    for r_ in range(4):
-        ann_ = ax.annotate("/".join(d["cell_net_class"][r_]), xy=(d["cell_j"][r_], d["cell_i"][r_]), xytext=(0, -13), textcoords="offset points", ha="center", va="top",
-                    fontsize=S.TEXT_SIZES["small"], zorder=6, bbox=dict(boxstyle="square,pad=0.1", fc=S.HALO_COLOUR, ec="none", alpha=0.85))
+    order_ = np.argsort(d["cell_j"])                                   # labels in a margin above the map, left to right in two rows, joined to their symbols by thin lines
+    for n_, r_ in enumerate(order_):
+        x_lab = float(np.clip(d["cell_j"][r_], 5.0, 24.0)) if n_ < 3 else 26.0
+        y_lab = 30.9 + (2.2 if n_ % 2 else 0.0)
+        ann_ = ax.annotate("/".join(d["cell_net_class"][r_]), xy=(d["cell_j"][r_], d["cell_i"][r_]), xytext=(x_lab, y_lab), textcoords="data", ha="center", va="center",
+                           fontsize=S.TEXT_SIZES["small"], zorder=6, arrowprops=dict(arrowstyle="-", lw=0.4, color=S.figure_colour("range_line"), shrinkA=1, shrinkB=9))
         ann_.set_in_layout(False)
 
     # (b) the 4 network cells: map class at 120 s, mean-field companion at 30 s, network seeds at 30 s
