@@ -3615,7 +3615,7 @@ def _draw_F4(d: dict, draft: bool):
             ax.plot(x, d[f"{fam}_delay_eta_pred"], color=st.colour, ls=pred.linestyle, lw=pred.width, zorder=2)
     ax.axhline(0.0, color=ref.colour, ls=ref.linestyle, lw=ref.width, zorder=1)
     ax.plot([d["head_eps"]], [d["head_delay_eta_cross"]], ls="none", marker="o", ms=13.0, mfc="none", mec=S.figure_colour("fail_text"), mew=1.4, zorder=6)      # RB6 FAIL: a ring round the headline point
-    ax.annotate("headline (T_ramp 120 s, noise-free): RB6 solver clause FAIL", xy=(d["head_eps"], d["head_delay_eta_cross"]), xytext=(d["head_eps"], 2.55), fontsize=S.TEXT_SIZES["small"],
+    ax.annotate("headline (T_ramp 120 s, noise-free): RB6 solver clause FAIL", xy=(d["head_eps"], d["head_delay_eta_cross"]), xytext=(d["head_eps"], 2.2), fontsize=S.TEXT_SIZES["small"],
                 color=S.figure_colour("fail_text"), ha="center", va="bottom", arrowprops=dict(arrowstyle="-", lw=0.5, color=S.figure_colour("fail_text")))
     ax.set_ylim(-0.25, 3.45)
     _f4_band(ax, "no raw crossing", logy=False)
@@ -3676,7 +3676,7 @@ def _draw_F4(d: dict, draft: bool):
     ax.text(0.02, 0.97, "start distance: 0.5 dotted, 1.5 solid, 3.0 dashed", transform=ax.transAxes, fontsize=S.TEXT_SIZES["small"], va="top", ha="left")
     ax.set_ylim(-0.1, 2.45)
     _f4_band(ax, "no raw crossing", logy=False)
-    tidy(ax, "(g) start state (P1 linear); ring labels in A4 steps", "delay (eta_bar - eta_H)")
+    tidy(ax, "(g) start state (P1 linear)", "delay (eta_bar - eta_H)")
 
     # (h) noise band on the delay
     ax = fig.add_subplot(gs[4, 0:2])
