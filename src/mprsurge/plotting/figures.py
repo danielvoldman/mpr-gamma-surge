@@ -4677,6 +4677,7 @@ def f5_status_lines(d: dict) -> list[str]:
              f"threshold {s['g5_threshold_cells']:.0f} cells; G5 CONTINUE, DL-237, DL-258). The network disagrees with the mean field in {s['cells_n_disagree']} of 4 cells (G4 triggered: {s['g4_triggered']}; DL-323, DL-325).",
              "Stored status rows that touch F5:"] + [f"    {r['rb_id']} {r['check_id']}: {r['status']} ({r['value'] or 'no value in the table'})" for r in s["status"]]
     lines += [strip_heading("F5")] + ["    " + t for t in f5_strip_lines(s)]
+    lines += [F5_RB1_RULE + "."]
     lines += ["RB6 network_fpk_halving_dt is listed because panel (g) draws the network f_pk (UNVERIFIED reading); MS11-C2: no claim of f_pk agreement between network and mean field."]
     return lines
 
@@ -4803,8 +4804,8 @@ def _draw_F5(d: dict, draft: bool):
     ax.set_yticks(range(4), [f"cell {r + 1} (i {d['cell_i'][r]}, j {d['cell_j'][r]})\nDelta {d['cell_Delta'][r]:.4g}, tau_d {d['cell_tau_d_ms'][r]:.4g} ms" for r in range(4)])
     ax.set_xlim(-0.6, 7.4)
     ax.set_ylim(3.5, -0.6)
-    ax.set_title(f"(b) the 4 network cells (N = 1e4): classes as stored; RB1 cells FAIL ({d['cells_n_agree']} of 4 agree)", loc=S.TITLE_LOC, color=fail)
-    ax.set_xlabel("The network was run at T_ramp 30 s; the map is at T_ramp 120 s. Both are drawn; no equivalence is claimed.\n" + textwrap.fill(F5_RB1_RULE, 78))
+    ax.set_title("(b) 4 network cells (N = 1e4), as stored: RB1 cells FAIL", loc=S.TITLE_LOC, color=fail)
+    ax.set_xlabel("The network was run at T_ramp 30 s; the map is at T_ramp 120 s.\nBoth are drawn; no equivalence is claimed.")
 
     # (c), (d) subgrid agreement: D24 (frozen, FAILED) and P-1 (post hoc), same size and frame, cells at their map-1 indices
     for pos, key, ttl, bad, post in ((gs[2, 0:2], "d24", f"(c) D24, frozen rule: FAILED, {d['d24_n_agree']} of {d['sub_n']} agree ({100.0 * d['d24_n_agree'] / d['sub_n']:.1f}%; {d['d24_needed']} needed)", True, False),
@@ -4834,9 +4835,8 @@ def _draw_F5(d: dict, draft: bool):
 
     # (e) map 2
     ax = fig.add_subplot(gs[2, 4:6])
-    _f5_map(ax, d["map2_class"], d["map2_T_ramp_s"], d["map2_J0"], title=f"(e) map 2, mode D:\nD-tr {d['map2_n_surge']}, D-none {d['map2_n_none']} of {d['map2_n']}", xlabel="T_ramp (s)",
+    _f5_map(ax, d["map2_class"], d["map2_T_ramp_s"], d["map2_J0"], title=f"(e) map 2, mode D: D-tr {d['map2_n_surge']},\nD-none {d['map2_n_none']} of {d['map2_n']}; no network runs", xlabel="T_ramp (s)",
             ylabel="J0", tick_idx_x=[0, 3, 6, 9, 12], tick_idx_y=[0, 6, 12, 18, 24])
-    ax.text(0.5, -0.36, "no network runs on map 2", transform=ax.transAxes, ha="center", va="top", fontsize=S.TEXT_SIZES["small"])
 
     # one key for (f) to (i): the classes (marks) and filled (ramp seed) against open (no-ramp control)
     k2 = fig.add_subplot(gs[3, :])
