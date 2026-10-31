@@ -3656,7 +3656,7 @@ def _draw_F4(d: dict, draft: bool):
         _f4_none_marks(ax, x, np.isnan(d[f"{fam}_delay_eta_cross"]), kind="crossing")
     ax.axhline(0.0, color=ref.colour, ls=ref.linestyle, lw=ref.width, zorder=1)
     p5 = S.get("P5")
-    ax.set_ylim(ax.get_ylim()[0], 3.9)                  # headroom for the legend above every curve
+    ax.set_ylim(ax.get_ylim()[0], 4.9)                  # headroom for the legend above every curve
     ax.legend(handles=[Line2D([], [], color=p5.colour, ls=p5.linestyle, marker=p5.marker, ms=S.F4_MARKS["legend_mark_size"], lw=0.8, label="up delay (raw crossing)"),
                        Line2D([], [], color=down.colour, ls="-", marker=down.marker, ms=down.size - 2.5, lw=0.8, label="down offset (eta_off - eta_H)"),
                        Line2D([], [], color=hyst.colour, ls=hyst.linestyle, lw=hyst.width, label="hysteresis width"),
