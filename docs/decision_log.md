@@ -5715,3 +5715,13 @@ Chosen:          as done   Default from: the prompt
 Test:            fast suite as above
 Status:          13r-3b done; 13r-3c (F5, F6) next
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-529  MS13 13r-3c: rulings (pattern rule for F5 and F6; floor sigma text accepted as a small departure)    [ID: MS13, 13r, 13r-3c, DL-521, DL-524]
+Date:            2026-10-30        Author:
+Decision:        RULED (reviewer, 13r-3c prompt). (a) The DL-524 pattern-update rule (DL-521) applies to the rewording of the F5 and F6 captions: the printed= text patterns of scripts/ms13_independent.py may be updated only to find the same numbers; values stay from the stored records; no pattern is loosened to accept any number; a row not equal or still unresolved is a STOP. (b) The floor sigma "1.59e-09" printed in the stored params format (the shared function value_text, the params.csv cell text) is accepted as a small departure from G9; it is entered in docs/ms13_close_items.md as item 36; no positive-exponent "1e+03" style may appear anywhere on a figure or in a caption (the F5 map-2 tick and the F6 T_ramp tick that read "1e+03" are fixed in this step). BASELINE: fast suite at bed2a43 (start of 13r-3c): 1174 passed, 24 deselected, 9 xfailed, 3 warnings, exit 0 (711.99 s).
+Reason:          instruction of the reviewer (13r-3c prompt)
+Options:         -
+Chosen:          as ruled   Default from: the prompt
+Test:            tests/test_ms13_independent.py (real comparison)
+Status:          13r-3c in progress
+Commit/tag:      the commit that adds this entry; no tag

@@ -54,3 +54,5 @@ LIST ONLY. Collected from the decision log from DL-419 onward and from docs/ms13
 ## F. Added in 13r (DL-511, DL-512)
 
 35. F4 (j) and FS4: the 84 classifier-onset delays of -1.5 are onsets at the ramp start (onset_s = t_on_s = 5.0 s; delay = eta_start - eta_H = -1.5). Statement on the figures: "classifier onset at or before the ramp start; the eta-based delay equals its minimum eta_start - eta_H (-1.5); the classifier-onset reading is saturated at these levels". No gate verdict changes (D2, DL-511).
+
+36. F4 caption (and any caption that lists the params of the floor runs): the D43 floor sigma 1.59e-09 is printed in the stored params format (value_text, the params.csv cell text), a small departure from the G9 number format; accepted (DL-529 (b)). No positive-exponent style such as 1e+03 may appear on a figure or in a caption.
