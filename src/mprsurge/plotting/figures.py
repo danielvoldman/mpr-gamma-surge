@@ -4102,6 +4102,9 @@ def _f1_onset_marks(ax, d: dict, *, network: bool):
             st = S.get(cls_)
             ax.plot([x], [0.93], transform=tr, ls="none", marker=st.marker, ms=S.F1_SIZES["onset"], color=st.colour, mec=S.figure_colour("bar_edge"), mew=S.POINT_EDGE_WIDTH["class"],
                     clip_on=False, zorder=6)
+            n_same = sum(1 for c_, o_ in zip(d["cls120"], d["onset120_s"]) if (c_, o_) == (cls_, x))
+            if n_same > 1:                                  # 13r-3b (DL-526, G7): one mark stands for several seeds with the same stored onset
+                ax.text(x + 2.0, 0.93, f"{n_same} seeds coincide ({x:.3f} s)", transform=tr, ha="left", va="center", fontsize=S.TEXT_SIZES["small"], color=S.figure_colour("text_dark"))
         nab = S.diagram_mark("fs4_cross")
         for i_, x in reversed(list(enumerate(d["raw120_s"]))):
             ax.plot([x], [1.04], transform=tr, ls="none", marker=nab.marker, ms=S.F1_SIZES["onset"], color=S.network_seed_colour(i_), mew=nab.width, clip_on=False, zorder=6)
@@ -4289,6 +4292,7 @@ def f1_caption_notes(d: dict) -> tuple:
         "stored arrays, and t_on, the end of the ramp and eta_start, eta_H and eta_peak are the stored path values (read from the record, not retyped); the headline is the T_ramp 120 s path, "
         "so the network records of T_ramp 10 s are not drawn (their stored classes are in the status block). Panel (b) marks the start and the end of the J ramp, " + f"{d['path_t_on_s'] + d['path_J_lag_frac'] * d['path_T_ramp_s']:g} s and "
         f"{d['path_t_on_s'] + (d['path_J_lag_frac'] + d['path_J_T_frac']) * d['path_T_ramp_s']:g} s" + ": derived from the stored keys (t_on + J_lag_frac x T_ramp; start + J_T_frac x T_ramp), not stored as times. "
+        "The three network seeds " + CAP.coincide_note(["seed 0", "seed 1", "seed 2"], "in their stored classifier onset, " + f"{d['onset120_s'][0]:.3f} s") + "; their r(t) and v(t) traces and their raw first crossings (" + f"{min(d['raw120_s']):.3f} to {max(d['raw120_s']):.3f}" + " s, stored, not equal) lie on top of each other at the panel scale and are not moved. "
         "In (d) and (f) the in-panel line states the stored result (" + f1_net_line(d) + ") and the red title shows the RB1 FAIL; the pointer names the claim limits G4-C1 and G4-C3 (full text below).",
         "Panels (c) to (f) draw r(t) and v(t) of the stored mean-field record and of the three stored network records at N = 1e4, T_ramp 120 s, seeds 0, 1 and 2, on the same y range per quantity: "
         "all three stored seeds are drawn and none is chosen, and N = 1e4 is the only N of the S8 headline (the 3e4 records belong to S9 and are not drawn here). Each series is a min-to-max "
