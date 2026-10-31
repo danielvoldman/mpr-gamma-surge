@@ -221,3 +221,23 @@ def classifier_line(crit: dict) -> str:
     return ("Classifier and spectrogram (frozen criteria): " + f"window {c['window_rule']['value']}; taper {c['spectrogram_taper']['value']}; "
             f"gamma band {' to '.join(number_text(v) for v in c['band_primary_hz']['value'])} Hz; total band {' to '.join(number_text(v) for v in c['total_band_hz']['value'])} Hz; "
             f"minimum {number_text(c['min_cycles']['value'])} cycles; threshold {number_text(c['amin_factor']['value'])} x A_ref (mode D).")
+
+
+# ---- 13t (DL-545 J2, J3, J6; DL-546): the journal caption. The same builder (build_caption) with extra notes that carry what the journal image no longer draws. ----
+
+def journal_extras(figure_id: str, *, strip_lines, red_note: str, body_text: str = "", pointers=(), moved_notes=()) -> tuple:
+    """Notes appended after the draft notes of a journal caption: (1) every line of the draft FAIL strip, verbatim, so no failure is dropped (J3); (2) the red-title definition (G2);
+    (3) the internal codes (style.INTERNAL_CODES) that occur in `body_text`, defined once (J2); (4) `moved_notes`, sentences that were long notes on the draft image; (5) the claim-limit
+    pointers that were on the draft image (G10), as one sentence. `strip_lines` may be empty only when the figure has no FAIL row."""
+    out = []
+    if strip_lines:
+        out.append(f"Failed checks of the stored A11 table that touch {figure_id}, as listed on the draft figure (shown, not dropped; the full list with value, threshold and decision-log "
+                   f"entries is in the supplement sheet of {figure_id}): " + "; ".join(strip_lines) + ".")
+    out.append(_required_text(red_note, "red_note"))
+    codes = [v for k, v in S.INTERNAL_CODES.items() if k in body_text]
+    if codes:
+        out.append("Names used in this caption: " + "; ".join(codes) + ".")
+    out.extend(_required_text(n, "moved_notes entry") for n in moved_notes)
+    if pointers:
+        out.append("Claim limits that change how a panel reads (pointers drawn on the draft figure): " + "; ".join(pointers) + ".")
+    return tuple(out)

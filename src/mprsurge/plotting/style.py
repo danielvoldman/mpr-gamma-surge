@@ -414,6 +414,10 @@ F5_SIZES = {"map_mark": 2.0, "state_mark": 2.0, "net_symbol": 13.0, "net_halo_wi
             "control_mark_width": 0.9, "range_line": 0.9, "median_bar": 4.0, "ref_line": 0.8, "key_mark": 5.0,
             "net_outline_width": 1.2, "map_mark_width": 0.35, "state_mark_width": 0.5, "key_state_width": 1.0, "median_line": 1.6, "median_half_width": 0.6}
 
+# 13t (DL-546), F5 journal export: the seed marks of (f) to (i) are 3.0 pt so that the 13 seeds of one N group (10 ramp, 3 control) do not touch at the journal width. UNVERIFIED design choice.
+F5J_COLOURS = {"net_disagree": "#fb6a4a", "separator": "#bdbdbd"}      # 13t (J13): journal-export fill of the network-disagree symbol (lighter than STYLE["network_disagree"]); UNVERIFIED design choice
+F5J_SIZES = {"seed_mark": 3.0, "seed_edge": 0.3, "control_mark": 2.6, "control_edge": 0.6}
+
 # ---- 13o (DL-494 R1, R4, R6 to R12). UNVERIFIED design choices, plain scalars outside STYLE, FIGURE_COLOURS and DIAGRAM_MARKS (the unique-mark table and the pinned key sets
 # are unchanged). The plan gives no font, size or layout (M13-14 (vii)).
 
@@ -427,6 +431,14 @@ DRAFT_NOTE = {"x": 0.012, "y": 0.004, "band": 0.012}
 F2_MARKS = {"zero_line": "#7a7a7a", "zero_line_width": 0.6, "net_size": 3.4, "net_width": 0.8}
 F3_MARKS = {"cycle_marker": "s", "cycle_size": 5.0, "slice_hopf_size": 5.0, "strip_start_size": 5.0, "key_path_size": 4.0, "strip_arrow_width": 1.6, "strip_head": 8.0,
             "a6_hopf_size": 5.5, "a6_hopf_width": 0.8}           # R11: the A6 Hopf mark drawn smaller and without the white halo, so the 5 ms slice line stays visible
+
+# 13t (DL-546), F1 journal export: the spike-count image uses cividis (dark for 0, yellow for the top colour; the orange window frames stay visible on the low counts) because the journal colour maps are magma, viridis and
+# cividis only (configs/journal_export.yaml, J13); the draft keeps RASTER_COUNT_CMAP. UNVERIFIED design choice.
+JOURNAL_COUNT_CMAP = "cividis"
+
+# 13t (DL-546), F3 journal export: the one combined arrow of the paths that share one stored position (P1, P2, P3, P5): a neutral dark grey line with an open circle at the stored start.
+# UNVERIFIED design choice; not an entry of STYLE.
+F3_COMBINED = {"colour": "#333333", "marker": "o", "width": 2.0, "size": 5.0, "head": 8.0, "small_size": 4.0}
 
 # R6, F1 schematic: box face and edge colours and the arrow colour (no data, no value).
 F1_SCHEMATIC = {"box_face": "#f4f4f4", "box_edge": "#4d4d4d", "ramp_face": "#fdf0e6", "net_face": "#eaf0f7", "arrow": "#4d4d4d", "edge_width": 0.7, "arrow_width": 0.8}

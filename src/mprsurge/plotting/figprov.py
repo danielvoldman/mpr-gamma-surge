@@ -145,7 +145,7 @@ def write_params_csv(path, rows: list[dict], figure_id: str) -> None:
 
 def write_figure_provenance(figure_id: str, *, script, inputs, outputs=(), params_rows=(), modules=(), configs=(),
                             claim_limits=(), input_tables=(), spectrogram=None, build: int = 1, tag_build: bool = False,
-                            out_dir=None, root=None, warnings=(), wall_time_s=None, status: str = "ok") -> dict:
+                            out_dir=None, root=None, warnings=(), wall_time_s=None, status: str = "ok", file_stem=None, extra=None) -> dict:
     """Write figures/<ID>/<ID>_params.csv and <ID>_provenance.json; return the provenance dict.
 
     inputs: stored files read by the figure (paths relative to `root` or absolute). A missing one raises MissingInputError before
@@ -187,7 +187,9 @@ def write_figure_provenance(figure_id: str, *, script, inputs, outputs=(), param
         "wall_time_s": wall_time_s if wall_time_s is not None else time.perf_counter() - t0,
         "warnings": [str(w) for w in warnings],
     }
-    P.atomic_write_json(out_dir / f"{figure_id}_provenance.json", prov)
+    if extra:
+        prov.update(extra)                                                         # 13t: the journal export adds its settings (file_stem names its provenance file)
+    P.atomic_write_json(out_dir / f"{file_stem or figure_id}_provenance.json", prov)
     return prov
 
 
