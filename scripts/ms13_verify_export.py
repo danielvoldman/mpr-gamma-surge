@@ -25,6 +25,7 @@ from mprsurge.plotting import collide as CO
 from mprsurge.plotting import figures as FG
 from mprsurge.plotting import jchecks as JC
 from mprsurge.plotting import journal as J
+from mprsurge.plotting import plain as PL
 from mprsurge.plotting import style as S
 
 PILOT = ("F1", "F3", "F5")
@@ -96,8 +97,9 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         res["file names"] = ("PASS" if not names_bad and not case_bad else "FAIL", f"{len(names_bad)} invalid names, {len(case_bad)} case mismatches")
         # draft FAIL lines in the caption
         lines = STRIP[fid](d)
-        absent = [ln for ln in lines if ln not in cap]
-        res["FAIL lines"] = ("PASS" if not absent else "FAIL", f"{len(lines) - len(absent)} of {len(lines)} strip lines in the caption" + (f"; absent: {absent[0][:50]}" if absent else ""))
+        # 13t-1c (DL-563 S4): the journal caption holds the plain form of every strip line, and the supplement holds the ruled (verbatim) line
+        absent = [ln for ln in lines if PL.plain_fragment(ln) not in cap or ln not in sup_text]
+        res["FAIL lines"] = ("PASS" if not absent else "FAIL", f"{len(lines) - len(absent)} of {len(lines)} strip lines in the caption (plain) and the supplement (ruled)" + (f"; absent: {absent[0][:50]}" if absent else ""))
         # digest
         draft_dig = (root / "figures" / fid / f"{fid}_drawn_data_sha256.txt").read_text(encoding="utf-8").strip()
         mine = prov.get("journal", {}).get("drawn_data_sha256")

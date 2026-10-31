@@ -18,6 +18,7 @@ from mprsurge.plotting import collide as CO
 from mprsurge.plotting import figures as FG
 from mprsurge.plotting import jchecks as JC
 from mprsurge.plotting import journal as J
+from mprsurge.plotting import plain as PL
 
 ROOT = C.repo_root()
 RES = ROOT / "results"
@@ -416,8 +417,10 @@ def test_every_draft_strip_fail_line_is_in_the_journal_caption(built, figs, fid)
     d = figs[fid][1]
     lines = STRIP[fid](d)
     assert lines
+    sup = (built["base"] / "journal" / "supplement" / f"{fid}_supplement.md").read_text(encoding="utf-8")
     for ln in lines:
-        assert ln in cap, ln
+        assert PL.plain_fragment(ln) in cap, ln               # 13t-1c (DL-566 E8): the journal caption holds the plain form, the supplement the verbatim line
+        assert ln in sup, ln
     assert CAP.RED_TITLE_NOTE.split(":")[0].lower() in cap.lower()          # the red-title definition is in the caption
 
 
@@ -430,7 +433,7 @@ def test_caption_sentence_one_names_the_main_failure_and_has_the_take_home(built
         assert m in s1, m
     draft_cap = (ROOT / "figures" / fid / f"{fid}_caption.txt").read_text(encoding="utf-8")
     take = {"F1": FG.F1_TAKE_HOME, "F3": FG.F3_TAKE_HOME, "F5": FG.F5_TAKE_HOME}[fid]
-    assert take in cap and take in draft_cap
+    assert PL.plain_fragment(take) in cap and take in draft_cap            # 13t-1c (DL-566 E9): the journal caption holds the plain form of the take-home
     assert "DRAFT" not in cap and "as ruled (DL" not in cap                 # the footer text is in the supplement, not in the caption
 
 
@@ -542,7 +545,7 @@ def test_r3_f3_caption_says_that_the_headline_hopf_point_is_the_5_ms_slice_point
     d = figs["F3"][1]
     assert f"the Hopf point of the tau_d {d['headline_tau_d_ms']:g} ms slice of the Delta {d['headline_Delta']:g} panel" in cap and "drawn twice and not moved" in cap
     assert f"eta_bar {d['headline_hopf_eta']:.3f}" in cap
-    assert all(e.reason.strip() for e in CO.JOURNAL_ALLOW["F3"]) and len(CO.JOURNAL_ALLOW["F3"]) == 3
+    assert all(e.reason.strip() for e in CO.JOURNAL_ALLOW["F3"]) and len(CO.JOURNAL_ALLOW["F3"]) == 5
 
 
 @needs
@@ -558,8 +561,8 @@ def test_r4_f5_titles_a_and_g_carry_fail_and_are_red_and_the_f1_caption_has_the_
     assert sum("FAIL" in ax.get_title(loc="left") for ax in fig.axes) == 4
     assert "FAIL" not in titles["h"].get_title(loc="left") and "FAIL" not in titles["i"].get_title(loc="left")
     cap = built["out"]["F1"]["caption"]
-    assert ("Other failed checks on the headline path (RB6 solver onset 181 ms against 1 ms; RB2 headline class 7 of 10 seeds at the noise level used; RB3(b) classifier onset) "
-            "are shown in F4 and FS4.") in cap
+    assert ("Other failed checks on the headline path are shown elsewhere: the RB2 headline class and the RB3(b) classifier onset in F4, and the RB6 solver onset "
+            "(181 ms against 1 ms) in F4 and FS4.") in cap
     alt5 = (built["base"] / "journal" / "supplement" / "F5_alt_text.txt").read_text(encoding="utf-8")
     assert "RB1 cells: FAIL" in alt5 and "RB6 network f_pk FAIL" in alt5
 
@@ -567,7 +570,7 @@ def test_r4_f5_titles_a_and_g_carry_fail_and_are_red_and_the_f1_caption_has_the_
 @needs
 def test_r4_other_failed_checks_sentence_needs_fail_rows_in_the_stored_table():
     a11 = FG.load_F1(RES)["a11"]
-    assert FG._f1_other_failures(a11).startswith("Other failed checks on the headline path (RB6 solver onset 181 ms against 1 ms;")
+    assert FG._f1_other_failures(a11).startswith("Other failed checks on the headline path are shown elsewhere: the RB2 headline class and the RB3(b) classifier onset in F4, and the RB6 solver onset (181 ms against 1 ms)")
     bad = [{**r, "pass_or_fail": "PASS"} if (r["rb_id"], r["check_id"]) == ("RB6", "solver_onset_headline") else r for r in a11]
     with pytest.raises(FG.DataError):
         FG._f1_other_failures(bad)
@@ -643,3 +646,160 @@ def test_r10_f1_supplement_names_the_zip_of_the_source_data(built):
     sup = (built["base"] / "journal" / "supplement" / "F1_supplement.md").read_text(encoding="utf-8")
     assert "F1_source_data.csv is" in sup and "to be zipped for the Zenodo record" in sup
     assert "zipped" not in (built["base"] / "journal" / "supplement" / "F3_supplement.md").read_text(encoding="utf-8")
+
+
+# ---- 13t-1c (DL-563 S1 to S14; DL-566): new tests ----
+
+def _panel(fig, letter):
+    return next(ax for ax in fig.axes if ax.get_gid() == f"panel:{letter}")
+
+
+@needs
+def test_s1_f5_a_and_e_carry_no_class_mark_the_key_shows_the_hatch_swatch_and_the_source_data_has_every_cell_class(figs, built):
+    from matplotlib.patches import Patch
+    fig, d, _ = figs["F5"]
+    for letter in "ae":
+        ax = _panel(fig, letter)
+        assert not any((ln.get_gid() or "").startswith("class marks") for ln in ax.lines), letter
+        assert not [ln for ln in ax.lines if ln.get_marker() not in ("None", None, "") and len(ln.get_xdata()) > 20], letter       # no run of class marks
+    key = next(ax for ax in fig.axes if ax.get_gid() == "legend axes (a to e)").get_legend()
+    patches = [h for h in key.legend_handles if isinstance(h, Patch)]
+    assert len(patches) >= 2 and sum(1 for p_ in patches if p_.get_hatch()) >= 1        # D-none has its hatch in the key, as plotted
+    src = (built["base"] / "journal" / "supplement" / "F5_source_data.csv").read_text(encoding="utf-8")
+    assert src.count("map1 class per cell") == d["map1_class"].size and src.count("map2 class per cell") == d["map2_class"].size
+
+
+@needs
+def test_s2_f3_every_arrow_has_a_solid_head_and_no_marker_at_its_end(figs):
+    import numpy as np
+    fig, d, _ = figs["F3"]
+    fig.canvas.draw()
+    heads = [(ax, t) for ax in fig.axes for t in ax.texts if (t.get_gid() or "").startswith("arrowhead:")]
+    assert len(heads) == 13                                                  # combined (2: (c) and (d)), P5 return (2), P4a and P4b (2, in (d)), seven strip rows in (e)
+    for ax, h in heads:
+        assert h.arrow_patch.get_linestyle() in ("-", "solid")
+        tip = np.asarray(ax.transData.transform(h.xy), float)
+        for ln in ax.lines:
+            if ln.get_marker() in ("None", None, "") or not len(ln.get_xdata()) or (ln.get_gid() or "").startswith("start:"):
+                continue
+            for x, y in zip(ln.get_xdata(), ln.get_ydata()):
+                pt = np.asarray(ax.transData.transform((x, y)), float)
+                if (ln.get_gid() or "") in ("a6_hopf_point", "slice Hopf points"):
+                    continue                                                 # stored positions on the path (allow-listed, DL-565)
+                assert np.hypot(*(pt - tip)) > fig.dpi / 72.0, (h.get_gid(), ln.get_gid())
+    gids = {ln.get_gid() for ax in fig.axes for ln in ax.lines}
+    assert "start:tau_d:P5:1" not in gids and "start:Delta:P5:1" not in gids
+
+
+@needs
+def test_s3_extended_checker_has_zero_unlisted_hits_and_the_provisional_entries_name_the_stop(figs, cfg):
+    for fid in PILOT:
+        fig, d, _ = figs[fid]
+        with _jrc():
+            bad, ok = CO.check(fig, pad_pt=cfg["collision"]["pad_pt"], allow=CO.JOURNAL_ALLOW.get(fid, ()))
+        assert not bad, (fid, [str(h) for h in bad][:3])
+    prov = [e for e in CO.JOURNAL_ALLOW["F5"] if e.reason.startswith("PROVISIONAL")]
+    assert prov and all("S14" in e.reason for e in prov)
+    assert all(len(e.reason) > 40 for fid in PILOT for e in CO.JOURNAL_ALLOW[fid])
+
+
+@needs
+@pytest.mark.parametrize("fid", PILOT)
+def test_s4_the_journal_caption_has_no_ruling_code_and_no_dl_number_and_every_limit_is_in_plain_words_and_paired_in_the_supplement(built, fid):
+    from mprsurge.plotting.claim_labels import CLAIM_LIMIT_LABELS
+    cap = built["out"][fid]["caption"]
+    assert not PL.FORBIDDEN.search(cap), PL.FORBIDDEN.findall(cap)
+    ids = {"F1": FG.F1_CLAIM_LIMITS, "F3": FG.F3_CLAIM_LIMITS, "F5": FG.F5_CLAIM_LIMITS}[fid]
+    for i in ids:
+        assert PL.PLAIN_LIMITS[i].rstrip(".") in cap, i
+    sup = (built["base"] / "journal" / "supplement" / f"{fid}_supplement.md").read_text(encoding="utf-8")
+    for i in ids:
+        short, dls = CLAIM_LIMIT_LABELS[i]
+        assert f"{i}: {short} ({', '.join(dls)})" in sup, i                    # the verbatim ruled text with its DL numbers
+        assert PL.PLAIN_LIMITS[i].rstrip(".") in sup, i
+    assert "IDs used in this caption:" in cap
+
+
+def test_s4_every_number_of_a_ruled_claim_limit_occurs_in_its_plain_sentence():
+    import re
+    from mprsurge.plotting.claim_labels import CLAIM_LIMIT_LABELS
+    num = re.compile(r"[0-9][0-9,]*(?:[.][0-9]+)?(?:e[0-9]+)?")
+    code = re.compile(r"(?<![0-9.])[A-Za-z]+[0-9]+[A-Za-z0-9()-]*")            # RB1, G7, D24, G4-C1, MS9: the digits of a code are not numbers of a limit
+    for i, plain in PL.PLAIN_LIMITS.items():
+        short = code.sub("", CLAIM_LIMIT_LABELS[i][0])
+        have = {n.rstrip(",") for n in num.findall(code.sub("", plain))}
+        for n in num.findall(short):
+            assert n.rstrip(",") in have, (i, n)
+
+
+def test_s4_plain_helpers_remove_dl_numbers_and_stop_on_a_ruling_code():
+    assert PL.scrub_dl("a (DL-319, DL-323), b; c (DL-163, DL-208).") == "a, b; c."
+    assert "DL-" not in PL.scrub_dl("x, DL-319; y (DL-320) z")
+    with pytest.raises(PL.PlainError):
+        PL.to_plain("F9. A claim with a stray code G4-C1 here. Claim limits: x.", ("MS11-C7",))
+    with pytest.raises(PL.PlainError):
+        PL.plain_limit_text(("no such limit",))
+
+
+@needs
+def test_s5_f1_j_and_k_have_no_y_tick_marks_and_the_caption_says_the_rows_are_those_of_i(figs, built):
+    fig = figs["F1"][0]
+    for letter in "jk":
+        ax = _panel(fig, letter)
+        assert not any(tk.tick1line.get_visible() for tk in ax.yaxis.get_major_ticks()), letter
+        assert not any(t.get_text() for t in ax.get_yticklabels())
+    assert "rows of (j) and (k) are the neurons of (i), in the same order" in built["out"]["F1"]["caption"]
+
+
+@needs
+@pytest.mark.parametrize("fid", PILOT)
+def test_s9_and_s13_no_code_names_on_any_journal_image_tau_d_has_no_underscore_psd_is_spelled_out(figs, fid):
+    from matplotlib.text import Text
+    fig = figs[fid][0]
+    texts = [t.get_text() for t in fig.findobj(Text) if t.get_text()]
+    for bad in ("path_hypoxia", "T_ramp_s", "tau_d_ms", "I_drive", "tau_ms", "eta_bar", "tau_d", "τ_d", "(Delta)", "N (N)", "ref_devalle"):
+        assert not any(bad in s for s in texts), (fid, bad)
+    assert not any("PSD" in s for s in texts)
+    if fid == "F1":
+        assert any("power spectral" in s for s in texts)
+    if fid in ("F1", "F3", "F5"):
+        assert any("τd" in s for s in texts)
+
+
+@needs
+def test_s9_f1_schematic_has_plain_names_and_no_box_wraps_one_word_per_line(figs):
+    fig = figs["F1"][0]
+    ax = next(a for a in fig.axes if a.get_gid() == "schematic")
+    rows = {t.get_gid(): t.get_text() for t in ax.texts if (t.get_gid() or "").endswith(":rows")}
+    assert set(rows) == {"schematic:ramp:rows", "schematic:model:rows", "schematic:mf:rows", "schematic:net:rows", "schematic:out:rows"}
+    for g, s in rows.items():
+        lines = s.split(chr(10))
+        assert sum(1 for ln in lines if len(ln.split()) >= 2) * 2 >= len(lines), (g, lines)
+    joined = " ".join(" ".join(rows.values()).split()).lower()
+    for word in ("mean excitability", "coupling", "ramp duration", "common (non-local) drive"):
+        assert word in joined, word
+
+
+@needs
+def test_s10_the_event_strip_above_d_and_f_holds_the_stored_times_and_is_labelled(figs):
+    import numpy as np
+    fig, d, _ = figs["F1"]
+    strips = [ax for ax in fig.axes if (ax.get_gid() or "") in ("panel:d", "panel:f") and ax.get_ylim() == (0.0, 1.0) and ax.texts]
+    assert len(strips) == 2
+    for ax in strips:
+        assert any("height has no meaning" in t.get_text() and "event times" in t.get_text() for t in ax.texts)
+        xs = sorted(float(ln.get_xdata()[0]) for ln in ax.lines if (ln.get_gid() or "").startswith(("classifier onset", "raw first crossing")))
+        want = sorted([float(x) for x in set(d["onset120_s"])] + [float(x) for x in d["raw120_s"]])
+        assert np.allclose(xs, want)
+
+
+@needs
+def test_s11_s12_labels_colour_bar_j0_p1_and_the_f3_e_title(figs, built):
+    f1, f3, f5 = figs["F1"][0], figs["F3"][0], figs["F5"][0]
+    cb = next(a for a in f1.axes if a.get_gid() == "colour bar spectrogram")
+    assert "power spectral" in cb.get_ylabel() and "density (dB)" in cb.get_ylabel()
+    assert "J0" in _panel(f5, "e").get_ylabel() and "path start" in _panel(f5, "e").get_ylabel()
+    assert _panel(f5, "d").get_title(loc="left") == "(d) post-hoc view P-1"
+    assert _panel(f3, "e").get_title(loc="left") == "(e) paths, one row per path"
+    cap5 = built["out"]["F5"]["caption"]
+    assert "P-1 = a post-hoc view" in cap5 and "synaptic decay time" in cap5

@@ -412,6 +412,11 @@ def check(fig, *, pad_pt: float = 0.5, allow=()) -> tuple[list[Hit], list[tuple[
                 if not len(lo):
                     continue
                 reach_x, reach_y = M.hw + pad + L.lw_px / 2.0, M.hh + pad + L.lw_px / 2.0
+                if len(lo) == 2 and (abs(lo[1, 1] - lo[0, 1]) < 1e-6 or abs(lo[1, 0] - lo[0, 0]) < 1e-6):          # an axis-parallel segment: its width counts across it, not along it (butt ends)
+                    if abs(lo[1, 1] - lo[0, 1]) < 1e-6:
+                        reach_x = M.hw + pad
+                    else:
+                        reach_y = M.hh + pad
                 cand = M.pts[(M.pts[:, 0] >= lo[:, 0].min() - reach_x) & (M.pts[:, 0] <= lo[:, 0].max() + reach_x) & (M.pts[:, 1] >= lo[:, 1].min() - reach_y) & (M.pts[:, 1] <= lo[:, 1].max() + reach_y)]
                 for c_ in cand[:4000]:
                     if L.sub == "arrow" and L.start is not None and abs(c_[0] - L.start[0]) <= M.hw + pad and abs(c_[1] - L.start[1]) <= M.hh + pad:
@@ -480,10 +485,41 @@ JOURNAL_ALLOW = {
                    "stored positions: the Hopf point and the 25 Hz crossing of one slice are closer in eta_bar than the two marks are wide; positions are data and are not moved"),
         AllowEntry("marker-marker", "b", r"slice Hopf points", r"25 Hz crossings",
                    "stored positions: the Hopf point and the 25 Hz crossing of one slice are closer in eta_bar than the two marks are wide; positions are data and are not moved"),
+        AllowEntry("marker-arrow", "*", r"a6_hopf_point|slice Hopf points", r"arrow:",
+                   "stored positions: the stored A6 Hopf point (eta_bar 2.896, Delta 0.3, tau_d 5 ms) lies on the path of P1, P2, P3 and P5 (eta_bar 1.396 to 4.896 at the same Delta and tau_d), and the arrows of P4a, P4b "
+                   "and of the return of P5 pass within the width of its mark; the point and the arrows keep their stored positions"),
+        AllowEntry("marker-line", "*", r"a6_hopf_point|slice Hopf points", r"A4 Hopf curve",
+                   "stored position: the Hopf point of the 5 ms slice (the A6 headline Hopf point) lies on, or within the width of its mark of, the A4 Hopf curve, which is the curve of Hopf points; "
+                   "A4 and A6 are separate stored records and no claim is made that they agree (caption); the mark keeps its stored position"),
     ),
     "F1": tuple(
         AllowEntry("marker-marker", pl, r"raw first crossing seed \d", r"raw first crossing seed \d",
                    "R3, R6: the three stored raw first-crossing times (50.170 to 50.924 s, not equal) overlap at the figure scale; they keep their stored positions and the key says that they overlap at this scale")
-        for pl in ("d", "f")),
-    "F5": (),
+        for pl in ("d", "f")) + tuple(
+        AllowEntry("marker-marker", pl, r"marks:", r"\(same artist\)",
+                   "the spike raster of the stored spikes of the window: ticks overlap by design, the density of the ticks is the data (every stored spike of the window is drawn at its stored time and row)")
+        for pl in ("j", "k")) + tuple(
+        AllowEntry("marker-frame", pl, r"marks:", r"frame of panel",
+                   "the spike raster: the stored spikes of the window lie on the first and last rows and times of the window, so ticks touch the frame; the window is the stored window, not shifted")
+        for pl in ("j", "k")),
+    "F5": (
+        AllowEntry("marker-cell", "a", r"network symbols", r"cell of the mesh",
+                   "the four network symbols are drawn larger than a 4 pt map cell by design (they mark a stored cell: matched to 1e-9 in (Delta, tau_d), numbered 1 to 4 as in (b)); they are outlined and carry the number of the cell"),
+        AllowEntry("text-marker", "a", r"text '[1-4]'", r"network symbols",
+                   "the number of a network cell is written inside its own network symbol (white halo, 8 pt bold); the text and the symbol are one label"),
+        AllowEntry("text-image", "a", r"text '[1-4]'", r"image:",
+                   "the number of a network cell lies inside its network symbol, which lies on the map cell it marks; the symbol covers the cell under the number")
+    ) + tuple(
+        AllowEntry("marker-cell", pl, r"marks:(d24|p1) ", r"cell of the mesh",
+                   "PROVISIONAL, S14 (the reviewer's ruling is open): the dark state mark of a subgrid cell (4.2 pt, 0.8 pt edge) is wider than its map-1 cell (3.0 pt) but inside the 6.0 pt (at least) pitch "
+                   "to the next subgrid cell, so no two marks touch; a mark of the cell size would be below 3 pt and unreadable; options are in the report")
+        for pl in ("c", "d")) + tuple(
+        AllowEntry("marker-marker", pl, r"marks:(seed|control) N\d s\d", r"marks:(seed|control) N\d s\d",
+                   "PROVISIONAL, S14 (the reviewer's ruling is open): neighbouring seeds of one N group are 3.04 pt apart (52 slots in 2.6 in) and a mark is 2.5 pt (ramp seed) or 2.2 pt (control seed) wide, so marks "
+                   "of adjacent slots with similar values touch; a larger mark or a clear gap needs fewer seeds or a larger panel; options are in the report")
+        for pl in ("f", "g", "h", "i")) + tuple(
+        AllowEntry("marker-line", pl, r"marks:(seed|control) N\d s\d", r"mean-field companion reference|stored minimum duration",
+                   "stored value on the line: the line is the stored mean-field companion value (f_pk 49 Hz, onset 33.698 s) or the stored minimum duration (1000 ms, the classifier floor), and a seed whose stored "
+                   "value is that value lies on it")
+        for pl in ("g", "h", "i")),
 }
