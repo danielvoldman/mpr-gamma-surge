@@ -118,8 +118,9 @@ def status_block(ax, lines, *, size: float, width: int = 150, linespacing: float
     for ln in lines:
         bold = "FAIL" in ln
         for piece in textwrap.wrap(ln, width=width, subsequent_indent="        ") or [""]:
-            ax.annotate(piece, xy=(x, y), xycoords="axes fraction", xytext=(0.0, -n * size * linespacing), textcoords="offset points", va="top", ha="left", fontsize=size,
-                        fontweight="bold" if bold else "normal", annotation_clip=False)
+            ann = ax.annotate(piece, xy=(x, y), xycoords="axes fraction", xytext=(0.0, -n * size * linespacing), textcoords="offset points", va="top", ha="left", fontsize=size,
+                              fontweight="bold" if bold else "normal", annotation_clip=False)
+            ann.set_in_layout(False)                # a long block must not drive the constrained layout (it collapsed F5 at 200 dpi)
             n += 1
     return n
 
@@ -4770,12 +4771,12 @@ def _draw_F5(d: dict, draft: bool):
            (("agree", "subgrid cell agrees"), ("disagree", "subgrid cell disagrees (not a tie)"), ("tie", "subgrid cell is a tie (a disagreement by the D24 rule)"))]
     hh = [h if not isinstance(h, tuple) else h[0] for h in hs]
     ll = [h.get_label() if not isinstance(h, tuple) else h[1] for h in hs]
-    kx.legend(hh, ll, loc="center", ncol=2, fontsize=S.TEXT_SIZES["legend"], frameon=False, handlelength=2.0, columnspacing=1.6, labelspacing=0.6, handler_map={tuple: HandlerTuple(ndivide=None)})
+    kx.legend(hh, ll, loc="center", ncol=2, fontsize=S.TEXT_SIZES["legend"], frameon=False, handlelength=2.0, columnspacing=1.6, labelspacing=0.6, handler_map={tuple: HandlerTuple(ndivide=None)}).set_in_layout(False)
 
     # (a) map 1 with the network symbols
     ax = fig.add_subplot(gs[1, 0:3])
     _f5_map(ax, d["map1_class"], d["map1_tau_d_ms"], d["map1_Delta"], title=f"(a) map 1, mode D, T_ramp 120 s: D-tr {d['map1_n_surge']}, D-none {d['map1_n_none']} of {d['map1_n']}",
-            xlabel="tau_d (ms), cell index j\n" + F5_LINE_A, ylabel="Delta, cell index i", margin=1.2)
+            xlabel="tau_d (ms), cell index j\n" + textwrap.fill(F5_LINE_A, 50), ylabel="Delta, cell index i", margin=1.2)
     for agree in (True, False):
         m = d["cell_agree"] == agree
         if m.any():
@@ -4826,7 +4827,7 @@ def _draw_F5(d: dict, draft: bool):
         ax.set_yticks([0, 10, 20, 29], _f5_tick_text(d["map1_Delta"], [0, 10, 20, 29]))
         ax.set_xlabel("tau_d (ms); cells at their map-1 indices\n(uneven spacing)")
         ax.set_ylabel("Delta")
-        ax.set_title(textwrap.fill(ttl, 52) + f"\nagree {d[f'{key}_n_agree']}, disagree {d[f'{key}_n_disagree']}, tie {d[f'{key}_n_tie']}", loc=S.TITLE_LOC, color=fail if bad else dark)
+        ax.set_title(textwrap.fill(ttl, 42) + f"\nagree {d[f'{key}_n_agree']}, disagree {d[f'{key}_n_disagree']}, tie {d[f'{key}_n_tie']}", loc=S.TITLE_LOC, color=fail if bad else dark)
         if post:
             for sp in ax.spines.values():
                 sp.set_edgecolor(C["frame_posthoc"])
@@ -4844,7 +4845,7 @@ def _draw_F5(d: dict, draft: bool):
     h2 = [Line2D([], [], ls="none", marker=S.get(c).marker, ms=S.F5_SIZES["key_mark"], color=S.get(c).colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"], label=c) for c in S.F5_KEY_CLASSES]
     h2 += [Line2D([], [], ls="none", marker=S.get("S-sus").marker, ms=S.F5_SIZES["key_mark"], color=dark, mec=dark, label="filled: ramp seed (10 per N)"),
            Line2D([], [], ls="none", marker=S.get("S-sus").marker, ms=S.F5_SIZES["key_mark"], mfc="none", mec=dark, mew=S.F5_SIZES["control_mark_width"], label="open: no-ramp control seed (3 per N)")]
-    k2.legend(handles=h2, loc="center", ncol=7, fontsize=S.TEXT_SIZES["legend"], frameon=False, columnspacing=1.2, handletextpad=0.4)
+    k2.legend(handles=h2, loc="center", ncol=7, fontsize=S.TEXT_SIZES["legend"], frameon=False, columnspacing=1.2, handletextpad=0.4).set_in_layout(False)
     # (f) class per seed against N (ramp seeds filled, no-ramp control seeds open)
     ax = fig.add_subplot(gs[4, :])
     ycls = {c: k for k, c in enumerate(F5_NET_CLASSES)}
