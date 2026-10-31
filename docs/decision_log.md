@@ -5705,3 +5705,13 @@ Chosen:          as done   Default from: the prompt
 Test:            scripts/ms13_check_hashes.py; fast suite in the next entry
 Status:          13r-3b code done; fast suite pending
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-528  MS13 13r-3b: fast suite at the end of the step    [ID: MS13, 13r, 13r-3b, DL-527]
+Date:            2026-10-30        Author:
+Decision:        FACT. FAST SUITE at 984142f (clean tree): 1174 passed, 24 deselected, 9 xfailed, 3 warnings, exit 0 taken from pytest itself (output to a file, no pipe), 702.05 s; 1163 of the start plus 11 new tests (tests/test_ms13_13r3b.py). scripts/ms13_check_hashes.py: 104 manifest rows, 0 problems. No figure rebuilt, ms13_audit.py not run, nothing simulated, no tag.
+Reason:          instruction of the reviewer (13r-3b prompt)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            fast suite as above
+Status:          13r-3b done; 13r-3c (F5, F6) next
+Commit/tag:      the commit that adds this entry; no tag
