@@ -5847,3 +5847,13 @@ Chosen:          as done   Default from: the prompt
 Test:            scripts/ms13_check_hashes.py; scripts/ms13_independent_compare.py; scripts/ms13_audit.py; fast suite in the next entry
 Status:          13s build done; fast suite pending
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-542  MS13 13s: fast suite at the end of the step; 13s closed    [ID: MS13, 13s, DL-541]
+Date:            2026-10-30        Author:
+Decision:        FACT. FAST SUITE at the end of 13s (HEAD 9e4ff3c): 1192 passed, 24 deselected, 9 xfailed, 0 failed, exit 0 taken from pytest itself (721.87 s). The R19 single-commit test (tests/test_ms13_13p.py) passes: all eleven provenance files name commit 4e687523251792e21226bfdd5852ed6b59ae8628, clean and draft (DL-536 (b)). Tests added: 11 in tests/test_ms13_13s.py (class key verbatim; no text below the tick size including FS5; red titles contain FAIL and the rule is stated; sentence 1 names the main failure; D2 statement on FS4 only; "the claim is stated for Lorentzian heterogeneity only" on FS3; "not strictly monotone" only; swept ranges and noise.sigma only where noise is drawn; footers cite DL-537 and DL-538; F2 and F6 digests unchanged; F2 status above the footer); test text edit: one (E10, DL-539). UNVERIFIED or open: FS4 and FS3 readings stay as ruled; the noise.sigma drop on FS5 rests on an UNVERIFIED reading of the A8 record (DL-538); the FS2 K10 J dependence title is not coloured red because the log does not call it a FAIL (the log words it "not reproduced as worded"); FS2 parameter tags name records (A4 and A5 hold both ceni and devalle analyses). 13s is closed; figures F1 to F6 and FS1 to FS5 are untagged drafts; no tag, no push.
+Reason:          instruction of the reviewer (13s prompt)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            fast suite
+Status:          13s closed
+Commit/tag:      the commit that adds this entry; no tag
