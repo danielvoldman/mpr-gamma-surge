@@ -3510,7 +3510,7 @@ def _f4_ring(ax, x, y, mask, const=None, err=None, row=None):
                 if row is None:
                     ax.annotate(f"{float(err[k]):.1f}", xy=(xs[k], ys[k]), xytext=(0, 11), textcoords="offset points", ha="center", va="bottom", fontsize=S.TEXT_SIZES["small"], zorder=7)
                 else:
-                    ax.annotate(f"{float(err[k]):.1f}", xy=(xs[k], ys[k]), xycoords="data", xytext=(0.42 + 0.1 * j_, row), textcoords="axes fraction", ha="center", va="center",
+                    ax.annotate(f"{float(err[k]):.1f}", xy=(xs[k], ys[k]), xycoords="data", xytext=(0.5 + 0.09 * j_, row), textcoords="axes fraction", ha="center", va="center",
                                 fontsize=S.TEXT_SIZES["small"], zorder=7, arrowprops=dict(arrowstyle="-", lw=0.4, color=S.figure_colour("range_line"), shrinkA=2, shrinkB=7))
     if u_.any():
         ax.plot(xs[u_], ys[u_], ls="none", marker=S.F4_MARKS["untestable"], ms=rg.size * 0.8, mfc="none", mec=rg.colour, mew=rg.width, zorder=5)
@@ -3675,7 +3675,7 @@ def _draw_F4(d: dict, draft: bool):
         x = d[f"{tag}_eps"]
         y = d[f"{tag}_delay_eta_cross"]
         ax.plot(x, y, color=p1.colour, ls=ls, lw=0.8, marker=p1.marker, ms=S.POINT_SIZES["f4_series_p5"], fillstyle=fill, mec=p1.colour, mew=0.7, zorder=3)
-        _f4_ring(ax, x, y, d[f"{tag}_in_range"], const=d[f"{tag}_eta_const"], err=d[f"{tag}_match_err_steps"], row=0.3)
+        _f4_ring(ax, x, y, d[f"{tag}_in_range"], const=d[f"{tag}_eta_const"], err=d[f"{tag}_match_err_steps"], row=0.23)
         _f4_hold(ax, x, y, d[f"{tag}_hold_cross"])
         _f4_none_marks(ax, x, np.isnan(y), kind="crossing")
     ax.axhline(0.0, color=ref.colour, ls=ref.linestyle, lw=ref.width, zorder=1)
