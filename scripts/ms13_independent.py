@@ -9,6 +9,8 @@ is scripts/ms13_independent_compare.py (the only place that may import the figur
 
 A row: figure, id, quantity, value (int, float, str or list), tol (None = exact; a float = absolute; ('rel', x) = relative), shared ('' = independent; otherwise the reason),
 source (stored file and key), printed (None, or (regex, group) applied to the figure's take-home text), drawn (None, or a Python expression over the figure's drawn dict d).
+13t-1d (DL-571 T9, DL-572): jprinted (None, or (regex, group) applied to the JOURNAL caption of each file in jtargets; default the figure's own journal file): the same quantity as it is
+printed in the journal caption. Every row of F1, F3 and F5 that has a `printed` pattern must have a journal pattern (JOURNAL below, or jprinted); the journal rows are reported separately.
 """
 from __future__ import annotations
 
@@ -60,7 +62,7 @@ class Ctx:
 
 
 class Rows(list):
-    def add(self, fig, id_, quantity, value, source, *, tol=None, shared="", printed=None, drawn=None):
+    def add(self, fig, id_, quantity, value, source, *, tol=None, shared="", printed=None, drawn=None, jprinted=None, jtargets=None):
         if isinstance(value, (np.integer,)):
             value = int(value)
         elif isinstance(value, (np.floating,)):
@@ -69,7 +71,8 @@ class Rows(list):
             value = bool(value)
         elif isinstance(value, np.ndarray):
             value = value.tolist()
-        self.append({"figure": fig, "id": f"{fig}.{id_}", "quantity": quantity, "value": value, "tol": tol, "shared": shared, "source": source, "printed": printed, "drawn": drawn})
+        self.append({"figure": fig, "id": f"{fig}.{id_}", "quantity": quantity, "value": value, "tol": tol, "shared": shared, "source": source, "printed": printed, "drawn": drawn,
+                     "jprinted": jprinted, "jtargets": tuple(jtargets) if jtargets else None})
 
 
 def _tally(xs):
@@ -723,12 +726,79 @@ def fs5(c: Ctx, R: Rows):
 FUNCS = {"F1": f1, "F2": f2, "F3": f3, "F4": f4, "F5": f5, "F6": f6, "FS1": fs1, "FS2": fs2, "FS3": fs3, "FS4": fs4, "FS5": fs5}
 
 
+# ---------------------------------------------------------------------------------------------------- journal captions (13t-1d, DL-571 T9, DL-572)
+JOURNAL_FIGURES = ("F1", "F3", "F5", "F5c")             # the journal files whose captions are searched (F5c is the second file of the F5 build)
+SIGMA_NOTE = r"mean-field baseline std ([0-9.]+) against the network range ([0-9.]+) to ([0-9.]+)"
+# Patterns of the JOURNAL caption that differ from the draft pattern (`printed`) because the plain journal wording differs; the numbers sought are the same, the values are the stored ones,
+# nothing is loosened. A row of F1, F3 or F5 with a `printed` pattern and no entry here is searched in the journal caption with its draft pattern.
+JOURNAL_OVERRIDE = {
+    "F1.onset120_text": (r"classifier onset is (\d+\.\d) s", 1),
+    "F3.ref_fmin": (r"cycle at the reference validation point at (\d+\.\d) to", 1),
+    "F3.ref_fmax": (r"cycle at the reference validation point at \d+\.\d to (\d+\.\d) Hz", 1),
+    "F5.d24_needed": (r"%, (\d+) cells needed", 1),
+}
+JOURNAL_TARGETS = {"F5.rb1_cells": ("F5", "F5c"), "F5.rb1_cells_den": ("F5", "F5c"), "F5.cells_disagree": ("F5", "F5c"), "F5.ramp_N3000_S+": ("F5", "F5c"), "F5.ramp_N10000_NS": ("F5", "F5c")}
+
+
+def journal_rows(c: Ctx, R: Rows, figures) -> None:
+    """Rows that exist only in the journal captions (T2: the stored sigma check and RB3(a) rows; T7: the RB9(b) frequencies and the stored points of the A4 curve; T4: the sentence 1 of F5) and the
+    journal pattern of every row of F1, F3, F5 that has a draft pattern. Values come from the stored files (own readers)."""
+    import re
+    a11 = c.csv("A11/a11_robustness.csv")
+    sig = next(r for r in a11 if r["rb_id"] == "sigma_check" and r["check_id"] == "S8_baseline_std")
+    m = re.search(SIGMA_NOTE.replace(r"([0-9.]+) to ([0-9.]+)", r"\[([0-9.eE+-]+), ([0-9.eE+-]+)\]"), sig["note"])
+    sh = "stored A11 table (original evaluator output)"
+    src = "A11/a11_robustness.csv: sigma_check.S8_baseline_std note, pass_or_fail, logged_verdict"
+    rb3 = next(r for r in a11 if r["rb_id"] == "RB3" and r["check_id"] == "a_inrange_runs")
+    q = _nums(rb3["value"])
+    for fig, targets in (("F1", ("F1",)), ("F5", ("F5", "F5c"))):
+        if fig not in figures:
+            continue
+        R.add(fig, "sigma_mf_std", "mean-field baseline std of the sigma check", float(m.group(1)), src, shared=sh, jprinted=(SIGMA_NOTE, 1), jtargets=targets)
+        R.add(fig, "sigma_net_lo", "lower end of the network baseline std range", float(m.group(2)), src, shared=sh, jprinted=(SIGMA_NOTE, 2), jtargets=targets)
+        R.add(fig, "sigma_net_hi", "upper end of the network baseline std range", float(m.group(3)), src, shared=sh, jprinted=(SIGMA_NOTE, 3), jtargets=targets)
+        R.add(fig, "sigma_status", "status of the sigma check", sig["pass_or_fail"], src, shared=sh, jprinted=(r"sigma check on the baseline standard deviation: (\w+), logged verdict", 1), jtargets=targets)
+        R.add(fig, "sigma_verdict", "logged verdict of the sigma check", sig["logged_verdict"], src, shared=sh, jprinted=(r"logged verdict ([A-Z ]+?);", 1), jtargets=targets)
+    if "F1" in figures:
+        R.add("F1", "rb3a_n", "RB3(a) testable in-range runs that match", q[0], "A11/a11_robustness.csv: RB3.a_inrange_runs value", shared=sh,
+              jprinted=(r"RB3\(a\) onset prediction on the testable in-range runs \((\d+) of \d+\)", 1))
+        R.add("F1", "rb3a_den", "RB3(a) testable in-range runs", q[1], "A11/a11_robustness.csv: RB3.a_inrange_runs value", shared=sh,
+              jprinted=(r"RB3\(a\) onset prediction on the testable in-range runs \(\d+ of (\d+)\)", 1))
+    if "F3" in figures:
+        ev = c.json("A11/a11_evaluators.json")["evaluators"]["rb9b"]["headline"]
+        s9 = "A11/a11_evaluators.json:evaluators.rb9b.headline"
+        sh2 = "stored evaluator output (A11)"
+        R.add("F3", "rb9b_spectral", "RB9(b) spectral frequency at the headline (Hz)", ev["f_spectral_hz"], s9, shared=sh2, tol=0.0,
+              jprinted=(r"spectral peak is (\d+\.\d) Hz and the cycle frequency is", 1))
+        R.add("F3", "rb9b_cycle", "RB9(b) cycle frequency at the headline (Hz)", ev["f_cycle_hz"], s9, shared=sh2, tol=("rel", 1e-12), jprinted=(r"the cycle frequency is (\d+\.\d+) Hz", 1))
+        R.add("F3", "rb9b_diff", "RB9(b) difference spectral minus cycle (Hz)", ev["diff_hz"], s9, shared=sh2, tol=("rel", 1e-12), jprinted=(r"headline: (\d+\.\d+) Hz against 0\.5 Hz", 1))
+        R.add("F3", "rb9b_bound", "RB9(b) bound (Hz)", ev["bound_hz"], s9, shared=sh2, tol=0.0, jprinted=(r"Hz against (\d+\.\d) Hz\)", 1))
+        a4 = c.npz("A4/a4_hopf_curves.npz")
+        R.add("F3", "a4_points", "stored points of the A4 Hopf curve in (eta_bar, tau_d)", len(a4["curve_tau_d_ms"]), "A4/a4_hopf_curves.npz: curve_tau_d_ms",
+              jprinted=(r"straight segments between its (\d+) stored points", 1))
+    if "F5" in figures:
+        sg = c.pq("A9/a9_subgrid_agreement.parquet")
+        n, ag = len(sg), int(sg["d24_cell_agrees"].astype(bool).sum())
+        pat = (r"noisy subgrid agrees in (\d+) of (\d+) cells \((\d+\.\d) percent; (\d+) cells needed\)")
+        for k, (nm, val, qty) in enumerate((("s1_agree", ag, "cells that agree (sentence 1)"), ("s1_sub_n", n, "subgrid cells (sentence 1)"), ("s1_pct", 100.0 * ag / n, "percent that agree (sentence 1)"),
+                                            ("s1_needed", math.ceil(0.9 * n), "cells needed (sentence 1)")), start=1):
+            R.add("F5", nm, qty, val, "A9/a9_subgrid_agreement.parquet: d24_cell_agrees", printed=(pat, k), jprinted=(pat, k), jtargets=("F5",))
+    for r in R:
+        if r["figure"] in ("F1", "F3", "F5") and r["figure"] in figures and r["jprinted"] is None and r["printed"] is not None:
+            r["jprinted"] = JOURNAL_OVERRIDE.get(r["id"], r["printed"])
+            r["jtargets"] = JOURNAL_TARGETS.get(r["id"], (r["figure"],))
+        if r["jprinted"] is not None and r["jtargets"] is None:
+            r["jtargets"] = (r["figure"],)
+
+
 def compute(root=None, figures=None, series_res=None) -> list:
     c = Ctx(root, series_res)
     R = Rows()
-    for fid in (figures or FIGURES):
+    figs = tuple(figures or FIGURES)
+    for fid in figs:
         if fid in FUNCS:
             FUNCS[fid](c, R)
+    journal_rows(c, R, figs)
     return list(R)
 
 

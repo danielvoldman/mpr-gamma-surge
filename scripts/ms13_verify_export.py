@@ -1,13 +1,16 @@
 """MS13 13t (DL-545 J15, DL-546; DL-554 R1, R2): the one verification command for the journal export.
 
-  .venv/Scripts/python.exe scripts/ms13_verify_export.py [F1 F3 F5] [--dir figures/journal]
+  .venv/Scripts/python.exe scripts/ms13_verify_export.py [F1 F3 F5 F5c] [--dir figures/journal]
 
 For every figure it redraws the journal figure object (reads results/ only, writes nothing) and checks it together with the exported files in --dir: the collision checker (A,
 plotting/collide.py), the PDF checks (B), and the J1 to J14 tests: size and shape within the config, no text below the minimum size, fonts embedded and none Type 3, line width,
 colour maps, non-colour distinction, panel letters in order, file names, every draft FAIL line of the strip present in the caption, the drawn-data digest equal to the draft's,
 the draft files byte-identical to docs/ms13_figure_manifest.csv, no draft, decision-log or provenance text on the image, the supplement lists every strip row, caption sentence 1
 names the main failure, text contrast, red-green pairs, the greyscale lightness report, the main PNG (600 dpi) and TIFF (600 dpi, LZW, RGB) at 6.3 x 8.0 in at most, no SVG, WMF or
-EMF, and the file sizes (a PDF above 5 MB, a PNG or TIFF above 10 MB are flagged). It prints a table figure x check with PASS / FAIL (and MANUAL for the colour-vision check, which the
+EMF, and the file sizes (a PDF above 5 MB, a PNG or TIFF above 10 MB are flagged). 13t-1d (DL-571): F5c is the second journal file of the F5 build (draft panels (f) to (i); its draft files, digest and manifest rows are
+those of F5); new rows: margins (at least 0.10 in of white on all four sides of the PNG, T5), label-title gap (at least 0.05 in between an x-axis label and the next panel's title, T6),
+paragraphs (the seven labelled paragraphs of the journal caption, T8), caption words (no plan, milestone, table number, DL number, step ID or code name, T8), arrays (the per-array digests of the
+drawn data equal the draft's; for F5 together with F5c the union of the array names equals the draft's, T1) and, when F5 and F5c are both checked, the row F5+F5c. It prints a table figure x check with PASS / FAIL (and MANUAL for the colour-vision check, which the
 user does with an online simulator, R2) and exits non-zero on any FAIL (a MANUAL row never does). The collision allow-list entries that were used are printed with their reasons.
 """
 from __future__ import annotations
@@ -23,16 +26,18 @@ from pathlib import Path
 from mprsurge.config import repo_root
 from mprsurge.plotting import collide as CO
 from mprsurge.plotting import figures as FG
+from mprsurge.plotting import jcaption as JCAP
 from mprsurge.plotting import jchecks as JC
 from mprsurge.plotting import journal as J
-from mprsurge.plotting import plain as PL
 from mprsurge.plotting import style as S
 
-PILOT = ("F1", "F3", "F5")
-CHECKS = ("A collisions", "B pdf", "size+shape", "text>=8pt", "fonts", "line width", "cmaps", "non-colour", "letters", "file names", "FAIL lines", "digest", "drafts identical",
-          "image text", "supplement", "sentence 1", "contrast", "red-green", "greyscale", "cvd", "png+tiff", "no svg/wmf/emf", "file sizes")
-MAIN_FAILURES = {"F1": FG.F1_MAIN_FAILURES, "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES}
-STRIP = {"F1": FG.f1_strip_lines, "F3": FG.strip_lines, "F5": FG.f5_strip_lines}
+PILOT = ("F1", "F3", "F5", "F5c")
+DRAFT_ID = {"F1": "F1", "F3": "F3", "F5": "F5", "F5c": "F5"}              # the figure whose draft files, digest and manifest rows a journal file is checked against
+CHECKS = ("A collisions", "B pdf", "size+shape", "text>=8pt", "fonts", "line width", "cmaps", "non-colour", "letters", "file names", "FAIL lines", "digest", "arrays", "drafts identical",
+          "image text", "supplement", "sentence 1", "paragraphs", "caption words", "margins", "label-title gap", "contrast", "red-green", "greyscale", "cvd", "png+tiff", "no svg/wmf/emf", "file sizes")
+MAIN_FAILURES = {"F1": FG.F1_MAIN_FAILURES, "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES, "F5c": FG.F5C_MAIN_FAILURES}
+STRIP = {"F1": FG.f1_strip_lines, "F3": FG.strip_lines, "F5": FG.f5_strip_lines, "F5c": FG.f5c_strip_lines}
+MIN_MARGIN_IN, MIN_LABEL_GAP_IN = 0.10, 0.05                                # DL-571 T5, T6
 SCHEMATIC_FACES = {"ramp": S.F1_SCHEMATIC["ramp_face"], "net": S.F1_SCHEMATIC["net_face"], "model": S.F1_SCHEMATIC["box_face"], "mf": S.F1_SCHEMATIC["box_face"], "out": S.F1_SCHEMATIC["box_face"]}
 
 
@@ -53,6 +58,7 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         return {c: ("FAIL", f"missing {missing[0].name}") for c in CHECKS}, info
     cap = cap_path.read_text(encoding="utf-8")
     prov = json.loads(prov_path.read_text(encoding="utf-8"))
+    did = DRAFT_ID[fid]
     with FG.journal_figure(fid, root=root) as (fig, d, cfg):
         W, H = fig.get_size_inches()
         # A: collisions
@@ -97,29 +103,53 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         res["file names"] = ("PASS" if not names_bad and not case_bad else "FAIL", f"{len(names_bad)} invalid names, {len(case_bad)} case mismatches")
         # draft FAIL lines in the caption
         lines = STRIP[fid](d)
-        # 13t-1c (DL-563 S4): the journal caption holds the plain form of every strip line, and the supplement holds the ruled (verbatim) line
-        absent = [ln for ln in lines if PL.plain_fragment(ln) not in cap or ln not in sup_text]
+        srows = FG.strip_rows_of(fid, d)
+        # 13t-1d (DL-571 T8): the journal caption holds the plain form of every strip row (JCAP.failed_line), and the supplement holds the ruled (verbatim) line
+        absent = [ln for ln, r in zip(lines, srows) if JCAP.failed_line(r) not in cap or ln not in sup_text]
         res["FAIL lines"] = ("PASS" if not absent else "FAIL", f"{len(lines) - len(absent)} of {len(lines)} strip lines in the caption (plain) and the supplement (ruled)" + (f"; absent: {absent[0][:50]}" if absent else ""))
         # digest
-        draft_dig = (root / "figures" / fid / f"{fid}_drawn_data_sha256.txt").read_text(encoding="utf-8").strip()
+        draft_dig = (root / "figures" / did / f"{did}_drawn_data_sha256.txt").read_text(encoding="utf-8").strip()
         mine = prov.get("journal", {}).get("drawn_data_sha256")
         recomputed = FG.drawn_data_sha256(d)
         res["digest"] = ("PASS" if mine == draft_dig == recomputed else "FAIL", f"{recomputed[:12]}... export {str(mine)[:12]} draft {draft_dig[:12]}")
+        # per-array digests (DL-571 T1): the arrays this file draws, each with the digest of the draft's data; for F5 and F5c the union of both files is checked in main()
+        arr_now = FG.array_digests(d)
+        arr_rec = prov.get("journal", {}).get("array_digests", {})
+        keys = FG.journal_keys(fid, d)
+        arr_ok = bool(arr_rec) and set(arr_rec) == set(keys) and all(arr_rec[k] == arr_now[k] for k in keys)
+        info["arrays"] = {k: arr_rec.get(k) for k in keys}
+        info["draft_arrays"] = arr_now
+        res["arrays"] = ("PASS" if arr_ok else "FAIL", f"{len(keys)} of the {len(arr_now)} arrays of the draft data, per-array digests equal" if arr_ok else "per-array digests missing or different")
         # draft files identical to the manifest
-        rows = [(f, h) for (fg, f), h in manifest.items() if fg == fid and f.startswith(f"figures/{fid}/")]
+        rows = [(f, h) for (fg, f), h in manifest.items() if fg == did and f.startswith(f"figures/{did}/")]
         changed = [f for f, h in rows if not (root / f).is_file() or sha256_file(root / f) != h]
         res["drafts identical"] = ("PASS" if rows and not changed else "FAIL", f"{len(rows)} draft files, {len(changed)} differ from the manifest")
         # image text
         it = JC.image_text_violations(fig)
         res["image text"] = ("PASS" if not it else "FAIL", f"{len(it)} texts with draft, DL or provenance wording" + (f": {it[0]}" if it else ""))
         # supplement
-        need = [f"{x['rb_id']} {x['check_id']}" for x in d["strip"]]
+        need = [f"{x['rb_id']} {x['check_id']}" for x in FG.strip_rows_of(fid, d)]
         lack = [n for n in need if n not in sup_text]
         res["supplement"] = ("PASS" if not lack else "FAIL", f"{len(need) - len(lack)} of {len(need)} strip rows in the supplement")
         # sentence 1
-        s1 = cap.split(". ")[1] if cap.count(". ") else ""
+        first_par = cap.split("\n\n")[0]
+        s1 = first_par[len(fid) + 2:].split(". ")[0] if first_par.startswith(f"{fid}. ") else ""
         miss = [m for m in MAIN_FAILURES[fid] if m not in s1]
         res["sentence 1"] = ("PASS" if not miss else "FAIL", f"main failure(s) in sentence 1: {len(MAIN_FAILURES[fid]) - len(miss)} of {len(MAIN_FAILURES[fid])}")
+        # paragraphs and words (DL-571 T8)
+        paras = cap.rstrip("\n").split("\n\n")
+        want = ["Panels.", "Key and abbreviations.", "Classifier and spectrogram settings.", "Parameters.", "Failed checks.", "Limits."]
+        starts_ok = len(paras) == 7 and first_par.startswith(f"{fid}. ") and all(paras[i + 1].startswith(w + " ") for i, w in enumerate(want))
+        res["paragraphs"] = ("PASS" if starts_ok else "FAIL", f"{len(paras)} paragraphs; labels " + ", ".join(w.rstrip(".") for w in want if any(x.startswith(w + " ") for x in paras)))
+        bad_words = sorted({m.group(0) for m in JCAP.FORBIDDEN.finditer(cap)})
+        res["caption words"] = ("PASS" if not bad_words else "FAIL", f"{len(bad_words)} forbidden words or codes" + (f": {bad_words[:5]}" if bad_words else ""))
+        # margins and label-title gaps (DL-571 T5, T6)
+        mv = JC.margin_violations(png, MIN_MARGIN_IN)
+        mm = JC.margins_in(png)
+        res["margins"] = ("PASS" if not mv else "FAIL", "white margins left {left:.3f} right {right:.3f} top {top:.3f} bottom {bottom:.3f} in (minimum {m} in)".format(m=MIN_MARGIN_IN, **mm))
+        info["margins"] = mm
+        lg = JC.label_title_gaps(fig, MIN_LABEL_GAP_IN)
+        res["label-title gap"] = ("PASS" if not lg else "FAIL", f"{len(lg)} x labels closer than {MIN_LABEL_GAP_IN} in to the next panel's title" + (f": {lg[0]}" if lg else ""))
         # contrast, red-green, greyscale
         cb = JC.text_contrast(fig, cfg["colour"]["min_text_contrast"], SCHEMATIC_FACES)
         res["contrast"] = ("PASS" if not cb else "FAIL", f"{len(cb)} texts below {cfg['colour']['min_text_contrast']}:1" + (f": {cb[0]}" if cb else ""))
@@ -167,6 +197,14 @@ def main(argv=None) -> int:
     table, infos = {}, {}
     for fid in a.ids:
         table[fid], infos[fid] = check_figure(fid, base, root, manifest)
+    union = None
+    if "F5" in a.ids and "F5c" in a.ids:
+        # DL-571 T1: the two journal builds together draw exactly the arrays of the draft F5, with equal per-array digests
+        names = set(infos["F5"].get("arrays", {})) | set(infos["F5c"].get("arrays", {}))
+        draft = infos["F5"].get("draft_arrays", {})
+        both = {**infos["F5"].get("arrays", {}), **infos["F5c"].get("arrays", {})}
+        union = names == set(draft) and all(both[k] == draft[k] for k in names)
+        print(f"F5+F5c arrays: union of {len(names)} array names {'equals' if names == set(draft) else 'DIFFERS FROM'} the draft's {len(draft)}; per-array digests {'equal' if union else 'NOT all equal'}")
     w = max(len(c) for c in CHECKS) + 2
     print("check".ljust(w) + "".join(f.ljust(8) for f in a.ids))
     for c in CHECKS:
@@ -182,7 +220,7 @@ def main(argv=None) -> int:
         print(f"{f}: inches {infos[f].get('inches')}; colour maps {infos[f].get('cmaps')}; bytes {infos[f].get('bytes')}")
         for c in infos[f].get("close", []):
             print(f"{f} greyscale close pair: {c}")
-    n_fail = sum(1 for f in a.ids for c in CHECKS if table[f][c][0] == "FAIL")
+    n_fail = sum(1 for f in a.ids for c in CHECKS if table[f][c][0] == "FAIL") + (1 if union is False else 0)
     print(f"\n{n_fail} FAIL, {sum(1 for f in a.ids for c in CHECKS if table[f][c][0] == 'MANUAL')} MANUAL (no exit-code effect)")
     return 1 if n_fail else 0
 

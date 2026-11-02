@@ -244,3 +244,49 @@ def case_mismatches(names, folder) -> list[str]:
         if p.name not in listing:
             out.append(n)
     return out
+
+
+# ---- 13t-1d (DL-571 T5, T6): margins of the exported image and the gap between an x-axis label and the next panel's title ----
+
+
+def margins_in(png_path, white: int = 250) -> dict:
+    """White margin in inches on the four sides of a PNG: the distance from the image edge to the non-white bounding box (a pixel is non-white if any colour channel is below `white`)."""
+    from PIL import Image
+    im = Image.open(png_path)
+    dpi = float(im.info.get("dpi", (600, 600))[0])
+    a = np.asarray(im.convert("RGB"))
+    ink = (a < white).any(axis=2)
+    rows, cols = np.where(ink.any(axis=1))[0], np.where(ink.any(axis=0))[0]
+    h, w = ink.shape
+    if rows.size == 0:
+        return {"left": w / dpi, "right": w / dpi, "top": h / dpi, "bottom": h / dpi}
+    return {"left": cols[0] / dpi, "right": (w - 1 - cols[-1]) / dpi, "top": rows[0] / dpi, "bottom": (h - 1 - rows[-1]) / dpi}
+
+
+def margin_violations(png_path, min_in: float) -> list[str]:
+    m = margins_in(png_path)
+    return [f"{side} margin {v:.3f} in" for side, v in m.items() if v < min_in - 1e-9]
+
+
+def label_title_gaps(fig, min_in: float) -> list[str]:
+    """For every axes with an x-axis label: the vertical gap in inches between that label and the title of any other axes that lies below it and overlaps it in x; a gap below `min_in` is listed."""
+    fig.canvas.draw()
+    r = fig.canvas.get_renderer()
+    dpi = fig.dpi
+    out = []
+    labels = [(ax, ax.xaxis.label) for ax in fig.axes if ax.xaxis.label.get_text() and ax.xaxis.label.get_visible()]
+    for ax, lab in labels:
+        lb = lab.get_window_extent(r)
+        for ax2 in fig.axes:
+            if ax2 is ax:
+                continue
+            for t in (ax2.title, ax2._left_title, ax2._right_title):
+                if not t.get_text() or not t.get_visible():
+                    continue
+                tb = t.get_window_extent(r)
+                if tb.x1 <= lb.x0 or tb.x0 >= lb.x1 or tb.y1 > lb.y1:               # no x overlap, or the title is not below the label
+                    continue
+                gap = (lb.y0 - tb.y1) / dpi
+                if gap < min_in - 1e-9:
+                    out.append(f"x label {lab.get_text()[:25]!r} to title {t.get_text()[:25]!r}: {gap:.3f} in")
+    return out

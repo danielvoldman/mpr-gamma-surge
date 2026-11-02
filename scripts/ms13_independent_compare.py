@@ -7,6 +7,9 @@ written by them). Printed values: the take-home constant <ID>_TAKE_HOME, a group
 printed with k decimals is compared as the independent value rounded to k decimals (a number printed as a.be-n: to the digits printed); arrays and drawn floats with the row's
 tolerance (None: exact; float: absolute; ('rel', x): relative; NaN equals NaN). A row whose regular expression finds no match, or whose drawn expression raises, is 'unresolved'
 (a fault of this comparison, never counted as equal).
+13t-1d (DL-571 T9, DL-572): a row with a journal pattern (`jprinted`, scripts/ms13_independent.py) is also searched in the JOURNAL caption of each of its target files
+(figures/journal/<F1|F3|F5|F5c>/<ID>_journal_caption.txt, or --journal-dir); the independent value must reproduce the printed token to its digits, as for the draft. The journal rows are counted and
+written separately from the draft rows (columns journal_*; a second table). A journal row that is not equal, or whose pattern finds nothing or whose caption is missing, is unresolved or not equal: exit 1.
 """
 from __future__ import annotations
 
@@ -24,7 +27,9 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import ms13_independent as IND  # noqa: E402
 
 OUT_MD, OUT_CSV = "docs/ms13_independent_results.md", "docs/ms13_independent_results.csv"
-COLUMNS = ("figure", "id", "quantity", "independent_value", "drawn_value", "printed_value", "source_of_drawn", "source_of_printed", "equal", "tolerance", "shared", "independent_source")
+COLUMNS = ("figure", "id", "quantity", "independent_value", "drawn_value", "printed_value", "source_of_drawn", "source_of_printed", "equal", "tolerance", "shared", "independent_source",
+           "journal_files", "journal_pattern", "journal_printed_value", "journal_equal")
+JOURNAL_FILES = ("F1", "F3", "F5", "F5c")
 
 
 def _norm(text: str) -> str:
@@ -89,7 +94,41 @@ def drawn_sets(figures):
     return out
 
 
-def compare(rows, drawn) -> list:
+def journal_captions(base=None) -> dict:
+    """{file id: whitespace-normalised journal caption text, or None if the file is absent} for F1, F3, F5 and F5c under figures/journal (or `base`)."""
+    base = Path(base) if base is not None else ROOT / "figures" / "journal"
+    out: dict = {}
+    for f in JOURNAL_FILES:
+        p = base / f / f"{f}_journal_caption.txt"
+        out[f] = _norm(p.read_text(encoding="utf-8")) if p.is_file() else None
+    return out
+
+
+def compare_journal(r, journals) -> tuple:
+    """(status, printed values, files) of the journal check of one row: 'n.a.' if the row has no journal pattern or no captions were given."""
+    if r.get("jprinted") is None or journals is None:
+        return "n.a.", "n.a.", ""
+    status, vals = [], []
+    files = list(r.get("jtargets") or (r["figure"],))
+    for f in files:
+        text = journals.get(f)
+        if text is None:
+            status.append("unresolved")
+            vals.append(f"{f}: no caption")
+            continue
+        m = re.search(r["jprinted"][0], text)
+        if m is None:
+            status.append("unresolved")
+            vals.append(f"{f}: no match")
+            continue
+        tok = m.group(r["jprinted"][1])
+        vals.append(f"{f}: {tok}")
+        status.append("yes" if printed_same(r["value"], tok) else "no")
+    eq = "unresolved" if "unresolved" in status else ("no" if "no" in status else "yes")
+    return eq, "; ".join(vals), ", ".join(files)
+
+
+def compare(rows, drawn, journals=None) -> list:
     out = []
     for r in rows:
         d, text = drawn[r["figure"]]
@@ -108,7 +147,8 @@ def compare(rows, drawn) -> list:
                 pv = m.group(r["printed"][1])
                 status.append("yes" if printed_same(r["value"], pv) else "no")
         eq = "n.a." if not status else ("unresolved" if "unresolved" in status else ("no" if "no" in status else "yes"))
-        out.append({**r, "drawn_value": dv, "printed_value": pv, "equal": eq})
+        jeq, jval, jfiles = compare_journal(r, journals)
+        out.append({**r, "drawn_value": dv, "printed_value": pv, "equal": eq, "journal_equal": jeq, "journal_printed_value": jval, "journal_files": jfiles})
     return out
 
 
@@ -120,7 +160,8 @@ def write(results, per, seconds):
         w.writerow(COLUMNS)
         for r in results:
             w.writerow([r["figure"], r["id"], r["quantity"], fmt(r["value"]), fmt(r["drawn_value"]), fmt(r["printed_value"]), r["drawn"] or "n.a.",
-                        (r["printed"][0] if r["printed"] else "n.a."), r["equal"], fmt(r["tol"]) or "exact", r["shared"] or "independent", r["source"]])
+                        (r["printed"][0] if r["printed"] else "n.a."), r["equal"], fmt(r["tol"]) or "exact", r["shared"] or "independent", r["source"],
+                        r.get("journal_files", ""), (r["jprinted"][0] if r.get("jprinted") else "n.a."), r.get("journal_printed_value", "n.a."), r.get("journal_equal", "n.a.")])
     lines = ["# MS13 13q: independent recomputation (results)", "",
              "Generated by `scripts/ms13_independent_compare.py` from `scripts/ms13_independent.py` (stored records only) and the figure data steps (comparison only). Plan: `docs/ms13_independent_plan.md`.", "",
              f"Run time of the comparison: {seconds:.1f} s.", "", "| figure | quantities | shared | equal | not equal | unresolved | no comparison (n.a.) |", "|---|---|---|---|---|---|---|"]
@@ -134,26 +175,48 @@ def write(results, per, seconds):
         tot = [a + b for a, b in zip(tot, v)]
         lines.append(f"| {fid} | " + " | ".join(str(x) for x in v) + " |")
     lines.append("| all | " + " | ".join(str(x) for x in tot) + " |")
+    jrows = [(r, f) for r in results if r.get("journal_equal", "n.a.") != "n.a." for f in r["journal_files"].split(", ")]
+    lines += ["", "## Journal captions (13t-1d, DL-571 T9): journal rows, per journal file", "", "| journal file | quantities searched | equal | not equal | unresolved |", "|---|---|---|---|---|"]
+    for f in JOURNAL_FILES:
+        rs = [r for r, ff in jrows if ff == f]
+        if rs:
+            lines.append(f"| {f} | {len(rs)} | {sum(1 for r in rs if r['journal_equal'] == 'yes')} | {sum(1 for r in rs if r['journal_equal'] == 'no')} | {sum(1 for r in rs if r['journal_equal'] == 'unresolved')} |")
     bad = [r for r in results if r["equal"] in ("no", "unresolved")]
-    lines += ["", "## Rows not equal or unresolved", ""]
+    lines += ["", "## Draft rows not equal or unresolved", ""]
     lines += [f"- {r['id']}: {r['quantity']}: independent {fmt(r['value'])}; drawn {fmt(r['drawn_value'])}; printed {fmt(r['printed_value'])} ({r['equal']})" for r in bad] or ["none"]
+    jbad = [r for r in results if r.get("journal_equal", "n.a.") in ("no", "unresolved")]
+    lines += ["", "## Journal rows not equal or unresolved", ""]
+    lines += [f"- {r['id']}: {r['quantity']}: independent {fmt(r['value'])}; journal {fmt(r['journal_printed_value'])} ({r['journal_equal']})" for r in jbad] or ["none"]
     lines += ["", "Every row is in `docs/ms13_independent_results.csv` (columns: " + ", ".join(COLUMNS) + ")."]
     (ROOT / OUT_MD).write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
 
-def main() -> int:
+def main(argv=None) -> int:
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--journal-dir", default=None, help="folder with <ID>/<ID>_journal_caption.txt (default figures/journal)")
+    a = ap.parse_args(argv)
     t0 = time.perf_counter()
     rows = IND.compute()
     figs = sorted({r["figure"] for r in rows}, key=IND.FIGURES.index)
-    results = compare(rows, drawn_sets(figs))
+    journals = journal_captions(a.journal_dir)
+    results = compare(rows, drawn_sets(figs), journals)
     write(results, None, time.perf_counter() - t0)
     n_bad = sum(1 for r in results if r["equal"] in ("no", "unresolved"))
-    print(f"{len(results)} rows, {sum(1 for r in results if r['equal'] == 'yes')} equal, {sum(1 for r in results if r['equal'] == 'no')} not equal, "
+    jr = [r for r in results if r["journal_equal"] != "n.a."]
+    jbad = [r for r in jr if r["journal_equal"] in ("no", "unresolved")]
+    print(f"DRAFT rows: {len(results)} rows, {sum(1 for r in results if r['equal'] == 'yes')} equal, {sum(1 for r in results if r['equal'] == 'no')} not equal, "
           f"{sum(1 for r in results if r['equal'] == 'unresolved')} unresolved, {sum(1 for r in results if r['equal'] == 'n.a.')} without comparison")
+    for f in JOURNAL_FILES:
+        rs = [r for r in jr if f in r["journal_files"].split(", ")]
+        print(f"JOURNAL rows {f}: {len(rs)} quantities searched in the {f} journal caption, {sum(1 for r in rs if r['journal_equal'] == 'yes')} equal, "
+              f"{sum(1 for r in rs if r['journal_equal'] == 'no')} not equal, {sum(1 for r in rs if r['journal_equal'] == 'unresolved')} unresolved")
     for r in results:
         if r["equal"] in ("no", "unresolved"):
             print(" ", r["id"], "|", r["quantity"], "| indep", r["value"], "| drawn", r["drawn_value"], "| printed", r["printed_value"], "|", r["equal"])
-    return 1 if n_bad else 0
+    for r in jbad:
+        print(" JOURNAL", r["id"], "|", r["quantity"], "| indep", r["value"], "| journal", r["journal_printed_value"], "|", r["journal_equal"])
+    return 1 if (n_bad or jbad) else 0
 
 
 if __name__ == "__main__":
