@@ -6217,3 +6217,13 @@ Chosen:          as done   Default from: the prompt
 Test:            fast suite
 Status:          13t-1d closed; 13t-2 not started
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-579  MS13 13t-1d: review report, captions and notes written to files; item open (F3 caption lacks the 100 stored points of the (d) curve)    [ID: MS13, 13t, 13t-1d, DL-576, DL-578]
+Date:            2026-11-02        Author:
+Decision:        FACT. Three files were written, no code, figure or build changed: docs/ms13_13t1d_review.md (the report of the fresh subagent review of the first build from 1c58804, word for word as received, indentation of the hand-back removed), docs/ms13_13t1d_captions.md (the four journal captions of the recorded build from 0584741, copied exactly from the _journal_caption.txt files), docs/ms13_13t1d_notes.md (the findings not fixed with category, figure, panel and reason, including red titles without a plotted failure (F3 (a) to (c), RB9(b); F5c (b), RB6) and long captions, check IDs and the word stored; the project codes and step IDs still on journal image text; the look at the final F5 and F5c PNGs after the 0584741 rebuild). OPEN: item 5 of the previous request: the F3 caption says that the (c) curve is drawn between its 30 stored points and does not say that the (d) curve has 100 stored points; a caption change and a rebuild would be needed and are not done. FULL SHA-256: docs/ms13_13t1d_review.md 84708e47084222d568db19ece049c79ae19c6a4c595dcd42a5692aeda13f06be; docs/ms13_13t1d_captions.md 9019826affa7ca11b500ed99d2157c0b10745ff867ee7445bbf5dd7bacef526b; docs/ms13_13t1d_notes.md b2a69c1f11272cb4d07a3b8db908d6007ade505db639d26580fe53d6cdcc2953. The SHA-256 of docs/decision_log.md is given in the report after this commit (it cannot be inside the entry).
+Reason:          instruction of the reviewer (13t-1d follow-up)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            none (documents only)
+Status:          three files written; one item open
+Commit/tag:      the commit that adds this entry; no tag
