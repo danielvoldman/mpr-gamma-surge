@@ -185,7 +185,8 @@ def text_contrast(fig, min_ratio: float, face_of_gid: dict | None = None) -> lis
 IMAGE_FORBIDDEN = (re.compile(r"DRAFT", re.I), re.compile(r"\bDL-\d+"), re.compile(r"provenance", re.I), re.compile(r"as ruled", re.I), re.compile(r"untagged", re.I),
                    re.compile(r"UNVERIFIED"), re.compile(r"hash12"), re.compile(r"\bG10\b"),
                    # 13t-1c (DL-563 S9, S11, S13): no code names or internal IDs on the image; PSD is spelled out; tau-d has no underscore
-                   re.compile(r"path_hypoxia|T_ramp_s|tau_d_ms|tau_ms|I_drive|eta_bar|ref_devalle|ref_ceni|J_end|t_on_s|\btau_d\b|τ_d|\bPSD\b|\(Delta\)|\bN \(N\)"))
+                   # 13t-1d (DL-571 T3): the underscore form tau_d is the form on every image (the reviewer reads the Greek tau of the font as a small T); the Greek tau-d is not allowed
+                   re.compile(r"path_hypoxia|T_ramp_s|tau_d_ms|tau_ms|I_drive|eta_bar|ref_devalle|ref_ceni|J_end|t_on_s|τd|τ_d|\bPSD\b|\(Delta\)|\bN \(N\)"))
 
 
 def image_text_violations(fig) -> list[str]:

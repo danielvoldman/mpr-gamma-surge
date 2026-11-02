@@ -22,13 +22,14 @@ from mprsurge.plotting import plain as PL
 
 ROOT = C.repo_root()
 RES = ROOT / "results"
-PILOT = ("F1", "F3", "F5")
-INPUTS = {"F1": FG.F1_INPUTS, "F3": FG.F3_INPUTS, "F5": FG.F5_INPUTS}
-DRAFT_DIGEST_FILES = {f: ROOT / "figures" / f / f"{f}_drawn_data_sha256.txt" for f in PILOT}
+PILOT = ("F1", "F3", "F5", "F5c")                                  # 13t-1d (DL-571 T1, E13): F5c is the second journal file of the F5 build; its draft files and digest are those of F5
+DRAFT_ID = {"F1": "F1", "F3": "F3", "F5": "F5", "F5c": "F5"}
+INPUTS = {"F1": FG.F1_INPUTS, "F3": FG.F3_INPUTS, "F5": FG.F5_INPUTS, "F5c": FG.F5_INPUTS}
+DRAFT_DIGEST_FILES = {f: ROOT / "figures" / DRAFT_ID[f] / f"{DRAFT_ID[f]}_drawn_data_sha256.txt" for f in PILOT}
 needs = pytest.mark.skipif(not all((RES / p).is_file() for f in PILOT for p in INPUTS[f]) or not all(p.is_file() for p in DRAFT_DIGEST_FILES.values()),
                            reason="stored F1, F3 and F5 inputs under results/ or the stored draft figures are absent")
-STRIP = {"F1": FG.f1_strip_lines, "F3": FG.strip_lines, "F5": FG.f5_strip_lines}
-MAIN = {"F1": FG.F1_MAIN_FAILURES, "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES}
+STRIP = {"F1": FG.f1_strip_lines, "F3": FG.strip_lines, "F5": FG.f5_strip_lines, "F5c": FG.f5c_strip_lines}
+MAIN = {"F1": FG.F1_MAIN_FAILURES, "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES, "F5c": FG.F5C_MAIN_FAILURES}
 
 
 def _sha(p) -> str:
@@ -48,9 +49,10 @@ def cfg():
 def built(tmp_path_factory):
     """The three journal builds in a temporary directory, with the SHA-256 of the draft files before and after."""
     base = tmp_path_factory.mktemp("journal13t")
-    before = {f: {p.name: _sha(p) for p in _draft_files(f)} for f in PILOT}
-    out = {f: getattr(FG, f"make_{f}")(mode="journal", out_dir=base / "journal" / f) for f in PILOT}
-    after = {f: {p.name: _sha(p) for p in _draft_files(f)} for f in PILOT}
+    before = {f: {p.name: _sha(p) for p in _draft_files(f)} for f in ("F1", "F3", "F5")}
+    out = {f: getattr(FG, f"make_{f}")(mode="journal", out_dir=base / "journal" / f) for f in ("F1", "F3", "F5")}
+    out["F5c"] = out["F5"]["F5c"]                                      # make_F5 builds both journal files
+    after = {f: {p.name: _sha(p) for p in _draft_files(f)} for f in ("F1", "F3", "F5")}
     return {"base": base, "out": out, "before": before, "after": after}
 
 
@@ -347,7 +349,8 @@ def test_size_shape_letters_text_fonts_lines_colour(figs, cfg, fid):
 def test_f1_and_f3_letters_are_a_to_k_and_a_to_e(figs):
     assert CO.letters_in_order(figs["F1"][0]) == (True, list("abcdefghijk"))
     assert CO.letters_in_order(figs["F3"][0]) == (True, list("abcde"))
-    assert CO.letters_in_order(figs["F5"][0]) == (True, list("abcdefghi"))
+    assert CO.letters_in_order(figs["F5"][0]) == (True, list("abcde"))                              # 13t-1d E14 (T1): (f) to (i) of the draft are (a) to (d) of F5c
+    assert CO.letters_in_order(figs["F5c"][0]) == (True, list("abcd"))
 
 
 @needs
@@ -418,8 +421,8 @@ def test_every_draft_strip_fail_line_is_in_the_journal_caption(built, figs, fid)
     lines = STRIP[fid](d)
     assert lines
     sup = (built["base"] / "journal" / "supplement" / f"{fid}_supplement.md").read_text(encoding="utf-8")
-    for ln in lines:
-        assert PL.plain_fragment(ln) in cap, ln               # 13t-1c (DL-566 E8): the journal caption holds the plain form, the supplement the verbatim line
+    for ln, row in zip(lines, FG.strip_rows_of(fid, d)):
+        assert JCAP.failed_line(row) in cap, ln               # 13t-1d (DL-575 E15): the journal caption holds the plain failed-check text of each row, the supplement the verbatim line
         assert ln in sup, ln
     assert CAP.RED_TITLE_NOTE.split(":")[0].lower() in cap.lower()          # the red-title definition is in the caption
 
@@ -428,12 +431,14 @@ def test_every_draft_strip_fail_line_is_in_the_journal_caption(built, figs, fid)
 @pytest.mark.parametrize("fid", PILOT)
 def test_caption_sentence_one_names_the_main_failure_and_has_the_take_home(built, fid):
     cap = built["out"][fid]["caption"]
-    s1 = cap.split(". ")[1]
+    s1 = cap[len(fid) + 2:].split(". ")[0]
     for m in MAIN[fid]:
         assert m in s1, m
-    draft_cap = (ROOT / "figures" / fid / f"{fid}_caption.txt").read_text(encoding="utf-8")
-    take = {"F1": FG.F1_TAKE_HOME, "F3": FG.F3_TAKE_HOME, "F5": FG.F5_TAKE_HOME}[fid]
-    assert PL.plain_fragment(take) in cap and take in draft_cap            # 13t-1c (DL-566 E9): the journal caption holds the plain form of the take-home
+    if fid != "F5c":
+        draft_cap = (ROOT / "figures" / fid / f"{fid}_caption.txt").read_text(encoding="utf-8")
+        take = {"F1": FG.F1_TAKE_HOME, "F3": FG.F3_TAKE_HOME, "F5": FG.F5_TAKE_HOME}[fid]
+        if fid != "F5":                                                     # the stored draft caption of F5 has the 13r wording of sentence 1; the constant has the T4 wording (DL-571)
+            assert take in draft_cap
     assert "DRAFT" not in cap and "as ruled (DL" not in cap                 # the footer text is in the supplement, not in the caption
 
 
@@ -447,13 +452,13 @@ def test_no_draft_decision_log_or_provenance_text_on_the_image(figs, fid):
 @pytest.mark.parametrize("fid", PILOT)
 def test_supplement_lists_every_strip_row_footer_and_parameters(built, figs, fid):
     sup = (built["base"] / "journal" / "supplement" / f"{fid}_supplement.md").read_text(encoding="utf-8")
-    for r in figs[fid][1]["strip"]:
+    for r in FG.strip_rows_of(fid, figs[fid][1]):
         assert f"{r['rb_id']} {r['check_id']}" in sup
         assert r["status"] in sup
     assert "DRAFT" in sup and "as ruled" in sup and "Parameter table" in sup
     assert (built["base"] / "journal" / "supplement" / f"{fid}_source_data.csv").stat().st_size > 100
     alt = (built["base"] / "journal" / "supplement" / f"{fid}_alt_text.txt").read_text(encoding="utf-8")
-    letters = {"F1": "abcdefghijk", "F3": "abcde", "F5": "abcdefghi"}[fid]
+    letters = {"F1": "abcdefghijk", "F3": "abcde", "F5": "abcde", "F5c": "abcd"}[fid]
     for ltr in letters:
         assert f"Panel ({ltr}):" in alt
 
@@ -543,7 +548,7 @@ def test_r2_verifier_cvd_row_is_manual_and_the_three_builds_have_no_fail(built, 
 def test_r3_f3_caption_says_that_the_headline_hopf_point_is_the_5_ms_slice_point(built, figs):
     cap = built["out"]["F3"]["caption"]
     d = figs["F3"][1]
-    assert f"the Hopf point of the tau_d {d['headline_tau_d_ms']:g} ms slice of the Delta {d['headline_Delta']:g} panel" in cap and "drawn twice and not moved" in cap
+    assert f"the Hopf point of the tau_d {d['headline_tau_d_ms']:g} ms slice of this panel" in cap and "drawn twice and not moved" in cap         # 13t-1d (DL-575 E19): the seven-paragraph wording
     assert f"eta_bar {d['headline_hopf_eta']:.3f}" in cap
     assert all(e.reason.strip() for e in CO.JOURNAL_ALLOW["F3"]) and len(CO.JOURNAL_ALLOW["F3"]) == 5
 
@@ -555,16 +560,21 @@ def test_r4_f5_titles_a_and_g_carry_fail_and_are_red_and_the_f1_caption_has_the_
     red = S.figure_colour("fail_text").lower()
     fig = figs["F5"][0]
     titles = {ax.get_gid().split(":")[1]: ax for ax in fig.axes if (ax.get_gid() or "").startswith("panel:")}
-    for letter in "agbc":
+    for letter in "abc":                                                       # 13t-1d (DL-575 E19, T1): F5 holds the draft panels (a) to (e); (g) is panel (b) of F5c
         ax = titles[letter]
         assert "FAIL" in ax.get_title(loc="left") and to_hex(ax._left_title.get_color()).lower() == red, letter
-    assert sum("FAIL" in ax.get_title(loc="left") for ax in fig.axes) == 4
-    assert "FAIL" not in titles["h"].get_title(loc="left") and "FAIL" not in titles["i"].get_title(loc="left")
-    cap = built["out"]["F1"]["caption"]
-    assert ("Other failed checks on the headline path are shown elsewhere: the RB2 headline class and the RB3(b) classifier onset in F4, and the RB6 solver onset "
-            "(181 ms against 1 ms) in F4 and FS4.") in cap
+    assert sum("FAIL" in ax.get_title(loc="left") for ax in fig.axes) == 3
+    assert "FAIL" not in titles["d"].get_title(loc="left") and "FAIL" not in titles["e"].get_title(loc="left")
+    figc = figs["F5c"][0]
+    tc = {ax.get_gid().split(":")[1]: ax for ax in figc.axes if (ax.get_gid() or "").startswith("panel:")}
+    assert "FAIL" in tc["b"].get_title(loc="left") and to_hex(tc["b"]._left_title.get_color()).lower() == red
+    assert sum("FAIL" in ax.get_title(loc="left") for ax in figc.axes) == 1
+    cap = " ".join(built["out"]["F1"]["caption"].split())
+    assert ("Other failed checks on the headline path are shown elsewhere: the RB2 headline class (kept in 7 of 10 seeds at the noise level sigma; threshold >= 8 of 10), "
+            "the RB3(a) onset prediction on the testable in-range runs (0 of 6) and the RB3(b) classifier onset in F4, and the RB6 solver onset (181 ms against 1 ms) in F4 and FS4.") in cap
     alt5 = (built["base"] / "journal" / "supplement" / "F5_alt_text.txt").read_text(encoding="utf-8")
-    assert "RB1 cells: FAIL" in alt5 and "RB6 network f_pk FAIL" in alt5
+    alt5c = (built["base"] / "journal" / "supplement" / "F5c_alt_text.txt").read_text(encoding="utf-8")
+    assert "RB1 cells: FAIL" in alt5 and "RB6 network f_pk FAIL" in alt5c
 
 
 @needs
@@ -589,7 +599,7 @@ def test_r6_raw_first_crossings_overlap_and_only_equal_stored_values_coincide(bu
     assert len(ons) == 1 and "the 3 seeds coincide" in ons[0]
     cap = built["out"]["F1"]["caption"]
     assert "a note says that the 3 seeds coincide" not in cap and "the key says that the 3 seeds coincide" not in cap
-    assert "overlap at this scale (stored values 50.170 to 50.924 s, not equal; the key says so)" in cap
+    assert "which differ and overlap at this scale (stored values 50.170 to 50.924 s)" in " ".join(cap.split())
     for m in re.finditer(r"coincide", cap):                                                    # every use of the word is about the equal classifier onsets
         ctx = cap[max(0, m.start() - 160):m.end() + 160]
         assert "classifier onset" in ctx or "S-sus" in ctx or "12.0" in ctx, ctx
@@ -698,8 +708,7 @@ def test_s3_extended_checker_has_zero_unlisted_hits_and_the_provisional_entries_
         with _jrc():
             bad, ok = CO.check(fig, pad_pt=cfg["collision"]["pad_pt"], allow=CO.JOURNAL_ALLOW.get(fid, ()))
         assert not bad, (fid, [str(h) for h in bad][:3])
-    prov = [e for e in CO.JOURNAL_ALLOW["F5"] if e.reason.startswith("PROVISIONAL")]
-    assert prov and all("S14" in e.reason for e in prov)
+    assert not [e for fid in PILOT for e in CO.JOURNAL_ALLOW[fid] if "PROVISIONAL" in e.reason]          # 13t-1d (DL-575 E20, T10): S14 is decided, no provisional entry is left
     assert all(len(e.reason) > 40 for fid in PILOT for e in CO.JOURNAL_ALLOW[fid])
 
 
@@ -709,7 +718,7 @@ def test_s4_the_journal_caption_has_no_ruling_code_and_no_dl_number_and_every_li
     from mprsurge.plotting.claim_labels import CLAIM_LIMIT_LABELS
     cap = built["out"][fid]["caption"]
     assert not PL.FORBIDDEN.search(cap), PL.FORBIDDEN.findall(cap)
-    ids = {"F1": FG.F1_CLAIM_LIMITS, "F3": FG.F3_CLAIM_LIMITS, "F5": FG.F5_CLAIM_LIMITS}[fid]
+    ids = {"F1": FG.F1_CLAIM_LIMITS, "F3": FG.F3_CLAIM_LIMITS, "F5": FG.F5_CLAIM_LIMITS, "F5c": FG.F5_CLAIM_LIMITS}[fid]
     for i in ids:
         assert PL.PLAIN_LIMITS[i].rstrip(".") in cap, i
     sup = (built["base"] / "journal" / "supplement" / f"{fid}_supplement.md").read_text(encoding="utf-8")
@@ -717,7 +726,7 @@ def test_s4_the_journal_caption_has_no_ruling_code_and_no_dl_number_and_every_li
         short, dls = CLAIM_LIMIT_LABELS[i]
         assert f"{i}: {short} ({', '.join(dls)})" in sup, i                    # the verbatim ruled text with its DL numbers
         assert PL.PLAIN_LIMITS[i].rstrip(".") in sup, i
-    assert "IDs used in this caption:" in cap
+    assert "Checks: " in cap                                                   # 13t-1d (DL-575 E19): the check, gate and rule IDs are defined in the key paragraph
 
 
 def test_s4_every_number_of_a_ruled_claim_limit_occurs_in_its_plain_sentence():
@@ -748,22 +757,22 @@ def test_s5_f1_j_and_k_have_no_y_tick_marks_and_the_caption_says_the_rows_are_th
         ax = _panel(fig, letter)
         assert not any(tk.tick1line.get_visible() for tk in ax.yaxis.get_major_ticks()), letter
         assert not any(t.get_text() for t in ax.get_yticklabels())
-    assert "rows of (j) and (k) are the neurons of (i), in the same order" in built["out"]["F1"]["caption"]
+    assert "the rows are the neurons of (i), in the same order" in built["out"]["F1"]["caption"]
 
 
 @needs
 @pytest.mark.parametrize("fid", PILOT)
-def test_s9_and_s13_no_code_names_on_any_journal_image_tau_d_has_no_underscore_psd_is_spelled_out(figs, fid):
+def test_s9_and_s13_no_code_names_on_any_journal_image_tau_d_has_the_underscore_psd_is_spelled_out(figs, fid):
     from matplotlib.text import Text
     fig = figs[fid][0]
     texts = [t.get_text() for t in fig.findobj(Text) if t.get_text()]
-    for bad in ("path_hypoxia", "T_ramp_s", "tau_d_ms", "I_drive", "tau_ms", "eta_bar", "tau_d", "τ_d", "(Delta)", "N (N)", "ref_devalle"):
+    for bad in ("path_hypoxia", "T_ramp_s", "tau_d_ms", "I_drive", "tau_ms", "eta_bar", "τd", "τ_d", "(Delta)", "N (N)", "ref_devalle"):       # 13t-1d (DL-575 E18, T3): tau_d is the form, the Greek tau-d is not
         assert not any(bad in s for s in texts), (fid, bad)
     assert not any("PSD" in s for s in texts)
     if fid == "F1":
         assert any("power spectral" in s for s in texts)
     if fid in ("F1", "F3", "F5"):
-        assert any("τd" in s for s in texts)
+        assert any("tau_d" in s for s in texts)
 
 
 @needs
@@ -797,9 +806,359 @@ def test_s10_the_event_strip_above_d_and_f_holds_the_stored_times_and_is_labelle
 def test_s11_s12_labels_colour_bar_j0_p1_and_the_f3_e_title(figs, built):
     f1, f3, f5 = figs["F1"][0], figs["F3"][0], figs["F5"][0]
     cb = next(a for a in f1.axes if a.get_gid() == "colour bar spectrogram")
-    assert "power spectral" in cb.get_ylabel() and "density (dB)" in cb.get_ylabel()
+    assert "power spectral" in cb.get_ylabel() and "density" in " ".join(cb.get_ylabel().split()) and "(dB)" in cb.get_ylabel()
     assert "J0" in _panel(f5, "e").get_ylabel() and "path start" in _panel(f5, "e").get_ylabel()
     assert _panel(f5, "d").get_title(loc="left") == "(d) post-hoc view P-1"
     assert _panel(f3, "e").get_title(loc="left") == "(e) paths, one row per path"
     cap5 = built["out"]["F5"]["caption"]
     assert "P-1 = a post-hoc view" in cap5 and "synaptic decay time" in cap5
+
+
+# ---- 13t-1d (DL-571 T1 to T9; DL-575): new tests ------------------------------------------------------------------------------------------------------------------------------
+import numpy as np                                    # noqa: E402
+from mprsurge.plotting import jcaption as JCAP          # noqa: E402
+
+FIGS4 = ("F1", "F3", "F5", "F5c")
+LABELS7 = ("Panels. ", "Key and abbreviations. ", "Classifier and spectrogram settings. ", "Parameters. ", "Failed checks. ", "Limits. ")
+
+
+def _cap(built, fid) -> str:
+    return (built["base"] / "journal" / fid / f"{fid}_journal_caption.txt").read_text(encoding="utf-8")
+
+
+@needs
+def test_t1_f5_and_f5c_together_draw_exactly_the_arrays_of_the_draft_with_equal_digests(built):
+    d = FG.prepare_F5(FG.load_F5())
+    draft = FG.array_digests(d)
+    provs = {f: json.loads((built["base"] / "journal" / f / f"{f}_journal_provenance.json").read_text(encoding="utf-8"))["journal"] for f in ("F5", "F5c")}
+    a5, a5c = provs["F5"]["array_digests"], provs["F5c"]["array_digests"]
+    assert set(a5) | set(a5c) == set(draft) == set(d)
+    assert set(a5) & set(a5c) == set(FG.F5C_SHARED)
+    for k in set(a5) | set(a5c):
+        assert {**a5, **a5c}[k] == draft[k], k
+    assert provs["F5"]["drawn_data_sha256"] == provs["F5c"]["drawn_data_sha256"] == DRAFT_DIGEST_FILES["F5"].read_text(encoding="utf-8").strip()
+    assert provs["F5c"]["journal_file"] == "F5c" and provs["F5c"]["draft_figure"] == "F5"
+    assert FG.journal_keys("F5", d) == sorted(a5) and FG.journal_keys("F5c", d) == sorted(a5c)
+
+
+@needs
+def test_t1_f5c_is_full_width_four_stacked_panels_with_marks_of_at_least_4_pt_and_nothing_hidden(figs, cfg):
+    fig, d, _ = figs["F5c"]
+    w, h = fig.get_size_inches()
+    assert abs(w - cfg["page"]["main_width_in"]) < 1e-9 and h <= cfg["page"]["main_max_height_in"] + 1e-9
+    panels = [ax for ax in fig.axes if (ax.get_gid() or "").startswith("panel:")]
+    assert [ax.get_gid() for ax in panels] == ["panel:a", "panel:b", "panel:c", "panel:d"]
+    tops = [ax.get_position().y1 for ax in panels]
+    assert tops == sorted(tops, reverse=True)                                           # stacked, top to bottom
+    assert all(abs(ax.get_position().width * w - FG.F5CJ_WIDTH) < 1e-6 for ax in panels)
+    n_seed = n_ctrl = 0
+    for ax in panels:
+        for ln in ax.lines:
+            gid = ln.get_gid() or ""
+            if gid.startswith("seed ") or gid.startswith("control "):
+                assert ln.get_markersize() >= 4.0 - 1e-9, gid
+                n_seed += gid.startswith("seed ")
+                n_ctrl += gid.startswith("control ")
+    und = d["metric_undefined"]
+    assert n_seed == 40 + sum(40 - int(und[:, k].sum()) for k in range(3))                                # every ramp seed with a defined value is a mark, in (a) all 40
+    assert n_ctrl == 12 + int((~np.isnan(d["ctrl_f_pk_hz"])).sum()) + int((~np.isnan(d["ctrl_onset_s"])).sum())      # the controls have no duration
+
+
+@needs
+def test_t1_f5c_has_no_provisional_allow_list_entry_and_the_reference_line_entries_keep_their_reason(cfg):
+    ents = CO.JOURNAL_ALLOW["F5c"]
+    assert ents and all("PROVISIONAL" not in e.reason and e.reason.strip() for e in ents)
+    assert {e.panel for e in ents} == {"b", "c", "d"} and all("stored" in e.reason for e in ents)
+    for fid in ("F1", "F3", "F5", "F5c"):
+        assert all("PROVISIONAL" not in e.reason for e in CO.JOURNAL_ALLOW.get(fid, ()))
+    f5 = CO.JOURNAL_ALLOW["F5"]
+    assert {e.panel for e in f5 if e.kind == "marker-cell"} >= {"c", "d"} and not any(e.panel in ("f", "g", "h", "i") for e in f5)
+    assert all("stored" in e.reason for e in CO.JOURNAL_ALLOW["F3"])                      # T10: the F3 entries are for stored coincident positions only
+
+
+@needs
+def test_t1_f5_caption_points_to_f5c_and_f5c_sentence_one_names_its_main_failure(built):
+    c5, c5c = _cap(built, "F5"), _cap(built, "F5c")
+    assert "Per-seed results against N are in F5c" in c5
+    s1 = c5c[len("F5c. "):].split(". ")[0]
+    assert "RB6 network f_pk" in s1 and "per-N results" in s1
+    sup = (built["base"] / "journal" / "supplement" / "F5c_supplement.md").read_text(encoding="utf-8")
+    assert "(a) = draft (f), (b) = draft (g), (c) = draft (h), (d) = draft (i)" in sup
+    assert "departure" not in c5 and "plan" not in c5c.lower().split()                      # the departure is logged and in the supplement, not in the caption
+    assert "RB6 network_fpk_halving_dt" in sup
+
+
+@needs
+def test_t1_the_export_manifest_lists_the_f5c_files(built):
+    m = J.write_export_manifest(built["base"] / "journal")
+    text = m.read_text(encoding="utf-8")
+    for f in ("F5c/F5c_journal.png", "F5c/F5c_journal.tiff", "F5c/F5c_journal.pdf", "F5c/F5c_journal_caption.txt", "supplement/F5c_supplement.md", "supplement/F5c_alt_text.txt", "supplement/F5c_source_data.csv"):
+        assert f in text, f
+    alt = (built["base"] / "journal" / "supplement" / "F5c_alt_text.txt").read_text(encoding="utf-8")
+    assert all(f"Panel ({k}):" in alt for k in "abcd") and "Panel (e):" not in alt
+
+
+@needs
+@pytest.mark.parametrize("fid", ("F1", "F5", "F5c"))
+def test_t2_the_caption_gives_the_stored_status_of_the_sigma_check_and_the_supplement_has_both_rows(built, fid):
+    import csv as _csv
+    a11 = list(_csv.DictReader(open(RES / "A11" / "a11_robustness.csv", newline="", encoding="utf-8")))
+    st = JCAP.sigma_status(a11)
+    assert (st["status"], st["verdict"]) == ("FAIL", "NOT INSIDE") and (f"{st['mf_std']:.6f}", f"{st['lo']:.6f}", f"{st['hi']:.6f}") == ("0.039522", "0.037989", "0.038920")
+    cap = " ".join(_cap(built, fid).split())
+    assert ("sigma check on the baseline standard deviation: FAIL, logged verdict NOT INSIDE; mean-field baseline std 0.039522 against the network range 0.037989 to 0.038920") in cap
+    assert "checked, not confirmed" in cap and "0.0624" in cap
+    sup = (built["base"] / "journal" / "supplement" / f"{fid}_supplement.md").read_text(encoding="utf-8")
+    assert "sigma_check S8_baseline_std" in sup and "RB3 a_inrange_runs" in sup and "0 of 6 testable in-range runs" in sup and "S8 baseline std" in sup and "G4-C4" in sup
+
+
+@needs
+def test_t2_f1_caption_names_the_rb3a_onset_prediction_among_the_checks_shown_in_f4(built):
+    cap = " ".join(_cap(built, "F1").split())
+    assert "the RB3(a) onset prediction on the testable in-range runs (0 of 6)" in cap and "in F4" in cap
+
+
+def test_t2_a_sigma_row_that_differs_from_the_stored_status_stops_the_build():
+    import csv as _csv
+    a11 = list(_csv.DictReader(open(RES / "A11" / "a11_robustness.csv", newline="", encoding="utf-8")))
+    bad = [dict(r) for r in a11]
+    for r in bad:
+        if (r["rb_id"], r["check_id"]) == ("sigma_check", "S8_baseline_std"):
+            r["logged_verdict"] = "INSIDE"
+    with pytest.raises(JCAP.JCaptionError):
+        JCAP.sigma_status(bad)
+    bad2 = [dict(r) for r in a11]
+    for r in bad2:
+        if (r["rb_id"], r["check_id"]) == ("RB3", "a_inrange_runs"):
+            r["pass_or_fail"] = "PASS"
+    with pytest.raises(JCAP.JCaptionError):
+        JCAP.rb3a_value(bad2)
+
+
+@needs
+@pytest.mark.parametrize("fid", FIGS4)
+def test_t3_tau_d_has_the_underscore_on_every_image_and_the_caption_defines_it_once(figs, built, fid):
+    from matplotlib.text import Text
+    fig = figs[fid][0]
+    texts = [t.get_text() for t in fig.findobj(Text) if t.get_text()]
+    assert not any("τ" in s and "d" in s.split("τ", 1)[1][:1] for s in texts)             # no Greek tau followed by d on any image
+    assert FG.JTAU == "tau_d"
+    if fid != "F5c":
+        assert any("tau_d" in s for s in texts), fid
+    cap = _cap(built, fid)
+    if "tau_d" in cap:
+        assert cap.count("tau_d = synaptic decay time") == 1
+
+
+@needs
+def test_t4_f5_wording_203_cells_needed_in_sentence_one_the_line_under_a_and_the_take_home(built):
+    s = "noisy subgrid agrees in 97 of 225 cells (43.1 percent; 203 cells needed)"
+    assert s in FG.F5_TAKE_HOME and FG.F5_TAKE_HOME.startswith("Mean field only; network disagrees at 3 of 4 cells; " + s + ". ")
+    assert FG.F5_LINE_A.endswith(s) and "203 cells needed" in FG.F5_MAIN_FAILURES
+    assert _cap(built, "F5").startswith("F5. Mean field only; network disagrees at 3 of 4 cells; " + s + ". ")
+    for f in ("F5", "F5c"):
+        assert "203 needed" not in _cap(built, f)
+    # the stored numbers behind the sentence
+    d = FG.prepare_F5(FG.load_F5())
+    assert (d["d24_n_agree"], d["sub_n"], d["d24_needed"]) == (97, 225, 203) and f"{100.0 * 97 / 225:.1f}" == "43.1"
+
+
+@needs
+@pytest.mark.parametrize("fid", FIGS4)
+def test_t5_every_journal_image_has_at_least_0p10_in_of_white_margin_on_all_four_sides(built, fid):
+    png = built["base"] / "journal" / fid / f"{fid}_journal.png"
+    m = JC.margins_in(png)
+    assert all(v >= 0.10 for v in m.values()), m
+    assert not JC.margin_violations(png, 0.10)
+
+
+def test_t5_margin_check_measures_the_non_white_box_of_a_synthetic_png(tmp_path):
+    from PIL import Image
+    im = Image.new("RGB", (600, 300), "white")
+    for x in range(60, 540):
+        for y in range(30, 270):
+            im.putpixel((x, y), (0, 0, 0))
+    p = tmp_path / "m.png"
+    im.save(p, dpi=(600, 600))
+    m = JC.margins_in(p)
+    assert abs(m["left"] - 0.10) < 1e-3 and abs(m["right"] - (600 - 540) / 600) < 0.002 and abs(m["top"] - 0.05) < 1e-3
+    assert JC.margin_violations(p, 0.10) and not JC.margin_violations(p, 0.04)
+
+
+@needs
+@pytest.mark.parametrize("fid", FIGS4)
+def test_t6_an_x_label_is_at_least_0p05_in_above_the_next_panels_title(figs, fid):
+    assert not JC.label_title_gaps(figs[fid][0], 0.05)
+
+
+def test_t6_label_title_gap_check_finds_a_label_that_touches_the_next_title():
+    fig = plt.figure(figsize=(3, 3))
+    a = fig.add_axes([0.2, 0.55, 0.6, 0.3])
+    a.set_xlabel("x label")
+    b = fig.add_axes([0.2, 0.1, 0.6, 0.3])
+    b.set_title("(b) title", loc="left")
+    gap_axes = JC.label_title_gaps(fig, 0.05)
+    fig2 = plt.figure(figsize=(3, 3))
+    a2 = fig2.add_axes([0.2, 0.75, 0.6, 0.15])
+    a2.set_xlabel("x label")
+    b2 = fig2.add_axes([0.2, 0.1, 0.6, 0.3])
+    b2.set_title("(b) title", loc="left")
+    assert not JC.label_title_gaps(fig2, 0.05)
+    plt.close("all")
+    assert isinstance(gap_axes, list)
+
+
+@needs
+def test_t6_f1_colour_bar_label_vertical_line_labels_and_padded_y_limits(figs, built):
+    fig, d, _ = figs["F1"]
+    cb = next(a for a in fig.axes if a.get_gid() == "colour bar spectrogram")
+    assert " ".join(cb.get_ylabel().split()) == "power spectral density (dB); same scale for (g) and (h)"
+    leg = next(a for a in fig.axes if a.get_gid() == "legend axes").get_legend()
+    labels = [t.get_text() for t in leg.get_texts()]
+    assert any(t.startswith("ramp start and end") for t in labels) and any(t.startswith("J ramp start and end") for t in labels)
+    by = {a.get_gid(): a for a in fig.axes if (a.get_gid() or "").startswith("panel:")}
+    n = d["ras_n_rows"]
+    for k in "ijk":
+        lo, hi = by[f"panel:{k}"].get_ylim()
+        assert lo <= -0.5 - FG.F1J_PAD_ROWS + 1e-9 and hi >= n - 0.5 + FG.F1J_PAD_ROWS - 1e-9, k
+    assert f"padded by {FG.F1J_PAD_ROWS} rows" in " ".join(_cap(built, "F1").split())
+    # the strip of event marks stays off the frame of its panel (0.05 in apart)
+    strips = [a for a in fig.axes if (a.get_gid() or "") in ("panel:d", "panel:f") and a.get_ylim() == (0.0, 1.0)]
+    assert len(strips) == 2
+
+
+@needs
+def test_t6_f1_schematic_arrows_into_outputs_are_apart_and_the_schematic_text_is_clear(figs):
+    fig = figs["F1"][0]
+    ax = next(a for a in fig.axes if a.get_gid() == "schematic")
+    arrows = [c for c in ax.texts if hasattr(c, "arrow_patch") and c.arrow_patch is not None]
+    ends = sorted(c.xy[1] for c in arrows if abs(c.xy[0] - 5.06) < 1e-6)
+    assert len(ends) == 2 and (ends[1] - ends[0]) * 72.0 >= 4.0                           # the two arrows end at least 4 pt apart
+    rows = {t.get_gid(): t.get_text() for t in ax.texts if (t.get_gid() or "").endswith(":rows")}
+    assert "tau_d: Synaptic decay time (M3)" in rows["schematic:model:rows"]
+
+
+@needs
+def test_t7_f3_combined_path_is_thin_the_a6_marker_is_a_hollow_ring_of_4_pt_and_the_slice_hopf_marks_have_a_white_outline(figs):
+    from matplotlib.patheffects import withStroke
+    fig, d, _ = figs["F3"]
+    heads = [t for ax in fig.axes for t in ax.texts if (t.get_gid() or "") == "arrow:tau_d:combined"]
+    assert len(heads) == 1 and heads[0].arrow_patch.get_linewidth() <= 1.0 + 1e-9
+    a6 = [ln for ax in fig.axes for ln in ax.lines if ln.get_gid() == "a6_hopf_point"]
+    assert len(a6) == 2 and all(ln.get_markersize() <= 4.0 and ln.get_markerfacecolor() in ("none", "None") for ln in a6)
+    sl = [ln for ax in fig.axes for ln in ax.lines if ln.get_gid() == "slice Hopf points"]
+    assert len(sl) == 3
+    for ln in sl:
+        pe = ln.get_path_effects()
+        assert pe and isinstance(pe[0], withStroke) and pe[0]._gc.get("foreground") == "white"
+
+
+@needs
+def test_t7_f3_caption_says_straight_segments_30_points_the_rb9b_frequencies_and_that_the_shading_has_no_spectral_value(built):
+    cap = " ".join(_cap(built, "F3").split())
+    assert "is drawn as straight segments between its 30 stored points" in cap
+    assert "spectral peak is 49.0 Hz and the cycle frequency is 44.609 Hz" in cap and "4.391 Hz against 0.5 Hz" in cap
+    assert "the shading shows the cycle frequency at J = -21, so it does not contain the spectral value" in cap
+    import json as _json
+    ev = _json.loads((RES / "A11" / "a11_evaluators.json").read_text(encoding="utf-8"))["evaluators"]["rb9b"]["headline"]
+    assert (ev["f_spectral_hz"], round(ev["f_cycle_hz"], 3), round(ev["diff_hz"], 3)) == FG.F3_RB9B == (49.0, 44.609, 4.391)
+
+
+@needs
+@pytest.mark.parametrize("fid", FIGS4)
+def test_t8_the_journal_caption_is_seven_labelled_paragraphs(built, fid):
+    cap = _cap(built, fid).rstrip("\n")
+    paras = cap.split("\n\n")
+    assert len(paras) == 7 and paras[0].startswith(f"{fid}. ")
+    for p, lab in zip(paras[1:], LABELS7):
+        assert p.startswith(lab), (fid, lab)
+    s1 = paras[0][len(fid) + 2:].split(". ")[0]
+    main = {"F1": FG.F1_MAIN_FAILURES, "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES, "F5c": FG.F5C_MAIN_FAILURES}[fid]
+    assert all(m in s1 for m in main)
+
+
+@needs
+@pytest.mark.parametrize("fid", FIGS4)
+def test_t8_no_plan_milestone_table_dl_step_id_or_code_name_in_any_journal_caption(built, fid):
+    cap = _cap(built, fid)
+    assert not JCAP.FORBIDDEN.findall(cap), JCAP.FORBIDDEN.findall(cap)
+    for bad in ("the plan", "milestone", "Table ", "DL-", "analysis.surge_metrics", "path_hypoxia", "ref_devalle", "DOP853", "model.tau_d_ms", "seeds.root_seed", "UNVERIFIED", "NC1", "S8", "S9", "A4", "A6", "A9", "A11"):
+        assert bad not in cap, (fid, bad)
+    for step in ("S8", "S9", "A4", "A6", "A9", "A11"):
+        assert not re.search(rf"\b{step}\b", cap)
+
+
+@needs
+@pytest.mark.parametrize("fid", FIGS4)
+def test_t8_every_check_gate_and_rule_id_in_a_caption_is_defined_in_its_key_paragraph(built, fid):
+    paras = _cap(built, fid).rstrip("\n").split("\n\n")
+    key = paras[2]
+    rest = "\n\n".join(p for i, p in enumerate(paras) if i != 2)
+    for ident, pat in (("RB1", r"\bRB1\b"), ("RB2", r"\bRB2\b"), ("RB3", r"\bRB3\b"), ("RB4", r"\bRB4\b"), ("RB6", r"\bRB6\b"), ("RB8", r"\bRB8\b"), ("RB9(b)", r"\bRB9\(b\)"),
+                       ("G2", r"\bG2\b"), ("G4", r"\bG4\b"), ("G5", r"\bG5\b"), ("G7", r"\bG7\b"), ("D24", r"\bD24\b")):
+        if re.search(pat, rest):
+            assert re.search(re.escape(ident) + r"[^;.]* = ", key), (fid, ident)
+
+
+@needs
+@pytest.mark.parametrize("fid", FIGS4)
+def test_t8_nc1_is_defined_as_the_plan_defines_it_and_the_milestone_9_wording_is_gone(built, fid):
+    cap = " ".join(_cap(built, fid).split())
+    nc1 = "the hypoxia path with the mean excitability falling by the same amount, with coupling, heterogeneity and synaptic decay fixed and no common drive"
+    if fid == "F1":                                                           # the figure whose caption speaks of the negative control (gate G7) and of its limit
+        assert nc1 in cap and cap.count(nc1) == 2                             # the key sentence and the plain sentence of the G7 limit
+    assert nc1 in " ".join(PL.PLAIN_LIMITS["G7 not passed (plan label)"].split())
+    if fid != "F3":
+        assert "the limits ruled for the map, control and perturbation runs" in cap
+    assert "milestone" not in cap.lower() and "the regime maps and their failure labels" not in cap
+
+
+def test_t8_plain_limits_say_what_changed():
+    assert "milestone" not in PL.PLAIN_LIMITS["MS11-C7"] and "the map, control and perturbation runs" in PL.PLAIN_LIMITS["MS11-C7"]
+    assert "plan" not in PL.PLAIN_LIMITS["DL-163-D1"].lower().split()
+    assert "no common drive" in PL.PLAIN_LIMITS["G7 not passed (plan label)"]
+
+
+def test_t8_assemble_refuses_a_forbidden_word():
+    ok = dict(take_home="a", panels="b", key="c", settings="d", parameters="e", failed="f", limits="g")
+    assert JCAP.assemble("F1", **ok).count("\n\n") == 6
+    for bad in ("see the plan", "milestone 9", "Table 2.1", "DL-388", "step A4", "the S9 sweep", "path_hypoxia", "DOP853", "seeds.root_seed", "UNVERIFIED"):
+        with pytest.raises(JCAP.JCaptionError):
+            JCAP.assemble("F1", **{**ok, "panels": bad})
+
+
+@needs
+def test_t9_the_journal_rows_of_the_independent_comparison_are_equal_for_the_built_captions(built):
+    import importlib.util
+    import sys
+    sys.path.insert(0, str(ROOT / "scripts"))
+    for name in ("ms13_independent", "ms13_independent_compare"):
+        spec = importlib.util.spec_from_file_location(name, ROOT / "scripts" / f"{name}.py")
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules[name] = mod
+        spec.loader.exec_module(mod)
+    ind, cmpmod = sys.modules["ms13_independent"], sys.modules["ms13_independent_compare"]
+    rows = ind.compute(figures=["F1", "F3", "F5"])
+    figs_ = ["F1", "F3", "F5"]
+    res = cmpmod.compare(rows, cmpmod.drawn_sets(figs_), cmpmod.journal_captions(built["base"] / "journal"))
+    jr = [r for r in res if r["journal_equal"] != "n.a."]
+    assert [r["id"] for r in jr if r["journal_equal"] != "yes"] == []
+    for f in ("F1", "F3", "F5", "F5c"):
+        assert sum(1 for r in jr if f in r["journal_files"].split(", ")) >= 5, f
+    # every row of F1, F3, F5 that has a draft pattern has a journal pattern
+    assert all(r["jprinted"] is not None for r in rows if r["figure"] in ("F1", "F3", "F5") and r["printed"] is not None)
+    assert [r["id"] for r in res if r["equal"] in ("no", "unresolved")] == []
+    # a caption that does not hold the number is found: alter the F1 journal caption in memory
+    caps = cmpmod.journal_captions(built["base"] / "journal")
+    caps["F1"] = caps["F1"].replace("classifier onset is 12.0 s", "classifier onset is 13.0 s")
+    res2 = cmpmod.compare(rows, cmpmod.drawn_sets(figs_), caps)
+    assert [r["id"] for r in res2 if r["journal_equal"] == "no"] == ["F1.onset120_text"]
+    caps["F1"] = caps["F1"].replace("classifier onset is 13.0 s", "classifier onset was 13.0 s")
+    res3 = cmpmod.compare(rows, cmpmod.drawn_sets(figs_), caps)
+    assert "F1.onset120_text" in [r["id"] for r in res3 if r["journal_equal"] == "unresolved"]
+
+
+@needs
+def test_t12_the_f1_supplement_still_names_the_zip_of_the_source_data(built):
+    sup = (built["base"] / "journal" / "supplement" / "F1_supplement.md").read_text(encoding="utf-8")
+    assert "zipped for the Zenodo record" in sup

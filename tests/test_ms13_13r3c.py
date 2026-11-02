@@ -45,7 +45,7 @@ def _crit():
 
 def test_sentence_one_names_the_failures(built):
     s5 = _sentence1(built["F5"]["caption"], "F5")
-    assert s5 == "Mean field only; network disagrees at 3 of 4 cells; noisy subgrid 43.1 percent (203 needed)"
+    assert s5 == "Mean field only; network disagrees at 3 of 4 cells; noisy subgrid agrees in 97 of 225 cells (43.1 percent; 203 cells needed)"        # 13t-1d (DL-575, T4)
     for n in FG.F5_MAIN_FAILURES:
         assert n in s5
     s6 = _sentence1(built["F6"]["caption"], "F6")

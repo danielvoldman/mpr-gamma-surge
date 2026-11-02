@@ -20,15 +20,15 @@ class PlainError(ValueError):
 # One plain sentence per claim limit: same meaning, same numbers as the ruled short form (claim_labels), never weaker. The ruled text and its DL numbers go to the supplement.
 PLAIN_LIMITS = {
     "MS11-C7": "All earlier failures and limits stand: the failure of check RB1 (network against mean field), gate G7 not passed, the failure of the D24 rule, the six limits set when gate G4 "
-               "(network against mean field) was triggered, and the limits ruled at milestone 9 (the regime maps and their failure labels).",
+               "(network against mean field) was triggered, and the limits ruled for the map, control and perturbation runs.",
     "MS12-C1": "The surge result is stated for model M3 only; there is no claim about the models M4 or M3a and M3b, and the parts of check RB8 that concern M4 and adaptation have no result.",
     "MS9(e)-1": "Surge classes found in network records at N = 1e4 are not evidence of a ramp-driven surge: the network control without a ramp was flagged in 10 of 10 seeds, and the ramp runs in 10 of 10.",
     "MS9(e)-2": "There is no claim that the regime map is robust to noise, and the class S-rel is not counted as evidence of a ramp in the noisy mode (mode N).",
-    "MS9(e)-3": "Label (c) of the failure labels (drawn in F6) is a flag, not a demonstrated cause.",
-    "MS9(e)-4": "The failure-label check covers 1,056 of the 1,057 surge-class cells.",
+    "MS9(e)-3": "Failure label (c) of the regime map (a cell without a surge class whose frequency is below 25 Hz; drawn in F6) is a flag, not a demonstrated cause.",
+    "MS9(e)-4": "The check of the regime-map failure labels covers 1,056 of the 1,057 surge-class cells.",
     "MS9(e)-5": "Every class that depends on the test for damped against non-damped oscillations is provisional.",
     "MS9(e)-6": "The boundary definition and the extension of the episode-exit rule to the paths P3 and P4 are our own.",
-    "DL-163-D1": "The plan's estimator for damped against non-damped oscillations fails 2 of 8 ring items of its own test; the classes that depend on it are provisional.",
+    "DL-163-D1": "The estimator for damped against non-damped oscillations fails 2 of 8 ring items of its own test; the classes that depend on it are provisional.",
     "DL-163-D2": "The baseline is taken as zero, including for noise-free inputs.",
     "G4-C1": "The network at N = 1e4 and 3e4 does not reproduce the mean-field classes (0 of 3 seeds at T_ramp 10 s and 120 s; 1 of 4 cells).",
     "G4-C2": "The surge result is stated for the mean field only; there is no claim that it is robust to finite-size fluctuations.",
@@ -40,7 +40,7 @@ PLAIN_LIMITS = {
     "RB1 FAIL (plan label)": "RB1 failed: the headline at 10 s failed, the headline at 120 s failed, and the network agrees at 1 of 4 cells.",
     "RB2 FAIL (plan label)": "RB2 failed: the headline class is kept in 7 of 10 seeds at the noise level sigma, and the noisy subgrid agrees at 97 of 225 cells.",
     "D24 failed (plan label)": "The D24 rule failed: subgrid agreement is 43.1 percent on the raw classes.",
-    "G7 not passed (plan label)": "Gate G7 was not passed: the network run of the negative control (the path along which the mean excitability falls by the same amount) is in class S+.",
+    "G7 not passed (plan label)": "Gate G7 was not passed: the network run of the first negative control (the hypoxia path with the mean excitability falling by the same amount, with coupling, heterogeneity and synaptic decay fixed and no common drive) is in class S+.",
     "RB9(b) FAIL (plan label)": "RB9(b) failed: the spectral frequency differs from the cycle frequency by 4.391 Hz against the allowed 0.5 Hz.",
 }
 NOT_APPLICABLE_PLAIN = "not applicable here because no failure label is drawn in F5 (F6 draws them)"

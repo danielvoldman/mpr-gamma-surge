@@ -511,15 +511,12 @@ JOURNAL_ALLOW = {
                    "the number of a network cell lies inside its network symbol, which lies on the map cell it marks; the symbol covers the cell under the number")
     ) + tuple(
         AllowEntry("marker-cell", pl, r"marks:(d24|p1) ", r"cell of the mesh",
-                   "PROVISIONAL, S14 (the reviewer's ruling is open): the dark state mark of a subgrid cell (4.2 pt, 0.8 pt edge) is wider than its map-1 cell (3.0 pt) but inside the 6.0 pt (at least) pitch "
-                   "to the next subgrid cell, so no two marks touch; a mark of the cell size would be below 3 pt and unreadable; options are in the report")
-        for pl in ("c", "d")) + tuple(
-        AllowEntry("marker-marker", pl, r"marks:(seed|control) N\d s\d", r"marks:(seed|control) N\d s\d",
-                   "PROVISIONAL, S14 (the reviewer's ruling is open): neighbouring seeds of one N group are 3.04 pt apart (52 slots in 2.6 in) and a mark is 2.5 pt (ramp seed) or 2.2 pt (control seed) wide, so marks "
-                   "of adjacent slots with similar values touch; a larger mark or a clear gap needs fewer seeds or a larger panel; options are in the report")
-        for pl in ("f", "g", "h", "i")) + tuple(
+                   "DL-571 T10 (approved): the dark state mark of a subgrid cell (4.2 pt, 0.8 pt edge) is wider than its map-1 cell (3.0 pt) but inside the pitch of at least 6.0 pt "
+                   "to the next subgrid cell, so no two marks touch; a mark of the cell size would be below 3 pt and unreadable")
+        for pl in ("c", "d")),
+    "F5c": tuple(
         AllowEntry("marker-line", pl, r"marks:(seed|control) N\d s\d", r"mean-field companion reference|stored minimum duration",
-                   "stored value on the line: the line is the stored mean-field companion value (f_pk 49 Hz, onset 33.698 s) or the stored minimum duration (1000 ms, the classifier floor), and a seed whose stored "
-                   "value is that value lies on it")
-        for pl in ("g", "h", "i")),
+                   "stored value on the line (DL-571 T10): the line is the stored mean-field companion value (f_pk 49 Hz, onset 33.698 s) or the stored minimum duration (1000 ms, the classifier floor), "
+                   "and a seed whose stored value is that value lies on it")
+        for pl in ("b", "c", "d")),
 }
