@@ -4,80 +4,80 @@
   {
    "id": "J10-raw-crossings-marker-on-text",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; no text near the marks: the coincide note is in the key; the three marks coincide by stored value (allow-listed, DL-547); 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; no text near the marks: the coincide note is in the key; the three marks coincide by stored value (allow-listed, DL-547); 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "J10-cell-count-text-over-spectrogram",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; sentence is in the caption only; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; sentence is in the caption only; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "J10-j-k-labels-on-frame-of-i",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; solid and dashed frames, no letters over the frame; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; solid and dashed frames, no letters over the frame; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "J10-schematic-text-wrap",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; hanging indent, text wholly inside its box; the plan row 't_on' has no description in the plan and stays a one-word row; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; hanging indent, text wholly inside its box; the plan row 't_on' has no description in the plan and stays a one-word row; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "J10-long-legend",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; seven entries, shorter wording, four rows; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; seven entries, shorter wording, four rows; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "J10-eta-bar-symbol",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; eta-bar drawn with a bar over the Greek letter on axes, titles and legend; the schematic keeps the plan's own labels verbatim (eta-bar written as in the plan); 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; eta-bar drawn with a bar over the Greek letter on axes, titles and legend; the schematic keeps the plan's own labels verbatim (eta-bar written as in the plan); 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "J10-dense-status-block",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; moved to the caption and the supplement; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; moved to the caption and the supplement; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "J9-two-column-grid-letters-a-to-k",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 6.3 x 8.0 in, letters a to k in reading order (13t-1b))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 6.3 x 8.0 in, letters a to k in reading order (13t-1b)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "J12-letters-in-reading-order",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "J12-one-combined-path-P1-P2-P3-P5",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "J12-short-titles",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "J12-legend-8pt-no-five-line-wrap",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "J12-empty-space-beside-d-used",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "J12-hopf-marker-small-or-ring",
@@ -106,386 +106,386 @@
   {
    "id": "check:A-collisions",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 0 unlisted hits; allow-list in collide.JOURNAL_ALLOW (DL-547, approved R3; F1: raw crossings overlap, DL-554 R6))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 0 unlisted hits; allow-list in collide.JOURNAL_ALLOW (DL-547, approved R3; F1: raw crossings overlap, DL-554 R6)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:B-pdf",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:size-and-shape",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:text-min-8pt",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:fonts-embedded-no-type3",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:line-width-min",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:cmap-list",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:non-colour-distinction",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:panel-letters-in-order",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:file-names",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:draft-FAIL-lines-visible",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:drawn-data-digest-equals-draft",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:draft-files-byte-identical",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:no-draft-dl-provenance-text-on-image",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:supplement-lists-every-strip-row",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:png-crops-looked-at",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: the full image and the four quadrant crops read for each figure (trial renders and recorded builds; the recorded final F1 and F5 full images, the recorded F3 crops and the F5 crops of the first recorded build; the F1 (a), F5 (c)(d) and (f) to (i) crops of the last trial); then the independent review (DL-559))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: the full image and the four quadrant crops read for each figure (trial renders and recorded builds; the recorded final F1 and F5 full images, the recorded F3 crops and the F5 crops of the first recorded build; the F1 (a), F5 (c)(d) and (f) to (i) crops of the last trial); then the independent review (DL-559)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:A-collisions",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 0 unlisted hits; allow-list in collide.JOURNAL_ALLOW (DL-547); 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 0 unlisted hits; allow-list in collide.JOURNAL_ALLOW (DL-547); 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:B-pdf",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:size-and-shape",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:text-min-8pt",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:fonts-embedded-no-type3",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:line-width-min",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:cmap-list",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:non-colour-distinction",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:panel-letters-in-order",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:file-names",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:draft-FAIL-lines-visible",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:drawn-data-digest-equals-draft",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:draft-files-byte-identical",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:no-draft-dl-provenance-text-on-image",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:supplement-lists-every-strip-row",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:png-crops-looked-at",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: the full image and the four quadrant crops read for each figure (trial renders and recorded builds; the recorded final F1 and F5 full images, the recorded F3 crops and the F5 crops of the first recorded build; the F1 (a), F5 (c)(d) and (f) to (i) crops of the last trial); then the independent review (DL-559))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: the full image and the four quadrant crops read for each figure (trial renders and recorded builds; the recorded final F1 and F5 full images, the recorded F3 crops and the F5 crops of the first recorded build; the F1 (a), F5 (c)(d) and (f) to (i) crops of the last trial); then the independent review (DL-559)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:A-collisions",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 0 unlisted hits; allow-list in collide.JOURNAL_ALLOW (DL-547); 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 0 unlisted hits; allow-list in collide.JOURNAL_ALLOW (DL-547); 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:B-pdf",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:size-and-shape",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:text-min-8pt",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:fonts-embedded-no-type3",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:line-width-min",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:cmap-list",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:non-colour-distinction",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:panel-letters-in-order",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:file-names",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:draft-FAIL-lines-visible",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:drawn-data-digest-equals-draft",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:draft-files-byte-identical",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:no-draft-dl-provenance-text-on-image",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:supplement-lists-every-strip-row",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:png-crops-looked-at",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: the full image and the four quadrant crops read for each figure (trial renders and recorded builds; the recorded final F1 and F5 full images, the recorded F3 crops and the F5 crops of the first recorded build; the F1 (a), F5 (c)(d) and (f) to (i) crops of the last trial); then the independent review (DL-559))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; 13t-1b: the full image and the four quadrant crops read for each figure (trial renders and recorded builds; the recorded final F1 and F5 full images, the recorded F3 crops and the F5 crops of the first recorded build; the F1 (a), F5 (c)(d) and (f) to (i) crops of the last trial); then the independent review (DL-559)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "R1-main-files-png-tiff-600dpi-pdf-extra",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; R1: main PNG and TIFF 600 dpi, PDF extra, no svg/wmf/emf, width 6.3 in, height at most 8.0 in; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; R1: main PNG and TIFF 600 dpi, PDF extra, no svg/wmf/emf, width 6.3 in, height at most 8.0 in; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "R1-main-files-png-tiff-600dpi-pdf-extra",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; R1: main PNG and TIFF 600 dpi, PDF extra, no svg/wmf/emf, width 6.3 in, height at most 8.0 in; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; R1: main PNG and TIFF 600 dpi, PDF extra, no svg/wmf/emf, width 6.3 in, height at most 8.0 in; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "R1-main-files-png-tiff-600dpi-pdf-extra",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; R1: main PNG and TIFF 600 dpi, PDF extra, no svg/wmf/emf, width 6.3 in, height at most 8.0 in; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; R1: main PNG and TIFF 600 dpi, PDF extra, no svg/wmf/emf, width 6.3 in, height at most 8.0 in; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "R1-relayout-6.3in-all-text-8pt-no-collision",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; if it does not fit 6.3 x 8.0 in: STOP that figure, report two options; do not split, do not drop a panel or a failure; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; if it does not fit 6.3 x 8.0 in: STOP that figure, report two options; do not split, do not drop a panel or a failure; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "R1-relayout-6.3in-all-text-8pt-no-collision",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; relayout at 6.3 in; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; relayout at 6.3 in; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "R1-relayout-6.3in-all-text-8pt-no-collision",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; if it does not fit 6.3 x 8.0 in: STOP that figure, report two options; do not split, do not drop a panel or a failure; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; if it does not fit 6.3 x 8.0 in: STOP that figure, report two options; do not split, do not drop a panel or a failure; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "R2-cvd-manual-row",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; verifier row cvd reads MANUAL (user checks final PNGs with an online simulator; UNVERIFIED), no exit code effect; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; verifier row cvd reads MANUAL (user checks final PNGs with an online simulator; UNVERIFIED), no exit code effect; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "R4-F5-a-title-FAIL",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; title of (a) carries FAIL (RB1 cells), red; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; title of (a) carries FAIL (RB1 cells), red; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "R4-F5-g-title-FAIL",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; title of (g) carries FAIL (RB6 network f_pk), red; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; title of (g) carries FAIL (RB6 network f_pk), red; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "R4-F1-caption-other-failed-checks",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; one caption sentence on RB6 solver onset 181 ms against 1 ms, RB2 headline class 7 of 10, RB3(b) classifier onset; values from the stored A11 table; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; one caption sentence on RB6 solver onset 181 ms against 1 ms, RB2 headline class 7 of 10, RB3(b) classifier onset; values from the stored A11 table; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "R6-F1-raw-crossings-wording-no-coincide",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; journal text, alt text, caption: overlap at this scale, stored values 50.170 to 50.924 s; coincide only for equal stored values (the 12.000 s classifier onsets); close item 40 for the draft label; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; journal text, alt text, caption: overlap at this scale, stored values 50.170 to 50.924 s; coincide only for equal stored values (the 12.000 s classifier onsets); close item 40 for the draft label; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "R7-F1-spectrogram-edge-slivers-caption",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; caption sentence from the stored window length 2 s, step 1 s and the stored time vector; else 'blank in the stored record; cause not determined (UNVERIFIED)'; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; caption sentence from the stored window length 2 s, step 1 s and the stored time vector; else 'blank in the stored record; cause not determined (UNVERIFIED)'; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "R8-F5-cd-cell-marks-readable-and-in-key",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; replace the in-cell bracket/x/plus glyphs by a mark or hatch distinguishable at the cell size, shown in the key as plotted; two attempts at most; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; replace the in-cell bracket/x/plus glyphs by a mark or hatch distinguishable at the cell size, shown in the key as plotted; two attempts at most; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "R10-F1-source-data-zip-note",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; supplement notes that the 28 MB source-data CSV is to be zipped for the Zenodo record; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; supplement notes that the 28 MB source-data CSV is to be zipped for the Zenodo record; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "S1-F5-a-e-cell-marks-readable-or-none",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; a mark readable at the cell size and in the key as plotted, or no mark where the cell is too small (colour and hatching stay, classes in the supplement); marks never exceed their cell (13t-1c, DL-563); recorded build c90a6c8 (DL-568): passing: attempt 1 (3 pt mark) failed for the D-none cell, attempt 2 no mark in (a) and (e))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; a mark readable at the cell size and in the key as plotted, or no mark where the cell is too small (colour and hatching stay, classes in the supplement); marks never exceed their cell (13t-1c, DL-563); recorded build c90a6c8 (DL-568): passing: attempt 1 (3 pt mark) failed for the D-none cell, attempt 2 no mark in (a) and (e)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "S2-F3-no-end-dot-under-arrowhead",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; no end dot where an arrowhead marks the path end in (c), (d), (e); start circle kept; coincident stored points one combined mark (13t-1c, DL-563); recorded build c90a6c8 (DL-568))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; no end dot where an arrowhead marks the path end in (c), (d), (e); start circle kept; coincident stored points one combined mark (13t-1c, DL-563); recorded build c90a6c8 (DL-568)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "S3-checker-arrow-marker-marker-frame-separator-tick",
@@ -502,38 +502,38 @@
   {
    "id": "S3-extended-checker-zero-unlisted-F1",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; extended checker: 0 unlisted hits; every allow-list entry has a reason and is listed for approval (13t-1c, DL-563); recorded build c90a6c8 (DL-568))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; extended checker: 0 unlisted hits; every allow-list entry has a reason and is listed for approval (13t-1c, DL-563); recorded build c90a6c8 (DL-568)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "S3-extended-checker-zero-unlisted-F3",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; extended checker: 0 unlisted hits; every allow-list entry has a reason and is listed for approval (13t-1c, DL-563); recorded build c90a6c8 (DL-568))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; extended checker: 0 unlisted hits; every allow-list entry has a reason and is listed for approval (13t-1c, DL-563); recorded build c90a6c8 (DL-568)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "S3-extended-checker-zero-unlisted-F5",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; extended checker: 0 unlisted hits; every allow-list entry has a reason and is listed for approval (13t-1c, DL-563); recorded build c90a6c8 (DL-568): passing with PROVISIONAL allow-list entries for S14 (F5 (c), (d) cell marks, (f) to (i) neighbouring seeds); for the user's approval)"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; extended checker: 0 unlisted hits; every allow-list entry has a reason and is listed for approval (13t-1c, DL-563); recorded build c90a6c8 (DL-568): passing with PROVISIONAL allow-list entries for S14 (F5 (c), (d) cell marks, (f) to (i) neighbouring seeds); for the user's approval) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "S4-plain-caption-F1",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; journal caption in plain words: abbreviations defined, no DL numbers or ruling codes, every claim limit with the same meaning and numbers (13t-1c, DL-563); recorded build c90a6c8 (DL-568))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; journal caption in plain words: abbreviations defined, no DL numbers or ruling codes, every claim limit with the same meaning and numbers (13t-1c, DL-563); recorded build c90a6c8 (DL-568)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "S4-plain-caption-F3",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; journal caption in plain words: abbreviations defined, no DL numbers or ruling codes, every claim limit with the same meaning and numbers (13t-1c, DL-563); recorded build c90a6c8 (DL-568))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; journal caption in plain words: abbreviations defined, no DL numbers or ruling codes, every claim limit with the same meaning and numbers (13t-1c, DL-563); recorded build c90a6c8 (DL-568)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "S4-plain-caption-F5",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; journal caption in plain words: abbreviations defined, no DL numbers or ruling codes, every claim limit with the same meaning and numbers (13t-1c, DL-563); recorded build c90a6c8 (DL-568))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; journal caption in plain words: abbreviations defined, no DL numbers or ruling codes, every claim limit with the same meaning and numbers (13t-1c, DL-563); recorded build c90a6c8 (DL-568)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "S4-supplement-pairing-table",
@@ -550,14 +550,14 @@
   {
    "id": "S5-F1-jk-ticks-labelled-or-removed",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; y ticks of (j) and (k) labelled, or removed with 'rows as in (i)' (13t-1c, DL-563); recorded build c90a6c8 (DL-568))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; y ticks of (j) and (k) labelled, or removed with 'rows as in (i)' (13t-1c, DL-563); recorded build c90a6c8 (DL-568)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "S6-F1-other-failed-checks-sentence",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; R4 sentence reworded from the stored locations; location of each of the three checked (13t-1c, DL-563); recorded build c90a6c8 (DL-568))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; R4 sentence reworded from the stored locations; location of each of the three checked (13t-1c, DL-563); recorded build c90a6c8 (DL-568)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "S7-new-fresh-subagent-review",
@@ -574,8 +574,8 @@
   {
    "id": "S9-F1-schematic-no-code-names-and-wrap",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; schematic box text without code names or internal IDs; no one-word-per-line boxes; mean field and outputs boxes widened (13t-1c, DL-563); recorded build c90a6c8 (DL-568))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; schematic box text without code names or internal IDs; no one-word-per-line boxes; mean field and outputs boxes widened (13t-1c, DL-563); recorded build c90a6c8 (DL-568)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "S9-no-code-names-on-any-journal-image",
@@ -586,38 +586,38 @@
   {
    "id": "S10-F1-event-strip-above-d-f",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; classifier-onset triangle and raw-crossing marks in a labelled strip above the axes (event times; height has no meaning), or the note on the panel (13t-1c, DL-563); recorded build c90a6c8 (DL-568): passing: strip above (d) and (f), attempt 1)"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; classifier-onset triangle and raw-crossing marks in a labelled strip above the axes (event times; height has no meaning), or the note on the panel (13t-1c, DL-563); recorded build c90a6c8 (DL-568): passing: strip above (d) and (f), attempt 1) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "S11-F1-colour-bar-psd-expanded",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; colour bar label 'power spectral density (dB)' (13t-1c, DL-563); recorded build c90a6c8 (DL-568))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; colour bar label 'power spectral density (dB)' (13t-1c, DL-563); recorded build c90a6c8 (DL-568)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "S11-F5-e-J0-defined",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; F5 (e) y axis J0 with its stored meaning (13t-1c, DL-563); recorded build c90a6c8 (DL-568))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; F5 (e) y axis J0 with its stored meaning (13t-1c, DL-563); recorded build c90a6c8 (DL-568)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "S11-F5-d-P-1-defined",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; F5 (d) P-1 with its stored meaning, or the statement that the log does not give it (13t-1c, DL-563); recorded build c90a6c8 (DL-568))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; F5 (d) P-1 with its stored meaning, or the statement that the log does not give it (13t-1c, DL-563); recorded build c90a6c8 (DL-568)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "S11-F5-a-cell-index-i-j",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; F5 (a) axis labels 'cell index i, j' (13t-1c, DL-563); recorded build c90a6c8 (DL-568))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; F5 (a) axis labels 'cell index i, j' (13t-1c, DL-563); recorded build c90a6c8 (DL-568)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "S12-F3-e-title-paths-one-row-per-path",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; F3 (e) title '(e) paths, one row per path' (13t-1c, DL-563); recorded build c90a6c8 (DL-568))"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; F3 (e) title '(e) paths, one row per path' (13t-1c, DL-563); recorded build c90a6c8 (DL-568)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "S13-tau-d-label-without-underscore",
@@ -628,8 +628,8 @@
   {
    "id": "S14-F5-crowding-check-marks-3pt-touch-fgi",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: stopped; no F5 mark below 3 pt, no marks touching, (f) to (i) readable; else stop the item with 2 or 3 options (13t-1c, DL-563); recorded build c90a6c8 (DL-568): STOPPED: seed marks 2.5 pt and 2.2 pt, neighbouring marks touch, (c), (d) marks exceed their cells; options in the step report; the user's ruling is open)"
+   "status": "passing",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: stopped; no F5 mark below 3 pt, no marks touching, (f) to (i) readable; else stop the item with 2 or 3 options (13t-1c, DL-563); recorded build c90a6c8 (DL-568): STOPPED: seed marks 2.5 pt and 2.2 pt, neighbouring marks touch, (c), (d) marks exceed their cells; options in the step report; the user's ruling is open) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "S14-pilot-sheet-png",
@@ -640,482 +640,482 @@
   {
    "id": "check:A-collisions-F5c",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T1: the same check for the new journal file F5c"
+   "status": "passing",
+   "note": "13t-1d T1: the same check for the new journal file F5c | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:B-pdf-F5c",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T1: the same check for the new journal file F5c"
+   "status": "passing",
+   "note": "13t-1d T1: the same check for the new journal file F5c | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:size-and-shape-F5c",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T1: the same check for the new journal file F5c"
+   "status": "passing",
+   "note": "13t-1d T1: the same check for the new journal file F5c | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:text-min-8pt-F5c",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T1: the same check for the new journal file F5c"
+   "status": "passing",
+   "note": "13t-1d T1: the same check for the new journal file F5c | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:fonts-embedded-no-type3-F5c",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T1: the same check for the new journal file F5c"
+   "status": "passing",
+   "note": "13t-1d T1: the same check for the new journal file F5c | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:line-width-min-F5c",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T1: the same check for the new journal file F5c"
+   "status": "passing",
+   "note": "13t-1d T1: the same check for the new journal file F5c | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:cmap-list-F5c",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T1: the same check for the new journal file F5c"
+   "status": "passing",
+   "note": "13t-1d T1: the same check for the new journal file F5c | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:non-colour-distinction-F5c",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T1: the same check for the new journal file F5c"
+   "status": "passing",
+   "note": "13t-1d T1: the same check for the new journal file F5c | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:panel-letters-in-order-F5c",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T1: the same check for the new journal file F5c"
+   "status": "passing",
+   "note": "13t-1d T1: the same check for the new journal file F5c | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:file-names-F5c",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T1: the same check for the new journal file F5c"
+   "status": "passing",
+   "note": "13t-1d T1: the same check for the new journal file F5c | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:draft-FAIL-lines-visible-F5c",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T1: the same check for the new journal file F5c"
+   "status": "passing",
+   "note": "13t-1d T1: the same check for the new journal file F5c | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:drawn-data-digest-equals-draft-F5c",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T1: the same check for the new journal file F5c"
+   "status": "passing",
+   "note": "13t-1d T1: the same check for the new journal file F5c | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:draft-files-byte-identical-F5c",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T1: the same check for the new journal file F5c"
+   "status": "passing",
+   "note": "13t-1d T1: the same check for the new journal file F5c | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:no-draft-dl-provenance-text-on-image-F5c",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T1: the same check for the new journal file F5c"
+   "status": "passing",
+   "note": "13t-1d T1: the same check for the new journal file F5c | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:supplement-lists-every-strip-row-F5c",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T1: the same check for the new journal file F5c"
+   "status": "passing",
+   "note": "13t-1d T1: the same check for the new journal file F5c | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:png-crops-looked-at-F5c",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T1: the same check for the new journal file F5c"
+   "status": "passing",
+   "note": "13t-1d T1: the same check for the new journal file F5c | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:label-title-gap-0.05in",
    "figure": "all",
-   "status": "failing",
-   "note": "13t-1d T6: at least 0.05 in between an x-axis label and the next panel's title (F1, F3, F5, F5c)"
+   "status": "passing",
+   "note": "13t-1d T6: at least 0.05 in between an x-axis label and the next panel's title (F1, F3, F5, F5c) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:margins-0.10in",
    "figure": "all",
-   "status": "failing",
-   "note": "13t-1d T5: at least 0.10 in of white margin on all four sides of every journal PNG (F1, F3, F5, F5c); UNVERIFIED (the PCJ margins were not read)"
+   "status": "passing",
+   "note": "13t-1d T5: at least 0.10 in of white margin on all four sides of every journal PNG (F1, F3, F5, F5c); UNVERIFIED (the PCJ margins were not read) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "check:F5-F5c-arrays-equal-draft",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d T1: the union of the array names of the F5 and F5c builds equals the draft's, each array's digest equal"
+   "status": "passing",
+   "note": "13t-1d T1: the union of the array names of the F5 and F5c builds equals the draft's, each array's digest equal | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T1-F5-two-files-F5-and-F5c",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d T1 (S14 option A): F5 = draft panels (a) to (e), F5c = draft panels (f) to (i), from the same make_F5 drawing; departure from the plan's single F5; which file is tagged in 13u is the user's decision"
+   "status": "passing",
+   "note": "13t-1d T1 (S14 option A): F5 = draft panels (a) to (e), F5c = draft panels (f) to (i), from the same make_F5 drawing; departure from the plan's single F5; which file is tagged in 13u is the user's decision | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T1-F5c-full-width-four-stacked-marks-4pt-no-touch",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T1: 6.3 in wide, four stacked panels, marks at least 4 pt, no two marks touching; STOP the figure if not reachable; nothing shrunk or hidden"
+   "status": "passing",
+   "note": "13t-1d T1: 6.3 in wide, four stacked panels, marks at least 4 pt, no two marks touching; STOP the figure if not reachable; nothing shrunk or hidden | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T1-F5c-zero-unlisted-no-provisional-entries",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T1, T10: zero unlisted collision hits, no PROVISIONAL allow-list entry; the g to i stored-reference-line entries stay with their reason"
+   "status": "passing",
+   "note": "13t-1d T1, T10: zero unlisted collision hits, no PROVISIONAL allow-list entry; the g to i stored-reference-line entries stay with their reason | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T1-F5-caption-points-to-F5c",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d T1: the F5 caption says 'per-seed results against N are in F5c'"
+   "status": "passing",
+   "note": "13t-1d T1: the F5 caption says 'per-seed results against N are in F5c' | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T1-F5c-sentence-1-main-failure",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T1: sentence 1 names the RB6 network f_pk FAIL and the per-N results"
+   "status": "passing",
+   "note": "13t-1d T1: sentence 1 names the RB6 network f_pk FAIL and the per-N results | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T1-F5c-in-verifier-checklist-manifest-alt-supplement",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T1: F5c is in scripts/ms13_verify_export.py, this checklist, the export manifest, the alt texts and the supplements; the supplements give the mapping draft panel to journal panel"
+   "status": "passing",
+   "note": "13t-1d T1: F5c is in scripts/ms13_verify_export.py, this checklist, the export manifest, the alt texts and the supplements; the supplements give the mapping draft panel to journal panel | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T2-sigma-status-in-caption",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d T2: the stored sigma check status in the caption where noise.sigma is listed"
+   "status": "passing",
+   "note": "13t-1d T2: the stored sigma check status in the caption where noise.sigma is listed | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T2-sigma-status-in-caption",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d T2"
+   "status": "passing",
+   "note": "13t-1d T2 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T2-sigma-status-in-caption",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T2"
+   "status": "passing",
+   "note": "13t-1d T2 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T2-supplement-rows-sigma-check-and-RB3a",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d T2: both stored FAIL rows (sigma_check S8_baseline_std, RB3 a_inrange_runs) in the supplement"
+   "status": "passing",
+   "note": "13t-1d T2: both stored FAIL rows (sigma_check S8_baseline_std, RB3 a_inrange_runs) in the supplement | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T2-supplement-rows-sigma-check-and-RB3a",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d T2"
+   "status": "passing",
+   "note": "13t-1d T2 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T2-supplement-rows-sigma-check-and-RB3a",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T2"
+   "status": "passing",
+   "note": "13t-1d T2 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T2-F1-RB3a-in-other-failed-checks-sentence",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d T2: 'the RB3(a) onset prediction on the testable in-range runs (0 of 6)' among the checks shown in F4"
+   "status": "passing",
+   "note": "13t-1d T2: 'the RB3(a) onset prediction on the testable in-range runs (0 of 6)' among the checks shown in F4 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T3-tau_d-underscore-on-image",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d T3: tau_d (JTAU) with the underscore on every image; defined once per caption as synaptic decay time"
+   "status": "passing",
+   "note": "13t-1d T3: tau_d (JTAU) with the underscore on every image; defined once per caption as synaptic decay time | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T5-margins-0.10in",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d T5"
+   "status": "passing",
+   "note": "13t-1d T5 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T6-label-title-gap-0.05in",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d T6"
+   "status": "passing",
+   "note": "13t-1d T6 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T8-seven-labelled-paragraphs",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d T8: take-home, panels, key and abbreviations, classifier and spectrogram settings, parameters, failed checks, limits"
+   "status": "passing",
+   "note": "13t-1d T8: take-home, panels, key and abbreviations, classifier and spectrogram settings, parameters, failed checks, limits | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T8-no-plan-milestone-table-DL-step-ids-code-names",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d T8: no 'the plan', milestone, table number, DL number, step ID or code/key name in the caption"
+   "status": "passing",
+   "note": "13t-1d T8: no 'the plan', milestone, table number, DL number, step ID or code/key name in the caption | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T8-NC1-as-defined-in-the-plan",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d T8 (d)"
+   "status": "passing",
+   "note": "13t-1d T8 (d) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T8-MS11-C7-map-control-perturbation-runs",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d T8 (e)"
+   "status": "passing",
+   "note": "13t-1d T8 (e) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T9-journal-caption-rows-in-independent-comparison",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d T9: draft rows and journal rows reported separately; 0 not equal, 0 unresolved"
+   "status": "passing",
+   "note": "13t-1d T9: draft rows and journal rows reported separately; 0 not equal, 0 unresolved | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T10-allow-list-as-approved",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d T10"
+   "status": "passing",
+   "note": "13t-1d T10 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T3-tau_d-underscore-on-image",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d T3: tau_d (JTAU) with the underscore on every image; defined once per caption as synaptic decay time"
+   "status": "passing",
+   "note": "13t-1d T3: tau_d (JTAU) with the underscore on every image; defined once per caption as synaptic decay time | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T5-margins-0.10in",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d T5"
+   "status": "passing",
+   "note": "13t-1d T5 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T6-label-title-gap-0.05in",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d T6"
+   "status": "passing",
+   "note": "13t-1d T6 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T8-seven-labelled-paragraphs",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d T8: take-home, panels, key and abbreviations, classifier and spectrogram settings, parameters, failed checks, limits"
+   "status": "passing",
+   "note": "13t-1d T8: take-home, panels, key and abbreviations, classifier and spectrogram settings, parameters, failed checks, limits | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T8-no-plan-milestone-table-DL-step-ids-code-names",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d T8: no 'the plan', milestone, table number, DL number, step ID or code/key name in the caption"
+   "status": "passing",
+   "note": "13t-1d T8: no 'the plan', milestone, table number, DL number, step ID or code/key name in the caption | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T8-NC1-as-defined-in-the-plan",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d T8 (d)"
+   "status": "passing",
+   "note": "13t-1d T8 (d) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T8-MS11-C7-map-control-perturbation-runs",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d T8 (e)"
+   "status": "passing",
+   "note": "13t-1d T8 (e) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T9-journal-caption-rows-in-independent-comparison",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d T9: draft rows and journal rows reported separately; 0 not equal, 0 unresolved"
+   "status": "passing",
+   "note": "13t-1d T9: draft rows and journal rows reported separately; 0 not equal, 0 unresolved | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T10-allow-list-as-approved",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d T10"
+   "status": "passing",
+   "note": "13t-1d T10 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T3-tau_d-underscore-on-image",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d T3: tau_d (JTAU) with the underscore on every image; defined once per caption as synaptic decay time"
+   "status": "passing",
+   "note": "13t-1d T3: tau_d (JTAU) with the underscore on every image; defined once per caption as synaptic decay time | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T5-margins-0.10in",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d T5"
+   "status": "passing",
+   "note": "13t-1d T5 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T6-label-title-gap-0.05in",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d T6"
+   "status": "passing",
+   "note": "13t-1d T6 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T8-seven-labelled-paragraphs",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d T8: take-home, panels, key and abbreviations, classifier and spectrogram settings, parameters, failed checks, limits"
+   "status": "passing",
+   "note": "13t-1d T8: take-home, panels, key and abbreviations, classifier and spectrogram settings, parameters, failed checks, limits | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T8-no-plan-milestone-table-DL-step-ids-code-names",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d T8: no 'the plan', milestone, table number, DL number, step ID or code/key name in the caption"
+   "status": "passing",
+   "note": "13t-1d T8: no 'the plan', milestone, table number, DL number, step ID or code/key name in the caption | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T8-NC1-as-defined-in-the-plan",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d T8 (d)"
+   "status": "passing",
+   "note": "13t-1d T8 (d) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T8-MS11-C7-map-control-perturbation-runs",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d T8 (e)"
+   "status": "passing",
+   "note": "13t-1d T8 (e) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T9-journal-caption-rows-in-independent-comparison",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d T9: draft rows and journal rows reported separately; 0 not equal, 0 unresolved"
+   "status": "passing",
+   "note": "13t-1d T9: draft rows and journal rows reported separately; 0 not equal, 0 unresolved | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T10-allow-list-as-approved",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d T10"
+   "status": "passing",
+   "note": "13t-1d T10 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T3-tau_d-underscore-on-image",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T3: tau_d (JTAU) with the underscore on every image; defined once per caption as synaptic decay time"
+   "status": "passing",
+   "note": "13t-1d T3: tau_d (JTAU) with the underscore on every image; defined once per caption as synaptic decay time | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T5-margins-0.10in",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T5"
+   "status": "passing",
+   "note": "13t-1d T5 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T6-label-title-gap-0.05in",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T6"
+   "status": "passing",
+   "note": "13t-1d T6 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T8-seven-labelled-paragraphs",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T8: take-home, panels, key and abbreviations, classifier and spectrogram settings, parameters, failed checks, limits"
+   "status": "passing",
+   "note": "13t-1d T8: take-home, panels, key and abbreviations, classifier and spectrogram settings, parameters, failed checks, limits | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T8-no-plan-milestone-table-DL-step-ids-code-names",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T8: no 'the plan', milestone, table number, DL number, step ID or code/key name in the caption"
+   "status": "passing",
+   "note": "13t-1d T8: no 'the plan', milestone, table number, DL number, step ID or code/key name in the caption | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T8-NC1-as-defined-in-the-plan",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T8 (d)"
+   "status": "passing",
+   "note": "13t-1d T8 (d) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T8-MS11-C7-map-control-perturbation-runs",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T8 (e)"
+   "status": "passing",
+   "note": "13t-1d T8 (e) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T9-journal-caption-rows-in-independent-comparison",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T9: draft rows and journal rows reported separately; 0 not equal, 0 unresolved"
+   "status": "passing",
+   "note": "13t-1d T9: draft rows and journal rows reported separately; 0 not equal, 0 unresolved | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T10-allow-list-as-approved",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1d T10"
+   "status": "passing",
+   "note": "13t-1d T10 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T4-F5-wording-97-of-225-cells-203-cells-needed",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1d T4: sentence 1, the in-panel line under (a) and the take-home"
+   "status": "passing",
+   "note": "13t-1d T4: sentence 1, the in-panel line under (a) and the take-home | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T6-F1-jk-y-padding-said-in-caption",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d T6"
+   "status": "passing",
+   "note": "13t-1d T6 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T6-F1-colour-bar-label-psd-same-scale",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d T6: 'power spectral density (dB); same scale for (g) and (h)'"
+   "status": "passing",
+   "note": "13t-1d T6: 'power spectral density (dB); same scale for (g) and (h)' | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T6-F1-vline-labels-ab",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d T6: 'ramp start and end', 'J ramp start and end'"
+   "status": "passing",
+   "note": "13t-1d T6: 'ramp start and end', 'J ramp start and end' | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T6-F1-schematic-macron-and-arrows-4pt-apart",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d T6"
+   "status": "passing",
+   "note": "13t-1d T6 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T6-F1-event-strip-off-the-frame",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d T6"
+   "status": "passing",
+   "note": "13t-1d T6 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T7-F3-combined-path-thin-no-overlay",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d T7: at most 1 pt, start circle and arrowhead kept"
+   "status": "passing",
+   "note": "13t-1d T7: at most 1 pt, start circle and arrowhead kept | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T7-F3-A6-hopf-marker-4pt-hollow",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d T7"
+   "status": "passing",
+   "note": "13t-1d T7 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T7-F3-hopf-marks-ab-white-outline",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d T7"
+   "status": "passing",
+   "note": "13t-1d T7 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T7-F3-caption-A4-straight-segments-30-points",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d T7"
+   "status": "passing",
+   "note": "13t-1d T7 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T7-F3-caption-RB9b-two-frequencies",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1d T7: 49.0 Hz spectral, 44.609 Hz cycle, 4.391 Hz; the shading does not contain the spectral value"
+   "status": "passing",
+   "note": "13t-1d T7: 49.0 Hz spectral, 44.609 Hz cycle, 4.391 Hz; the shading does not contain the spectral value | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   },
   {
    "id": "T12-F1-source-data-zip-note",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1d T12"
+   "status": "passing",
+   "note": "13t-1d T12 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
   }
  ]
 }
