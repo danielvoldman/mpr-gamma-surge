@@ -371,7 +371,7 @@ def f5_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list, 
         f"(a) Map 1: the stored class (mode D) of every cell of a 30 x 30 map in (Delta, tau_d) at the ramp duration T_ramp 120 s ({d['map1_n_surge']} D-tr, {d['map1_n_none']} D-none; colour, with D-none also hatched), cell by cell as stored, "
         "with cell indices on the axes and the stored parameter values as tick labels (nothing is interpolated, smoothed or offset, and every non-surge cell is drawn at the same weight as a surge cell); the four network cells are numbered symbols "
         "(hexagram: the network agrees with the mean field, heptagon: it disagrees), each on the map-1 cell with the same (Delta, tau_d), matched to 1e-9; the title is red because the cell comparison RB1 FAILED, and the in-panel line gives the take-home.",
-        f"(b) For the 4 network cells: the map class (T_ramp 120 s), the stored mean-field companion class at T_ramp 30 s (its own run) and the three network classes (seeds 0, 1, 2), then the agree or disagree symbol of (a); "
+        f"(b) For the 4 network cells: the map class (T_ramp 120 s), the stored mean-field companion class at T_ramp 30 s (its own run) and the three network classes (seeds 0, 1, 2), then the agree or disagree symbol of (a) (the class marks are those of the class key under (d) and of F5c); "
         "the network was run at T_ramp 30 s and the map is at T_ramp 120 s, so both are drawn and no equivalence is claimed.",
         f"(c) The {sub}-cell noisy subgrid under the fixed rule D24, which FAILED ({d['d24_n_agree']} of {sub} cells agree = {_pct(d['d24_n_agree'], sub)}%, {d['d24_needed']} cells needed; {d['d24_n_tie']} ties count as disagreements by the rule); every subgrid cell is the "
         f"mode-N majority class of 10 seeds at the noise level sigma = {num(pv(rows, 'noise.sigma'))}, checked and not confirmed (sigma check: {sigma_status(a11)['status']}, logged verdict {sigma_status(a11)['verdict']}; see Parameters); "
@@ -412,12 +412,12 @@ def f5c_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list,
     panels = " ".join([
         "(a) The class of every seed against N (the 40 network runs at T_ramp 60 s: N = 1e3, 3e3, 1e4, 3e4 with 10 seeds each, filled marks; the 12 no-ramp control runs, 3 per N, open marks); the class is the stored class, "
         "and a seed's x position is its slot in the N group (ramp seeds 0 to 9, then control seeds 0 to 2), a layout that carries no value.",
-        "(b) f_pk of every seed with a defined value against N (the title is red because the RB6 network f_pk check FAILED): the dotted line is the stored mean-field companion value at T_ramp 60 s; the grey bar is the stored minimum to maximum of the ramp seeds and the wide tick the stored median.",
+        "(b) f_pk of every seed with a defined value against N (the title is red because the RB6 network f_pk check FAILED): the dotted line is the stored mean-field companion value at T_ramp 60 s; the grey bar is the stored minimum to maximum of the ramp seeds and the wide tick the stored median (these three marks are in the key above (a)).",
         f"(c) The onset of every seed with a defined value against N, with the stored mean-field companion onset {d['ref_onset_s']:.3f} s as a dotted line; {c['onset_sentence']}",
         f"(d) The duration of every ramp seed with a defined value against N (logarithmic axis; the controls were evaluated without the duration, so there are no control points): {c['duration_sentence']}",
         "The per-seed f_pk, onset and duration are recomputed from the stored series with the classifier's own routine, called as in the stored evaluation and with no new setting, and are labelled so; the recomputed classes equal the stored classes, "
         "and the recomputed counts, minimum, median and maximum equal the stored values (a build test; a difference stops the build); this is a logged exception to the rule that figures read stored tables first, and it is not verified as a rule. "
-        f"Seeds whose metric is undefined are not drawn: {c['undefined_note']}",
+        f"Seeds whose metric is undefined are not drawn; {c['undefined_note']}",
         "The maps, the network cells and the noisy subgrid are in F5.",
     ])
     key = " ".join([

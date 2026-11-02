@@ -1091,7 +1091,9 @@ def _f5_jconst(d: dict) -> dict:
             "onset_sentence": f"{n_below} of the {n} drawn ramp-seed onsets ({np.nanmin(o):.1f} to {np.nanmax(o):.1f} s) are earlier than that onset (T_ramp 60 s).",
             "duration_sentence": (f"the stored minimum duration is {float(np.min(d['stored_duration_ms'])):g} ms at all four N, a pinned value that is the floor of the classifier (duration = flagged windows x step, so one window is the smallest "
                                   "duration, 1.0 s = 1000 ms for T_ramp >= 60 s); no mean-field duration reference is drawn because the stored companion reference (class, f_pk, onset) has no duration field."),
-            "undefined_note": "per N (" + ", ".join(nn) + ") f_pk " + ", ".join(str(int(u)) for u in und[:, 0]) + "; onset " + ", ".join(str(int(u)) for u in und[:, 1]) + "; duration " + ", ".join(str(int(u)) for u in und[:, 2]) + "."}
+            "undefined_note": ("ramp seeds with an undefined value, per N (" + ", ".join(nn) + "): f_pk " + ", ".join(str(int(u)) for u in und[:, 0]) + "; onset " + ", ".join(str(int(u)) for u in und[:, 1]) + "; duration "
+                               + ", ".join(str(int(u)) for u in und[:, 2]) + "; no-ramp controls with an undefined value, per N: f_pk " + ", ".join(str(int(np.isnan(d["ctrl_f_pk_hz"][k]).sum())) for k in range(4))
+                               + "; onset " + ", ".join(str(int(np.isnan(d["ctrl_onset_s"][k]).sum())) for k in range(4)) + " (the controls have no duration).")}
 
 
 def _f5_undefined_note(d: dict) -> str:
@@ -6134,7 +6136,7 @@ def _draw_F5_journal(d: dict):
     ax.text(0.5, 0.995, first[0] + ";\n" + "\n".join(textwrap.wrap(first[1], 18, break_long_words=False)), transform=ax.transAxes, ha="center", va="top", color=dark, fontweight="bold")
 
     # (b) the 4 network cells: rows are the sources, columns the cells (the cell's map indices are in the column label)
-    ax = _ax_in(fig, 4.5, F5J_ROWS["b"][0], 1.65, F5J_ROWS["b"][1])
+    ax = _ax_in(fig, 4.5, F5J_ROWS["b"][0], 1.6, F5J_ROWS["b"][1])
     rows_ = ("map 1 class (120 s)", "mean-field companion (30 s)", "network seed 0", "network seed 1", "network seed 2", "network against mean field")
     for r in range(4):
         pts = [d["cell_map_class"][r], d["cell_mf30_class"][r], *d["cell_net_class"][r]]
@@ -6149,12 +6151,12 @@ def _draw_F5_journal(d: dict):
     ax.set_xlim(-0.5, 3.5)
     ax.set_ylim(5.6, -0.6)
     _journal_title(ax, "b", "4 network cells: RB1 cells FAIL", fail=True)
-    ax._left_title.set_x(-(4.5 - 2.75) / 1.65)                       # the title starts at the left of the row labels
+    ax._left_title.set_x(-(4.5 - 2.75) / 1.6)                       # the title starts at the left of the row labels
 
     # (c) and (d): the noisy subgrid, D24 (frozen, FAILED) and P-1 (post hoc), same size and frame, cells at their map-1 indices; the state of a cell is a dark mark (circle, cross, plus)
     # that is 4.4 pt wide, so it can be read (R8); the key shows the same marks
-    for left, key, letter, ttl, bad, post in ((3.2, "d24", "c", "D24 rule: FAILED", True, False), (4.8, "p1", "d", "post-hoc view P-1", False, True)):
-        ax = _ax_in(fig, left, F5J_ROWS["cd"][0], 1.35, F5J_ROWS["cd"][1])
+    for left, key, letter, ttl, bad, post in ((3.35, "d24", "c", "D24 rule: FAILED", True, False), (4.85, "p1", "d", "post-hoc view P-1", False, True)):
+        ax = _ax_in(fig, left, F5J_ROWS["cd"][0], 1.3, F5J_ROWS["cd"][1])
         st_ = d[f"{key}_state"]
         z = np.full((30, 30), np.nan)
         z[d["sub_i"], d["sub_j"]] = st_
@@ -6185,14 +6187,21 @@ def _draw_F5_journal(d: dict):
             mark_cells=False)                                  # DL-563 S1: the cells are 2.3 pt high, too small for a readable mark: colour and hatching only, the cell classes are in the supplement (source data)
     _journal_title(ax, "e", "map 2, mode D")
 
+    # class key of the marks of (b) (DL-576, review finding): the same marks and colours as the class key of F5c
+    k3 = _ax_in(fig, 3.3, 4.55, 2.85, 0.62)
+    k3.axis("off")
+    k3.set_gid("legend axes (classes of b)")
+    h3 = [Line2D([], [], ls="none", marker=S.get(c_).marker, ms=S.F5_SIZES["key_mark"], color=S.get(c_).colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"]) for c_ in (*F5_MAP_CLASSES, *S.F5_KEY_CLASSES)]
+    k3.legend(h3, [*F5_MAP_CLASSES, *S.F5_KEY_CLASSES], title="classes of the marks in (b)", loc="center", ncol=4, frameon=False, columnspacing=1.0, handletextpad=0.4, labelspacing=0.4, alignment="left").set_in_layout(False)
+
     J.finish(fig, cfg)
     return fig
 
 
 # ---- F5c journal: draft panels (f) to (i) as the second journal file of the F5 build (DL-571 T1, DL-573) ------------------------------------------------------
 
-F5CJ_MARK = {"seed": 4.0, "seed_edge": 0.4, "control": 4.0, "control_edge": 0.8, "median_half_width": 0.45, "bar_offset": 0.2}      # DL-571 T1: every mark is 4.0 pt (the draft journal had 2.5 and 2.2 pt)
-F5CJ_ROWS = {"a": (0.92, 1.12), "b": (2.55, 1.28), "c": (4.45, 1.28), "d": (6.35, 1.28)}      # (top of the axes, height) in inches from the top edge; layout only
+F5CJ_MARK = {"seed": 4.0, "seed_edge": 0.4, "control": 4.0, "control_edge": 0.8, "median_half_width": 0.45, "bar_offset": 0.2, "bar_marker": "|", "bar_key": 8.0}      # DL-571 T1: every mark is 4.0 pt (the draft journal had 2.5 and 2.2 pt)
+F5CJ_ROWS = {"a": (1.28, 1.1), "b": (2.9, 1.2), "c": (4.7, 1.2), "d": (6.5, 1.2)}      # (top of the axes, height) in inches from the top edge; layout only
 F5CJ_LEFT, F5CJ_WIDTH, F5CJ_HEIGHT = 0.8, 5.3, 8.0                                              # axes left edge and width (in) and figure height (in): 52 slots in 5.3 in, 6.2 pt per slot unit
 F5C_PANELS = {"a": "f", "b": "g", "c": "h", "d": "i"}                                           # journal panel of F5c -> panel of the draft F5 (the mapping table of the supplements)
 
@@ -6205,15 +6214,22 @@ def _draw_F5c_journal(d: dict):
     edge, dark = S.figure_colour("bar_edge"), S.figure_colour("text_dark")
     M = F5CJ_MARK
     # key of the four panels
-    kx = _ax_in(fig, 0.1, 0.05, 6.1, 0.55)
+    kx = _ax_in(fig, 0.13, 0.12, 6.04, 0.25)
     kx.axis("off")
     kx.set_gid("legend axes")
-    h2 = [Line2D([], [], ls="none", marker=S.get(c).marker, ms=M["seed"], color=S.get(c).colour, mec=edge, mew=M["seed_edge"]) for c in S.F5_KEY_CLASSES]
-    l2 = list(S.F5_KEY_CLASSES)
-    h2 += [Line2D([], [], ls="none", marker=S.get("S-sus").marker, ms=M["seed"], color=dark, mec=dark, mew=M["seed_edge"]),
-           Line2D([], [], ls="none", marker=S.get("S-sus").marker, ms=M["control"], mfc="none", mec=dark, mew=M["control_edge"])]
-    l2 += ["filled: ramp seed (10 per N)", "open: no-ramp control seed (3 per N)"]
-    kx.legend(h2, l2, loc="center", ncol=4, frameon=False, columnspacing=1.3, handletextpad=0.5, labelspacing=0.5).set_in_layout(False)
+    h1 = [Line2D([], [], ls="none", marker=S.get(c).marker, ms=M["seed"], color=S.get(c).colour, mec=edge, mew=M["seed_edge"]) for c in S.F5_KEY_CLASSES]
+    kx.legend(h1, list(S.F5_KEY_CLASSES), loc="center left", ncol=5, frameon=False, columnspacing=1.6, handletextpad=0.5).set_in_layout(False)
+    kx2 = _ax_in(fig, 0.13, 0.42, 6.04, 0.56)
+    kx2.axis("off")
+    kx2.set_gid("legend axes (marks and lines)")
+    h2 = [Line2D([], [], ls="none", marker=S.get("S-sus").marker, ms=M["seed"], color=dark, mec=dark, mew=M["seed_edge"]),
+          Line2D([], [], ls="none", marker=S.get("S-sus").marker, ms=M["control"], mfc="none", mec=dark, mew=M["control_edge"]),
+          Line2D([], [], ls="none", marker=M["bar_marker"], ms=M["bar_key"], color=S.figure_colour("range_line"), mew=S.F5_SIZES["range_line"]),
+          Line2D([], [], ls=":", color=S.get("mean_field").colour, lw=S.F5_SIZES["ref_line"]),
+          Line2D([], [], ls="--", color=S.figure_colour("range_line"), lw=0.6)]
+    l2 = ["filled: ramp seed (10 per N)", "open: no-ramp control seed (3 per N)", "grey bar and tick: stored minimum to maximum and median of the ramp seeds",
+          "dotted line: mean-field companion value, (b) and (c)", "dashed line: stored minimum duration, (d)"]
+    kx2.legend(h2, l2, loc="center left", ncol=1, frameon=False, handletextpad=0.5, labelspacing=0.3).set_in_layout(False)
 
     def panel_axes(letter):
         top, h = F5CJ_ROWS[letter]
