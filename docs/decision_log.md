@@ -6207,3 +6207,13 @@ Chosen:          as done   Default from: the prompt
 Test:            scripts/ms13_verify_export.py; independent comparison; scripts/ms13_check_hashes.py; tests/test_ms13_13t.py
 Status:          13t-1d built and checked; no tag
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-578  MS13 13t-1d: fast suite at the end of the step; 13t-1d built and checked, no tag    [ID: MS13, 13t, 13t-1d, DL-577]
+Date:            2026-11-02        Author:
+Decision:        FACT. FAST SUITE at the end of 13t-1d (HEAD at the start of the run d03ddea, the commit of the manifest rows, checklist and progress): 1333 passed, 24 deselected, 9 xfailed, 0 failed, exit 0 taken from pytest itself (1010.45 s). Against the start of the step (1271 passed): +62 tests, all in tests/test_ms13_13t.py (new tests of DL-575; the existing tests keep their data assertions; text edits E13 to E20 in tests/test_ms13_13t.py and the T4 sentence in tests/test_fig_F5.py and tests/test_ms13_13r3c.py, DL-575). 13t-1d is built and checked: the F1, F3, F5 and F5c journal versions are in figures/journal/ (untagged drafts, no tag, no push, no upload); 13t-2 (F2, F4, F6, FS1 to FS5) follows after the user has ruled on the open points of DL-574 and DL-576 and on which of F5 and F5c is tagged in 13u. The first reviewing subagent folders of 13t-1b and 13t-1c are outside the project and were not deleted; the 13t-1d review package is in the session scratchpad folder review_1d.
+Reason:          instruction of the reviewer (13t-1d prompt)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            fast suite
+Status:          13t-1d closed; 13t-2 not started
+Commit/tag:      the commit that adds this entry; no tag
