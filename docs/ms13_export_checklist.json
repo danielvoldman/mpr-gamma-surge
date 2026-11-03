@@ -1,5 +1,5 @@
 {
- "note": "status changes to passing only after scripts/ms13_verify_export.py passes for the item AND the recorded PNG crops were looked at (J15); 13t-1d (DL-571): F1, F3 and F5 items were reset to failing and the T1 to T12 items added",
+ "note": "status changes to passing only after scripts/ms13_verify_export.py passes for the item AND the recorded PNG crops were looked at (J15); 13t-1d (DL-571): F1, F3 and F5 items were reset to failing and the T1 to T12 items added; 13t-1e (DL-581 to DL-583): items U1 to U8 added as failing",
  "items": [
   {
    "id": "J10-raw-crossings-marker-on-text",
@@ -1116,6 +1116,120 @@
    "figure": "F1",
    "status": "passing",
    "note": "13t-1d T12 | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
+  },
+  {
+   "id": "U1a-F3-red-title-evidence",
+   "figure": "F3",
+   "status": "failing",
+   "note": "13t-1e (DL-581 to DL-583): two frequency marks on the shared colour bar with plain labels and the 'differ by' text (values from DL-388), else one plain line"
+  },
+  {
+   "id": "U1b-F5c-b-red-title-line",
+   "figure": "F5c",
+   "status": "failing",
+   "note": "13t-1e (DL-581 to DL-583): plain line 'step-halving test not drawn: its runs are not stored' in/under panel (b)"
+  },
+  {
+   "id": "U1c-no-other-unexplained-red-title",
+   "figure": "all",
+   "status": "failing",
+   "note": "13t-1e (DL-581 to DL-583): every red title has a drawn stored failure or an explaining line"
+  },
+  {
+   "id": "U2-no-check-or-step-ids-on-images",
+   "figure": "all",
+   "status": "failing",
+   "note": "13t-1e (DL-581 to DL-583): no check ID, gate ID, rule ID or step ID on any journal image text; plain titles; class names, P1 to P5, M3, ING and symbols kept"
+  },
+  {
+   "id": "U2-title-mapping-table",
+   "figure": "all",
+   "status": "failing",
+   "note": "13t-1e (DL-581 to DL-583): each supplement holds the table plain title to check ID; the Failed checks paragraph of the full caption says 'shown in the title as ...'"
+  },
+  {
+   "id": "U2-test-image-text-pattern",
+   "figure": "all",
+   "status": "failing",
+   "note": "13t-1e (DL-581 to DL-583): test: no image text matches a check-ID or step-ID pattern; pattern does not match class names or P1 to P5"
+  },
+  {
+   "id": "U3a-short-caption",
+   "figure": "all",
+   "status": "failing",
+   "note": "13t-1e (DL-581 to DL-583): <ID>_journal_caption.txt: at most 220 words (F1 280), plain language, content order as ruled, limits from config"
+  },
+  {
+   "id": "U3b-full-caption-file",
+   "figure": "all",
+   "status": "failing",
+   "note": "13t-1e (DL-581 to DL-583): <ID>_journal_caption_full.txt: the 13t-1d caption with only U4 to U6 corrections; in supplement and export manifest"
+  },
+  {
+   "id": "U3d-independent-short-and-full-rows",
+   "figure": "all",
+   "status": "failing",
+   "note": "13t-1e (DL-581 to DL-583): independent comparison compares every quantity of the short caption; short rows and full rows separate; 0 not equal"
+  },
+  {
+   "id": "U3e-limits-test",
+   "figure": "all",
+   "status": "failing",
+   "note": "13t-1e (DL-581 to DL-583): test: every ruled claim limit in the full caption; every limit the short caption states has the same numbers as in the full caption"
+  },
+  {
+   "id": "U4-F3-100-points-d-curve",
+   "figure": "F3",
+   "status": "failing",
+   "note": "13t-1e (DL-581 to DL-583): full and short caption state the 100 stored points of the (d) curve next to the 30 of (c), counts read from the stored arrays"
+  },
+  {
+   "id": "U5-plain-definitions",
+   "figure": "all",
+   "status": "failing",
+   "note": "13t-1e (DL-581 to DL-583): recorded, headline, sigma defined once in the full caption Key; short caption says recorded or drops stored; Key entries only for terms used in the same caption"
+  },
+  {
+   "id": "U6a-true-minus-signs",
+   "figure": "all",
+   "status": "failing",
+   "note": "13t-1e (DL-581 to DL-583): U+2212 in all tick labels of the four images; drawn-data digests equal"
+  },
+  {
+   "id": "U6b-F1-y-limit-sentence",
+   "figure": "F1",
+   "status": "failing",
+   "note": "13t-1e (DL-581 to DL-583): full caption: 'the y limit is padded by 30 rows on each side (display only, no spike is moved)'"
+  },
+  {
+   "id": "U6c-F5c-per-N-counts",
+   "figure": "F5c",
+   "status": "failing",
+   "note": "13t-1e (DL-581 to DL-583): per-N counts of controls and ramp seeds in a surge class from the figure arrays; short caption states only what they support"
+  },
+  {
+   "id": "U6d-limits-scope-10of10-7of10",
+   "figure": "F1",
+   "status": "failing",
+   "note": "13t-1e (DL-581 to DL-583): scope of the 10 of 10 and 7 of 10 limit sentences added to the full caption in plain words (sources DL-227/DL-229 and DL-251/DL-394)"
+  },
+  {
+   "id": "U7-F1-stored-classifier-fields",
+   "figure": "F1",
+   "status": "failing",
+   "note": "13t-1e (DL-581 to DL-583): stored fields read and tabled; close item written if none explains S-sus; no figure change"
+  },
+  {
+   "id": "U8-accepted-findings-logged",
+   "figure": "all",
+   "status": "failing",
+   "note": "13t-1e (DL-581 to DL-583): accepted-unchanged findings logged as one table (DL-583)"
+  },
+  {
+   "id": "13t-1e-subagent-review-new",
+   "figure": "all",
+   "status": "failing",
+   "note": "13t-1e (DL-581 to DL-583): new fresh subagent reads each SHORT caption alone with the image"
   }
  ]
 }
