@@ -28,16 +28,33 @@ from mprsurge.plotting import collide as CO
 from mprsurge.plotting import figures as FG
 from mprsurge.plotting import jcaption as JCAP
 from mprsurge.plotting import jchecks as JC
+from mprsurge.plotting import jshort as JSH
+from mprsurge.plotting import plain as PL
 from mprsurge.plotting import journal as J
 from mprsurge.plotting import style as S
 
 PILOT = ("F1", "F3", "F5", "F5c")
 DRAFT_ID = {"F1": "F1", "F3": "F3", "F5": "F5", "F5c": "F5"}              # the figure whose draft files, digest and manifest rows a journal file is checked against
 CHECKS = ("A collisions", "B pdf", "size+shape", "text>=8pt", "fonts", "line width", "cmaps", "non-colour", "letters", "file names", "FAIL lines", "digest", "arrays", "drafts identical",
-          "image text", "supplement", "sentence 1", "paragraphs", "caption words", "margins", "label-title gap", "contrast", "red-green", "greyscale", "cvd", "png+tiff", "no svg/wmf/emf", "file sizes")
+          "image text", "image IDs", "minus signs", "red titles", "supplement", "sentence 1", "paragraphs", "caption words", "full caption", "key terms", "short caption", "short limits",
+          "margins", "label-title gap", "contrast", "red-green", "greyscale", "cvd", "png+tiff", "no svg/wmf/emf", "file sizes")
 MAIN_FAILURES = {"F1": FG.F1_MAIN_FAILURES, "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES, "F5c": FG.F5C_MAIN_FAILURES}
 STRIP = {"F1": FG.f1_strip_lines, "F3": FG.strip_lines, "F5": FG.f5_strip_lines, "F5c": FG.f5c_strip_lines}
 MIN_MARGIN_IN, MIN_LABEL_GAP_IN = 0.10, 0.05                                # DL-571 T5, T6
+CLAIM_IDS = {"F1": (FG.F1_CLAIM_LIMITS, None), "F3": (FG.F3_CLAIM_LIMITS, None), "F5": (FG.F5_CLAIM_LIMITS, FG.F5_NOT_APPLICABLE), "F5c": (FG.F5_CLAIM_LIMITS, FG.F5_NOT_APPLICABLE)}
+SHORT_MAIN = {"F1": ("does not reproduce the mean-field result", "network-against-mean-field check failed"), "F3": ("frequency check failed",), "F5": ("Mean field only", "90 percent rule failed"),
+              "F5c": ("step-halving check", "do not reproduce the mean field")}               # plain words of the main failure(s) that sentence 1 of the short caption holds (DL-582 U3 a)
+CHECK_TOKEN = {("RB1", "headline_10s"): "network against mean field", ("RB1", "headline_120s"): "network against mean field", ("RB1", "cells_30s"): "network against mean field",
+               ("RB1", "overall"): "network against mean field", ("RB2", "noisy_subgrid_agreement"): "90 percent rule", ("RB2", "headline_class_kept_1.0_sigma"): "main-run class kept",
+               ("RB3", "a_inrange_runs"): "onset prediction", ("RB3", "b_classifier_onset"): "delay under a noise floor", ("RB6", "network_fpk_halving_dt"): "step-halving check",
+               ("RB6", "solver_onset_headline"): "two solvers", ("RB9", "b_spectral_vs_cycle_headline"): "frequency check", ("G7", "gate"): "negative-control check",
+               ("sigma_check", "S8_baseline_std"): "noise-level check"}                      # the plain phrase that names each failed check in a short caption
+SHORT_CHECKS = {"F1": [("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30s"), ("RB1", "overall"), ("G7", "gate"), ("RB6", "network_fpk_halving_dt"), ("RB6", "solver_onset_headline"),
+                       ("RB2", "headline_class_kept_1.0_sigma"), ("sigma_check", "S8_baseline_std"), ("RB3", "a_inrange_runs"), ("RB3", "b_classifier_onset")],
+                "F3": [("RB9", "b_spectral_vs_cycle_headline")],
+                "F5": [("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30s"), ("RB1", "overall"), ("RB2", "noisy_subgrid_agreement"), ("RB2", "headline_class_kept_1.0_sigma"),
+                       ("RB6", "network_fpk_halving_dt"), ("sigma_check", "S8_baseline_std")],
+                "F5c": [("RB6", "network_fpk_halving_dt"), ("sigma_check", "S8_baseline_std")]}
 SCHEMATIC_FACES = {"ramp": S.F1_SCHEMATIC["ramp_face"], "net": S.F1_SCHEMATIC["net_face"], "model": S.F1_SCHEMATIC["box_face"], "mf": S.F1_SCHEMATIC["box_face"], "out": S.F1_SCHEMATIC["box_face"]}
 
 
@@ -52,11 +69,13 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
     sup = base / "supplement"
     out = base / fid
     pdf, png = out / f"{fid}_journal.pdf", out / f"{fid}_journal.png"
-    cap_path, prov_path = out / f"{fid}_journal_caption.txt", out / f"{fid}_journal_provenance.json"
-    missing = [p for p in (pdf, png, cap_path, prov_path, sup / f"{fid}_supplement.md", sup / f"{fid}_source_data.csv", sup / f"{fid}_alt_text.txt") if not p.is_file()]
+    cap_path, prov_path = out / f"{fid}_journal_caption_full.txt", out / f"{fid}_journal_provenance.json"           # the FULL caption (DL-582 U3 b); the short one is read below
+    short_path = out / f"{fid}_journal_caption.txt"
+    missing = [p for p in (pdf, png, cap_path, short_path, prov_path, sup / f"{fid}_supplement.md", sup / f"{fid}_source_data.csv", sup / f"{fid}_alt_text.txt") if not p.is_file()]
     if missing:
         return {c: ("FAIL", f"missing {missing[0].name}") for c in CHECKS}, info
     cap = cap_path.read_text(encoding="utf-8")
+    short = short_path.read_text(encoding="utf-8").strip()
     prov = json.loads(prov_path.read_text(encoding="utf-8"))
     did = DRAFT_ID[fid]
     with FG.journal_figure(fid, root=root) as (fig, d, cfg):
@@ -127,6 +146,30 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         # image text
         it = JC.image_text_violations(fig)
         res["image text"] = ("PASS" if not it else "FAIL", f"{len(it)} texts with draft, DL or provenance wording" + (f": {it[0]}" if it else ""))
+        # image IDs, minus signs, red titles (DL-581 U1, U2; DL-582 U6 a)
+        ids_on = JC.image_id_violations(fig)
+        res["image IDs"] = ("PASS" if not ids_on else "FAIL", f"{len(ids_on)} image texts with a check, gate, rule or step ID" + (f": {ids_on[0]}" if ids_on else ""))
+        hy = JC.tick_hyphens(fig)
+        res["minus signs"] = ("PASS" if not hy else "FAIL", f"{len(hy)} tick labels with a hyphen-minus instead of U+2212" + (f": {hy[0]}" if hy else ""))
+        reds = JC.red_titles(fig)
+        tmap = JCAP.TITLE_MAP[fid]
+        plain_all = [x[1] for x in tmap]
+        unmapped = [s for _, s in reds if not any(p in s for p in plain_all)]
+        not_in_cap = [p for p in plain_all if f"is shown in the title of" not in cap or f"as '{p}'" not in cap or p not in sup_text]
+        evidence = []
+        if fid == "F3":
+            marks = [a for a in fig.findobj(lambda a: a.get_gid() == "frequency mark")]
+            diff = [a for a in fig.findobj(lambda a: a.get_gid() == "frequency mark difference")]
+            labs = " ".join(a.get_text() for a in fig.findobj(lambda a: a.get_gid() == "frequency mark label"))
+            if len(marks) != 2 or len(diff) != 1 or "cycle frequency at the headline" not in labs or "spectral peak at the headline" not in labs or "differ by 4.391 Hz; allowed 0.5 Hz" not in diff[0].get_text():
+                evidence.append("F3 frequency marks, labels or difference text missing")
+        if fid == "F5c":
+            lines = [a.get_text() for a in fig.findobj(lambda a: a.get_gid() == "step-halving line")]
+            if not lines or " ".join(" ".join(lines).split()) != FG.F5CJ_B_LINE:
+                evidence.append("F5c (b) step-halving line missing")
+        okr = bool(reds) and not unmapped and not not_in_cap and not evidence
+        res["red titles"] = ("PASS" if okr else "FAIL", f"{len(reds)} red titles, each a plain title of the map; each in the full caption ('shown in the title as') and the supplement table" if okr
+                             else f"unmapped {unmapped[:1]}; not in caption or table {not_in_cap[:1]}; {evidence}")
         # supplement
         need = [f"{x['rb_id']} {x['check_id']}" for x in FG.strip_rows_of(fid, d)]
         lack = [n for n in need if n not in sup_text]
@@ -143,6 +186,37 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         res["paragraphs"] = ("PASS" if starts_ok else "FAIL", f"{len(paras)} paragraphs; labels " + ", ".join(w.rstrip(".") for w in want if any(x.startswith(w + " ") for x in paras)))
         bad_words = sorted({m.group(0) for m in JCAP.FORBIDDEN.finditer(cap)})
         res["caption words"] = ("PASS" if not bad_words else "FAIL", f"{len(bad_words)} forbidden words or codes" + (f": {bad_words[:5]}" if bad_words else ""))
+        # the full caption (DL-582 U3 b, e): in the supplement; every ruled claim limit (plain sentence) in it; the Key keeps only terms that the caption uses (U5)
+        ids_, na_ = CLAIM_IDS[fid]
+        norm = lambda s: " ".join(s.split())
+        lim_missing = [i for i in ids_ if norm(PL.plain_limit_text((i,), na_)) not in norm(cap)]
+        in_sup = norm(cap) in norm(sup_text)
+        res["full caption"] = ("PASS" if in_sup and not lim_missing else "FAIL", f"in the supplement: {in_sup}; {len(ids_) - len(lim_missing)} of {len(ids_)} ruled claim limits in the full caption" + (f"; missing {lim_missing[:2]}" if lim_missing else ""))
+        unused = JCAP.key_unused_terms(cap)
+        res["key terms"] = ("PASS" if not unused else "FAIL", f"{len(unused)} Key entries whose term the caption does not use" + (f": {unused[:3]}" if unused else ""))
+        # the SHORT caption (DL-582 U3 a, U5): words, order, plain words, failed checks, limits
+        limit = J.caption_limit(cfg, fid)
+        sbad = sorted({m.group(0) for m in JCAP.FORBIDDEN.finditer(short)} | {m.group(0) for m in JSH.ID_PATTERN.finditer(short)} | set(re.findall(r"\bstored\b", short)))
+        first_sentence = short[len(fid) + 2:].split(". ")[0]
+        miss_main = [m for m in SHORT_MAIN[fid] if m not in first_sentence]
+        miss_chk = [CHECK_TOKEN[k] for k in SHORT_CHECKS[fid] if CHECK_TOKEN[k] not in short]
+        strip_keys = [(r["rb_id"], r["check_id"]) for r in srows]
+        not_listed = [k for k in strip_keys if k not in SHORT_CHECKS[fid]]
+        rec_ok = "recorded" not in short or JSH.RECORDED_DEF in short
+        ptr_ok = short.endswith(JSH.POINTER.format(fid=fid))
+        red_ok = "red title" in short.lower()
+        n_words = JSH.words(short)
+        okshort = (n_words <= limit and not sbad and not miss_main and not miss_chk and not not_listed and rec_ok and ptr_ok and red_ok and short.startswith(f"{fid}. ") and "\n" not in short)
+        res["short caption"] = ("PASS" if okshort else "FAIL", f"{n_words} words (limit {limit}); " + (f"forbidden {sbad[:3]}; " if sbad else "") + (f"main failure missing {miss_main}; " if miss_main else "")
+                                + (f"failed checks missing {miss_chk[:3]}; " if miss_chk else "") + (f"strip rows not named {not_listed[:2]}; " if not_listed else "") + ("" if rec_ok else "'recorded' undefined; ")
+                                + ("" if ptr_ok else "pointer sentence missing; ") + ("" if red_ok else "red-title sentence missing; ") + "order, plain words and the pointer to the supplement checked")
+        # short limits: the clauses of the figure, each with numbers that are in the ruled plain sentence and in the full caption
+        want = [JSH.SHORT_LIMITS[i] for i in JSH.SHORT_LIMIT_IDS[fid]]
+        have = [c for c in want if c in short]
+        full_nums = set(re.findall(r"\d+(?:\.\d+)?(?:e\d+)?", cap))
+        bad_nums = [c for c in want if set(re.findall(r"\d+(?:\.\d+)?(?:e\d+)?", c)) - full_nums]
+        res["short limits"] = ("PASS" if len(have) == len(want) and not bad_nums else "FAIL", f"{len(have)} of {len(want)} limit clauses in the short caption; numbers of every clause are in the full caption" if not bad_nums
+                               else f"numbers not in the full caption: {bad_nums[:1]}")
         # margins and label-title gaps (DL-571 T5, T6)
         mv = JC.margin_violations(png, MIN_MARGIN_IN)
         mm = JC.margins_in(png)

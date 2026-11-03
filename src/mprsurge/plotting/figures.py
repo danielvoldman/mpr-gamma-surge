@@ -27,6 +27,7 @@ from . import captions as CAP
 from .claim_labels import A9_LABELS, CLAIM_LIMIT_LABELS
 from . import figprov as F
 from . import jcaption as JCAP
+from . import jshort as JSH
 from . import journal as J
 from . import plain as PL
 from . import nordlie as N
@@ -644,6 +645,28 @@ F3J_A6_RING = 4.0            # DL-571 T7: the A6 Hopf mark is a hollow ring of a
 F3J_HALO = 1.6               # DL-571 T7: extra width (pt) of the white outline of the slice Hopf marks (drawn with a path effect: the marker is a line marker, its edge is its stroke)
 
 
+F3J_MARK_PT = {"tick": 9.0, "label": 11.0, "diff": 24.0}     # DL-581 U1: heights (pt above the top edge of the colour bar) of the two frequency ticks, of their labels and of the difference line
+
+
+def _f3_frequency_marks(cax) -> None:
+    """DL-581 U1 (a): the two frequencies of the failed frequency check on the ONE shared colour bar: a short tick at the cycle frequency and one at the spectral peak of the headline (values of
+    the project log, DL-388: F3_RB9B; the stored A11 table has no value for the row), each with a plain label, and the difference once. The ticks stand on the top edge of the bar (heights in
+    points), the labels above them, the labels left and right of their tick; nothing touches the tick labels or the label under the bar."""
+    spec, cyc, diff = F3_RB9B
+    tr = cax.get_xaxis_transform()
+    dark, red = S.figure_colour("text_dark"), S.figure_colour("fail_text")
+    for x in (cyc, spec):
+        a = cax.annotate("", xy=(x, 1.0), xycoords=tr, xytext=(0, F3J_MARK_PT["tick"]), textcoords="offset points", annotation_clip=False,
+                         arrowprops=dict(arrowstyle="-", color=dark, lw=1.0, shrinkA=0, shrinkB=0, capstyle="butt"))
+        a.set_gid("frequency mark")
+    for x, txt, ha in ((cyc, "cycle frequency at the headline", "right"), (spec, "spectral peak at the headline", "left")):
+        o = -2.0 if ha == "right" else 2.0
+        cax.annotate(txt, xy=(x, 1.0), xycoords=tr, xytext=(o, F3J_MARK_PT["label"]), textcoords="offset points", ha=ha, va="bottom", fontsize=S.TEXT_SIZES["small"], color=dark,
+                     annotation_clip=False).set_gid("frequency mark label")
+    cax.annotate(f"differ by {diff:.3f} Hz; allowed 0.5 Hz", xy=(0.5 * (cyc + spec), 1.0), xycoords=tr, xytext=(0, F3J_MARK_PT["diff"]), textcoords="offset points", ha="center", va="bottom",
+                 fontsize=S.TEXT_SIZES["small"], weight="bold", color=red, annotation_clip=False).set_gid("frequency mark difference")
+
+
 def _draw_F3_journal(d: dict):
     from matplotlib.lines import Line2D
     import matplotlib.patheffects as pe
@@ -652,7 +675,7 @@ def _draw_F3_journal(d: dict):
     fig, cfg = _journal_fig(8.0)
     fig.get_layout_engine().set(wspace=0.06, w_pad=0.13, h_pad=0.13)               # DL-571 T5: the padding to the figure edge is 0.13 in (at least 0.10 in of white margin)
     heads: list = []
-    gs = fig.add_gridspec(4, 3, width_ratios=[1, 1, 1], height_ratios=[1.45, 0.13, 1.45, 1.2])       # 6.3 in (DL-554 R1): the colour bar lies under (a) to (c), so the three panels are wide enough
+    gs = fig.add_gridspec(4, 3, width_ratios=[1, 1, 1], height_ratios=[1.45, 0.13, 1.45, 1.2])       # 6.3 in (DL-554 R1): the colour bar lies under (a) to (c) and carries the two frequency marks (DL-581 U1)
     sc = None
     a4_D = f"{d['a4_curve_Delta']:g}"
 
@@ -682,7 +705,7 @@ def _draw_F3_journal(d: dict):
         ax.minorticks_off()
         ax.set_xlabel(JETA + " (mean excitability)")
         ax.set_ylabel(f"{JTAU} (ms), log axis" if j == 0 else "")
-        _journal_title(ax, "abc"[j], f"Δ = {D}, RB9(b) FAIL", fail=True)
+        _journal_title(ax, "abc"[j], f"Δ = {D}\nfrequency check: FAIL", fail=True)
         ax.set_xlim(0, 8)
         ax.set_xticks([0, 2, 4, 6, 8])
         if j > 0:
@@ -691,6 +714,7 @@ def _draw_F3_journal(d: dict):
     cb = fig.colorbar(sc, cax=cax, orientation="horizontal")
     cb.set_label("limit-cycle frequency (Hz)")
     cax.set_gid("colour bar frequency")
+    _f3_frequency_marks(cax)
     axd = fig.add_subplot(gs[2, 0:2])
     (c1,) = axd.plot(d["a4_Delta_eta_H"], d["a4_Delta"], ls=mf.linestyle, color=mf.colour, lw=1.0)
     c1.set_gid("A4 Hopf curve")
@@ -726,13 +750,13 @@ def _draw_F3_journal(d: dict):
     cbm = S.F3_COMBINED
     hh, ll = [], []
     hh.append(Line2D([], [], ls="none", marker=mf.marker, ms=F3J_HOPF_SIZE, color=mf.colour))
-    ll.append(_jwrap("Hopf point of an A6 slice", 18))
+    ll.append(_jwrap("Hopf point of a frequency-map slice", 18))
     hh.append(Line2D([], [], ls="none", marker=m25.marker, ms=F3J_BAR_SIZE, mew=m25.width, color=m25.colour, mec=S.HALO_COLOUR))
-    ll.append(_jwrap("25 Hz crossing of an A6 slice", 18))
+    ll.append(_jwrap("25 Hz crossing of a frequency-map slice", 18))
     hh.append(Line2D([], [], ls=mf.linestyle, color=mf.colour, lw=1.0))
-    ll.append(_jwrap(f"Hopf curve, A4 record (panel c: Δ{NB}{d['a4_curve_Delta']:g}, J{NB}{d['a4_curve_J']:g}; panel d: J{NB}{d['a4_curve_J']:g}, {JTAU}{NB}{d['a4_curve_tau_d_ms']:g}{NB}ms)", 18))
+    ll.append(_jwrap(f"Hopf curve, continuation record (panel c: Δ{NB}{d['a4_curve_Delta']:g}, J{NB}{d['a4_curve_J']:g}; panel d: J{NB}{d['a4_curve_J']:g}, {JTAU}{NB}{d['a4_curve_tau_d_ms']:g}{NB}ms)", 18))
     hh.append(Line2D([], [], ls="none", marker=F3J_A6_MARKER, ms=F3J_A6_RING, mew=1.0, mfc="none", mec=hp.colour))
-    ll.append(_jwrap(f"A6 Hopf point (Δ{NB}{d['headline_Delta']:g}, {JTAU}{NB}{d['headline_tau_d_ms']:g}{NB}ms)", 18))
+    ll.append(_jwrap(f"Frequency-map Hopf point (Δ{NB}{d['headline_Delta']:g}, {JTAU}{NB}{d['headline_tau_d_ms']:g}{NB}ms)", 16))
     grp = _f3_combined_group(d)
     hh.append(Line2D([], [], ls="-", marker=cbm["marker"], mfc=S.HALO_COLOUR, mec=cbm["colour"], color=cbm["colour"], lw=F3J_COMBINED_LW, ms=cbm["size"]))
     ll.append(_jwrap(f"{', '.join(grp)}: identical in {JETA}, Δ, {JTAU} (stored)", 18))
@@ -803,7 +827,7 @@ def _journal_tail(fig_id: str, out: Path, stem: str, saved: dict, cap, drawn: st
     table and the alt text. The caption and the digest file were written before. Returns the same dict as the draft mode."""
     root = prov_kw["root"]
     pid = prov_id or fig_id                                  # F5c is written with the provenance figure id of the plan's F5 (figprov.FIGURES is not changed)
-    out_files = [*saved["paths"].values(), out / f"{stem}_caption.txt", out / f"{stem}_drawn_data_sha256.txt"]
+    out_files = [*saved["paths"].values(), out / f"{stem}_caption.txt", out / f"{stem}_caption_full.txt", out / f"{stem}_drawn_data_sha256.txt"]
     fam, fallback = J.font_choice(cfg)
     keys = journal_keys(fig_id, d)
     dig = array_digests(d)
@@ -828,6 +852,8 @@ def _journal_tail(fig_id: str, out: Path, stem: str, saved: dict, cap, drawn: st
     extra = (("Status block of the draft figure (moved off the image)", status_text),) if status_text else ()
     if plain_md:                                     # DL-563 S4: each plain sentence of the journal caption paired with the ruled text, its DL numbers and codes
         extra += (("Plain-language claim limits of the journal caption and the ruled text (DL-563 S4)", plain_md),)
+    extra += (("Full caption (the long caption of the figure; the short caption for the manuscript is " + f"{stem}_caption.txt, DL-582 U3)", cap.text),
+              ("Plain titles and words on the image and the check or step IDs behind them (DL-581 U2)", JCAP.mapping_markdown(fig_id)))
     extra += tuple(extra_sections)                   # DL-571 T1, T2, T8: the mapping of draft panels, the stored FAIL rows named in the caption, the stored key names behind the plain words
     if zip_note:
         mb = (sup / f"{fig_id}_source_data.csv").stat().st_size / 1e6
@@ -872,15 +898,16 @@ def _f3_alt_text(d: dict) -> dict:
         c = np.isfinite(d[f"D{D}_c25_eta"])
         extra = ""
         if f"{d['a4_curve_Delta']:g}" == D:
-            extra = (f" A black curve, the A4 Hopf curve, bends through the slices, and the combined path arrow runs from eta_bar {d['P1_eta_start']:.3f} to {d['P1_eta_peak']:.3f} "
-                     f"at tau_d {d['P1_tau_d_ms']:g} ms, with the A6 Hopf point on it.")
-        alt["abc"[j]] = (f"Frequency shading in the (eta_bar, tau_d) plane for Delta {D}: horizontal bands, one per A6 slice, tau_d on a logarithmic axis from 1 to 50 ms, eta_bar from 0 to 8, "
+            extra = (f" A black curve, the Hopf curve of the continuation, bends through the slices, and the combined path arrow runs from eta_bar {d['P1_eta_start']:.3f} to {d['P1_eta_peak']:.3f} "
+                     f"at tau_d {d['P1_tau_d_ms']:g} ms, with the frequency-map Hopf point on it.")
+        alt["abc"[j]] = (f"Frequency shading in the (eta_bar, tau_d) plane for Delta {D}: horizontal bands, one per frequency-map slice, tau_d on a logarithmic axis from 1 to 50 ms, eta_bar from 0 to 8, "
                          f"coloured by the limit-cycle frequency (colour scale {d['f_min_hz']:.1f} to {d['f_max_hz']:.1f} Hz, shared by (a) to (c); the largest on this panel is {d[f'D{D}_f_max_hz']:.1f} Hz). "
                          f"Each band starts at its Hopf point (black mark); {int(c.sum())} slices have a 25 Hz crossing (tall black bar); {note_100hz(d, D)}.{extra} "
-                         "The title is red and carries RB9(b) FAIL.")
-    alt["d"] = (f"The (eta_bar, Delta) plane with Delta on a logarithmic axis: the A4 Hopf curve rises from the lower left to eta_bar {float(d['a4_Delta_eta_H'].max()):.2f} at Delta "
+                         f"The title is red and reads 'frequency check: FAIL' (check RB9(b)); the one shared colour bar below carries two ticks, at the cycle frequency {F3_RB9B[1]:g} Hz and the spectral peak {F3_RB9B[0]:g} Hz, "
+                         f"with the text 'differ by {F3_RB9B[2]:g} Hz; allowed 0.5 Hz'.")
+    alt["d"] = (f"The (eta_bar, Delta) plane with Delta on a logarithmic axis: the Hopf curve of the continuation rises from the lower left to eta_bar {float(d['a4_Delta_eta_H'].max()):.2f} at Delta "
                 f"{float(d['a4_Delta'].max()):.2g}. The combined path arrow lies at Delta {d['P1_Delta']:g}; P4a leaves it upward to Delta {d['P4a_Delta_end_derived']:.3g} and P4b downward "
-                f"to Delta {d['P4b_Delta_end_derived']:.3g}, both at eta_bar {d['P4a_eta_peak']:.3f}. The A6 Hopf point is at eta_bar {d['headline_hopf_eta']:.3f}.")
+                f"to Delta {d['P4b_Delta_end_derived']:.3g}, both at eta_bar {d['P4a_eta_peak']:.3f}. The frequency-map Hopf point is at eta_bar {d['headline_hopf_eta']:.3f}.")
     alt["e"] = ("The path strip: seven horizontal arrows, one per path leg (P1, P2, P3, P4a, P4b, P5 up and P5 return), each from its stored start to its stored end in eta_bar "
                 f"({d['P1_eta_start']:.3f} to {d['P1_eta_peak']:.3f} for the up legs; the T_ramp of each is in its row label). The rows are labels, not a parameter axis.")
     return alt
@@ -1011,7 +1038,7 @@ F5_ABBREV = ("Abbreviations on the image: Delta = heterogeneity half-width, tau-
 def _f1_jconst(d: dict) -> dict:
     """The typed or computed constants that the F1 journal caption (jcaption.f1_caption) needs; values come from the prepared data."""
     top, n_above, n_cells = f1_count_range(d)
-    return {"ctrl_extra": "S+ in the finite-size runs at N = 3e3 and 1e4 and at map cell (24, 26)", "columns": F1_COLUMNS, "net_line": f1_net_line(d),
+    return {"ctrl_extra": "S+ in the finite-size runs at N = 3e3 and 1e4 and at map cell (24, 26)", "columns": F1_COLUMNS, "net_line": f1_journal_net_line(d),
             "edge_bands": _f1_edge_bands(d).replace("UNVERIFIED", "not verified"), "n_spikes": int(d["ras_count"].sum()), "top": top, "percentile": S.F1_RASTER["top_percentile"],
             "n_above": n_above, "n_cells": n_cells, "max_count": int(d["ras_count"].max()), "zoom": F1_ZOOM_S, "pad_rows": F1J_PAD_ROWS}
 
@@ -1039,9 +1066,15 @@ def _f3_overlap_j(d: dict) -> str:
     return ("At this scale " + "; ".join(parts) + " touch (stored positions closer than 0.25 in eta_bar, about the width of the two marks); both keep their stored positions.") if parts else ""
 
 
+F3_A4_POINTS = (30, 100)               # DL-582 U4: the stored points of the Hopf curve drawn in (c) (tau_d against eta_bar) and in (d) (Delta against eta_bar); a build stops if the stored arrays differ
+
+
 def _f3_jconst(d: dict) -> dict:
     ts = sorted(float(v) for v in d["D0.3_tau_d_ms"])
-    return {"deltas": DELTAS, "path_order": PATH_ORDER, "a4_points": len(d["a4_tau_d_ms"]), "rb9b": F3_RB9B, "cross_text": F3_CROSS_TEXT, "ref_range": F3_REF_RANGE,
+    n_c, n_d = len(d["a4_tau_d_ms"]), len(d["a4_Delta"])
+    if (n_c, n_d) != F3_A4_POINTS or len(d["a4_tau_d_eta_H"]) != n_c or len(d["a4_Delta_eta_H"]) != n_d:
+        raise DataError(f"F3: the stored Hopf curves have {n_c} points in (c) and {n_d} in (d), {F3_A4_POINTS[0]} and {F3_A4_POINTS[1]} expected: STOP and report")
+    return {"deltas": DELTAS, "path_order": PATH_ORDER, "a4_points": n_c, "a4_points_d": n_d, "rb9b": F3_RB9B, "cross_text": F3_CROSS_TEXT, "ref_range": F3_REF_RANGE,
             "tau_range": f"{CAP.number_text(ts[0])} to {CAP.number_text(ts[-1])} ms", "combined": ", ".join(_f3_combined_group(d)[:-1]) + " and " + _f3_combined_group(d)[-1],
             "shared": _f3_shared_j(d), "overlap": _f3_overlap_j(d), "arrow_note": F3_ARROW_NOTE}
 
@@ -1079,12 +1112,23 @@ def _jsections(fid: str, a11: list, panels: str = "") -> tuple:
     return tuple(out)
 
 
+def _f5_per_n(d: dict) -> list:
+    """DL-582 U6 (c): per N, the ramp seeds (10) and the no-ramp controls (3) in a surge class (S+, S-rel, S-abs), counted from the drawn class arrays s9_class and ctrl_class."""
+    out = []
+    for k, n in enumerate(d["n_values"]):
+        ramp, ctrl = [str(x) for x in d["s9_class"][k]], [str(x) for x in d["ctrl_class"][k]]
+        out.append({"N": float(n), "label": f"{n:.0e}".replace("e+0", "e"), "ramp_n": len(ramp), "ctrl_n": len(ctrl),
+                    "ramp_surge": sum(c in JCAP.MODE_N_SURGE for c in ramp), "ctrl_surge": sum(c in JCAP.MODE_N_SURGE for c in ctrl),
+                    "ramp_classes": [c for c in F5_NET_CLASSES if c in ramp], "ctrl_classes": [c for c in F5_NET_CLASSES if c in ctrl]})
+    return out
+
+
 def _f5_jconst(d: dict) -> dict:
     o = np.asarray(d["s9_onset_s"], dtype=float)
     n, n_below = int(np.sum(~np.isnan(o))), int(np.sum(o < d["ref_onset_s"]))
     und = d["metric_undefined"]
     nn = [f"{int(x):,}".replace(",", " ") for x in d["n_values"]]
-    return {"sentence_1": JCAP.F5_SENTENCE_1, "spacing": f5_subgrid_spacing(d),
+    return {"sentence_1": JCAP.F5_SENTENCE_1, "spacing": f5_subgrid_spacing(d), "per_n": _f5_per_n(d),
             "cells_note": ("Network cells of (a) and (b), numbered as in (b): " + "; ".join(f"cell {r + 1} (i {d['cell_i'][r]}, j {d['cell_j'][r]}; Delta {d['cell_Delta'][r]:.4g}, tau_d {d['cell_tau_d_ms'][r]:.4g} ms)"
                                                                                            for r in range(4)) + "."),
             "f5c_pointer": "Per-seed results against N, with the RB6 network f_pk FAIL, are in F5c.",
@@ -1153,10 +1197,10 @@ def _f1_alt_text(d: dict) -> dict:
         "b": (f"The coupling J(t) from {d['path_J0']:g} to {d['path_J_end']:g}: flat, then a linear rise between the two dashed lines, then flat."),
         "c": (f"The mean-field rate r(t) as a grey band (minimum to maximum per pixel column): below {np.ceil(float(np.max(d['mf_r_hi'][d['mf_r_x'] < d['ref_onset_s']])) * 1000.0) / 1000.0:.3f} before the dash-dotted onset line at "
               f"{d['ref_onset_s']:.3f} s, then an oscillation whose upper edge peaks at {d['mf_r_max']:.2f} and returns near the baseline after the ramp."),
-        "d": (f"The network rate r(t) for three seeds as thin lines on the same y range as (c); the red title carries RB1 FAIL and the text states: network class {', '.join(sorted(set(d['cls120'])))}, "
+        "d": (f"The network rate r(t) for three seeds as thin lines on the same y range as (c); the red title reads 'network vs mean field: FAIL' (check RB1) and the text states: network class {', '.join(sorted(set(d['cls120'])))}, "
               f"mean field {d['ref_class']}, 0 of 3 seeds agree. A filled triangle marks the classifier onset at {d['onset120_s'][0]:.1f} s and an open circle, plus and star (one per seed, overlapping at this scale) the raw first crossings, stored at {min(d['raw120_s']):.3f} to {max(d['raw120_s']):.3f} s."),
         "e": (f"The mean-field mean potential v(t) as a grey band, from {d['mf_v_min']:.2f} to {d['mf_v_max']:.2f}, symmetric about a small offset during the oscillation."),
-        "f": (f"The network mean potential v(t) for three seeds on the y range of (e); the same red FAIL title and class statement as in (d) and the same onset marks."),
+        "f": (f"The network mean potential v(t) for three seeds on the y range of (e); the same red title ('network vs mean field: FAIL') and class statement as in (d) and the same onset marks."),
         "g": (f"A spectrogram of the mean-field v (window {sp['window_s']:g} s, step {sp['step_s']:g} s, {sp['taper']}) with frequency 0 to {sp['total_band_hz'][1]:g} Hz: bright rising ridges "
               f"start at the onset time; dashed lines at {sp['band_primary_hz'][0]:g} and {sp['band_primary_hz'][1]:g} Hz; the colour bar (magma) gives PSD in dB."),
         "h": ("The same spectrogram for network seed 0, on the same colour range: rising ridges from the onset time on a noisy background."),
@@ -1223,17 +1267,17 @@ def _f5_alt_text_all(d: dict) -> dict:
     return {
         "a": (f"A 30 by 30 map of the mean-field class (blue D-tr {d['map1_n_surge']} cells, green hatched D-none {d['map1_n_none']} cells of {d['map1_n']}); D-none cells fill the upper right. "
               f"Four large symbols mark the network cells, numbered 1 to 4: {d['cells_n_agree']} hexagram (agrees) and {d['cells_n_disagree']} heptagons (disagree). The bold dark text reads: "
-              "Mean field only; network disagrees at 3 of 4 cells. The title is red and reads RB1 cells: FAIL."),
+              "Mean field only; network disagrees at 3 of 4 cells. The title is red and reads 'network vs mean field, cells: FAIL' (check RB1, cells)."),
         "b": ("A table of classes for the four network cells (columns) against the map class, the mean-field companion, the three network seeds and the stored agreement (rows); "
-              f"the title is red and reads FAIL. The network agrees at {d['cells_n_agree']} of 4 cells."),
-        "c": (f"The 225-cell noisy subgrid at the map-1 indices coloured by agreement under the frozen D24 rule: agree {d['d24_n_agree']}, disagree {d['d24_n_disagree']}, tie {d['d24_n_tie']}; "
-              f"{d['d24_n_agree']} of {d['sub_n']} agree against {d['d24_needed']} needed. The title is red and says FAILED. Each cell carries a dark mark: open circle (agrees), cross (disagrees) or plus (tie)."),
+              f"the title is red and reads 'network vs mean field FAIL' (check RB1, cells). The network agrees at {d['cells_n_agree']} of 4 cells."),
+        "c": (f"The 225-cell noisy subgrid at the map-1 indices coloured by agreement under the frozen 90 percent agreement rule: agree {d['d24_n_agree']}, disagree {d['d24_n_disagree']}, tie {d['d24_n_tie']}; "
+              f"{d['d24_n_agree']} of {d['sub_n']} agree against {d['d24_needed']} needed. The title is red and reads '90 percent agreement rule: FAILED' (check D24). Each cell carries a dark mark: open circle (agrees), cross (disagrees) or plus (tie)."),
         "d": (f"The same cells under the post-hoc view P-1 in a dashed frame: agree {d['p1_n_agree']}, disagree {d['p1_n_disagree']}, tie {d['p1_n_tie']}; this view feeds no gate."),
         "e": (f"A 25 by 13 mean-field map over T_ramp and J0: D-tr {d['map2_n_surge']} cells, D-none {d['map2_n_none']} cells of {d['map2_n']}; D-none cells (hatched) lie along the top edge. No network runs."),
         "f": ("The network class of every seed against N (1e3, 3e3, 1e4, 3e4): 10 ramp seeds filled and 3 no-ramp control seeds open per N, on the classes S+, S-rel, S-abs, S-sus and NS; "
               + _f5_class_sentence(d)),
         "g": (f"f_pk against N: per-seed points by class, a grey bar from the stored minimum to the maximum and a tick at the median for each N, and a dotted line at the mean-field companion {d['ref_f_pk_hz']:g} Hz. "
-              "The title is red and reads FAIL: the panel draws network f_pk (RB6 network f_pk FAIL)."),
+              "The title is red and reads 'f_pk against N, step-halving check: FAIL' (check RB6, network f_pk); a plain line in the panel says that the step-halving test is not drawn because its runs are not stored."),
         "h": (f"Onset against N with the same marks, and a dotted line at the mean-field companion onset {d['ref_onset_s']:g} s."),
         "i": ("Duration against N on a logarithmic axis, with a dashed line at the stored minimum duration (the floor of the classifier); control seeds have no duration."),
     }
@@ -1313,6 +1357,7 @@ def make_F3(res=None, out_dir=None, *, tag_build: bool = False, take_home=F3_TAK
         plain_md = PL.pairing_markdown(claim_limit_ids, None, cap.text)
         jtext = JCAP.f3_caption(d, [], crit3, [r for r in rows if r["key"] in CAPTION_KEYS], strip_rows=list(d["strip"]), ids=claim_limit_ids, c=_f3_jconst(d))
         cap = dataclasses.replace(cap, text=jtext)
+        short_text = JSH.f3_short(d, [], list(d["strip"]), _f3_jconst(d), J.caption_limit(J.load_config(root), "F3"))
         sections = _jsections("F3", [])
     import matplotlib.pyplot as plt
     out.mkdir(parents=True, exist_ok=True)
@@ -1334,7 +1379,9 @@ def make_F3(res=None, out_dir=None, *, tag_build: bool = False, take_home=F3_TAK
     cap_path, dig_path = out / f"{stem}_caption.txt", out / f"{stem}_drawn_data_sha256.txt"
     from .. import provenance as P
     drawn = drawn_data_sha256(d)
-    P.atomic_write_text(cap_path, cap.text + "\n")
+    P.atomic_write_text(cap_path, (short_text if journal else cap.text) + "\n")
+    if journal:
+        P.atomic_write_text(out / f"{stem}_caption_full.txt", cap.text + "\n")
     P.atomic_write_text(dig_path, drawn + "\n")
     warnings = []
     for k, rec in {**raw["records"], **raw["paths"]}.items():
@@ -4957,6 +5004,11 @@ def f1_net_line(d: dict) -> str:
     return f"network class {', '.join(sorted(set(d['cls120'])))}, mean field {d['ref_class']}; {v} agree (RB1 FAIL)"
 
 
+def f1_journal_net_line(d: dict) -> str:
+    """DL-581 U2: the in-panel line of (d) and (f) of the journal image: the stored result without the check ID and its FAIL (the red title carries the failed check in plain words)."""
+    return f1_net_line(d).rsplit(" (", 1)[0]
+
+
 def f1_status_lines(d: dict) -> list[str]:
     lines = [f"Stored classes (ms10_eval, DL-319): mean-field headline {d['ref_class']} (onset {d['ref_onset_s']:.3f} s, f_pk {d['ref_f_pk_hz']:.1f} Hz). Network N = 1e4, T_ramp 120 s, "
              f"seeds 0 to 2: {', '.join(d['cls120'])}; classifier onset {', '.join(f'{x:.3f}' for x in d['onset120_s'])} s; raw first crossing {', '.join(f'{x:.3f}' for x in d['raw120_s'])} s "
@@ -5325,12 +5377,11 @@ def _draw_F1_journal(d: dict):
             spn.set_edgecolor(S.F5J_COLOURS["separator"])
         sx.text(0.37, 0.5, "event times;\nheight has no meaning", transform=sx.transAxes, ha="left", va="center", linespacing=1.0, gid="event strip label")
         _f1_onset_marks(a2, d, network=True, journal=True, strip=sx)
-        net_line = f1_net_line(d)
+        net_line = f1_journal_net_line(d)                                                             # DL-581 U2: no check ID on the image (the red title says it); three lines that stay clear of the curve
         head, tail = net_line.split("; ", 1)
         h1_, h2_ = head.split(", ", 1)
-        t1_, t2_ = tail.rsplit(" (", 1)
-        a2.text(0.985, 0.965, f"{h1_},\n{h2_};\n{t1_}\n({t2_}", transform=a2.transAxes, ha="right", va="top", fontsize=cfg["text"]["min_pt"], color=red, weight="bold", linespacing=1.15, gid="net line")
-        tp(a2, "df"[row], f"{q}(t), network", ylab, left=False, red_=True)
+        a2.text(0.985, 0.965, f"{h1_},\n{h2_};\n{tail}", transform=a2.transAxes, ha="right", va="top", fontsize=cfg["text"]["min_pt"], color=red, weight="bold", linespacing=1.15, gid="net line")
+        tp(a2, "df"[row], f"{q}(t), network vs mean field", ylab, left=False, red_=True)               # DL-581 U1, U2: the plain title of the failed check
         a2.set_title(a2.get_title(loc="left"), loc="left", pad=(F1J_STRIP_H + 0.05) * 72.0 + 4.0, color=red)
         a2.tick_params(labelleft=False)
         a2.set_ylabel("")
@@ -5460,6 +5511,7 @@ def make_F1(res=None, out_dir=None, *, tag_build: bool = False, take_home=F1_TAK
         plain_md = PL.pairing_markdown(claim_limit_ids, None, cap.text)
         jtext = JCAP.f1_caption(d, raw["a11"], crit, [r for r in rows if r["key"] in F1_CAPTION_KEYS], strip_rows=list(d["strip"]), ids=claim_limit_ids, c=_f1_jconst(d))
         cap = dataclasses.replace(cap, text=jtext)
+        short_text = JSH.f1_short(d, raw["a11"], list(d["strip"]), _f1_jconst(d), J.caption_limit(J.load_config(root), "F1"))
         sections = _jsections("F1", raw["a11"])
     import matplotlib.pyplot as plt
     out.mkdir(parents=True, exist_ok=True)
@@ -5481,7 +5533,9 @@ def make_F1(res=None, out_dir=None, *, tag_build: bool = False, take_home=F1_TAK
     cap_path, dig_path = out / f"{stem}_caption.txt", out / f"{stem}_drawn_data_sha256.txt"
     from .. import provenance as P
     drawn = drawn_data_sha256(d)
-    P.atomic_write_text(cap_path, cap.text + "\n")
+    P.atomic_write_text(cap_path, (short_text if journal else cap.text) + "\n")
+    if journal:
+        P.atomic_write_text(out / f"{stem}_caption_full.txt", cap.text + "\n")
     P.atomic_write_text(dig_path, drawn + "\n")
     warnings = []
     for k, rec in recs.items():
@@ -6112,7 +6166,7 @@ def _draw_F5_journal(d: dict):
     for k, lab in (("network_agree", f"network cell agrees ({d['cells_n_agree']} of 4)"), ("network_disagree", f"network cell disagrees ({d['cells_n_disagree']} of 4)")):
         hs.append(Line2D([], [], ls="none", marker=S.F5_NET_MARKS[k.split("_")[1]], ms=S.F5_SIZES["key_mark"] + 3, mfc=_f5j_net_colour(k), mec=C["net_outline"], mew=0.9))
         ls_.append(lab)
-    for k, lab in (("agree", "subgrid cell agrees"), ("disagree", "subgrid cell disagrees (not a tie)"), ("tie", "subgrid cell is a tie (a disagreement by the D24 rule)")):
+    for k, lab in (("agree", "subgrid cell agrees"), ("disagree", "subgrid cell disagrees (not a tie)"), ("tie", "subgrid cell is a tie (a disagreement by the 90 percent agreement rule)")):
         hs.append((Patch(fc=C[k], ec="none"), Line2D([], [], ls="none", marker=S.F5_STATE_MARKS[k], ms=M["state"], color=dark, mfc="none", mew=M["state_edge"])))
         ls_.append(lab)
     lg = kx.legend(hs, ls_, loc="center", ncol=2, frameon=False, handlelength=1.6, columnspacing=1.0, labelspacing=0.28, handletextpad=0.6, handler_map={tuple: HandlerTuple(ndivide=1)})
@@ -6122,7 +6176,7 @@ def _draw_F5_journal(d: dict):
     ax = _ax_in(fig, 0.78, F5J_ROWS["a"][0], 1.85, F5J_ROWS["a"][1])
     _f5_map(ax, d["map1_class"], d["map1_tau_d_ms"], d["map1_Delta"], title="", xlabel=f"{JTAU} (ms), cell index j", ylabel="Δ, cell index i", margin=2.0, top_margin=8.0, raster_marks=True,
             tick_idx_x=[0, 7, 14, 21, 29], mark_cells=False)      # DL-563 S1 (attempt 2): attempt 1 (a 3 pt mark) fitted the D-tr cell but not the D-none cell (the thin diamond is 4.2 pt tall at 3 pt, the cell is 4.1 pt): no mark, colour and hatching
-    _journal_title(ax, "a", f"map 1, mode D, {F5_T120}\nRB1 cells: FAIL", fail=True)
+    _journal_title(ax, "a", f"map 1, mode D, {F5_T120}\nnetwork vs mean field, cells: FAIL", fail=True)
     for agree in (True, False):
         m = d["cell_agree"] == agree
         if m.any():
@@ -6150,12 +6204,12 @@ def _draw_F5_journal(d: dict):
     ax.set_xticks(range(4), [f"cell {r + 1}" for r in range(4)])
     ax.set_xlim(-0.5, 3.5)
     ax.set_ylim(5.6, -0.6)
-    _journal_title(ax, "b", "4 network cells: RB1 cells FAIL", fail=True)
+    _journal_title(ax, "b", "4 network cells: network vs mean field FAIL", fail=True)
     ax._left_title.set_x(-(4.5 - 2.75) / 1.6)                       # the title starts at the left of the row labels
 
     # (c) and (d): the noisy subgrid, D24 (frozen, FAILED) and P-1 (post hoc), same size and frame, cells at their map-1 indices; the state of a cell is a dark mark (circle, cross, plus)
     # that is 4.4 pt wide, so it can be read (R8); the key shows the same marks
-    for left, key, letter, ttl, bad, post in ((3.35, "d24", "c", "D24 rule: FAILED", True, False), (4.85, "p1", "d", "post-hoc view P-1", False, True)):
+    for left, key, letter, ttl, bad, post in ((3.35, "d24", "c", "90 percent agreement\nrule: FAILED", True, False), (4.85, "p1", "d", "post-hoc view P-1", False, True)):
         ax = _ax_in(fig, left, F5J_ROWS["cd"][0], 1.3, F5J_ROWS["cd"][1])
         st_ = d[f"{key}_state"]
         z = np.full((30, 30), np.nan)
@@ -6203,6 +6257,7 @@ def _draw_F5_journal(d: dict):
 F5CJ_MARK = {"seed": 4.0, "seed_edge": 0.4, "control": 4.0, "control_edge": 0.8, "median_half_width": 0.45, "bar_offset": 0.2, "bar_marker": "|", "bar_key": 8.0}      # DL-571 T1: every mark is 4.0 pt (the draft journal had 2.5 and 2.2 pt)
 F5CJ_ROWS = {"a": (1.28, 1.1), "b": (2.9, 1.2), "c": (4.7, 1.2), "d": (6.5, 1.2)}      # (top of the axes, height) in inches from the top edge; layout only
 F5CJ_LEFT, F5CJ_WIDTH, F5CJ_HEIGHT = 0.8, 5.3, 8.0                                              # axes left edge and width (in) and figure height (in): 52 slots in 5.3 in, 6.2 pt per slot unit
+F5CJ_B_LINE = "step-halving test not drawn: its runs are not stored"                              # DL-581 U1 (b)
 F5C_PANELS = {"a": "f", "b": "g", "c": "h", "d": "i"}                                           # journal panel of F5c -> panel of the draft F5 (the mapping table of the supplements)
 
 
@@ -6295,7 +6350,10 @@ def _draw_F5c_journal(d: dict):
             ax.set_ylim(lo_all - 0.12 * span, hi_all + 0.14 * span)
         _f5j_n_axis(ax, d)
         ax.set_ylabel(lab)
-        _journal_title(ax, letter, f"{lab.split(' (')[0]} against N" + (", log axis" if log else "") + (" (RB6)" if m == "f_pk_hz" else ""), fail=(m == "f_pk_hz"))
+        _journal_title(ax, letter, f"{lab.split(' (')[0]} against N" + (", log axis" if log else "") + (", step-halving check" if m == "f_pk_hz" else ""), fail=(m == "f_pk_hz"))
+        if m == "f_pk_hz":                                                                        # DL-581 U1 (b): the red title needs the plain line that says why the failed test is not drawn
+            ax.text(0.375, 0.97, _jwrap(F5CJ_B_LINE, 18), transform=ax.transAxes, ha="center", va="top", linespacing=1.1, fontsize=cfg["text"]["min_pt"], color=S.figure_colour("fail_text"),
+                    gid="step-halving line")                       # inside the panel, above the stored values of the N = 3e3 group (no group separator or mark lies there)
     J.finish(fig, cfg)
     return fig
 
@@ -6391,6 +6449,8 @@ def make_F5(res=None, out_dir=None, *, tag_build: bool = False, take_home=F5_TAK
         c5 = _f5_jconst(d)
         texts = {"F5": JCAP.f5_caption(d, raw["a11"], crit, cap_rows, strip_rows=list(d["strip"]), ids=claim_limit_ids, not_applicable=F5_NOT_APPLICABLE, c=c5),
                  "F5c": JCAP.f5c_caption(d, raw["a11"], crit, cap_rows, strip_rows=f5c_strip_rows(d), ids=claim_limit_ids, not_applicable=F5_NOT_APPLICABLE, c=c5)}
+        shorts = {"F5": JSH.f5_short(d, raw["a11"], list(d["strip"]), c5, J.caption_limit(cfg, "F5")),
+                  "F5c": JSH.f5c_short(d, raw["a11"], f5c_strip_rows(d), c5, J.caption_limit(cfg, "F5c"))}
         results = {}
         for fid, dmode, folder, jmode in (("F5", "journal", out, "journal"), ("F5c", "journal_c", out.parent / "F5c", "journal_c")):
             folder.mkdir(parents=True, exist_ok=True)
@@ -6401,7 +6461,8 @@ def make_F5(res=None, out_dir=None, *, tag_build: bool = False, take_home=F5_TAK
             plt.close(fig)
             tt = dict(t)
             tt["draw"] = time.perf_counter()
-            P.atomic_write_text(folder / f"{stem}_caption.txt", texts[fid] + "\n")
+            P.atomic_write_text(folder / f"{stem}_caption.txt", shorts[fid] + "\n")
+            P.atomic_write_text(folder / f"{stem}_caption_full.txt", texts[fid] + "\n")
             P.atomic_write_text(folder / f"{stem}_drawn_data_sha256.txt", drawn + "\n")
             srows = d["strip"] if fid == "F5" else f5c_strip_rows(d)
             lines = f5_strip_lines(d) if fid == "F5" else f5c_strip_lines(d)

@@ -69,8 +69,33 @@ def page_size(cfg: dict, height_in: float, width: str = "main") -> tuple[float, 
     return float(w), float(height_in)
 
 
+HYPHEN_BEFORE_DIGIT = re.compile(r"(?<![\w.])-(?=\d)")
+
+
+def true_minus(fig) -> int:
+    """DL-582 U6 (a): a tick label that is typed with a hyphen-minus ('-40') gets the true minus sign (U+2212), as the labels that matplotlib formats itself already have. Text only: no tick position
+    or drawn value changes (the formatter of an axis whose drawn labels hold a hyphen before a digit is replaced by one that returns the same text with U+2212). Returns the number of axes changed."""
+    from matplotlib.ticker import FixedFormatter, FuncFormatter
+    fig.canvas.draw()
+    n = 0
+    for ax in fig.axes:
+        for axis in (ax.xaxis, ax.yaxis):
+            for minor in (False, True):
+                if not any(HYPHEN_BEFORE_DIGIT.search(lab.get_text()) for lab in axis.get_ticklabels(minor=minor)):
+                    continue
+                fmt = axis.get_minor_formatter() if minor else axis.get_major_formatter()
+                if isinstance(fmt, FixedFormatter):
+                    new = FixedFormatter([HYPHEN_BEFORE_DIGIT.sub("−", s) for s in fmt.seq])
+                else:
+                    new = FuncFormatter(lambda x, pos, f=fmt: HYPHEN_BEFORE_DIGIT.sub("−", f(x, pos)))
+                (axis.set_minor_formatter if minor else axis.set_major_formatter)(new)
+                n += 1
+    return n
+
+
 def finish(fig, cfg: dict) -> dict:
-    """The final guard on the figure object: no text below the minimum size, no line thinner than the minimum width. Returns what it changed (a count, for the provenance)."""
+    """The final guard on the figure object: true minus signs on tick labels, no text below the minimum size, no line thinner than the minimum width. Returns what it changed (a count, for the provenance)."""
+    true_minus(fig)
     from matplotlib.lines import Line2D
     from matplotlib.patches import Patch
     from matplotlib.text import Text
@@ -107,6 +132,12 @@ def uses_transparency(fig) -> bool:
         if al is not None and al < 1.0 and a.get_visible():
             return True
     return False
+
+
+def caption_limit(cfg: dict, fid: str) -> int:
+    """DL-582 U3 (a): the most words of the short caption of figure `fid` (UNVERIFIED limits of configs/journal_export.yaml; F1 has its own)."""
+    c = cfg["caption"]
+    return int(c["short_max_words_F1"] if fid == "F1" else c["short_max_words"])
 
 
 def valid_name(name: str, cfg: dict) -> bool:

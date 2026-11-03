@@ -15,7 +15,7 @@ from mprsurge import config as C
 
 ROOT = C.repo_root()
 RES = ROOT / "results"
-F5_FILES = ("A9/a9_regime_map_v2.parquet", "A9/a9_subgrid_agreement.parquet", "ms10/eval/ms10_eval.json", "ms10/10g/record_classes.tsv", "A11/a11_robustness.csv")
+F5_FILES = ("A9/a9_regime_map_v2.parquet", "A9/a9_subgrid_agreement.parquet", "ms10/eval/ms10_eval.json", "ms10/10g/record_classes.tsv", "A11/a11_robustness.csv", "S8/S8_head/S8_head_0003_7dfd3c05b40c.json")
 pytestmark = pytest.mark.skipif(not all((RES / p).is_file() for p in F5_FILES), reason="stored inputs under results/ are absent")
 FORBIDDEN = ("figures", "figprov", "claim_labels", "captions", "nordlie", "style")
 

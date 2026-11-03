@@ -199,6 +199,44 @@ def image_text_violations(fig) -> list[str]:
     return out
 
 
+def image_id_violations(fig) -> list[str]:
+    """DL-581 U2: texts on the image that hold a check ID, gate ID, rule ID or step ID (RB1, G7, D24, A4, S8, MS11 ...); the class names, the paths P1 to P5 and M3 do not match."""
+    from .jshort import ID_PATTERN
+    out = []
+    for t in fig.findobj(Text):
+        s = t.get_text()
+        if s and t.get_visible() and ID_PATTERN.search(s):
+            out.append(s[:40])
+    return out
+
+
+def tick_hyphens(fig) -> list[str]:
+    """DL-582 U6 (a): tick labels (major and minor, drawn once) that start with a hyphen-minus before a digit instead of the true minus sign (U+2212)."""
+    import re as _re
+    fig.canvas.draw()
+    out = []
+    for ax in fig.axes:
+        for axis in (ax.xaxis, ax.yaxis):
+            for lab in list(axis.get_ticklabels()) + list(axis.get_ticklabels(minor=True)):
+                if _re.match(r"^-\d", lab.get_text()):
+                    out.append(lab.get_text())
+    return out
+
+
+def red_titles(fig) -> list[tuple]:
+    """DL-581 U1: (letter, text) of every panel title in the red title colour (axes titles; the text with its line breaks as spaces)."""
+    from . import style as _S
+    red = _S.figure_colour("fail_text")
+    import matplotlib.colors as mc
+    out = []
+    for ax in fig.axes:
+        t = ax._left_title
+        if t.get_text() and mc.to_rgb(t.get_color()) == mc.to_rgb(red):
+            s = " ".join(t.get_text().split())
+            out.append((s[1] if s.startswith("(") else "", s))
+    return out
+
+
 # ---- exported files ----
 
 def pdf_report(path) -> dict:

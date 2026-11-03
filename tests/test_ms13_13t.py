@@ -574,7 +574,7 @@ def test_r4_f5_titles_a_and_g_carry_fail_and_are_red_and_the_f1_caption_has_the_
             "the RB3(a) onset prediction on the testable in-range runs (0 of 6) and the RB3(b) classifier onset in F4, and the RB6 solver onset (181 ms against 1 ms) in F4 and FS4.") in cap
     alt5 = (built["base"] / "journal" / "supplement" / "F5_alt_text.txt").read_text(encoding="utf-8")
     alt5c = (built["base"] / "journal" / "supplement" / "F5c_alt_text.txt").read_text(encoding="utf-8")
-    assert "RB1 cells: FAIL" in alt5 and "RB6 network f_pk FAIL" in alt5c
+    assert "network vs mean field, cells: FAIL" in alt5 and "step-halving check: FAIL" in alt5c         # 13t-1e (DL-587): the alt text names the plain titles of the image
 
 
 @needs
@@ -823,7 +823,7 @@ LABELS7 = ("Panels. ", "Key and abbreviations. ", "Classifier and spectrogram se
 
 
 def _cap(built, fid) -> str:
-    return (built["base"] / "journal" / fid / f"{fid}_journal_caption.txt").read_text(encoding="utf-8")
+    return (built["base"] / "journal" / fid / f"{fid}_journal_caption_full.txt").read_text(encoding="utf-8")
 
 
 @needs

@@ -35,5 +35,8 @@ output:
   rasterize: [spectrogram, spike-count image, spike raster, dense scatter, map cell marks]   # drawn with rasterized=True; text, axes, ticks, lines and legends stay vector
 collision:
   pad_pt: 0.5                          # two objects closer than this count as touching (UNVERIFIED)
+caption:
+  short_max_words: 220                 # UNVERIFIED (DL-582 U3 a): the most words of the SHORT caption of a figure (the one for the manuscript); the full caption goes to the supplement
+  short_max_words_F1: 280              # UNVERIFIED (DL-582 U3 a): F1 has eleven panels and a schematic
 files:
   name_pattern: "^[A-Za-z0-9_+=,.-]+$"   # a-z A-Z 0-9 underscore plus minus dot comma equals; no spaces

@@ -171,6 +171,110 @@ def defined_checks(text: str) -> str:
     return "; ".join(used)
 
 
+# ---- DL-581 U2, DL-582 U5, U6: the Key keeps only the terms that the same caption uses; words defined once; the plain titles of the image; the scope of two limit statements ---------------
+
+SYM_TERMS = {"eta": r"eta_bar", "Delta": r"\bDelta\b", "J": r"\bJ\b", "tau_d": r"\btau_d\b", "tau": r"\btau\b", "r": r"\br\(t\)|\br\b", "v": r"\bv\(t\)|\bv\b", "t_on": r"\bt_on\b",
+             "T_ramp": r"\bT_ramp\b", "N": r"\bN\b", "PSD": r"\bPSD\b", "M3": r"\bM3\b", "modes": r"\bmode [DN]\b", "W": r"\bW\b", "f_pk": r"\bf_pk\b", "NC1": r"\bnegative control\b"}
+
+# U5: words defined once in the Key of the FULL caption, in plain words; an entry is included only if its term is used elsewhere in the same caption
+WORD_ENTRIES = (
+    (r"\bstored\b", "Stored (in plain words: recorded) = read from the saved result files of the analysis, not recalculated for this figure; a value that is recomputed here is said so where it occurs."),
+    (r"\bheadline\b", "Headline = the main example run (the hypoxia-like path with a ramp duration of 120 s)."),
+    (r"\bsigma\b", "Sigma = the amplitude of the additive white noise on v in the noisy mean-field runs, stated as phenomenological and calibrated so that the baseline standard deviation of v matches "
+                   "that of one network baseline run at N = 1e4."),
+)
+
+
+# the other Key entries that exist only if their term is used in the same caption (DL-582 U5): name -> (term regex, text)
+EXTRA_ENTRIES = {
+    "eta_H": (r"\beta_H\b", "eta_H = the lowest Hopf crossing of eta_bar along the path."),
+    "P2": (r"\bP2\b", "P2 = the hypoxia-like path: eta_bar ramped up, with J ramped to 0 after a delay."),
+    "F4": (r"\bF4\b|\bFS4\b", "F4 and FS4 = other figures of this paper."),
+    "NC1": (r"negative.control", "The first negative control, the subject of G7, is the hypoxia path with the mean excitability falling by the same amount, with coupling, heterogeneity and synaptic decay fixed and no common drive."),
+    "J0": (r"\bJ0\b", "J0 = the J at which the path starts (map 2)."),
+    "ij": (r"\bi and j\b|\bcell index\b", "i and j = the row and column index of a map-1 cell."),
+    "F5c_F6": (r"\bF5c\b|\bF6\b", "F5c and F6 = other figures of this paper."),
+}
+
+
+def key_unused_terms(text: str) -> list:
+    """DL-582 U5 test: the Key entries (symbols, M3 and the modes, words, the extra entries) whose definition is in the Key paragraph of the full caption `text` but whose term the other paragraphs do not use."""
+    paras = text.split("\n\n")
+    key = next(p for p in paras if p.startswith("Key and abbreviations. "))
+    rest = "\n\n".join(p for p in paras if p is not key)
+    low = key.lower()
+    out = []
+    for k, defin in SYMBOLS.items():
+        if k in SYM_TERMS and defin.lower() in low and not re.search(SYM_TERMS[k], rest):
+            out.append(k)
+    for pat, defin in WORD_ENTRIES:
+        if defin in key and not re.search(pat, rest):
+            out.append(pat)
+    for k, (pat, defin) in EXTRA_ENTRIES.items():
+        if defin in key and not re.search(pat, rest):
+            out.append(k)
+    return out
+
+
+def key_symbols(rest: str, *keys) -> str:
+    """'Symbols: ...' for the symbols of `keys` that `rest` (the other paragraphs of the caption) uses, M3 and the modes as their own sentences; '' if none."""
+    sy = [SYMBOLS[k] for k in keys if k not in ("M3", "modes") and re.search(SYM_TERMS[k], rest)]
+    out = ["Symbols: " + "; ".join(sy) + "."] if sy else []
+    for k in ("M3", "modes"):
+        if k in keys and re.search(SYM_TERMS[k], rest):
+            out.append(cap1(SYMBOLS[k]) + ".")
+    return " ".join(out)
+
+
+def key_words(rest: str) -> str:
+    return " ".join(t for pat, t in WORD_ENTRIES if re.search(pat, rest))
+
+
+def key_extra(rest: str, entries) -> str:
+    """entries: (term regex, text); the text is kept if the term occurs in `rest`."""
+    return " ".join(t for pat, t in entries if re.search(pat, rest))
+
+
+# U2: the plain titles of the images and the check each one is shown for: (panels, plain title, check ID, what the check is)
+TITLE_MAP = {
+    "F1": (("(d) and (f)", "network vs mean field: FAIL", "RB1", "network against mean field"),),
+    "F3": (("(a), (b) and (c)", "frequency check: FAIL", "RB9(b)", "spectral against cycle frequency at the headline"),),
+    "F5": (("(a)", "network vs mean field, cells: FAIL", "RB1", "network against mean field, the 4 map cells"), ("(b)", "network vs mean field FAIL", "RB1", "network against mean field, the 4 map cells"),
+           ("(c)", "90 percent agreement rule: FAILED", "D24", "the rule that at least 90% of the cells of the noisy subgrid agree with the noise-free class")),
+    "F5c": (("(b)", "step-halving check: FAIL", "RB6", "numerical convergence, the network f_pk when the step is halved"),),
+}
+WORD_MAP = {"F3": (("continuation", "A4", "the analysis step named \"M3 fixed points and Hopf curves\""), ("frequency-map", "A6", "the analysis step named \"M3 frequency map\""))}
+
+
+def title_sentence(fid: str) -> str:
+    """The sentence of the 'Failed checks' paragraph that maps the plain titles to the check IDs ('shown in the title as ...')."""
+    return "Red titles show a FAIL (a failed check concerns the panel). " + " ".join(f"The check {cid} ({what}) is shown in the title of {panels} as '{plain}'." for panels, plain, cid, what in TITLE_MAP[fid])
+
+
+def mapping_markdown(fid: str) -> str:
+    """The supplement table: plain title or word on the image, panels, check or step ID, what it is."""
+    lines = ["| plain text on the image | panels | check or step ID | what it is |", "|---|---|---|---|"]
+    lines += [f"| {plain} | {panels} | {cid} | {what} |" for panels, plain, cid, what in TITLE_MAP[fid]]
+    lines += [f"| {w} | legend | {sid} | {what} |" for w, sid, what in WORD_MAP.get(fid, ())]
+    return "\n".join(lines)
+
+
+# U6 (d): the counts of two ruled limit sentences refer to runs that none of the figures draws; the scope is in plain words (sources: the decision log DL-227, DL-229 and DL-251, DL-394)
+LIMIT_SCOPE = {
+    "MS9(e)-1": ("Scope of the counts 'flagged in 10 of 10 seeds' and 'the ramp runs in 10 of 10': they come from the exploratory network runs of the negative-control step at N = 1e4 with 10 seeds each "
+                 "(the negative-control path along which the mean excitability falls, and the same network held at constant parameters without a ramp); those runs are not drawn here."),
+    "MS11-C1": ("Scope of the count 'the controls without a ramp reach 7 of 10': it comes from the noisy mean-field runs with constant parameters at the start state of the headline, 10 seeds at each "
+                "noise level; those runs are not network runs and are not drawn here."),
+}
+
+
+def limit_scope(ids) -> str:
+    return " ".join(LIMIT_SCOPE[i] for i in ids if i in LIMIT_SCOPE)
+
+
+MODE_N_SURGE = ("S+", "S-rel", "S-abs")          # the surge classes of mode N (the surge-definition key, G1)
+
+
 # ---- shared builders ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 def num(x, nd=None) -> str:
@@ -261,14 +365,7 @@ def f1_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list, 
         f"({c['percentile']:g}th percentile of the counts), and the {c['n_above']} of {c['n_cells']} cells above it (up to {c['max_count']}) take the top colour (arrow on the colour bar; a display choice); "
         "the two windows of (j) and (k) are framed (j solid, k dashed; each frame is as wide as its 1 s window, so on the 165 s axis it looks like a bar).",
         f"(j) and (k) The stored spikes of seed 0 in windows of {c['zoom']:g} s that start at the stored network classifier onset ({d['zoom_windows_s'][0][0]:.3f} s) and at the stored mean-field onset ({d['zoom_windows_s'][1][0]:.3f} s); "
-        f"the rows are the neurons of (i), in the same order, and carry no tick labels; the y limit is padded by {c['pad_rows']} rows on each side so that the marks of the first and last row do not fuse with the frame (display only, no spike is moved).",
-    ])
-    key = " ".join([
-        "Symbols: " + sym("eta", "Delta", "J", "tau_d", "tau", "r", "v", "t_on", "T_ramp", "N", "PSD", "W", "f_pk") + ". " + cap1(SYMBOLS["M3"]) + ". " + cap1(SYMBOLS["modes"]) + ". "
-        "eta_H = the lowest Hopf crossing of eta_bar along the path. P2 = the hypoxia-like path: eta_bar ramped up, with J ramped to 0 after a delay. F4 and FS4 = other figures of this paper.",
-        class_key(),
-        "Checks: X.",
-        "The first negative control, the subject of G7, is the hypoxia path with the mean excitability falling by the same amount, with coupling, heterogeneity and synaptic decay fixed and no common drive.",
+        f"the rows are the neurons of (i), in the same order, and carry no tick labels; the y limit is padded by {c['pad_rows']} rows on each side (display only, no spike is moved).",
     ])
     sigma = sigma_text(a11, pv(rows, "noise.sigma"))
     params = (f"Stored values (the complete list with the stored key names is in the supplement): model {pv(rows, 'model.type')} with membrane time constant {num(pv(rows, 'model.tau_ms'))} ms, J = {num(pv(rows, 'model.J'))}, "
@@ -280,9 +377,18 @@ def f1_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list, 
     failed = ("Shown, not dropped (the full list with value, threshold and source is in the supplement): " + "; ".join(failed_line(r) for r in strip_rows) + ". "
               f"Two further stored FAIL rows are not in the status strip of this figure: the sigma check ({ss['status']}, logged verdict {ss['verdict']}) and RB3(a) ({rb3a} testable in-range runs match). "
               f"Other failed checks on the headline path are shown elsewhere: the RB2 headline class (kept in {r2['value'].split(' (')[0]} seeds at the noise level sigma; threshold {r2['threshold']}), the RB3(a) onset prediction on the testable in-range runs ({rb3a}) "
-              f"and the RB3(b) classifier onset in F4, and the RB6 solver onset ({r6['value']} against {r6['threshold']}) in F4 and FS4. Red titles show a FAIL (here (d) and (f): RB1).")
+              f"and the RB3(b) classifier onset in F4, and the RB6 solver onset ({r6['value']} against {r6['threshold']}) in F4 and FS4. " + title_sentence("F1") + " The title of (d) and (f) is red because those panels draw the failed result (the class of the network seeds).")
     limits = limits_paragraph(ids, None, pointer="Claim limits that change how panels (d) and (f) read: the network does not reproduce the mean-field classes, and no-ramp network controls are classified into surge classes.")
-    text = assemble("F1", take_home=take, panels=panels, key=key, settings=settings_line(crit, spectrogram=sp), parameters=params, failed=failed, limits=limits)
+    limits = limits + " " + limit_scope(ids)
+    settings = settings_line(crit, spectrogram=sp)
+    rest = " ".join([take, panels, settings, params, failed, limits])
+    key = " ".join(x for x in [
+        key_symbols(rest, "eta", "Delta", "J", "tau_d", "tau", "r", "v", "t_on", "T_ramp", "N", "PSD", "W", "f_pk", "M3", "modes"),
+        key_extra(rest, [EXTRA_ENTRIES[k] for k in ("eta_H", "P2", "F4")]),
+        class_key(), "Checks: X.",
+        key_extra(rest, [EXTRA_ENTRIES["NC1"]]),
+        key_words(rest)] if x)
+    text = assemble("F1", take_home=take, panels=panels, key=key, settings=settings, parameters=params, failed=failed, limits=limits)
     return text.replace("Checks: X.", "Checks: " + defined_checks(text) + ".")
 
 
@@ -322,30 +428,36 @@ def f3_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list, 
         else:
             lead = f"({'abc'[j]}) The same for Delta = {D} (largest cycle frequency here {d[f'D{D}_f_max_hz']:.1f} Hz): the 25 Hz contour crosses the cycle branch"
         panel.append(lead + f" at {n} of {len(sl)} slices" + (f" (tau_d {', '.join(f'{x:g}' for x in ts)} ms)" if n else "") + f"; the title is red because the shading carries the RB9(b) FAIL.{extra}")
-    panel.append(f"(d) The (eta_bar, Delta) plane (logarithmic Delta axis): the Hopf curve of the continuation only, because the frequency map stores no Delta slices; the combined path arrow lies at Delta {num(d['P1_Delta'])}, "
+    panel.append(f"(d) The (eta_bar, Delta) plane (logarithmic Delta axis): the Hopf curve of the continuation only (drawn as straight segments between its {c['a4_points_d']} stored points, next to the {c['a4_points']} stored points "
+                 f"of the curve in (c)), because the frequency map stores no Delta slices; the combined path arrow lies at Delta {num(d['P1_Delta'])}, "
                  f"P4a leaves it upward to Delta {d['P4a_Delta_end_derived']:.3g} and P4b downward to Delta {d['P4b_Delta_end_derived']:.3g} (both end Delta values are derived: stored Delta times stored Delta factor), and the Hopf point of the frequency map is at eta_bar {hl_eta:.3f}.")
     panel.append("(e) The path strip: one row per path leg (P1, P2, P3, P4a, P4b, P5 up and P5 return), each from its stored start to its stored end in eta_bar; the rows are labels, not a parameter axis, and the ramp duration of each stored record is in its row label.")
     panel.append(f"Arrows show the stored linear-profile path values (T_ramp {', '.join(f'{x:g}' for x in t_ramp)} s; the path values are identical at every stored T_ramp); P3 is drawn for a drive amplitude of {num(d['P3_I_amp'])} only, and the J ramp of P2 and P3 is not drawn. "
                  + c["shared"] + " " + c["overlap"] + " " + c["arrow_note"])
-    key = " ".join([
-        "Symbols: " + sym("eta", "Delta", "J", "tau_d", "T_ramp") + ". " + cap1(SYMBOLS["M3"]) + ".",
-        "P1 = the path that ramps eta_bar only; P2 = the hypoxia-like path (eta_bar ramped up, with J ramped to 0 after a delay); P3 = P2 plus a common drive; P4a and P4b = P2 with Delta multiplied by 1.5 (P4a) or by 2/3 (P4b) over the ramp; "
-        "P5 = eta_bar up, then down, J fixed.",
-        "Marks: a black mark with a white outline = the Hopf point of a slice; a tall black bar = the 25 Hz crossing of a slice; the black line = the Hopf curve of the continuation; the hollow ring = the Hopf point of the frequency map at the headline; "
-        "the thin dark arrow = the combined path of P1, P2, P3 and P5.",
-        "Checks: X; G2 = the gate for no gamma transient (a switch to another model).",
-        "Stored sources: the Hopf curve is the result of the analysis step \"M3 fixed points and Hopf curves\" and the limit-cycle frequencies are the result of the analysis step \"M3 frequency map\" (step names as written in the project's analysis specification).",
-        "The classifier's spectral peak is the peak frequency of its spectrogram; the cycle frequency is the frequency of the limit cycle found by continuation. The tau_d and Delta axes are logarithmic (tick labels are plain numbers).",
-    ])
     settings = ("No classifier or spectrogram is used in this figure; the 25 Hz and 100 Hz contours are the edges of the gamma band of the classifier (25 to 100 Hz). Colour and contours show the limit-cycle frequency of the continuation, "
                 "not the classifier's spectral peak, and there is no interpolation between slices.")
     params = (f"Stored values (the complete list with the stored key names is in the supplement): model {pv(rows, 'model.type')} with membrane time constant {num(pv(rows, 'model.tau_ms'))} ms and J = {num(pv(rows, 'model.J'))} "
               f"(the frequency map is at this fixed J; its J slices are not drawn); Delta = {', '.join(deltas)} and synaptic decay time tau_d = {c['tau_range']} ({len(sl)} values), swept; the reference validation point is "
               "(eta_bar 4, J = -21, Delta 0.3, tau_d 5 ms). Only the parameters that define the plotted slices and the regime are listed.")
     failed = ("Shown, not dropped (the full list with value, threshold and source is in the supplement): " + "; ".join(failed_line(r) for r in strip_rows)
-              + f". The stored table gives no value for this row; the values are those of the project log: spectral {spec:.1f} Hz, cycle {cyc:.3f} Hz, difference {diff:.3f} Hz against the allowed 0.5 Hz (the inverse of the 2 s window). Red titles show a FAIL (here (a), (b) and (c)).")
-    limits = limits_paragraph(ids)
-    text = assemble("F3", take_home=take, panels=" ".join(panel), key=key, settings=settings, parameters=params, failed=failed, limits=limits)
+              + f". The stored table gives no value for this row; the values are those of the project log: spectral {spec:.1f} Hz, cycle {cyc:.3f} Hz, difference {diff:.3f} Hz against the allowed 0.5 Hz (the inverse of the 2 s window). "
+              + title_sentence("F3") + " The panels draw the cycle frequency and the failed check compares it with the spectral peak, so the two frequencies are marked on the one shared colour bar "
+              "(a tick at the cycle frequency, a tick at the spectral peak, and their difference).")
+    limits = limits_paragraph(ids) + " " + limit_scope(ids)
+    panels = " ".join(panel)
+    rest = " ".join([take, panels, settings, params, failed, limits])
+    key = " ".join(x for x in [
+        key_symbols(rest, "eta", "Delta", "J", "tau_d", "T_ramp", "M3"),
+        "P1 = the path that ramps eta_bar only; P2 = the hypoxia-like path (eta_bar ramped up, with J ramped to 0 after a delay); P3 = P2 plus a common drive; P4a and P4b = P2 with Delta multiplied by 1.5 (P4a) or by 2/3 (P4b) over the ramp; "
+        "P5 = eta_bar up, then down, J fixed.",
+        "Marks: a black mark with a white outline = the Hopf point of a slice; a tall black bar = the 25 Hz crossing of a slice; the black line = the Hopf curve of the continuation; the hollow ring = the Hopf point of the frequency map at the headline; "
+        "the thin dark arrow = the combined path of P1, P2, P3 and P5; the two ticks on the colour bar = the cycle frequency and the spectral peak of the failed frequency check.",
+        "Checks: X; G2 = the gate for no gamma transient (a switch to another model).",
+        "Stored sources: the Hopf curve (called 'continuation' in the legend) is the result of the analysis step \"M3 fixed points and Hopf curves\" and the limit-cycle frequencies (called 'frequency-map' in the legend) are the result of the analysis step "
+        "\"M3 frequency map\" (step names as written in the project's analysis specification).",
+        "The classifier's spectral peak is the peak frequency of its spectrogram; the cycle frequency is the frequency of the limit cycle found by continuation. The tau_d and Delta axes are logarithmic (tick labels are plain numbers).",
+        key_words(rest)] if x)
+    text = assemble("F3", take_home=take, panels=panels, key=key, settings=settings, parameters=params, failed=failed, limits=limits)
     return text.replace("Checks: X;", "Checks: " + defined_checks(text) + ";")
 
 
@@ -382,36 +494,63 @@ def f5_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list, 
         "The dark marks of (c) and (d) are 4.2 pt wide inside a pitch of at least 6 pt, so no two marks touch although a mark is wider than its 3 pt map cell. Per-seed results against N (class, f_pk, onset and duration) are in F5c.",
         c["cells_note"],
     ])
-    key = " ".join([
-        "Symbols: " + sym("Delta", "tau_d", "J", "T_ramp", "N", "f_pk") + ". J0 = the J at which the path starts (map 2). i and j = the row and column index of a map-1 cell. " + cap1(SYMBOLS["M3"]) + ". " + cap1(SYMBOLS["modes"]) + ". "
-        "F5c and F6 = other figures of this paper.",
-        class_key(),
-        "Checks: " + "{CHECKS}" + ".",
-        "The rule for the network cells (RB1): a cell agrees only if 3 of 3 seeds match the mean-field companion class; RB1 needs at least 3 of 4 cells; agreement is read on the surge-definition categories (D-tr meets S+, S-rel or S-abs; D-none meets NS), our reading, not verified.",
-    ])
     sig = sigma_text(a11, pv(rows, "noise.sigma"))
     params = (f"Stored values (the complete list with the stored key names is in the supplement): model {pv(rows, 'model.type')} with membrane time constant {num(pv(rows, 'model.tau_ms'))} ms and J = {num(pv(rows, 'model.J'))}; "
               f"map 1 at Delta 0.01 to 0.6 (30 values) and tau_d 1 to 50 ms (30 values, log), T_ramp 120 s; map 2 at J0 -40 to -5 (25 values) and T_ramp (13 values), Delta 0.3, tau_d 5 ms; hypoxia-like path P2 with a linear profile; "
               f"network cells at T_ramp 30 s and the N sweep at T_ramp 60 s (N = 1e3, 3e3, 1e4, 3e4 for F5c) with {pv(rows, 'network.het_dist').capitalize()} heterogeneity; {sig}; root random seed {pv(rows, 'seeds.root_seed')}; "
               "the ODE solver is named in the supplement.")
     failed = ("Shown, not dropped (the full list with value, threshold and source is in the supplement): " + "; ".join(failed_line(r) for r in strip_rows)
-              + f". The sigma check also FAILED (stored status in Parameters). Red titles show a FAIL (here (a) and (b): RB1 cells; (c): D24). {c['f5c_pointer']}")
-    limits = limits_paragraph(ids, not_applicable, pointer="")
-    text_wo = assemble("F5", take_home=take, panels=panels, key=key.replace("{CHECKS}", "X"), settings=settings_line(crit), parameters=params, failed=failed, limits=limits)
-    chk = defined_checks(text_wo)
-    return text_wo.replace("Checks: X.", "Checks: " + chk + ".")
+              + f". The sigma check also FAILED (stored status in Parameters). " + title_sentence("F5") + f" {c['f5c_pointer']}")
+    limits = limits_paragraph(ids, not_applicable, pointer="") + " " + limit_scope(ids)
+    settings = settings_line(crit)
+    rest = " ".join([take, panels, settings, params, failed, limits])
+    key = " ".join(x for x in [
+        key_symbols(rest, "Delta", "tau_d", "J", "T_ramp", "N", "f_pk", "M3", "modes"),
+        key_extra(rest, [EXTRA_ENTRIES[k] for k in ("J0", "ij", "F5c_F6")]),
+        class_key(), "Checks: X.",
+        "The rule for the network cells (RB1): a cell agrees only if 3 of 3 seeds match the mean-field companion class; RB1 needs at least 3 of 4 cells; agreement is read on the surge-definition categories (D-tr meets S+, S-rel or S-abs; D-none meets NS), our reading, not verified.",
+        key_words(rest)] if x)
+    text_wo = assemble("F5", take_home=take, panels=panels, key=key, settings=settings, parameters=params, failed=failed, limits=limits)
+    return text_wo.replace("Checks: X.", "Checks: " + defined_checks(text_wo) + ".")
+
+
+def _or_list(names) -> str:
+    names = list(names)
+    return names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1]
+
+
+def _and_list(items) -> str:
+    items = [str(x) for x in items]
+    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
+
+
+def f5c_counts(per_n: list) -> dict:
+    """DL-582 U6 (c): per N, how many of the 10 ramp seeds and of the 3 no-ramp controls are in a surge class (S+, S-rel, S-abs), computed from the figure arrays (figures._f5_jconst). Returns the phrases
+    the take-home, the panel sentence and the short caption use; the phrase for an N without a control in a surge class lists the classes that the drawn controls and ramp seeds have."""
+    labels = [p["label"] for p in per_n]
+    ctrl = [p["ctrl_surge"] for p in per_n]
+    ramp = [p["ramp_surge"] for p in per_n]
+    with_surge = [p["label"] for p in per_n if p["ctrl_surge"] > 0]
+    without = [p for p in per_n if p["ctrl_surge"] == 0]
+    zero = "; ".join(f"at N = {p['label']} the {p['ctrl_n']} controls are {_or_list(p['ctrl_classes'])} and the ramp seeds are {_or_list(p['ramp_classes'])}" for p in without)
+    surge_n = [p["ctrl_surge"] for p in per_n if p["ctrl_surge"] > 0]
+    return {"labels": labels, "ctrl": ctrl, "ramp": ramp, "with_surge": with_surge, "zero": zero, "surge_text": f"{_and_list(surge_n)} of 3",
+            "ctrl_text": f"{_and_list(ctrl)} of 3 at N = {_and_list(labels)}", "ramp_text": f"{_and_list(ramp)} of 10 at N = {_and_list(labels)}"}
 
 
 def f5c_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list, ids, not_applicable, c: dict) -> str:
     """The journal caption of F5c (draft panels (f) to (i))."""
     sig = sigma_text(a11, pv(rows, "noise.sigma"))
-    take = ("The RB6 network f_pk check FAILED (numerical convergence: halving the step must change the network f_pk by less than 2 percent), and the per-N results show that network classes do not reproduce the mean field or separate ramp from no-ramp records: "
-            "against N = 1e3, 3e3, 1e4 and 3e4 the 10 ramp seeds per N fall in S-sus and S-abs (S+ in 6 seeds at N = 3e3, NS in 1 at N = 1e4), and the no-ramp controls also reach surge classes. "
+    cn = f5c_counts(c["per_n"])
+    take = ("The RB6 network f_pk check FAILED (numerical convergence: halving the step must change the network f_pk by less than 2 percent), and the per-N results show that network classes do not reproduce the mean field: "
+            "against N = 1e3, 3e3, 1e4 and 3e4 the 10 ramp seeds per N fall in S-sus and S-abs (S+ in 6 seeds at N = 3e3, NS in 1 at N = 1e4), and the no-ramp controls reach surge classes (S+, S-rel or S-abs) "
+            f"at N = {_and_list(cn['with_surge'])} ({cn['surge_text']})" + (f", while {cn['zero']}" if cn["zero"] else "") + ". "
             f"The network at N = 1e4 disagrees with the mean field at {d['cells_n_disagree']} of the 4 map cells (RB1 cells {d['cells_n_agree']} of 4; gate G4 triggered), and the mean-field results of F5 (maps, noisy subgrid) are for mode D only. "
             "No claim of f_pk or class agreement between the network and the mean field is made.")
     panels = " ".join([
         "(a) The class of every seed against N (the 40 network runs at T_ramp 60 s: N = 1e3, 3e3, 1e4, 3e4 with 10 seeds each, filled marks; the 12 no-ramp control runs, 3 per N, open marks); the class is the stored class, "
         "and a seed's x position is its slot in the N group (ramp seeds 0 to 9, then control seeds 0 to 2), a layout that carries no value.",
+        f"In a surge class (S+, S-rel or S-abs), counted from the drawn classes: the ramp seeds {cn['ramp_text']}; the no-ramp controls {cn['ctrl_text']}.",
         "(b) f_pk of every seed with a defined value against N (the title is red because the RB6 network f_pk check FAILED): the dotted line is the stored mean-field companion value at T_ramp 60 s; the grey bar is the stored minimum to maximum of the ramp seeds and the wide tick the stored median (these three marks are in the key above (a)).",
         f"(c) The onset of every seed with a defined value against N, with the stored mean-field companion onset {d['ref_onset_s']:.3f} s as a dotted line; {c['onset_sentence']}",
         f"(d) The duration of every ramp seed with a defined value against N (logarithmic axis; the controls were evaluated without the duration, so there are no control points): {c['duration_sentence']}",
@@ -420,16 +559,18 @@ def f5c_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list,
         f"Seeds whose metric is undefined are not drawn; {c['undefined_note']}",
         "The maps, the network cells and the noisy subgrid are in F5.",
     ])
-    key = " ".join([
-        "Symbols: " + sym("tau_d", "N", "f_pk", "T_ramp") + ". " + cap1(SYMBOLS["modes"]) + ". Filled marks = ramp seeds (10 per N); open marks = no-ramp control seeds (3 per N). F5 = the other figure of this paper that holds the maps, the network cells and the noisy subgrid.",
-        class_key(),
-        "Checks: {CHECKS}.",
-    ])
     params = (f"Stored values (the complete list with the stored key names is in the supplement): model {pv(rows, 'model.type')} with membrane time constant {num(pv(rows, 'model.tau_ms'))} ms, J = {num(pv(rows, 'model.J'))}, "
               f"Delta = {num(pv(rows, 'model.Delta', 's9_N1e4_seed0'))} and synaptic decay time tau_d = {num(pv(rows, 'model.tau_d_ms', 's9_N1e4_seed0'))} ms; hypoxia-like path P2 with a linear profile, T_ramp = {num(pv(rows, 'path.T_ramp_s', 's9_N1e4_seed0'))} s; "
               f"network size N = 1e3, 3e3, 1e4, 3e4 (swept) with {pv(rows, 'network.het_dist').capitalize()} heterogeneity; {sig}; root random seed {pv(rows, 'seeds.root_seed')}; the ODE solver is named in the supplement.")
     failed = ("Shown, not dropped (the full list with value, threshold and source is in the supplement): " + "; ".join(failed_line(r) for r in strip_rows)
-              + ". The sigma check also FAILED (stored status in Parameters). Red titles show a FAIL (here (b): RB6 network f_pk). The F5 caption lists the other FAILs of the figure (RB1 cells, D24, RB2).")
+              + ". The sigma check also FAILED (stored status in Parameters). " + title_sentence("F5c") + " The test itself (halving the step) is not drawn because its runs are not stored; a plain line in panel (b) says so. The F5 caption lists the other FAILs of the figure (RB1 cells, D24, RB2).")
     limits = limits_paragraph(ids, not_applicable, pointer="Claim limits that change how panel (a) reads: no-ramp network controls are classified into surge classes, and there is no claim that the regime map is robust to noise.")
-    text_wo = assemble("F5c", take_home=take, panels=panels, key=key.replace("{CHECKS}", "X"), settings=settings_line(crit), parameters=params, failed=failed, limits=limits)
+    limits = limits + " " + limit_scope(ids)
+    settings = settings_line(crit)
+    rest = " ".join([take, panels, settings, params, failed, limits])
+    key = " ".join(x for x in [
+        key_symbols(rest, "tau_d", "N", "f_pk", "T_ramp", "modes"),
+        "Filled marks = ramp seeds (10 per N); open marks = no-ramp control seeds (3 per N). F5 = the other figure of this paper that holds the maps, the network cells and the noisy subgrid.",
+        class_key(), "Checks: X.", key_words(rest)] if x)
+    text_wo = assemble("F5c", take_home=take, panels=panels, key=key, settings=settings, parameters=params, failed=failed, limits=limits)
     return text_wo.replace("Checks: X.", "Checks: " + defined_checks(text_wo) + ".")
