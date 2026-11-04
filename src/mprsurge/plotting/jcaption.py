@@ -20,6 +20,14 @@ FORBIDDEN = re.compile(r"\bthe plan\b|\bplan\b|\bPlan\b|\bmilestone\b|\bMileston
                        r"\bUNVERIFIED\b|\bms10_eval\b|\bNC1\b|\bD8\b")
 
 
+PLAIN_N = {"1e3": "1000", "3e3": "3000", "1e4": "10,000", "3e4": "30,000"}
+
+
+def plain_n(text: str) -> str:
+    """DL-592 V4: the network sizes are written 1000, 3000, 10,000 and 30,000 in every caption (only the notation changes, not a number)."""
+    return re.sub(r"(?<![\w.+-])(1e3|3e3|1e4|3e4)(?![\w])", lambda m: PLAIN_N[m.group(1)], text)
+
+
 class JCaptionError(ValueError):
     """The journal caption holds a forbidden word or code, or a stored value differs from the value that the wording needs."""
 
@@ -28,7 +36,7 @@ def assemble(fig_id: str, *, take_home: str, panels: str, key: str, settings: st
     """The seven paragraphs, separated by a blank line: '<ID>. <take-home>', then one labelled paragraph each (LABELS)."""
     paras = [f"{fig_id}. {take_home.strip()}", f"Panels. {panels.strip()}", f"Key and abbreviations. {key.strip()}", f"Classifier and spectrogram settings. {settings.strip()}",
              f"Parameters. {parameters.strip()}", f"Failed checks. {failed.strip()}", f"Limits. {limits.strip()}"]
-    text = "\n\n".join(paras)
+    text = plain_n("\n\n".join(paras))
     bad = sorted({m.group(0) for m in FORBIDDEN.finditer(text)})
     if bad:
         raise JCaptionError(f"{fig_id}: the journal caption holds forbidden words or codes: {bad}")
@@ -351,7 +359,7 @@ def f1_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list, 
         f"(c) and (e) r(t) and v(t) of the stored mean-field headline run; (d) and (f) r(t) and v(t) of the three stored network runs (N = 1e4, T_ramp {num(d['path_T_ramp_s'])} s, seeds 0, 1 and 2) on the same y range as (c) and (e): "
         "all three stored seeds are drawn and none is chosen, and N = 1e4 is the only N of the headline network runs (the 3e4 runs belong to the finite-size runs and are not drawn here).",
         f"Each series is a min-to-max envelope per pixel column ({c['columns']} blocks of whole samples; a display decimation that is not verified as a rule): the extremes of every block and of the whole series are the stored extremes, nothing is smoothed or offset.",
-        f"In (d) and (f) the red title shows FAIL and the in-panel line states the stored result ({c['net_line']}); a strip above the axes marks the stored network classifier onset ({d['onset120_s'][0]:.1f} s, "
+        f"In (d) and (f) the red title shows FAIL and the in-panel line reads 'network class {d['cls120'][0]}; mean field {d['ref_class']}' (the stored result: {c['net_line']}); a strip above the axes marks the stored network classifier onset ({d['onset120_s'][0]:.1f} s, "
         f"{'equal in the three seeds, so the three seeds coincide there' if same_onset else 'per seed'}) and the three raw first crossings (circle, plus and star for seeds 0, 1 and 2; {', '.join(f'{x:.3f}' for x in d['raw120_s'])} s), "
         f"which differ and overlap at this scale (stored values {r0:.3f} to {r1:.3f} s); the height in the strip carries no value, and the mean-field onset is the dash-dotted line.",
         f"(g) and (h) Spectrograms of the stored v of the mean-field run and of network seed 0, computed here by the classifier's own routine with the settings below (not stored, no new setting); rows from 0 to {num(sp['total_band_hz'][1])} Hz are drawn, "
@@ -535,7 +543,7 @@ def f5c_counts(per_n: list) -> dict:
     zero = "; ".join(f"at N = {p['label']} the {p['ctrl_n']} controls are {_or_list(p['ctrl_classes'])} and the ramp seeds are {_or_list(p['ramp_classes'])}" for p in without)
     surge_n = [p["ctrl_surge"] for p in per_n if p["ctrl_surge"] > 0]
     return {"labels": labels, "ctrl": ctrl, "ramp": ramp, "with_surge": with_surge, "zero": zero, "surge_text": f"{_and_list(surge_n)} of 3",
-            "ctrl_text": f"{_and_list(ctrl)} of 3 at N = {_and_list(labels)}", "ramp_text": f"{_and_list(ramp)} of 10 at N = {_and_list(labels)}"}
+            "ctrl_text": f"{_and_list(ctrl)} of 3 at N = {_and_list(labels)}", "sus_text": f"{_and_list([p['ctrl_sus'] for p in per_n])} of 3 at N = {_and_list(labels)}", "ramp_text": f"{_and_list(ramp)} of 10 at N = {_and_list(labels)}"}
 
 
 def f5c_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list, ids, not_applicable, c: dict) -> str:
@@ -550,7 +558,7 @@ def f5c_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list,
     panels = " ".join([
         "(a) The class of every seed against N (the 40 network runs at T_ramp 60 s: N = 1e3, 3e3, 1e4, 3e4 with 10 seeds each, filled marks; the 12 no-ramp control runs, 3 per N, open marks); the class is the stored class, "
         "and a seed's x position is its slot in the N group (ramp seeds 0 to 9, then control seeds 0 to 2), a layout that carries no value.",
-        f"In a surge class (S+, S-rel or S-abs), counted from the drawn classes: the ramp seeds {cn['ramp_text']}; the no-ramp controls {cn['ctrl_text']}.",
+        f"In a surge class (S+, S-rel or S-abs), counted from the drawn classes: the ramp seeds {cn['ramp_text']}; the no-ramp controls {cn['ctrl_text']}; the no-ramp controls in S-sus (not a surge class): {cn['sus_text']}.",
         "(b) f_pk of every seed with a defined value against N (the title is red because the RB6 network f_pk check FAILED): the dotted line is the stored mean-field companion value at T_ramp 60 s; the grey bar is the stored minimum to maximum of the ramp seeds and the wide tick the stored median (these three marks are in the key above (a)).",
         f"(c) The onset of every seed with a defined value against N, with the stored mean-field companion onset {d['ref_onset_s']:.3f} s as a dotted line; {c['onset_sentence']}",
         f"(d) The duration of every ramp seed with a defined value against N (logarithmic axis; the controls were evaluated without the duration, so there are no control points): {c['duration_sentence']}",

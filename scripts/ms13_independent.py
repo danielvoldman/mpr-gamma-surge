@@ -736,6 +736,8 @@ JOURNAL_OVERRIDE = {
     "F3.ref_fmin": (r"cycle at the reference validation point at (\d+\.\d) to", 1),
     "F3.ref_fmax": (r"cycle at the reference validation point at \d+\.\d to (\d+\.\d) Hz", 1),
     "F5.d24_needed": (r"%, (\d+) cells needed", 1),
+    "F5.ramp_N3000_S+": (r"S\+ in (\d+) seeds at N = 3000", 1),            # DL-592 V4: the captions write 3000 and 10,000, not 3e3 and 1e4 (same numbers)
+    "F5.ramp_N10000_NS": (r"NS in (\d+) at N = 10,000", 1),
 }
 JOURNAL_TARGETS = {"F5.rb1_cells": ("F5", "F5c"), "F5.rb1_cells_den": ("F5", "F5c"), "F5.cells_disagree": ("F5", "F5c"), "F5.ramp_N3000_S+": ("F5", "F5c"), "F5.ramp_N10000_NS": ("F5", "F5c")}
 
@@ -795,56 +797,58 @@ def journal_rows(c: Ctx, R: Rows, figures) -> None:
 # Patterns of the SHORT caption (the one for the manuscript): every quantity found in a short caption is searched with a pattern of its own wording; the independent value must reproduce the printed
 # token to its digits. Existing rows get their short pattern here; rows that exist only for the short caption are added in short_rows. Short rows are counted and reported separately.
 SHORT_OVERRIDE = {
-    "F1.ref_fpk": (r"spectral peak of (\d+\.\d) Hz", 1),
-    "F1.ref_onset": (r"and onset (\d+\.\d+) s", 1),
-    "F1.onset120_text": (r"classifier onset is (\d+\.\d) s", 1),
-    "F1.rb3a_n": (r"onset prediction \((\d+) of \d+ runs\)", 1),
-    "F1.rb3a_den": (r"onset prediction \(\d+ of (\d+) runs\)", 1),
-    "F3.rb9b_spectral": (r"spectral peak is (\d+\.\d) Hz and the cycle", 1),
-    "F3.rb9b_cycle": (r"cycle frequency is (\d+\.\d+) Hz", 1),
-    "F3.rb9b_diff": (r"differ by (\d+\.\d+) Hz against the allowed", 1),
-    "F3.rb9b_bound": (r"against the allowed (\d+\.\d) Hz", 1),
-    "F3.a4_points": (r"between its (\d+) points\), the arrow", 1),
-    "F5.cells_disagree": (r"disagrees with the mean field at (\d+) of 4 map cells", 1),
+    "F1.ref_fpk": (r"power spectrum peaks at (\d+\.\d) Hz", 1),
+    "F1.ref_onset": (r"and (\d+\.\d+) s for the mean field", 1),
+    "F1.onset120_text": (r"first flags the gamma rise\) is (\d+\.\d) s for the network", 1),
+    "F3.rb9b_spectral": (r"spectral peak \(the peak of the power spectrum of the simulated signal\) is (\d+\.\d) Hz", 1),
+    "F3.rb9b_cycle": (r"where the resting state starts to oscillate\) is (\d+\.\d+) Hz", 1),
+    "F3.rb9b_diff": (r"they differ by (\d+\.\d+) Hz", 1),
+    "F3.rb9b_bound": (r"must differ by at most (\d+\.\d) Hz", 1),
+    "F5.cells_disagree": (r"the network disagrees with it at (\d+) of the 4 cells tested", 1),
 }
-SHORT_S1 = r"noisy subgrid agrees in (\d+) of (\d+) cells \((\d+\.\d) percent; (\d+) needed\)"
-SHORT_NET = r"network against mean field \((\d+) of (\d+) seeds at 10 s and at 120 s; (\d+) of (\d+) map cells agree\)"
+SHORT_S1 = r"noisy mean field agrees with the noise-free map in (\d+) of (\d+) cells \((\d+\.\d) percent; (\d+) cells, 90 percent, were needed\)"
+# DL-593 V6, V7: the F1 short caption states the RB1 counts once ('0 of 3 seeds agree (0 of 3 seeds at ramp durations of 10 s and 120 s), and 1 of 4 map cells ... agree'); the F5 short caption states the cells count
+SHORT_NET = r"agree \((\d+) of (\d+) seeds at ramp durations of 10 s and 120 s\), and (\d+) of (\d+) map cells"
+SHORT_NET_F5 = r"at the 4 cells \(the network must fall in the same class as the mean field\), (\d+) of (\d+) agree"
 
 
 def short_rows(c: Ctx, R: Rows, figures) -> None:
-    """Rows of the short captions (DL-582 U3 d): the short pattern of the rows that exist, and the rows that only the short caption holds (the RB1 and RB2 counts, the RB6 solver difference, the
-    100 points of the (d) curve, the per-N counts of the no-ramp controls). Values come from the stored files (own readers)."""
+    """Rows of the short captions (DL-582 U3 d; patterns rewritten for the wording of DL-593 V5 to V7, the same numbers, nothing loosened): the short pattern of the rows that exist, and the rows that only
+    the short caption holds (the RB1 counts, the per-N counts of the no-ramp controls in a surge class and in S-sus). Values come from the stored files (own readers). The rows of the RB2 class-kept
+    count and of the RB6 solver difference are no longer in a short caption (DL-593 V7: only failed checks whose result is drawn are named there); the full-caption rows stay."""
     a11_sh = "stored A11 table (original evaluator output)"
     src = "A11/a11_robustness.csv"
-    for fig in ("F1", "F5"):
-        if fig not in figures:
-            continue
-        q10, q120, qc = (_nums(_a11(c, "RB1", ck)["value"]) for ck in ("headline_10s", "headline_120s", "cells_30s"))
+    q10, q120, qc = (_nums(_a11(c, "RB1", ck)["value"]) for ck in ("headline_10s", "headline_120s", "cells_30s"))
+    if "F1" in figures:
         for nm, q, k in (("rb1_10s_n", q10[0], 1), ("rb1_120s_n", q120[0], 1), ("rb1_seeds_den", q120[1], 2), ("rb1_cells_n_short", qc[0], 3), ("rb1_cells_den_short", qc[1], 4)):
-            R.add(fig, nm, f"RB1 count in the short caption ({nm})", q, f"{src}: RB1 headline_10s, headline_120s, cells_30s value", shared=a11_sh, sprinted=(SHORT_NET, k), stargets=(fig,))
-        r2 = _a11(c, "RB2", "headline_class_kept_1.0_sigma")
-        kept, thr = _nums(r2["value"]), _nums(r2["threshold"])
-        R.add(fig, "rb2_kept", "RB2 headline class kept (seeds), short caption", kept[0], f"{src}: RB2 headline_class_kept_1.0_sigma value", shared=a11_sh,
-              sprinted=(r"main-run class kept in (\d+) of \d+ noisy seeds", 1), stargets=(fig,))
-        R.add(fig, "rb2_kept_den", "RB2 headline class kept (of seeds), short caption", kept[1], f"{src}: RB2 headline_class_kept_1.0_sigma value", shared=a11_sh,
-              sprinted=(r"main-run class kept in \d+ of (\d+) noisy seeds", 1), stargets=(fig,))
-        R.add(fig, "rb2_needed", "RB2 headline class: seeds needed, short caption", thr[0], f"{src}: RB2 headline_class_kept_1.0_sigma threshold", shared=a11_sh,
-              sprinted=(r"noisy seeds \((\d+) needed\)", 1), stargets=(fig,))
+            R.add("F1", nm, f"RB1 count in the short caption ({nm})", q, f"{src}: RB1 headline_10s, headline_120s, cells_30s value", shared=a11_sh, sprinted=(SHORT_NET, k), stargets=("F1",))
+    if "F5" in figures:
+        for nm, q, k in (("rb1_cells_n_short", qc[0], 1), ("rb1_cells_den_short", qc[1], 2)):
+            R.add("F5", nm, f"RB1 cells count in the short caption ({nm})", q, f"{src}: RB1 cells_30s value", shared=a11_sh, sprinted=(SHORT_NET_F5, k), stargets=("F5",))
     sig = c.json("S8/S8_head/S8_head_0003_7dfd3c05b40c.json")["solver"]["noise"]["sigma"]
     for fig, targets in (("F1", ("F1",)), ("F5", ("F5", "F5c"))):
         if fig in figures:
             R.add(fig, "noise_sigma", "noise level sigma (stored record config)", sig, "S8/S8_head/S8_head_0003_7dfd3c05b40c.json: solver.noise.sigma", shared="stored record config",
                   jprinted=(r"noise level sigma = (0\.\d+) \(checked", 1), jtargets=targets, **({"sprinted": (r"sigma = (0\.\d+) is checked", 1), "stargets": ("F5",)} if fig == "F5" else {}))
     if "F1" in figures:
+        r2 = _a11(c, "RB2", "headline_class_kept_1.0_sigma")
+        kept, thr = _nums(r2["value"]), _nums(r2["threshold"])
+        for nm, q, k in (("rb2_kept", kept[0], 1), ("rb2_kept_den", kept[1], 2), ("rb2_needed", thr[0], 3)):
+            R.add("F1", nm, f"RB2 headline class kept: {nm} (full caption only)", q, f"{src}: RB2 headline_class_kept_1.0_sigma value and threshold", shared=a11_sh)
         r6 = _a11(c, "RB6", "solver_onset_headline")
-        R.add("F1", "rb6_solver_ms", "RB6 solver onset difference (ms), short caption", _nums(r6["value"])[0], f"{src}: RB6 solver_onset_headline value", shared=a11_sh,
-              sprinted=(r"onsets differ by (\d+) ms \(1 ms allowed\)", 1), stargets=("F1",))
+        R.add("F1", "rb6_solver_ms", "RB6 solver onset difference (ms) (full caption only)", _nums(r6["value"])[0], f"{src}: RB6 solver_onset_headline value", shared=a11_sh)
     if "F3" in figures:
         a4 = c.npz("A4/a4_hopf_curves.npz")
         R.add("F3", "a4_points_d", "points of the Hopf curve in (eta_bar, Delta)", len(a4["curve_Delta"]), "A4/a4_hopf_curves.npz: curve_Delta",
-              jprinted=(r"between its (\d+) stored points, next to", 1), sprinted=(r"between its (\d+) points\) against eta_bar and Delta", 1), stargets=("F3",))
+              jprinted=(r"between its (\d+) stored points, next to", 1))
         R.add("F3", "a4_points_c_in_d", "points of the Hopf curve in (eta_bar, tau_d) as stated beside the (d) curve", len(a4["curve_tau_d_ms"]), "A4/a4_hopf_curves.npz: curve_tau_d_ms",
               jprinted=(r"next to the (\d+) stored points of the curve in \(c\)", 1))
+        # V6: the F3 short caption says how many slices have a 25 Hz bar ('7, 6 and 3 of 9 slices'); counted from the stored frequency map by the own reader (slices with a stored 25 Hz crossing count > 0)
+        fm = c.npz("A6/a6_freq_map.npz")
+        for i, D in enumerate(("0.05", "0.1", "0.3")):
+            n = int(np.sum(np.asarray(fm[f"eta_tau_D{D}_c25_count"]) > 0))
+            R.add("F3", f"c25_slices_D{D}", f"slices with a 25 Hz crossing at Delta {D}", n, "A6/a6_freq_map.npz: eta_tau_D*_c25_count (> 0)", shared="stored frequency map",
+                  sprinted=(r"\((\d+), (\d+) and (\d+) of \d+ slices have one", i + 1), stargets=("F3",))
     if "F5" in figures:
         tsv = c.csv("ms10/10g/record_classes.tsv", "\t")
         order = ("S+", "S-rel", "S-abs", "S-sus", "NS")
@@ -857,16 +861,21 @@ def short_rows(c: Ctx, R: Rows, figures) -> None:
             n = sum(1 for x in by[N] if x in SURGE)
             skip = r"\d+(?:, | and )" * (k - 1)
             R.add("F5", f"ctrl_surge_N{N}", f"no-ramp controls in a surge class at N = {N}", n, "ms10/10g/record_classes.tsv: list C2_S9, N, class", shared=sh,
-                  jprinted=(r"reach surge classes \(S\+, S-rel or S-abs\) at N = [^(]*\(" + skip + r"(\d+)", 1), jtargets=("F5c",),
-                  sprinted=(r"surge classes at N = [^(]*\(" + skip + r"(\d+)", 1), stargets=("F5c",))
+                  jprinted=(r"reach surge classes \(S\+, S-rel or S-abs\) at N = [^(]*\(" + skip + r"(\d+)", 1), jtargets=("F5c",))
+        for i, N in enumerate(ns):                     # the F5c short caption: 'Controls in a surge class: 0, 2, 1 and 1 of 3; controls in S-sus: 0, 0, 2 and 2 of 3'
+            skip = r"\d+(?:, | and )" * i
+            R.add("F5", f"ctrl_surge_short_N{N}", f"no-ramp controls in a surge class at N = {N} (short caption list)", sum(1 for x in by[N] if x in SURGE), "ms10/10g/record_classes.tsv: list C2_S9, N, class", shared=sh,
+                  sprinted=(r"Controls in a surge class: " + skip + r"(\d+)", 1), stargets=("F5c",))
+            R.add("F5", f"ctrl_sus_short_N{N}", f"no-ramp controls in S-sus at N = {N} (short caption list)", sum(1 for x in by[N] if x == "S-sus"), "ms10/10g/record_classes.tsv: list C2_S9, N, class", shared=sh,
+                  sprinted=(r"controls in S-sus: " + skip + r"(\d+)", 1), stargets=("F5c",))
         zero = [N for N in ns if sum(1 for x in by[N] if x in SURGE) == 0]
         for N in zero[:1]:
-            lab = {1000: "1e3", 3000: "3e3", 10000: "1e4", 30000: "3e4"}[N]
+            lab = {1000: "1000", 3000: "3000", 10000: "10,000", 30000: "30,000"}[N]
             R.add("F5", f"ctrl_zero_N{N}", f"no-ramp controls that are NS at N = {N}", sum(1 for x in by[N] if x == "NS"), "ms10/10g/record_classes.tsv: list C2_S9, N, class", shared=sh,
-                  jprinted=(rf"at N = {lab} the (\d+) controls are NS", 1), jtargets=("F5c",), sprinted=(rf"at N = {lab} the (\d+) controls are NS", 1), stargets=("F5c",))
+                  jprinted=(rf"at N = {lab} the (\d+) controls are NS", 1), jtargets=("F5c",))
             names = " or ".join(x for x in order if x in ramp[N])
             R.add("F5", f"ramp_zero_N{N}", f"classes of the ramp seeds at N = {N}", names, "ms10/10g/record_classes.tsv: list S9, N, class", shared=sh,
-                  jprinted=(r"the ramp seeds are ([A-Za-z+-]+ or [A-Za-z+-]+)", 1), jtargets=("F5c",), sprinted=(r"the ramp seeds are ([A-Za-z+-]+ or [A-Za-z+-]+)", 1), stargets=("F5c",))
+                  jprinted=(r"the ramp seeds are ([A-Za-z+-]+ or [A-Za-z+-]+)", 1), jtargets=("F5c",))
         for k, nm in enumerate(("s1_agree", "s1_sub_n", "s1_pct", "s1_needed"), start=1):
             for r in R:
                 if r["id"] == f"F5.{nm}":

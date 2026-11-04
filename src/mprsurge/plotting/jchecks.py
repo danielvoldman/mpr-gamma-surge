@@ -210,6 +210,31 @@ def image_id_violations(fig) -> list[str]:
     return out
 
 
+# DL-592 V3, V4: words that no journal image text may hold (plain words: recorded, main example, matching mean-field run, no-noise mean field, peak frequency, time), and the e-notation of N
+PLAIN_WORD_BAN = re.compile(r"\bstored\b|\bheadline\b|\bcompanion\b|\bmode D\b|\bf_pk\b|\bP-1\b|\bpath time\b")
+E_NOTATION = re.compile(r"(?<![\w.+-])\d(?:\.\d)?e\d+\b")
+
+
+def plain_word_violations(fig) -> list[str]:
+    """DL-592 V3: texts on the image (visible; mathtext source included) that hold stored, headline, companion, 'mode D', f_pk, 'P-1' or 'path time'."""
+    out = []
+    for t in fig.findobj(Text):
+        s = " ".join(t.get_text().split())
+        if s and t.get_visible() and PLAIN_WORD_BAN.search(s):
+            out.append(s[:50])
+    return out
+
+
+def e_notation_violations(fig) -> list[str]:
+    """DL-592 V4: texts on the image that write a power of ten as 1e3, 3e3, 1e4, 3e4, 1e5 (they are written 10^3, 3x10^3, 10^4, 3x10^4 in mathtext)."""
+    out = []
+    for t in fig.findobj(Text):
+        s = " ".join(t.get_text().split())
+        if s and t.get_visible() and E_NOTATION.search(s):
+            out.append(s[:50])
+    return out
+
+
 def tick_hyphens(fig) -> list[str]:
     """DL-582 U6 (a): tick labels (major and minor, drawn once) that start with a hyphen-minus before a digit instead of the true minus sign (U+2212)."""
     import re as _re

@@ -36,7 +36,7 @@ output:
 collision:
   pad_pt: 0.5                          # two objects closer than this count as touching (UNVERIFIED)
 caption:
-  short_max_words: 220                 # UNVERIFIED (DL-582 U3 a): the most words of the SHORT caption of a figure (the one for the manuscript); the full caption goes to the supplement
-  short_max_words_F1: 280              # UNVERIFIED (DL-582 U3 a): F1 has eleven panels and a schematic
+  short_max_words: 330                 # UNVERIFIED (DL-593 V8; DL-582 U3 a had 220): the most words of the SHORT caption of a figure (the one for the manuscript); the full caption goes to the supplement
+  short_max_words_F1: 400              # UNVERIFIED (DL-593 V8; DL-582 U3 a had 280): F1 has eleven panels and a schematic
 files:
   name_pattern: "^[A-Za-z0-9_+=,.-]+$"   # a-z A-Z 0-9 underscore plus minus dot comma equals; no spaces

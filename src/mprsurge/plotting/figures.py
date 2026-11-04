@@ -659,7 +659,7 @@ def _f3_frequency_marks(cax) -> None:
         a = cax.annotate("", xy=(x, 1.0), xycoords=tr, xytext=(0, F3J_MARK_PT["tick"]), textcoords="offset points", annotation_clip=False,
                          arrowprops=dict(arrowstyle="-", color=dark, lw=1.0, shrinkA=0, shrinkB=0, capstyle="butt"))
         a.set_gid("frequency mark")
-    for x, txt, ha in ((cyc, "cycle frequency at the headline", "right"), (spec, "spectral peak at the headline", "left")):
+    for x, txt, ha in ((cyc, "cycle frequency, main example", "right"), (spec, "spectral peak, main example", "left")):
         o = -2.0 if ha == "right" else 2.0
         cax.annotate(txt, xy=(x, 1.0), xycoords=tr, xytext=(o, F3J_MARK_PT["label"]), textcoords="offset points", ha=ha, va="bottom", fontsize=S.TEXT_SIZES["small"], color=dark,
                      annotation_clip=False).set_gid("frequency mark label")
@@ -759,7 +759,7 @@ def _draw_F3_journal(d: dict):
     ll.append(_jwrap(f"Frequency-map Hopf point (Δ{NB}{d['headline_Delta']:g}, {JTAU}{NB}{d['headline_tau_d_ms']:g}{NB}ms)", 16))
     grp = _f3_combined_group(d)
     hh.append(Line2D([], [], ls="-", marker=cbm["marker"], mfc=S.HALO_COLOUR, mec=cbm["colour"], color=cbm["colour"], lw=F3J_COMBINED_LW, ms=cbm["size"]))
-    ll.append(_jwrap(f"{', '.join(grp)}: identical in {JETA}, Δ, {JTAU} (stored)", 18))
+    ll.append(_jwrap(f"{', '.join(grp)}: identical in {JETA}, Δ, {JTAU} (recorded)", 18))
     st = S.get("P5")
     hh.append(Line2D([], [], ls=st.linestyle, color=st.colour, lw=1.0))
     ll.append("P5 return leg")
@@ -1119,7 +1119,7 @@ def _f5_per_n(d: dict) -> list:
         ramp, ctrl = [str(x) for x in d["s9_class"][k]], [str(x) for x in d["ctrl_class"][k]]
         out.append({"N": float(n), "label": f"{n:.0e}".replace("e+0", "e"), "ramp_n": len(ramp), "ctrl_n": len(ctrl),
                     "ramp_surge": sum(c in JCAP.MODE_N_SURGE for c in ramp), "ctrl_surge": sum(c in JCAP.MODE_N_SURGE for c in ctrl),
-                    "ramp_classes": [c for c in F5_NET_CLASSES if c in ramp], "ctrl_classes": [c for c in F5_NET_CLASSES if c in ctrl]})
+                    "ctrl_sus": sum(c == "S-sus" for c in ctrl), "ramp_classes": [c for c in F5_NET_CLASSES if c in ramp], "ctrl_classes": [c for c in F5_NET_CLASSES if c in ctrl]})
     return out
 
 
@@ -1357,7 +1357,7 @@ def make_F3(res=None, out_dir=None, *, tag_build: bool = False, take_home=F3_TAK
         plain_md = PL.pairing_markdown(claim_limit_ids, None, cap.text)
         jtext = JCAP.f3_caption(d, [], crit3, [r for r in rows if r["key"] in CAPTION_KEYS], strip_rows=list(d["strip"]), ids=claim_limit_ids, c=_f3_jconst(d))
         cap = dataclasses.replace(cap, text=jtext)
-        short_text = JSH.f3_short(d, [], list(d["strip"]), _f3_jconst(d), J.caption_limit(J.load_config(root), "F3"))
+        short_text = JSH.f3_short(d, [], list(d["strip"]), _f3_jconst(d), J.caption_limit(J.load_config(root), "F3"), jtext)
         sections = _jsections("F3", [])
     import matplotlib.pyplot as plt
     out.mkdir(parents=True, exist_ok=True)
@@ -5231,15 +5231,12 @@ def _draw_F1(d: dict, draft: bool, mode: str = "draft"):
 
 # DL-563 S9: the journal schematic carries symbols and plain names only (no code names, no internal IDs); the plain names are those of plan Table 3.2 and of DL-563 S9
 F1J_SCHEMATIC = (
-    ("ramp", "ramp protocol", (("P2", "hypoxia-like path"), (JETA, "mean excitability"), ("J", "coupling"), ("t_on", "ramp start time"), ("T_ramp", "ramp duration"),
-                               ("I", "common (non-local) drive"))),
-    ("model", "M3", (("All-to-all coupling, quenched Lorentzian heterogeneity, N → ∞",), ("a common input",),
-                     ("M3 is read as an inhibition-dominated (ING) local circuit",), (JETA, "Mean excitability"), ("Δ", "Heterogeneity half-width"),
-                     ("J", "Signed coupling"), (JTAU, "Synaptic decay time (M3)"), ("Inhibitory + first-order synapse (ING)",), ("tau", "Membrane time constant"))),
+    ("ramp", "ramp protocol", (("P2", "hypoxia-like path"), (JETA, "mean excitability"), ("J", "coupling"), ("t_on, T_ramp", "ramp start and duration"))),
+    ("model", "M3", (("all-to-all coupling",), ("Lorentzian heterogeneity (Δ)",), (f"J, {JTAU}, tau",), ("inhibition-dominated (ING)",))),
     ("mf", "mean field", (("r, v, s", "Rate, mean potential, synapse"),)),
     ("net", "network", (("N", "Network size"), ("raster",))),
     ("out", "outputs", (("mean-field and network r(t), v(t)",), ("spectrogram of v",))),
-)
+)         # DL-592 V2 (b): at most three short label lines per box, words already on the schematic; 'N -> infinity' and 'I: common (non-local) drive' dropped
 F1J_COL = {"left": 0.72, "right": 3.1, "width": 2.0}      # inches: the two time columns of the journal grid (a b / c d / e f / g h) at 6.3 in (DL-554 R1)
 F1J_STRIP_H = 0.28            # DL-563 S10: height (in) of the strip of event marks above (d) and (f); the title of the panel sits above the strip
 F1J_ROWS = {"ab": (2.64, 0.46), "cd": (3.66, 0.76), "ef": (5.0, 0.76), "gh": (6.06, 0.48), "ijk": (7.13, 0.38)}     # (top of the axes, height) in inches from the top edge; layout only (DL-571: shorter rows make room for two key entries and the margins)
@@ -5293,10 +5290,10 @@ def _draw_F1_journal(d: dict):
     seeds = [SimpleNamespace(colour=S.network_seed_colour(i_), linestyle=S.diagram_mark(k).linestyle) for i_, k in enumerate(F1_SEED_KEYS)]
     T_END = float(d["path_t_s"][-1])
     L, R, WD = F1J_COL["left"], F1J_COL["right"], F1J_COL["width"]
-    _f1j_schematic(fig, 0.13, 1.6)
+    _f1j_schematic(fig, 0.13, 1.25)
 
     # key row
-    kx = _ax_in(fig, 0.13, 1.75, 6.04, 0.74)
+    kx = _ax_in(fig, 0.13, 1.45, 6.04, 0.95)
     kx.axis("off")
     kx.set_gid("legend axes")
     sus = S.get(d["cls120"][0])
@@ -5305,12 +5302,13 @@ def _draw_F1_journal(d: dict):
           Line2D([], [], color=dtr.colour, ls=F1J_ONSET_LS, lw=1.0),
           Line2D([], [], ls="none", marker=sus.marker, ms=S.F1_SIZES["key"], color=sus.colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"]),
           tuple(Line2D([], [], ls="none", marker=S.series_mark("seed", i_).marker, ms=S.series_mark("seed", i_).size, color=S.network_seed_colour(i_), mew=1.0, mfc="none") for i_ in range(3)),
-          Line2D([], [], color=S.get("P3").colour, ls="--", lw=S.F1_SIZES["event_line"])]
+          Line2D([], [], color=S.get("P3").colour, ls="--", lw=S.F1_SIZES["event_line"]), Line2D([], [], ls="none")]
     r0, r1 = min(d["raw120_s"]), max(d["raw120_s"])
     same_onset = len(set(d["onset120_s"])) == 1                  # "coincide" only where the stored values are equal (DL-554 R6)
-    ls_ = ["mean field (stored record)", "network seed 0", "network seed 1", "network seed 2", "ramp start and end, (a) and (b)", f"mean-field onset ({d['ref_class']}, {d['ref_onset_s']:.3f}{NB}s)",
+    ls_ = ["mean field (recorded run)", "network seed 0", "network seed 1", "network seed 2", "ramp start and end, (a) and (b)", f"mean-field onset ({d['ref_class']}, {d['ref_onset_s']:.3f}{NB}s)",
            f"network classifier onset ({d['cls120'][0]}, {d['onset120_s'][0]:.1f}{NB}s{'; the 3 seeds coincide' if same_onset else ''})",
-           f"network raw first crossing (post hoc; seeds 0, 1, 2 as circle, plus, star;\noverlap at this scale: stored values {r0:.3f} to {r1:.3f}{NB}s)", "J ramp start and end, (b)"]
+           f"network raw first crossing (post hoc; seeds 0, 1, 2 as circle, plus, star;\noverlap at this scale: recorded values {r0:.3f} to {r1:.3f}{NB}s)", "J ramp start and end, (b)",
+           "event marks are in the strip above (d) and (f); height in the strip has no meaning"]
     from matplotlib.legend_handler import HandlerTuple
     kx.legend(hs, ls_, loc="upper left", bbox_to_anchor=(0.0, 1.0), borderaxespad=0.0, ncol=2, frameon=False, handlelength=2.0, columnspacing=0.9, labelspacing=0.12, handletextpad=0.5,
               handler_map={tuple: HandlerTuple(ndivide=None)}).set_in_layout(False)
@@ -5322,7 +5320,7 @@ def _draw_F1_journal(d: dict):
         ax.set_ylabel(ylabel)
         ax.set_xlim(0, T_END)
         if xlabel:
-            ax.set_xlabel("path time (s)")
+            ax.set_xlabel("time (s)")
         else:
             ax.tick_params(labelbottom=False)
         if not left:
@@ -5375,12 +5373,13 @@ def _draw_F1_journal(d: dict):
         sx.set_ylim(0, 1)
         for spn in sx.spines.values():
             spn.set_edgecolor(S.F5J_COLOURS["separator"])
-        sx.text(0.37, 0.5, "event times;\nheight has no meaning", transform=sx.transAxes, ha="left", va="center", linespacing=1.0, gid="event strip label")
         _f1_onset_marks(a2, d, network=True, journal=True, strip=sx)
-        net_line = f1_journal_net_line(d)                                                             # DL-581 U2: no check ID on the image (the red title says it); three lines that stay clear of the curve
-        head, tail = net_line.split("; ", 1)
-        h1_, h2_ = head.split(", ", 1)
-        a2.text(0.985, 0.965, f"{h1_},\n{h2_};\n{tail}", transform=a2.transAxes, ha="right", va="top", fontsize=cfg["text"]["min_pt"], color=red, weight="bold", linespacing=1.15, gid="net line")
+        # DL-592 V2 (a): ONE short plain line (no count, no check name; the count is in the caption); if it is wider than the axes it breaks once at the semicolon
+        line1 = f"network class {d['cls120'][0]}; mean field {d['ref_class']}"
+        tx_ = a2.text(0.985, 0.965, line1, transform=a2.transAxes, ha="right", va="top", fontsize=cfg["text"]["min_pt"], color=red, weight="bold", gid="net line")
+        fig.canvas.draw()
+        if tx_.get_window_extent().width > 0.97 * a2.get_window_extent().width:
+            tx_.set_text(line1.replace("; ", ";\n"))
         tp(a2, "df"[row], f"{q}(t), network vs mean field", ylab, left=False, red_=True)               # DL-581 U1, U2: the plain title of the failed check
         a2.set_title(a2.get_title(loc="left"), loc="left", pad=(F1J_STRIP_H + 0.05) * 72.0 + 4.0, color=red)
         a2.tick_params(labelleft=False)
@@ -5420,7 +5419,7 @@ def _draw_F1_journal(d: dict):
     a_i.set_xlim(0, T_END)
     a_i.set_ylim(-0.5 - F1J_PAD_ROWS, d["ras_n_rows"] - 0.5 + F1J_PAD_ROWS)
     a_i.set_xticks([0, 50, 100, 150])
-    a_i.set_xlabel("path time (s)")
+    a_i.set_xlabel("time (s)")
     a_i.set_ylabel("neuron (row)")
     _journal_title(a_i, "i", f"spike counts, seed 0")
     cax2 = _ax_in(fig, 2.3, top_i, 0.09, h_i)
@@ -5435,7 +5434,7 @@ def _draw_F1_journal(d: dict):
         a.set_xlim(*win)
         a.set_xticks([win[0], (win[0] + win[1]) / 2, win[1]], [f"{win[0]:.1f}", f"{(win[0] + win[1]) / 2:.1f}", f"{win[1]:.1f}"])
         a.tick_params(labelleft=False, left=False)                       # DL-563 S5: no y tick marks without labels; the rows are those of (i), said in the title
-        a.set_xlabel("path time (s)")
+        a.set_xlabel("time (s)")
         _journal_title(a, lab, f"{win[0]:.3f} to {win[1]:.3f}{NB}s")
         for spn in a.spines.values():
             spn.set_edgecolor(S.F1_RASTER["window_frame"])
@@ -5511,7 +5510,7 @@ def make_F1(res=None, out_dir=None, *, tag_build: bool = False, take_home=F1_TAK
         plain_md = PL.pairing_markdown(claim_limit_ids, None, cap.text)
         jtext = JCAP.f1_caption(d, raw["a11"], crit, [r for r in rows if r["key"] in F1_CAPTION_KEYS], strip_rows=list(d["strip"]), ids=claim_limit_ids, c=_f1_jconst(d))
         cap = dataclasses.replace(cap, text=jtext)
-        short_text = JSH.f1_short(d, raw["a11"], list(d["strip"]), _f1_jconst(d), J.caption_limit(J.load_config(root), "F1"))
+        short_text = JSH.f1_short(d, raw["a11"], list(d["strip"]), _f1_jconst(d), J.caption_limit(J.load_config(root), "F1"), jtext)
         sections = _jsections("F1", raw["a11"])
     import matplotlib.pyplot as plt
     out.mkdir(parents=True, exist_ok=True)
@@ -6137,8 +6136,12 @@ def _f5j_x(k: int, s: int, control: bool) -> float:
     return k * F5J_SLOT + (F5J_CTRL_X0 if control else F5J_RAMP_X0) + s
 
 
+F5J_N_TICK = {1000: r"N = $10^3$", 3000: r"N = $3\times10^3$", 10000: r"N = $10^4$", 30000: r"N = $3\times10^4$"}          # DL-592 V4: powers of ten on the images (mathtext, text only)
+F5J_LAB = {"f_pk_hz": "peak frequency (Hz)", "onset_s": "onset (s)", "duration_ms": "duration (ms)"}          # DL-592 V3: plain axis labels of the journal file (the draft keeps F5_METRICS)
+
+
 def _f5j_n_axis(ax, d: dict):
-    ax.set_xticks([k * F5J_SLOT + 7.0 for k in range(4)], [f"N = {n:.0e}".replace("e+0", "e") for n in d["n_values"]])
+    ax.set_xticks([k * F5J_SLOT + 7.0 for k in range(4)], [F5J_N_TICK[int(n)] for n in d["n_values"]])
     for k in range(1, 4):
         ax.axvline(k * F5J_SLOT - 0.7, color=S.F5J_COLOURS["separator"], lw=0.4, ls="-", zorder=0).set_gid("group separator")
     ax.set_xlim(-0.7, 4 * F5J_SLOT - 0.1)
@@ -6176,7 +6179,7 @@ def _draw_F5_journal(d: dict):
     ax = _ax_in(fig, 0.78, F5J_ROWS["a"][0], 1.85, F5J_ROWS["a"][1])
     _f5_map(ax, d["map1_class"], d["map1_tau_d_ms"], d["map1_Delta"], title="", xlabel=f"{JTAU} (ms), cell index j", ylabel="Δ, cell index i", margin=2.0, top_margin=8.0, raster_marks=True,
             tick_idx_x=[0, 7, 14, 21, 29], mark_cells=False)      # DL-563 S1 (attempt 2): attempt 1 (a 3 pt mark) fitted the D-tr cell but not the D-none cell (the thin diamond is 4.2 pt tall at 3 pt, the cell is 4.1 pt): no mark, colour and hatching
-    _journal_title(ax, "a", f"map 1, mode D, {F5_T120}\nnetwork vs mean field, cells: FAIL", fail=True)
+    _journal_title(ax, "a", f"map 1, no-noise mean field, {F5_T120}\nnetwork vs mean field, cells: FAIL", fail=True)
     for agree in (True, False):
         m = d["cell_agree"] == agree
         if m.any():
@@ -6191,7 +6194,7 @@ def _draw_F5_journal(d: dict):
 
     # (b) the 4 network cells: rows are the sources, columns the cells (the cell's map indices are in the column label)
     ax = _ax_in(fig, 4.5, F5J_ROWS["b"][0], 1.6, F5J_ROWS["b"][1])
-    rows_ = ("map 1 class (120 s)", "mean-field companion (30 s)", "network seed 0", "network seed 1", "network seed 2", "network against mean field")
+    rows_ = ("map 1 class (120 s)", "matching mean-field run (30 s)", "network seed 0", "network seed 1", "network seed 2", "network against mean field")
     for r in range(4):
         pts = [d["cell_map_class"][r], d["cell_mf30_class"][r], *d["cell_net_class"][r]]
         for c_, cls in enumerate(pts):
@@ -6209,7 +6212,7 @@ def _draw_F5_journal(d: dict):
 
     # (c) and (d): the noisy subgrid, D24 (frozen, FAILED) and P-1 (post hoc), same size and frame, cells at their map-1 indices; the state of a cell is a dark mark (circle, cross, plus)
     # that is 4.4 pt wide, so it can be read (R8); the key shows the same marks
-    for left, key, letter, ttl, bad, post in ((3.35, "d24", "c", "90 percent agreement\nrule: FAILED", True, False), (4.85, "p1", "d", "post-hoc view P-1", False, True)):
+    for left, key, letter, ttl, bad, post in ((3.35, "d24", "c", "90 percent agreement\nrule: FAILED", True, False), (4.85, "p1", "d", "post-hoc re-scoring\nof (c)", False, True)):
         ax = _ax_in(fig, left, F5J_ROWS["cd"][0], 1.3, F5J_ROWS["cd"][1])
         st_ = d[f"{key}_state"]
         z = np.full((30, 30), np.nan)
@@ -6239,7 +6242,7 @@ def _draw_F5_journal(d: dict):
     ax = _ax_in(fig, 0.78, F5J_ROWS["e"][0], 1.85, F5J_ROWS["e"][1])
     _f5_map(ax, d["map2_class"], d["map2_T_ramp_s"], d["map2_J0"], title="", xlabel="T_ramp (s)", ylabel="J0 (J at\npath start)", tick_idx_x=[0, 3, 6, 9, 12], tick_idx_y=[0, 6, 12, 18, 24], raster_marks=True,
             mark_cells=False)                                  # DL-563 S1: the cells are 2.3 pt high, too small for a readable mark: colour and hatching only, the cell classes are in the supplement (source data)
-    _journal_title(ax, "e", "map 2, mode D")
+    _journal_title(ax, "e", "map 2, no-noise mean field")
 
     # class key of the marks of (b) (DL-576, review finding): the same marks and colours as the class key of F5c
     k3 = _ax_in(fig, 3.3, 4.55, 2.85, 0.62)
@@ -6257,7 +6260,7 @@ def _draw_F5_journal(d: dict):
 F5CJ_MARK = {"seed": 4.0, "seed_edge": 0.4, "control": 4.0, "control_edge": 0.8, "median_half_width": 0.45, "bar_offset": 0.2, "bar_marker": "|", "bar_key": 8.0}      # DL-571 T1: every mark is 4.0 pt (the draft journal had 2.5 and 2.2 pt)
 F5CJ_ROWS = {"a": (1.28, 1.1), "b": (2.9, 1.2), "c": (4.7, 1.2), "d": (6.5, 1.2)}      # (top of the axes, height) in inches from the top edge; layout only
 F5CJ_LEFT, F5CJ_WIDTH, F5CJ_HEIGHT = 0.8, 5.3, 8.0                                              # axes left edge and width (in) and figure height (in): 52 slots in 5.3 in, 6.2 pt per slot unit
-F5CJ_B_LINE = "step-halving test not drawn: its runs are not stored"                              # DL-581 U1 (b)
+F5CJ_B_LINE = "step-halving test not drawn: its runs are not recorded"                              # DL-581 U1 (b)
 F5C_PANELS = {"a": "f", "b": "g", "c": "h", "d": "i"}                                           # journal panel of F5c -> panel of the draft F5 (the mapping table of the supplements)
 
 
@@ -6282,8 +6285,8 @@ def _draw_F5c_journal(d: dict):
           Line2D([], [], ls="none", marker=M["bar_marker"], ms=M["bar_key"], color=S.figure_colour("range_line"), mew=S.F5_SIZES["range_line"]),
           Line2D([], [], ls=":", color=S.get("mean_field").colour, lw=S.F5_SIZES["ref_line"]),
           Line2D([], [], ls="--", color=S.figure_colour("range_line"), lw=0.6)]
-    l2 = ["filled: ramp seed (10 per N)", "open: no-ramp control seed (3 per N)", "grey bar and tick: stored minimum to maximum and median of the ramp seeds",
-          "dotted line: mean-field companion value, (b) and (c)", "dashed line: stored minimum duration, (d)"]
+    l2 = ["filled: ramp seed (10 per N)", "open: no-ramp control seed (3 per N)", "grey bar and tick: recorded minimum to maximum and median of the ramp seeds",
+          "dotted line: matching mean-field run, (b) and (c)", "dashed line: recorded minimum duration, (d)"]
     kx2.legend(h2, l2, loc="center left", ncol=1, frameon=False, handletextpad=0.5, labelspacing=0.3).set_in_layout(False)
 
     def panel_axes(letter):
@@ -6303,13 +6306,14 @@ def _draw_F5c_journal(d: dict):
             (mk,) = ax.plot([_f5j_x(k, s, True)], [ycls[str(d["ctrl_class"][k, s])]], ls="none", marker=st.marker, ms=M["control"], mfc="none", mec=st.colour, mew=M["control_edge"], zorder=3)
             mk.set_gid(f"control N{k} s{s}")
     _f5j_n_axis(ax, d)
-    ax.set_xticklabels([f"N = {n:.0e}".replace("e+0", "e") for n in d["n_values"]])
+    ax.set_xticklabels([F5J_N_TICK[int(n)] for n in d["n_values"]])
     ax.set_yticks(range(len(F5_NET_CLASSES)), list(F5_NET_CLASSES))
     ax.set_ylim(len(F5_NET_CLASSES) - 0.4, -0.6)
     _journal_title(ax, "a", "network class of every seed against N")
 
     # (b) f_pk, (c) onset, (d) duration against N (recomputed per-seed points, stored minimum to maximum and median)
-    for letter, (m, lab) in zip("bcd", F5_METRICS):
+    for letter, (m, _lab0) in zip("bcd", F5_METRICS):
+        lab = F5J_LAB[m]
         ax = panel_axes(letter)
         lo_all = np.nanmin([np.nanmin(d[f"s9_{m}"]), d[f"stored_{m}"].min()] + ([np.nanmin(d[f"ctrl_{m}"])] if m in F5_CONTROL_METRICS else []))
         hi_all = np.nanmax([np.nanmax(d[f"s9_{m}"]), d[f"stored_{m}"].max()] + ([np.nanmax(d[f"ctrl_{m}"])] if m in F5_CONTROL_METRICS else []))
@@ -6343,7 +6347,7 @@ def _draw_F5c_journal(d: dict):
             ax.set_yscale("log")
             ax.set_ylim(lo_all / 1.6, hi_all * 2.0)
             ticks = [10.0 ** k for k in range(int(np.ceil(np.log10(lo_all / 1.6))), int(np.floor(np.log10(hi_all * 2.0))) + 1)]
-            ax.set_yticks(ticks, [f"1e{int(round(np.log10(t)))}" for t in ticks])
+            ax.set_yticks(ticks, [f"$10^{{{int(round(np.log10(t)))}}}$ ms" for t in ticks])
             ax.minorticks_off()
         else:
             span = hi_all - lo_all
@@ -6449,8 +6453,8 @@ def make_F5(res=None, out_dir=None, *, tag_build: bool = False, take_home=F5_TAK
         c5 = _f5_jconst(d)
         texts = {"F5": JCAP.f5_caption(d, raw["a11"], crit, cap_rows, strip_rows=list(d["strip"]), ids=claim_limit_ids, not_applicable=F5_NOT_APPLICABLE, c=c5),
                  "F5c": JCAP.f5c_caption(d, raw["a11"], crit, cap_rows, strip_rows=f5c_strip_rows(d), ids=claim_limit_ids, not_applicable=F5_NOT_APPLICABLE, c=c5)}
-        shorts = {"F5": JSH.f5_short(d, raw["a11"], list(d["strip"]), c5, J.caption_limit(cfg, "F5")),
-                  "F5c": JSH.f5c_short(d, raw["a11"], f5c_strip_rows(d), c5, J.caption_limit(cfg, "F5c"))}
+        shorts = {"F5": JSH.f5_short(d, raw["a11"], list(d["strip"]), c5, J.caption_limit(cfg, "F5"), texts["F5"]),
+                  "F5c": JSH.f5c_short(d, raw["a11"], f5c_strip_rows(d), c5, J.caption_limit(cfg, "F5c"), texts["F5c"])}
         results = {}
         for fid, dmode, folder, jmode in (("F5", "journal", out, "journal"), ("F5c", "journal_c", out.parent / "F5c", "journal_c")):
             folder.mkdir(parents=True, exist_ok=True)

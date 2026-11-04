@@ -36,25 +36,17 @@ from mprsurge.plotting import style as S
 PILOT = ("F1", "F3", "F5", "F5c")
 DRAFT_ID = {"F1": "F1", "F3": "F3", "F5": "F5", "F5c": "F5"}              # the figure whose draft files, digest and manifest rows a journal file is checked against
 CHECKS = ("A collisions", "B pdf", "size+shape", "text>=8pt", "fonts", "line width", "cmaps", "non-colour", "letters", "file names", "FAIL lines", "digest", "arrays", "drafts identical",
-          "image text", "image IDs", "minus signs", "red titles", "supplement", "sentence 1", "paragraphs", "caption words", "full caption", "key terms", "short caption", "short limits",
+          "image text", "image IDs", "plain words", "powers of ten", "minus signs", "red titles", "supplement", "sentence 1", "paragraphs", "caption words", "full caption", "key terms", "short caption", "short limits", "definitions", "failed count", "short numbers",
           "margins", "label-title gap", "contrast", "red-green", "greyscale", "cvd", "png+tiff", "no svg/wmf/emf", "file sizes")
 MAIN_FAILURES = {"F1": FG.F1_MAIN_FAILURES, "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES, "F5c": FG.F5C_MAIN_FAILURES}
 STRIP = {"F1": FG.f1_strip_lines, "F3": FG.strip_lines, "F5": FG.f5_strip_lines, "F5c": FG.f5c_strip_lines}
 MIN_MARGIN_IN, MIN_LABEL_GAP_IN = 0.10, 0.05                                # DL-571 T5, T6
 CLAIM_IDS = {"F1": (FG.F1_CLAIM_LIMITS, None), "F3": (FG.F3_CLAIM_LIMITS, None), "F5": (FG.F5_CLAIM_LIMITS, FG.F5_NOT_APPLICABLE), "F5c": (FG.F5_CLAIM_LIMITS, FG.F5_NOT_APPLICABLE)}
-SHORT_MAIN = {"F1": ("does not reproduce the mean-field result", "network-against-mean-field check failed"), "F3": ("frequency check failed",), "F5": ("Mean field only", "90 percent rule failed"),
-              "F5c": ("step-halving check", "do not reproduce the mean field")}               # plain words of the main failure(s) that sentence 1 of the short caption holds (DL-582 U3 a)
+SHORT_MAIN = {"F1": ("does not reproduce it",), "F3": ("frequency check",), "F5": ("holds for the noise-free mean field only",),
+              "F5c": ("step-halving check", "do not reproduce the mean field")}               # plain words of the main failure(s) that sentence 1 of the short caption holds (DL-582 U3 a, DL-593 V6)
 CHECK_TOKEN = {("RB1", "headline_10s"): "network against mean field", ("RB1", "headline_120s"): "network against mean field", ("RB1", "cells_30s"): "network against mean field",
-               ("RB1", "overall"): "network against mean field", ("RB2", "noisy_subgrid_agreement"): "90 percent rule", ("RB2", "headline_class_kept_1.0_sigma"): "main-run class kept",
-               ("RB3", "a_inrange_runs"): "onset prediction", ("RB3", "b_classifier_onset"): "delay under a noise floor", ("RB6", "network_fpk_halving_dt"): "step-halving check",
-               ("RB6", "solver_onset_headline"): "two solvers", ("RB9", "b_spectral_vs_cycle_headline"): "frequency check", ("G7", "gate"): "negative-control check",
-               ("sigma_check", "S8_baseline_std"): "noise-level check"}                      # the plain phrase that names each failed check in a short caption
-SHORT_CHECKS = {"F1": [("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30s"), ("RB1", "overall"), ("G7", "gate"), ("RB6", "network_fpk_halving_dt"), ("RB6", "solver_onset_headline"),
-                       ("RB2", "headline_class_kept_1.0_sigma"), ("sigma_check", "S8_baseline_std"), ("RB3", "a_inrange_runs"), ("RB3", "b_classifier_onset")],
-                "F3": [("RB9", "b_spectral_vs_cycle_headline")],
-                "F5": [("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30s"), ("RB1", "overall"), ("RB2", "noisy_subgrid_agreement"), ("RB2", "headline_class_kept_1.0_sigma"),
-                       ("RB6", "network_fpk_halving_dt"), ("sigma_check", "S8_baseline_std")],
-                "F5c": [("RB6", "network_fpk_halving_dt"), ("sigma_check", "S8_baseline_std")]}
+               ("RB2", "noisy_subgrid_agreement"): "90 percent rule", ("RB6", "network_fpk_halving_dt"): "step-halving check", ("RB9", "b_spectral_vs_cycle_headline"): "frequency check"}
+SHORT_CHECKS = {f: sorted(JSH.SHORT_NAMED[f]) for f in PILOT}      # DL-593 V7: only the failed checks whose result is drawn are named in a short caption
 SCHEMATIC_FACES = {"ramp": S.F1_SCHEMATIC["ramp_face"], "net": S.F1_SCHEMATIC["net_face"], "model": S.F1_SCHEMATIC["box_face"], "mf": S.F1_SCHEMATIC["box_face"], "out": S.F1_SCHEMATIC["box_face"]}
 
 
@@ -149,6 +141,10 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         # image IDs, minus signs, red titles (DL-581 U1, U2; DL-582 U6 a)
         ids_on = JC.image_id_violations(fig)
         res["image IDs"] = ("PASS" if not ids_on else "FAIL", f"{len(ids_on)} image texts with a check, gate, rule or step ID" + (f": {ids_on[0]}" if ids_on else ""))
+        pw = JC.plain_word_violations(fig)
+        res["plain words"] = ("PASS" if not pw else "FAIL", f"{len(pw)} image texts with stored, headline, companion, mode D, f_pk, P-1 or path time" + (f": {pw[0]}" if pw else ""))
+        en = JC.e_notation_violations(fig)
+        res["powers of ten"] = ("PASS" if not en else "FAIL", f"{len(en)} image texts with 1e3, 3e3, 1e4, 3e4 or 1e5 notation" + (f": {en[0]}" if en else ""))
         hy = JC.tick_hyphens(fig)
         res["minus signs"] = ("PASS" if not hy else "FAIL", f"{len(hy)} tick labels with a hyphen-minus instead of U+2212" + (f": {hy[0]}" if hy else ""))
         reds = JC.red_titles(fig)
@@ -200,23 +196,26 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         first_sentence = short[len(fid) + 2:].split(". ")[0]
         miss_main = [m for m in SHORT_MAIN[fid] if m not in first_sentence]
         miss_chk = [CHECK_TOKEN[k] for k in SHORT_CHECKS[fid] if CHECK_TOKEN[k] not in short]
-        strip_keys = [(r["rb_id"], r["check_id"]) for r in srows]
-        not_listed = [k for k in strip_keys if k not in SHORT_CHECKS[fid]]
-        rec_ok = "recorded" not in short or JSH.RECORDED_DEF in short
         ptr_ok = short.endswith(JSH.POINTER.format(fid=fid))
         red_ok = "red title" in short.lower()
+        enot = re.findall(r"(?<![\w.+-])(?:1e3|3e3|1e4|3e4)\b", short + " " + cap)
         n_words = JSH.words(short)
-        okshort = (n_words <= limit and not sbad and not miss_main and not miss_chk and not not_listed and rec_ok and ptr_ok and red_ok and short.startswith(f"{fid}. ") and "\n" not in short)
+        okshort = (n_words <= limit and not sbad and not miss_main and not miss_chk and ptr_ok and red_ok and not enot and short.startswith(f"{fid}. ") and "\n" not in short)
         res["short caption"] = ("PASS" if okshort else "FAIL", f"{n_words} words (limit {limit}); " + (f"forbidden {sbad[:3]}; " if sbad else "") + (f"main failure missing {miss_main}; " if miss_main else "")
-                                + (f"failed checks missing {miss_chk[:3]}; " if miss_chk else "") + (f"strip rows not named {not_listed[:2]}; " if not_listed else "") + ("" if rec_ok else "'recorded' undefined; ")
-                                + ("" if ptr_ok else "pointer sentence missing; ") + ("" if red_ok else "red-title sentence missing; ") + "order, plain words and the pointer to the supplement checked")
-        # short limits: the clauses of the figure, each with numbers that are in the ruled plain sentence and in the full caption
-        want = [JSH.SHORT_LIMITS[i] for i in JSH.SHORT_LIMIT_IDS[fid]]
-        have = [c for c in want if c in short]
-        full_nums = set(re.findall(r"\d+(?:\.\d+)?(?:e\d+)?", cap))
-        bad_nums = [c for c in want if set(re.findall(r"\d+(?:\.\d+)?(?:e\d+)?", c)) - full_nums]
-        res["short limits"] = ("PASS" if len(have) == len(want) and not bad_nums else "FAIL", f"{len(have)} of {len(want)} limit clauses in the short caption; numbers of every clause are in the full caption" if not bad_nums
-                               else f"numbers not in the full caption: {bad_nums[:1]}")
+                                + (f"failed checks missing {miss_chk[:3]}; " if miss_chk else "") + ("" if ptr_ok else "pointer sentence missing; ") + ("" if red_ok else "red-title sentence missing; ")
+                                + (f"e-notation of N in a caption {enot[:2]}; " if enot else "") + "order, plain words and the pointer to the supplement checked")
+        # short limits: the clauses of the figure (a distinctive phrase each), with numbers that are in the full caption
+        lim_miss = JSH.limits_missing(fid, short)
+        res["short limits"] = ("PASS" if not lim_miss else "FAIL", f"{len(JSH.SHORT_LIMIT_IDS[fid]) - len(lim_miss)} of {len(JSH.SHORT_LIMIT_IDS[fid])} limit clauses in the short caption" + (f"; missing {lim_miss}" if lim_miss else ""))
+        # V5: every technical term defined where first used; V7: the count of the other failed checks equals the full caption's; V8: numbers of the short caption are in the full caption
+        und = JSH.undefined_terms(short)
+        res["definitions"] = ("PASS" if not und else "FAIL", f"{len(JSH.DEFS)} terms checked; first use of each term used has its plain definition next to it" + (f"; undefined: {und[:4]}" if und else ""))
+        n_full = JSH.further_count(fid, cap)
+        m_ = re.search(r"(\d+) further failed checks? of the project|No further failed check", short)
+        n_short = (int(m_.group(1)) if m_ and m_.group(1) else 0) if m_ else None
+        res["failed count"] = ("PASS" if n_short == n_full else "FAIL", f"{n_short} further failed checks in the short caption; {n_full} computed from the full caption (failed rows named in the full caption {len(JSH.failed_in_full(cap))}, named in the short {len(JSH.SHORT_NAMED[fid])})")
+        nn = JSH.numbers_not_in_full(short, cap)
+        res["short numbers"] = ("PASS" if not nn else "FAIL", "every number of the short caption is in the full caption" if not nn else f"numbers not in the full caption: {nn[:5]}")
         # margins and label-title gaps (DL-571 T5, T6)
         mv = JC.margin_violations(png, MIN_MARGIN_IN)
         mm = JC.margins_in(png)
