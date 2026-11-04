@@ -255,7 +255,7 @@ def test_v7_the_count_in_each_short_caption_equals_the_count_computed_from_the_f
         short, full = _short(built, f), _full(built, f)
         n = JS.further_count(f, full)
         if n == 0:
-            assert "No further failed check is listed in the full caption of this figure" in short, f
+            assert "No further failed check of the project is listed for this figure" in short, f
         else:
             assert f"{n} further failed checks of the project are not shown in this figure; all are listed in Supplement {f}." in short, f
         # an independent recount of the rows named in the full caption's failed-checks paragraph
