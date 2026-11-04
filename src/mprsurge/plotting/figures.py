@@ -5257,7 +5257,7 @@ def _f1j_schematic(fig, top: float, height: float):
     SC = S.F1_SCHEMATIC
     # boxes in inches (x0, y0, x1, y1) inside the schematic axes: our layout, UNVERIFIED
     wd = W - 0.26
-    boxes = {"ramp": (0.0, 0.0, 1.25, height), "model": (1.33, 0.0, 3.62, height), "mf": (3.78, 0.0, 4.82, 0.8), "net": (3.78, 0.88, 4.82, height), "out": (5.06, 0.0, wd, height)}      # DL-571 T6: a gap of 0.3 in before 'outputs', so the arrowheads clear the box and each other
+    boxes = {"ramp": (0.0, 0.0, 1.25, height), "model": (1.33, 0.0, 3.62, height), "mf": (3.78, 0.0, 4.82, 0.68), "net": (3.78, 0.76, 4.82, height), "out": (5.06, 0.0, wd, height)}      # DL-571 T6: a gap of 0.3 in before 'outputs', so the arrowheads clear the box and each other
     faces = {"ramp": SC["ramp_face"], "net": SC["net_face"]}
     char_w = 0.0505                                           # inches per character of the 8 pt text (an estimate for the wrap; the checker measures the real boxes)
     for key, head, rows in F1J_SCHEMATIC:
@@ -5290,10 +5290,10 @@ def _draw_F1_journal(d: dict):
     seeds = [SimpleNamespace(colour=S.network_seed_colour(i_), linestyle=S.diagram_mark(k).linestyle) for i_, k in enumerate(F1_SEED_KEYS)]
     T_END = float(d["path_t_s"][-1])
     L, R, WD = F1J_COL["left"], F1J_COL["right"], F1J_COL["width"]
-    _f1j_schematic(fig, 0.13, 1.25)
+    _f1j_schematic(fig, 0.13, 1.3)
 
     # key row
-    kx = _ax_in(fig, 0.13, 1.45, 6.04, 0.95)
+    kx = _ax_in(fig, 0.13, 1.5, 6.04, 0.9)
     kx.axis("off")
     kx.set_gid("legend axes")
     sus = S.get(d["cls120"][0])
@@ -5308,7 +5308,7 @@ def _draw_F1_journal(d: dict):
     ls_ = ["mean field (recorded run)", "network seed 0", "network seed 1", "network seed 2", "ramp start and end, (a) and (b)", f"mean-field onset ({d['ref_class']}, {d['ref_onset_s']:.3f}{NB}s)",
            f"network classifier onset ({d['cls120'][0]}, {d['onset120_s'][0]:.1f}{NB}s{'; the 3 seeds coincide' if same_onset else ''})",
            f"network raw first crossing (post hoc; seeds 0, 1, 2 as circle, plus, star;\noverlap at this scale: recorded values {r0:.3f} to {r1:.3f}{NB}s)", "J ramp start and end, (b)",
-           "event marks are in the strip above (d) and (f); height in the strip has no meaning"]
+           "event marks: strips above (d) and (f); height has no meaning"]
     from matplotlib.legend_handler import HandlerTuple
     kx.legend(hs, ls_, loc="upper left", bbox_to_anchor=(0.0, 1.0), borderaxespad=0.0, ncol=2, frameon=False, handlelength=2.0, columnspacing=0.9, labelspacing=0.12, handletextpad=0.5,
               handler_map={tuple: HandlerTuple(ndivide=None)}).set_in_layout(False)
@@ -5375,11 +5375,8 @@ def _draw_F1_journal(d: dict):
             spn.set_edgecolor(S.F5J_COLOURS["separator"])
         _f1_onset_marks(a2, d, network=True, journal=True, strip=sx)
         # DL-592 V2 (a): ONE short plain line (no count, no check name; the count is in the caption); if it is wider than the axes it breaks once at the semicolon
-        line1 = f"network class {d['cls120'][0]}; mean field {d['ref_class']}"
-        tx_ = a2.text(0.985, 0.965, line1, transform=a2.transAxes, ha="right", va="top", fontsize=cfg["text"]["min_pt"], color=red, weight="bold", gid="net line")
-        fig.canvas.draw()
-        if tx_.get_window_extent().width > 0.97 * a2.get_window_extent().width:
-            tx_.set_text(line1.replace("; ", ";\n"))
+        line1 = f"network class {d['cls120'][0]};\nmean field {d['ref_class']}"                          # one plain statement on two lines: on one line it crosses the onset line of the panel
+        a2.text(0.985, 0.965, line1, transform=a2.transAxes, ha="right", va="top", fontsize=cfg["text"]["min_pt"], color=red, weight="bold", linespacing=1.15, gid="net line")
         tp(a2, "df"[row], f"{q}(t), network vs mean field", ylab, left=False, red_=True)               # DL-581 U1, U2: the plain title of the failed check
         a2.set_title(a2.get_title(loc="left"), loc="left", pad=(F1J_STRIP_H + 0.05) * 72.0 + 4.0, color=red)
         a2.tick_params(labelleft=False)
@@ -6136,7 +6133,7 @@ def _f5j_x(k: int, s: int, control: bool) -> float:
     return k * F5J_SLOT + (F5J_CTRL_X0 if control else F5J_RAMP_X0) + s
 
 
-F5J_N_TICK = {1000: r"N = $10^3$", 3000: r"N = $3\times10^3$", 10000: r"N = $10^4$", 30000: r"N = $3\times10^4$"}          # DL-592 V4: powers of ten on the images (mathtext, text only)
+F5J_N_TICK = {1000: r"N = $\mathregular{10^{3}}$", 3000: r"N = $\mathregular{3\times10^{3}}$", 10000: r"N = $\mathregular{10^{4}}$", 30000: r"N = $\mathregular{3\times10^{4}}$"}          # DL-592 V4: powers of ten on the images (mathtext, text only)
 F5J_LAB = {"f_pk_hz": "peak frequency (Hz)", "onset_s": "onset (s)", "duration_ms": "duration (ms)"}          # DL-592 V3: plain axis labels of the journal file (the draft keeps F5_METRICS)
 
 
@@ -6347,7 +6344,7 @@ def _draw_F5c_journal(d: dict):
             ax.set_yscale("log")
             ax.set_ylim(lo_all / 1.6, hi_all * 2.0)
             ticks = [10.0 ** k for k in range(int(np.ceil(np.log10(lo_all / 1.6))), int(np.floor(np.log10(hi_all * 2.0))) + 1)]
-            ax.set_yticks(ticks, [f"$10^{{{int(round(np.log10(t)))}}}$ ms" for t in ticks])
+            ax.set_yticks(ticks, [f"$\\mathregular{{10^{{{int(round(np.log10(t)))}}}}}$ ms" for t in ticks])
             ax.minorticks_off()
         else:
             span = hi_all - lo_all

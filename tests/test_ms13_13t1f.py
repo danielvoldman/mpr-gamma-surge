@@ -95,7 +95,7 @@ def test_v4_no_e_notation_on_the_images_and_powers_of_ten_in_mathtext(figs):
     for f in PILOT:
         assert JK.e_notation_violations(figs[f][0]) == [], f
     t = _texts(figs["F5c"][0])
-    for want in (r"N = $10^3$", r"N = $3\times10^3$", r"N = $10^4$", r"N = $3\times10^4$", r"$10^3$ ms", r"$10^4$ ms", r"$10^5$ ms"):
+    for want in (r"N = $\mathregular{10^{3}}$", r"N = $\mathregular{3\times10^{3}}$", r"N = $\mathregular{10^{4}}$", r"N = $\mathregular{3\times10^{4}}$", r"$\mathregular{10^{3}}$ ms", r"$\mathregular{10^{4}}$ ms", r"$\mathregular{10^{5}}$ ms"):
         assert want in t, want
     assert any("peak frequency" in s for s in t)
 
@@ -151,7 +151,7 @@ def test_v1_f1_strips_hold_only_marks_and_the_key_holds_the_strip_note(figs):
         assert [t for t in ax.texts] == []
         xs = sorted(round(float(l.get_xdata()[0]), 3) for l in ax.lines if len(l.get_xdata()) == 1)
         assert xs == sorted([d["onset120_s"][0], *[round(x, 3) for x in d["raw120_s"]]]) or len(xs) == 4
-    assert any("event marks are in the strip above (d) and (f)" in t for t in _texts(fig))
+    assert any("event marks: strips above (d) and (f); height has no meaning" in t for t in _texts(fig))
     assert not any(t == "event times; height has no meaning" for t in _texts(fig))
 
 
@@ -161,7 +161,7 @@ def test_v5_undefined_terms_flags_a_term_without_its_definition_and_accepts_it_w
     assert "surge" in JS.undefined_terms("A surge happens.")
     assert JS.undefined_terms("A surge (a transient rise of gamma-band power, 25 to 100 Hz) happens.") == []
     assert "control" in JS.undefined_terms("The controls end. " + "x" * 600 + " controls (the same network without the ramp)")
-    assert JS.undefined_terms("controls (the same network without the ramp) end") == []
+    assert JS.undefined_terms("network: N simulated spiking neurons; controls (the same network without the ramp) end") == []
 
 
 @needs
@@ -202,17 +202,17 @@ def test_v6_f5_sentence_one_is_the_ruled_sentence_and_the_agreement_rule_is_stat
     s1 = ("F5. The surge result holds for the noise-free mean field only: the network disagrees with it at 3 of the 4 cells tested, and the noisy mean field agrees with the noise-free map in 97 of 225 cells "
           "(43.1 percent; 203 cells, 90 percent, were needed).")
     assert short.startswith(s1)
-    for want in ("a network cell agrees when all 3 of its seeds are in a surge class (S+, S-rel or S-abs) where the mean field is D-tr", "so cell 1 agrees", "numbered 1 to 4 here and in (b)",
-                 "ramp duration T_ramp 120 s", "T_ramp 30 s while the map is at 120 s; no equivalence is claimed", "a tie is an equal split, counted as a disagreement",
-                 "chosen after the results (post hoc); it feeds no check, and its dashed frame marks it", "Map 2 in J0"):
+    for want in ("a network cell agrees when all 3 seeds are in a surge class (S+: absolute and relative rise, ending; S-rel: relative only; S-abs: absolute only) where the mean field is D-tr", "cell 1 agrees",
+                 "numbered 1 to 4 here and in (b)", "a 30 x 30 grid", "at ramp duration 120 s", "ramp duration 30 s (map: 120 s); no equivalence is claimed", "tie (plus: an equal split, a disagreement by the 90 percent rule",
+                 "chosen after the results (post hoc; no check; dashed frame)", "Map 2: initial coupling J0"):
         assert want in short, want
 
 
 @needs
 def test_v6_f3_states_the_slice_counts_the_grey_circle_and_the_one_arrow(built):
     short = _short(built, "F3")
-    for want in ("(7, 6 and 3 of 9 slices have one, as recorded)", "drawn as straight segments between recorded points", "the grey open circle is the start of the paths (eta_bar 1.396)",
-                 "the dark ring the Hopf point of the main example at tau_d 5 ms", "are drawn as one arrow because their eta_bar, Delta and tau_d are equal", "P4a and P4b", "analysis record listed in the supplement"):
+    for want in ("(7, 6 and 3 of 9 slices have one, as recorded)", "straight segments between recorded points", "the grey open circle is the start of the paths (eta_bar 1.396)",
+                 "the dark ring the Hopf point of the main example at tau_d 5 ms", "drawn as one arrow because their eta_bar, Delta and tau_d are equal", "P4a, P4b", "analysis record listed in the supplement"):
         assert want in short, want
     assert "30" not in re.sub(r"\b30,000\b", "", short) and "100 points" not in short and "project log" not in short
     assert "30 points" in _full(built, "F3") and "100 stored points" in _full(built, "F3")
@@ -221,8 +221,8 @@ def test_v6_f3_states_the_slice_counts_the_grey_circle_and_the_one_arrow(built):
 @needs
 def test_v6_f1_states_the_ruled_facts(built):
     short = _short(built, "F1")
-    for want in ("By eye the network envelopes in (d) and (f) look similar to the mean-field ones in (c) and (e)", "no claim is made about the visual shape, either way", "which nearly coincide at this scale",
-                 "on the same y axes as (c) and (e)", "the dashed horizontal lines are 25 and 100 Hz, the gamma band", "the orange frames are the two windows drawn as spikes in (j) and (k)",
+    for want in ("By eye the network envelopes in (d) and (f) look similar to the mean-field ones in (c) and (e)", "no claim is made about the visual shape, either way", "(nearly coincident)",
+                 "same y axes as (c), (e)", "dashed lines: 25 and 100 Hz, the gamma band", "orange frames: the windows of (j), (k)",
                  "coupling J (negative = inhibitory)", "peaks at 49.0 Hz (not drawn)", "all 3 random seeds"):
         assert want in short, want
 
@@ -230,8 +230,8 @@ def test_v6_f1_states_the_ruled_facts(built):
 @needs
 def test_v6_f5c_short_has_the_dotted_and_dashed_line_wording(built):
     short = _short(built, "F5c")
-    assert "the dotted line in (b) and (c) is the matching mean-field run" in short
-    assert "the dashed line in (d) is the smallest duration the classifier can give (one window, 1000 ms)" in short
+    assert "dotted line in (b), (c): the matching mean-field run" in short
+    assert "dashed line in (d): the smallest duration the classifier can give (one window, 1000 ms)" in short
     assert "come from other network runs, not the controls drawn here" in short
 
 
