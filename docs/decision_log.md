@@ -6507,3 +6507,13 @@ Chosen:          as done   Default from: the prompt
 Test:            tests/test_ms13_13t1g.py; scripts/ms13_verify_export.py
 Status:          committed before running
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-607  MS13 13t-1g: STOP at the word limits of F1 and F5 (W1: do not drop a limit; report the counts)    [ID: MS13, 13t, 13t-1g, W1, W2]
+Date:            2026-11-05        Author:
+Decision:        FACT and STOP. Builders of W1 to W4 are committed (99dc721). A scratch trial (text and images, written only below the session scratchpad; the build limit lifted in the scratch script only, nothing in the project changed) gave these SHORT caption word counts against the ruled limits (UNVERIFIED, DL-603): F1 476 against 460 (16 over); F3 363 against 400 (fits); F5 478 against 460 (18 over); F5c 428 against 460 (fits). F1 and F5 do not fit, so make_F1 and make_F5 stop with JShortError (as ruled: the build stops, no limit is dropped, nothing is dropped from the full caption). NOTHING WAS CUT TO FIT. Not done because of the stop: the one build, the verifier run on a build, the independent comparison on new texts, the subagent review, the end-of-step fast suite, the update of the older tests whose expected text follows (step 4). Candidates for the reviewer (none applied): (a) raise the limits of F1 and F5 to 480 (UNVERIFIED config values); or (b) tighten non-limit prose: F1 the 'By eye ...' sentence (about 10 words), 'starting at 5 s' and 'the mean-field model' in the Parameters sentence (about 6); F5 '(shorter ramps use a shorter window)', the 'matching run' sentence and the take-home definitions that the Parameters sentence repeats (about 18). Trial images looked at in full: F5c and F3 (plain ticks 1000, 3000, 10,000, 30,000 and 1,000, 10,000, 100,000 with the unit in the axis label; no superscript; F3 legend 'Hopf point of a slice', '25 Hz crossing of a slice', 'Hopf curve (panel c ...)', 'Hopf point of the main example'); F1 and F5 images and all 16 quadrant crops were NOT yet looked at.
+Reason:          the ruling W1 of the 13t-1g prompt: if a short caption does not fit, stop and report the counts
+Options:         (a) raise the limits; (b) tighten non-limit prose; (c) drop a limit (not allowed)
+Chosen:          stop and report   Default from: the prompt
+Test:            scratch trial; mprsurge.plotting.jshort.finish
+Status:          stopped; waiting for the reviewer's ruling on F1 and F5
+Commit/tag:      the commit that adds this entry; no tag
