@@ -750,13 +750,13 @@ def _draw_F3_journal(d: dict):
     cbm = S.F3_COMBINED
     hh, ll = [], []
     hh.append(Line2D([], [], ls="none", marker=mf.marker, ms=F3J_HOPF_SIZE, color=mf.colour))
-    ll.append(_jwrap("Hopf point of a frequency-map slice", 18))
+    ll.append(_jwrap("Hopf point of a slice", 18))                                       # DL-604 W4(d): plain words ('frequency-map slice' removed)
     hh.append(Line2D([], [], ls="none", marker=m25.marker, ms=F3J_BAR_SIZE, mew=m25.width, color=m25.colour, mec=S.HALO_COLOUR))
-    ll.append(_jwrap("25 Hz crossing of a frequency-map slice", 18))
+    ll.append(_jwrap("25 Hz crossing of a slice", 18))
     hh.append(Line2D([], [], ls=mf.linestyle, color=mf.colour, lw=1.0))
-    ll.append(_jwrap(f"Hopf curve, continuation record (panel c: Δ{NB}{d['a4_curve_Delta']:g}, J{NB}{d['a4_curve_J']:g}; panel d: J{NB}{d['a4_curve_J']:g}, {JTAU}{NB}{d['a4_curve_tau_d_ms']:g}{NB}ms)", 18))
+    ll.append(_jwrap(f"Hopf curve (panel c: Δ{NB}{d['a4_curve_Delta']:g}, J{NB}{d['a4_curve_J']:g}; panel d: J{NB}{d['a4_curve_J']:g}, {JTAU}{NB}{d['a4_curve_tau_d_ms']:g}{NB}ms)", 18))
     hh.append(Line2D([], [], ls="none", marker=F3J_A6_MARKER, ms=F3J_A6_RING, mew=1.0, mfc="none", mec=hp.colour))
-    ll.append(_jwrap(f"Frequency-map Hopf point (Δ{NB}{d['headline_Delta']:g}, {JTAU}{NB}{d['headline_tau_d_ms']:g}{NB}ms)", 16))
+    ll.append(_jwrap(f"Hopf point of the main example (Δ{NB}{d['headline_Delta']:g}, {JTAU}{NB}{d['headline_tau_d_ms']:g}{NB}ms)", 16))
     grp = _f3_combined_group(d)
     hh.append(Line2D([], [], ls="-", marker=cbm["marker"], mfc=S.HALO_COLOUR, mec=cbm["colour"], color=cbm["colour"], lw=F3J_COMBINED_LW, ms=cbm["size"]))
     ll.append(_jwrap(f"{', '.join(grp)}: identical in {JETA}, Δ, {JTAU} (recorded)", 18))
@@ -1108,6 +1108,8 @@ def _jsections(fid: str, a11: list, panels: str = "") -> tuple:
     out = [("Mapping of the draft panels to the journal panels (DL-571 T1)", mapping)]
     if fid in ("F1", "F5", "F5c"):
         out.append(("Stored FAIL rows named in the caption but not in the status strip (DL-571 T2)", JCAP.supplement_rows(a11)))
+    if fid == "F3":
+        out.append(("All FAIL rows of the stored A11 table (DL-604 W4(e))", JCAP.all_fail_rows(a11)))
     out.append(("Stored names behind the plain words of the caption (DL-571 T8)", CODE_NAMES_MD))
     return tuple(out)
 
@@ -1358,7 +1360,7 @@ def make_F3(res=None, out_dir=None, *, tag_build: bool = False, take_home=F3_TAK
         jtext = JCAP.f3_caption(d, [], crit3, [r for r in rows if r["key"] in CAPTION_KEYS], strip_rows=list(d["strip"]), ids=claim_limit_ids, c=_f3_jconst(d))
         cap = dataclasses.replace(cap, text=jtext)
         short_text = JSH.f3_short(d, [], list(d["strip"]), _f3_jconst(d), J.caption_limit(J.load_config(root), "F3"), jtext)
-        sections = _jsections("F3", [])
+        sections = _jsections("F3", raw["a11"])
     import matplotlib.pyplot as plt
     out.mkdir(parents=True, exist_ok=True)
     stem = "F3_journal" if journal else "F3"
@@ -6133,8 +6135,7 @@ def _f5j_x(k: int, s: int, control: bool) -> float:
     return k * F5J_SLOT + (F5J_CTRL_X0 if control else F5J_RAMP_X0) + s
 
 
-SUPERSCRIPT = {3: "\u00b3", 4: "\u2074", 5: "\u2075"}
-F5J_N_TICK = {1000: "N = 10³", 3000: "N = 3×10³", 10000: "N = 10⁴", 30000: "N = 3×10⁴"}          # DL-592 V4, DL-597: powers of ten as Unicode superscripts at 8 pt (mathtext superscripts are drawn at 5.6 pt, below the 8 pt rule)
+F5J_N_TICK = {1000: "N = 1000", 3000: "N = 3000", 10000: "N = 10,000", 30000: "N = 30,000"}          # DL-604 W3 (replaces DL-592 V4 and DL-597): plain numbers, no superscript glyph (a superscript can fall back to another font and is tiny; mathtext is below 8 pt)
 F5J_LAB = {"f_pk_hz": "peak frequency (Hz)", "onset_s": "onset (s)", "duration_ms": "duration (ms)"}          # DL-592 V3: plain axis labels of the journal file (the draft keeps F5_METRICS)
 
 
@@ -6345,7 +6346,7 @@ def _draw_F5c_journal(d: dict):
             ax.set_yscale("log")
             ax.set_ylim(lo_all / 1.6, hi_all * 2.0)
             ticks = [10.0 ** k for k in range(int(np.ceil(np.log10(lo_all / 1.6))), int(np.floor(np.log10(hi_all * 2.0))) + 1)]
-            ax.set_yticks(ticks, [f"10{SUPERSCRIPT[int(round(np.log10(t)))]} ms" for t in ticks])
+            ax.set_yticks(ticks, [f"{int(round(t)):,}" for t in ticks])                    # DL-604 W3: 1,000 / 10,000 / 100,000; the unit ms is in the axis label 'duration (ms)'
             ax.minorticks_off()
         else:
             span = hi_all - lo_all

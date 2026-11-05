@@ -112,6 +112,20 @@ def rb3a_value(a11: list) -> str:
     return f"{m.group(1)} of {m.group(2)}"
 
 
+def all_fail_rows(a11: list) -> str:
+    """DL-604 W4(e): Markdown table of EVERY row of the stored A11 table with the status FAIL (verbatim: step IDs and ruling codes included; read-only), for the F3 supplement, which the F3 short caption names as the place
+    of the project's other failed checks. Rows with another status (NOT EVALUABLE) are not failed checks and are not listed here."""
+    out = ["| row (rb_id check_id) | status | logged verdict | value | threshold | stored note | decision-log source |", "|---|---|---|---|---|---|---|"]
+    n = 0
+    for r in a11:
+        if r["pass_or_fail"] == "FAIL":
+            n += 1
+            out.append(f"| {r['rb_id']} {r['check_id']} | {r['pass_or_fail']} | {r['logged_verdict']} | {r['value'] or 'blank'} | {r['threshold'] or 'blank'} | {r['note']} | {r['source']} |".replace("\n", " "))
+    out += ["", f"{n} FAIL rows in the stored A11 table (results/A11/a11_robustness.csv), all are checks of the project, not recomputed. Only the frequency check (RB9(b)) is about this figure; "
+            "its stored value is blank, and the values 49.0 Hz, 44.609 Hz and 4.391 Hz come from the decision log (DL-388)."]
+    return "\n".join(out)
+
+
 def supplement_rows(a11: list) -> str:
     """Markdown for the supplement sheet (DL-571 T2): the two stored FAIL rows that the status strips do not list, verbatim from the stored A11 table (step IDs and ruling codes included)."""
     out = ["| row (rb_id check_id) | status | logged verdict | value | threshold | stored note | decision-log source |", "|---|---|---|---|---|---|---|"]

@@ -160,7 +160,7 @@ def limit_clauses(fid: str, extra: dict | None = None) -> str:
     return "Limits: " + "; ".join(out) + "."
 
 
-def finish(fid: str, parts: list, max_words: int) -> str:
+def finish(fid: str, parts: list, max_words: int, full: str | None = None) -> str:
     text = " ".join(p.strip() for p in parts if p).replace("  ", " ")
     text = JC.plain_n(f"{fid}. {text}")
     bad = sorted({m.group(0) for m in JC.FORBIDDEN.finditer(text)} | {m.group(0) for m in ID_PATTERN.finditer(text)} | set(re.findall(r"\bstored\b", text)))
@@ -170,6 +170,10 @@ def finish(fid: str, parts: list, max_words: int) -> str:
         raise JShortError(f"{fid}: 'recorded' is used and not defined")
     if words(text) > max_words:
         raise JShortError(f"{fid}: the short caption has {words(text)} words, the limit is {max_words}")
+    if full is not None:                                              # DL-603 W2: every number of the Parameters sentence is a number of the full caption's Parameters or settings paragraph
+        miss = parameters_numbers_missing(text, full)
+        if miss:
+            raise JShortError(f"{fid}: numbers of the Parameters sentence that the full caption's Parameters or settings paragraphs do not hold: {miss}")
     return text
 
 
@@ -210,12 +214,16 @@ def f1_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
         f"{d['cls120'][0]} (no end), and no claim is made about the visual shape, either way.",
         "(a), (b) Mean excitability and coupling J (negative = inhibitory). (c), (e) Rate r and mean potential v of the mean field. "
         "(d), (f) The 3 network seeds (nearly coincident), same y axes as (c), (e); strip above: triangle = classifier onset, circle, plus, star = first crossing of its detection threshold, seeds 0, 1, 2. "
-        "(g), (h) Spectrograms (power against time and frequency) of v; dashed lines: 25 and 100 Hz, the gamma band. (i) Spike counts of seed 0; orange frames: the windows of (j), (k).",
+        "(g), (h) Spectrograms (power against time and frequency) of v; dashed lines: 25 and 100 Hz, the gamma band. "
+        "(i) Spike counts of seed 0; an orange solid line and an orange dashed line mark the two windows shown in (j) and (k) (orange frames).",
+        # DL-603 W2: values copied from the Parameters and settings paragraphs of the full caption (numbers_missing is checked in finish); t_on is read as the ramp start (reviewer's wording, UNVERIFIED)
+        "Parameters: model M3 (the mean-field model) with J = -21, heterogeneity Delta = 0.3, synaptic decay time tau_d = 5 ms and membrane time constant 10 ms; ramp duration 120 s, starting at 5 s; "
+        "network N = 10,000; classifier window 2 s, step 1 s, gamma band 25 to 100 Hz; noise level sigma = 0.0624 (checked, not confirmed; its check failed).",
         f"Failed check (red titles): network against mean field (same class required): {seeds}, and {v['cells_30s']} map cells (one parameter pair of a grid of mean-field runs) agree.",
         further_sentence("F1", full),
         limit_clauses("F1", {"G4-C3": "no-ramp network controls (the same network without the ramp) are classified into surge classes",
                              "MS9(e)-1": "network surge classes at N = 1e4 are not evidence of a ramp-driven surge (control flagged in 10 of 10 seeds, ramp runs 10 of 10; other network runs, not drawn)"}),
-        _pointer("F1")], max_words)
+        _pointer("F1")], max_words, full)
 
 
 def f3_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full: str) -> str:
@@ -233,14 +241,17 @@ def f3_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
         f"(eta_bar {d['P1_eta_start']:.3f}), the dark ring the Hopf point of the main example at tau_d {d['headline_tau_d_ms']:g} ms.",
         "(d) Hopf curve against eta_bar and Delta (log axis), with the paths P1 (eta_bar ramped only), P2 (hypoxia-like: eta_bar raised, coupling J ramped to 0 after a delay), "
         "P3 (P2 plus a common drive) and P5 (up, then back), drawn as one arrow because their eta_bar, Delta and tau_d are equal; P4a, P4b (P2 with Delta multiplied by 1.5 or 2/3) are separate. (e) One row per path.",
+        # DL-603 W2: values copied from the Parameters paragraph of the full caption; the M3 gloss moved here from the limit clause (first use); no classifier or spectrogram is used (settings paragraph)
+        "Parameters: model M3 (the mean-field model with rate, mean potential and a synaptic variable) with membrane time constant 10 ms and J = -21; Delta = 0.05, 0.1 and 0.3; "
+        "tau_d = 1 to 50 ms (9 values); no classifier or spectrogram is used.",
         further_sentence("F3", full),
         limit_clauses("F3", {"MS11-C3": "the two frequencies differ by 4.39 Hz at the main example, and peak frequencies are spectral peaks",
-                             "MS12-C1": "the gamma-band result is stated for model M3 only (the mean-field model with rate, mean potential and a synaptic variable)"}),
-        _pointer("F3")], max_words)
+                             "MS12-C1": "the gamma-band result is stated for model M3 only"}),
+        _pointer("F3")], max_words, full)
 
 
 F5_AGREE_RULE = ("a network cell agrees when all 3 seeds are in a surge class (S+: absolute and relative rise, ending; S-rel: relative only; S-abs: absolute only) where the mean field is D-tr, "
-                 "or in NS (no rise) where it is D-none (our reading, not verified)")
+                 "or in NS (no rise) where it is D-none (our reading, not verified); S-sus (a rise that does not end) is not a surge class")          # DL-604 W4(b): S-sus is on the image and is defined here
 
 
 def f5_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full: str) -> str:
@@ -253,13 +264,18 @@ def f5_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
         "(a) Map 1: class of each map cell (one parameter pair of a 30 x 30 grid of mean-field runs in heterogeneity and synaptic decay time) at ramp duration 120 s: D-tr (an episode that ends) or D-none (none); "
         "the 4 network cells are numbered 1 to 4 here and in (b). "
         f"(b) Map class, matching mean-field run and network seed classes; {F5_AGREE_RULE}; cell 1 agrees. Network cells and matching run: ramp duration 30 s (map: 120 s); no equivalence is claimed. "
-        "(c) Noisy subgrid (map cells re-run with noise, 10 seeds each): agree (circle), disagree (cross) or tie (plus: an equal split, a disagreement by the 90 percent rule, "
-        "at least 90 percent of the cells must agree). "
+        # DL-604 W4(c): the tie clause in the words of the full caption ('majority class of 10 seeds', 'ties count as disagreements by the rule'); the plan has no sentence on ties, so 'no single majority class' is UNVERIFIED wording
+        "(c) Noisy subgrid (map cells re-run with noise, 10 seeds each): agree (circle), disagree (cross) or tie (plus: the 10 seeds have no single majority class, for example an equal split); "
+        "a tie counts as a disagreement under the 90 percent rule (at least 90 percent of the cells must agree). "
         "(d) The same cells re-scored by a rule chosen after the results (post hoc; no check; dashed frame). (e) Map 2: initial coupling J0 and ramp duration.",
+        # DL-603 W2: values copied from the Parameters and settings paragraphs of the full caption (the classifier window depends on the ramp duration: 2 s and 1 s from 60 s up)
+        "Parameters: model M3 (the mean-field model) with membrane time constant 10 ms and coupling J = -21; map 1: heterogeneity Delta 0.01 to 0.6 (30 values), synaptic decay time tau_d 1 to 50 ms (30 values), ramp duration 120 s; "
+        "map 2: J0 -40 to -5 (25 values), 13 ramp durations, Delta 0.3, tau_d 5 ms; network cells: ramp duration 30 s; "
+        "classifier window 2 s, step 1 s for ramp durations of 60 s or more (shorter ramps use a shorter window), gamma band 25 to 100 Hz; noise level sigma = 0.0624 (its check failed).",
         "Failed checks (red titles): network against mean field at the 4 cells (same class required) and the 90 percent rule.",
         further_sentence("F5", full),
-        limit_clauses("F5"),
-        _pointer("F5")], max_words)
+        limit_clauses("F5", {"G4-C3": "no-ramp network controls (the same network without the ramp) are classified into surge classes"}),
+        _pointer("F5")], max_words, full)
 
 
 def f5c_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full: str) -> str:
@@ -273,15 +289,18 @@ def f5c_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, ful
         "Network: N simulated spiking neurons; mean field: the model's equations for the average activity of the population. "
         "Surge classes (a surge is a transient rise of gamma-band power, 25 to 100 Hz) are S+ (absolute and relative rise, ending), S-rel (relative rise only) and S-abs (absolute rise only); "
         "S-sus (a rise that does not end) is not.",
-        f"(a) Class of every seed against N: ramp seeds (a simulated network run with the ramp, one per random seed; filled, 10 per N) and controls (the same network without the ramp; open, 3 per N). "
+        f"(a) Class of every seed against N (N = {labs}): ramp seeds (a simulated network run with the ramp, one per random seed; filled, 10 per N) and controls (the same network without the ramp; open, 3 per N). "
         f"Controls in a surge class: {JC._and_list([str(x) for x in cn['ctrl']])} of 3; controls in S-sus: {JC._and_list([str(x) for x in sus])} of 3. "
         "(b) Peak frequency, (c) onset (when the classifier, a rule fixed before the analysis, first flags the gamma rise) and (d) duration (how long it flags it; log axis); "
         "grey bar and tick: range and median of the ramp seeds; dotted line in (b), (c): the matching mean-field run; dashed line in (d): the smallest duration the classifier can give (one window, 1e3 ms). "
         "Failed check (red title of (b)): the step-halving check.",
+        # DL-603 W2: values copied from the Parameters and settings paragraphs of the full caption
+        f"Parameters: model M3 (the mean-field model) with membrane time constant 10 ms, coupling J = -21, heterogeneity Delta = 0.3 and synaptic decay time tau_d = 5 ms; ramp duration 60 s; "
+        f"network size N = {labs}; classifier window 2 s, step 1 s, gamma band 25 to 100 Hz; noise level sigma = 0.0624 (checked, not confirmed; its check failed).",
         further_sentence("F5c", full),
         limit_clauses("F5c", {"MS9(e)-1": f"network surge classes at N = 1e4 are not evidence of a ramp-driven surge (the counts 'control flagged in 10 of 10 seeds, ramp runs 10 of 10' come from other network runs, not the controls drawn here; "
                                                        f"{ns_txt} at N = 1e4 is NS (no rise), so the drawn ramp seeds are not 10 of 10 in a surge class)"}),
-        _pointer("F5c")], max_words)
+        _pointer("F5c")], max_words, full)
 
 
 # ---- checks shared by scripts/ms13_verify_export.py and the tests (DL-593 V5 to V8) --------------------------------------------------------------------------------------------------------------
