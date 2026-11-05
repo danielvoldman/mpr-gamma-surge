@@ -1234,116 +1234,116 @@
   {
    "id": "V1-F1-event-strips-look",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: look at the recorded strips; table mark / expected time / drawn x / visible; legend text moves out of the strip into the key above (a); digest equal"
+   "status": "passing",
+   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: look at the recorded strips; table mark / expected time / drawn x / visible; legend text moves out of the strip into the key above (a); digest equal | marks present and visible (table in DL-595); legend text moved into the key; digest equal | verified on the recorded build from e4780c3 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1f.py; crops looked at; DL-599)"
   },
   {
    "id": "V2a-F1-one-plain-line-in-d-f",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: one plain line 'network class S-sus; mean field D-tr' in (d) and (f); the count moves to the caption"
+   "status": "passing",
+   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: one plain line 'network class S-sus; mean field D-tr' in (d) and (f); the count moves to the caption | verified on the recorded build from e4780c3 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1f.py; crops looked at; DL-599)"
   },
   {
    "id": "V2b-F1-schematic-short-labels",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: six boxes and arrows kept; at most three short label lines per box from existing words; N -> infinity and I: common drive dropped"
+   "status": "passing",
+   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: six boxes and arrows kept; at most three short label lines per box from existing words; N -> infinity and I: common drive dropped | verified on the recorded build from e4780c3 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1f.py; crops looked at; DL-599)"
   },
   {
    "id": "V2c-F1-time-label",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: x label 'time (s)' on all F1 panels"
+   "status": "passing",
+   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: x label 'time (s)' on all F1 panels | verified on the recorded build from e4780c3 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1f.py; crops looked at; DL-599)"
   },
   {
    "id": "V3-plain-words-all-images",
    "figure": "all",
-   "status": "failing",
-   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: no image text with stored, headline, companion, 'mode D', f_pk, 'P-1', 'path time'; test"
+   "status": "passing",
+   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: no image text with stored, headline, companion, 'mode D', f_pk, 'P-1', 'path time'; test | verified on the recorded build from e4780c3 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1f.py; crops looked at; DL-599)"
   },
   {
    "id": "V4-powers-of-ten-images",
    "figure": "all",
-   "status": "failing",
-   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: N ticks and 1e3 etc. as 10^3, 3x10^3, 10^4, 3x10^4; F5c (d) log ticks 10^3 ms, 10^4 ms, 10^5 ms"
+   "status": "passing",
+   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: N ticks and 1e3 etc. as 10^3, 3x10^3, 10^4, 3x10^4; F5c (d) log ticks 10^3 ms, 10^4 ms, 10^5 ms | verified on the recorded build from e4780c3 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1f.py; crops looked at; DL-599)"
   },
   {
    "id": "V4-captions-plain-numbers",
    "figure": "all",
-   "status": "failing",
-   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: short and full captions write 1000, 3000, 10,000, 30,000; independent comparison finds the same numbers"
+   "status": "passing",
+   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: short and full captions write 1000, 3000, 10,000, 30,000; independent comparison finds the same numbers | verified on the recorded build from e4780c3 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1f.py; crops looked at; DL-599)"
   },
   {
    "id": "V5-F1-short-definitions",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: every technical term defined in the short caption where first used"
+   "status": "passing",
+   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: every technical term defined in the short caption where first used | verified on the recorded build from e4780c3 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1f.py; crops looked at; DL-599)"
   },
   {
    "id": "V5-F3-short-definitions",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: every technical term defined in the short caption where first used"
+   "status": "passing",
+   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: every technical term defined in the short caption where first used | verified on the recorded build from e4780c3 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1f.py; crops looked at; DL-599)"
   },
   {
    "id": "V5-F5-short-definitions",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: every technical term defined in the short caption where first used"
+   "status": "passing",
+   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: every technical term defined in the short caption where first used | verified on the recorded build from e4780c3 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1f.py; crops looked at; DL-599)"
   },
   {
    "id": "V5-F5c-short-definitions",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: every technical term defined in the short caption where first used"
+   "status": "passing",
+   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: every technical term defined in the short caption where first used | verified on the recorded build from e4780c3 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1f.py; crops looked at; DL-599)"
   },
   {
    "id": "V6-F1-short-fixes",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: similar by eye; check concerns the class; seeds nearly coincide; same y axes; 25 and 100 Hz lines; orange frames; units of J; 49.0 Hz not drawn"
+   "status": "passing",
+   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: similar by eye; check concerns the class; seeds nearly coincide; same y axes; 25 and 100 Hz lines; orange frames; units of J; 49.0 Hz not drawn | verified on the recorded build from e4780c3 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1f.py; crops looked at; DL-599)"
   },
   {
    "id": "V6-F3-short-fixes",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: no point counts; 25 Hz bar absent where never crossed (7, 6, 3 of 9); grey circle and dark ring; one arrow for P1, P2, P3, P5; analysis record listed in the supplement"
+   "status": "passing",
+   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: no point counts; 25 Hz bar absent where never crossed (7, 6, 3 of 9); grey circle and dark ring; one arrow for P1, P2, P3, P5; analysis record listed in the supplement | verified on the recorded build from e4780c3 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1f.py; crops looked at; DL-599)"
   },
   {
    "id": "V6-F5-short-fixes",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: sentence 1 ruled; agreement rule in plain words; cells numbered; map sizes; T_ramp 30 versus 120 s; tie; post hoc (d) and dashed frame"
+   "status": "passing",
+   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: sentence 1 ruled; agreement rule in plain words; cells numbered; map sizes; T_ramp 30 versus 120 s; tie; post hoc (d) and dashed frame | verified on the recorded build from e4780c3 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1f.py; crops looked at; DL-599)"
   },
   {
    "id": "V6-F5c-short-fixes",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: surge class defined; controls in surge class 0, 2, 1, 1 and in S-sus 0, 0, 2, 2 of 3 checked against the arrays; scope of the 10 of 10 limit; one NS ramp seed at 10,000; dotted and dashed lines"
+   "status": "passing",
+   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: surge class defined; controls in surge class 0, 2, 1, 1 and in S-sus 0, 0, 2, 2 of 3 checked against the arrays; scope of the 10 of 10 limit; one NS ramp seed at 10,000; dotted and dashed lines | verified on the recorded build from e4780c3 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1f.py; crops looked at; DL-599)"
   },
   {
    "id": "V7-short-failed-checks-and-count",
    "figure": "all",
-   "status": "failing",
-   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: only drawn failed checks, each plain; 'N further failed checks ... Supplement <ID>' with N equal to the full-caption count (test)"
+   "status": "passing",
+   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: only drawn failed checks, each plain; 'N further failed checks ... Supplement <ID>' with N equal to the full-caption count (test) | verified on the recorded build from e4780c3 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1f.py; crops looked at; DL-599)"
   },
   {
    "id": "V8-short-word-limits",
    "figure": "all",
-   "status": "failing",
-   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: F1 400, F3 330, F5 330, F5c 330 words (UNVERIFIED, config); numbers equal to the full caption (test)"
+   "status": "passing",
+   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: F1 400, F3 330, F5 330, F5c 330 words (UNVERIFIED, config); numbers equal to the full caption (test) | verified on the recorded build from e4780c3 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1f.py; crops looked at; DL-599)"
   },
   {
    "id": "V9-accepted-unchanged",
    "figure": "all",
-   "status": "failing",
-   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: logged in DL-594; item 44 stays for the user"
+   "status": "passing",
+   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: logged in DL-594; item 44 stays for the user | logged in DL-594; item 44 unchanged"
   },
   {
    "id": "13t-1f-subagent-review-new",
    "figure": "all",
-   "status": "failing",
-   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: a NEW fresh subagent reads each SHORT caption alone with the image; findings written unedited to docs/ms13_13t1f_review.md and triaged; no rebuild"
+   "status": "passing",
+   "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: a NEW fresh subagent reads each SHORT caption alone with the image; findings written unedited to docs/ms13_13t1f_review.md and triaged; no rebuild | review done and triaged (DL-600, docs/ms13_13t1f_review.md); findings open for the reviewer, no rebuild"
   }
  ]
 }
