@@ -720,7 +720,7 @@ def test_s4_the_journal_caption_has_no_ruling_code_and_no_dl_number_and_every_li
     assert not PL.FORBIDDEN.search(cap), PL.FORBIDDEN.findall(cap)
     ids = {"F1": FG.F1_CLAIM_LIMITS, "F3": FG.F3_CLAIM_LIMITS, "F5": FG.F5_CLAIM_LIMITS, "F5c": FG.F5_CLAIM_LIMITS}[fid]
     for i in ids:
-        assert JC.plain_n(PL.PLAIN_LIMITS[i].rstrip(".")) in cap, i            # DL-592 V4: 10,000 for 1e4
+        assert JCAP.plain_n(PL.PLAIN_LIMITS[i].rstrip(".")) in cap, i            # DL-592 V4: 10,000 for 1e4
     sup = (built["base"] / "journal" / "supplement" / f"{fid}_supplement.md").read_text(encoding="utf-8")
     for i in ids:
         short, dls = CLAIM_LIMIT_LABELS[i]

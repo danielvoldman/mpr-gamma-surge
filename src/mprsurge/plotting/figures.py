@@ -6177,7 +6177,7 @@ def _draw_F5_journal(d: dict):
     ax = _ax_in(fig, 0.78, F5J_ROWS["a"][0], 1.85, F5J_ROWS["a"][1])
     _f5_map(ax, d["map1_class"], d["map1_tau_d_ms"], d["map1_Delta"], title="", xlabel=f"{JTAU} (ms), cell index j", ylabel="Δ, cell index i", margin=2.0, top_margin=8.0, raster_marks=True,
             tick_idx_x=[0, 7, 14, 21, 29], mark_cells=False)      # DL-563 S1 (attempt 2): attempt 1 (a 3 pt mark) fitted the D-tr cell but not the D-none cell (the thin diamond is 4.2 pt tall at 3 pt, the cell is 4.1 pt): no mark, colour and hatching
-    _journal_title(ax, "a", f"map 1, no-noise mean field,\n{F5_T120}; network vs\nmean field, cells: FAIL", fail=True)
+    _journal_title(ax, "a", "map 1, no-noise mean field,\nnetwork vs mean field, cells: FAIL", fail=True)
     for agree in (True, False):
         m = d["cell_agree"] == agree
         if m.any():

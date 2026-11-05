@@ -6407,3 +6407,13 @@ Chosen:          as done   Default from: the prompt
 Test:            the four test files re-run after this entry
 Status:          edits made, re-run pending
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-598  MS13 13t-1f: second run of the four test files, F5 (a) title shortened (attempt 2 of that overlap), verifier label text    [ID: MS13, 13t, 13t-1f, V3, V4]
+Date:            2026-11-04        Author:
+Decision:        FACT and CHANGE. After DL-597 the four test files had 8 failures (193 passed): the F5 (a) three-line title touched the key legend above it (attempt 1, DL-597, a two-line title touched the title of (b)); attempt 2 of that overlap: the title is the two lines 'map 1, no-noise mean field,' and 'network vs mean field, cells: FAIL'; the ramp duration 120 s is no longer in the title (it is in the caption, the axis labels and the supplement; the title of (a) names the map and the failed check only). Verifier: the F3 colour-bar label check follows the labels of V3 ('cycle frequency, main example', 'spectral peak, main example'). Tests (text only): the JCAP import in test_ms13_13t.py (plain_n), 'its 30 stored points' in the F3 full caption. No data assertion changed.
+Reason:          instruction of the reviewer (13t-1f prompt)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            the four test files re-run after this entry
+Status:          re-run pending
+Commit/tag:      the commit that adds this entry; no tag

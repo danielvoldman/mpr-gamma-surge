@@ -215,7 +215,7 @@ def test_v6_f3_states_the_slice_counts_the_grey_circle_and_the_one_arrow(built):
                  "the dark ring the Hopf point of the main example at tau_d 5 ms", "drawn as one arrow because their eta_bar, Delta and tau_d are equal", "P4a, P4b", "analysis record listed in the supplement"):
         assert want in short, want
     assert "30" not in re.sub(r"\b30,000\b", "", short) and "100 points" not in short and "project log" not in short
-    assert "30 points" in _full(built, "F3") and "100 stored points" in _full(built, "F3")
+    assert "30 stored points" in _full(built, "F3") and "100 stored points" in _full(built, "F3")
 
 
 @needs

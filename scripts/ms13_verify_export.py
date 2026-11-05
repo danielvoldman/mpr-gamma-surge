@@ -157,7 +157,7 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
             marks = [a for a in fig.findobj(lambda a: a.get_gid() == "frequency mark")]
             diff = [a for a in fig.findobj(lambda a: a.get_gid() == "frequency mark difference")]
             labs = " ".join(a.get_text() for a in fig.findobj(lambda a: a.get_gid() == "frequency mark label"))
-            if len(marks) != 2 or len(diff) != 1 or "cycle frequency at the headline" not in labs or "spectral peak at the headline" not in labs or "differ by 4.391 Hz; allowed 0.5 Hz" not in diff[0].get_text():
+            if len(marks) != 2 or len(diff) != 1 or "cycle frequency, main example" not in labs or "spectral peak, main example" not in labs or "differ by 4.391 Hz; allowed 0.5 Hz" not in diff[0].get_text():
                 evidence.append("F3 frequency marks, labels or difference text missing")
         if fid == "F5c":
             lines = [a.get_text() for a in fig.findobj(lambda a: a.get_gid() == "step-halving line")]
