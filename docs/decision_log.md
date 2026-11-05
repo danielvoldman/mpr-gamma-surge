@@ -6437,3 +6437,13 @@ Chosen:          none fixed   Default from: the prompt
 Test:            none
 Status:          review triaged; findings open for the reviewer
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-601  MS13 13t-1f: fast suite at the end of the step; 13t-1f built and checked, no tag    [ID: MS13, 13t, 13t-1f, DL-599, DL-600]
+Date:            2026-11-04        Author:
+Decision:        FACT. FAST SUITE at the end of 13t-1f (HEAD the commit of DL-599 and DL-600, 152cd70): 1386 passed, 24 deselected, 9 xfailed, 0 failed, exit 0 taken from pytest itself (857.16 s; run without -x). Against the start of the step (1363 passed): +23 tests, all in the new tests/test_ms13_13t1f.py (DL-595); the older tests keep their data assertions (text edits DL-597, DL-598). 13t-1f is built and checked: the F1, F3, F5 and F5c journal versions with the short and full captions are in figures/journal/ (untagged drafts, no tag, no push, no upload); the eleven drafts are byte-identical; the review findings (DL-600), the word-limit and superscript decisions (DL-596, DL-597) and the open items 44 and 45 wait for the reviewer. The old review_crops folder of 13t-1c (C:\Users\Alpha\AppData\Local\Temp\review_crops) is outside the project and was not touched; the trial, build and review folders of this step are in the session scratchpad.
+Reason:          instruction of the reviewer (13t-1f prompt)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            fast suite
+Status:          13t-1f closed; 13t-2 not started
+Commit/tag:      the commit that adds this entry; no tag
