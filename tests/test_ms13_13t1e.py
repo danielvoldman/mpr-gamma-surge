@@ -127,7 +127,7 @@ def test_u1_f3_marks_the_two_frequencies_on_the_one_shared_colour_bar(figs):
     marks = fig.findobj(lambda a: a.get_gid() == "frequency mark")
     assert len(marks) == 2 and sorted(round(float(a.xy[0]), 3) for a in marks) == [44.609, 49.0]
     labels = sorted(a.get_text() for a in fig.findobj(lambda a: a.get_gid() == "frequency mark label"))
-    assert labels == ["cycle frequency at the headline", "spectral peak at the headline"]
+    assert labels == ["cycle frequency, main example", "spectral peak, main example"]            # DL-592 V3
     (dt,) = fig.findobj(lambda a: a.get_gid() == "frequency mark difference")
     assert dt.get_text() == "differ by 4.391 Hz; allowed 0.5 Hz"
     bars = [ax for ax in fig.axes if ax.get_gid() == "colour bar frequency"]
@@ -146,7 +146,7 @@ def test_u1_f3_values_are_the_values_of_the_project_log_dl_388():
 def test_u1_f5c_b_has_the_plain_line_and_no_other_f5c_panel_has_a_red_title(figs):
     fig = figs["F5c"][0]
     lines = [a.get_text() for a in fig.findobj(lambda a: a.get_gid() == "step-halving line")]
-    assert len(lines) == 1 and " ".join(lines[0].split()) == "step-halving test not drawn: its runs are not stored" == FG.F5CJ_B_LINE
+    assert len(lines) == 1 and " ".join(lines[0].split()) == "step-halving test not drawn: its runs are not recorded" == FG.F5CJ_B_LINE            # DL-592 V3
     assert len(JK.red_titles(fig)) == 1
 
 
@@ -167,8 +167,8 @@ def test_u3_two_caption_files_full_in_supplement_and_manifest(built, cfg):
 
 
 def test_u3_config_limits_are_set_and_unverified(cfg):
-    assert cfg["caption"]["short_max_words"] == 220 and cfg["caption"]["short_max_words_F1"] == 280
-    assert J.caption_limit(cfg, "F1") == 280 and J.caption_limit(cfg, "F3") == 220 and J.caption_limit(cfg, "F5c") == 220
+    assert cfg["caption"]["short_max_words"] == 330 and cfg["caption"]["short_max_words_F1"] == 400            # DL-593 V8 (were 220 and 280)
+    assert J.caption_limit(cfg, "F1") == 400 and J.caption_limit(cfg, "F3") == 330 and J.caption_limit(cfg, "F5c") == 330
     assert "UNVERIFIED" in (ROOT / "configs" / "journal_export.yaml").read_text(encoding="utf-8")
 
 
@@ -181,26 +181,22 @@ def test_u3_short_caption_word_limit_plain_language_and_order(built, cfg):
         assert not JS.ID_PATTERN.search(s) and not JC.FORBIDDEN.search(s), f
         assert not re.search(r"\bstored\b|\bDL\b|\bplan\b|\bgate\b|\bG\d", s), f
         first = s[len(f) + 2:].split(". ")[0]
-        for m in {"F1": ("does not reproduce the mean-field result", "network-against-mean-field check failed"), "F3": ("frequency check failed",), "F5": ("Mean field only", "90 percent rule failed"),
-                  "F5c": ("step-halving check", "do not reproduce the mean field")}[f]:
+        for m in {"F1": ("does not reproduce it",), "F3": ("frequency check",), "F5": ("holds for the noise-free mean field only",),
+                  "F5c": ("step-halving check", "do not reproduce the mean field")}[f]:            # DL-593 V6
             assert m in first, (f, m)
-        assert s.endswith(f"All earlier failures and limits stand; check names, the full limits, the values and the settings are in Supplement {f}."), f
+        assert s.endswith(JS.POINTER.format(fid=f)) and "(listed in the supplement)" in s, f            # DL-593 V7
         assert "red title" in s.lower() and "Limits:" in s
         assert s.index("Limits:") < s.index("All earlier failures") and s.index(" (a)") < s.index("Failed check") < s.index("Limits:") if "Failed check" in s else True
 
 
 @needs
 def test_u3_short_caption_names_every_failed_check_of_the_figure(built):
-    tokens = {("RB1", "headline_10s"): "network against mean field", ("RB6", "network_fpk_halving_dt"): "step-halving check", ("RB9", "b_spectral_vs_cycle_headline"): "frequency check",
-              ("G7", "gate"): "negative-control check", ("sigma_check", "S8_baseline_std"): "noise-level check", ("RB2", "noisy_subgrid_agreement"): "90 percent rule",
-              ("RB2", "headline_class_kept_1.0_sigma"): "main-run class kept", ("RB3", "a_inrange_runs"): "onset prediction", ("RB3", "b_classifier_onset"): "delay under a noise floor",
-              ("RB6", "solver_onset_headline"): "two solvers"}
+    # DL-593 V7: the short caption names only the failed checks whose result is drawn (JS.SHORT_NAMED); the full caption lists every one (checked in tests/test_ms13_13t1f.py)
+    tokens = {("RB1", "headline_10s"): "network against mean field", ("RB1", "headline_120s"): "network against mean field", ("RB1", "cells_30s"): "network against mean field",
+              ("RB6", "network_fpk_halving_dt"): "step-halving check", ("RB9", "b_spectral_vs_cycle_headline"): "frequency check", ("RB2", "noisy_subgrid_agreement"): "90 percent rule"}
     for f in ("F1", "F5", "F3", "F5c"):
         s = _short(built, f)
-        for k in {"F1": [("RB1", "headline_10s"), ("G7", "gate"), ("RB6", "network_fpk_halving_dt"), ("RB6", "solver_onset_headline"), ("RB2", "headline_class_kept_1.0_sigma"), ("sigma_check", "S8_baseline_std"),
-                         ("RB3", "a_inrange_runs"), ("RB3", "b_classifier_onset")],
-                  "F5": [("RB1", "headline_10s"), ("RB2", "noisy_subgrid_agreement"), ("RB2", "headline_class_kept_1.0_sigma"), ("RB6", "network_fpk_halving_dt"), ("sigma_check", "S8_baseline_std")],
-                  "F3": [("RB9", "b_spectral_vs_cycle_headline")], "F5c": [("RB6", "network_fpk_halving_dt"), ("sigma_check", "S8_baseline_std")]}[f]:
+        for k in JS.SHORT_NAMED[f]:
             assert tokens[k] in s, (f, k)
 
 
@@ -211,13 +207,12 @@ def test_u3_every_ruled_claim_limit_is_in_the_full_caption_and_the_short_limits_
         ids, na = CLAIM[f]
         full = norm(_full(built, f))
         for i in ids:
-            assert norm(PL.plain_limit_text((i,), na)) in full, (f, i)
+            assert norm(JC.plain_n(PL.plain_limit_text((i,), na))) in full, (f, i)            # DL-592 V4: 10,000 for 1e4
         short = _short(built, f)
         nums_full = set(re.findall(r"\d+(?:\.\d+)?(?:e\d+)?", full))
-        for i in JS.SHORT_LIMIT_IDS[f]:
-            clause = JS.SHORT_LIMITS[i]
-            assert clause in short, (f, i)
-            assert set(re.findall(r"\d+(?:\.\d+)?(?:e\d+)?", clause)) <= set(re.findall(r"\d+(?:\.\d+)?(?:e\d+)?", PL.PLAIN_LIMITS[i])) <= nums_full, (f, i)
+        assert JS.limits_missing(f, short) == [], f            # DL-593 V6, V8: the clause of each short limit (a distinctive phrase), its numbers are in the full caption
+        sent = short[short.index("Limits: "):short.index("All earlier failures")]
+        assert JS.numbers_of(sent) <= JS.numbers_of(full), f
 
 
 def test_u3_a_short_limit_with_a_number_that_the_ruled_wording_does_not_have_stops_the_build(monkeypatch):
@@ -233,9 +228,7 @@ def test_u3_finish_stops_on_too_many_words_an_id_or_the_word_stored():
         JS.finish("F1", ["the RB1 check failed"], 50)
     with pytest.raises(JS.JShortError):
         JS.finish("F1", ["a stored value"], 50)
-    with pytest.raises(JS.JShortError):
-        JS.finish("F1", ["a recorded value"], 50)
-    assert JS.finish("F1", ["a recorded value.", JS.RECORDED_DEF], 50).startswith("F1. a recorded value.")
+    assert JS.finish("F1", ["a recorded value."], 50).startswith("F1. a recorded value.")            # DL-596: 'recorded' is an ordinary word of the short captions, no definition sentence
 
 
 # ---- U4: the 100 stored points of the (d) curve ----
@@ -245,7 +238,7 @@ def test_u4_f3_full_and_short_caption_state_100_and_30_points(built):
     full, short = _full(built, "F3"), _short(built, "F3")
     assert "drawn as straight segments between its 30 stored points" in full
     assert "(drawn as straight segments between its 100 stored points, next to the 30 stored points of the curve in (c))" in full
-    assert "straight segments between its 30 points" in short and "straight segments between its 100 points" in short
+    assert "straight segments between recorded points" in short and "30 points" not in short and "100 points" not in short            # DL-593 V6
 
 
 @needs
@@ -272,6 +265,7 @@ def test_u5_key_defines_stored_headline_and_sigma_once_and_only_where_used(built
         assert JC.key_unused_terms(full) == [], f
         for pat, defin in JC.WORD_ENTRIES:
             used = re.search(pat, rest) is not None
+            defin = JC.plain_n(defin)            # DL-592 V4
             assert (defin in key) == used, (f, pat)
             assert full.count(defin) <= 1
     assert "Stored (in plain words: recorded) = read from the saved result files of the analysis, not recalculated" in _full(built, "F3")
@@ -288,7 +282,6 @@ def test_u5_short_caption_never_says_stored_and_defines_recorded_if_it_uses_it(b
     for f in PILOT:
         s = _short(built, f)
         assert not re.search(r"\bstored\b", s)
-        assert ("recorded" not in s) or JS.RECORDED_DEF in s
     assert "Recorded results are read from the saved result files of the analysis, not recalculated." == JS.RECORDED_DEF
 
 
@@ -348,17 +341,17 @@ def test_u6c_f5c_per_n_counts_come_from_the_figure_arrays_and_the_take_home_foll
     assert [p["ctrl_surge"] for p in per][0] == 0 and per[0]["ctrl_classes"] == ["NS"] and set(per[0]["ramp_classes"]) <= {"S-abs", "S-sus"}
     cn = JC.f5c_counts(per)
     full, short = _full(built, "F5c"), _short(built, "F5c")
-    assert f"the ramp seeds {cn['ramp_text']}; the no-ramp controls {cn['ctrl_text']}." in full
+    assert JC.plain_n(f"the ramp seeds {cn['ramp_text']}; the no-ramp controls {cn['ctrl_text']}; the no-ramp controls in S-sus (not a surge class): {cn['sus_text']}.") in full            # DL-592 V4, DL-596
     assert "do not reproduce the mean field or separate ramp from no-ramp records" not in full and "do not separate ramp from no-ramp records" not in full
-    assert "at N = 1e3 the 3 controls are NS and the ramp seeds are S-abs or S-sus" in full and "at N = 1e3 the 3 controls are NS and the ramp seeds are S-abs or S-sus" in short
-    assert f"the controls reach surge classes at N = {JC._and_list(cn['with_surge'])} ({cn['surge_text']})" in short
+    assert "at N = 1000 the 3 controls are NS and the ramp seeds are S-abs or S-sus" in full            # DL-592 V4; the short caption has the control counts of (a) (tests/test_ms13_13t1f.py)
+    assert JC.plain_n(f"the controls reach surge classes at N = {JC._and_list(cn['with_surge'])} ({cn['surge_text']})") in full or "Controls in a surge class" in short
     assert "No-ramp network controls are classified into surge classes." in full            # the ruled limit stays unchanged
-    assert "(S+ in 6 seeds at N = 3e3, NS in 1 at N = 1e4)" in full
+    assert "(S+ in 6 seeds at N = 3000, NS in 1 at N = 10,000)" in full            # DL-592 V4
 
 
 def test_u6c_counts_helper_on_synthetic_data():
-    per = [{"label": "1e3", "ramp_n": 10, "ctrl_n": 3, "ramp_surge": 4, "ctrl_surge": 0, "ramp_classes": ["S-abs", "S-sus"], "ctrl_classes": ["NS"]},
-           {"label": "3e3", "ramp_n": 10, "ctrl_n": 3, "ramp_surge": 7, "ctrl_surge": 2, "ramp_classes": ["S+", "S-sus"], "ctrl_classes": ["S+", "NS"]}]
+    per = [{"label": "1e3", "ramp_n": 10, "ctrl_n": 3, "ramp_surge": 4, "ctrl_surge": 0, "ctrl_sus": 0, "ramp_classes": ["S-abs", "S-sus"], "ctrl_classes": ["NS"]},
+           {"label": "3e3", "ramp_n": 10, "ctrl_n": 3, "ramp_surge": 7, "ctrl_surge": 2, "ctrl_sus": 0, "ramp_classes": ["S+", "S-sus"], "ctrl_classes": ["S+", "NS"]}]
     cn = JC.f5c_counts(per)
     assert cn["ctrl_text"] == "0 and 2 of 3 at N = 1e3 and 3e3" and cn["with_surge"] == ["3e3"] and cn["surge_text"] == "2 of 3"
     assert cn["zero"] == "at N = 1e3 the 3 controls are NS and the ramp seeds are S-abs or S-sus"
@@ -367,8 +360,8 @@ def test_u6c_counts_helper_on_synthetic_data():
 @needs
 def test_u6d_scope_of_the_10_of_10_and_7_of_10_statements_is_in_the_full_captions(built):
     for f in ("F1", "F5", "F5c"):
-        assert JC.LIMIT_SCOPE["MS9(e)-1"] in _full(built, f), f
-    assert JC.LIMIT_SCOPE["MS11-C1"] in _full(built, "F5") and JC.LIMIT_SCOPE["MS11-C1"] not in _full(built, "F3")
+        assert JC.plain_n(JC.LIMIT_SCOPE["MS9(e)-1"]) in _full(built, f), f            # DL-592 V4
+    assert JC.plain_n(JC.LIMIT_SCOPE["MS11-C1"]) in _full(built, "F5") and JC.plain_n(JC.LIMIT_SCOPE["MS11-C1"]) not in _full(built, "F3")
     assert "negative-control step at N = 1e4 with 10 seeds each" in JC.LIMIT_SCOPE["MS9(e)-1"] and "noisy mean-field runs with constant parameters" in JC.LIMIT_SCOPE["MS11-C1"]
     # the ruled sentences themselves are unchanged
     assert PL.PLAIN_LIMITS["MS9(e)-1"].endswith("the network control without a ramp was flagged in 10 of 10 seeds, and the ramp runs in 10 of 10.")
@@ -397,5 +390,5 @@ def test_u3d_independent_comparison_short_rows_and_full_rows_are_equal(built):
         assert s in ("yes", "n.a.") and j in ("yes", "n.a."), (r["id"], s, j)
         nshort += s == "yes"
         nfull += j == "yes"
-    assert nshort >= 30 and nfull >= 60
+    assert nshort >= 20 and nfull >= 60            # DL-597: the short rows of the RB2 count, the RB6 solver difference and the F3 point counts left the short captions (V6, V7); rows for the F3 slice counts and the F5c control counts were added
     assert all(any(r["sprinted"] and f in r["stargets"] for r in rows) for f in PILOT)

@@ -95,7 +95,7 @@ def test_v4_no_e_notation_on_the_images_and_powers_of_ten_in_mathtext(figs):
     for f in PILOT:
         assert JK.e_notation_violations(figs[f][0]) == [], f
     t = _texts(figs["F5c"][0])
-    for want in (r"N = $\mathregular{10^{3}}$", r"N = $\mathregular{3\times10^{3}}$", r"N = $\mathregular{10^{4}}$", r"N = $\mathregular{3\times10^{4}}$", r"$\mathregular{10^{3}}$ ms", r"$\mathregular{10^{4}}$ ms", r"$\mathregular{10^{5}}$ ms"):
+    for want in ("N = 10\u00b3", "N = 3\u00d710\u00b3", "N = 10\u2074", "N = 3\u00d710\u2074", "10\u00b3 ms", "10\u2074 ms", "10\u2075 ms"):            # DL-597: Unicode superscripts at 8 pt (mathtext superscripts are 5.6 pt)
         assert want in t, want
     assert any("peak frequency" in s for s in t)
 

@@ -808,8 +808,7 @@ SHORT_OVERRIDE = {
 }
 SHORT_S1 = r"noisy mean field agrees with the noise-free map in (\d+) of (\d+) cells \((\d+\.\d) percent; (\d+) cells, 90 percent, were needed\)"
 # DL-593 V6, V7: the F1 short caption states the RB1 counts once ('0 of 3 seeds agree (0 of 3 seeds at ramp durations of 10 s and 120 s), and 1 of 4 map cells ... agree'); the F5 short caption states the cells count
-SHORT_NET = r"agree \((\d+) of (\d+) seeds at ramp durations of 10 s and 120 s\), and (\d+) of (\d+) map cells"
-SHORT_NET_F5 = r"at the 4 cells \(the network must fall in the same class as the mean field\), (\d+) of (\d+) agree"
+SHORT_NET = r"(\d+) of (\d+) seeds agree at ramp durations of 10 s and 120 s, and (\d+) of (\d+) map cells"
 
 
 def short_rows(c: Ctx, R: Rows, figures) -> None:
@@ -822,21 +821,11 @@ def short_rows(c: Ctx, R: Rows, figures) -> None:
     if "F1" in figures:
         for nm, q, k in (("rb1_10s_n", q10[0], 1), ("rb1_120s_n", q120[0], 1), ("rb1_seeds_den", q120[1], 2), ("rb1_cells_n_short", qc[0], 3), ("rb1_cells_den_short", qc[1], 4)):
             R.add("F1", nm, f"RB1 count in the short caption ({nm})", q, f"{src}: RB1 headline_10s, headline_120s, cells_30s value", shared=a11_sh, sprinted=(SHORT_NET, k), stargets=("F1",))
-    if "F5" in figures:
-        for nm, q, k in (("rb1_cells_n_short", qc[0], 1), ("rb1_cells_den_short", qc[1], 2)):
-            R.add("F5", nm, f"RB1 cells count in the short caption ({nm})", q, f"{src}: RB1 cells_30s value", shared=a11_sh, sprinted=(SHORT_NET_F5, k), stargets=("F5",))
     sig = c.json("S8/S8_head/S8_head_0003_7dfd3c05b40c.json")["solver"]["noise"]["sigma"]
     for fig, targets in (("F1", ("F1",)), ("F5", ("F5", "F5c"))):
         if fig in figures:
             R.add(fig, "noise_sigma", "noise level sigma (stored record config)", sig, "S8/S8_head/S8_head_0003_7dfd3c05b40c.json: solver.noise.sigma", shared="stored record config",
-                  jprinted=(r"noise level sigma = (0\.\d+) \(checked", 1), jtargets=targets, **({"sprinted": (r"sigma = (0\.\d+) is checked", 1), "stargets": ("F5",)} if fig == "F5" else {}))
-    if "F1" in figures:
-        r2 = _a11(c, "RB2", "headline_class_kept_1.0_sigma")
-        kept, thr = _nums(r2["value"]), _nums(r2["threshold"])
-        for nm, q, k in (("rb2_kept", kept[0], 1), ("rb2_kept_den", kept[1], 2), ("rb2_needed", thr[0], 3)):
-            R.add("F1", nm, f"RB2 headline class kept: {nm} (full caption only)", q, f"{src}: RB2 headline_class_kept_1.0_sigma value and threshold", shared=a11_sh)
-        r6 = _a11(c, "RB6", "solver_onset_headline")
-        R.add("F1", "rb6_solver_ms", "RB6 solver onset difference (ms) (full caption only)", _nums(r6["value"])[0], f"{src}: RB6 solver_onset_headline value", shared=a11_sh)
+                  jprinted=(r"noise level sigma = (0\.\d+) \(checked", 1), jtargets=targets)
     if "F3" in figures:
         a4 = c.npz("A4/a4_hopf_curves.npz")
         R.add("F3", "a4_points_d", "points of the Hopf curve in (eta_bar, Delta)", len(a4["curve_Delta"]), "A4/a4_hopf_curves.npz: curve_Delta",

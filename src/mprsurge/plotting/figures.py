@@ -6133,7 +6133,8 @@ def _f5j_x(k: int, s: int, control: bool) -> float:
     return k * F5J_SLOT + (F5J_CTRL_X0 if control else F5J_RAMP_X0) + s
 
 
-F5J_N_TICK = {1000: r"N = $\mathregular{10^{3}}$", 3000: r"N = $\mathregular{3\times10^{3}}$", 10000: r"N = $\mathregular{10^{4}}$", 30000: r"N = $\mathregular{3\times10^{4}}$"}          # DL-592 V4: powers of ten on the images (mathtext, text only)
+SUPERSCRIPT = {3: "\u00b3", 4: "\u2074", 5: "\u2075"}
+F5J_N_TICK = {1000: "N = 10³", 3000: "N = 3×10³", 10000: "N = 10⁴", 30000: "N = 3×10⁴"}          # DL-592 V4, DL-597: powers of ten as Unicode superscripts at 8 pt (mathtext superscripts are drawn at 5.6 pt, below the 8 pt rule)
 F5J_LAB = {"f_pk_hz": "peak frequency (Hz)", "onset_s": "onset (s)", "duration_ms": "duration (ms)"}          # DL-592 V3: plain axis labels of the journal file (the draft keeps F5_METRICS)
 
 
@@ -6176,7 +6177,7 @@ def _draw_F5_journal(d: dict):
     ax = _ax_in(fig, 0.78, F5J_ROWS["a"][0], 1.85, F5J_ROWS["a"][1])
     _f5_map(ax, d["map1_class"], d["map1_tau_d_ms"], d["map1_Delta"], title="", xlabel=f"{JTAU} (ms), cell index j", ylabel="Δ, cell index i", margin=2.0, top_margin=8.0, raster_marks=True,
             tick_idx_x=[0, 7, 14, 21, 29], mark_cells=False)      # DL-563 S1 (attempt 2): attempt 1 (a 3 pt mark) fitted the D-tr cell but not the D-none cell (the thin diamond is 4.2 pt tall at 3 pt, the cell is 4.1 pt): no mark, colour and hatching
-    _journal_title(ax, "a", f"map 1, no-noise mean field, {F5_T120}\nnetwork vs mean field, cells: FAIL", fail=True)
+    _journal_title(ax, "a", f"map 1, no-noise mean field,\n{F5_T120}; network vs\nmean field, cells: FAIL", fail=True)
     for agree in (True, False):
         m = d["cell_agree"] == agree
         if m.any():
@@ -6344,7 +6345,7 @@ def _draw_F5c_journal(d: dict):
             ax.set_yscale("log")
             ax.set_ylim(lo_all / 1.6, hi_all * 2.0)
             ticks = [10.0 ** k for k in range(int(np.ceil(np.log10(lo_all / 1.6))), int(np.floor(np.log10(hi_all * 2.0))) + 1)]
-            ax.set_yticks(ticks, [f"$\\mathregular{{10^{{{int(round(np.log10(t)))}}}}}$ ms" for t in ticks])
+            ax.set_yticks(ticks, [f"10{SUPERSCRIPT[int(round(np.log10(t)))]} ms" for t in ticks])
             ax.minorticks_off()
         else:
             span = hi_all - lo_all

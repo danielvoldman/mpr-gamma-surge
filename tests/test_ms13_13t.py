@@ -594,7 +594,7 @@ def test_r6_raw_first_crossings_overlap_and_only_equal_stored_values_coincide(bu
     assert (f"{r0:.3f}", f"{r1:.3f}") == ("50.170", "50.924")
     legend = [t.get_text() for ax in figs["F1"][0].axes if ax.get_legend() for t in ax.get_legend().get_texts()]
     raw = [t for t in legend if "raw first crossing" in t]
-    assert len(raw) == 1 and "coincide" not in raw[0] and "overlap at this scale: stored values 50.170 to 50.924" in raw[0]
+    assert len(raw) == 1 and "coincide" not in raw[0] and "overlap at this scale: recorded values 50.170 to 50.924" in raw[0]            # DL-592 V3
     ons = [t for t in legend if "classifier onset" in t]
     assert len(ons) == 1 and "the 3 seeds coincide" in ons[0]
     cap = built["out"]["F1"]["caption"]
@@ -720,7 +720,7 @@ def test_s4_the_journal_caption_has_no_ruling_code_and_no_dl_number_and_every_li
     assert not PL.FORBIDDEN.search(cap), PL.FORBIDDEN.findall(cap)
     ids = {"F1": FG.F1_CLAIM_LIMITS, "F3": FG.F3_CLAIM_LIMITS, "F5": FG.F5_CLAIM_LIMITS, "F5c": FG.F5_CLAIM_LIMITS}[fid]
     for i in ids:
-        assert PL.PLAIN_LIMITS[i].rstrip(".") in cap, i
+        assert JC.plain_n(PL.PLAIN_LIMITS[i].rstrip(".")) in cap, i            # DL-592 V4: 10,000 for 1e4
     sup = (built["base"] / "journal" / "supplement" / f"{fid}_supplement.md").read_text(encoding="utf-8")
     for i in ids:
         short, dls = CLAIM_LIMIT_LABELS[i]
@@ -785,7 +785,7 @@ def test_s9_f1_schematic_has_plain_names_and_no_box_wraps_one_word_per_line(figs
         lines = s.split(chr(10))
         assert sum(1 for ln in lines if len(ln.split()) >= 2) * 2 >= len(lines), (g, lines)
     joined = " ".join(" ".join(rows.values()).split()).lower()
-    for word in ("mean excitability", "coupling", "ramp duration", "common (non-local) drive"):
+    for word in ("mean excitability", "coupling", "ramp start and duration", "lorentzian heterogeneity"):            # DL-592 V2 (b)
         assert word in joined, word
 
 
@@ -793,10 +793,10 @@ def test_s9_f1_schematic_has_plain_names_and_no_box_wraps_one_word_per_line(figs
 def test_s10_the_event_strip_above_d_and_f_holds_the_stored_times_and_is_labelled(figs):
     import numpy as np
     fig, d, _ = figs["F1"]
-    strips = [ax for ax in fig.axes if (ax.get_gid() or "") in ("panel:d", "panel:f") and ax.get_ylim() == (0.0, 1.0) and ax.texts]
+    strips = [ax for ax in fig.axes if (ax.get_gid() or "") in ("panel:d", "panel:f") and ax.get_ylim() == (0.0, 1.0) and not len(ax.get_yticks())]
     assert len(strips) == 2
     for ax in strips:
-        assert any("height has no meaning" in t.get_text() and "event times" in t.get_text() for t in ax.texts)
+        assert not ax.texts            # DL-592 V1: the strip holds only the marks; the label 'height has no meaning' is in the key above (a)
         xs = sorted(float(ln.get_xdata()[0]) for ln in ax.lines if (ln.get_gid() or "").startswith(("classifier onset", "raw first crossing")))
         want = sorted([float(x) for x in set(d["onset120_s"])] + [float(x) for x in d["raw120_s"]])
         assert np.allclose(xs, want)
@@ -808,7 +808,7 @@ def test_s11_s12_labels_colour_bar_j0_p1_and_the_f3_e_title(figs, built):
     cb = next(a for a in f1.axes if a.get_gid() == "colour bar spectrogram")
     assert "power spectral" in cb.get_ylabel() and "density" in " ".join(cb.get_ylabel().split()) and "(dB)" in cb.get_ylabel()
     assert "J0" in _panel(f5, "e").get_ylabel() and "path start" in _panel(f5, "e").get_ylabel()
-    assert _panel(f5, "d").get_title(loc="left") == "(d) post-hoc view P-1"
+    assert _panel(f5, "d").get_title(loc="left") == "(d) post-hoc re-scoring\nof (c)"            # DL-592 V3
     assert _panel(f3, "e").get_title(loc="left") == "(e) paths, one row per path"
     cap5 = built["out"]["F5"]["caption"]
     assert "P-1 = a post-hoc view" in cap5 and "synaptic decay time" in cap5
@@ -1035,7 +1035,7 @@ def test_t6_f1_schematic_arrows_into_outputs_are_apart_and_the_schematic_text_is
     ends = sorted(c.xy[1] for c in arrows if abs(c.xy[0] - 5.06) < 1e-6)
     assert len(ends) == 2 and (ends[1] - ends[0]) * 72.0 >= 4.0                           # the two arrows end at least 4 pt apart
     rows = {t.get_gid(): t.get_text() for t in ax.texts if (t.get_gid() or "").endswith(":rows")}
-    assert "tau_d: Synaptic decay time (M3)" in rows["schematic:model:rows"]
+    assert "J, tau_d, tau" in rows["schematic:model:rows"]            # DL-592 V2 (b)
 
 
 @needs
