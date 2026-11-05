@@ -211,7 +211,10 @@ def image_id_violations(fig) -> list[str]:
 
 
 # DL-592 V3, V4: words that no journal image text may hold (plain words: recorded, main example, matching mean-field run, no-noise mean field, peak frequency, time), and the e-notation of N
-PLAIN_WORD_BAN = re.compile(r"\bstored\b|\bheadline\b|\bcompanion\b|\bmode D\b|\bf_pk\b|\bP-1\b|\bpath time\b")
+# DL-604 W4(d): the three F3 image phrases "continuation record", "frequency-map slice" and "Frequency-map Hopf point" are added to the word list (any case)
+PLAIN_WORD_BAN = re.compile(r"\bstored\b|\bheadline\b|\bcompanion\b|\bmode D\b|\bf_pk\b|\bP-1\b|\bpath time\b|(?i:\bcontinuation record\b|\bfrequency-map slice\b|\bfrequency-map hopf point\b)")
+# DL-604 W3: Unicode superscript digits and signs (U+00B2, U+00B3, U+00B9, U+2070, U+2071, U+2074 to U+207F) and the mathtext circumflex
+SUPERSCRIPT_RX = re.compile("[\u00b2\u00b3\u00b9\u2070\u2071\u2074-\u207f]|\\^")
 E_NOTATION = re.compile(r"(?<![\w.+-])\d(?:\.\d)?e\d+\b")
 
 
@@ -233,6 +236,22 @@ def e_notation_violations(fig) -> list[str]:
         if s and t.get_visible() and E_NOTATION.search(s):
             out.append(s[:50])
     return out
+
+
+def superscript_violations(fig) -> list[str]:
+    """DL-604 W3: texts on the image (tick labels included, after a draw) that hold a Unicode superscript digit or sign or a mathtext circumflex (a superscript)."""
+    fig.canvas.draw()
+    out = []
+    for t in fig.findobj(Text):
+        s = " ".join(t.get_text().split())
+        if s and t.get_visible() and SUPERSCRIPT_RX.search(s):
+            out.append(s[:50])
+    return out
+
+
+def fail_rows_missing(sup_text: str, a11: list) -> list[str]:
+    """DL-604 W4(e): the rows 'rb_id check_id' of the stored A11 table with the status FAIL that the supplement text does not hold."""
+    return [f"{r['rb_id']} {r['check_id']}" for r in a11 if r.get("pass_or_fail") == "FAIL" and f"{r['rb_id']} {r['check_id']}" not in sup_text]
 
 
 def tick_hyphens(fig) -> list[str]:

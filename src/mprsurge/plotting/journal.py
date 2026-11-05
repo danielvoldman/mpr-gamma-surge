@@ -137,7 +137,7 @@ def uses_transparency(fig) -> bool:
 def caption_limit(cfg: dict, fid: str) -> int:
     """DL-582 U3 (a): the most words of the short caption of figure `fid` (UNVERIFIED limits of configs/journal_export.yaml; F1 has its own)."""
     c = cfg["caption"]
-    return int(c["short_max_words_F1"] if fid == "F1" else c["short_max_words"])
+    return int(c.get(f"short_max_words_{fid}", c["short_max_words"]))          # DL-603 W1: one limit per pilot figure; short_max_words is the default for any other figure
 
 
 def valid_name(name: str, cfg: dict) -> bool:

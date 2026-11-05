@@ -6487,3 +6487,23 @@ Chosen:          as ruled   Default from: the prompt
 Test:            -
 Status:          ruled
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-606  MS13 13t-1g: verifier rows, tests, config limits and check helpers, committed before they run    [ID: MS13, 13t, 13t-1g, W1, W2, W3, W4]
+Date:            2026-11-05        Author:
+Decision:        CHANGE (checks only; no builder and no drawing code yet). (1) configs/journal_export.yaml: short_max_words_F1 460 (was 400), new short_max_words_F3 400, short_max_words_F5 460, short_max_words_F5c 460 (UNVERIFIED, DL-603 W1); journal.caption_limit reads short_max_words_<ID> and falls back to short_max_words. (2) jshort.py: SHORT_LIMIT_IDS back to the lists of 13t-1e (F5: G4-C4, MS9(e)-2, G4-C3; F5c: G4-C3, MS11-C2, MS9(e)-1); MS9(e)-2 clause and its key say 'regime map'; the F3 sentence on other failed checks (W4(e)); helpers parameters_sentence, full_settings_text, parameters_numbers_missing (W2). (3) jchecks.py: PLAIN_WORD_BAN gets 'continuation record', 'frequency-map slice' and 'frequency-map Hopf point' (any case, W4(d)); superscript_violations (W3); fail_rows_missing (W4(e)). (4) scripts/ms13_verify_export.py: new rows 'short parameters', 'supplement FAILs' (F3: every FAIL row of the stored A11 table is in the supplement) and 'superscripts'; the 'failed count' pattern reads the new F3 sentence. (5) tests/test_ms13_13t1g.py (new, 16 tests: W1 4, W2 3, W3 3, W4 6, including synthetic checks). The independent-comparison patterns are not changed in this commit: they are changed only if the build shows a new wording or notation that they cannot find (same numbers, never loosened; logged first). The tests of the new texts fail until the builder code follows (next commit); the older tests whose expected TEXT follows are edited and logged after that (step 4).
+Reason:          instruction of the reviewer (13t-1g prompt, work step 2)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            tests/test_ms13_13t1g.py; scripts/ms13_verify_export.py
+Status:          committed before running
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-606  MS13 13t-1g: verifier rows, tests, config limits and check helpers, committed before they run    [ID: MS13, 13t, 13t-1g, W1, W2, W3, W4]
+Date:            2026-11-05        Author:
+Decision:        CHANGE (checks only; no builder and no drawing code yet). (1) configs/journal_export.yaml: short_max_words_F1 460 (was 400), new short_max_words_F3 400, short_max_words_F5 460, short_max_words_F5c 460 (UNVERIFIED, DL-603 W1); journal.caption_limit reads short_max_words_<ID> and falls back to short_max_words. (2) jshort.py: SHORT_LIMIT_IDS back to the lists of 13t-1e (F5: G4-C4, MS9(e)-2, G4-C3; F5c: G4-C3, MS11-C2, MS9(e)-1); MS9(e)-2 clause and its key say 'regime map'; the F3 sentence on other failed checks (W4(e)); helpers parameters_sentence, full_settings_text, parameters_numbers_missing (W2). (3) jchecks.py: PLAIN_WORD_BAN gets 'continuation record', 'frequency-map slice' and 'frequency-map Hopf point' (any case, W4(d)); superscript_violations (W3); fail_rows_missing (W4(e)). (4) scripts/ms13_verify_export.py: new rows 'short parameters', 'supplement FAILs' (F3: every FAIL row of the stored A11 table is in the supplement) and 'superscripts'; the 'failed count' pattern reads the new F3 sentence. (5) tests/test_ms13_13t1g.py (new, 16 tests: W1 4, W2 3, W3 3, W4 6, including synthetic checks). The independent-comparison patterns are not changed in this commit: they are changed only if the build shows a new wording or notation that they cannot find (same numbers, never loosened; logged first). The tests of the new texts fail until the builder code follows (next commit); the older tests whose expected TEXT follows are edited and logged after that (step 4).
+Reason:          instruction of the reviewer (13t-1g prompt, work step 2)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            tests/test_ms13_13t1g.py; scripts/ms13_verify_export.py
+Status:          committed before running
+Commit/tag:      the commit that adds this entry; no tag

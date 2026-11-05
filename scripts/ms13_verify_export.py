@@ -36,7 +36,7 @@ from mprsurge.plotting import style as S
 PILOT = ("F1", "F3", "F5", "F5c")
 DRAFT_ID = {"F1": "F1", "F3": "F3", "F5": "F5", "F5c": "F5"}              # the figure whose draft files, digest and manifest rows a journal file is checked against
 CHECKS = ("A collisions", "B pdf", "size+shape", "text>=8pt", "fonts", "line width", "cmaps", "non-colour", "letters", "file names", "FAIL lines", "digest", "arrays", "drafts identical",
-          "image text", "image IDs", "plain words", "powers of ten", "minus signs", "red titles", "supplement", "sentence 1", "paragraphs", "caption words", "full caption", "key terms", "short caption", "short limits", "definitions", "failed count", "short numbers",
+          "image text", "image IDs", "plain words", "powers of ten", "minus signs", "red titles", "supplement", "sentence 1", "paragraphs", "caption words", "full caption", "key terms", "short caption", "short limits", "definitions", "failed count", "short numbers", "short parameters", "supplement FAILs", "superscripts",
           "margins", "label-title gap", "contrast", "red-green", "greyscale", "cvd", "png+tiff", "no svg/wmf/emf", "file sizes")
 MAIN_FAILURES = {"F1": FG.F1_MAIN_FAILURES, "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES, "F5c": FG.F5C_MAIN_FAILURES}
 STRIP = {"F1": FG.f1_strip_lines, "F3": FG.strip_lines, "F5": FG.f5_strip_lines, "F5c": FG.f5c_strip_lines}
@@ -211,11 +211,25 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         und = JSH.undefined_terms(short)
         res["definitions"] = ("PASS" if not und else "FAIL", f"{len(JSH.DEFS)} terms checked; first use of each term used has its plain definition next to it" + (f"; undefined: {und[:4]}" if und else ""))
         n_full = JSH.further_count(fid, cap)
-        m_ = re.search(r"(\d+) further failed checks? of the project|No further failed check", short)
+        m_ = re.search(r"(\d+) further failed checks? of the project|No other failed check is about this figure", short)          # DL-604 W4(e): the F3 wording
         n_short = (int(m_.group(1)) if m_ and m_.group(1) else 0) if m_ else None
         res["failed count"] = ("PASS" if n_short == n_full else "FAIL", f"{n_short} further failed checks in the short caption; {n_full} computed from the full caption (failed rows named in the full caption {len(JSH.failed_in_full(cap))}, named in the short {len(JSH.SHORT_NAMED[fid])})")
         nn = JSH.numbers_not_in_full(short, cap)
         res["short numbers"] = ("PASS" if not nn else "FAIL", "every number of the short caption is in the full caption" if not nn else f"numbers not in the full caption: {nn[:5]}")
+        # DL-603 W2: the one 'Parameters:' sentence takes its numbers from the Parameters and settings paragraphs of the full caption; F3 says that no classifier or spectrogram is used
+        pm = JSH.parameters_numbers_missing(short, cap)
+        f3_ok = fid != "F3" or "no classifier or spectrogram" in JSH.parameters_sentence(short)
+        res["short parameters"] = ("PASS" if not pm and f3_ok else "FAIL", "every number of the short Parameters sentence is in the Parameters or settings paragraph of the full caption" if not pm and f3_ok
+                                   else f"numbers not in the full caption's Parameters or settings paragraphs: {pm[:5]}" + ("" if f3_ok else "; F3 must say that no classifier or spectrogram is used"))
+        # DL-604 W4(e): the F3 short caption points to the supplement for the project's other failed checks, so the F3 supplement must hold every FAIL row of the stored A11 table
+        with open(root / "results" / "A11" / "a11_robustness.csv", newline="", encoding="utf-8") as fh_:
+            a11_rows = list(csv.DictReader(fh_))
+        n_fail_rows = sum(1 for r_ in a11_rows if r_.get("pass_or_fail") == "FAIL")
+        fm = JC.fail_rows_missing(sup_text, a11_rows) if fid == "F3" else []
+        res["supplement FAILs"] = ("PASS" if not fm else "FAIL", (f"all {n_fail_rows} FAIL rows of the stored A11 table are in the supplement" if fid == "F3" else "not required for this figure (only the F3 short caption refers to the list)") if not fm else f"missing FAIL rows {fm[:4]}")
+        # DL-604 W3: no superscript glyph and no mathtext superscript on the image
+        sp = JC.superscript_violations(fig)
+        res["superscripts"] = ("PASS" if not sp else "FAIL", f"{len(sp)} image texts with a Unicode superscript or a mathtext superscript" + (f": {sp[0]}" if sp else ""))
         # margins and label-title gaps (DL-571 T5, T6)
         mv = JC.margin_violations(png, MIN_MARGIN_IN)
         mm = JC.margins_in(png)

@@ -76,14 +76,14 @@ DEFS = {
 SHORT_LIMITS = {
     "G4-C3": "no-ramp network controls are classified into surge classes",
     "MS9(e)-1": "network surge classes at N = 1e4 are not evidence of a ramp-driven surge (control without a ramp flagged in 10 of 10 seeds, ramp runs 10 of 10)",
-    "MS9(e)-2": "there is no claim that the maps are robust to noise",
+    "MS9(e)-2": "there is no claim that the regime map is robust to noise",          # DL-603 W1: 'regime map' (13t-1f had 'maps')
     "G4-C4": "the noise level sigma = 0.0624 is checked and not confirmed",
     "MS11-C2": "there is no claim of agreement in peak frequency or class between the network and the mean field",
     "MS11-C3": "the spectral and the cycle frequency differ by 4.39 Hz at the main example, and peak frequencies are the spectral peaks found by the classifier",
     "MS12-C1": "the surge result is stated for model M3 only",
 }
-# 13t-1f (DL-596): the limit G4-C3 (no-ramp controls are classified into surge classes) is no longer one of the SHORT limits of F5 and F5c (the F5c counts of (a) show it; the word limit of V8 asks for room); the full captions keep it
-SHORT_LIMIT_IDS = {"F1": ("G4-C3", "MS9(e)-1"), "F3": ("MS11-C3", "MS12-C1"), "F5": ("MS9(e)-2",), "F5c": ("MS9(e)-1",)}
+# 13t-1g (DL-603 W1): the limits G4-C3 (F5, F5c), G4-C4 (F5) and MS11-C2 (F5c) that 13t-1f (DL-596) had left out only for the word limits are restored (the limits are raised instead); the lists are those of 13t-1e (cf92272)
+SHORT_LIMIT_IDS = {"F1": ("G4-C3", "MS9(e)-1"), "F3": ("MS11-C3", "MS12-C1"), "F5": ("G4-C4", "MS9(e)-2", "G4-C3"), "F5c": ("G4-C3", "MS11-C2", "MS9(e)-1")}
 
 # V7: detectors of the failed rows named in the "Failed checks." paragraph of a FULL caption: key -> regex (a row counts once)
 FAILED_DETECT = {
@@ -132,7 +132,8 @@ def further_count(fid: str, full: str) -> int:
 def further_sentence(fid: str, full: str) -> str:
     n = further_count(fid, full)
     if n == 0:
-        return f"No further failed check of the project is listed for this figure (Supplement {fid})."
+        # DL-604 W4(e): 'of the project' next to 'no' could read as 'the project has none'
+        return f"No other failed check is about this figure; the project's other failed checks are listed in Supplement {fid}."
     return f"{n} further failed check{'s' if n != 1 else ''} of the project {'are' if n != 1 else 'is'} not shown in this figure; all are listed in Supplement {fid}."
 
 
@@ -284,7 +285,7 @@ def f5c_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, ful
 
 
 # ---- checks shared by scripts/ms13_verify_export.py and the tests (DL-593 V5 to V8) --------------------------------------------------------------------------------------------------------------
-LIMIT_KEYS = {"G4-C3": "no-ramp network controls", "MS9(e)-1": "network surge classes at N =", "MS9(e)-2": "no claim that the maps are robust to noise", "G4-C4": "noise level sigma = 0.0624",
+LIMIT_KEYS = {"G4-C3": "no-ramp network controls", "MS9(e)-1": "network surge classes at N =", "MS9(e)-2": "no claim that the regime map is robust to noise", "G4-C4": "noise level sigma = 0.0624",
               "MS11-C2": "no claim of agreement in peak frequency", "MS11-C3": "differ by 4.39 Hz", "MS12-C1": "stated for model M3 only"}
 NUM = re.compile(r"\d+(?:\.\d+)?")
 def numbers_of(text: str) -> set:
@@ -294,6 +295,31 @@ def numbers_of(text: str) -> set:
 def numbers_not_in_full(short: str, full: str) -> list:
     """DL-593 V8: the numbers of the short caption that the full caption does not have (thousands separators removed; the set is compared, so every number of the short caption, recorded value or definition, must occur in the full caption)."""
     return sorted(numbers_of(short) - numbers_of(full))
+
+
+PARAM_RX = re.compile(r"Parameters: .*?\.(?=\s|$)")
+
+
+def parameters_sentence(short: str) -> str:
+    """DL-603 W2: the one 'Parameters:' sentence of a short caption (up to the first full stop that is followed by a space or the end; decimals do not end it); '' if absent."""
+    m = PARAM_RX.search(short)
+    return m.group(0) if m else ""
+
+
+def full_settings_text(full: str) -> str:
+    """DL-603 W2: the 'Parameters.' and the 'Classifier and spectrogram settings.' paragraphs of a FULL caption (the only source of the values of the short Parameters sentence)."""
+    paras = [p for p in full.split("\n\n") if p.startswith("Parameters. ") or p.startswith("Classifier and spectrogram settings. ")]
+    if len(paras) != 2:
+        raise JShortError(f"the full caption has {len(paras)} of the 2 paragraphs 'Parameters.' and 'Classifier and spectrogram settings.'")
+    return "\n\n".join(paras)
+
+
+def parameters_numbers_missing(short: str, full: str) -> list:
+    """DL-603 W2 test: the numbers of the short Parameters sentence that the Parameters and settings paragraphs of the full caption do not hold (empty list = all there; a missing sentence is reported)."""
+    sent = parameters_sentence(short)
+    if not sent:
+        return ["no 'Parameters:' sentence"]
+    return sorted(numbers_of(sent) - numbers_of(full_settings_text(full)))
 
 
 def limits_missing(fid: str, short: str) -> list:
