@@ -84,6 +84,13 @@ V5. Stranger-readable SHORT captions: every technical term is defined in the sam
 V7. SHORT caption failed checks: only checks whose result is drawn or bound to a drawn quantity, each in one plain clause with what it tests; then 'N further failed checks of the project are not shown in this figure; all are listed in Supplement <ID>' with N equal to the number of other failed rows in the full caption (test). The full caption lists every failed check.
 V8. Word limits (UNVERIFIED, configs/journal_export.yaml): F1 400, F3 330, F5 330, F5c 330.
 
+## W1 to W6 (13t-1g, DL-603 to DL-605; W1 changes V8 and U3, W2 extends T8, W3 replaces V4 for the image notation, W4 extends V3 and V5)
+W1. A ruled claim limit is never dropped from a short caption for length; the word limits are raised instead (UNVERIFIED, configs/journal_export.yaml): F1 460, F3 400, F5 460, F5c 460. If a short caption does not fit, the build stops and the counts are reported.
+W2. Each short caption has ONE sentence 'Parameters:' with values copied from the Parameters and the classifier and spectrogram settings paragraphs of the full caption (every number of it occurs there; test); anything not available is marked UNVERIFIED; F3 says that no classifier or spectrogram is used.
+W3. Plain numbers on the images: N ticks 1000, 3000, 10,000, 30,000; log ticks 1,000, 10,000, 100,000 with ms in the axis label; no Unicode superscript digit and no mathtext superscript on any image; captions keep 1000, 3000, 10,000 and 30,000.
+W4. (a) F1: orange solid and dashed line in (i) mark the windows of (j), (k), which carry orange frames; (b) F5 defines every class on the image; (c) F5 tie clause in plain words (UNVERIFIED wording; the plan has no sentence on ties); (d) F3 image words 'Hopf curve', 'Hopf point of a slice', '25 Hz crossing of a slice', 'Hopf point of the main example' (old phrases in the V3 word list); (e) F3 short caption: 'No other failed check is about this figure; the project's other failed checks are listed in Supplement F3', and the F3 supplement lists them.
+W5. Accepted unchanged: F1 in-panel statement on two lines; 'raw marks overlap' and 'flagged' wordings; parenthesis density; runs not drawn; items 44 and 45 stay open for the user. W6. Process: rulings committed before the first trial render; every trial render and every recorded PNG looked at in full and in 4 quadrant crops; one build; no rebuild after the review.
+
 ## Failures that stay visible (plan 7.2; shown, not dropped)
 RB1 FAIL; RB2 FAIL; RB6 solver FAIL (181 ms); RB6 network f_pk FAIL; RB9(b) FAIL (4.391 Hz against 0.5 Hz); G7 NOT PASSED; D24 noisy subgrid FAILED (97 of 225 = 43.1 percent, 203 needed).
 

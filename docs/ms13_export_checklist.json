@@ -1,5 +1,5 @@
 {
- "note": "status changes to passing only after scripts/ms13_verify_export.py passes for the item AND the recorded PNG crops were looked at (J15); 13t-1d (DL-571): F1, F3 and F5 items were reset to failing and the T1 to T12 items added; 13t-1e (DL-581 to DL-583): items U1 to U8 added as failing; 13t-1f (DL-592 to DL-594): items V1 to V9 added as failing",
+ "note": "status changes to passing only after scripts/ms13_verify_export.py passes for the item AND the recorded PNG crops were looked at (J15); 13t-1d (DL-571): F1, F3 and F5 items were reset to failing and the T1 to T12 items added; 13t-1e (DL-581 to DL-583): items U1 to U8 added as failing; 13t-1f (DL-592 to DL-594): items V1 to V9 added as failing; 13t-1g (DL-603 to DL-605): items W1 to W6 added as failing",
  "items": [
   {
    "id": "J10-raw-crossings-marker-on-text",
@@ -1344,6 +1344,66 @@
    "figure": "all",
    "status": "passing",
    "note": "13t-1f (DL-592 to DL-594): new item, failing until verified on the recorded build, tests and looked-at crops: a NEW fresh subagent reads each SHORT caption alone with the image; findings written unedited to docs/ms13_13t1f_review.md and triaged; no rebuild | review done and triaged (DL-600, docs/ms13_13t1f_review.md); findings open for the reviewer, no rebuild"
+  },
+  {
+   "id": "W1-limits-restored",
+   "figure": "F5, F5c",
+   "status": "failing",
+   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: no ruled claim limit dropped for length; G4-C3, G4-C4, regime map, N values (F5); G4-C3, MS11-C2, N values (F5c); word limits 460, 400, 460, 460"
+  },
+  {
+   "id": "W2-short-parameters-sentence",
+   "figure": "all",
+   "status": "failing",
+   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: one 'Parameters:' sentence per short caption, numbers from the Parameters / settings paragraphs of the full caption (test)"
+  },
+  {
+   "id": "W3-plain-numbers",
+   "figure": "all",
+   "status": "failing",
+   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: N ticks 1000, 3000, 10,000, 30,000; F5c (d) log ticks 1,000, 10,000, 100,000; no superscript glyph or mathtext superscript; fonts all Arial; digests equal"
+  },
+  {
+   "id": "W4a-f1-orange-lines",
+   "figure": "F1",
+   "status": "failing",
+   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: (i) orange solid and dashed line mark the windows of (j), (k); (j), (k) carry orange frames"
+  },
+  {
+   "id": "W4b-f5-class-definitions",
+   "figure": "F5",
+   "status": "failing",
+   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: S-sus and every class on the image defined in the short caption"
+  },
+  {
+   "id": "W4c-f5-tie-clause",
+   "figure": "F5",
+   "status": "failing",
+   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: tie clause in plain words; UNVERIFIED wording listed"
+  },
+  {
+   "id": "W4d-f3-plain-image-words",
+   "figure": "F3",
+   "status": "failing",
+   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: Hopf curve, Hopf point of a slice, 25 Hz crossing of a slice, Hopf point of the main example; three old phrases in the V3 word list"
+  },
+  {
+   "id": "W4e-f3-other-failed-checks",
+   "figure": "F3",
+   "status": "failing",
+   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: 'No other failed check is about this figure; the project's other failed checks are listed in Supplement F3'; the F3 supplement lists all project FAIL rows"
+  },
+  {
+   "id": "W6-look-at-all-crops",
+   "figure": "all",
+   "status": "failing",
+   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: every trial render and every recorded PNG looked at in full and in 4 quadrant crops (16 crops for the recorded figures)"
+  },
+  {
+   "id": "13t-1g-subagent-review-new",
+   "figure": "all",
+   "status": "failing",
+   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: a NEW fresh subagent, extended brief (claim limits and failed checks against the image); findings unedited in docs/ms13_13t1g_review.md; triaged; no rebuild"
   }
  ]
 }
