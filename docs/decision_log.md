@@ -6627,3 +6627,13 @@ Chosen:          as done   Default from: the prompt
 Test:            tests/test_ms13_13t1f.py
 Status:          committed before running
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-619  MS13 13t-2 Part A: the V5 definition check finds the first use of 'noisy subgrid' in either case    [ID: MS13, 13t, 13t-2, A4, V5, DL-617]
+Date:            2026-11-05        Author:
+Decision:        CHANGE (check only; stricter, not weaker). The V5 term pattern of 'noisy subgrid' in jshort.DEFS was r'\bnoisy subgrid\b' and so missed the first use 'Noisy subgrid' (capital N, with its definition) and found the first lower-case use, which the A4 clause of DL-615 introduced later in the F5 short caption, outside the definition window: the check (test_v5..., test_w4b, test_w4c, the verifier row 'definitions') reported 'noisy subgrid' undefined. The pattern is now r'\b[Nn]oisy subgrid\b': the first use of the term in either case is the one that must be defined; the definition pattern is unchanged. The caption text is not changed.
+Reason:          the first run of the tests after DL-617
+Options:         moving the A4 clause next to the definition (rejected: the ruled clause belongs after (d))
+Chosen:          as done   Default from: the prompt
+Test:            tests/test_ms13_13t1f.py; tests/test_ms13_13t1g.py; tests/test_ms13_13t.py
+Status:          committed before running
+Commit/tag:      the commit that adds this entry; no tag
