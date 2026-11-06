@@ -80,7 +80,7 @@ def test_v3_no_image_text_holds_stored_headline_companion_mode_d_fpk_p1_or_path_
 
 @needs
 def test_v3_the_ruled_plain_words_are_on_the_images(figs):
-    t = {f: " | ".join(_texts(figs[f][0])) for f in PILOT}
+    t = {f: " | ".join(_texts(figs[f][0])).lower() for f in PILOT}                  # DL-628 C9: the image text starts with a capital; compared in lower case
     assert "mean field (recorded run)" in t["F1"] and "recorded values" in t["F1"]
     assert "cycle frequency, main example" in t["F3"] and "spectral peak, main example" in t["F3"] and "(recorded)" in t["F3"]
     assert "no-noise mean field" in t["F5"] and "matching mean-field run (30 s)" in t["F5"] and "post-hoc re-scoring" in t["F5"] and "of (c)" in t["F5"]
@@ -97,7 +97,7 @@ def test_v4_no_e_notation_on_the_images_and_powers_of_ten_in_mathtext(figs):
     t = _texts(figs["F5c"][0])
     for want in ("N = 1000", "N = 3000", "N = 10,000", "N = 30,000", "1,000", "10,000", "100,000"):            # DL-610 (W3): plain numbers, no superscript
         assert want in t, want
-    assert any("peak frequency" in s for s in t)
+    assert any("peak frequency" in s.lower() for s in t)
 
 
 def test_v4_plain_n_rewrites_only_the_network_sizes():
@@ -123,10 +123,10 @@ def test_v2_f1_in_panel_line_is_one_plain_line_and_the_time_label_is_plain(figs)
     assert len(lines) == 2
     want = f"network class {d['cls120'][0]}; mean field {d['ref_class']}"
     for t in lines:
-        assert " ".join(t.get_text().split()).replace("; ", ";") in (want.replace("; ", ";"), want.replace("; ", ";")), t.get_text()
+        assert " ".join(t.get_text().split()).replace("; ", ";").lower() in (want.replace("; ", ";").lower(), want.replace("; ", ";").lower()), t.get_text()      # DL-628 C9: capital first letter
         assert "seeds agree" not in t.get_text() and "FAIL" not in t.get_text() and "RB1" not in t.get_text()
     labels = {t.get_text() for ax in fig.axes for t in (ax.xaxis.label,) if t.get_text()}
-    assert "time (s)" in labels and "path time (s)" not in labels
+    assert "time (s)" in {x.lower() for x in labels} and "path time (s)" not in {x.lower() for x in labels}
 
 
 @needs
@@ -151,7 +151,7 @@ def test_v1_f1_strips_hold_only_marks_and_the_key_holds_the_strip_note(figs):
         assert [t for t in ax.texts] == []
         xs = sorted(round(float(l.get_xdata()[0]), 3) for l in ax.lines if len(l.get_xdata()) == 1)
         assert xs == sorted([d["onset120_s"][0], *[round(x, 3) for x in d["raw120_s"]]]) or len(xs) == 4
-    assert any("event marks: strips above (d) and (f); height has no meaning" in t for t in _texts(fig))
+    assert any("event marks: strips above (d) and (f); height has no meaning" in t.lower() for t in _texts(fig))
     assert not any(t == "event times; height has no meaning" for t in _texts(fig))
 
 
@@ -269,7 +269,7 @@ def test_v7_the_count_in_each_short_caption_equals_the_count_computed_from_the_f
 def test_v7_short_names_only_failed_checks_that_are_drawn(built):
     assert JS.SHORT_NAMED == {"F1": {("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30s")}, "F3": {("RB9", "b_spectral_vs_cycle_headline")},
                               "F5": {("RB1", "cells_30s"), ("RB2", "noisy_subgrid_agreement")}, "F5c": {("RB6", "network_fpk_halving_dt")},
-                              "F2": set(), "F6": {("G7", "gate")}}                  # DL-625: F2 and F6 added in 13t-2
+                              "F2": {("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30s"), ("RB1", "overall")}, "F6": {("G7", "gate")}}                  # DL-625: F2 and F6 added in 13t-2; DL-628: the four RB1 rows of the red title of F2 (c)
     for f in PILOT:
         assert "listed in the supplement" in _short(built, f) and "All earlier failures and limits stand" in _short(built, f)
 
@@ -277,7 +277,7 @@ def test_v7_short_names_only_failed_checks_that_are_drawn(built):
 # ---- V8: limits and numbers ----
 
 def test_v8_word_limits_are_the_ruled_ones(cfg):
-    assert [J.caption_limit(cfg, f) for f in PILOT] == [520, 520, 520, 520]
+    assert [J.caption_limit(cfg, f) for f in PILOT] == [600, 600, 600, 600]
 
 
 @needs

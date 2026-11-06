@@ -52,14 +52,14 @@ def _norm(s):
 
 def test_a6_every_short_caption_limit_is_520(cfg):
     for f in ("F1", "F2", "F3", "F5", "F5c", "F6"):
-        assert J.caption_limit(cfg, f) == 520, f
-    assert cfg["caption"]["short_max_words"] == 520
+        assert J.caption_limit(cfg, f) == 600, f              # DL-628 C6 (was 520, DL-615 A6)
+    assert cfg["caption"]["short_max_words"] == 600
 
 
 @needs
 def test_a6_pilot_short_captions_fit(built):
     for f in PILOT:
-        assert JS.words(_short(built, f)) <= 520, f
+        assert JS.words(_short(built, f)) <= 600, f
 
 
 # ---- A1: F5c (d) legend and caption say the same ----
@@ -187,7 +187,7 @@ def test_b_short_captions_limits_definitions_and_counts(builtb):
     cfg = J.load_config(ROOT)
     for f in B_FIGS:
         short, full = _txt(builtb, f, "caption"), _txt(builtb, f, "caption_full")
-        assert JS.words(short) <= J.caption_limit(cfg, f) <= 520, f
+        assert JS.words(short) <= J.caption_limit(cfg, f) <= 600, f
         assert JS.undefined_terms(short) == [], f
         assert JS.limits_missing(f, short) == [], f
         assert JS.numbers_not_in_full(short, full) == [], f
@@ -214,7 +214,7 @@ def test_b_full_captions_have_seven_paragraphs_and_the_failed_rows(builtb):
 
 @needs_b
 def test_b_red_titles_and_plain_words_on_the_images():
-    for f, n_red in (("F2", 0), ("F6", 1)):
+    for f, n_red in (("F2", 1), ("F6", 1)):                  # DL-628 C1: F2 (c) has the red title
         with FG.journal_figure(f, close=False) as (fig, d, cfg):
             fig.canvas.draw()
             texts = [" ".join(t.get_text().split()) for t in fig.findobj(matplotlib.text.Text) if t.get_text() and t.get_visible()]
@@ -226,7 +226,7 @@ def test_b_red_titles_and_plain_words_on_the_images():
                 assert not re.search(rf"\b{re.escape(w)}\b", t), (f, t)
             assert not JS.ID_PATTERN.search(t) and "NC1" not in t and "^" not in t and not JK.E_NOTATION.search(t), (f, t)
         if f == "F6":
-            assert "negative-control check: FAIL" in " ".join(reds) and "S+" in texts
+            assert "negative-control check: fail" in " ".join(reds).lower() and "S+" in texts
 
 
 @needs_b

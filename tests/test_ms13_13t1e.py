@@ -127,9 +127,9 @@ def test_u1_f3_marks_the_two_frequencies_on_the_one_shared_colour_bar(figs):
     marks = fig.findobj(lambda a: a.get_gid() == "frequency mark")
     assert len(marks) == 2 and sorted(round(float(a.xy[0]), 3) for a in marks) == [44.609, 49.0]
     labels = sorted(a.get_text() for a in fig.findobj(lambda a: a.get_gid() == "frequency mark label"))
-    assert labels == ["cycle frequency, main example", "spectral peak, main example"]            # DL-592 V3
+    assert [x.lower() for x in labels] == ["cycle frequency, main example", "spectral peak, main example"]            # DL-592 V3
     (dt,) = fig.findobj(lambda a: a.get_gid() == "frequency mark difference")
-    assert dt.get_text() == "differ by 4.391 Hz; allowed 0.5 Hz"
+    assert dt.get_text().lower() == "differ by 4.391 hz; allowed 0.5 hz"
     bars = [ax for ax in fig.axes if ax.get_gid() == "colour bar frequency"]
     assert len(bars) == 1                                                 # ONE shared bar for (a) to (c)
     assert 4.391 == pytest.approx(spec - cyc)
@@ -146,7 +146,7 @@ def test_u1_f3_values_are_the_values_of_the_project_log_dl_388():
 def test_u1_f5c_b_has_the_plain_line_and_no_other_f5c_panel_has_a_red_title(figs):
     fig = figs["F5c"][0]
     lines = [a.get_text() for a in fig.findobj(lambda a: a.get_gid() == "step-halving line")]
-    assert len(lines) == 1 and " ".join(lines[0].split()) == "step-halving test not drawn: its runs are not recorded" == FG.F5CJ_B_LINE            # DL-592 V3
+    assert len(lines) == 1 and " ".join(lines[0].split()).lower() == "step-halving test not drawn: its runs are not recorded" == FG.F5CJ_B_LINE            # DL-592 V3
     assert len(JK.red_titles(fig)) == 1
 
 
@@ -167,8 +167,8 @@ def test_u3_two_caption_files_full_in_supplement_and_manifest(built, cfg):
 
 
 def test_u3_config_limits_are_set_and_unverified(cfg):
-    assert cfg["caption"]["short_max_words"] == 520 and cfg["caption"]["short_max_words_F1"] == 520            # DL-593 V8 (were 220 and 280)
-    assert J.caption_limit(cfg, "F1") == 520 and J.caption_limit(cfg, "F3") == 520 and J.caption_limit(cfg, "F5c") == 520
+    assert cfg["caption"]["short_max_words"] == 600 and cfg["caption"]["short_max_words_F1"] == 600            # DL-593 V8 (were 220 and 280)
+    assert J.caption_limit(cfg, "F1") == 600 and J.caption_limit(cfg, "F3") == 600 and J.caption_limit(cfg, "F5c") == 600
     assert "UNVERIFIED" in (ROOT / "configs" / "journal_export.yaml").read_text(encoding="utf-8")
 
 

@@ -22,7 +22,7 @@ RES = ROOT / "results"
 PILOT = ("F1", "F3", "F5", "F5c")
 INPUTS = {"F1": FG.F1_INPUTS, "F3": FG.F3_INPUTS, "F5": FG.F5_INPUTS, "F5c": FG.F5_INPUTS}
 needs = pytest.mark.skipif(not all((RES / p).is_file() for f in PILOT for p in INPUTS[f]), reason="stored F1, F3 and F5 inputs under results/ are absent")
-LIMITS = {"F1": 520, "F3": 520, "F5": 520, "F5c": 520}
+LIMITS = {"F1": 600, "F3": 600, "F5": 600, "F5c": 600}      # DL-628 C6
 
 
 @pytest.fixture(scope="module")
