@@ -54,7 +54,7 @@ DEFS = {
     "duration": (r"\bduration\b(?! of)(?<!ramp duration)", r"duration[^.;]{0,6}\(how long", "the ruling's 'first and last flags' is replaced by the full-caption wording 'flagged windows x step' (UNVERIFIED)"),
     "first crossing": (r"\bfirst crossings?\b", r"first crossings? of its detection threshold", "the plan does not say what the signal crosses: only 'first crossing of its detection threshold' is written (UNVERIFIED)"),
     "spectrogram": (r"\b[Ss]pectrograms?\b", r"[Ss]pectrograms? \(power against time and frequency", ""),
-    "tie": (r"\bties?\b", r"an equal split", ""),
+    "tie": (r"bties?b", r"no single majority class", "the plan has no sentence on ties; wording from the full caption (UNVERIFIED)"),
     "post hoc": (r"\bpost hoc\b", r"chosen after the results", ""),
     "90 percent rule": (r"\b90 percent rule\b", r"at least 90 percent of the", ""),
     "step-halving": (r"\bstep-halving\b", r"halving the numerical time step must change", ""),
@@ -265,8 +265,8 @@ def f5_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
         "the 4 network cells are numbered 1 to 4 here and in (b). "
         f"(b) Map class, matching mean-field run and network seed classes; {F5_AGREE_RULE}; cell 1 agrees. Network cells and matching run: ramp duration 30 s (map: 120 s); no equivalence is claimed. "
         # DL-604 W4(c): the tie clause in the words of the full caption ('majority class of 10 seeds', 'ties count as disagreements by the rule'); the plan has no sentence on ties, so 'no single majority class' is UNVERIFIED wording
-        "(c) Noisy subgrid (map cells re-run with noise, 10 seeds each): agree (circle), disagree (cross) or tie (plus: the 10 seeds have no single majority class, for example an equal split); "
-        "a tie counts as a disagreement under the 90 percent rule (at least 90 percent of the cells must agree). "
+        "(c) Noisy subgrid (map cells re-run with noise, 10 seeds each): agree (circle), disagree (cross) or tie (plus: no single majority class among the 10 seeds of the cell; it counts as a disagreement "
+        "under the 90 percent rule: at least 90 percent of the cells must agree). "
         "(d) The same cells re-scored by a rule chosen after the results (post hoc; no check; dashed frame). (e) Map 2: initial coupling J0 and ramp duration.",
         # DL-603 W2: values copied from the Parameters and settings paragraphs of the full caption (the classifier window depends on the ramp duration: 2 s and 1 s from 60 s up)
         "Parameters: model M3 (the mean-field model) with membrane time constant 10 ms and coupling J = -21; map 1: heterogeneity Delta 0.01 to 0.6 (30 values), synaptic decay time tau_d 1 to 50 ms (30 values), ramp duration 120 s; "

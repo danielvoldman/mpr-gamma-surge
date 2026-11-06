@@ -6517,3 +6517,13 @@ Chosen:          stop and report   Default from: the prompt
 Test:            scratch trial; mprsurge.plotting.jshort.finish
 Status:          stopped; waiting for the reviewer's ruling on F1 and F5
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-608  MS13 13t-1g: ruling on the W1 stop: all four short-caption limits 480; F5 tie clause wording    [ID: MS13, 13t, 13t-1g, W1, W4, DL-607]
+Date:            2026-11-05        Author:
+Decision:        CHANGE. (1) configs/journal_export.yaml: short_max_words_F1, _F3, _F5 and _F5c all 480 (UNVERIFIED; the Peer Community Journal's own limit, if any, was not read); no prose is trimmed and no limit or ruled content is dropped. If a caption is still over 480 the build stops and the counts are reported. (2) F5 tie clause (W4(c)): 'plus: no single majority class among the 10 seeds of the cell; it counts as a disagreement under the 90 percent rule' ('for example an equal split' removed: not in the plan); the wording stays UNVERIFIED. The definition probe of the term 'tie' in jshort.DEFS changes from 'an equal split' to 'no single majority class' (same term, new definition words). (3) F1 'starting at 5 s' accepted (the schematic on the image says 't_on: ramp start time'); F5 has no N values to restore in its (a) sentence (accepted); the one stray CR already inside docs/decision_log.md is not touched. (4) Test TEXT edits that follow, no data assertion changes: tests/test_ms13_13t1g.py LIMITS 480 each and the tie assertions (new wording); tests/test_ms13_13t1e.py line 170 to 171 expected limits (400 and 330 to 480 for all four, and short_max_words default stays 330).
+Reason:          instruction of the reviewer (ruling on the W1 stop)
+Options:         trim prose (not chosen)
+Chosen:          limits 480   Default from: the reviewer
+Test:            tests/test_ms13_13t1g.py; tests/test_ms13_13t1e.py
+Status:          committed before the rebuild of the trial renders
+Commit/tag:      the commit that adds this entry; no tag

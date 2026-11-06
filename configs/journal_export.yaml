@@ -37,9 +37,9 @@ collision:
   pad_pt: 0.5                          # two objects closer than this count as touching (UNVERIFIED)
 caption:
   short_max_words: 330                 # UNVERIFIED (DL-593 V8; DL-582 U3 a had 220): the most words of the SHORT caption of a figure (the one for the manuscript); the full caption goes to the supplement
-  short_max_words_F1: 460              # UNVERIFIED (DL-603 W1; DL-593 V8 had 400, DL-582 U3 a had 280): F1 has eleven panels and a schematic; room for the claim limits and the Parameters sentence (W2)
-  short_max_words_F3: 400              # UNVERIFIED (DL-603 W1; DL-593 V8 had 330)
-  short_max_words_F5: 460              # UNVERIFIED (DL-603 W1; DL-593 V8 had 330)
-  short_max_words_F5c: 460             # UNVERIFIED (DL-603 W1; DL-593 V8 had 330)
+  short_max_words_F1: 480              # UNVERIFIED (DL-603 W1; DL-593 V8 had 400, DL-582 U3 a had 280): F1 has eleven panels and a schematic; room for the claim limits and the Parameters sentence (W2)
+  short_max_words_F3: 480              # UNVERIFIED (DL-603 W1; DL-593 V8 had 330)
+  short_max_words_F5: 480              # UNVERIFIED (DL-603 W1; DL-593 V8 had 330)
+  short_max_words_F5c: 480             # UNVERIFIED (DL-603 W1; DL-593 V8 had 330)
 files:
   name_pattern: "^[A-Za-z0-9_+=,.-]+$"   # a-z A-Z 0-9 underscore plus minus dot comma equals; no spaces

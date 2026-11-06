@@ -22,7 +22,7 @@ RES = ROOT / "results"
 PILOT = ("F1", "F3", "F5", "F5c")
 INPUTS = {"F1": FG.F1_INPUTS, "F3": FG.F3_INPUTS, "F5": FG.F5_INPUTS, "F5c": FG.F5_INPUTS}
 needs = pytest.mark.skipif(not all((RES / p).is_file() for f in PILOT for p in INPUTS[f]), reason="stored F1, F3 and F5 inputs under results/ are absent")
-LIMITS = {"F1": 460, "F3": 400, "F5": 460, "F5c": 460}
+LIMITS = {"F1": 480, "F3": 480, "F5": 480, "F5c": 480}
 
 
 @pytest.fixture(scope="module")
@@ -187,7 +187,8 @@ def test_w4b_f5_defines_every_class_on_the_image(built):
 def test_w4c_f5_tie_clause_in_plain_words(built):
     s = _short(built, "F5")
     assert "no single majority class" in s and "10 seeds" in s and "disagreement" in s
-    assert "plus: an equal split, a disagreement by the 90 percent rule" not in s
+    assert "plus: an equal split, a disagreement by the 90 percent rule" not in s and "equal split" not in s
+    assert "no single majority class among the 10 seeds of the cell; it counts as a disagreement" in s
     assert JS.undefined_terms(s) == []
 
 
