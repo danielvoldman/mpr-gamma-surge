@@ -95,6 +95,11 @@ W5. Accepted unchanged: F1 in-panel statement on two lines; 'raw marks overlap' 
 X1. F3 keeps the red 'frequency check: FAIL' on (a), (b) and (c); the short and the full caption say that (a) and (b) are the same frequency map at other Delta and that the failed check was made at the main example in (c) and bears on them too.
 X2. Word limit of every short caption, pilot and new, at most 520 words (UNVERIFIED, configs/journal_export.yaml). A caption that does not fit stops the build; a ruled limit is never dropped.
 
+## Y1 to Y3 (13t-3, DL-628; Y1 is C1, Y2 is C6, Y3 is C9; the rest of Part A is one-off text edits, Part B applies the rules above to FS1 to FS5)
+Y1. A panel that compares the network with the mean field at amplitude level while the class-level network-against-mean-field checks failed carries the red title 'network vs mean field: FAIL' and one plain note on the panel saying that the classes disagree elsewhere and that the panel compares amplitudes only (no drawn value changes).
+Y2. Word limit of every short caption at most 600 words (UNVERIFIED, configs/journal_export.yaml; replaces X2). Repeated prose without a ruled limit is removed first; a caption that does not fit stops the build; a ruled limit is never dropped.
+Y3. Sentence case on every journal image: every label, title, legend entry, key line, schematic text and in-panel note starts with a capital and is otherwise lower case. Exceptions keep their form: eta_bar, Delta, J, tau_d, tau, T_ramp, t_on, N, f; S+, S-rel, S-abs, S-sus, NS, D-tr, D-sus, D-none; M3, ING, P1 to P5 (P4a, P4b); panel letters (a) to (k); units (ms, Hz, s, dB); FAIL and FAILED in titles. A test checks it on the built figures.
+
 ## Failures that stay visible (plan 7.2; shown, not dropped)
 RB1 FAIL; RB2 FAIL; RB6 solver FAIL (181 ms); RB6 network f_pk FAIL; RB9(b) FAIL (4.391 Hz against 0.5 Hz); G7 NOT PASSED; D24 noisy subgrid FAILED (97 of 225 = 43.1 percent, 203 needed).
 
