@@ -6747,3 +6747,13 @@ Chosen:          as done   Default from: the prompt
 Test:            tests/test_ms13_13t3.py; the edited tests
 Status:          Part A code done; F2 sentence 1 STOP reported
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-631  MS13 13t-3 Part B: reading of the draft FS figures (D3), status of FS1 to FS5, one correction of DL-630    [ID: MS13, 13t, 13t-3, D1, D2, D3, D4, DL-629, DL-630]
+Date:            2026-11-06        Author:
+Decision:        FACT AND SCOPE. (1) D3 done: docs/ms13_13t_progress.md (section '13t-3 Part B reading') records for FS1 to FS5 what every panel draws and which FAIL statuses concern it, read from the draft drawing code, the take-home constants and the stored A11 rows through strip_rows_of (FS3: RB1 four rows FAIL and RB2 two rows FAIL; FS4: RB6 solver onset 181 ms against 1 ms FAIL and RB6 network peak frequency FAIL; FS5: RB9(b) FAIL; FS1 and FS2: no A11 row). (2) D1: no FS figure is exported in 13t-3. The step was already large (Part A on six figures, the one build, the checks, the independent comparison, the review); FS1 to FS5 are left 'failing' in docs/ms13_export_checklist.json; no FS code, test, verifier row or comparison row was added (D4 only 'for the FS figures that are done': none); the FS drafts are untouched. FS2 to FS5 have 12, 8, 10 and 11 axes at 7.4 x 11.2 to 14.4 in against the 6.3 x 8.0 in page; that they cannot be set at 8 pt without touching is an area estimate only (no layout was tried), so it is not reported as the STOP of D1; splits are proposed in docs/ms13_13t3_notes.md (FS2a/b, FS3a/b, FS4a/b, FS5a/b). FS1 (5 panels, 9.8 in, no FAIL row) is the first candidate for the next step. D2 (evidence for every FS red title: FS2 (b), (l), FS3 (d), (e), (g), FS4 (a), (e), (f), FS5 (g2)) is open until the layouts are built. (3) Correction of DL-630 (the cited entry is not amended): the key handle of F2 is 3.8 font sizes (30.4 pt, 3.07 periods of the 9.9 pt dash-dot pattern), not 3.7 (29.6 pt, 2.99 periods: the first test found it 0.1 pt short of three periods); the code and the test say 3.8.
+Reason:          instruction of the reviewer (13t-3 prompt, Part B, D1 'if the step becomes too large')
+Options:         start FS1 and leave the verified Part A unfinished (not chosen)
+Chosen:          as done   Default from: the prompt
+Test:            -
+Status:          FS1 to FS5 failing; Part A continues to the one build
+Commit/tag:      the commit that adds this entry; no tag
