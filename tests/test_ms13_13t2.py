@@ -197,8 +197,7 @@ def test_b_short_captions_limits_definitions_and_counts(builtb):
         for w in PLAIN_BAN:
             assert not re.search(rf"\b{re.escape(w)}\b", short), (f, w)
         assert not JCAP.FORBIDDEN.search(short) and not JS.ID_PATTERN.search(short)
-    n2 = int(re.search(r"(\d+) further failed checks", _txt(builtb, "F2", "caption")).group(1))
-    assert n2 == JS.further_count("F2", _txt(builtb, "F2", "caption_full")) == 4
+    assert JS.further_count("F2", _txt(builtb, "F2", "caption_full")) == 0 and "No other failed check is about this figure" in _txt(builtb, "F2", "caption")       # DL-628 C1: the four RB1 rows are named in the red-title sentence (were 4 further failed checks)
     assert "No other failed check is about this figure" in _txt(builtb, "F6", "caption")
 
 
