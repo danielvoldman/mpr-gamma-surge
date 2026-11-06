@@ -514,6 +514,17 @@ JOURNAL_ALLOW = {
                    "DL-571 T10 (approved): the dark state mark of a subgrid cell (4.2 pt, 0.8 pt edge) is wider than its map-1 cell (3.0 pt) but inside the pitch of at least 6.0 pt "
                    "to the next subgrid cell, so no two marks touch; a mark of the cell size would be below 3 pt and unreadable")
         for pl in ("c", "d")),
+    "F2": (
+        AllowEntry("marker-marker", "*", r"marks:(mean field|network|Hopf point mark)", r"marks:(mean field|network|Hopf point mark)",
+                   "stored positions and ruled mark sizes (DL-616 B1): the S4 steps are 0.1 apart in eta_bar, 4.6 pt at the journal scale, and the ruled marks are 3.5 pt (mean field) and 3.4 pt (network) with their edges, so "
+                   "neighbouring steps are within the pad; the mean-field up and down sweeps are at the same eta_bar and agree to 1.2e-3 relative (recorded), and the network steps lie at eta_bar values that are also "
+                   "mean-field steps; the Hopf mark lies where the Hopf point is recorded; no position is moved and no mark is smaller than its ruled size"),
+        AllowEntry("marker-line", "*", r"marks:(mean field|network|Hopf point mark)", r"line:(fixed point|stable cycle|Hopf point line)",
+                   "stored positions: the S4 sweep values lie on the A5 branch (mean field against A5 differs by at most 1.84e-3 relative, recorded) and on the dotted line at the Hopf point where they are at that eta_bar; "
+                   "the Hopf mark is the point at which the fixed-point and cycle lines meet; the marks are drawn on top of the lines they agree with and are not moved"),
+        AllowEntry("marker-line", "c", r"marks:network", r"line:zero line",
+                   "stored positions: recorded relative differences near 0 (-0.00057, 0.00366 and 0.00382) lie on or near the zero line; the zero line is a reference line, not data"),
+    ),
     "F5c": tuple(
         AllowEntry("marker-line", pl, r"marks:(seed|control) N\d s\d", r"mean-field companion reference|stored minimum duration",
                    "stored value on the line (DL-571 T10): the line is the stored mean-field companion value (f_pk 49 Hz, onset 33.698 s) or the stored minimum duration (1000 ms, the classifier floor), "

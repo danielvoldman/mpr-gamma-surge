@@ -6525,6 +6525,14 @@ def _f2_vline_journal(ax, d: dict):
     sp.set_gid("relaxing band")
 
 
+def _f2_s4_journal(ax, d: dict, key: str, ycol: str, kind: str, what: str, mask=None) -> None:
+    """The S4 symbols of one source as in the draft (_s4_points), with a gid on each line (source, sweep direction, quantity) for the collision checker."""
+    n0 = len(ax.lines)
+    _s4_points(ax, d, key, ycol, kind, mask=mask)
+    for ln, direction in zip(ax.lines[n0:], ("up", "down")):
+        ln.set_gid(f"{'mean field' if key == 'mf' else 'network'} {direction} sweep {what}")
+
+
 def _draw_F2_journal(d: dict):
     from matplotlib.lines import Line2D
     from matplotlib.patches import Patch
@@ -6551,8 +6559,8 @@ def _draw_F2_journal(d: dict):
     (h,) = ax.plot([d["eta_H"]], [d["hopf_v_interp"]], ls="none", marker=hp.marker, ms=hp.size * 0.7, color=hp.colour, mew=hp.width, zorder=2.5)
     h.set_gid("Hopf point mark")
     for key, kind in (("mf", "mf"), ("net", "net")):
-        _s4_points(ax, d, key, f"{key}_vmax", kind)
-        _s4_points(ax, d, key, f"{key}_vmin", kind)
+        _f2_s4_journal(ax, d, key, f"{key}_vmax", kind, "maximum of v")
+        _f2_s4_journal(ax, d, key, f"{key}_vmin", kind, "minimum of v")
     ax.set_xlim(*xlim)
     ax.set_ylabel("v (mean potential)")
     _journal_title(ax, "a", "fixed point and cycle: maximum and minimum of v")
@@ -6562,17 +6570,17 @@ def _draw_F2_journal(d: dict):
         (ln,) = ax2.plot(d[f"a5_{name}_param"], d[f"a5_{name}_amp"], color=cyc.colour, lw=cyc.width, zorder=3)
         ln.set_gid("stable cycle")
     _f2_vline_journal(ax2, d)
-    _s4_points(ax2, d, "mf", "mf_v_ptp", "mf")
-    _s4_points(ax2, d, "net", "net_v_ptp", "net")
+    _f2_s4_journal(ax2, d, "mf", "mf_v_ptp", "mf", "amplitude")
+    _f2_s4_journal(ax2, d, "net", "net_v_ptp", "net", "amplitude")
     ax2.set_ylabel(f"v amplitude (max {MINUS} min)")
-    ax2.text(0.01, 0.97, F2J_LINE_B, transform=ax2.transAxes, va="top", ha="left").set_gid("panel note")
+    ax2.text(0.99, 0.06, F2J_LINE_B, transform=ax2.transAxes, va="bottom", ha="right").set_gid("panel note")
     _journal_title(ax2, "b", "amplitude of v: cycles, mean field and network")
     # (c) relative difference, network against mean field, above the Hopf point + 0.1 only
     ax3 = axes("c", sharex=ax)
     above = d["net_above_mask"] == 1.0
     ax3.axhline(0.0, color=S.F2_MARKS["zero_line"], lw=S.F2_MARKS["zero_line_width"], zorder=1).set_gid("zero line")
     _f2_vline_journal(ax3, d)
-    _s4_points(ax3, d, "net", "cmp_rel_v_ptp", "net", mask=above)
+    _f2_s4_journal(ax3, d, "net", "cmp_rel_v_ptp", "net", "relative difference", mask=above)
     ax3.set_xlim(*xlim)
     v = d["cmp_rel_v_ptp"][above]
     lo, hi = min(float(v.min()), 0.0), max(float(v.max()), 0.0)
