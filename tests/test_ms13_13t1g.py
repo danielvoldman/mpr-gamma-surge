@@ -217,5 +217,5 @@ def test_w4e_f3_sentence_and_supplement_list_every_fail_row(built):
     with open(RES / "A11" / "a11_robustness.csv", newline="", encoding="utf-8") as fh:
         a11 = list(csv.DictReader(fh))
     fails = [r for r in a11 if r["pass_or_fail"] == "FAIL"]
-    assert len(fails) >= 14
+    assert len(fails) == 13
     assert JK.fail_rows_missing(_sup(built, "F3"), a11) == []

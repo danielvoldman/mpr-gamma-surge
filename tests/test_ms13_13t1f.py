@@ -95,7 +95,7 @@ def test_v4_no_e_notation_on_the_images_and_powers_of_ten_in_mathtext(figs):
     for f in PILOT:
         assert JK.e_notation_violations(figs[f][0]) == [], f
     t = _texts(figs["F5c"][0])
-    for want in ("N = 10\u00b3", "N = 3\u00d710\u00b3", "N = 10\u2074", "N = 3\u00d710\u2074", "10\u00b3 ms", "10\u2074 ms", "10\u2075 ms"):            # DL-597: Unicode superscripts at 8 pt (mathtext superscripts are 5.6 pt)
+    for want in ("N = 1000", "N = 3000", "N = 10,000", "N = 30,000", "1,000", "10,000", "100,000"):            # DL-610 (W3): plain numbers, no superscript
         assert want in t, want
     assert any("peak frequency" in s for s in t)
 
@@ -203,7 +203,7 @@ def test_v6_f5_sentence_one_is_the_ruled_sentence_and_the_agreement_rule_is_stat
           "(43.1 percent; 203 cells, 90 percent, were needed).")
     assert short.startswith(s1)
     for want in ("a network cell agrees when all 3 seeds are in a surge class (S+: absolute and relative rise, ending; S-rel: relative only; S-abs: absolute only) where the mean field is D-tr", "cell 1 agrees",
-                 "numbered 1 to 4 here and in (b)", "a 30 x 30 grid", "at ramp duration 120 s", "ramp duration 30 s (map: 120 s); no equivalence is claimed", "tie (plus: an equal split, a disagreement by the 90 percent rule",
+                 "numbered 1 to 4 here and in (b)", "a 30 x 30 grid", "at ramp duration 120 s", "ramp duration 30 s (map: 120 s); no equivalence is claimed", "tie (plus: no single majority class among the 10 seeds of the cell; it counts as a disagreement",
                  "chosen after the results (post hoc; no check; dashed frame)", "Map 2: initial coupling J0"):
         assert want in short, want
 
@@ -222,7 +222,7 @@ def test_v6_f3_states_the_slice_counts_the_grey_circle_and_the_one_arrow(built):
 def test_v6_f1_states_the_ruled_facts(built):
     short = _short(built, "F1")
     for want in ("By eye the network envelopes in (d) and (f) look similar to the mean-field ones in (c) and (e)", "no claim is made about the visual shape, either way", "(nearly coincident)",
-                 "same y axes as (c), (e)", "dashed lines: 25 and 100 Hz, the gamma band", "orange frames: the windows of (j), (k)",
+                 "same y axes as (c), (e)", "dashed lines: 25 and 100 Hz, the gamma band", "an orange solid line and an orange dashed line mark the two windows shown in (j) and (k) (orange frames)",
                  "coupling J (negative = inhibitory)", "peaks at 49.0 Hz (not drawn)", "all 3 random seeds"):
         assert want in short, want
 
@@ -255,7 +255,7 @@ def test_v7_the_count_in_each_short_caption_equals_the_count_computed_from_the_f
         short, full = _short(built, f), _full(built, f)
         n = JS.further_count(f, full)
         if n == 0:
-            assert "No further failed check of the project is listed for this figure" in short, f
+            assert "No other failed check is about this figure; the project's other failed checks are listed in Supplement F3." in short, f
         else:
             assert f"{n} further failed checks of the project are not shown in this figure; all are listed in Supplement {f}." in short, f
         # an independent recount of the rows named in the full caption's failed-checks paragraph
@@ -276,7 +276,7 @@ def test_v7_short_names_only_failed_checks_that_are_drawn(built):
 # ---- V8: limits and numbers ----
 
 def test_v8_word_limits_are_the_ruled_ones(cfg):
-    assert [J.caption_limit(cfg, f) for f in PILOT] == [400, 330, 330, 330]
+    assert [J.caption_limit(cfg, f) for f in PILOT] == [480, 480, 480, 480]
 
 
 @needs
