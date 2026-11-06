@@ -6537,3 +6537,13 @@ Chosen:          as done   Default from: the prompt
 Test:            tests/test_ms13_13t.py; tests/test_ms13_13t1g.py
 Status:          committed before the next run
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-610  MS13 13t-1g: edits of the expected TEXT of older tests (no data assertion changes), F5 'classifier' definition, one count correction    [ID: MS13, 13t, 13t-1g, W1, W2, W3, W4, DL-597, DL-598]
+Date:            2026-11-05        Author:
+Decision:        CHANGE (text only). The four MS13 test files were run on the committed state after the builders of W1 to W4; these older tests failed only because they quote text that the rulings W1 to W4 change; each expected text follows the ruling, no number or data assertion changes: (1) tests/test_ms13_13t1e.py test_u2_plain_titles_are_the_ruled_words: the F3 image no longer holds 'continuation' and 'frequency-map' (W4(d)); it now requires 'Hopf curve' and forbids both words. (2) tests/test_ms13_13t1f.py test_v4_no_e_notation_on_the_images_and_powers_of_ten_in_mathtext: the F5c tick labels are 'N = 1000', 'N = 3000', 'N = 10,000', 'N = 30,000' and '1,000', '10,000', '100,000' (W3, replaces the superscripts of DL-597). (3) test_v6_f5_sentence_one_is_the_ruled_sentence_and_the_agreement_rule_is_stated: the tie clause is the W4(c) wording (DL-608). (4) test_v6_f1_states_the_ruled_facts: 'orange frames: the windows of (j), (k)' becomes the W4(a) wording. (5) test_v7_...: the F3 sentence with N = 0 is the W4(e) wording. (6) test_v8_word_limits_are_the_ruled_ones: 480 for all four (DL-608). The new test test_w4e_f3_sentence_and_supplement_list_every_fail_row required at least 14 FAIL rows: the stored A11 table has 13 FAIL rows (plus 3 NOT EVALUABLE rows, which are not failed checks), so it now requires exactly 13 (a miscount of mine in the reporting of DL-607's predecessor; DL-604 states no number). F5 Parameters sentence: 'classifier' is first used there, so it reads 'classifier (fixed before the analysis) window 2 s ...' (V5 definition probe 'fixed before the analysis'; the shorter form keeps F5 inside 480 words; no prose is trimmed).
+Reason:          instruction of the reviewer (13t-1g prompt, step 4: test text edits, each logged first)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            tests/test_ms13_13t*.py
+Status:          committed before the next run
+Commit/tag:      the commit that adds this entry; no tag

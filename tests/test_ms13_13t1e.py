@@ -86,7 +86,7 @@ def test_u2_plain_titles_are_the_ruled_words(figs):
     assert "frequency check: FAIL" in texts["F3"] and "network vs mean field: FAIL" in texts["F1"] + " " + "network vs mean field: FAIL"   # F1 holds the words in the titles of (d) and (f)
     assert "network vs mean field" in texts["F1"] and "network vs mean field, cells: FAIL" in texts["F5"] and "network vs mean field FAIL" in texts["F5"]
     assert "90 percent agreement rule: FAILED" in texts["F5"] and "step-halving check: FAIL" in texts["F5c"]
-    assert "continuation" in texts["F3"] and "frequency-map" in texts["F3"]
+    assert "Hopf curve" in texts["F3"] and "continuation" not in texts["F3"] and "frequency-map" not in texts["F3"]          # DL-610 (W4(d))
     for f, words in (("F3", ("A4", "A6")), ("F5", ("RB1", "D24")), ("F5c", ("RB6",)), ("F1", ("RB1",))):
         assert not any(re.search(rf"(?<![A-Za-z0-9_]){w}(?![A-Za-z0-9_])", texts[f]) for w in words), (f, words)
 

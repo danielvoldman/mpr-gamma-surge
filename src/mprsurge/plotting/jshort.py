@@ -271,7 +271,7 @@ def f5_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
         # DL-603 W2: values copied from the Parameters and settings paragraphs of the full caption (the classifier window depends on the ramp duration: 2 s and 1 s from 60 s up)
         "Parameters: model M3 (the mean-field model) with membrane time constant 10 ms and coupling J = -21; map 1: heterogeneity Delta 0.01 to 0.6 (30 values), synaptic decay time tau_d 1 to 50 ms (30 values), ramp duration 120 s; "
         "map 2: J0 -40 to -5 (25 values), 13 ramp durations, Delta 0.3, tau_d 5 ms; network cells: ramp duration 30 s; "
-        "classifier window 2 s, step 1 s for ramp durations of 60 s or more (shorter ramps use a shorter window), gamma band 25 to 100 Hz; noise level sigma = 0.0624 (its check failed).",
+        "classifier (fixed before the analysis) window 2 s, step 1 s for ramp durations of 60 s or more (shorter ramps use a shorter window), gamma band 25 to 100 Hz; noise level sigma = 0.0624 (its check failed).",
         "Failed checks (red titles): network against mean field at the 4 cells (same class required) and the 90 percent rule.",
         further_sentence("F5", full),
         limit_clauses("F5", {"G4-C3": "no-ramp network controls (the same network without the ramp) are classified into surge classes"}),
