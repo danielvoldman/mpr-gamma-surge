@@ -166,7 +166,7 @@ def f6_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list, 
               "and drive amplitudes 0.5, 1 and 2 (swept); the map cells have their own Delta and tau_d as in the tick labels of (c).")
     failed = ("Shown, not dropped (the full list with value, threshold and source is in the supplement): " + "; ".join(JC.failed_line(r) for r in strip_rows) + ". " + JC.title_sentence(F6_ID)
               + " The failed result is the class S+ of the one network run, drawn as the red circle of (c); the stored table gives no value or threshold for the gate row.")
-    limits = JC.limits_paragraph(ids, not_applicable) + " " + JC.limit_scope(ids)
+    limits = JC.limits_paragraph(ids, not_applicable, na_text=PL.NOT_APPLICABLE_PLAIN_F6) + " " + JC.limit_scope(ids)
     rest = " ".join([take, panels, settings, params, failed, limits])
     key = " ".join(x for x in [
         JC.key_symbols(rest, "Delta", "tau_d", "T_ramp", "N", "M3"),

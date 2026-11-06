@@ -330,9 +330,9 @@ def settings_line(crit: dict, *, spectrogram: dict | None = None, extra: str = "
     return s + extra
 
 
-def limits_paragraph(ids, not_applicable=None, pointer: str = "") -> str:
+def limits_paragraph(ids, not_applicable=None, pointer: str = "", na_text: str | None = None) -> str:
     from . import plain as PL
-    return (pointer + " " if pointer else "") + "Claim limits: " + PL.plain_limit_text(ids, not_applicable)
+    return (pointer + " " if pointer else "") + "Claim limits: " + PL.plain_limit_text(ids, not_applicable, na_text)
 
 
 def pv(rows: list, key: str, panel: str | None = None):

@@ -6647,3 +6647,13 @@ Chosen:          as done   Default from: the prompt
 Test:            tests/test_ms13_13t2.py (Part B tests); scripts/ms13_verify_export.py; independent comparison
 Status:          committed before running
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-621  MS13 13t-2 Part B: verifier findings of the first trial build (non-colour pair in F2, red-green pair in F6, F6 not-applicable wording) and the changes made for them    [ID: MS13, 13t, 13t-2, B1, B3, DL-620]
+Date:            2026-11-05        Author:
+Decision:        CHANGE (committed before it is run). A trial build of all six journal files into the session scratchpad (not the recorded build) ran scripts/ms13_verify_export.py: the four pilot files passed with equal digests; F2 failed 'non-colour' (the stable fixed point, grey solid 2.2 pt, and the stable cycle, black solid 1.2 pt, differ in colour and line width only; the check's signature is marker, line style and fill, and is not changed) and F6 failed 'full caption' (the not-applicable reason of the limit on the boundary definition and the exit extension was the F5 sentence) and 'red-green' (in panel (c) the green class mark D-none of the five cells and the red class mark S+ of the network run share one axes, L* difference 5.1 against 15). CHANGES: (1) F2 journal: the stable fixed point is drawn as a dash-dot line (the cycle stays solid, the unstable fixed point dashed), in the plot and in the key; layout/style only. (2) F6 journal: panel (c) is drawn in two axes under one title, the five map cells and, separated by a gap, the network run; the class colours are unchanged (ruled); the two class colours no longer share an axes; the red mark is still labelled S+ and differs from the cell marks in shape and size. The reviewer may prefer one axes and a different ruling on the green and red class colours (the check, not the colours, is the reason for the split: UNVERIFIED reading of the rule, listed in docs/ms13_13t2_notes.md). (3) The F6 full caption gets the F6 not-applicable reason (plain.NOT_APPLICABLE_PLAIN_F6, jcaption.limits_paragraph na_text). No check is changed.
+Reason:          the first run of the verifier on F2 and F6 (instruction of the reviewer: 'no mark moved ... a non-colour distinction for every colour code')
+Options:         add line width to the non-colour signature (rejected: weakens the check); recolour S+ or D-none in (c) (rejected: class colours are ruled)
+Chosen:          as done   Default from: the prompt
+Test:            scripts/ms13_verify_export.py; tests/test_ms13_13t2.py
+Status:          committed before running
+Commit/tag:      the commit that adds this entry; no tag

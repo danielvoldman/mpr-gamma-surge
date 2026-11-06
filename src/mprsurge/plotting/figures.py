@@ -6523,6 +6523,7 @@ F2J_HEIGHT = 8.0
 F2J_LEFT, F2J_WIDTH = 0.98, 5.1
 F2J_ROWS = {"a": (0.36, 2.2), "b": (3.2, 1.4), "c": (5.2, 1.4)}          # (top of the axes, height) in inches from the top edge
 F2J_SOURCE_LABEL = {"mf": "mean field", "net": "network (N = 10,000), mean V of non-refractory neurons"}
+F2J_STABLE_LS = "-."                                                      # the stable fixed point is a dash-dot line (DL-621): the stable cycle is solid and the unstable fixed point dashed
 F2J_LINE_B = "mean-field up and down sweeps coincide"                     # one short plain line (B2)
 F2J_LINE_C = "not drawn at and below the Hopf point"                      # one short plain line (B2)
 MINUS = "−"
@@ -6560,7 +6561,7 @@ def _draw_F2_journal(d: dict):
     st = d["fixed_stable"] == 1.0
     for m, mk in ((st, fs), (~st, fu)):
         seg = np.where(m, d["fixed_v"], np.nan)
-        (ln,) = ax.plot(d["fixed_param"], seg, color=mk.colour, ls=mk.linestyle, lw=mk.width, zorder=2)
+        (ln,) = ax.plot(d["fixed_param"], seg, color=mk.colour, ls=F2J_STABLE_LS if mk is fs else mk.linestyle, lw=mk.width, zorder=2)
         ln.set_gid("fixed point " + ("stable" if mk is fs else "unstable"))
     for name in ("up", "down"):
         for ycol in ("vmax", "vmin"):
@@ -6608,7 +6609,7 @@ def _draw_F2_journal(d: dict):
     kx.set_gid("legend axes")
     mfu, mfd, nu, nd = (S.diagram_mark(k) for k in ("s4_mf_up", "s4_mf_down", "s4_net_up", "s4_net_down"))
     mfc, nc = S.SOURCE_COLOURS["mean_field"], S.SOURCE_COLOURS["network"]
-    hh = [Line2D([], [], color=fs.colour, ls=fs.linestyle, lw=fs.width), Line2D([], [], color=fu.colour, ls=fu.linestyle, lw=fu.width), Line2D([], [], color=cyc.colour, lw=cyc.width),
+    hh = [Line2D([], [], color=fs.colour, ls=F2J_STABLE_LS, lw=fs.width), Line2D([], [], color=fu.colour, ls=fu.linestyle, lw=fu.width), Line2D([], [], color=cyc.colour, lw=cyc.width),
           Line2D([], [], color=hp.colour, ls=hp.linestyle, lw=hp.width), Patch(fc=S.FS_COLOURS["patch_edge"], alpha=0.18, lw=0),
           Line2D([], [], ls="none", marker=hp.marker, ms=hp.size * 0.7, color=hp.colour, mew=hp.width)]
     ll = ["fixed point, stable", "fixed point, unstable", "stable cycle: maximum and minimum of v", f"Hopf point: {JETA} {d['eta_H']:.3f} (dotted line)",
@@ -6627,7 +6628,8 @@ def _draw_F2_journal(d: dict):
 # Own layout code (like F1, F2 and F5). Layout only: every drawn value is the draft's. Plain words on the image (DL-616 B2): no check, gate or step ID; the controls are called negative control 1, 2 and 3.
 F6J_HEIGHT = 8.0
 F6J_ROWS = {"a": (0.38, 1.3), "b": (2.8, 2.05), "c": (5.62, 1.0), "d": (5.62, 1.0), "e": (5.62, 1.0)}      # (top of the axes, height) in inches from the top edge
-F6J_COLS = {"a": (0.75, 5.35), "b": (1.78, 4.37), "c": (0.85, 1.3), "d": (2.95, 1.35), "e": (4.78, 1.2)}      # (left edge, width) in inches
+F6J_COLS = {"a": (0.75, 5.35), "b": (1.78, 4.37), "c": (0.85, 0.96), "d": (2.95, 1.35), "e": (4.78, 1.2)}
+F6J_COL_C2 = (1.9, 0.28)                                                       # the network-run axes of panel (c): (left, width) in inches      # (left edge, width) in inches
 F6J_BAR_W = 0.22
 F6J_LABEL_WORDS = {"a": "Delta above critical", "b": "tau_d outside window", "c": "a flag, not a demonstrated cause", "d": "ramp too fast for 10 cycles", "e": "no exit (D-sus or S-sus)",
                    "f": "amplitude below the fixed threshold", "g": "Hopf point, no time inside", "h": "rejected by the damped-oscillation test"}     # plain words of the stored short forms (A9_LABELS); h: the 'damped (D8) clause' without the ID
@@ -6732,18 +6734,22 @@ def _draw_F6_journal(d: dict, columns: dict | None = None):
         st = S.get(c)
         (mk,) = axc.plot([j], [0], ls="none", marker=st.marker, ms=S.POINT_SIZES["f6_control"], color=st.colour, mec=S.figure_colour("bar_edge"), mew=S.POINT_EDGE_WIDTH["class"], zorder=4)
         mk.set_gid(f"class mark cell {j}")
-    x_net = len(d["nc1_cells_class"]) + 0.6
-    axc.axvline(x_net - 0.8, color=S.F6_MARKS["separator"], lw=S.F6_MARKS["line_width"], ls=":", zorder=1).set_gid("separator")
+    x_net = 0.0
+    axc2 = _ax_in(fig, F6J_COL_C2[0], F6J_ROWS["c"][0], F6J_COL_C2[1], F6J_ROWS["c"][1])
     st = S.get(d["nc1_net_class"])
-    (mk,) = axc.plot([x_net], [0], ls="none", marker=st.marker, ms=S.POINT_SIZES["f6_network_run"], color=st.colour, mec=S.figure_colour("bar_edge"), mew=S.POINT_EDGE_WIDTH["class_large"], zorder=4)
+    (mk,) = axc2.plot([x_net], [0], ls="none", marker=st.marker, ms=S.POINT_SIZES["f6_network_run"], color=st.colour, mec=S.figure_colour("bar_edge"), mew=S.POINT_EDGE_WIDTH["class_large"], zorder=4)
     mk.set_gid("class mark network run")
-    axc.text(x_net, -0.3, d["nc1_net_class"], ha="center", va="bottom", color=S.figure_colour("fail_text")).set_gid("panel note")
+    axc2.text(x_net, -0.3, d["nc1_net_class"], ha="center", va="bottom", color=S.figure_colour("fail_text")).set_gid("panel note")
     axc.set_ylabel("expected: no surge class" if d["nc1_net_expected"] == "NS" else "expected class")
     axc.set_yticks([])
     axc.set_xlabel("map cell: Delta, tau_d (ms)")
-    axc.set_xticks(list(range(len(cols["cells"]))) + [x_net], cols["cells"] + [cols["network"]], rotation=90)
-    axc.set_xlim(-0.6, x_net + 0.9)
+    axc.set_xticks(list(range(len(cols["cells"]))), cols["cells"], rotation=90)
+    axc.set_xlim(-0.6, len(cols["cells"]) - 0.4)
     axc.set_ylim(1.0, -0.8)
+    axc2.set_xticks([x_net], [cols["network"]], rotation=90)
+    axc2.set_xlim(-0.6, 0.6)
+    axc2.set_ylim(1.0, -0.8)
+    axc2.set_yticks([])
     _journal_title(axc, "c", "negative-control check", fail=True)
 
     # (d), (e) S6 and the P2 comparators against T_ramp
