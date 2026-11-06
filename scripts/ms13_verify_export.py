@@ -218,7 +218,7 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         res["short numbers"] = ("PASS" if not nn else "FAIL", "every number of the short caption is in the full caption" if not nn else f"numbers not in the full caption: {nn[:5]}")
         # DL-603 W2: the one 'Parameters:' sentence takes its numbers from the Parameters and settings paragraphs of the full caption; F3 says that no classifier or spectrogram is used
         pm = JSH.parameters_numbers_missing(short, cap)
-        f3_ok = fid != "F3" or "no classifier or spectrogram" in JSH.parameters_sentence(short)
+        f3_ok = fid != "F3" or ("no classifier" in JSH.parameters_sentence(short) and "is used" in JSH.parameters_sentence(short))
         res["short parameters"] = ("PASS" if not pm and f3_ok else "FAIL", "every number of the short Parameters sentence is in the Parameters or settings paragraph of the full caption" if not pm and f3_ok
                                    else f"numbers not in the full caption's Parameters or settings paragraphs: {pm[:5]}" + ("" if f3_ok else "; F3 must say that no classifier or spectrogram is used"))
         # DL-604 W4(e): the F3 short caption points to the supplement for the project's other failed checks, so the F3 supplement must hold every FAIL row of the stored A11 table

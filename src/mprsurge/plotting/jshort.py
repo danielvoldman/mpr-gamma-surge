@@ -243,7 +243,7 @@ def f3_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
         "P3 (P2 plus a common drive) and P5 (up, then back), drawn as one arrow because their eta_bar, Delta and tau_d are equal; P4a, P4b (P2 with Delta multiplied by 1.5 or 2/3) are separate. (e) One row per path.",
         # DL-603 W2: values copied from the Parameters paragraph of the full caption; the M3 gloss moved here from the limit clause (first use); no classifier or spectrogram is used (settings paragraph)
         "Parameters: model M3 (the mean-field model with rate, mean potential and a synaptic variable) with membrane time constant 10 ms and J = -21; Delta = 0.05, 0.1 and 0.3; "
-        "tau_d = 1 to 50 ms (9 values); no classifier or spectrogram is used.",
+        "tau_d = 1 to 50 ms (9 values); no classifier (a rule fixed before the analysis) or spectrogram (power against time and frequency) is used.",
         further_sentence("F3", full),
         limit_clauses("F3", {"MS11-C3": "the two frequencies differ by 4.39 Hz at the main example, and peak frequencies are spectral peaks",
                              "MS12-C1": "the gamma-band result is stated for model M3 only"}),

@@ -6527,3 +6527,13 @@ Chosen:          limits 480   Default from: the reviewer
 Test:            tests/test_ms13_13t1g.py; tests/test_ms13_13t1e.py
 Status:          committed before the rebuild of the trial renders
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-609  MS13 13t-1g: F3 Parameters sentence defines 'classifier' and 'spectrogram' (V5); check text edits    [ID: MS13, 13t, 13t-1g, W2, V5]
+Date:            2026-11-05        Author:
+Decision:        CHANGE. The older test test_r2_verifier_cvd_row_is_manual_and_the_three_builds_have_no_fail (tests/test_ms13_13t.py) found the verifier row 'definitions' FAIL for F3: the Parameters sentence 'no classifier or spectrogram is used' used two terms of V5 without their definitions. The sentence now reads 'no classifier (a rule fixed before the analysis) or spectrogram (power against time and frequency) is used' (the words of the V5 definitions of the same caption family; the F3 settings paragraph says that no classifier or spectrogram is used). Check text follows (my own 13t-1g checks only, no data assertion): scripts/ms13_verify_export.py row 'short parameters' and tests/test_ms13_13t1g.py test_w2_values_of_the_sentences now look for 'no classifier' and 'is used' instead of the former substring 'no classifier or spectrogram'.
+Reason:          a failing pre-existing check found a real defect of the new sentence
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            tests/test_ms13_13t.py; tests/test_ms13_13t1g.py
+Status:          committed before the next run
+Commit/tag:      the commit that adds this entry; no tag

@@ -113,7 +113,7 @@ def test_w2_values_of_the_sentences(built):
     p = {f: JS.parameters_sentence(_short(built, f)) for f in PILOT}
     for needle in ("M3", "J = -21", "Delta = 0.3", "tau_d = 5 ms", "10 ms", "120 s", "5 s", "10,000", "2 s", "1 s", "25 to 100 Hz", "0.0624", "checked, not confirmed"):
         assert needle in p["F1"], needle
-    assert "no classifier or spectrogram" in p["F3"] and "0.05" in p["F3"] and "1 to 50 ms" in p["F3"] and "J = -21" in p["F3"]
+    assert "no classifier" in p["F3"] and "is used" in p["F3"] and "0.05" in p["F3"] and "1 to 50 ms" in p["F3"] and "J = -21" in p["F3"]
     for needle in ("0.01 to 0.6", "1 to 50 ms", "120 s", "-40 to -5", "30 s", "0.0624", "25 to 100 Hz"):
         assert needle in p["F5"], needle
     for needle in ("1000, 3000, 10,000", "30,000", "60 s", "25 to 100 Hz", "0.0624"):
