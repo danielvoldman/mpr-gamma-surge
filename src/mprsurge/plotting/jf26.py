@@ -182,7 +182,7 @@ def f6_facts(d: dict) -> dict:
 def f6_sentence_points(d: dict) -> str:
     f = f6_facts(d)
     return (f"The {f['n_all']} points drawn in (d) and (e) are the {f['n_pre']} pre-registered runs and {f['n_cmp']} P2 comparator runs. In (e) the recorded peak frequencies of P3 (drive 0.5 and 1), P4b and the P2 comparators "
-            f"are identical ({', '.join(f['fpk'][:-1])} and {f['fpk'][-1]} Hz at the four T_ramp), so those lines overlap.")
+            f"are identical ({', '.join(f['fpk'][:-1])} and {f['fpk'][-1]} Hz), so those lines overlap.")
 
 
 def _f6_rows_none(d: dict) -> int:
@@ -261,11 +261,11 @@ def f6_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
         f"(b) Class of each negative control against the ramp duration T_ramp at {n13} values: negative control 1 without and with noise (10 seeds; text: seeds in another class, S-rel in {s_rel_n} of {c['n_runs']} runs; "
         "S-rel: relative rise only; NS: no rise, the noisy-run counterpart of D-none), negative control 2 (the full path with the drive off and on) and negative control 3 (inhibition raised while the mean excitability falls; exploratory). "
         "Negative control 2 is D-tr at every ramp duration in the mean field; the failed check is the one on negative control 1 (network S+). "
-        f"(c) The first negative control at the {len(c['cells'])} map cells (class D-none (no episode) at all) and as the network run (red S+). "
+        f"(c) The first negative control at the {len(c['cells'])} map cells (all D-none, no episode) and as the network run (red S+). "
         "(d), (e) Onset (when the classifier, a rule fixed before the analysis, first flags the gamma rise) and peak frequency (the peak of the power spectrum) of P2 (the hypoxia-like path: mean excitability raised, "
         "coupling J ramped to 0 after a delay), P3 (P2 plus a common drive, amplitude 0.5, 1, 2), P4a and P4b (P2 with Delta, the heterogeneity, multiplied by 1.5 or 2/3) at T_ramp 10, 30, 120 and 300 s; "
-        f"all are D-tr, so the surge is not confined to P3. {f6_sentence_points(d)}",
-        "Failed check: the negative-control check (the network run must not be in a surge class): FAIL.",
+        f"all are D-tr. {f6_sentence_points(d)}",
+        "Failed check: the network run of negative control 1 must not be in a surge class: FAIL.",
         JS.further_sentence(F6_ID, full),
         f"Parameters: model M3 (the mean-field model); network run N = {c['N']:,}, heterogeneity Delta = {n(c['Delta'])}, synaptic decay time tau_d = {n(c['tau_d'])} ms, ramp duration {n(c['T_ramp'])} s; "
         "classifier window 2 s, step 1 s for ramp durations of 60 s or more (shorter ramps use a shorter window), gamma band 25 to 100 Hz; noise level sigma = 0.0624.",
