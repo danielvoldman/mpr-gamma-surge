@@ -246,7 +246,7 @@ def test_b_supplement_source_data_and_alt_text(builtb):
         assert "plain text on the image" in text and "stored key names" in text.lower() or "Stored names behind" in text
         assert (sup / f"{f}_source_data.csv").stat().st_size / 1e6 < 20
         assert (sup / f"{f}_alt_text.txt").read_text(encoding="utf-8").startswith("Panel (a)")
-    assert "negative-control check: FAIL" in (sup / "F6_supplement.md").read_text(encoding="utf-8")
+    assert "Negative-control check: FAIL" in (sup / "F6_supplement.md").read_text(encoding="utf-8")            # DL-628 C9: the plain title as drawn
 
 
 @needs_b

@@ -208,7 +208,7 @@ def test_c5_f5_f5c_f3_f1_short_clauses(built):
     assert "the blank lines through (c) and (d) are map cells that are not in the noisy subgrid" in f5
     for s in ("no seed is S-rel", "3 control seeds per N is a small sample", "the controls also flag onsets from 10.0 to 33.0 s, so onset is not a ramp-specific signal in this figure",
               "the plotted peak frequencies come from runs whose step-halving check failed, so they are not shown to be converged"):
-        assert s in f5c, s
+        assert s.lower() in f5c.lower(), s                  # the clauses are one sentence of the short caption (capital first letter)
     assert "The paths coincide in (c) and (d) because they differ in J, drive or time course, which these planes do not show" in f3
     assert f1.count("not drawn here") == 2 and "(the 10 s ramp is not drawn here)" in f1 and "map cells (one parameter pair of a grid of mean-field runs; not drawn here)" in f1
 

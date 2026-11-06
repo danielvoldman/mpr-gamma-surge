@@ -6528,7 +6528,7 @@ _F2J_STABLE_LS_OLD = "-."                                                      #
 F2J_LINE_B = "mean-field up and down sweeps coincide"                     # one short plain line (B2)
 F2J_LINE_C = "not drawn at and below\nthe Hopf point"                      # one short plain line (B2); two lines since 13t-3
 F2J_NOTE_C = "the network and mean-field\nclasses disagree elsewhere\n(check failed); this panel\ncompares amplitudes only"      # 13t-3 C1 (DL-628): the one plain note of the red title of (c)
-F2J_KEY_HANDLE = 3.7                                                     # 13t-3 C2: key handle length in font sizes (29.6 pt at 8 pt: at least 3 dash periods of the stable fixed point)
+F2J_KEY_HANDLE = 3.8                                                     # 13t-3 C2: key handle length in font sizes (30.4 pt at 8 pt: at least 3 dash periods (3.07 of 9.9 pt) of the stable fixed point)
 MINUS = "−"
 
 

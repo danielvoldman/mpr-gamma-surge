@@ -133,8 +133,8 @@ def f2_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
         f"{c['mf_n']} steps each way for the mean field, {c['n_net']} for the network, each step lasting {n(c['step_s'])} s): mean field filled triangle (up) and hollow caret (down), network open square (up) and open diamond (down). "
         f"(b) The v amplitude (maximum minus minimum); the mean-field up and down sweeps coincide (largest difference {up_down} relative from 0.2 above the Hopf point). {f2_sentence_updown(d)} {f2_sentence_hopf(d)} "
         f"(c) The relative difference of the network's v amplitude from the mean field's, above eta_bar {c['above']:.3f} only (nearer to the Hopf point the shaded steps are still relaxing).",
-        "Failed check (red title of (c)): the network and the mean field must fall in the same class, checked at the main example for ramp durations of 10 s and 120 s, at 4 map cells and overall, and all four checks failed; "
-        "they compare classes, which this figure does not draw, so " + F2_RED_NOTE + ". Panels (a) and (b) have no red title.",
+        "Failed check (red title of (c)): network against mean field (the same class is required), checked at the main example (the run fixed before the analysis as the main case) for ramp durations of 10 s and 120 s, "
+        "at 4 map cells (one parameter pair of a grid of mean-field runs) and overall; all four checks failed. They compare classes, which this figure does not draw, so " + F2_RED_NOTE + ". Panels (a) and (b) have no red title.",
         JS.further_sentence(F2_ID, full),
         f"Parameters: model M3 (the mean-field model) with membrane time constant {n(c['tau'])} ms, coupling J = {n(c['J'])}, heterogeneity Delta = {n(c['Delta'])} and synaptic decay time tau_d = {n(c['tau_d'])} ms; "
         f"the mean excitability eta_bar is swept from {c['p_lo']:.3f} to {c['p_hi']:.3f} in {c['mf_n']} steps each way, each step {n(c['step_s'])} s; network N = {c['N']:,}.",
