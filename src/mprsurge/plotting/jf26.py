@@ -259,7 +259,7 @@ def f6_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
         f"(a) Number of the {int(d['map_nonsurge'].sum())} non-surge map cells (one parameter pair of a grid of mean-field runs, in two maps; non-surge: not D-tr, an episode that ends) with each failure label a to h "
         "(the labels are listed in the key above panel (a)); filled bars: the primary label (the first that applies); hatched and dotted bars: every label that applies. "
         f"(b) Class of each negative control against the ramp duration T_ramp at {n13} values: negative control 1 without and with noise (10 seeds; text: other-class seeds, S-rel in {s_rel_n} of {c['n_runs']} runs; "
-        "S-rel: relative rise only; NS: no rise, the noisy-run counterpart of D-none), negative control 2 (the full path with the drive off and on) and negative control 3 (inhibition raised while the mean excitability falls; exploratory). "
+        "S-rel: relative rise only; NS: no rise, the noisy-run counterpart of D-none (no episode)), negative control 2 (the full path with the drive off and on) and negative control 3 (inhibition raised while the mean excitability falls; exploratory). "
         "In the mean field (the model's equations for the average activity of the population), negative control 2 is D-tr at every ramp duration; the failed check is the one on negative control 1 (network S+). "
         f"(c) The first negative control at the {len(c['cells'])} map cells (all D-none, no episode) and as the network run (red S+). "
         "(d), (e) Onset (when the classifier, a rule fixed before the analysis, first flags the gamma rise) and peak frequency (the peak of the power spectrum) of P2 (the hypoxia-like path: mean excitability raised, "
