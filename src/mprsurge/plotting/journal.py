@@ -93,9 +93,79 @@ def true_minus(fig) -> int:
     return n
 
 
+# ---- sentence case (13t-3, DL-628 C9) ---------------------------------------------------------------------------------------------------------------
+# Every label on a journal image starts with a capital and is otherwise lower case. Exceptions keep their form: symbols, class names, model and path names, panel letters, units,
+# FAIL and FAILED in titles. Text only: no drawn value changes (the drawn-data digest does not read text).
+SENTENCE_EXCEPT = frozenset({"eta_bar", "Delta", "J", "tau_d", "tau", "T_ramp", "t_on", "N", "f", "S+", "S-rel", "S-abs", "S-sus", "NS", "D-tr", "D-sus", "D-none", "M3", "ING",
+                             "FAIL", "FAILED", "ms", "Hz", "s", "dB", "P1", "P2", "P3", "P4a", "P4b", "P5", "r", "v", "t"})
+PROPER_NOUNS = frozenset({"Hopf", "Lorentzian", "Delta"})                  # capitalised inside a label by spelling, not by sentence start
+PANEL_PREFIX = re.compile(r"^\s*\(([a-k])\)\s+")
+_FIRST_TOKEN = re.compile(r"^[^\s,:;]+")
+
+
+def _split_label(s: str) -> tuple[str, str]:
+    """(panel prefix, rest): a title '(a) text' keeps '(a) ' apart; the rest is the label that must start with a capital."""
+    m = PANEL_PREFIX.match(s)
+    return (s[:m.end()], s[m.end():]) if m else ("", s)
+
+
+def sentence_start_ok(s: str) -> bool:
+    """True if the label starts with a capital, a non-letter or an exception (a failure-label key 'a: ...' or a single symbol letter also counts)."""
+    _, rest = _split_label(s)
+    rest = rest.lstrip()
+    if not rest or rest.startswith("$"):
+        return True
+    m = _FIRST_TOKEN.match(rest)
+    tok = m.group(0) if m else rest[:1]
+    if not tok[0].isalpha() or tok[0].isupper() or tok in SENTENCE_EXCEPT:
+        return True
+    if re.fullmatch(r"P[1-5][ab]?", tok) or re.fullmatch(r"\([a-k]\)", tok):
+        return True
+    if len(tok) == 1 and (len(rest) == 1 or rest[1:2] in (":", ",")):        # a failure-label letter ('a', 'a: ...') or a variable list ('r, v, s: ...')
+        return True
+    return False
+
+
+def sentence_case(fig) -> int:
+    """Capitalise the first letter of every visible label that starts with a lower-case word (after a panel prefix); returns the number changed. Text only."""
+    from matplotlib.text import Text
+    n = 0
+    for t in fig.findobj(Text):
+        s = t.get_text()
+        if not s.strip() or sentence_start_ok(s):
+            continue
+        pre, rest = _split_label(s)
+        k = len(rest) - len(rest.lstrip())
+        t.set_text(pre + rest[:k] + rest[k].upper() + rest[k + 1:])
+        n += 1
+    return n
+
+
+def lowercase_starts(fig) -> list[str]:
+    """The visible labels that still start with a lower-case word that is not an exception (empty after finish())."""
+    from matplotlib.text import Text
+    return sorted({t.get_text() for t in fig.findobj(Text) if t.get_visible() and t.get_text().strip() and not sentence_start_ok(t.get_text())})
+
+
+def capitals_inside(fig) -> list[str]:
+    """Labels with a capitalised word inside (not after a panel prefix, a sentence stop or a line break) that is not a proper noun, symbol or class name; for the report (not a failure)."""
+    from matplotlib.text import Text
+    out = set()
+    for t in fig.findobj(Text):
+        s = t.get_text()
+        if not t.get_visible() or not s.strip():
+            continue
+        _, rest = _split_label(s)
+        for m in re.finditer(r"(?<=[a-z0-9,)] )([A-Z][a-z]+)", rest):
+            if m.group(1) not in PROPER_NOUNS and m.group(1) not in SENTENCE_EXCEPT:
+                out.add(s.replace("\n", " | "))
+    return sorted(out)
+
+
 def finish(fig, cfg: dict) -> dict:
     """The final guard on the figure object: true minus signs on tick labels, no text below the minimum size, no line thinner than the minimum width. Returns what it changed (a count, for the provenance)."""
     true_minus(fig)
+    sentence_case(fig)
     from matplotlib.lines import Line2D
     from matplotlib.patches import Patch
     from matplotlib.text import Text

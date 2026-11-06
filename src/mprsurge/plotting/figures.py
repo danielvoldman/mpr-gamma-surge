@@ -5251,8 +5251,8 @@ def _draw_F1(d: dict, draft: bool, mode: str = "draft"):
 F1J_SCHEMATIC = (
     ("ramp", "ramp protocol", (("P2", "hypoxia-like path"), (JETA, "mean excitability"), ("J", "coupling"), ("t_on, T_ramp", "ramp start and duration"))),
     ("model", "M3", (("all-to-all coupling",), ("Lorentzian heterogeneity (Δ)",), (f"J, {JTAU}, tau",), ("inhibition-dominated (ING)",))),
-    ("mf", "mean field", (("r, v, s", "Rate, mean potential, synapse"),)),
-    ("net", "network", (("N", "Network size"), ("raster",))),
+    ("mf", "mean field", (("r, v, s", "rate, mean potential, synapse"),)),
+    ("net", "network", (("N", "network size"), ("spike raster",))),
     ("out", "outputs", (("mean-field and network r(t), v(t)",), ("spectrogram of v",))),
 )         # DL-592 V2 (b): at most three short label lines per box, words already on the schematic; 'N -> infinity' and 'I: common (non-local) drive' dropped
 F1J_COL = {"left": 0.72, "right": 3.1, "width": 2.0}      # inches: the two time columns of the journal grid (a b / c d / e f / g h) at 6.3 in (DL-554 R1)
@@ -6523,9 +6523,12 @@ F2J_HEIGHT = 8.0
 F2J_LEFT, F2J_WIDTH = 0.98, 5.1
 F2J_ROWS = {"a": (0.36, 2.2), "b": (3.2, 1.4), "c": (5.2, 1.4)}          # (top of the axes, height) in inches from the top edge
 F2J_SOURCE_LABEL = {"mf": "mean field", "net": "network (N = 10,000), mean V of non-refractory neurons"}
-F2J_STABLE_LS = "-."                                                      # the stable fixed point is a dash-dot line (DL-621): the stable cycle is solid and the unstable fixed point dashed
+F2J_STABLE_LS = (0, (2.0, 1.0, 0.5, 1.0))   # 13t-3 C2 (DL-628): an explicit short dash-dot pattern (scaled by the line width) so that 3 periods fit the key handle; was "-."
+_F2J_STABLE_LS_OLD = "-."                                                      # the stable fixed point is a dash-dot line (DL-621): the stable cycle is solid and the unstable fixed point dashed
 F2J_LINE_B = "mean-field up and down sweeps coincide"                     # one short plain line (B2)
-F2J_LINE_C = "not drawn at and below the Hopf point"                      # one short plain line (B2)
+F2J_LINE_C = "not drawn at and below\nthe Hopf point"                      # one short plain line (B2); two lines since 13t-3
+F2J_NOTE_C = "the network and mean-field\nclasses disagree elsewhere\n(check failed); this panel\ncompares amplitudes only"      # 13t-3 C1 (DL-628): the one plain note of the red title of (c)
+F2J_KEY_HANDLE = 3.7                                                     # 13t-3 C2: key handle length in font sizes (29.6 pt at 8 pt: at least 3 dash periods of the stable fixed point)
 MINUS = "−"
 
 
@@ -6597,10 +6600,11 @@ def _draw_F2_journal(d: dict):
     v = d["cmp_rel_v_ptp"][above]
     lo, hi = min(float(v.min()), 0.0), max(float(v.max()), 0.0)
     ax3.set_ylim(lo - 0.12 * (hi - lo), hi + 0.12 * (hi - lo))
-    ax3.set_ylabel("relative difference\n(network " + MINUS + " mean field)\n/ mean field")
+    ax3.set_ylabel("relative difference\nof v amplitude\n(network " + MINUS + " mean field)\n/ mean field")
     ax3.set_xlabel(JETA + " (mean excitability)")
-    ax3.text(0.99, 0.97, F2J_LINE_C, transform=ax3.transAxes, va="top", ha="right").set_gid("panel note")
-    _journal_title(ax3, "c", "network against mean field: relative difference of the v amplitude")
+    ax3.text(0.012, 0.03, F2J_LINE_C, transform=ax3.transAxes, va="bottom", ha="left").set_gid("panel note")
+    ax3.text(0.012, 0.97, F2J_NOTE_C, transform=ax3.transAxes, va="top", ha="left", color=S.figure_colour("fail_text")).set_gid("panel note")
+    _journal_title(ax3, "c", "network vs mean field", fail=True)
     for a_ in (ax, ax2):
         a_.tick_params(labelbottom=True)
     # key under the panels (one legend, two columns)
@@ -6618,7 +6622,7 @@ def _draw_F2_journal(d: dict):
            Line2D([], [], ls="none", marker=nu.marker, ms=S.F2_MARKS["net_size"], mfc="none", mec=nc, mew=S.F2_MARKS["net_width"]),
            Line2D([], [], ls="none", marker=nd.marker, ms=S.F2_MARKS["net_size"], mfc="none", mec=nc, mew=S.F2_MARKS["net_width"])]
     ll += ["mean field, up sweep (filled triangle)", "mean field, down sweep (hollow, smaller)", "network N = 10,000, up sweep (open square)", "network, down sweep (open diamond)"]
-    lg = kx.legend(hh, ll, loc="upper left", bbox_to_anchor=(0.0, 1.0), ncol=2, frameon=False, borderaxespad=0, labelspacing=0.25, handlelength=2.2, columnspacing=1.2)
+    lg = kx.legend(hh, ll, loc="upper left", bbox_to_anchor=(0.0, 1.0), ncol=2, frameon=False, borderaxespad=0, labelspacing=0.25, handlelength=F2J_KEY_HANDLE, columnspacing=1.2)
     lg.set_in_layout(False)
     J.finish(fig, cfg)
     return fig

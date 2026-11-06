@@ -45,6 +45,39 @@ def f2_consts(d: dict, rows: list, take_home: str) -> dict:
             "tau": pv("model.tau_ms"), "J": pv("model.J"), "Delta": pv("model.Delta"), "tau_d": pv("model.tau_d_ms"), "N": int(pv("network.N")), "type": pv("model.type")}
 
 
+def f2_facts(d: dict) -> dict:
+    """13t-3 C3 (b) (DL-628): two facts read from the arrays that the draft prints nowhere: the largest difference between the network up and down sweeps in the v amplitude (value and eta_bar; over all
+    steps and above eta_bar 3.0) and the v amplitudes at the Hopf point (network and mean field, up and down sweeps)."""
+    p, up, vp = np.asarray(d["net_param"], float), np.asarray(d["net_up"]) == 1.0, np.asarray(d["net_v_ptp"], float)
+    pairs = [(float(p[i]), float(vp[i]), float(vp[j])) for i in np.where(up)[0] for j in np.where(~up)[0] if abs(p[i] - p[j]) < 1e-6]
+    if len(pairs) != int(up.sum()):
+        raise JC.JCaptionError("F2: the network up and down sweeps do not pair step by step")
+    big = max(pairs, key=lambda x: abs(x[2] - x[1]))
+    big3 = max((x for x in pairs if x[0] > 3.0), key=lambda x: abs(x[2] - x[1]))
+    h = [x for x in pairs if abs(x[0] - d["eta_H"]) < 1e-6]
+    mp, mu, mv = np.asarray(d["mf_param"], float), np.asarray(d["mf_up"]) == 1.0, np.asarray(d["mf_v_ptp"], float)
+    k = np.where(np.abs(mp - d["eta_H"]) < 1e-6)[0]
+    mf_up, mf_dn = [float(mv[i]) for i in k if mu[i]], [float(mv[i]) for i in k if not mu[i]]
+    if len(h) != 1 or len(mf_up) != 1 or len(mf_dn) != 1:
+        raise JC.JCaptionError("F2: the Hopf point is not a step of both sweeps")
+    return {"big": big, "big3": big3, "hopf_net": (h[0][1], h[0][2]), "hopf_mf": (mf_up[0], mf_dn[0])}
+
+
+def f2_sentence_updown(d: dict) -> str:
+    f = f2_facts(d)
+    return (f"The largest difference between the network up and down sweeps in the v amplitude is {abs(f['big'][2] - f['big'][1]):.3f} ({f['big'][1]:.3f} up, {f['big'][2]:.3f} down) at eta_bar {f['big'][0]:.3f}; "
+            f"above eta_bar 3.0 it is {abs(f['big3'][2] - f['big3'][1]):.3f} at eta_bar {f['big3'][0]:.3f}.")
+
+
+def f2_sentence_hopf(d: dict) -> str:
+    f = f2_facts(d)
+    return (f"At the Hopf point the network v amplitude is {f['hopf_net'][0]:.2f} (up sweep) and {f['hopf_net'][1]:.2f} (down sweep) against {f['hopf_mf'][0]:.2f} and {f['hopf_mf'][1]:.2f} for the mean field "
+            f"(the steps within 0.1 of the Hopf point are still relaxing); below the Hopf point the network does not rest (v amplitude {d['net_floor_v_ptp_min']:.2f} to {d['net_floor_v_ptp_max']:.2f}).")
+
+
+F2_RED_NOTE = ("the network and mean-field classes disagree elsewhere (the check failed); this panel compares amplitudes only")                  # 13t-3 C1 (DL-628): the note of the image, in the caption
+
+
 def f2_caption(d: dict, a11: list, rows: list, *, strip_rows: list, ids, c: dict) -> str:
     n = JC.num
     up_down = _e3(d["mf_updown_max_abs_from_0p2"])
@@ -59,9 +92,9 @@ def f2_caption(d: dict, a11: list, rows: list, *, strip_rows: list, ids, c: dict
         "(a) Fixed point (grey line: solid where stable, dashed where unstable) and maximum and minimum of v on the stable limit cycle (black lines) against eta_bar; the dotted line is the Hopf point, the circled cross its mark "
         "(its v is interpolated linearly between the recorded fixed points, derived); the shaded band marks the steps within 0.1 of the Hopf point, where the 2 s step is still relaxing. "
         f"Mean-field sweep symbols: filled triangle for the up sweep, hollow smaller caret for the down sweep ({c['mf_n']} steps each way); network sweep symbols: open square (up) and open diamond (down), "
-        f"{c['n_net']} steps each way, one run (one seed), no error bars. A sweep steps eta_bar up and then down again; each step lasts {n(c['step_s'])} s and the symbols show the maximum and minimum of v over its last {n(c['read_s'])} s.",
+        f"{c['n_net']} steps each way, one run (one seed), no error bars. A sweep: eta_bar is raised step by step, then lowered again; each step lasts {n(c['step_s'])} s and the symbols show the maximum and minimum of v over its last {n(c['read_s'])} s.",
         f"(b) The v amplitude (maximum minus minimum): the cycle (black line) and the same symbols; the mean-field up and down sweeps coincide (largest difference {up_down} relative from 0.2 above the Hopf point, recorded), "
-        "which is why the down sweep is drawn hollow and smaller.",
+        "which is why the down sweep is drawn hollow and smaller. " + f2_sentence_updown(d) + " " + f2_sentence_hopf(d),
         f"(c) The recorded relative difference of the network's v amplitude from the mean field's, (network - mean field) / mean field, drawn above eta_bar {c['above']:.3f} only (the Hopf point plus 0.1; nearer to the Hopf point "
         f"the mean-field amplitude is about 0 or still relaxing, so the difference is not a measure; the largest recorded value below the Hopf point minus 0.1 is {CAP.number_text(float(format(d['cmp_rel_v_below_max_abs'], '.2g')))}, not drawn); "
         f"above it the v amplitude differs by {_pct(d['cmp_rel_v_above_max'])} to {_pct(d['cmp_rel_v_above_min'])} percent and the r amplitude by {_pct(d['cmp_rel_r_above_max'])} to {_pct(d['cmp_rel_r_above_min'])} percent (r amplitude: recorded, not drawn). "
@@ -74,14 +107,14 @@ def f2_caption(d: dict, a11: list, rows: list, *, strip_rows: list, ids, c: dict
               f"(the reference validation point); the swept parameter is eta_bar, from {c['p_lo']:.3f} to {c['p_hi']:.3f} in {c['mf_n']} steps up and {c['mf_n']} steps down (mean field) and {c['n_net']} of them each way (network); "
               f"each step lasts {n(c['step_s'])} s and v is read over the last {n(c['read_s'])} s; network size N = {c['N']:,}.")
     failed = ("Shown, not dropped (the full list with value, threshold and source is in the supplement): " + "; ".join(JC.failed_line(r) for r in strip_rows)
-              + ". No panel title is red, because no panel draws the result of a failed check: the check RB1 compares the classes of the network and the mean-field runs (the same class is required), and this figure draws amplitudes of v. "
+              + ". The title of panel (c) is red: the four RB1 checks compare the classes of the network and the mean-field runs (the same class is required) and failed; " + F2_RED_NOTE + ". Panels (a) and (b) have no red title. "
               "The four RB1 rows are listed here because the figure draws network symbols (our reading of where the check applies, not verified).")
     limits = JC.limits_paragraph(ids) + " The network values are single runs (one seed) and are drawn without error bars; no agreement criterion is applied to them, so the network symbols have one shape per sweep direction."
     limits = limits + " " + JC.limit_scope(ids)
     rest = " ".join([take, panels, settings, params, failed, limits])
     key = " ".join(x for x in [
         JC.key_symbols(rest, "eta", "Delta", "J", "tau_d", "r", "v", "N", "M3"),
-        "Hopf point = the value of eta_bar at which the resting state starts to oscillate. Sweep = eta_bar stepped up and then down again.",
+        "Hopf point = the value of eta_bar at which the resting state starts to oscillate. Sweep = eta_bar is raised step by step, then lowered again.",
         "Symbols: black line = stable limit cycle; grey line = fixed point; dotted line = Hopf point; filled triangle = mean-field up sweep; hollow caret = mean-field down sweep; open square = network up sweep; open diamond = network down sweep.",
         "Checks: X.", JC.key_words(rest)] if x)
     text = JC.assemble(F2_ID, take_home=take, panels=panels, key=key, settings=settings, parameters=params, failed=failed, limits=limits)
@@ -96,17 +129,18 @@ def f2_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
         f"(v is the mean membrane potential; the network's v is the mean over the neurons that are not refractory, a different definition) differs from the mean field's by {_pct(d['cmp_rel_v_above_max'])} to {_pct(d['cmp_rel_v_above_min'])} percent above a mean excitability eta_bar of 3.0, "
         f"and below the Hopf point (where the resting state starts to oscillate) the network does not rest (v amplitude {d['net_floor_v_ptp_min']:.2f} to {d['net_floor_v_ptp_max']:.2f}). "
         f"In the mean field the limit cycle appears at the Hopf point, eta_bar {d['eta_H']:.3f}, in a supercritical bifurcation (the oscillation grows smoothly from zero, with no jump and no hysteresis) and is stable to eta_bar {d['a5_eta_max']:g}.",
-        "(a) Fixed point (grey) and maximum and minimum of v on the stable cycle (black) against eta_bar, with the Hopf point (dotted line and circled cross) and the sweeps (a sweep steps eta_bar up and then down again, "
+        "(a) Fixed point (grey) and maximum and minimum of v on the stable cycle (black) against eta_bar, with the Hopf point (dotted line and circled cross) and the sweeps (in a sweep eta_bar is raised step by step, then lowered again; "
         f"{c['mf_n']} steps each way for the mean field, {c['n_net']} for the network, each step lasting {n(c['step_s'])} s): mean field filled triangle (up) and hollow caret (down), network open square (up) and open diamond (down). "
-        f"(b) The v amplitude (maximum minus minimum); the mean-field up and down sweeps coincide (largest difference {up_down} relative from 0.2 above the Hopf point). "
+        f"(b) The v amplitude (maximum minus minimum); the mean-field up and down sweeps coincide (largest difference {up_down} relative from 0.2 above the Hopf point). {f2_sentence_updown(d)} {f2_sentence_hopf(d)} "
         f"(c) The relative difference of the network's v amplitude from the mean field's, above eta_bar {c['above']:.3f} only (nearer to the Hopf point the shaded steps are still relaxing).",
-        "There is no red title: no panel draws the result of a failed check; the failed checks that concern this figure compare the classes of network and mean-field runs (the same class is required), which this figure does not draw.",
+        "Failed check (red title of (c)): the network and the mean field must fall in the same class, checked at the main example for ramp durations of 10 s and 120 s, at 4 map cells and overall, and all four checks failed; "
+        "they compare classes, which this figure does not draw, so " + F2_RED_NOTE + ". Panels (a) and (b) have no red title.",
         JS.further_sentence(F2_ID, full),
         f"Parameters: model M3 (the mean-field model) with membrane time constant {n(c['tau'])} ms, coupling J = {n(c['J'])}, heterogeneity Delta = {n(c['Delta'])} and synaptic decay time tau_d = {n(c['tau_d'])} ms; "
-        f"the mean excitability eta_bar is swept from {c['p_lo']:.3f} to {c['p_hi']:.3f} in {c['mf_n']} steps each way, each step {n(c['step_s'])} s; network N = {c['N']:,}; "
-        "no classifier (a rule fixed before the analysis) or spectrogram (power against time and frequency) is used.",
-        JS.limit_clauses(F2_ID, {"MS12-C1": "the surge result (a surge is a transient rise of gamma-band power, 25 to 100 Hz) is stated for model M3 only",
-                                 "G4-C2": "the surge result is stated for the mean field only, and there is no claim that it is robust to finite-size fluctuations"}).replace(
+        f"the mean excitability eta_bar is swept from {c['p_lo']:.3f} to {c['p_hi']:.3f} in {c['mf_n']} steps each way, each step {n(c['step_s'])} s; network N = {c['N']:,}.",
+        JS.limit_clauses(F2_ID, {"MS12-C1": "the surge result (a surge is a transient rise of gamma-band power, 25 to 100 Hz) is stated for model M3 only and stated for the mean field only (not for the network), "
+                                           "and there is no claim that it is robust to finite-size fluctuations",
+                                 "G4-C2": ""}).replace(
             "Limits: ", "Limits: the network curves are single runs (one seed) without error bars and no agreement criterion is applied to the amplitude comparison (information only); ", 1),
         JS._pointer(F2_ID)], max_words, full)
 
@@ -123,6 +157,32 @@ def f6_consts(d: dict, raw: dict, rows: list) -> dict:
     return {"N": int(net["network"]["N"]), "Delta": float(net["model"]["Delta"]), "tau_d": float(net["model"]["tau_d_ms"]), "T_ramp": float(net["path"]["T_ramp_s"]), "sigma": JC.pv(rows, "noise.sigma"),
             "type": JC.pv(rows, "model.type"), "cells": [(float(a), float(b)) for a, b in zip(cells["Delta"], cells["tau_d_ms"])], "srel": srel, "n_runs": int(d["nc1_modeN_n"].sum()),
             "t_lo": float(d["nc_T"].min()), "t_hi": float(d["nc_T"].max()), "n_T": len(d["nc_T"]), "amps": (0.5, 1.0, 2.0), "other": other}
+
+
+def f6_facts(d: dict) -> dict:
+    """13t-3 C4 (e), (f) (DL-628): the counts of the points of (d) and (e) and the peak frequencies that coincide, read from the arrays; a different result than the ruling states stops the build."""
+    onset = np.asarray(d["s6_onset_s"], float)
+    n_all, n_pre = int(onset.size), int(d["s6_n_prereg"])
+    if (n_pre, n_all - n_pre) != (20, 4):
+        raise JC.JCaptionError(f"F6: the points of (d) and (e) are {n_pre} pre-registered and {n_all - n_pre} comparator runs, not 20 and 4 (DL-628 C4 e: stop)")
+    lab = [x[2] for x in __import__("mprsurge.plotting.figures", fromlist=["F6_S6_ROWS"]).F6_S6_ROWS]
+    fp = np.asarray(d["s6_f_pk_hz"], float)
+    same = [lab.index(x) for x in ("P3, I_amp 0.5", "P3, I_amp 1", "P4b", "P2 (comparators)")]
+    if not all(np.array_equal(fp[same[0]], fp[i]) for i in same[1:]):
+        raise JC.JCaptionError("F6: the recorded peak frequencies of P3 (drive 0.5 and 1), P4b and the P2 comparators are not identical (DL-628 C4 f: stop)")
+    vals = [f"{x:.3f}".rstrip("0").rstrip(".") for x in fp[same[0]]]
+    if vals != ["48.048", "49", "49", "49.5"]:
+        raise JC.JCaptionError(f"F6: the identical peak frequencies are {vals}, not 48.048, 49, 49 and 49.5 Hz (DL-628 C4 f: stop)")
+    n2 = sum(1 for x in list(d["nc2_I0_class"]) + list(d["nc2_I1_class"]) if x == "D-tr")
+    if n2 != 2 * len(d["nc2_I0_class"]):
+        raise JC.JCaptionError("F6: negative control 2 is not D-tr at every ramp duration (DL-628 C4 d: stop)")
+    return {"n_all": n_all, "n_pre": n_pre, "n_cmp": n_all - n_pre, "fpk": vals}
+
+
+def f6_sentence_points(d: dict) -> str:
+    f = f6_facts(d)
+    return (f"The {f['n_all']} points drawn in (d) and (e) are the {f['n_pre']} pre-registered runs and {f['n_cmp']} P2 comparator runs. In (e) the recorded peak frequencies of P3 (drive 0.5 and 1), P4b and the P2 comparators "
+            f"are identical ({', '.join(f['fpk'][:-1])} and {f['fpk'][-1]} Hz at the four T_ramp), so those lines overlap.")
 
 
 def _f6_rows_none(d: dict) -> int:
@@ -152,10 +212,10 @@ def f6_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list, 
         f"(b) The class of each negative control at each of {n13} ramp durations T_ramp ({n(c['t_lo'])} to {n(c['t_hi'])} s): the first negative control as a noise-free mean-field run (expected D-none) and as a mean field with noise, {c['n_runs'] // n13} seeds "
         "per T_ramp (expected NS; the mark is the most common class and the text gives the seeds in another class), the second negative control with the drive off (I = 0) and on (I = 1; the expected class is not stated), and the third negative control "
         f"(exploratory; the expected class is not stated). The noisy first negative control has S-rel in {s_rel_n} of {c['n_runs']} runs (at T_ramp {_tlist([t for t, _, _ in c['srel']])} s); these runs are not counted for the gate "
-        "(supplementary), and whether the gate should read them is not verified.",
+        "(supplementary), and whether the gate should read them is not verified. Negative control 2 (the full path with the common drive off and on) is D-tr at every ramp duration in the mean field (13 of 13 with the drive off and 13 of 13 with it on).",
         f"(c) The first negative control at the {len(c['cells'])} map cells of the mean field (Delta, tau_d in ms as in the tick labels: " + "; ".join(f"{a:g}, {b:g}" for a, b in c["cells"]) + f"; class D-none at all {len(c['cells'])}) and, in its own column, "
         f"the one network run (N = {c['N']:,}, Delta {n(c['Delta'])}, tau_d {n(c['tau_d'])} ms, ramp duration {n(c['T_ramp'])} s): class {d['nc1_net_class']}, red because the gate failed.",
-        "(d), (e) The recorded onset and peak frequency of the P3 runs (drive amplitude 0.5, 1 and 2), P4a, P4b and the P2 comparators at T_ramp 10, 30, 120 and 300 s; every drawn class is D-tr (the small mark on each point). "
+        "(d), (e) The recorded onset and peak frequency of the P3 runs (drive amplitude 0.5, 1 and 2), P4a, P4b and the P2 comparators at T_ramp 10, 30, 120 and 300 s; every drawn class is D-tr (the small mark on each point). " + f6_sentence_points(d) + " "
         "The P2 line joins the comparators at 10 and 120 s (filled) and the references at 30 and 300 s (open). Rows with identical recorded values coincide and are drawn at their recorded positions, told apart by their marks: in (e) "
         "the peak frequencies of P3 (drive 0.5 and 1), P4b and P2 are equal. No comparison of the regions of P2 and P3 is drawn.",
         "The boundary of the regime map and the exit extension of the episode rule to P3 and P4 are not drawn. The failures and the non-surge regimes are drawn at the same weight as the surge cells.",
@@ -166,6 +226,7 @@ def f6_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list, 
               "and drive amplitudes 0.5, 1 and 2 (swept); the map cells have their own Delta and tau_d as in the tick labels of (c).")
     failed = ("Shown, not dropped (the full list with value, threshold and source is in the supplement): " + "; ".join(JC.failed_line(r) for r in strip_rows) + ". " + JC.title_sentence(F6_ID)
               + " The failed result is the class S+ of the one network run, drawn as the red circle of (c); the stored table gives no value or threshold for the gate row.")
+    ids = tuple(ids) + (() if "G4-C4" in ids else ("G4-C4",))                          # 13t-3 C4 (g): the ruled sigma limit, journal captions only
     limits = JC.limits_paragraph(ids, not_applicable, na_text=PL.NOT_APPLICABLE_PLAIN_F6) + " " + JC.limit_scope(ids)
     rest = " ".join([take, panels, settings, params, failed, limits])
     key = " ".join(x for x in [
@@ -195,17 +256,18 @@ def f6_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
         "The negative-control check failed (red title of (c)): the one network run (the simulated network of N = 10,000 spiking neurons, 1 random seed) of the first negative control "
         "(a negative control is a run in which no surge is expected: here the hypoxia-like path with the mean excitability falling by the same amount) is in class S+ "
         f"(absolute and relative rise, ending: a surge, a transient rise of gamma-band power, 25 to 100 Hz) where {d['nc1_net_expected']} (no rise) is expected.",
-        f"(a) Number of the {int(d['map_nonsurge'].sum())} non-surge map cells (one parameter pair of a grid of mean-field runs, in two regime maps; non-surge: not D-tr, an episode that ends) with each failure label a to h: "
-        "the primary label (the first that applies; filled) and every label that applies (hatched); label e is 'no exit' (D-sus or S-sus: a rise that does not end). "
-        f"(b) Class of each negative control against the ramp duration T_ramp at {n13} values: the first negative control without and with noise (10 seeds; text: seeds in another class, S-rel in {s_rel_n} of {c['n_runs']} runs; "
-        "S-rel: relative rise only), the second (drive off, on) and the third (exploratory). "
+        f"(a) Number of the {int(d['map_nonsurge'].sum())} non-surge map cells (one parameter pair of a grid of mean-field runs, in two regime maps; non-surge: not D-tr, an episode that ends) with each failure label a to h "
+        "(the labels are listed in the key above panel (a)); filled bars: the primary label (the first that applies); hatched and dotted bars: every label that applies. "
+        f"(b) Class of each negative control against the ramp duration T_ramp at {n13} values: negative control 1 without and with noise (10 seeds; text: seeds in another class, S-rel in {s_rel_n} of {c['n_runs']} runs; "
+        "S-rel: relative rise only; NS: no rise, the noisy-run counterpart of D-none), negative control 2 (the full path with the drive off and on) and negative control 3 (inhibition raised while the mean excitability falls; exploratory). "
+        "Negative control 2 is D-tr at every ramp duration in the mean field; the failed check is the one on negative control 1 (network S+). "
         f"(c) The first negative control at the {len(c['cells'])} map cells (class D-none (no episode) at all) and as the network run (red S+). "
         "(d), (e) Onset (when the classifier, a rule fixed before the analysis, first flags the gamma rise) and peak frequency (the peak of the power spectrum) of P2 (the hypoxia-like path: mean excitability raised, "
         "coupling J ramped to 0 after a delay), P3 (P2 plus a common drive, amplitude 0.5, 1, 2), P4a and P4b (P2 with Delta, the heterogeneity, multiplied by 1.5 or 2/3) at T_ramp 10, 30, 120 and 300 s; "
-        f"all are D-tr, including all {d['s6_n_prereg']} pre-registered runs, so the surge is not confined to P3; rows with equal recorded values coincide.",
+        f"all are D-tr, so the surge is not confined to P3. {f6_sentence_points(d)}",
         "Failed check: the negative-control check (the network run must not be in a surge class): FAIL.",
         JS.further_sentence(F6_ID, full),
         f"Parameters: model M3 (the mean-field model); network run N = {c['N']:,}, heterogeneity Delta = {n(c['Delta'])}, synaptic decay time tau_d = {n(c['tau_d'])} ms, ramp duration {n(c['T_ramp'])} s; "
-        "classifier window 2 s, step 1 s for ramp durations of 60 s or more (shorter ramps use a shorter window), gamma band 25 to 100 Hz; noise level sigma = 0.0624 (checked, not confirmed; its check failed).",
-        JS.limit_clauses(F6_ID, F6_LIMIT_EXTRA),
+        "classifier window 2 s, step 1 s for ramp durations of 60 s or more (shorter ramps use a shorter window), gamma band 25 to 100 Hz; noise level sigma = 0.0624.",
+        JS.limit_clauses(F6_ID, {**F6_LIMIT_EXTRA, "G4-C4": "the noise level sigma = 0.0624 is checked and not confirmed (its check failed; the noisy rows of (b) use it)"}),
         JS._pointer(F6_ID)], max_words, full)

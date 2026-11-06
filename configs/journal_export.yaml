@@ -36,12 +36,12 @@ output:
 collision:
   pad_pt: 0.5                          # two objects closer than this count as touching (UNVERIFIED)
 caption:
-  short_max_words: 520                 # UNVERIFIED (DL-615 A6; DL-593 V8 had 330, DL-582 U3 a had 220): the most words of the SHORT caption of a figure (the one for the manuscript); the full caption goes to the supplement
-  short_max_words_F1: 520              # UNVERIFIED (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 400, DL-582 U3 a had 280): F1 has eleven panels and a schematic; room for the claim limits and the Parameters sentence (W2)
-  short_max_words_F2: 520              # UNVERIFIED (DL-615 A6): F2 (13t-2)
-  short_max_words_F3: 520              # UNVERIFIED (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 330)
-  short_max_words_F5: 520              # UNVERIFIED (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 330)
-  short_max_words_F5c: 520             # UNVERIFIED (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 330)
-  short_max_words_F6: 520              # UNVERIFIED (DL-615 A6): F6 (13t-2)
+  short_max_words: 600                 # UNVERIFIED (DL-615 A6; DL-593 V8 had 330, DL-582 U3 a had 220): the most words of the SHORT caption of a figure (the one for the manuscript); the full caption goes to the supplement
+  short_max_words_F1: 600              # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 400, DL-582 U3 a had 280): F1 has eleven panels and a schematic; room for the claim limits and the Parameters sentence (W2)
+  short_max_words_F2: 600              # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6): F2 (13t-2)
+  short_max_words_F3: 600              # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 330)
+  short_max_words_F5: 600              # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 330)
+  short_max_words_F5c: 600             # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 330)
+  short_max_words_F6: 600              # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6): F6 (13t-2)
 files:
   name_pattern: "^[A-Za-z0-9_+=,.-]+$"   # a-z A-Z 0-9 underscore plus minus dot comma equals; no spaces
