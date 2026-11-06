@@ -927,6 +927,9 @@ def journal_figure(fig_id: str, res=None, root=None, close: bool = True):
         if fig_id == "F3":
             d = prepare_F3(load_F3(res))
             fig = _draw_F3(d, draft=False, strip_lines=strip_lines(d), mode="journal")
+        elif fig_id == "F2":
+            d = prepare_F2(load_F2(res))
+            fig = _draw_F2(d, draft=False, strip_lines=strip_lines(d), mode="journal")
         elif fig_id in ("F5", "F5c"):
             d = prepare_F5(load_F5(res))
             fig = _draw_F5(d, draft=False, mode="journal" if fig_id == "F5" else "journal_c")
@@ -1571,7 +1574,9 @@ def _s4_points(ax, d: dict, key: str, ycol: str, kind: str, *, label: str | None
                 label=(f"{label}, {direction} sweep" if label else None))
 
 
-def _draw_F2(d: dict, draft: bool, strip_lines: list[str]):
+def _draw_F2(d: dict, draft: bool, strip_lines: list[str], mode: str = "draft"):
+    if mode == "journal":
+        return _draw_F2_journal(d)
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -6499,3 +6504,101 @@ def make_F5(res=None, out_dir=None, *, tag_build: bool = False, take_home=F5_TAK
 def make_FS6(*args, **kwargs):
     """FS6 is not produced (S14 and S15 were not run, MS12-C1, DL-421): raises figprov.FigureRefused."""
     F.require_buildable("FS6")
+
+
+# ---- F2 journal (13t-2, DL-616 B1 to B5) -----------------------------------------------------------------------------------------------------------------
+# Own layout code (like F1 and F5; the plan names no layout; R5 accepted this for F1 and F5, DL-616 asks the reviewer to confirm it for F2 and F6). Axes are placed in inches (_ax_in). Layout only: every drawn value is the draft's.
+F2J_HEIGHT = 8.0
+F2J_LEFT, F2J_WIDTH = 0.98, 5.1
+F2J_ROWS = {"a": (0.36, 2.2), "b": (3.2, 1.4), "c": (5.2, 1.4)}          # (top of the axes, height) in inches from the top edge
+F2J_SOURCE_LABEL = {"mf": "mean field", "net": "network (N = 10,000), mean V of non-refractory neurons"}
+F2J_LINE_B = "mean-field up and down sweeps coincide"                     # one short plain line (B2)
+F2J_LINE_C = "not drawn at and below the Hopf point"                      # one short plain line (B2)
+MINUS = "−"
+
+
+def _f2_vline_journal(ax, d: dict):
+    hp = S.diagram_mark("hopf_point")
+    ln = ax.axvline(d["eta_H"], color=hp.colour, ls=hp.linestyle, lw=hp.width, zorder=1)
+    ln.set_gid("Hopf point line")
+    sp = ax.axvspan(d["eta_H"] - F2_JUDGED_ABOVE, d["eta_H"] + F2_JUDGED_ABOVE, color=S.FS_COLOURS["patch_edge"], alpha=0.18, lw=0, zorder=0)
+    sp.set_gid("relaxing band")
+
+
+def _draw_F2_journal(d: dict):
+    from matplotlib.lines import Line2D
+    from matplotlib.patches import Patch
+    cyc, fs, fu, hp = S.diagram_mark("a5_cycle"), S.diagram_mark("a5_fixed_stable"), S.diagram_mark("a5_fixed_unstable"), S.diagram_mark("hopf_point")
+    fig, cfg = _journal_fig(F2J_HEIGHT, constrained=False)
+    xlim = (0.0, 8.0)
+
+    def axes(letter, **kw):
+        top, h = F2J_ROWS[letter]
+        return _ax_in(fig, F2J_LEFT, top, F2J_WIDTH, h, **kw)
+
+    # (a) fixed point, cycle maximum and minimum of v, the two sweeps
+    ax = axes("a")
+    st = d["fixed_stable"] == 1.0
+    for m, mk in ((st, fs), (~st, fu)):
+        seg = np.where(m, d["fixed_v"], np.nan)
+        (ln,) = ax.plot(d["fixed_param"], seg, color=mk.colour, ls=mk.linestyle, lw=mk.width, zorder=2)
+        ln.set_gid("fixed point " + ("stable" if mk is fs else "unstable"))
+    for name in ("up", "down"):
+        for ycol in ("vmax", "vmin"):
+            (ln,) = ax.plot(d[f"a5_{name}_param"], d[f"a5_{name}_{ycol}"], color=cyc.colour, lw=cyc.width, zorder=3)
+            ln.set_gid("stable cycle")
+    _f2_vline_journal(ax, d)
+    (h,) = ax.plot([d["eta_H"]], [d["hopf_v_interp"]], ls="none", marker=hp.marker, ms=hp.size * 0.7, color=hp.colour, mew=hp.width, zorder=2.5)
+    h.set_gid("Hopf point mark")
+    for key, kind in (("mf", "mf"), ("net", "net")):
+        _s4_points(ax, d, key, f"{key}_vmax", kind)
+        _s4_points(ax, d, key, f"{key}_vmin", kind)
+    ax.set_xlim(*xlim)
+    ax.set_ylabel("v (mean potential)")
+    _journal_title(ax, "a", "fixed point and cycle: maximum and minimum of v")
+    # (b) amplitude
+    ax2 = axes("b", sharex=ax)
+    for name in ("up", "down"):
+        (ln,) = ax2.plot(d[f"a5_{name}_param"], d[f"a5_{name}_amp"], color=cyc.colour, lw=cyc.width, zorder=3)
+        ln.set_gid("stable cycle")
+    _f2_vline_journal(ax2, d)
+    _s4_points(ax2, d, "mf", "mf_v_ptp", "mf")
+    _s4_points(ax2, d, "net", "net_v_ptp", "net")
+    ax2.set_ylabel(f"v amplitude (max {MINUS} min)")
+    ax2.text(0.01, 0.97, F2J_LINE_B, transform=ax2.transAxes, va="top", ha="left").set_gid("panel note")
+    _journal_title(ax2, "b", "amplitude of v: cycles, mean field and network")
+    # (c) relative difference, network against mean field, above the Hopf point + 0.1 only
+    ax3 = axes("c", sharex=ax)
+    above = d["net_above_mask"] == 1.0
+    ax3.axhline(0.0, color=S.F2_MARKS["zero_line"], lw=S.F2_MARKS["zero_line_width"], zorder=1).set_gid("zero line")
+    _f2_vline_journal(ax3, d)
+    _s4_points(ax3, d, "net", "cmp_rel_v_ptp", "net", mask=above)
+    ax3.set_xlim(*xlim)
+    v = d["cmp_rel_v_ptp"][above]
+    lo, hi = min(float(v.min()), 0.0), max(float(v.max()), 0.0)
+    ax3.set_ylim(lo - 0.12 * (hi - lo), hi + 0.12 * (hi - lo))
+    ax3.set_ylabel("relative difference\n(network " + MINUS + " mean field)\n/ mean field")
+    ax3.set_xlabel(JETA + " (mean excitability)")
+    ax3.text(0.99, 0.97, F2J_LINE_C, transform=ax3.transAxes, va="top", ha="right").set_gid("panel note")
+    _journal_title(ax3, "c", "network against mean field: relative difference of the v amplitude")
+    for a_ in (ax, ax2):
+        a_.tick_params(labelbottom=True)
+    # key under the panels (one legend, two columns)
+    kx = _ax_in(fig, 0.13, 7.12, 6.04, 0.8)
+    kx.axis("off")
+    kx.set_gid("legend axes")
+    mfu, mfd, nu, nd = (S.diagram_mark(k) for k in ("s4_mf_up", "s4_mf_down", "s4_net_up", "s4_net_down"))
+    mfc, nc = S.SOURCE_COLOURS["mean_field"], S.SOURCE_COLOURS["network"]
+    hh = [Line2D([], [], color=fs.colour, ls=fs.linestyle, lw=fs.width), Line2D([], [], color=fu.colour, ls=fu.linestyle, lw=fu.width), Line2D([], [], color=cyc.colour, lw=cyc.width),
+          Line2D([], [], color=hp.colour, ls=hp.linestyle, lw=hp.width), Patch(fc=S.FS_COLOURS["patch_edge"], alpha=0.18, lw=0),
+          Line2D([], [], ls="none", marker=hp.marker, ms=hp.size * 0.7, color=hp.colour, mew=hp.width)]
+    ll = ["fixed point, stable", "fixed point, unstable", "stable cycle: maximum and minimum of v", f"Hopf point: {JETA} {d['eta_H']:.3f} (dotted line)",
+          "steps within 0.1 of the Hopf point (still relaxing)", f"Hopf point ({d['hopf_type'].lower()}), v interpolated"]
+    hh += [Line2D([], [], ls="none", marker=mfu.marker, ms=mfu.size, color=mfc), Line2D([], [], ls="none", marker=mfd.marker, ms=mfd.size * 0.75, mfc="none", mec=mfc, mew=mfd.width),
+           Line2D([], [], ls="none", marker=nu.marker, ms=S.F2_MARKS["net_size"], mfc="none", mec=nc, mew=S.F2_MARKS["net_width"]),
+           Line2D([], [], ls="none", marker=nd.marker, ms=S.F2_MARKS["net_size"], mfc="none", mec=nc, mew=S.F2_MARKS["net_width"])]
+    ll += ["mean field, up sweep (filled triangle)", "mean field, down sweep (hollow, smaller)", "network N = 10,000, up sweep (open square)", "network, down sweep (open diamond)"]
+    lg = kx.legend(hh, ll, loc="upper left", bbox_to_anchor=(0.0, 1.0), ncol=2, frameon=False, borderaxespad=0, labelspacing=0.25, handlelength=2.2, columnspacing=1.2)
+    lg.set_in_layout(False)
+    J.finish(fig, cfg)
+    return fig
