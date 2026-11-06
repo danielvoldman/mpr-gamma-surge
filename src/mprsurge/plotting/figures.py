@@ -6621,8 +6621,8 @@ def _draw_F2_journal(d: dict):
 # ---- F6 journal (13t-2, DL-616 B1 to B5) -----------------------------------------------------------------------------------------------------------------
 # Own layout code (like F1, F2 and F5). Layout only: every drawn value is the draft's. Plain words on the image (DL-616 B2): no check, gate or step ID; the controls are called negative control 1, 2 and 3.
 F6J_HEIGHT = 8.0
-F6J_ROWS = {"a": (0.38, 1.3), "b": (2.78, 1.95), "c": (5.52, 1.05), "d": (5.52, 1.05), "e": (5.52, 1.05)}      # (top of the axes, height) in inches from the top edge
-F6J_COLS = {"a": (0.75, 5.35), "b": (1.78, 4.37), "c": (0.75, 1.3), "d": (2.78, 1.4), "e": (4.78, 1.37)}      # (left edge, width) in inches
+F6J_ROWS = {"a": (0.38, 1.3), "b": (2.92, 1.9), "c": (5.62, 1.0), "d": (5.62, 1.0), "e": (5.62, 1.0)}      # (top of the axes, height) in inches from the top edge
+F6J_COLS = {"a": (0.75, 5.35), "b": (1.78, 4.37), "c": (0.85, 1.3), "d": (2.95, 1.35), "e": (4.78, 1.2)}      # (left edge, width) in inches
 F6J_BAR_W = 0.22
 F6J_LABEL_WORDS = {"a": "Delta above critical", "b": "tau_d outside window", "c": "a flag, not a demonstrated cause", "d": "ramp too fast for 10 cycles", "e": "no exit (D-sus or S-sus)",
                    "f": "amplitude below the fixed threshold", "g": "Hopf point, no time inside", "h": "rejected by the damped-oscillation test"}     # plain words of the stored short forms (A9_LABELS); h: the 'damped (D8) clause' without the ID
@@ -6677,7 +6677,7 @@ def _draw_F6_journal(d: dict, columns: dict | None = None):
                             Patch(fc=S.figure_colour("open_fill"), ec=ink, lw=0.8, hatch=S.figure_hatch("map2_any"), label="map 2, any label")],
                    loc="upper left", ncol=4, frameon=True, framealpha=0.95, handleheight=S.F6_MARKS["legend_handle_height"], handlelength=2.0, columnspacing=1.0, borderaxespad=0.3)
     lg.set_gid("legend (a)")
-    kx = _ax_in(fig, 0.75, 1.98, 5.4, 0.62)
+    kx = _ax_in(fig, 0.75, 2.12, 5.4, 0.56)
     kx.axis("off")
     kx.set_gid("legend axes (labels)")
     words = [f"{L}: {F6J_LABEL_WORDS[L]}" for L in F6_LABELS]
@@ -6708,7 +6708,7 @@ def _draw_F6_journal(d: dict, columns: dict | None = None):
     axb.set_ylim(4.6, -0.6)
     axb.set_xlim(-0.6, 12.6)
     _journal_title(axb, "b", "negative controls: class against T_ramp (text: seeds in another class)")
-    kb = _ax_in(fig, 1.78, 4.98, 4.37, 0.2)
+    kb = _ax_in(fig, 1.78, 5.2, 4.37, 0.2)
     kb.axis("off")
     kb.set_gid("legend axes (classes)")
     seen = []
@@ -6733,7 +6733,8 @@ def _draw_F6_journal(d: dict, columns: dict | None = None):
     st = S.get(d["nc1_net_class"])
     (mk,) = axc.plot([x_net], [0], ls="none", marker=st.marker, ms=S.POINT_SIZES["f6_network_run"], color=st.colour, mec=S.figure_colour("bar_edge"), mew=S.POINT_EDGE_WIDTH["class_large"], zorder=4)
     mk.set_gid("class mark network run")
-    axc.text(0.97, 0.5, f"{d['nc1_net_class']}, expected\n{d['nc1_net_expected']}", transform=axc.transAxes, ha="right", va="top", color=S.figure_colour("fail_text")).set_gid("panel note")
+    axc.text(x_net, -0.3, d["nc1_net_class"], ha="center", va="bottom", color=S.figure_colour("fail_text")).set_gid("panel note")
+    axc.set_ylabel("expected: no surge class" if d["nc1_net_expected"] == "NS" else "expected class")
     axc.set_yticks([])
     axc.set_xlabel("map cell: Delta, tau_d (ms)")
     axc.set_xticks(list(range(len(cols["cells"]))) + [x_net], cols["cells"] + [cols["network"]], rotation=90)
@@ -6742,7 +6743,7 @@ def _draw_F6_journal(d: dict, columns: dict | None = None):
     _journal_title(axc, "c", "negative control 1:\nnegative-control check", fail=True)
 
     # (d), (e) S6 and the P2 comparators against T_ramp
-    for letter, key, ttl, yl in (("d", "s6_onset_s", "onset against T_ramp", "onset (s), log axis"), ("e", "s6_f_pk_hz", "peak frequency against T_ramp", "peak frequency (Hz)")):
+    for letter, key, ttl, yl in (("d", "s6_onset_s", "onset", "onset (s), log axis"), ("e", "s6_f_pk_hz", "peak frequency", "peak frequency (Hz)")):
         axd = axes(letter)
         for i, (path, amp, lab) in enumerate(F6_S6_ROWS):
             st = S.get(path)
@@ -6768,7 +6769,7 @@ def _draw_F6_journal(d: dict, columns: dict | None = None):
         axd.set_ylabel(yl)
         _journal_title(axd, letter, ttl)
     # key of (d) and (e)
-    kx2 = _ax_in(fig, 0.13, 7.3, 6.04, 0.42)
+    kx2 = _ax_in(fig, 0.13, 7.52, 6.04, 0.36)
     kx2.axis("off")
     kx2.set_gid("legend axes (paths)")
     hh, ll = [], []
@@ -6779,11 +6780,11 @@ def _draw_F6_journal(d: dict, columns: dict | None = None):
             ll.append(F6J_P3[amp])
         else:
             fill, size = "full", S.F6_MARKS["p4b_size"] if path == "P4b" else S.POINT_SIZES["f6_s6_line"]
-            ll.append("P2: comparators (filled 10, 120 s), references (open 30, 300 s)" if path == "P2" else path)
+            ll.append("P2 (filled: 10, 120 s; open: 30, 300 s)" if path == "P2" else path)
         hh.append(Line2D([], [], color=st.colour, ls=st.linestyle, lw=S.F6_MARKS["line_width"], marker=st.marker, ms=size, fillstyle=fill, mec=st.colour))
     cm0 = S.get(d["s6_class"][0][0])
     hh.append(Line2D([], [], ls="none", marker=cm0.marker, ms=S.F6_MARKS["class_mark_size"] + 2.0, color=cm0.colour, mec=S.figure_colour("bar_edge"), mew=0.2))
-    ll.append(f"{cm0.key}: class of every point (small mark on it)")
-    kx2.legend(hh, ll, loc="upper left", ncol=3, frameon=False, columnspacing=1.2, labelspacing=0.3, handlelength=2.0, borderaxespad=0).set_in_layout(False)
+    ll.append(f"small mark: class ({cm0.key})")
+    kx2.legend(hh, ll, loc="upper left", ncol=4, frameon=False, columnspacing=1.2, labelspacing=0.3, handlelength=2.0, borderaxespad=0).set_in_layout(False)
     J.finish(fig, cfg)
     return fig
