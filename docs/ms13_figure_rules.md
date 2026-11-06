@@ -91,6 +91,10 @@ W3. Plain numbers on the images: N ticks 1000, 3000, 10,000, 30,000; log ticks 1
 W4. (a) F1: orange solid and dashed line in (i) mark the windows of (j), (k), which carry orange frames; (b) F5 defines every class on the image; (c) F5 tie clause in plain words (UNVERIFIED wording; the plan has no sentence on ties); (d) F3 image words 'Hopf curve', 'Hopf point of a slice', '25 Hz crossing of a slice', 'Hopf point of the main example' (old phrases in the V3 word list); (e) F3 short caption: 'No other failed check is about this figure; the project's other failed checks are listed in Supplement F3', and the F3 supplement lists them.
 W5. Accepted unchanged: F1 in-panel statement on two lines; 'raw marks overlap' and 'flagged' wordings; parenthesis density; runs not drawn; items 44 and 45 stay open for the user. W6. Process: rulings committed before the first trial render; every trial render and every recorded PNG looked at in full and in 4 quadrant crops; one build; no rebuild after the review.
 
+## X1 to X2 (13t-2, DL-615, DL-616; X1 is A2, X2 is A6; the rest of Part A is one-off text edits, Part B applies the rules above to F2 and F6)
+X1. F3 keeps the red 'frequency check: FAIL' on (a), (b) and (c); the short and the full caption say that (a) and (b) are the same frequency map at other Delta and that the failed check was made at the main example in (c) and bears on them too.
+X2. Word limit of every short caption, pilot and new, at most 520 words (UNVERIFIED, configs/journal_export.yaml). A caption that does not fit stops the build; a ruled limit is never dropped.
+
 ## Failures that stay visible (plan 7.2; shown, not dropped)
 RB1 FAIL; RB2 FAIL; RB6 solver FAIL (181 ms); RB6 network f_pk FAIL; RB9(b) FAIL (4.391 Hz against 0.5 Hz); G7 NOT PASSED; D24 noisy subgrid FAILED (97 of 225 = 43.1 percent, 203 needed).
 
