@@ -84,7 +84,7 @@ def test_v3_the_ruled_plain_words_are_on_the_images(figs):
     assert "mean field (recorded run)" in t["F1"] and "recorded values" in t["F1"]
     assert "cycle frequency, main example" in t["F3"] and "spectral peak, main example" in t["F3"] and "(recorded)" in t["F3"]
     assert "no-noise mean field" in t["F5"] and "matching mean-field run (30 s)" in t["F5"] and "post-hoc re-scoring" in t["F5"] and "of (c)" in t["F5"]
-    assert "recorded minimum duration" in t["F5c"] and "recorded minimum to maximum and median" in t["F5c"] and "matching mean-field run" in t["F5c"] and "peak frequency" in t["F5c"]
+    assert "recorded minimum, 1000 ms" in t["F5c"] and "recorded minimum to maximum and median" in t["F5c"] and "matching mean-field run" in t["F5c"] and "peak frequency" in t["F5c"]
     assert "map cell" in t["F5"]                                   # 'map cell' stays (V3)
 
 

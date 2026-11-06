@@ -6617,3 +6617,13 @@ Chosen:          as ruled   Default from: the prompt
 Test:            tests/test_ms13_13t2.py; tests/test_ms13_13t1e.py, 1f, 1g
 Status:          committed before running
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-618  MS13 13t-2 Part A: one more edit of the expected TEXT of an older test (found by the first run of DL-617)    [ID: MS13, 13t, 13t-2, A1, DL-617]
+Date:            2026-11-05        Author:
+Decision:        CHANGE (test text only, no data assertion). tests/test_ms13_13t1f.py line 87 (test_v3_the_ruled_plain_words_are_on_the_images): the image phrase 'recorded minimum duration' becomes 'recorded minimum, 1000 ms' (the F5c legend of A1, DL-615). Not listed in DL-617 because the first run of the tests found it; the run stopped there (pytest -x), the remaining tests of the four files are run after this commit.
+Reason:          instruction of the reviewer (A1)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            tests/test_ms13_13t1f.py
+Status:          committed before running
+Commit/tag:      the commit that adds this entry; no tag
