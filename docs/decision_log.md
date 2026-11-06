@@ -6697,3 +6697,13 @@ Chosen:          as done   Default from: the prompt
 Test:            the two tests, then the fast suite
 Status:          committed before the rerun
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-626  MS13 13t-2: fast suite at the end of the step; 13t-2 built and checked, no tag    [ID: MS13, 13t, 13t-2, DL-623, DL-624, DL-625]
+Date:            2026-11-06        Author:
+Decision:        FACT. FAST SUITE at the end of 13t-2 (HEAD ffc8c01, after the test edits of DL-625): 1420 passed, 24 deselected, 9 xfailed, 0 failed, exit 0 taken from pytest itself (915.39 s; run with -q). The first end-of-step run (HEAD cb7c51e) had 1418 passed and 2 failed (DL-625). Against the start of the step (1402 passed): +18 tests, all in tests/test_ms13_13t2.py; older tests keep their data assertions (text edits DL-617, DL-618, DL-625). 13t-2 is built and checked: the F1, F2, F3, F5, F5c and F6 journal versions with short and full captions are in figures/journal/ (untagged drafts; no tag, no push, no upload); the eleven drafts are byte-identical (scripts/ms13_check_hashes.py 104 rows, 0 problems). The findings of DL-624, the rulings asked in docs/ms13_13t2_notes.md, items 44 and 45 wait for the reviewer. The old review_crops folder (C:\Users\Alpha\AppData\Local\Temp\review_crops) is outside the project and was not touched; trial, crop and review folders are in the session scratchpad.
+Reason:          instruction of the reviewer (13t-2 prompt)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            fast suite
+Status:          13t-2 closed; 13t-3 not started
+Commit/tag:      the commit that adds this entry; no tag
