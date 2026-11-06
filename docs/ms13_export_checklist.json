@@ -1408,122 +1408,128 @@
   {
    "id": "X-A1-f5c-duration-legend-caption",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-2 (DL-614 to DL-616): A1: legend and caption of (d) dashed line say the same"
+   "status": "passing",
+   "note": "13t-2 (DL-614 to DL-616): A1: legend and caption of (d) dashed line say the same | built from 282d3f5, verify exit 0, recorded PNGs and 24 crops looked at (DL-623)"
   },
   {
    "id": "X-A2-f3-red-title-clause",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-2 (DL-614 to DL-616): A2: short and full caption clause on (a), (b), (c)"
+   "status": "passing",
+   "note": "13t-2 (DL-614 to DL-616): A2: short and full caption clause on (a), (b), (c) | built from 282d3f5, verify exit 0, recorded PNGs and 24 crops looked at (DL-623)"
   },
   {
    "id": "X-A3-f5c-dotted-line-clause",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-2 (DL-614 to DL-616): A3: short caption clause on seeds on the dotted line"
+   "status": "passing",
+   "note": "13t-2 (DL-614 to DL-616): A3: short caption clause on seeds on the dotted line | built from 282d3f5, verify exit 0, recorded PNGs and 24 crops looked at (DL-623)"
   },
   {
    "id": "X-A4-f5-blank-lines-clause",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-2 (DL-614 to DL-616): A4: short caption clause on blank lines through (c), (d)"
+   "status": "passing",
+   "note": "13t-2 (DL-614 to DL-616): A4: short caption clause on blank lines through (c), (d) | built from 282d3f5, verify exit 0, recorded PNGs and 24 crops looked at (DL-623)"
   },
   {
    "id": "X-A5-f5c-onsets-clause",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-2 (DL-614 to DL-616): A5: short caption clause on the 39 ramp-seed onsets"
+   "status": "passing",
+   "note": "13t-2 (DL-614 to DL-616): A5: short caption clause on the 39 ramp-seed onsets | built from 282d3f5, verify exit 0, recorded PNGs and 24 crops looked at (DL-623)"
   },
   {
    "id": "X-A6-word-limit-520",
    "figure": "all",
-   "status": "failing",
-   "note": "13t-2 (DL-614 to DL-616): A6: every short caption at most 520 words"
+   "status": "passing",
+   "note": "13t-2 (DL-614 to DL-616): A6: every short caption at most 520 words | built from 282d3f5, verify exit 0, recorded PNGs and 24 crops looked at (DL-623)"
   },
   {
    "id": "X-F2-B1-image",
    "figure": "F2",
-   "status": "failing",
-   "note": "13t-2 (DL-614 to DL-616): 6.3 x 8.0 in, 600 dpi, 8 pt, margins, zero unlisted collisions, cmaps, non-colour"
+   "status": "passing",
+   "note": "13t-2 (DL-614 to DL-616): 6.3 x 8.0 in, 600 dpi, 8 pt, margins, zero unlisted collisions, cmaps, non-colour | built from 282d3f5, verify exit 0, recorded PNGs and 24 crops looked at (DL-623)"
   },
   {
    "id": "X-F2-B2-plain-words",
    "figure": "F2",
-   "status": "failing",
-   "note": "13t-2 (DL-614 to DL-616): plain words, titles, minus signs, red-title evidence"
+   "status": "passing",
+   "note": "13t-2 (DL-614 to DL-616): plain words, titles, minus signs, red-title evidence | built from 282d3f5, verify exit 0, recorded PNGs and 24 crops looked at (DL-623)"
   },
   {
    "id": "X-F2-B3-captions",
    "figure": "F2",
-   "status": "failing",
-   "note": "13t-2 (DL-614 to DL-616): short (at most 520 words) and full caption, N of further failed checks, definitions, numbers equal"
+   "status": "passing",
+   "note": "13t-2 (DL-614 to DL-616): short (at most 520 words) and full caption, N of further failed checks, definitions, numbers equal | built from 282d3f5, verify exit 0, recorded PNGs and 24 crops looked at (DL-623)"
   },
   {
    "id": "X-F2-B4-machinery",
    "figure": "F2",
-   "status": "failing",
-   "note": "13t-2 (DL-614 to DL-616): verifier, comparison, checklist, manifest rows"
+   "status": "passing",
+   "note": "13t-2 (DL-614 to DL-616): verifier, comparison, checklist, manifest rows | built from 282d3f5, verify exit 0, recorded PNGs and 24 crops looked at (DL-623)"
   },
   {
    "id": "X-F2-B5-supplement",
    "figure": "F2",
-   "status": "failing",
-   "note": "13t-2 (DL-614 to DL-616): source-data CSV, alt text, provenance sidecar"
+   "status": "passing",
+   "note": "13t-2 (DL-614 to DL-616): source-data CSV, alt text, provenance sidecar | built from 282d3f5, verify exit 0, recorded PNGs and 24 crops looked at (DL-623)"
   },
   {
    "id": "X-F2-B6-notes",
    "figure": "F2",
-   "status": "failing",
-   "note": "13t-2 (DL-614 to DL-616): docs/ms13_13t2_notes.md table"
+   "status": "passing",
+   "note": "13t-2 (DL-614 to DL-616): docs/ms13_13t2_notes.md table | built from 282d3f5, verify exit 0, recorded PNGs and 24 crops looked at (DL-623)"
   },
   {
    "id": "X-F2-digest",
    "figure": "F2",
-   "status": "failing",
-   "note": "13t-2 (DL-614 to DL-616): drawn-data digest equals the draft; drafts byte-identical"
+   "status": "passing",
+   "note": "13t-2 (DL-614 to DL-616): drawn-data digest equals the draft; drafts byte-identical | built from 282d3f5, verify exit 0, recorded PNGs and 24 crops looked at (DL-623)"
   },
   {
    "id": "X-F6-B1-image",
    "figure": "F6",
-   "status": "failing",
-   "note": "13t-2 (DL-614 to DL-616): 6.3 x 8.0 in, 600 dpi, 8 pt, margins, zero unlisted collisions, cmaps, non-colour"
+   "status": "passing",
+   "note": "13t-2 (DL-614 to DL-616): 6.3 x 8.0 in, 600 dpi, 8 pt, margins, zero unlisted collisions, cmaps, non-colour | built from 282d3f5, verify exit 0, recorded PNGs and 24 crops looked at (DL-623)"
   },
   {
    "id": "X-F6-B2-plain-words",
    "figure": "F6",
-   "status": "failing",
-   "note": "13t-2 (DL-614 to DL-616): plain words, titles, minus signs, red-title evidence"
+   "status": "passing",
+   "note": "13t-2 (DL-614 to DL-616): plain words, titles, minus signs, red-title evidence | built from 282d3f5, verify exit 0, recorded PNGs and 24 crops looked at (DL-623)"
   },
   {
    "id": "X-F6-B3-captions",
    "figure": "F6",
-   "status": "failing",
-   "note": "13t-2 (DL-614 to DL-616): short (at most 520 words) and full caption, N of further failed checks, definitions, numbers equal"
+   "status": "passing",
+   "note": "13t-2 (DL-614 to DL-616): short (at most 520 words) and full caption, N of further failed checks, definitions, numbers equal | built from 282d3f5, verify exit 0, recorded PNGs and 24 crops looked at (DL-623)"
   },
   {
    "id": "X-F6-B4-machinery",
    "figure": "F6",
-   "status": "failing",
-   "note": "13t-2 (DL-614 to DL-616): verifier, comparison, checklist, manifest rows"
+   "status": "passing",
+   "note": "13t-2 (DL-614 to DL-616): verifier, comparison, checklist, manifest rows | built from 282d3f5, verify exit 0, recorded PNGs and 24 crops looked at (DL-623)"
   },
   {
    "id": "X-F6-B5-supplement",
    "figure": "F6",
-   "status": "failing",
-   "note": "13t-2 (DL-614 to DL-616): source-data CSV, alt text, provenance sidecar"
+   "status": "passing",
+   "note": "13t-2 (DL-614 to DL-616): source-data CSV, alt text, provenance sidecar | built from 282d3f5, verify exit 0, recorded PNGs and 24 crops looked at (DL-623)"
   },
   {
    "id": "X-F6-B6-notes",
    "figure": "F6",
-   "status": "failing",
-   "note": "13t-2 (DL-614 to DL-616): docs/ms13_13t2_notes.md table"
+   "status": "passing",
+   "note": "13t-2 (DL-614 to DL-616): docs/ms13_13t2_notes.md table | built from 282d3f5, verify exit 0, recorded PNGs and 24 crops looked at (DL-623)"
   },
   {
    "id": "X-F6-digest",
    "figure": "F6",
-   "status": "failing",
-   "note": "13t-2 (DL-614 to DL-616): drawn-data digest equals the draft; drafts byte-identical"
+   "status": "passing",
+   "note": "13t-2 (DL-614 to DL-616): drawn-data digest equals the draft; drafts byte-identical | built from 282d3f5, verify exit 0, recorded PNGs and 24 crops looked at (DL-623)"
+  },
+  {
+   "id": "X-13t2-subagent-review-new",
+   "figure": "all",
+   "status": "passing",
+   "note": "13t-2: a NEW fresh subagent read the six short captions; findings unedited in docs/ms13_13t2_review.md; triaged (DL-624); findings open for the reviewer, no rebuild"
   }
  ]
 }
