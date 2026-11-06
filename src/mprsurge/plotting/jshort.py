@@ -47,7 +47,7 @@ DEFS = {
     "peak frequency": (r"[Pp]eak frequency\b", r"peak frequency[^.;)]{0,6}(?:\(|, )the peak of (?:its|the) power spectrum", ""),
     "slice": (r"\bslices?\b", r"slice \(one fixed tau_d", ""),
     "map cell": (r"\bmap cells?\b", r"map cells? \(one parameter pair of a (?:30 x 30 )?grid of mean-field runs", "derived from the full caption of F5; the plan has no sentence for it (UNVERIFIED wording)"),
-    "noisy subgrid": (r"\bnoisy subgrid\b", r"[Nn]oisy subgrid \(map cells re-run with noise", ""),
+    "noisy subgrid": (r"\b[Nn]oisy subgrid\b", r"[Nn]oisy subgrid \(map cells re-run with noise", ""),
     "ramp seed": (r"\bramp seeds?\b", r"ramp seeds? \(a simulated network run with the ramp", ""),
     "control": (r"\bcontrols?\b", r"controls? \(the same network without the ramp", ""),
     "onset": (r"\bonset\b", r"onset[^.;]{0,6}\(when", ""),
