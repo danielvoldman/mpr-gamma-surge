@@ -6687,3 +6687,13 @@ Chosen:          none fixed   Default from: the prompt
 Test:            none
 Status:          review triaged; findings open for the reviewer
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-625  MS13 13t-2: the final fast suite found two older tests that pin the exact set of figure keys; their expected sets get F2 and F6 (text edits, no data assertion)    [ID: MS13, 13t, 13t-2, DL-620, DL-624]
+Date:            2026-11-05        Author:
+Decision:        FACT and CHANGE. The fast suite at the end of 13t-2 (HEAD cb7c51e): 1418 passed, 2 failed, 24 deselected, 9 xfailed, exit 1 (934.20 s). The two failures are tests/test_ms13_13t1e.py::test_u2_title_map_names_every_plain_title_and_its_check (set(JC.TITLE_MAP) was {F1, F3, F5, F5c}) and tests/test_ms13_13t1f.py::test_v7_short_names_only_failed_checks_that_are_drawn (JS.SHORT_NAMED had four keys): both compare a whole registry with the four pilot figures and the registries now also hold F2 (no red title, no named failed row) and F6 (title 'negative-control check: FAIL', named row G7 gate) by DL-620. Not caused by a figure or data change: the build of DL-623 is unaffected. Edit of the expected sets only (TITLE_MAP keys, SHORT_NAMED), no data assertion changed.
+Reason:          the end-of-step fast suite
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            the two tests, then the fast suite
+Status:          committed before the rerun
+Commit/tag:      the commit that adds this entry; no tag

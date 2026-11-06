@@ -268,7 +268,8 @@ def test_v7_the_count_in_each_short_caption_equals_the_count_computed_from_the_f
 @needs
 def test_v7_short_names_only_failed_checks_that_are_drawn(built):
     assert JS.SHORT_NAMED == {"F1": {("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30s")}, "F3": {("RB9", "b_spectral_vs_cycle_headline")},
-                              "F5": {("RB1", "cells_30s"), ("RB2", "noisy_subgrid_agreement")}, "F5c": {("RB6", "network_fpk_halving_dt")}}
+                              "F5": {("RB1", "cells_30s"), ("RB2", "noisy_subgrid_agreement")}, "F5c": {("RB6", "network_fpk_halving_dt")},
+                              "F2": set(), "F6": {("G7", "gate")}}                  # DL-625: F2 and F6 added in 13t-2
     for f in PILOT:
         assert "listed in the supplement" in _short(built, f) and "All earlier failures and limits stand" in _short(built, f)
 
