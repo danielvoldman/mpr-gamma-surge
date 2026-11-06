@@ -176,7 +176,7 @@ def test_c4_f6_short_caption(built, f6d):
     assert "filled bars: the primary label (the first that applies); hatched and dotted bars: every label that applies" in short
     assert FG.S.figure_hatch("map1_any") != FG.S.figure_hatch("map2_any") and "." in FG.S.figure_hatch("map2_any")
     assert "NS: no rise, the noisy-run counterpart of D-none" in short
-    assert "Negative control 2 is D-tr at every ramp duration in the mean field; the failed check is the one on negative control 1 (network S+)" in short
+    assert "negative control 2 is D-tr at every ramp duration; the failed check is the one on negative control 1 (network S+)" in short and "In the mean field (the model's equations for the average activity of the population)" in short
     assert "negative control 2 (the full path with the drive off and on)" in short and "negative control 3 (inhibition raised while the mean excitability falls; exploratory)" in short
     f = JF.f6_facts(f6d)
     assert (f["n_all"], f["n_pre"], f["n_cmp"]) == (24, 20, 4) and f["fpk"] == ["48.048", "49", "49", "49.5"]
