@@ -54,7 +54,7 @@ DEFS = {
     "duration": (r"\bduration\b(?! of)(?<!ramp duration)", r"duration[^.;]{0,6}\(how long", "the ruling's 'first and last flags' is replaced by the full-caption wording 'flagged windows x step' (UNVERIFIED)"),
     "first crossing": (r"\bfirst crossings?\b", r"first crossings? of its detection threshold", "the plan does not say what the signal crosses: only 'first crossing of its detection threshold' is written (UNVERIFIED)"),
     "spectrogram": (r"\b[Ss]pectrograms?\b", r"[Ss]pectrograms? \(power against time and frequency", ""),
-    "tie": (r"bties?b", r"no single majority class", "the plan has no sentence on ties; wording from the full caption (UNVERIFIED)"),
+    "tie": (r"\bties?\b", r"no single majority class", "the plan has no sentence on ties; wording from the full caption (UNVERIFIED)"),
     "post hoc": (r"\bpost hoc\b", r"chosen after the results", ""),
     "90 percent rule": (r"\b90 percent rule\b", r"at least 90 percent of the", ""),
     "step-halving": (r"\bstep-halving\b", r"halving the numerical time step must change", ""),
