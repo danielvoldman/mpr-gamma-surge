@@ -463,7 +463,7 @@ def f3_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list, 
               "(eta_bar 4, J = -21, Delta 0.3, tau_d 5 ms). Only the parameters that define the plotted slices and the regime are listed.")
     failed = ("Shown, not dropped (the full list with value, threshold and source is in the supplement): " + "; ".join(failed_line(r) for r in strip_rows)
               + f". The stored table gives no value for this row; the values are those of the project log: spectral {spec:.1f} Hz, cycle {cyc:.3f} Hz, difference {diff:.3f} Hz against the allowed 0.5 Hz (the inverse of the 2 s window). "
-              + title_sentence("F3") + " The panels draw the cycle frequency and the failed check compares it with the spectral peak, so the two frequencies are marked on the one shared colour bar "
+              + title_sentence("F3") + " (a) and (b) are the same frequency map at other Delta; the failed check was made at the main example in (c) and bears on them too. The panels draw the cycle frequency and the failed check compares it with the spectral peak, so the two frequencies are marked on the one shared colour bar "
               "(a tick at the cycle frequency, a tick at the spectral peak, and their difference).")
     limits = limits_paragraph(ids) + " " + limit_scope(ids)
     panels = " ".join(panel)

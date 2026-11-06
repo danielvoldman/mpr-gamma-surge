@@ -1136,7 +1136,7 @@ def _f5_jconst(d: dict) -> dict:
             "f5c_pointer": "Per-seed results against N, with the RB6 network f_pk FAIL, are in F5c.",
             "onset_sentence": f"{n_below} of the {n} drawn ramp-seed onsets ({np.nanmin(o):.1f} to {np.nanmax(o):.1f} s) are earlier than that onset (T_ramp 60 s).",
             "duration_sentence": (f"the stored minimum duration is {float(np.min(d['stored_duration_ms'])):g} ms at all four N, a pinned value that is the floor of the classifier (duration = flagged windows x step, so one window is the smallest "
-                                  "duration, 1.0 s = 1000 ms for T_ramp >= 60 s); no mean-field duration reference is drawn because the stored companion reference (class, f_pk, onset) has no duration field."),
+                                  "duration, 1.0 s = 1000 ms for T_ramp >= 60 s); in (d) the dashed line is the smallest duration the classifier can give (recorded minimum, 1000 ms); no mean-field duration reference is drawn because the stored companion reference (class, f_pk, onset) has no duration field."),
             "undefined_note": ("ramp seeds with an undefined value, per N (" + ", ".join(nn) + "): f_pk " + ", ".join(str(int(u)) for u in und[:, 0]) + "; onset " + ", ".join(str(int(u)) for u in und[:, 1]) + "; duration "
                                + ", ".join(str(int(u)) for u in und[:, 2]) + "; no-ramp controls with an undefined value, per N: f_pk " + ", ".join(str(int(np.isnan(d["ctrl_f_pk_hz"][k]).sum())) for k in range(4))
                                + "; onset " + ", ".join(str(int(np.isnan(d["ctrl_onset_s"][k]).sum())) for k in range(4)) + " (the controls have no duration).")}
@@ -6285,7 +6285,7 @@ def _draw_F5c_journal(d: dict):
           Line2D([], [], ls=":", color=S.get("mean_field").colour, lw=S.F5_SIZES["ref_line"]),
           Line2D([], [], ls="--", color=S.figure_colour("range_line"), lw=0.6)]
     l2 = ["filled: ramp seed (10 per N)", "open: no-ramp control seed (3 per N)", "grey bar and tick: recorded minimum to maximum and median of the ramp seeds",
-          "dotted line: matching mean-field run, (b) and (c)", "dashed line: recorded minimum duration, (d)"]
+          "dotted line: matching mean-field run, (b) and (c)", "dashed line: smallest duration the classifier can give (recorded minimum, 1000 ms), (d)"]
     kx2.legend(h2, l2, loc="center left", ncol=1, frameon=False, handletextpad=0.5, labelspacing=0.3).set_in_layout(False)
 
     def panel_axes(letter):

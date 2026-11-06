@@ -231,7 +231,7 @@ def test_v6_f1_states_the_ruled_facts(built):
 def test_v6_f5c_short_has_the_dotted_and_dashed_line_wording(built):
     short = _short(built, "F5c")
     assert "dotted line in (b), (c): the matching mean-field run" in short
-    assert "dashed line in (d): the smallest duration the classifier can give (one window, 1000 ms)" in short
+    assert "dashed line in (d): the smallest duration the classifier can give (recorded minimum, 1000 ms)" in short
     assert "come from other network runs, not the controls drawn here" in short
 
 
@@ -276,7 +276,7 @@ def test_v7_short_names_only_failed_checks_that_are_drawn(built):
 # ---- V8: limits and numbers ----
 
 def test_v8_word_limits_are_the_ruled_ones(cfg):
-    assert [J.caption_limit(cfg, f) for f in PILOT] == [480, 480, 480, 480]
+    assert [J.caption_limit(cfg, f) for f in PILOT] == [520, 520, 520, 520]
 
 
 @needs

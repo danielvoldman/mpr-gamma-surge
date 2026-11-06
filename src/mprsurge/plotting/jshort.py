@@ -238,7 +238,7 @@ def f3_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
         "(a)-(c) Cycle frequency (colour) against mean excitability eta_bar and synaptic decay time tau_d (ms, log axis) for heterogeneity Delta = 0.05, 0.1, 0.3. "
         "Each band is one slice (one fixed tau_d) from its Hopf point (black mark); a black bar marks where the cycle crosses 25 Hz and is absent where it never does "
         f"({cross} of {n_sl} slices have one, as recorded). In (c) the line is the Hopf curve, straight segments between recorded points; the grey open circle is the start of the paths "
-        f"(eta_bar {d['P1_eta_start']:.3f}), the dark ring the Hopf point of the main example at tau_d {d['headline_tau_d_ms']:g} ms.",
+        f"(eta_bar {d['P1_eta_start']:.3f}), the dark ring the Hopf point of the main example at tau_d {d['headline_tau_d_ms']:g} ms; (a) and (b) are the same frequency map at other Delta; the failed check was made at the main example in (c) and bears on them too.",
         "(d) Hopf curve against eta_bar and Delta (log axis), with the paths P1 (eta_bar ramped only), P2 (hypoxia-like: eta_bar raised, coupling J ramped to 0 after a delay), "
         "P3 (P2 plus a common drive) and P5 (up, then back), drawn as one arrow because their eta_bar, Delta and tau_d are equal; P4a, P4b (P2 with Delta multiplied by 1.5 or 2/3) are separate. (e) One row per path.",
         # DL-603 W2: values copied from the Parameters paragraph of the full caption; the M3 gloss moved here from the limit clause (first use); no classifier or spectrogram is used (settings paragraph)
@@ -267,7 +267,7 @@ def f5_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
         # DL-604 W4(c): the tie clause in the words of the full caption ('majority class of 10 seeds', 'ties count as disagreements by the rule'); the plan has no sentence on ties, so 'no single majority class' is UNVERIFIED wording
         "(c) Noisy subgrid (map cells re-run with noise, 10 seeds each): agree (circle), disagree (cross) or tie (plus: no single majority class among the 10 seeds of the cell; it counts as a disagreement "
         "under the 90 percent rule: at least 90 percent of the cells must agree). "
-        "(d) The same cells re-scored by a rule chosen after the results (post hoc; no check; dashed frame). (e) Map 2: initial coupling J0 and ramp duration.",
+        "(d) The same cells re-scored by a rule chosen after the results (post hoc; no check; dashed frame); the blank lines through (c) and (d) are map cells that are not in the noisy subgrid. (e) Map 2: initial coupling J0 and ramp duration.",
         # DL-603 W2: values copied from the Parameters and settings paragraphs of the full caption (the classifier window depends on the ramp duration: 2 s and 1 s from 60 s up)
         "Parameters: model M3 (the mean-field model) with membrane time constant 10 ms and coupling J = -21; map 1: heterogeneity Delta 0.01 to 0.6 (30 values), synaptic decay time tau_d 1 to 50 ms (30 values), ramp duration 120 s; "
         "map 2: J0 -40 to -5 (25 values), 13 ramp durations, Delta 0.3, tau_d 5 ms; network cells: ramp duration 30 s; "
@@ -283,6 +283,11 @@ def f5c_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, ful
     sus = [int(x) for x in np.sum(np.asarray(d["ctrl_class"]) == "S-sus", axis=1)]
     n_ns = int(np.sum(np.asarray(d["s9_class"])[list(d["n_values"]).index(10000)] == "NS"))
     ns_txt = "one ramp seed" if n_ns == 1 else f"{n_ns} ramp seeds"
+    on = np.asarray(d["s9_onset_s"], dtype=float)
+    n_on = int(np.sum(~np.isnan(on)))
+    if n_on != int(np.sum(on < d["ref_onset_s"])):
+        raise JShortError("F5c: a drawn ramp-seed onset is not earlier than the mean-field onset (DL-615 A5 stop)")
+    onset_clause = f"all {n_on} drawn ramp-seed onsets ({np.nanmin(on):.1f} to {np.nanmax(on):.1f} s) are earlier than the mean-field onset ({d['ref_onset_s']:.3f} s)"
     labs = JC._and_list([f"{int(n):,}".replace(",", "") if int(n) < 10000 else f"{int(n):,}" for n in d["n_values"]])
     return finish("F5c", [
         "Network classes do not reproduce the mean field, and the step-halving check failed (halving the numerical time step must change the network peak frequency, the peak of its power spectrum, by less than 2 percent; its runs are not recorded, so not drawn). "
@@ -292,8 +297,8 @@ def f5c_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, ful
         f"(a) Class of every seed against N (N = {labs}): ramp seeds (a simulated network run with the ramp, one per random seed; filled, 10 per N) and controls (the same network without the ramp; open, 3 per N). "
         f"Controls in a surge class: {JC._and_list([str(x) for x in cn['ctrl']])} of 3; controls in S-sus: {JC._and_list([str(x) for x in sus])} of 3. "
         "(b) Peak frequency, (c) onset (when the classifier, a rule fixed before the analysis, first flags the gamma rise) and (d) duration (how long it flags it; log axis); "
-        "grey bar and tick: range and median of the ramp seeds; dotted line in (b), (c): the matching mean-field run; dashed line in (d): the smallest duration the classifier can give (one window, 1e3 ms). "
-        "Failed check (red title of (b)): the step-halving check.",
+        "grey bar and tick: range and median of the ramp seeds; dotted line in (b), (c): the matching mean-field run; dashed line in (d): the smallest duration the classifier can give (recorded minimum, 1e3 ms). "
+        f"In (c), {onset_clause}. Failed check (red title of (b)): the step-halving check; a seed on the dotted line is not evidence of agreement (the check of this panel failed).",
         # DL-603 W2: values copied from the Parameters and settings paragraphs of the full caption
         f"Parameters: model M3 (the mean-field model) with membrane time constant 10 ms, coupling J = -21, heterogeneity Delta = 0.3 and synaptic decay time tau_d = 5 ms; ramp duration 60 s; "
         f"network size N = {labs}; classifier window 2 s, step 1 s, gamma band 25 to 100 Hz; noise level sigma = 0.0624 (checked, not confirmed; its check failed).",

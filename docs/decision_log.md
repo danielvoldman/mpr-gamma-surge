@@ -6607,3 +6607,13 @@ Chosen:          as ruled   Default from: the prompt
 Test:            tests/test_ms13_13t2.py; scripts/ms13_verify_export.py
 Status:          logged before any trial render
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-617  MS13 13t-2 Part A: code of A1 to A6, tests, edits of the expected TEXT of older tests (no data assertion changes)    [ID: MS13, 13t, 13t-2, A1, A2, A3, A4, A5, A6, DL-615]
+Date:            2026-11-05        Author:
+Decision:        CHANGE (committed before it is run). (1) configs/journal_export.yaml: short_max_words 520 (was 330), short_max_words_F1, F3, F5, F5c 520 (were 480), new short_max_words_F2 and short_max_words_F6 520 (A6). (2) A1: figures.py F5c key text 'dashed line: smallest duration the classifier can give (recorded minimum, 1000 ms), (d)'; jshort.py F5c short caption 'dashed line in (d): the smallest duration the classifier can give (recorded minimum, 1e3 ms)' (written 1000 by plain_n); jcaption/figures.py duration sentence of the full caption gets 'in (d) the dashed line is the smallest duration the classifier can give (recorded minimum, 1000 ms)'. (3) A2: the clause of DL-615 in the F3 short caption (after the Hopf-point description of the panel sentence) and in the Failed checks paragraph of the F3 full caption; the three red titles are unchanged. (4) A3 and A5: F5c short caption 'In (c), all N drawn ramp-seed onsets (min to max s) are earlier than the mean-field onset (X s)' with N, min, max and X computed from the figure arrays (a build stops with JShortError if one drawn onset is not earlier), and 'a seed on the dotted line is not evidence of agreement (the check of this panel failed)'. (5) A4: F5 short caption 'the blank lines through (c) and (d) are map cells that are not in the noisy subgrid'. (6) Edits of the expected TEXT or limit of older tests, no data assertion changed: tests/test_ms13_13t1e.py lines 170, 171 (330 and 480 become 520); tests/test_ms13_13t1f.py line 234 ('one window, 1000 ms' becomes 'recorded minimum, 1000 ms') and line 279 (480 becomes 520); tests/test_ms13_13t1g.py line 25 (LIMITS 480 become 520). (7) New tests/test_ms13_13t2.py (Part A: 9 tests; Part B tests are added in later commits of this step). Drawn data are not touched: the digests must stay equal.
+Reason:          instruction of the reviewer (13t-2 prompt, Part A, work step 5)
+Options:         -
+Chosen:          as ruled   Default from: the prompt
+Test:            tests/test_ms13_13t2.py; tests/test_ms13_13t1e.py, 1f, 1g
+Status:          committed before running
+Commit/tag:      the commit that adds this entry; no tag
