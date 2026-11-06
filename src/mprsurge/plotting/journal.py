@@ -135,14 +135,14 @@ def _capitalise(s: str) -> str:
 def sentence_case(fig) -> int:
     """Capitalise the first letter of every visible label that starts with a lower-case word (after a panel prefix); returns the number changed. Text only."""
     from matplotlib.text import Text
-    from matplotlib.ticker import FixedFormatter
+    from matplotlib.ticker import FuncFormatter
     n = 0
     fig.canvas.draw()
     for ax in fig.axes:                                  # tick labels set with fixed strings are rebuilt from the formatter at every draw: the formatter gets the capitalised strings
         for axis in (ax.xaxis, ax.yaxis):
             fmt = axis.get_major_formatter()
-            if isinstance(fmt, FixedFormatter) and any(not sentence_start_ok(x) for x in fmt.seq):
-                axis.set_major_formatter(FixedFormatter([x if sentence_start_ok(x) else _capitalise(x) for x in fmt.seq]))
+            if any(lab.get_text().strip() and not sentence_start_ok(lab.get_text()) for lab in axis.get_ticklabels()):
+                axis.set_major_formatter(FuncFormatter(lambda x, pos, f=fmt: (lambda s: s if sentence_start_ok(s) else _capitalise(s))(f(x, pos))))
                 n += 1
     for t in fig.findobj(Text):
         s = t.get_text()
