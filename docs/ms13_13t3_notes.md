@@ -25,3 +25,7 @@ FS1 to FS5 are left 'failing' in docs/ms13_export_checklist.json; no FS journal 
 | FS5 | not tried; expected not to fit on one page (area estimate, no layout was tried) | 11 axes (7.4 x 14.4 in) | split: FS5a = (a), (c), (d), (e) (classifier cases and noise), FS5b = (f), (g1) to (g4) (RB10 and RB9, the RB9(b) FAIL drawn) |
 
 D2: every red title of an FS export needs evidence on its panel; the draft FS titles that carry a failure word are FS2 (b) and (l), FS3 (d), (e), (g), FS4 (a), (e), (f), FS5 (g2); the evidence (a drawn failure, a mark on the scale or one plain line) has to be built with the layout. Not done in 13t-3.
+
+## Review of the recorded build (DL-633; docs/ms13_13t3_review.md): findings left for the reviewer
+
+F6 short caption says the failure-label key is 'above panel (a)', it stands below the bars (change to 'below'); F2 sentence 1 contradiction confirmed independently (item 1); F1 onset at 12 s before any visible rise (close item 44); wrapped second lines of multi-line labels start in lower case by the rule of the start of each label (DL-633); F6 (d), (e) tick '100' for the 120 s point; terms 'envelope', 'detection threshold', '(j), (k)' content, 'exploratory' not defined in the short captions.

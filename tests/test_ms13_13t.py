@@ -770,7 +770,7 @@ def test_s9_and_s13_no_code_names_on_any_journal_image_tau_d_has_the_underscore_
         assert not any(bad in s for s in texts), (fid, bad)
     assert not any("PSD" in s for s in texts)
     if fid == "F1":
-        assert any("power spectral" in s for s in texts)
+        assert any("power spectral" in s.lower() for s in texts)
     if fid in ("F1", "F3", "F5"):
         assert any("tau_d" in s for s in texts)
 
@@ -806,10 +806,10 @@ def test_s10_the_event_strip_above_d_and_f_holds_the_stored_times_and_is_labelle
 def test_s11_s12_labels_colour_bar_j0_p1_and_the_f3_e_title(figs, built):
     f1, f3, f5 = figs["F1"][0], figs["F3"][0], figs["F5"][0]
     cb = next(a for a in f1.axes if a.get_gid() == "colour bar spectrogram")
-    assert "power spectral" in cb.get_ylabel() and "density" in " ".join(cb.get_ylabel().split()) and "(dB)" in cb.get_ylabel()
+    assert "power spectral" in cb.get_ylabel().lower() and "density" in " ".join(cb.get_ylabel().split()) and "(dB)" in cb.get_ylabel()
     assert "J0" in _panel(f5, "e").get_ylabel() and "path start" in _panel(f5, "e").get_ylabel()
-    assert _panel(f5, "d").get_title(loc="left") == "(d) post-hoc re-scoring\nof (c)"            # DL-592 V3
-    assert _panel(f3, "e").get_title(loc="left") == "(e) paths, one row per path"
+    assert _panel(f5, "d").get_title(loc="left").lower() == "(d) post-hoc re-scoring\nof (c)"            # DL-592 V3
+    assert _panel(f3, "e").get_title(loc="left").lower() == "(e) paths, one row per path"
     cap5 = built["out"]["F5"]["caption"]
     assert "P-1 = a post-hoc view" in cap5 and "synaptic decay time" in cap5
 
@@ -1012,10 +1012,10 @@ def test_t6_label_title_gap_check_finds_a_label_that_touches_the_next_title():
 def test_t6_f1_colour_bar_label_vertical_line_labels_and_padded_y_limits(figs, built):
     fig, d, _ = figs["F1"]
     cb = next(a for a in fig.axes if a.get_gid() == "colour bar spectrogram")
-    assert " ".join(cb.get_ylabel().split()) == "power spectral density (dB); same scale for (g) and (h)"
+    assert " ".join(cb.get_ylabel().split()).lower() == "power spectral density (db); same scale for (g) and (h)"      # DL-628 C9: capital first letter
     leg = next(a for a in fig.axes if a.get_gid() == "legend axes").get_legend()
     labels = [t.get_text() for t in leg.get_texts()]
-    assert any(t.startswith("ramp start and end") for t in labels) and any(t.startswith("J ramp start and end") for t in labels)
+    assert any(t.lower().startswith("ramp start and end") for t in labels) and any(t.startswith("J ramp start and end") for t in labels)
     by = {a.get_gid(): a for a in fig.axes if (a.get_gid() or "").startswith("panel:")}
     n = d["ras_n_rows"]
     for k in "ijk":

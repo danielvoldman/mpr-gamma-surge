@@ -1,5 +1,5 @@
 {
- "note": "status changes to passing only after scripts/ms13_verify_export.py passes for the item AND the recorded PNG crops were looked at (J15); 13t-1d (DL-571): F1, F3 and F5 items were reset to failing and the T1 to T12 items added; 13t-1e (DL-581 to DL-583): items U1 to U8 added as failing; 13t-1f (DL-592 to DL-594): items V1 to V9 added as failing; 13t-1g (DL-603 to DL-605): items W1 to W6 added as failing; 13t-2 (DL-614 to DL-616): items for A1 to A6 and for F2 and F6 added as failing; 13t-3 (DL-627 to DL-629): items C1 to C9 and FS1 to FS5 added as failing",
+ "note": "status changes to passing only after scripts/ms13_verify_export.py passes for the item AND the recorded PNG crops were looked at (J15); 13t-1d (DL-571): F1, F3 and F5 items were reset to failing and the T1 to T12 items added; 13t-1e (DL-581 to DL-583): items U1 to U8 added as failing; 13t-1f (DL-592 to DL-594): items V1 to V9 added as failing; 13t-1g (DL-603 to DL-605): items W1 to W6 added as failing; 13t-2 (DL-614 to DL-616): items for A1 to A6 and for F2 and F6 added as failing; 13t-3 (DL-627 to DL-629): items C1 to C9 and FS1 to FS5 added as failing; 13t-3 recorded build from c39adb1 (DL-632): C1, C2, C4 to C7, C9 passing, C3 failing (F2 sentence 1 STOP), FS1 to FS5 failing",
  "items": [
   {
    "id": "J10-raw-crossings-marker-on-text",
@@ -623,7 +623,7 @@
    "id": "S13-tau-d-label-without-underscore",
    "figure": "all",
    "status": "passing",
-   "note": "tau-d on the image (tau followed by a plain d), defined once as synaptic decay time; underscore form kept in supplement and source data; PNG looked at (13t-1c, DL-563); recorded build c90a6c8 (DL-568): passing: '\u00cf\u201ed' on the images; the new subagent remarked that Arial's tau reads like a small T; the underscore form is one constant (JTAU) away"
+   "note": "tau-d on the image (tau followed by a plain d), defined once as synaptic decay time; underscore form kept in supplement and source data; PNG looked at (13t-1c, DL-563); recorded build c90a6c8 (DL-568): passing: 'Ï„d' on the images; the new subagent remarked that Arial's tau reads like a small T; the underscore form is one constant (JTAU) away"
   },
   {
    "id": "S14-F5-crowding-check-marks-3pt-touch-fgi",
@@ -1534,50 +1534,50 @@
   {
    "id": "C1-f2-red-title-and-note",
    "figure": "F2",
-   "status": "failing",
-   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: F2 (c) red title 'network vs mean field: FAIL' and one plain note; (a), (b) no red title"
+   "status": "passing",
+   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: F2 (c) red title 'network vs mean field: FAIL' and one plain note; (a), (b) no red title | verified on the recorded build from c39adb1 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t3.py; all six recorded PNGs looked at in full and four crops; DL-632)"
   },
   {
    "id": "C2-f2-key-dashdot",
    "figure": "F2",
-   "status": "failing",
-   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: key handle of the stable fixed point shows the dash-dot pattern (at least three periods)"
+   "status": "passing",
+   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: key handle of the stable fixed point shows the dash-dot pattern (at least three periods) | verified on the recorded build from c39adb1 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t3.py; all six recorded PNGs looked at in full and four crops; DL-632)"
   },
   {
    "id": "C3-f2-short-caption",
    "figure": "F2",
    "status": "failing",
-   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: short caption: tracking sentence, up/down sweep sentence, Hopf-point sentence, merged limit sentence, no classifier sentence, sweep defined"
+   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: short caption: tracking sentence, up/down sweep sentence, Hopf-point sentence, merged limit sentence, no classifier sentence, sweep defined | all parts done except sentence 1: STOP, the ruled take-home wording 'does not follow the mean-field branch closely' conflicts with the image and is not changed (DL-630, notes item 1); stays failing until the reviewer rules"
   },
   {
    "id": "C4-f6-short-caption",
    "figure": "F6",
-   "status": "failing",
-   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: short caption: key above (a), bar styles, NS in noisy runs, negative controls 2 and 3, 20+4 scope, coincident lines, sigma limit"
+   "status": "passing",
+   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: short caption: key above (a), bar styles, NS in noisy runs, negative controls 2 and 3, 20+4 scope, coincident lines, sigma limit | verified on the recorded build from c39adb1 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t3.py; all six recorded PNGs looked at in full and four crops; DL-632)"
   },
   {
    "id": "C5-short-captions-f1-f3-f5-f5c",
    "figure": "F1, F3, F5, F5c",
-   "status": "failing",
-   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: short captions: F5 post-hoc agreement count, F5c four clauses, F3 coincidence and band clause, F1 '(not drawn here)'"
+   "status": "passing",
+   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: short captions: F5 post-hoc agreement count, F5c four clauses, F3 coincidence and band clause, F1 '(not drawn here)' | verified on the recorded build from c39adb1 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t3.py; all six recorded PNGs looked at in full and four crops; DL-632)"
   },
   {
    "id": "C6-word-limit-600",
    "figure": "all",
-   "status": "failing",
-   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: all short captions at most 600 words (UNVERIFIED)"
+   "status": "passing",
+   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: all short captions at most 600 words (UNVERIFIED) | verified on the recorded build from c39adb1 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t3.py; all six recorded PNGs looked at in full and four crops; DL-632)"
   },
   {
    "id": "C7-allow-lists-f2-f6",
    "figure": "F2, F6",
-   "status": "failing",
-   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: allow-lists printed grouped by reason class with counts; no legibility entry"
+   "status": "passing",
+   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: allow-lists printed grouped by reason class with counts; no legibility entry | verified on the recorded build from c39adb1 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t3.py; all six recorded PNGs looked at in full and four crops; DL-632)"
   },
   {
    "id": "C9-sentence-case",
    "figure": "all",
-   "status": "failing",
-   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: every label on every journal image in sentence case, exceptions as ruled; test"
+   "status": "passing",
+   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: every label on every journal image in sentence case, exceptions as ruled; test | verified on the recorded build from c39adb1 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t3.py; all six recorded PNGs looked at in full and four crops; DL-632)"
   },
   {
    "id": "D-FS1",
@@ -1608,6 +1608,12 @@
    "figure": "FS5",
    "status": "failing",
    "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: journal export of FS5"
+  },
+  {
+   "id": "X-13t3-subagent-review-new",
+   "figure": "all",
+   "status": "passing",
+   "note": "13t-3: a NEW fresh subagent read the six short captions; findings unedited in docs/ms13_13t3_review.md; triaged (DL-633); findings open for the reviewer, no rebuild"
   }
  ]
 }
