@@ -6777,3 +6777,13 @@ Chosen:          as done   Default from: the prompt
 Test:            -
 Status:          findings left for the reviewer; no rebuild
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-634  MS13 13t-3: fast suite at the end of the step; Part A built and checked, Part B not done, no tag    [ID: MS13, 13t, 13t-3, DL-632, DL-633]
+Date:            2026-11-06        Author:
+Decision:        FACT. FAST SUITE at the end of 13t-3 (HEAD dfee8e7, after the test text edits of DL-633): 1440 passed, 24 deselected, 9 xfailed, 0 failed, exit 0 taken from pytest itself (1077.32 s; run with -q). Against the start of the step (1420 passed): +20 tests, all in tests/test_ms13_13t3.py. Older tests keep their data assertions (text edits DL-630, DL-633). Part A (C1 to C9) is built and checked for F1, F2, F3, F5, F5c, F6 (untagged drafts; no tag, no push, no upload); C3 stays failing (F2 sentence 1 STOP); FS1 to FS5 are not exported (DL-631). The eleven drafts are byte-identical (scripts/ms13_check_hashes.py 104 rows, 0 problems). The old review_crops folder (C:\Users\Alpha\AppData\Local\Temp\review_crops) is outside the project and was not touched; trial, crop and review folders are in the session scratchpad.
+Reason:          instruction of the reviewer (13t-3 prompt)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            fast suite
+Status:          13t-3 closed (Part A); no tag
+Commit/tag:      the commit that adds this entry; no tag
