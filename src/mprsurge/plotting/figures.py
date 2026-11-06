@@ -6758,6 +6758,7 @@ def _draw_F6_journal(d: dict, columns: dict | None = None):
                 cm_ = S.get(cl_)
                 axd.scatter([d["s6_T"][k_]], [d[key][i][k_]], marker=cm_.marker, s=S.F6_MARKS["class_mark_size"] ** 2, c=cm_.colour, edgecolors=S.figure_colour("bar_edge"), linewidths=0.2, zorder=6).set_gid(f"marks: class {lab} {k_}")
         axd.set_xscale("log")
+        axd.set_xlim(7.5, 400.0)                                     # layout: room for the marks at 10 and 300 s inside the frame
         _f6_log_ticks(axd, "x", [10, 30, 100, 300])
         if key == "s6_onset_s":
             axd.set_yscale("log")

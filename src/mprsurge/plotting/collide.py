@@ -525,6 +525,12 @@ JOURNAL_ALLOW = {
         AllowEntry("marker-line", "c", r"marks:network", r"line:zero line",
                    "stored positions: recorded relative differences near 0 (-0.00057, 0.00366 and 0.00382) lie on or near the zero line; the zero line is a reference line, not data"),
     ),
+    "F6": tuple(
+        AllowEntry(kind, pl, r"marks:", r"marks:|line:marks:",
+                   "stored positions and ruled mark sizes (DL-616 B1): the rows of (d) and (e) are drawn at their recorded values; in (e) the recorded peak frequencies of P3 (drive 0.5 and 1), P4b and the P2 comparators are "
+                   "identical (48.048, 49, 49, 49.5 Hz) and in (d) the recorded onsets of P4b, P2 and P3 are within the width of the marks; they are told apart by the ruled concentric marks (fill and size per row) and "
+                   "each point carries its small class mark (2.6 pt, ruled) on itself; no value is moved, jittered or shrunk, and the key and the caption name the coincident rows")
+        for kind in ("marker-marker", "marker-line") for pl in ("d", "e")),
     "F5c": tuple(
         AllowEntry("marker-line", pl, r"marks:(seed|control) N\d s\d", r"mean-field companion reference|stored minimum duration",
                    "stored value on the line (DL-571 T10): the line is the stored mean-field companion value (f_pk 49 Hz, onset 33.698 s) or the stored minimum duration (1000 ms, the classifier floor), "
