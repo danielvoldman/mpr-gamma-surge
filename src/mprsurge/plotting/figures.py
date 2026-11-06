@@ -927,6 +927,10 @@ def journal_figure(fig_id: str, res=None, root=None, close: bool = True):
         if fig_id == "F3":
             d = prepare_F3(load_F3(res))
             fig = _draw_F3(d, draft=False, strip_lines=strip_lines(d), mode="journal")
+        elif fig_id == "F6":
+            raw6 = load_F6(res)
+            d = prepare_F6(raw6)
+            fig = _draw_F6(d, draft=False, columns=f6_column_labels(raw6), mode="journal")
         elif fig_id == "F2":
             d = prepare_F2(load_F2(res))
             fig = _draw_F2(d, draft=False, strip_lines=strip_lines(d), mode="journal")
@@ -3942,7 +3946,9 @@ def f6_strip_lines(d: dict) -> list[str]:
     return [f"{r['rb_id']} {r['check_id']}: {r['status']} (NC1 network run S+; {r['source']}) - shown, not dropped" for r in d["strip"]]
 
 
-def _draw_F6(d: dict, draft: bool, columns: dict | None = None):
+def _draw_F6(d: dict, draft: bool, columns: dict | None = None, mode: str = "draft"):
+    if mode == "journal":
+        return _draw_F6_journal(d, columns)
     import textwrap
     import matplotlib
     matplotlib.use("Agg")
@@ -6608,5 +6614,176 @@ def _draw_F2_journal(d: dict):
     ll += ["mean field, up sweep (filled triangle)", "mean field, down sweep (hollow, smaller)", "network N = 10,000, up sweep (open square)", "network, down sweep (open diamond)"]
     lg = kx.legend(hh, ll, loc="upper left", bbox_to_anchor=(0.0, 1.0), ncol=2, frameon=False, borderaxespad=0, labelspacing=0.25, handlelength=2.2, columnspacing=1.2)
     lg.set_in_layout(False)
+    J.finish(fig, cfg)
+    return fig
+
+
+# ---- F6 journal (13t-2, DL-616 B1 to B5) -----------------------------------------------------------------------------------------------------------------
+# Own layout code (like F1, F2 and F5). Layout only: every drawn value is the draft's. Plain words on the image (DL-616 B2): no check, gate or step ID; the controls are called negative control 1, 2 and 3.
+F6J_HEIGHT = 8.0
+F6J_ROWS = {"a": (0.38, 1.3), "b": (2.78, 1.95), "c": (5.52, 1.05), "d": (5.52, 1.05), "e": (5.52, 1.05)}      # (top of the axes, height) in inches from the top edge
+F6J_COLS = {"a": (0.75, 5.35), "b": (1.78, 4.37), "c": (0.75, 1.3), "d": (2.78, 1.4), "e": (4.78, 1.37)}      # (left edge, width) in inches
+F6J_BAR_W = 0.22
+F6J_LABEL_WORDS = {"a": "Delta above critical", "b": "tau_d outside window", "c": "a flag, not a demonstrated cause", "d": "ramp too fast for 10 cycles", "e": "no exit (D-sus or S-sus)",
+                   "f": "amplitude below the fixed threshold", "g": "Hopf point, no time inside", "h": "rejected by the damped-oscillation test"}     # plain words of the stored short forms (A9_LABELS); h: the 'damped (D8) clause' without the ID
+F6J_ROW_LABELS = ("negative control 1\nmean field, no noise", "negative control 1\nmean field, noise (10 seeds)", "negative control 2\ndrive off", "negative control 2\ndrive on", "negative control 3\n(exploratory)")
+F6J_P3 = {0.5: "P3, drive 0.5", 1.0: "P3, drive 1", 2.0: "P3, drive 2"}
+
+
+def _f6_log_ticks(ax, axis: str, ticks, fmt=None) -> None:
+    from matplotlib.ticker import FixedLocator, FixedFormatter, NullLocator
+    a = ax.xaxis if axis == "x" else ax.yaxis
+    a.set_major_locator(FixedLocator(ticks))
+    a.set_major_formatter(FixedFormatter([f"{t:g}" for t in ticks]))
+    a.set_minor_locator(NullLocator())
+
+
+def _draw_F6_journal(d: dict, columns: dict | None = None):
+    from matplotlib.lines import Line2D
+    from matplotlib.patches import Patch, Rectangle
+    fig, cfg = _journal_fig(F6J_HEIGHT, constrained=False)
+    ink = S.figure_colour("bar_edge_dark")
+
+    def axes(letter):
+        top, h = F6J_ROWS[letter]
+        left, w = F6J_COLS[letter]
+        return _ax_in(fig, left, top, w, h)
+
+    # (a) failure labels on the non-surge cells
+    ax = axes("a")
+    xs = np.arange(len(F6_LABELS), dtype=float)
+    w = F6J_BAR_W
+    for k, (off, fc) in enumerate(((-1.5 * w, S.figure_colour("map1_fill")), (-0.5 * w, S.figure_colour("map2_fill")))):
+        for x_, c in zip(xs, d["label_primary"][k]):
+            r = Rectangle((x_ + off - w / 2, 0), w, c, fc=fc, ec=ink, lw=0.4, zorder=3)
+            r.set_gid(f"bar primary map {k + 1}")
+            ax.add_patch(r)
+            ax.text(x_ + off, c + 1.2, f"{int(c)}", ha="center", va="bottom").set_gid("bar count")
+    for k, off in enumerate((0.5 * w, 1.5 * w)):
+        for x_, c in zip(xs, d["label_any"][k]):
+            r = Rectangle((x_ + off - w / 2, 0), w, c, fc=S.figure_colour("open_fill"), ec=ink, lw=0.8, hatch=S.figure_hatch("map1_any" if k == 0 else "map2_any"), zorder=3)
+            r.set_gid(f"bar any map {k + 1}")
+            ax.add_patch(r)
+            ax.text(x_ + off, c + 1.2, f"{int(c)}", ha="center", va="bottom").set_gid("bar count")
+    ax.set_xticks(xs, list(F6_LABELS))
+    ax.set_xlim(-0.6, len(F6_LABELS) - 0.4)
+    ax.set_ylim(0, 108)
+    ax.set_yticks([0, 20, 40, 60, 80])
+    ax.set_ylabel("non-surge cells")
+    ax.set_xlabel("failure label")
+    _journal_title(ax, "a", f"failure labels of the {int(d['map_nonsurge'].sum())} non-surge cells (D-tr cells, no label: map 1 {int(d['map_surge'][0])}, map 2 {int(d['map_surge'][1])})")
+    lg = ax.legend(handles=[Patch(fc=S.figure_colour("map1_fill"), ec=ink, lw=0.4, label="map 1, primary"), Patch(fc=S.figure_colour("map2_fill"), ec=ink, lw=0.4, label="map 2, primary"),
+                            Patch(fc=S.figure_colour("open_fill"), ec=ink, lw=0.8, hatch=S.figure_hatch("map1_any"), label="map 1, any label"),
+                            Patch(fc=S.figure_colour("open_fill"), ec=ink, lw=0.8, hatch=S.figure_hatch("map2_any"), label="map 2, any label")],
+                   loc="upper left", ncol=4, frameon=True, framealpha=0.95, handleheight=S.F6_MARKS["legend_handle_height"], handlelength=2.0, columnspacing=1.0, borderaxespad=0.3)
+    lg.set_gid("legend (a)")
+    kx = _ax_in(fig, 0.75, 1.98, 5.4, 0.62)
+    kx.axis("off")
+    kx.set_gid("legend axes (labels)")
+    words = [f"{L}: {F6J_LABEL_WORDS[L]}" for L in F6_LABELS]
+    for i, wd in enumerate(words):
+        kx.text(0.0 if i < 4 else 0.5, 1.0 - 0.25 * (i % 4), wd, transform=kx.transAxes, va="top", ha="left").set_gid("label key")
+
+    # (b) negative controls against T_ramp
+    axb = axes("b")
+    rows = [(F6J_ROW_LABELS[0], d["nc1_mf_class"]), (F6J_ROW_LABELS[1], None), (F6J_ROW_LABELS[2], d["nc2_I0_class"]), (F6J_ROW_LABELS[3], d["nc2_I1_class"]), (F6J_ROW_LABELS[4], d["nc3_class"])]
+    for i, (lab, cls) in enumerate(rows):
+        for j in range(13):
+            if cls is None:
+                cc = d["nc1_modeN_count"][j]
+                top = FS3_CLASSES[int(np.argmax(cc))]
+                st = S.get(top)
+                (mk,) = axb.plot([j], [i], ls="none", marker=st.marker, ms=S.POINT_SIZES["f6_control"], color=st.colour, mec=S.figure_colour("bar_edge"), mew=S.POINT_EDGE_WIDTH["class"], zorder=4)
+                mk.set_gid(f"class mark {i} {j}")
+                rest = [f"{c}\n{int(k)}" for c, k in zip(FS3_CLASSES, cc) if k > 0 and c != top]
+                if rest:
+                    axb.text(j, i + 0.2, "\n".join(rest), ha="center", va="top").set_gid("seed count")
+            else:
+                st = S.get(cls[j])
+                (mk,) = axb.plot([j], [i], ls="none", marker=st.marker, ms=S.POINT_SIZES["f6_control"], color=st.colour, mec=S.figure_colour("bar_edge"), mew=S.POINT_EDGE_WIDTH["class"], zorder=4)
+                mk.set_gid(f"class mark {i} {j}")
+    axb.set_yticks(range(5), [r[0] for r in rows])
+    axb.set_xticks(range(13), [CAP.number_text(float(f"{t:.3g}")) for t in d["nc_T"]])
+    axb.set_xlabel("T_ramp (s)")
+    axb.set_ylim(4.6, -0.6)
+    axb.set_xlim(-0.6, 12.6)
+    _journal_title(axb, "b", "negative controls: class against T_ramp (text: seeds in another class)")
+    kb = _ax_in(fig, 1.78, 4.98, 4.37, 0.2)
+    kb.axis("off")
+    kb.set_gid("legend axes (classes)")
+    seen = []
+    for c in list(d["nc1_mf_class"]) + [FS3_CLASSES[int(np.argmax(cc))] for cc in d["nc1_modeN_count"]] + list(d["nc2_I0_class"]) + list(d["nc2_I1_class"]) + list(d["nc3_class"]) + list(d["nc1_cells_class"]) + [d["nc1_net_class"]]:
+        if c not in seen:
+            seen.append(c)
+    hk = [Line2D([], [], ls="none", marker=S.get(c).marker, ms=S.POINT_SIZES["f6_control"], color=S.get(c).colour, mec=S.figure_colour("bar_edge"), mew=S.POINT_EDGE_WIDTH["class"]) for c in seen]
+    kb.legend(hk, seen, loc="center left", ncol=len(seen), frameon=False, columnspacing=1.4, handletextpad=0.4, borderaxespad=0).set_in_layout(False)
+
+    # (c) negative control 1: the 5 map cells and the network run
+    axc = axes("c")
+    cols = {"cells": [f"cell {j + 1}" for j in range(len(d["nc1_cells_class"]))], "network": "network"}
+    if columns:                                                  # the stored Delta and tau_d of each cell, one line each: '0.01, 1'
+        import re as _re
+        cols["cells"] = [", ".join(_re.findall(r"[\d.]+", x.replace("tau_d", ""))) for x in columns["cells"]]
+    for j, c in enumerate(d["nc1_cells_class"]):
+        st = S.get(c)
+        (mk,) = axc.plot([j], [0], ls="none", marker=st.marker, ms=S.POINT_SIZES["f6_control"], color=st.colour, mec=S.figure_colour("bar_edge"), mew=S.POINT_EDGE_WIDTH["class"], zorder=4)
+        mk.set_gid(f"class mark cell {j}")
+    x_net = len(d["nc1_cells_class"]) + 0.6
+    axc.axvline(x_net - 0.8, color=S.F6_MARKS["separator"], lw=S.F6_MARKS["line_width"], ls=":", zorder=1).set_gid("separator")
+    st = S.get(d["nc1_net_class"])
+    (mk,) = axc.plot([x_net], [0], ls="none", marker=st.marker, ms=S.POINT_SIZES["f6_network_run"], color=st.colour, mec=S.figure_colour("bar_edge"), mew=S.POINT_EDGE_WIDTH["class_large"], zorder=4)
+    mk.set_gid("class mark network run")
+    axc.text(0.97, 0.5, f"{d['nc1_net_class']}, expected\n{d['nc1_net_expected']}", transform=axc.transAxes, ha="right", va="top", color=S.figure_colour("fail_text")).set_gid("panel note")
+    axc.set_yticks([])
+    axc.set_xlabel("map cell: Delta, tau_d (ms)")
+    axc.set_xticks(list(range(len(cols["cells"]))) + [x_net], cols["cells"] + [cols["network"]], rotation=90)
+    axc.set_xlim(-0.6, x_net + 0.9)
+    axc.set_ylim(1.0, -0.8)
+    _journal_title(axc, "c", "negative control 1:\nnegative-control check", fail=True)
+
+    # (d), (e) S6 and the P2 comparators against T_ramp
+    for letter, key, ttl, yl in (("d", "s6_onset_s", "onset against T_ramp", "onset (s), log axis"), ("e", "s6_f_pk_hz", "peak frequency against T_ramp", "peak frequency (Hz)")):
+        axd = axes(letter)
+        for i, (path, amp, lab) in enumerate(F6_S6_ROWS):
+            st = S.get(path)
+            if path == "P3":
+                fill, size = S.F6_MARKS["p3_fill"][amp], S.F6_MARKS["p3_size"][amp]
+            else:
+                fill, size = "full", S.F6_MARKS["p4b_size"] if path == "P4b" else S.POINT_SIZES["f6_s6_line"]
+            (ln,) = axd.plot(d["s6_T"], d[key][i], color=st.colour, ls=st.linestyle, lw=S.F6_MARKS["line_width"], marker=st.marker, ms=size, fillstyle=fill, mec=st.colour, zorder=3)
+            ln.set_gid(f"marks: {lab}")
+            if path == "P2":
+                axd.scatter(d["s6_T"][[1, 3]], d[key][i][[1, 3]], marker=st.marker, s=size ** 2, facecolors=S.HALO_COLOUR, edgecolors=st.colour, linewidths=0.8, zorder=4).set_gid("marks: P2 open")
+            for k_, cl_ in enumerate(d["s6_class"][i]):
+                cm_ = S.get(cl_)
+                axd.scatter([d["s6_T"][k_]], [d[key][i][k_]], marker=cm_.marker, s=S.F6_MARKS["class_mark_size"] ** 2, c=cm_.colour, edgecolors=S.figure_colour("bar_edge"), linewidths=0.2, zorder=6).set_gid(f"marks: class {lab} {k_}")
+        axd.set_xscale("log")
+        _f6_log_ticks(axd, "x", [10, 30, 100, 300])
+        if key == "s6_onset_s":
+            axd.set_yscale("log")
+            _f6_log_ticks(axd, "y", [10, 30, 100])
+        else:
+            axd.set_ylim(36.0, 60.0)
+        axd.set_xlabel("T_ramp (s), log axis")
+        axd.set_ylabel(yl)
+        _journal_title(axd, letter, ttl)
+    # key of (d) and (e)
+    kx2 = _ax_in(fig, 0.13, 7.3, 6.04, 0.42)
+    kx2.axis("off")
+    kx2.set_gid("legend axes (paths)")
+    hh, ll = [], []
+    for path, amp, lab in F6_S6_ROWS:
+        st = S.get(path)
+        if path == "P3":
+            fill, size = S.F6_MARKS["p3_fill"][amp], S.F6_MARKS["p3_size"][amp]
+            ll.append(F6J_P3[amp])
+        else:
+            fill, size = "full", S.F6_MARKS["p4b_size"] if path == "P4b" else S.POINT_SIZES["f6_s6_line"]
+            ll.append("P2: comparators (filled 10, 120 s), references (open 30, 300 s)" if path == "P2" else path)
+        hh.append(Line2D([], [], color=st.colour, ls=st.linestyle, lw=S.F6_MARKS["line_width"], marker=st.marker, ms=size, fillstyle=fill, mec=st.colour))
+    cm0 = S.get(d["s6_class"][0][0])
+    hh.append(Line2D([], [], ls="none", marker=cm0.marker, ms=S.F6_MARKS["class_mark_size"] + 2.0, color=cm0.colour, mec=S.figure_colour("bar_edge"), mew=0.2))
+    ll.append(f"{cm0.key}: class of every point (small mark on it)")
+    kx2.legend(hh, ll, loc="upper left", ncol=3, frameon=False, columnspacing=1.2, labelspacing=0.3, handlelength=2.0, borderaxespad=0).set_in_layout(False)
     J.finish(fig, cfg)
     return fig
