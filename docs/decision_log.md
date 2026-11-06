@@ -6657,3 +6657,13 @@ Chosen:          as done   Default from: the prompt
 Test:            scripts/ms13_verify_export.py; tests/test_ms13_13t2.py
 Status:          committed before running
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-622  MS13 13t-2: tests of Part B and the pilot sheet of all six, committed before the recorded build    [ID: MS13, 13t, 13t-2, B1, B2, B3, B4, B5, B7, DL-620, DL-621]
+Date:            2026-11-05        Author:
+Decision:        CHANGE (tests and a script; no figure code). tests/test_ms13_13t2.py: 18 tests in all (9 for Part A of DL-617, 9 for Part B): drawn-data digest of the F2 and F6 journal builds equal to the drafts'; every verifier check passes for F2 and F6 on a temporary build (size 6.3 x at most 8.0 in, margins at least 0.10 in, zero unlisted collision hits, plain words, caption rows); short caption words at most 520, definitions of every term where first used, claim-limit clauses, numbers equal to the full caption's, the Parameters sentence numbers, the pointer sentence, the count N of further failed checks computed from the full caption (F2 = 4, F6 = none); full captions have seven paragraphs and name the stored FAIL rows (F2: the four RB1 rows; F6: the negative-control row); no red title on F2, one on F6 with the S+ mark; the plain-word list and no check ID, no NC1, no superscript or e-notation on the images; every allow-list entry has a reason and none is PROVISIONAL; supplement, source-data CSV (below 20 MB) and alt text. No test text of an older test is edited in this entry. scripts/ms13_pilot_sheet.py lists all six files.
+Reason:          instruction of the reviewer (13t-2 prompt, work steps 5 and 6)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            tests/test_ms13_13t2.py (18 passed)
+Status:          committed before the recorded build
+Commit/tag:      the commit that adds this entry; no tag

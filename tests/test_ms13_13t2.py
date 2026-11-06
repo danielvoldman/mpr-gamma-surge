@@ -11,6 +11,7 @@ matplotlib.use("Agg")
 
 from mprsurge import config as C
 from mprsurge.plotting import figures as FG
+from mprsurge.plotting import jchecks as JK
 from mprsurge.plotting import journal as J
 from mprsurge.plotting import jshort as JS
 
@@ -124,3 +125,132 @@ def test_a_text_only_the_digests_stay_equal(built):
         draft = (ROOT / "figures" / did / f"{did}_drawn_data_sha256.txt")
         if draft.is_file():
             assert built["out"][f]["drawn_sha256"] == draft.read_text(encoding="utf-8").strip(), f
+
+
+# ================================ Part B: the journal export of F2 and F6 (DL-616 B1 to B7, DL-620, DL-621) ================================
+import csv
+import importlib.util
+
+from mprsurge.plotting import collide as CO
+from mprsurge.plotting import jcaption as JCAP
+
+B_FIGS = ("F2", "F6")
+B_INPUTS = {"F2": FG.F2_INPUTS, "F6": FG.F6_INPUTS}
+needs_b = pytest.mark.skipif(not all((RES / p).is_file() for f in B_FIGS for p in B_INPUTS[f]), reason="stored F2 and F6 inputs under results/ are absent")
+PLAIN_BAN = ("stored", "headline", "companion", "mode D", "f_pk", "P-1", "path time", "continuation record", "frequency-map slice")
+A_DEFINED = ("surge", "classes S+", "S-rel", "S-abs", "S-sus", "NS", "D-tr", "D-sus", "D-none", "mean field", "network", "main example", "hypoxia-like path P2", "Hopf point", "slice", "map cell",
+             "noisy subgrid", "ramp seed", "control", "onset", "duration", "first crossing")
+
+
+@pytest.fixture(scope="module")
+def builtb(tmp_path_factory):
+    base = tmp_path_factory.mktemp("journal13t2b")
+    out = {f: getattr(FG, f"make_{f}")(mode="journal", out_dir=base / "journal" / f) for f in B_FIGS}
+    return {"base": base / "journal", "out": out}
+
+
+@pytest.fixture(scope="module")
+def verify():
+    spec = importlib.util.spec_from_file_location("ms13_verify_export", ROOT / "scripts" / "ms13_verify_export.py")
+    VE = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(VE)
+    return VE
+
+
+def _txt(built, f, name):
+    return (built["base"] / f / f"{f}_journal_{name}.txt").read_text(encoding="utf-8").strip()
+
+
+@needs_b
+def test_b_digest_of_each_journal_figure_equals_its_draft(builtb):
+    for f in B_FIGS:
+        draft = (ROOT / "figures" / f / f"{f}_drawn_data_sha256.txt").read_text(encoding="utf-8").strip()
+        assert builtb["out"][f]["drawn_sha256"] == draft, f
+
+
+@needs_b
+def test_b_all_verifier_checks_pass_for_f2_and_f6(builtb, verify):
+    with open(ROOT / "docs" / "ms13_figure_manifest.csv", newline="", encoding="utf-8") as fh:
+        manifest = {(r["figure"], r["file"]): r["sha256"] for r in csv.DictReader(fh)}
+    for f in B_FIGS:
+        res, info = verify.check_figure(f, builtb["base"], ROOT, manifest)
+        assert [c for c, (st, _) in res.items() if st == "FAIL"] == [], (f, {c: v for c, v in res.items() if v[0] == "FAIL"})
+        assert set(verify.CHECKS) == set(res)
+        W, H = info["inches"]
+        assert abs(W - 6.3) < 1e-9 and H <= 8.0 + 1e-9
+        m = info["margins"]
+        assert min(m.values()) >= 0.10, (f, m)
+
+
+@needs_b
+def test_b_short_captions_limits_definitions_and_counts(builtb):
+    cfg = J.load_config(ROOT)
+    for f in B_FIGS:
+        short, full = _txt(builtb, f, "caption"), _txt(builtb, f, "caption_full")
+        assert JS.words(short) <= J.caption_limit(cfg, f) <= 520, f
+        assert JS.undefined_terms(short) == [], f
+        assert JS.limits_missing(f, short) == [], f
+        assert JS.numbers_not_in_full(short, full) == [], f
+        assert JS.parameters_numbers_missing(short, full) == [], f
+        assert short.endswith(JS.POINTER.format(fid=f))
+        assert JS.further_sentence(f, full) in short
+        for w in PLAIN_BAN:
+            assert not re.search(rf"\b{re.escape(w)}\b", short), (f, w)
+        assert not JCAP.FORBIDDEN.search(short) and not JS.ID_PATTERN.search(short)
+    n2 = int(re.search(r"(\d+) further failed checks", _txt(builtb, "F2", "caption")).group(1))
+    assert n2 == JS.further_count("F2", _txt(builtb, "F2", "caption_full")) == 4
+    assert "No other failed check is about this figure" in _txt(builtb, "F6", "caption")
+
+
+@needs_b
+def test_b_full_captions_have_seven_paragraphs_and_the_failed_rows(builtb):
+    for f in B_FIGS:
+        full = _txt(builtb, f, "caption_full")
+        paras = full.split("\n\n")
+        assert len(paras) == 7 and paras[0].startswith(f"{f}. ")
+        assert JS.failed_in_full(full) == ({("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30s"), ("RB1", "overall")} if f == "F2" else {("G7", "gate")})
+        assert not re.search(r"\bNC1\b|UNVERIFIED|\bD8\b", full)
+
+
+@needs_b
+def test_b_red_titles_and_plain_words_on_the_images():
+    for f, n_red in (("F2", 0), ("F6", 1)):
+        with FG.journal_figure(f, close=False) as (fig, d, cfg):
+            fig.canvas.draw()
+            texts = [" ".join(t.get_text().split()) for t in fig.findobj(matplotlib.text.Text) if t.get_text() and t.get_visible()]
+            reds = [t for t in texts if "FAIL" in t]
+        plt.close("all")
+        assert len(reds) == n_red, (f, reds)
+        for t in texts:
+            for w in PLAIN_BAN:
+                assert not re.search(rf"\b{re.escape(w)}\b", t), (f, t)
+            assert not JS.ID_PATTERN.search(t) and "NC1" not in t and "^" not in t and not JK.E_NOTATION.search(t), (f, t)
+        if f == "F6":
+            assert "negative-control check: FAIL" in " ".join(reds) and "S+" in texts
+
+
+@needs_b
+def test_b_allow_list_has_reasons_and_no_provisional_entry():
+    for f in B_FIGS:
+        entries = CO.JOURNAL_ALLOW[f]
+        assert entries and all(e.reason and "PROVISIONAL" not in e.reason for e in entries)
+    for f, es in CO.JOURNAL_ALLOW.items():
+        assert all("PROVISIONAL" not in e.reason for e in es), f
+
+
+@needs_b
+def test_b_supplement_source_data_and_alt_text(builtb):
+    sup = builtb["base"] / "supplement"
+    for f in B_FIGS:
+        text = (sup / f"{f}_supplement.md").read_text(encoding="utf-8")
+        assert "plain text on the image" in text and "stored key names" in text.lower() or "Stored names behind" in text
+        assert (sup / f"{f}_source_data.csv").stat().st_size / 1e6 < 20
+        assert (sup / f"{f}_alt_text.txt").read_text(encoding="utf-8").startswith("Panel (a)")
+    assert "negative-control check: FAIL" in (sup / "F6_supplement.md").read_text(encoding="utf-8")
+
+
+@needs_b
+def test_b_part_a_clauses_survive_in_the_pilot_checklist_items():
+    items = {i["id"]: i for i in __import__("json").load(open(ROOT / "docs" / "ms13_export_checklist.json", encoding="utf-8"))["items"]}
+    for k in ("X-A1-f5c-duration-legend-caption", "X-A6-word-limit-520", "X-F2-B1-image", "X-F6-B3-captions"):
+        assert k in items

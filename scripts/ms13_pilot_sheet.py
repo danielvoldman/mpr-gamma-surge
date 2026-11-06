@@ -13,7 +13,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[1]
-IDS = ("F1", "F3", "F5", "F5c")
+IDS = ("F1", "F2", "F3", "F5", "F5c", "F6")        # 13t-2 (DL-616): all six
 SHEET_DPI = 200
 GAP_IN = 0.2
 
