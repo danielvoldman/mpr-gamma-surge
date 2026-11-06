@@ -25,6 +25,7 @@ from ..config import repo_root
 from ..params import make_param_table
 from . import captions as CAP
 from .claim_labels import A9_LABELS, CLAIM_LIMIT_LABELS
+from . import jf26 as JF
 from . import figprov as F
 from . import jcaption as JCAP
 from . import jshort as JSH
@@ -1670,9 +1671,11 @@ def f2_caption_notes(d: dict) -> tuple:
 
 
 def make_F2(res=None, out_dir=None, *, tag_build: bool = False, take_home=F2_TAKE_HOME, claim_limit_ids=F2_CLAIM_LIMITS,
-            script="scripts/fig_F2.py", root=None) -> dict:
-    """Build F2 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov)."""
+            script="scripts/fig_F2.py", root=None, mode: str = "draft") -> dict:
+    """Build F2 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov). mode="journal": the journal export (13t-2)."""
     F.require_buildable("F2")
+    if mode == "journal":
+        return _make_F2_journal(res, out_dir, root, script, take_home, claim_limit_ids, tag_build)
     root = Path(root) if root is not None else repo_root()
     res = Path(res) if res is not None else root / "results"
     out = Path(out_dir) if out_dir is not None else root / "figures" / "F2"
@@ -4098,9 +4101,11 @@ def f6_caption_notes(d: dict) -> tuple:
 
 
 def make_F6(res=None, out_dir=None, *, tag_build: bool = False, take_home=F6_TAKE_HOME, claim_limit_ids=F6_CLAIM_LIMITS,
-            script="scripts/fig_F6.py", root=None) -> dict:
-    """Build F6 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov)."""
+            script="scripts/fig_F6.py", root=None, mode: str = "draft") -> dict:
+    """Build F6 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov). mode="journal": the journal export (13t-2)."""
     F.require_buildable("F6")
+    if mode == "journal":
+        return _make_F6_journal(res, out_dir, root, script, take_home, claim_limit_ids, tag_build)
     root = Path(root) if root is not None else repo_root()
     res = Path(res) if res is not None else root / "results"
     out = Path(out_dir) if out_dir is not None else root / "figures" / "F6"
@@ -6788,3 +6793,188 @@ def _draw_F6_journal(d: dict, columns: dict | None = None):
     kx2.legend(hh, ll, loc="upper left", ncol=4, frameon=False, columnspacing=1.2, labelspacing=0.3, handlelength=2.0, borderaxespad=0).set_in_layout(False)
     J.finish(fig, cfg)
     return fig
+
+
+# ---- F2 and F6 journal builds (13t-2, DL-616 B3 to B5) ---------------------------------------------------------------------------------------------------------
+def _f2_source_rows(d: dict) -> list:
+    rows: list = []
+    st = d["fixed_stable"] == 1.0
+    _src(rows, "a", "fixed point, stable", d["fixed_param"][st], d["fixed_v"][st])
+    _src(rows, "a", "fixed point, unstable", d["fixed_param"][~st], d["fixed_v"][~st])
+    for name in ("up", "down"):
+        _src(rows, "a", f"stable cycle maximum of v, {name} branch", d[f"a5_{name}_param"], d[f"a5_{name}_vmax"])
+        _src(rows, "a", f"stable cycle minimum of v, {name} branch", d[f"a5_{name}_param"], d[f"a5_{name}_vmin"])
+        _src(rows, "b", f"stable cycle amplitude, {name} branch", d[f"a5_{name}_param"], d[f"a5_{name}_amp"])
+    _src(rows, "a", "Hopf point (v interpolated, derived)", [d["eta_H"]], [d["hopf_v_interp"]])
+    for key, lab in (("mf", "mean field"), ("net", "network")):
+        for direction, flag in (("up", 1.0), ("down", 0.0)):
+            m = d[f"{key}_up"] == flag
+            _src(rows, "a", f"{lab} sweep maximum of v, {direction}", d[f"{key}_param"][m], d[f"{key}_vmax"][m])
+            _src(rows, "a", f"{lab} sweep minimum of v, {direction}", d[f"{key}_param"][m], d[f"{key}_vmin"][m])
+            _src(rows, "b", f"{lab} sweep v amplitude, {direction}", d[f"{key}_param"][m], d[f"{key}_v_ptp"][m])
+    above = d["net_above_mask"] == 1.0
+    for direction, flag in (("up", 1.0), ("down", 0.0)):
+        m = above & (d["net_up"] == flag)
+        _src(rows, "c", f"relative difference of the network v amplitude from the mean field, {direction}", d["net_param"][m], d["cmp_rel_v_ptp"][m])
+    return rows
+
+
+def _f2_alt_text(d: dict) -> dict:
+    return {
+        "a": (f"Fixed point and limit cycle of the mean field against eta_bar from 0 to 8: a grey line (solid where the fixed point is stable, dashed where it is unstable) and two black lines, the maximum and minimum of v on the "
+              f"stable limit cycle, which leave the fixed point at the Hopf point (dotted vertical line at eta_bar {d['eta_H']:.3f}, circled cross) and reach about {float(d['a5_up_vmax'].max()):.1f} and {float(d['a5_up_vmin'].min()):.1f} at eta_bar 8. "
+              f"Mean-field sweep symbols (filled triangles up, hollow carets down; {d['mf_param'].size // 2} steps each way) lie on the lines; network symbols (open squares up, open diamonds down; {d['net_param'].size // 2} steps each way) lie close to them. "
+              "No title is red."),
+        "b": (f"The v amplitude (maximum minus minimum) against eta_bar: about 0 up to the Hopf point and rising to about {float(d['a5_up_amp'].max()):.0f} at eta_bar 8 on the black line; the mean-field symbols lie on it and the up and down sweeps coincide; "
+              f"the network symbols below the Hopf point stand at {d['net_floor_v_ptp_min']:.2f} to {d['net_floor_v_ptp_max']:.2f} (the network does not rest)."),
+        "c": (f"The relative difference of the network's v amplitude from the mean field's, drawn above eta_bar {d['eta_H'] + F2_JUDGED_ABOVE:.3f} only: falling from {_f6_pct(d['cmp_rel_v_above_max'])} percent to {_f6_pct(d['cmp_rel_v_above_min'])} percent "
+              "with up-sweep squares and down-sweep diamonds; a grey zero line and the shaded band at the Hopf point."),
+    }
+
+
+def _f6_pct(x: float) -> str:
+    return f"{100.0 * x:+.1f}"
+
+
+def _make_F2_journal(res, out_dir, root, script, take_home, claim_limit_ids, tag_build) -> dict:
+    import dataclasses
+    root = Path(root) if root is not None else repo_root()
+    res = Path(res) if res is not None else root / "results"
+    out = Path(out_dir) if out_dir is not None else root / "figures" / "journal" / "F2"
+    t = {"start": time.perf_counter()}
+    raw = load_F2(res)
+    t["load"] = time.perf_counter()
+    d = prepare_F2(raw)
+    t["prepare"] = time.perf_counter()
+    rows = _params_rows(raw)
+    cap = CAP.build_caption("F2", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=[r for r in rows if r["key"] in F2_CAPTION_KEYS], main_failures=F2_MAIN_FAILURES,
+                            swept={"model.eta_bar": d["mf_param"]}, spectrogram=None, symbol_keys=(), notes=f2_caption_notes(d))
+    plain_md = PL.pairing_markdown(claim_limit_ids, None, cap.text)
+    c = JF.f2_consts(d, rows, take_home)
+    jtext = JF.f2_caption(d, raw["a11"], rows, strip_rows=list(d["strip"]), ids=claim_limit_ids, c=c)
+    cap = dataclasses.replace(cap, text=jtext)
+    short_text = JF.f2_short(d, raw["a11"], list(d["strip"]), c, J.caption_limit(J.load_config(root), "F2"), jtext)
+    sections = _jsections_26("F2", raw["a11"])
+    import matplotlib.pyplot as plt
+    out.mkdir(parents=True, exist_ok=True)
+    stem = "F2_journal"
+    cfg = J.load_config(root)
+    with plt.rc_context(J.rc_params(cfg)):
+        fig = _draw_F2(d, draft=False, strip_lines=strip_lines(d), mode="journal")
+        saved = J.save_all(fig, out, stem, cfg)
+    plt.close(fig)
+    t["draw"] = time.perf_counter()
+    from .. import provenance as P
+    drawn = drawn_data_sha256(d)
+    P.atomic_write_text(out / f"{stem}_caption.txt", short_text + "\n")
+    P.atomic_write_text(out / f"{stem}_caption_full.txt", cap.text + "\n")
+    P.atomic_write_text(out / f"{stem}_drawn_data_sha256.txt", drawn + "\n")
+    warnings = [f"input record {k} ({rec['name']}) was written with git dirty = true" for k, rec in raw["records"].items() if (rec.get("git") or {}).get("dirty")]
+    prov_kw = dict(script=script, inputs=[res / p for p in F2_INPUTS], params_rows=rows,
+                   modules=["src/mprsurge/plotting/figures.py", "src/mprsurge/plotting/style.py", "src/mprsurge/plotting/captions.py", "src/mprsurge/plotting/jf26.py",
+                            "src/mprsurge/plotting/nordlie.py", "src/mprsurge/plotting/figprov.py"],
+                   configs=["configs/S4.yaml", "configs/S4_net.yaml", "configs/A5.yaml"], claim_limits=cap.claim_limits, spectrogram=None, tag_build=tag_build, root=root)
+    return _journal_tail("F2", out, stem, saved, cap, drawn, d, raw, prov_kw, warnings, strip=strip_lines(d), footer=F2_FOOTER, timing_t=t, source_rows=_f2_source_rows(d), alt=_f2_alt_text(d),
+                         pointers=(), cfg=cfg, status_text="\n\n".join([strip_heading("F2"), *strip_lines(d)]), plain_md=plain_md, extra_sections=sections)
+
+
+def _jsections_26(fid: str, a11: list) -> tuple:
+    """Supplement sections of the F2 and F6 journal files (DL-616 B3): the mapping of panels, the list of every FAIL row of the stored table (the short caption refers to it), the stored names behind the plain words."""
+    mapping = {"F2": "The journal panels (a) to (c) are the draft panels (a) to (c) (same letters, same data; the legend of the draft is the key under the panels).",
+               "F6": "The journal panels (a) to (e) are the draft panels (a) to (e) (same letters, same data); the label words of (a) are the plain words of the stored short forms (the verbatim forms are in the "
+                     "claim-limit label table of the project)."}[fid]
+    about = {"F2": "The four RB1 rows are listed with this figure because the figure draws network symbols (our reading, not verified); no panel draws their result.",
+             "F6": "Only the negative-control row (G7) is about this figure."}[fid]
+    return ((f"Mapping of the draft panels to the journal panels (DL-616 B4)", mapping), (f"All FAIL rows of the stored A11 table (DL-616 B3)", JCAP.all_fail_rows_for(a11, about)),
+            ("Stored names behind the plain words of the caption (DL-571 T8)", CODE_NAMES_MD))
+
+
+# F6 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def _f6_source_rows(d: dict, raw: dict) -> list:
+    rows: list = []
+    lab_ix = np.arange(len(F6_LABELS), dtype=float)
+    for k in (0, 1):
+        _src(rows, "a", f"map {k + 1}, primary label (x = label a to h as 0 to 7)", lab_ix, d["label_primary"][k])
+        _src(rows, "a", f"map {k + 1}, every label that applies (x = label a to h as 0 to 7)", lab_ix, d["label_any"][k])
+    names = ("negative control 1, mean field, no noise", "negative control 1, mean field with noise, most common class", "negative control 2, drive off", "negative control 2, drive on", "negative control 3")
+    cls = (d["nc1_mf_class"], [FS3_CLASSES[int(np.argmax(cc))] for cc in d["nc1_modeN_count"]], d["nc2_I0_class"], d["nc2_I1_class"], d["nc3_class"])
+    for nm, cl in zip(names, cls):
+        _src(rows, "b", nm + " (value = class)", d["nc_T"], None, list(cl))
+    for j in range(len(d["nc_T"])):
+        for i, k in enumerate(FS3_CLASSES):
+            if d["nc1_modeN_count"][j][i] > 0:
+                _src(rows, "b", f"negative control 1, mean field with noise: seeds in class {k}", [d["nc_T"][j]], None, [int(d["nc1_modeN_count"][j][i])])
+    cols = f6_column_labels(raw)["cells"]
+    for j, cl in enumerate(d["nc1_cells_class"]):
+        _src(rows, "c", "negative control 1, map cell (x = cell index; label in series; value = class)", [float(j)], None, [cl])
+        rows[-1] = (rows[-1][0], rows[-1][1] + ": " + " ".join(cols[j].split()), *rows[-1][2:])
+    _src(rows, "c", "negative control 1, network run (x = 5.6; value = class)", [len(d["nc1_cells_class"]) + 0.6], None, [d["nc1_net_class"]])
+    for key, pn in (("s6_onset_s", "d"), ("s6_f_pk_hz", "e")):
+        for i, lab in enumerate(d["s6_label"]):
+            _src(rows, pn, lab, d["s6_T"], d[key][i])
+            _src(rows, pn, lab + " (value = class)", d["s6_T"], None, list(d["s6_class"][i]))
+    return rows
+
+
+def _f6_alt_text(d: dict) -> dict:
+    lp = d["label_primary"].sum(axis=0)
+    return {
+        "a": (f"Bars of the number of non-surge cells with each failure label a to h for map 1 and map 2: primary label (filled grey bars; map 1 darker) and every label that applies (hatched bars); the largest bars are label g "
+              f"(primary {int(d['label_primary'][0][6])} and {int(d['label_primary'][1][6])}, any label {int(d['label_any'][0][6])} and {int(d['label_any'][1][6])}) and labels a and c; labels d and e are 0. "
+              f"The {int(d['map_nonsurge'].sum())} non-surge cells all carry a label (primary label counts a {int(lp[0])}, c {int(lp[2])}, f {int(lp[5])}, g {int(lp[6])}, h {int(lp[7])})."),
+        "b": ("Five rows of class marks against the ramp duration T_ramp from 1 to 1000 s: negative control 1 as a noise-free mean field (green diamonds, D-none at every T_ramp), with noise (grey left triangles, NS; the text "
+              "S-rel 1 or 2 under some marks gives the seeds in another class), negative control 2 with the drive off and on (blue right triangles, D-tr) and negative control 3 (green diamonds, D-none)."),
+        "c": (f"The first negative control at five map cells (green diamonds, D-none) and as the one network run (a larger red circle at the right of a dotted line: class {d['nc1_net_class']}); the title is red and reads "
+              "'negative-control check: FAIL'; the axis note says that no surge class is expected."),
+        "d": "Onset (seconds, logarithmic axis) against T_ramp at 10, 30, 120 and 300 s for P3 at drive amplitude 0.5, 1 and 2, P4a, P4b and the P2 comparators: all rise with T_ramp (about 6 to 160 s); every point is D-tr.",
+        "e": "Peak frequency (Hz) against T_ramp for the same rows: P3 at drive 0.5 and 1, P4b and the P2 comparators lie on one line near 48 to 49.5 Hz (equal recorded values, concentric marks); P4a is near 45 Hz and P3 at drive 2 near 39 to 40.5 Hz.",
+    }
+
+
+def _make_F6_journal(res, out_dir, root, script, take_home, claim_limit_ids, tag_build) -> dict:
+    import dataclasses
+    root = Path(root) if root is not None else repo_root()
+    res = Path(res) if res is not None else root / "results"
+    out = Path(out_dir) if out_dir is not None else root / "figures" / "journal" / "F6"
+    t = {"start": time.perf_counter()}
+    raw = load_F6(res)
+    t["load"] = time.perf_counter()
+    d = prepare_F6(raw)
+    t["prepare"] = time.perf_counter()
+    rows = []
+    for key, rec in raw["records"].items():
+        for r in make_param_table(rec["config"]):
+            rows.append({**r, "panel": key, "section": "", "source_run_id": rec["name"], "source_config_hash12": rec["config_hash12"]})
+    crit, _ = F.K.load_frozen_criteria(root)
+    cap = CAP.build_caption("F6", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=[r for r in rows if r["key"] in F6_CAPTION_KEYS], spectrogram=None, symbol_keys=(),
+                            notes=f6_caption_notes(d), not_applicable=F6_NOT_APPLICABLE, class_key=CAP.class_key_line("ND"), classifier_line=CAP.classifier_line(crit), main_failures=F6_MAIN_FAILURES,
+                            swept={"path.T_ramp_s": list(d["nc_T"]), "path.I_amp": [0.5, 1.0, 2.0]})
+    plain_md = PL.pairing_markdown(claim_limit_ids, F6_NOT_APPLICABLE, cap.text, na_text=PL.NOT_APPLICABLE_PLAIN_F6)
+    c = JF.f6_consts(d, raw, rows)
+    jtext = JF.f6_caption(d, raw["a11"], crit, rows, strip_rows=list(d["strip"]), ids=claim_limit_ids, not_applicable=F6_NOT_APPLICABLE, c=c)
+    cap = dataclasses.replace(cap, text=jtext)
+    short_text = JF.f6_short(d, raw["a11"], list(d["strip"]), c, J.caption_limit(J.load_config(root), "F6"), jtext)
+    sections = _jsections_26("F6", raw["a11"])
+    import matplotlib.pyplot as plt
+    out.mkdir(parents=True, exist_ok=True)
+    stem = "F6_journal"
+    cfg = J.load_config(root)
+    with plt.rc_context(J.rc_params(cfg)):
+        fig = _draw_F6(d, draft=False, columns=f6_column_labels(raw), mode="journal")
+        saved = J.save_all(fig, out, stem, cfg)
+    plt.close(fig)
+    t["draw"] = time.perf_counter()
+    from .. import provenance as P
+    drawn = drawn_data_sha256(d)
+    P.atomic_write_text(out / f"{stem}_caption.txt", short_text + "\n")
+    P.atomic_write_text(out / f"{stem}_caption_full.txt", cap.text + "\n")
+    P.atomic_write_text(out / f"{stem}_drawn_data_sha256.txt", drawn + "\n")
+    warnings = [f"input record {k} ({rec['name']}) was written with git dirty = true" for k, rec in raw["records"].items() if (rec.get("git") or {}).get("dirty")]
+    prov_kw = dict(script=script, inputs=[res / p for p in F6_INPUTS], params_rows=rows,
+                   modules=["src/mprsurge/plotting/figures.py", "src/mprsurge/plotting/style.py", "src/mprsurge/plotting/captions.py", "src/mprsurge/plotting/jf26.py",
+                            "src/mprsurge/plotting/nordlie.py", "src/mprsurge/plotting/figprov.py"],
+                   configs=["configs/base.yaml", "configs/ms9/s6_p3.yaml", "configs/ms9/nc1.yaml", "configs/ms9/nc1_net.yaml"], claim_limits=cap.claim_limits,
+                   input_tables=[{"path": res / F6_INPUTS[0], "rows": int(len(raw["a9"]))}, {"path": res / F6_INPUTS[1], "rows": int(len(raw["a10"]))},
+                                 {"path": res / F6_INPUTS[2], "rows": int(len(raw["s6"]))}, {"path": res / F6_INPUTS[3], "rows": len(raw["a11"])}], spectrogram=None, tag_build=tag_build, root=root)
+    return _journal_tail("F6", out, stem, saved, cap, drawn, d, raw, prov_kw, warnings, strip=f6_strip_lines(d), footer=F6_FOOTER, timing_t=t, source_rows=_f6_source_rows(d, raw), alt=_f6_alt_text(d),
+                         pointers=(), cfg=cfg, status_text="\n\n".join([strip_heading("F6"), *f6_strip_lines(d)]), plain_md=plain_md, extra_sections=sections)

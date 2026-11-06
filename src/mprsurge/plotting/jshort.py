@@ -49,7 +49,8 @@ DEFS = {
     "map cell": (r"\bmap cells?\b", r"map cells? \(one parameter pair of a (?:30 x 30 )?grid of mean-field runs", "derived from the full caption of F5; the plan has no sentence for it (UNVERIFIED wording)"),
     "noisy subgrid": (r"\b[Nn]oisy subgrid\b", r"[Nn]oisy subgrid \(map cells re-run with noise", ""),
     "ramp seed": (r"\bramp seeds?\b", r"ramp seeds? \(a simulated network run with the ramp", ""),
-    "control": (r"\bcontrols?\b", r"controls? \(the same network without the ramp", ""),
+    "control": (r"(?<!negative )\bcontrols?\b", r"controls? \(the same network without the ramp", ""),
+    "negative control": (r"\bnegative controls?\b", r"negative controls? is a run in which no surge is expected|negative controls? \(a run in which no surge is expected", "our plain definition (UNVERIFIED): the plan defines the first control only"),
     "onset": (r"\bonset\b", r"onset[^.;]{0,6}\(when", ""),
     "duration": (r"\bduration\b(?! of)(?<!ramp duration)", r"duration[^.;]{0,6}\(how long", "the ruling's 'first and last flags' is replaced by the full-caption wording 'flagged windows x step' (UNVERIFIED)"),
     "first crossing": (r"\bfirst crossings?\b", r"first crossings? of its detection threshold", "the plan does not say what the signal crosses: only 'first crossing of its detection threshold' is written (UNVERIFIED)"),
@@ -62,7 +63,7 @@ DEFS = {
     "M3": (r"\bM3\b", r"model M3 \(the mean-field model|M3 only \(the mean-field model", ""),
     "J": (r"(?<![\w])J(?![\w0])", r"coupling J|J \(coupling", ""),
     "eta_bar": (r"\beta_bar\b", r"eta_bar \(mean excitability|mean excitability eta_bar", ""),
-    "Delta": (r"\bDelta\b", r"Delta \(heterogeneity|heterogeneity Delta", ""),
+    "Delta": (r"\bDelta\b", r"Delta \(heterogeneity|heterogeneity Delta|Delta, the heterogeneity", ""),
     "tau_d": (r"\btau_d\b", r"tau_d \(synaptic decay time|synaptic decay time tau_d", ""),
     "T_ramp": (r"\bT_ramp\b", r"T_ramp \(ramp duration|ramp duration T_ramp", ""),
     "P1": (r"\bP1\b", r"P1 \((?:eta_bar|mean excitability) ramped only", ""),
@@ -81,9 +82,13 @@ SHORT_LIMITS = {
     "MS11-C2": "there is no claim of agreement in peak frequency or class between the network and the mean field",
     "MS11-C3": "the spectral and the cycle frequency differ by 4.39 Hz at the main example, and peak frequencies are the spectral peaks found by the classifier",
     "MS12-C1": "the surge result is stated for model M3 only",
+    "G4-C2": "the surge result is stated for the mean field only, and there is no claim that it is robust to finite-size fluctuations",
+    "MS9(e)-3": "failure label c (a cell without a surge class whose frequency is below 25 Hz) is a flag, not a demonstrated cause",
+    "MS9(e)-5": "every class that depends on the test for damped against non-damped oscillations is provisional",
 }
 # 13t-1g (DL-603 W1): the limits G4-C3 (F5, F5c), G4-C4 (F5) and MS11-C2 (F5c) that 13t-1f (DL-596) had left out only for the word limits are restored (the limits are raised instead); the lists are those of 13t-1e (cf92272)
-SHORT_LIMIT_IDS = {"F1": ("G4-C3", "MS9(e)-1"), "F3": ("MS11-C3", "MS12-C1"), "F5": ("G4-C4", "MS9(e)-2", "G4-C3"), "F5c": ("G4-C3", "MS11-C2", "MS9(e)-1")}
+SHORT_LIMIT_IDS = {"F1": ("G4-C3", "MS9(e)-1"), "F3": ("MS11-C3", "MS12-C1"), "F5": ("G4-C4", "MS9(e)-2", "G4-C3"), "F5c": ("G4-C3", "MS11-C2", "MS9(e)-1"),
+                   "F2": ("MS12-C1", "G4-C2"), "F6": ("MS12-C1", "MS9(e)-1", "MS9(e)-3", "MS9(e)-5", "G4-C3")}
 
 # V7: detectors of the failed rows named in the "Failed checks." paragraph of a FULL caption: key -> regex (a row counts once)
 FAILED_DETECT = {
@@ -107,6 +112,8 @@ SHORT_NAMED = {
     "F3": {("RB9", "b_spectral_vs_cycle_headline")},
     "F5": {("RB1", "cells_30s"), ("RB2", "noisy_subgrid_agreement")},
     "F5c": {("RB6", "network_fpk_halving_dt")},
+    "F2": set(),                                  # DL-616: no F2 panel draws the result of a failed check (the four RB1 rows count as further failed checks)
+    "F6": {("G7", "gate")},
 }
 FAILED_PARA_START = "Failed checks. "
 
@@ -310,7 +317,8 @@ def f5c_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, ful
 
 # ---- checks shared by scripts/ms13_verify_export.py and the tests (DL-593 V5 to V8) --------------------------------------------------------------------------------------------------------------
 LIMIT_KEYS = {"G4-C3": "no-ramp network controls", "MS9(e)-1": "network surge classes at N =", "MS9(e)-2": "no claim that the regime map is robust to noise", "G4-C4": "noise level sigma = 0.0624",
-              "MS11-C2": "no claim of agreement in peak frequency", "MS11-C3": "differ by 4.39 Hz", "MS12-C1": "stated for model M3 only"}
+              "MS11-C2": "no claim of agreement in peak frequency", "MS11-C3": "differ by 4.39 Hz", "MS12-C1": "stated for model M3 only", "G4-C2": "stated for the mean field only", "MS9(e)-3": "is a flag, not a demonstrated cause",
+              "MS9(e)-5": "is provisional"}
 NUM = re.compile(r"\d+(?:\.\d+)?")
 def numbers_of(text: str) -> set:
     return set(NUM.findall(re.sub(r"(?<=\d),(?=\d{3}\b)", "", text)))

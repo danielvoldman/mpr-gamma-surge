@@ -44,6 +44,7 @@ PLAIN_LIMITS = {
     "RB9(b) FAIL (plan label)": "RB9(b) failed: the spectral frequency differs from the cycle frequency by 4.391 Hz against the allowed 0.5 Hz.",
 }
 NOT_APPLICABLE_PLAIN = "not applicable here because no failure label is drawn in F5 (F6 draws them)"
+NOT_APPLICABLE_PLAIN_F6 = "not applicable here because neither the boundary of the regime map nor the exit extension of the episode rule to P3 and P4 is drawn"
 
 # Definitions of the IDs that may remain in a plain caption (names from plan Table 7.2, Table 11.2 and the tables of sections 5 and 12). A caption defines the ones it uses, once.
 DEFINITIONS = (
@@ -140,7 +141,7 @@ def plain_fragment(text: str) -> str:
     return scrub_dl(body)
 
 
-def plain_limit_text(ids, not_applicable=None) -> str:
+def plain_limit_text(ids, not_applicable=None, na_text: str | None = None) -> str:
     na = dict(not_applicable or {})
     missing = [i for i in ids if i not in PLAIN_LIMITS]
     if missing:
@@ -149,24 +150,24 @@ def plain_limit_text(ids, not_applicable=None) -> str:
     for i in ids:
         s = PLAIN_LIMITS[i].rstrip(".")
         if i in na:
-            s += f"; {NOT_APPLICABLE_PLAIN}"
+            s += f"; {na_text or NOT_APPLICABLE_PLAIN}"
         out.append(s + ".")
     return " ".join(out)
 
 
-def pairs(ids, not_applicable=None) -> list:
+def pairs(ids, not_applicable=None, na_text: str | None = None) -> list:
     """[(id, plain sentence, ruled text, DL numbers)] for the supplement table; the ruled text is the short form of claim_labels as printed in the draft caption."""
     na = dict(not_applicable or {})
     rows = []
     for i in ids:
         short, dls = CLAIM_LIMIT_LABELS[i]
         ruled = f"{i}: {short} ({', '.join(dls)})" + (f", not applicable here because {na[i]}" if i in na else "")
-        rows.append((i, PLAIN_LIMITS[i] + (f" ({NOT_APPLICABLE_PLAIN})" if i in na else ""), ruled, ", ".join(dls)))
+        rows.append((i, PLAIN_LIMITS[i] + (f" ({na_text or NOT_APPLICABLE_PLAIN})" if i in na else ""), ruled, ", ".join(dls)))
     return rows
 
 
-def pairing_markdown(ids, not_applicable=None, ruled_caption: str = "") -> str:
-    rows = pairs(ids, not_applicable)
+def pairing_markdown(ids, not_applicable=None, ruled_caption: str = "", na_text: str | None = None) -> str:
+    rows = pairs(ids, not_applicable, na_text)
     lines = ["| claim limit (ruled ID) | plain sentence in the journal caption | ruled text (verbatim, with DL numbers and codes) | DL numbers |", "|---|---|---|---|"]
     lines += [f"| {i} | {p} | {r} | {d} |" for i, p, r, d in rows]
     if ruled_caption:

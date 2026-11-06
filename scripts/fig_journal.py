@@ -15,7 +15,7 @@ import sys
 from mprsurge.config import repo_root
 from mprsurge.plotting import figures, journal
 
-PILOT = ("F1", "F3", "F5", "F5c")
+PILOT = ("F1", "F2", "F3", "F5", "F5c", "F6")            # 13t-1: F1, F3, F5, F5c; 13t-2 (DL-616): F2 and F6
 
 
 def main(argv=None) -> int:

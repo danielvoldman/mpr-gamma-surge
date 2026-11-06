@@ -126,6 +126,18 @@ def all_fail_rows(a11: list) -> str:
     return "\n".join(out)
 
 
+def all_fail_rows_for(a11: list, about: str) -> str:
+    """DL-616 B3: the Markdown table of EVERY row of the stored A11 table with the status FAIL (as all_fail_rows, read-only), for the supplement of a figure whose short caption points to it; `about` says which of the rows concern the figure."""
+    out = ["| row (rb_id check_id) | status | logged verdict | value | threshold | stored note | decision-log source |", "|---|---|---|---|---|---|---|"]
+    n = 0
+    for r in a11:
+        if r["pass_or_fail"] == "FAIL":
+            n += 1
+            out.append(f"| {r['rb_id']} {r['check_id']} | {r['pass_or_fail']} | {r['logged_verdict']} | {r['value'] or 'blank'} | {r['threshold'] or 'blank'} | {r['note']} | {r['source']} |".replace("\n", " "))
+    out += ["", f"{n} FAIL rows in the stored A11 table (results/A11/a11_robustness.csv), all are checks of the project, not recomputed. {about}"]
+    return "\n".join(out)
+
+
 def supplement_rows(a11: list) -> str:
     """Markdown for the supplement sheet (DL-571 T2): the two stored FAIL rows that the status strips do not list, verbatim from the stored A11 table (step IDs and ruling codes included)."""
     out = ["| row (rb_id check_id) | status | logged verdict | value | threshold | stored note | decision-log source |", "|---|---|---|---|---|---|---|"]
@@ -264,6 +276,8 @@ TITLE_MAP = {
     "F5": (("(a)", "network vs mean field, cells: FAIL", "RB1", "network against mean field, the 4 map cells"), ("(b)", "network vs mean field FAIL", "RB1", "network against mean field, the 4 map cells"),
            ("(c)", "90 percent agreement rule: FAILED", "D24", "the rule that at least 90% of the cells of the noisy subgrid agree with the noise-free class")),
     "F5c": (("(b)", "step-halving check: FAIL", "RB6", "numerical convergence, the network f_pk when the step is halved"),),
+    "F2": (),                                   # DL-616: no red title on F2 (no panel draws the result of a failed check)
+    "F6": (("(c)", "negative-control check: FAIL", "G7", "the negative-control gate: the network run of the first negative control must not be in a surge class"),),
 }
 WORD_MAP = {"F3": (("continuation", "A4", "the analysis step named \"M3 fixed points and Hopf curves\""), ("frequency-map", "A6", "the analysis step named \"M3 frequency map\""))}
 
