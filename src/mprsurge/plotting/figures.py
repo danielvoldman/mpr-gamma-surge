@@ -6621,7 +6621,7 @@ def _draw_F2_journal(d: dict):
 # ---- F6 journal (13t-2, DL-616 B1 to B5) -----------------------------------------------------------------------------------------------------------------
 # Own layout code (like F1, F2 and F5). Layout only: every drawn value is the draft's. Plain words on the image (DL-616 B2): no check, gate or step ID; the controls are called negative control 1, 2 and 3.
 F6J_HEIGHT = 8.0
-F6J_ROWS = {"a": (0.38, 1.3), "b": (2.92, 1.9), "c": (5.62, 1.0), "d": (5.62, 1.0), "e": (5.62, 1.0)}      # (top of the axes, height) in inches from the top edge
+F6J_ROWS = {"a": (0.38, 1.3), "b": (2.8, 2.05), "c": (5.62, 1.0), "d": (5.62, 1.0), "e": (5.62, 1.0)}      # (top of the axes, height) in inches from the top edge
 F6J_COLS = {"a": (0.75, 5.35), "b": (1.78, 4.37), "c": (0.85, 1.3), "d": (2.95, 1.35), "e": (4.78, 1.2)}      # (left edge, width) in inches
 F6J_BAR_W = 0.22
 F6J_LABEL_WORDS = {"a": "Delta above critical", "b": "tau_d outside window", "c": "a flag, not a demonstrated cause", "d": "ramp too fast for 10 cycles", "e": "no exit (D-sus or S-sus)",
@@ -6670,14 +6670,13 @@ def _draw_F6_journal(d: dict, columns: dict | None = None):
     ax.set_ylim(0, 108)
     ax.set_yticks([0, 20, 40, 60, 80])
     ax.set_ylabel("non-surge cells")
-    ax.set_xlabel("failure label")
     _journal_title(ax, "a", f"failure labels of the {int(d['map_nonsurge'].sum())} non-surge cells (D-tr cells, no label: map 1 {int(d['map_surge'][0])}, map 2 {int(d['map_surge'][1])})")
     lg = ax.legend(handles=[Patch(fc=S.figure_colour("map1_fill"), ec=ink, lw=0.4, label="map 1, primary"), Patch(fc=S.figure_colour("map2_fill"), ec=ink, lw=0.4, label="map 2, primary"),
                             Patch(fc=S.figure_colour("open_fill"), ec=ink, lw=0.8, hatch=S.figure_hatch("map1_any"), label="map 1, any label"),
                             Patch(fc=S.figure_colour("open_fill"), ec=ink, lw=0.8, hatch=S.figure_hatch("map2_any"), label="map 2, any label")],
                    loc="upper left", ncol=4, frameon=True, framealpha=0.95, handleheight=S.F6_MARKS["legend_handle_height"], handlelength=2.0, columnspacing=1.0, borderaxespad=0.3)
     lg.set_gid("legend (a)")
-    kx = _ax_in(fig, 0.75, 2.12, 5.4, 0.56)
+    kx = _ax_in(fig, 0.75, 1.93, 5.4, 0.56)
     kx.axis("off")
     kx.set_gid("legend axes (labels)")
     words = [f"{L}: {F6J_LABEL_WORDS[L]}" for L in F6_LABELS]
@@ -6697,18 +6696,18 @@ def _draw_F6_journal(d: dict, columns: dict | None = None):
                 mk.set_gid(f"class mark {i} {j}")
                 rest = [f"{c}\n{int(k)}" for c, k in zip(FS3_CLASSES, cc) if k > 0 and c != top]
                 if rest:
-                    axb.text(j, i + 0.2, "\n".join(rest), ha="center", va="top").set_gid("seed count")
+                    axb.text(j, i + 0.15, "\n".join(rest), ha="center", va="top").set_gid("seed count")
             else:
                 st = S.get(cls[j])
                 (mk,) = axb.plot([j], [i], ls="none", marker=st.marker, ms=S.POINT_SIZES["f6_control"], color=st.colour, mec=S.figure_colour("bar_edge"), mew=S.POINT_EDGE_WIDTH["class"], zorder=4)
                 mk.set_gid(f"class mark {i} {j}")
     axb.set_yticks(range(5), [r[0] for r in rows])
     axb.set_xticks(range(13), [CAP.number_text(float(f"{t:.3g}")) for t in d["nc_T"]])
-    axb.set_xlabel("T_ramp (s)")
+    axb.set_xlabel("T_ramp (s)", loc="right")
     axb.set_ylim(4.6, -0.6)
     axb.set_xlim(-0.6, 12.6)
     _journal_title(axb, "b", "negative controls: class against T_ramp (text: seeds in another class)")
-    kb = _ax_in(fig, 1.78, 5.2, 4.37, 0.2)
+    kb = _ax_in(fig, 1.78, 5.07, 3.2, 0.2)
     kb.axis("off")
     kb.set_gid("legend axes (classes)")
     seen = []
@@ -6740,7 +6739,7 @@ def _draw_F6_journal(d: dict, columns: dict | None = None):
     axc.set_xticks(list(range(len(cols["cells"]))) + [x_net], cols["cells"] + [cols["network"]], rotation=90)
     axc.set_xlim(-0.6, x_net + 0.9)
     axc.set_ylim(1.0, -0.8)
-    _journal_title(axc, "c", "negative control 1:\nnegative-control check", fail=True)
+    _journal_title(axc, "c", "negative-control check", fail=True)
 
     # (d), (e) S6 and the P2 comparators against T_ramp
     for letter, key, ttl, yl in (("d", "s6_onset_s", "onset", "onset (s), log axis"), ("e", "s6_f_pk_hz", "peak frequency", "peak frequency (Hz)")):
