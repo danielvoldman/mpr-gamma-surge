@@ -33,19 +33,22 @@ from mprsurge.plotting import plain as PL
 from mprsurge.plotting import journal as J
 from mprsurge.plotting import style as S
 
-PILOT = ("F1", "F3", "F5", "F5c")
-DRAFT_ID = {"F1": "F1", "F3": "F3", "F5": "F5", "F5c": "F5"}              # the figure whose draft files, digest and manifest rows a journal file is checked against
+PILOT = ("F1", "F2", "F3", "F5", "F5c", "F6")            # 13t-1: F1, F3, F5, F5c; 13t-2 (DL-616): F2 and F6
+DRAFT_ID = {"F1": "F1", "F2": "F2", "F3": "F3", "F5": "F5", "F5c": "F5", "F6": "F6"}              # the figure whose draft files, digest and manifest rows a journal file is checked against
 CHECKS = ("A collisions", "B pdf", "size+shape", "text>=8pt", "fonts", "line width", "cmaps", "non-colour", "letters", "file names", "FAIL lines", "digest", "arrays", "drafts identical",
           "image text", "image IDs", "plain words", "powers of ten", "minus signs", "red titles", "supplement", "sentence 1", "paragraphs", "caption words", "full caption", "key terms", "short caption", "short limits", "definitions", "failed count", "short numbers", "short parameters", "supplement FAILs", "superscripts",
           "margins", "label-title gap", "contrast", "red-green", "greyscale", "cvd", "png+tiff", "no svg/wmf/emf", "file sizes")
-MAIN_FAILURES = {"F1": FG.F1_MAIN_FAILURES, "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES, "F5c": FG.F5C_MAIN_FAILURES}
-STRIP = {"F1": FG.f1_strip_lines, "F3": FG.strip_lines, "F5": FG.f5_strip_lines, "F5c": FG.f5c_strip_lines}
+MAIN_FAILURES = {"F1": FG.F1_MAIN_FAILURES, "F2": FG.F2_MAIN_FAILURES, "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES, "F5c": FG.F5C_MAIN_FAILURES, "F6": FG.F6_MAIN_FAILURES}
+STRIP = {"F1": FG.f1_strip_lines, "F2": FG.strip_lines, "F3": FG.strip_lines, "F5": FG.f5_strip_lines, "F5c": FG.f5c_strip_lines, "F6": FG.f6_strip_lines}
 MIN_MARGIN_IN, MIN_LABEL_GAP_IN = 0.10, 0.05                                # DL-571 T5, T6
-CLAIM_IDS = {"F1": (FG.F1_CLAIM_LIMITS, None), "F3": (FG.F3_CLAIM_LIMITS, None), "F5": (FG.F5_CLAIM_LIMITS, FG.F5_NOT_APPLICABLE), "F5c": (FG.F5_CLAIM_LIMITS, FG.F5_NOT_APPLICABLE)}
-SHORT_MAIN = {"F1": ("does not reproduce it",), "F3": ("frequency check",), "F5": ("holds for the noise-free mean field only",),
+CLAIM_IDS = {"F1": (FG.F1_CLAIM_LIMITS, None), "F2": (FG.F2_CLAIM_LIMITS, None), "F3": (FG.F3_CLAIM_LIMITS, None), "F5": (FG.F5_CLAIM_LIMITS, FG.F5_NOT_APPLICABLE), "F5c": (FG.F5_CLAIM_LIMITS, FG.F5_NOT_APPLICABLE),
+             "F6": (FG.F6_CLAIM_LIMITS, FG.F6_NOT_APPLICABLE)}
+NA_TEXT = {"F6": PL.NOT_APPLICABLE_PLAIN_F6}                          # the plain reason of a not-applicable limit, where it is not the F5 one (DL-616)
+SHORT_MAIN = {"F1": ("does not reproduce it",), "F2": ("does not follow the mean-field branch closely",), "F6": ("negative-control check failed",), "F3": ("frequency check",), "F5": ("holds for the noise-free mean field only",),
               "F5c": ("step-halving check", "do not reproduce the mean field")}               # plain words of the main failure(s) that sentence 1 of the short caption holds (DL-582 U3 a, DL-593 V6)
 CHECK_TOKEN = {("RB1", "headline_10s"): "network against mean field", ("RB1", "headline_120s"): "network against mean field", ("RB1", "cells_30s"): "network against mean field",
-               ("RB2", "noisy_subgrid_agreement"): "90 percent rule", ("RB6", "network_fpk_halving_dt"): "step-halving check", ("RB9", "b_spectral_vs_cycle_headline"): "frequency check"}
+               ("RB2", "noisy_subgrid_agreement"): "90 percent rule", ("RB6", "network_fpk_halving_dt"): "step-halving check", ("RB9", "b_spectral_vs_cycle_headline"): "frequency check",
+               ("G7", "gate"): "negative-control check"}
 SHORT_CHECKS = {f: sorted(JSH.SHORT_NAMED[f]) for f in PILOT}      # DL-593 V7: only the failed checks whose result is drawn are named in a short caption
 SCHEMATIC_FACES = {"ramp": S.F1_SCHEMATIC["ramp_face"], "net": S.F1_SCHEMATIC["net_face"], "model": S.F1_SCHEMATIC["box_face"], "mf": S.F1_SCHEMATIC["box_face"], "out": S.F1_SCHEMATIC["box_face"]}
 
@@ -163,7 +166,17 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
             lines = [a.get_text() for a in fig.findobj(lambda a: a.get_gid() == "step-halving line")]
             if not lines or " ".join(" ".join(lines).split()) != FG.F5CJ_B_LINE:
                 evidence.append("F5c (b) step-halving line missing")
-        okr = bool(reds) and not unmapped and not not_in_cap and not evidence
+        if fid == "F2":
+            if reds:
+                evidence.append("F2 has a red title")
+            if "There is no red title" not in short or "No panel title is red" not in cap:
+                evidence.append("F2 caption does not say that no title is red")
+        if fid == "F6":
+            mk = [a for a in fig.findobj(lambda a: a.get_gid() == "class mark network run")]
+            nt = [a.get_text() for a in fig.findobj(lambda a: a.get_gid() == "panel note")]
+            if len(mk) != 1 or "S+" not in nt:
+                evidence.append("F6 (c) network-run mark or its S+ note missing")
+        okr = (not reds if fid == "F2" else bool(reds)) and not unmapped and not not_in_cap and not evidence
         res["red titles"] = ("PASS" if okr else "FAIL", f"{len(reds)} red titles, each a plain title of the map; each in the full caption ('shown in the title as') and the supplement table" if okr
                              else f"unmapped {unmapped[:1]}; not in caption or table {not_in_cap[:1]}; {evidence}")
         # supplement
@@ -185,7 +198,7 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         # the full caption (DL-582 U3 b, e): in the supplement; every ruled claim limit (plain sentence) in it; the Key keeps only terms that the caption uses (U5)
         ids_, na_ = CLAIM_IDS[fid]
         norm = lambda s: " ".join(s.split())
-        lim_missing = [i for i in ids_ if norm(JCAP.plain_n(PL.plain_limit_text((i,), na_))) not in norm(cap)]
+        lim_missing = [i for i in ids_ if norm(JCAP.plain_n(PL.plain_limit_text((i,), na_, NA_TEXT.get(fid)))) not in norm(cap)]
         in_sup = norm(cap) in norm(sup_text)
         res["full caption"] = ("PASS" if in_sup and not lim_missing else "FAIL", f"in the supplement: {in_sup}; {len(ids_) - len(lim_missing)} of {len(ids_)} ruled claim limits in the full caption" + (f"; missing {lim_missing[:2]}" if lim_missing else ""))
         unused = JCAP.key_unused_terms(cap)
@@ -225,8 +238,8 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         with open(root / "results" / "A11" / "a11_robustness.csv", newline="", encoding="utf-8") as fh_:
             a11_rows = list(csv.DictReader(fh_))
         n_fail_rows = sum(1 for r_ in a11_rows if r_.get("pass_or_fail") == "FAIL")
-        fm = JC.fail_rows_missing(sup_text, a11_rows) if fid == "F3" else []
-        res["supplement FAILs"] = ("PASS" if not fm else "FAIL", (f"all {n_fail_rows} FAIL rows of the stored A11 table are in the supplement" if fid == "F3" else "not required for this figure (only the F3 short caption refers to the list)") if not fm else f"missing FAIL rows {fm[:4]}")
+        fm = JC.fail_rows_missing(sup_text, a11_rows) if fid in ("F3", "F2", "F6") else []
+        res["supplement FAILs"] = ("PASS" if not fm else "FAIL", (f"all {n_fail_rows} FAIL rows of the stored A11 table are in the supplement" if fid in ("F3", "F2", "F6") else "not required for this figure (only the F3, F2 and F6 short captions refer to the list)") if not fm else f"missing FAIL rows {fm[:4]}")
         # DL-604 W3: no superscript glyph and no mathtext superscript on the image
         sp = JC.superscript_violations(fig)
         res["superscripts"] = ("PASS" if not sp else "FAIL", f"{len(sp)} image texts with a Unicode superscript or a mathtext superscript" + (f": {sp[0]}" if sp else ""))

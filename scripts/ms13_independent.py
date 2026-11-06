@@ -727,7 +727,7 @@ FUNCS = {"F1": f1, "F2": f2, "F3": f3, "F4": f4, "F5": f5, "F6": f6, "FS1": fs1,
 
 
 # ---------------------------------------------------------------------------------------------------- journal captions (13t-1d, DL-571 T9, DL-572)
-JOURNAL_FIGURES = ("F1", "F3", "F5", "F5c")             # the journal files whose captions are searched (F5c is the second file of the F5 build)
+JOURNAL_FIGURES = ("F1", "F2", "F3", "F5", "F5c", "F6")             # the journal files whose captions are searched (F5c is the second file of the F5 build)
 SIGMA_NOTE = r"mean-field baseline std ([0-9.]+) against the network range ([0-9.]+) to ([0-9.]+)"
 # Patterns of the JOURNAL caption that differ from the draft pattern (`printed`) because the plain journal wording differs; the numbers sought are the same, the values are the stored ones,
 # nothing is loosened. A row of F1, F3 or F5 with a `printed` pattern and no entry here is searched in the journal caption with its draft pattern.
@@ -738,6 +738,15 @@ JOURNAL_OVERRIDE = {
     "F5.d24_needed": (r"%, (\d+) cells needed", 1),
     "F5.ramp_N3000_S+": (r"S\+ in (\d+) seeds at N = 3000", 1),            # DL-592 V4: the captions write 3000 and 10,000, not 3e3 and 1e4 (same numbers)
     "F5.ramp_N10000_NS": (r"NS in (\d+) at N = 10,000", 1),
+    # 13t-2 (DL-616 B4): F2 and F6; the numbers sought are the same, the wording is plain (no NC1, no step names)
+    "F2.a5_vs_s4": (r"differs by at most (\d+\.\d+e-\d+)", 1),
+    "F6.nc1_mf_none": (r"mean-field first negative control is D-none at (\d+) of \d+ ramp", 1),
+    "F6.nc1_mf_n": (r"mean-field first negative control is D-none at \d+ of (\d+) ramp", 1),
+    "F6.nc3_none": (r"third negative control is D-none at (\d+) of \d+", 1),
+    "F6.nc3_n": (r"third negative control is D-none at \d+ of (\d+)", 1),
+    "F6.nc2_tr": (r"second negative control is D-tr at (\d+) of \d+ ramp", 1),
+    "F6.nc2_n": (r"second negative control is D-tr at \d+ of (\d+) ramp", 1),
+    "F6.nc1_net_class": (r"is in class (S\+)", 1),
 }
 JOURNAL_TARGETS = {"F5.rb1_cells": ("F5", "F5c"), "F5.rb1_cells_den": ("F5", "F5c"), "F5.cells_disagree": ("F5", "F5c"), "F5.ramp_N3000_S+": ("F5", "F5c"), "F5.ramp_N10000_NS": ("F5", "F5c")}
 
@@ -786,7 +795,7 @@ def journal_rows(c: Ctx, R: Rows, figures) -> None:
                                             ("s1_needed", math.ceil(0.9 * n), "cells needed (sentence 1)")), start=1):
             R.add("F5", nm, qty, val, "A9/a9_subgrid_agreement.parquet: d24_cell_agrees", printed=(pat, k), jprinted=(pat, k), jtargets=("F5",))
     for r in R:
-        if r["figure"] in ("F1", "F3", "F5") and r["figure"] in figures and r["jprinted"] is None and r["printed"] is not None:
+        if r["figure"] in ("F1", "F2", "F3", "F5", "F6") and r["figure"] in figures and r["jprinted"] is None and r["printed"] is not None:
             r["jprinted"] = JOURNAL_OVERRIDE.get(r["id"], r["printed"])
             r["jtargets"] = JOURNAL_TARGETS.get(r["id"], (r["figure"],))
         if r["jprinted"] is not None and r["jtargets"] is None:
@@ -805,6 +814,17 @@ SHORT_OVERRIDE = {
     "F3.rb9b_diff": (r"they differ by (\d+\.\d+) Hz", 1),
     "F3.rb9b_bound": (r"must differ by at most (\d+\.\d) Hz", 1),
     "F5.cells_disagree": (r"the network disagrees with it at (\d+) of the 4 cells tested", 1),
+    # 13t-2 (DL-616 B4): the short captions of F2 and F6 (same numbers, the wording of the short caption)
+    "F2.hopf_eta": (r"Hopf point, eta_bar (\d+\.\d+), in a supercritical", 1),
+    "F2.cycle_eta_max": (r"is stable to eta_bar (\d+)", 1),
+    "F2.updown_max_rel": (r"largest difference (\d+\.\d+e-\d+) relative", 1),
+    "F2.net_rel_above_max": (r"differs from the mean field's by \+(\d+\.\d) to", 1),
+    "F2.net_rel_above_min": (r"to (-\d+\.\d) percent above", 1),
+    "F2.net_floor_min": (r"v amplitude (0\.\d+) to", 1),
+    "F2.net_floor_max": (r"v amplitude 0\.\d+ to (0\.\d+)\)", 1),
+    "F6.nonsurge_total": (r"Number of the (\d+) non-surge map cells", 1),
+    "F6.s6_prereg": (r"including all (\d+) pre-registered runs", 1),
+    "F6.nc1_net_class": (r"is in class (S\+)", 1),
 }
 SHORT_S1 = r"noisy mean field agrees with the noise-free map in (\d+) of (\d+) cells \((\d+\.\d) percent; (\d+) cells, 90 percent, were needed\)"
 # DL-593 V6, V7: the F1 short caption states the RB1 counts once ('0 of 3 seeds agree (0 of 3 seeds at ramp durations of 10 s and 120 s), and 1 of 4 map cells ... agree'); the F5 short caption states the cells count
@@ -869,6 +889,14 @@ def short_rows(c: Ctx, R: Rows, figures) -> None:
             for r in R:
                 if r["id"] == f"F5.{nm}":
                     r["sprinted"], r["stargets"] = (SHORT_S1, k), ("F5",)
+    if "F6" in figures:                                  # 13t-2: the noisy first negative control has S-rel in 6 of 130 runs (stored class counts of the mode-N rows)
+        mn = [r for r in c.csv("A10/a10_controls.csv") if r["control"] == "NC1" and r["row_type"] == "mode_N_summary_per_window"]
+        srel = sum(json.loads(r["class_counts"]).get("S-rel", 0) for r in mn)
+        tot = sum(int(float(r["n_seeds"])) for r in mn)
+        R.add("F6", "srel_runs", "runs of the noisy first negative control in S-rel (mode-N rows)", srel, "A10/a10_controls.csv: NC1 mode_N_summary_per_window class_counts", shared="stored class counts",
+              jprinted=(r"S-rel in (\d+) of \d+ runs", 1), jtargets=("F6",), sprinted=(r"S-rel in (\d+) of \d+ runs", 1), stargets=("F6",))
+        R.add("F6", "srel_total", "runs of the noisy first negative control (mode-N rows)", tot, "A10/a10_controls.csv: NC1 mode_N_summary_per_window n_seeds", shared="stored class counts",
+              jprinted=(r"S-rel in \d+ of (\d+) runs", 1), jtargets=("F6",), sprinted=(r"S-rel in \d+ of (\d+) runs", 1), stargets=("F6",))
     for r in R:
         if r["id"] in SHORT_OVERRIDE and r["figure"] in figures:
             r["sprinted"] = SHORT_OVERRIDE[r["id"]]
