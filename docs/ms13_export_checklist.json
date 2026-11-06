@@ -1348,62 +1348,62 @@
   {
    "id": "W1-limits-restored",
    "figure": "F5, F5c",
-   "status": "failing",
-   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: no ruled claim limit dropped for length; G4-C3, G4-C4, regime map, N values (F5); G4-C3, MS11-C2, N values (F5c); word limits 460, 400, 460, 460"
+   "status": "passing",
+   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: no ruled claim limit dropped for length; G4-C3, G4-C4, regime map, N values (F5); G4-C3, MS11-C2, N values (F5c); word limits 460, 400, 460, 460 | verified on the recorded build from bab7055 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1g.py; all four recorded PNGs looked at, F1 and F3 with four crops, F5 and F5c in full with byte-identical crops; DL-611)"
   },
   {
    "id": "W2-short-parameters-sentence",
    "figure": "all",
-   "status": "failing",
-   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: one 'Parameters:' sentence per short caption, numbers from the Parameters / settings paragraphs of the full caption (test)"
+   "status": "passing",
+   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: one 'Parameters:' sentence per short caption, numbers from the Parameters / settings paragraphs of the full caption (test) | verified on the recorded build from bab7055 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1g.py; all four recorded PNGs looked at, F1 and F3 with four crops, F5 and F5c in full with byte-identical crops; DL-611)"
   },
   {
    "id": "W3-plain-numbers",
    "figure": "all",
-   "status": "failing",
-   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: N ticks 1000, 3000, 10,000, 30,000; F5c (d) log ticks 1,000, 10,000, 100,000; no superscript glyph or mathtext superscript; fonts all Arial; digests equal"
+   "status": "passing",
+   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: N ticks 1000, 3000, 10,000, 30,000; F5c (d) log ticks 1,000, 10,000, 100,000; no superscript glyph or mathtext superscript; fonts all Arial; digests equal | verified on the recorded build from bab7055 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1g.py; all four recorded PNGs looked at, F1 and F3 with four crops, F5 and F5c in full with byte-identical crops; DL-611)"
   },
   {
    "id": "W4a-f1-orange-lines",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: (i) orange solid and dashed line mark the windows of (j), (k); (j), (k) carry orange frames"
+   "status": "passing",
+   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: (i) orange solid and dashed line mark the windows of (j), (k); (j), (k) carry orange frames | verified on the recorded build from bab7055 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1g.py; all four recorded PNGs looked at, F1 and F3 with four crops, F5 and F5c in full with byte-identical crops; DL-611)"
   },
   {
    "id": "W4b-f5-class-definitions",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: S-sus and every class on the image defined in the short caption"
+   "status": "passing",
+   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: S-sus and every class on the image defined in the short caption | verified on the recorded build from bab7055 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1g.py; all four recorded PNGs looked at, F1 and F3 with four crops, F5 and F5c in full with byte-identical crops; DL-611)"
   },
   {
    "id": "W4c-f5-tie-clause",
    "figure": "F5",
-   "status": "failing",
-   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: tie clause in plain words; UNVERIFIED wording listed"
+   "status": "passing",
+   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: tie clause in plain words; UNVERIFIED wording listed | verified on the recorded build from bab7055 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1g.py; all four recorded PNGs looked at, F1 and F3 with four crops, F5 and F5c in full with byte-identical crops; DL-611)"
   },
   {
    "id": "W4d-f3-plain-image-words",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: Hopf curve, Hopf point of a slice, 25 Hz crossing of a slice, Hopf point of the main example; three old phrases in the V3 word list"
+   "status": "passing",
+   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: Hopf curve, Hopf point of a slice, 25 Hz crossing of a slice, Hopf point of the main example; three old phrases in the V3 word list | verified on the recorded build from bab7055 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1g.py; all four recorded PNGs looked at, F1 and F3 with four crops, F5 and F5c in full with byte-identical crops; DL-611)"
   },
   {
    "id": "W4e-f3-other-failed-checks",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: 'No other failed check is about this figure; the project's other failed checks are listed in Supplement F3'; the F3 supplement lists all project FAIL rows"
+   "status": "passing",
+   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: 'No other failed check is about this figure; the project's other failed checks are listed in Supplement F3'; the F3 supplement lists all project FAIL rows | verified on the recorded build from bab7055 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1g.py; all four recorded PNGs looked at, F1 and F3 with four crops, F5 and F5c in full with byte-identical crops; DL-611)"
   },
   {
    "id": "W6-look-at-all-crops",
    "figure": "all",
-   "status": "failing",
-   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: every trial render and every recorded PNG looked at in full and in 4 quadrant crops (16 crops for the recorded figures)"
+   "status": "passing",
+   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: every trial render and every recorded PNG looked at in full and in 4 quadrant crops (16 crops for the recorded figures) | verified on the recorded build from bab7055 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t1g.py; all four recorded PNGs looked at, F1 and F3 with four crops, F5 and F5c in full with byte-identical crops; DL-611)"
   },
   {
    "id": "13t-1g-subagent-review-new",
    "figure": "all",
-   "status": "failing",
-   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: a NEW fresh subagent, extended brief (claim limits and failed checks against the image); findings unedited in docs/ms13_13t1g_review.md; triaged; no rebuild"
+   "status": "passing",
+   "note": "13t-1g (DL-603 to DL-605): new item, failing until verified on the recorded build, tests and looked-at crops: a NEW fresh subagent, extended brief (claim limits and failed checks against the image); findings unedited in docs/ms13_13t1g_review.md; triaged; no rebuild | review done and triaged (DL-612, docs/ms13_13t1g_review.md); findings open for the reviewer, no rebuild"
   }
  ]
 }
