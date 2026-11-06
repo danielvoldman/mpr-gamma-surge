@@ -191,23 +191,21 @@ def f6_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
     n = JC.num
     n13 = len(d["nc1_mf_class"])
     s_rel_n = int(sum(x[1] for x in c["srel"]))
-    lp = d["label_primary"].sum(axis=0)
-    lab = ", ".join(f"{L} {int(x)}" for L, x in zip(("a", "b", "c", "d", "e", "f", "g", "h"), lp) if x > 0)
     return JS.finish(F6_ID, [
-        "The negative-control check failed (red title of (c)): the one network run (N = 10,000 simulated spiking neurons, 1 random seed, ramp duration 120 s) of the first negative control (a negative control is a run in which no surge is expected: "
-        "here the hypoxia-like path with the mean excitability falling by the same amount) is in class S+ (a surge: absolute and relative rise, ending; a surge is a transient rise of gamma-band power, 25 to 100 Hz) "
-        f"where {d['nc1_net_expected']} (no rise) is expected. All {d['s6_n_prereg']} pre-registered runs of P3, P4a and P4b are D-tr (an episode that ends), so the surge is not confined to P3.",
-        f"(a) Number of cells with each failure label a to h (words under the panel) among the {int(d['map_nonsurge'].sum())} non-surge cells of two regime maps (a regime map is a grid of mean-field runs, the model's equations for the average activity "
-        f"of the population; a cell is one parameter pair; non-surge: not D-tr): primary label (the first that applies; filled) {lab}, and every label that applies (hatched); label e is 'no exit' (D-sus or S-sus: a rise that does not end). "
-        f"(b) Class of each negative control against the ramp duration T_ramp at {n13} values: the first negative control without and with noise (10 seeds; text: seeds in another class, S-rel in {s_rel_n} of {c['n_runs']} runs; S-rel: relative rise only), "
-        f"the second (drive off, on) and the third (exploratory); {_f6_rows_none(d)} of {n13} noise-free mean-field runs of the first are D-none (no episode), and the second is D-tr at {sum(1 for x in d['nc2_I0_class'] if x == 'D-tr')} of {len(d['nc2_I0_class'])}. "
-        f"(c) The first negative control at the {len(c['cells'])} map cells (class D-none at all) and as the network run (red S+). "
-        "(d), (e) Onset (when the classifier, a rule fixed before the analysis, first flags the gamma rise) and peak frequency (the peak of the power spectrum) of P2 (the hypoxia-like path: mean excitability raised, coupling J ramped to 0 after a delay; the comparators), "
-        "P3 (P2 plus a common drive, amplitude 0.5, 1, 2), P4a and P4b (P2 with Delta, the heterogeneity, multiplied by 1.5 or 2/3) at T_ramp 10, 30, 120 and 300 s; "
-        "rows with equal recorded values coincide (in (e): P3 at drive 0.5 and 1, P4b and P2).",
-        "Failed check (red title of (c)): the negative-control check, the network run of the first negative control must not be in a surge class: FAIL.",
+        "The negative-control check failed (red title of (c)): the one network run (the simulated network of N = 10,000 spiking neurons, 1 random seed) of the first negative control "
+        "(a negative control is a run in which no surge is expected: here the hypoxia-like path with the mean excitability falling by the same amount) is in class S+ "
+        f"(absolute and relative rise, ending: a surge, a transient rise of gamma-band power, 25 to 100 Hz) where {d['nc1_net_expected']} (no rise) is expected.",
+        f"(a) Number of the {int(d['map_nonsurge'].sum())} non-surge map cells (one parameter pair of a grid of mean-field runs, in two regime maps; non-surge: not D-tr, an episode that ends) with each failure label a to h: "
+        "the primary label (the first that applies; filled) and every label that applies (hatched); label e is 'no exit' (D-sus or S-sus: a rise that does not end). "
+        f"(b) Class of each negative control against the ramp duration T_ramp at {n13} values: the first negative control without and with noise (10 seeds; text: seeds in another class, S-rel in {s_rel_n} of {c['n_runs']} runs; "
+        "S-rel: relative rise only), the second (drive off, on) and the third (exploratory). "
+        f"(c) The first negative control at the {len(c['cells'])} map cells (class D-none (no episode) at all) and as the network run (red S+). "
+        "(d), (e) Onset (when the classifier, a rule fixed before the analysis, first flags the gamma rise) and peak frequency (the peak of the power spectrum) of P2 (the hypoxia-like path: mean excitability raised, "
+        "coupling J ramped to 0 after a delay), P3 (P2 plus a common drive, amplitude 0.5, 1, 2), P4a and P4b (P2 with Delta, the heterogeneity, multiplied by 1.5 or 2/3) at T_ramp 10, 30, 120 and 300 s; "
+        f"all are D-tr, including all {d['s6_n_prereg']} pre-registered runs, so the surge is not confined to P3; rows with equal recorded values coincide.",
+        "Failed check: the negative-control check (the network run must not be in a surge class): FAIL.",
         JS.further_sentence(F6_ID, full),
-        f"Parameters: model M3 (the mean-field model); network run N = {c['N']:,}, heterogeneity Delta = {n(c['Delta'])}, synaptic decay time tau_d = {n(c['tau_d'])} ms, ramp duration {n(c['T_ramp'])} s; ramp durations {n(c['t_lo'])} to {n(c['t_hi'])} s ({n13} values); "
-        "classifier (fixed before the analysis) window 2 s, step 1 s for ramp durations of 60 s or more (shorter ramps use a shorter window), gamma band 25 to 100 Hz; noise level sigma = 0.0624 (checked, not confirmed; its check failed).",
+        f"Parameters: model M3 (the mean-field model); network run N = {c['N']:,}, heterogeneity Delta = {n(c['Delta'])}, synaptic decay time tau_d = {n(c['tau_d'])} ms, ramp duration {n(c['T_ramp'])} s; "
+        "classifier window 2 s, step 1 s for ramp durations of 60 s or more (shorter ramps use a shorter window), gamma band 25 to 100 Hz; noise level sigma = 0.0624 (checked, not confirmed; its check failed).",
         JS.limit_clauses(F6_ID, F6_LIMIT_EXTRA),
         JS._pointer(F6_ID)], max_words, full)

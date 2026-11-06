@@ -49,7 +49,7 @@ DEFS = {
     "map cell": (r"\bmap cells?\b", r"map cells? \(one parameter pair of a (?:30 x 30 )?grid of mean-field runs", "derived from the full caption of F5; the plan has no sentence for it (UNVERIFIED wording)"),
     "noisy subgrid": (r"\b[Nn]oisy subgrid\b", r"[Nn]oisy subgrid \(map cells re-run with noise", ""),
     "ramp seed": (r"\bramp seeds?\b", r"ramp seeds? \(a simulated network run with the ramp", ""),
-    "control": (r"(?<!negative )\bcontrols?\b", r"controls? \(the same network without the ramp", ""),
+    "control": (r"(?<!negative )(?<!negative-)\bcontrols?\b", r"controls? \(the same network without the ramp", ""),
     "negative control": (r"\bnegative controls?\b", r"negative controls? is a run in which no surge is expected|negative controls? \(a run in which no surge is expected", "our plain definition (UNVERIFIED): the plan defines the first control only"),
     "onset": (r"\bonset\b", r"onset[^.;]{0,6}\(when", ""),
     "duration": (r"\bduration\b(?! of)(?<!ramp duration)", r"duration[^.;]{0,6}\(how long", "the ruling's 'first and last flags' is replaced by the full-caption wording 'flagged windows x step' (UNVERIFIED)"),
