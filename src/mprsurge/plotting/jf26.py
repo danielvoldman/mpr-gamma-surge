@@ -253,12 +253,12 @@ def f6_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
     n13 = len(d["nc1_mf_class"])
     s_rel_n = int(sum(x[1] for x in c["srel"]))
     return JS.finish(F6_ID, [
-        "The negative-control check failed (red title of (c)): the one network run (the simulated network of N = 10,000 spiking neurons, 1 random seed) of the first negative control "
+        "The negative-control check failed (red title of (c)): the network run (the simulated network of N = 10,000 spiking neurons, 1 seed) of the first negative control "
         "(a negative control is a run in which no surge is expected: here the hypoxia-like path with the mean excitability falling by the same amount) is in class S+ "
         f"(absolute and relative rise, ending: a surge, a transient rise of gamma-band power, 25 to 100 Hz) where {d['nc1_net_expected']} (no rise) is expected.",
-        f"(a) Number of the {int(d['map_nonsurge'].sum())} non-surge map cells (one parameter pair of a grid of mean-field runs, in two regime maps; non-surge: not D-tr, an episode that ends) with each failure label a to h "
+        f"(a) Number of the {int(d['map_nonsurge'].sum())} non-surge map cells (one parameter pair of a grid of mean-field runs, in two maps; non-surge: not D-tr, an episode that ends) with each failure label a to h "
         "(the labels are listed in the key above panel (a)); filled bars: the primary label (the first that applies); hatched and dotted bars: every label that applies. "
-        f"(b) Class of each negative control against the ramp duration T_ramp at {n13} values: negative control 1 without and with noise (10 seeds; text: seeds in another class, S-rel in {s_rel_n} of {c['n_runs']} runs; "
+        f"(b) Class of each negative control against the ramp duration T_ramp at {n13} values: negative control 1 without and with noise (10 seeds; text: other-class seeds, S-rel in {s_rel_n} of {c['n_runs']} runs; "
         "S-rel: relative rise only; NS: no rise, the noisy-run counterpart of D-none), negative control 2 (the full path with the drive off and on) and negative control 3 (inhibition raised while the mean excitability falls; exploratory). "
         "Negative control 2 is D-tr at every ramp duration in the mean field; the failed check is the one on negative control 1 (network S+). "
         f"(c) The first negative control at the {len(c['cells'])} map cells (all D-none, no episode) and as the network run (red S+). "
