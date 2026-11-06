@@ -275,8 +275,8 @@ def f5_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
         # DL-604 W4(c): the tie clause in the words of the full caption ('majority class of 10 seeds', 'ties count as disagreements by the rule'); the plan has no sentence on ties, so 'no single majority class' is UNVERIFIED wording
         "(c) Noisy subgrid (map cells re-run with noise, 10 seeds each): agree (circle), disagree (cross) or tie (plus: no single majority class among the 10 seeds of the cell; it counts as a disagreement "
         "under the 90 percent rule: at least 90 percent of the cells must agree). "
-        f"(d) The same cells re-scored by a rule chosen after the results (post hoc; no check; dashed frame): the same cells agree in {d['p1_n_agree']} of {sub} ({100.0 * d['p1_n_agree'] / sub:.1f} percent) under the re-scoring chosen after the results; it feeds no check. "
-        "The blank lines through (c) and (d) are map cells that are not in the noisy subgrid. (e) Map 2: initial coupling J0 and ramp duration.",
+        f"(d) The same cells re-scored by a rule chosen after the results (post hoc; no check; dashed frame): the same cells agree in {d['p1_n_agree']} of {sub} ({100.0 * d['p1_n_agree'] / sub:.1f} percent) under the re-scoring chosen after the results; it feeds no check; "
+        "the blank lines through (c) and (d) are map cells that are not in the noisy subgrid. (e) Map 2: initial coupling J0 and ramp duration.",
         # DL-603 W2: values copied from the Parameters and settings paragraphs of the full caption (the classifier window depends on the ramp duration: 2 s and 1 s from 60 s up)
         "Parameters: model M3 (the mean-field model) with membrane time constant 10 ms and coupling J = -21; map 1: heterogeneity Delta 0.01 to 0.6 (30 values), synaptic decay time tau_d 1 to 50 ms (30 values), ramp duration 120 s; "
         "map 2: J0 -40 to -5 (25 values), 13 ramp durations, Delta 0.3, tau_d 5 ms; network cells: ramp duration 30 s; "

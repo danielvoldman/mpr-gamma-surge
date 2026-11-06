@@ -107,7 +107,7 @@ def f2_caption(d: dict, a11: list, rows: list, *, strip_rows: list, ids, c: dict
               f"(the reference validation point); the swept parameter is eta_bar, from {c['p_lo']:.3f} to {c['p_hi']:.3f} in {c['mf_n']} steps up and {c['mf_n']} steps down (mean field) and {c['n_net']} of them each way (network); "
               f"each step lasts {n(c['step_s'])} s and v is read over the last {n(c['read_s'])} s; network size N = {c['N']:,}.")
     failed = ("Shown, not dropped (the full list with value, threshold and source is in the supplement): " + "; ".join(JC.failed_line(r) for r in strip_rows)
-              + ". The title of panel (c) is red: the four RB1 checks compare the classes of the network and the mean-field runs (the same class is required) and failed; " + F2_RED_NOTE + ". Panels (a) and (b) have no red title. "
+              + ". " + JC.title_sentence(F2_ID) + " The four RB1 checks compare the classes of the network and the mean-field runs (the same class is required) and failed; " + F2_RED_NOTE + ". Panels (a) and (b) have no red title. "
               "The four RB1 rows are listed here because the figure draws network symbols (our reading of where the check applies, not verified).")
     limits = JC.limits_paragraph(ids) + " The network values are single runs (one seed) and are drawn without error bars; no agreement criterion is applied to them, so the network symbols have one shape per sweep direction."
     limits = limits + " " + JC.limit_scope(ids)

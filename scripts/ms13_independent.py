@@ -823,12 +823,12 @@ SHORT_OVERRIDE = {
     "F2.net_floor_min": (r"v amplitude (0\.\d+) to", 1),
     "F2.net_floor_max": (r"v amplitude 0\.\d+ to (0\.\d+)\)", 1),
     "F6.nonsurge_total": (r"Number of the (\d+) non-surge map cells", 1),
-    "F6.s6_prereg": (r"including all (\d+) pre-registered runs", 1),
+    "F6.s6_prereg": (r"(?:including all|the) (\d+) pre-registered runs", 1),       # DL-628 C4 (e): the short caption now says 'the 20 pre-registered runs and 4 P2 comparator runs'; the number is the same
     "F6.nc1_net_class": (r"is in class (S\+)", 1),
 }
 SHORT_S1 = r"noisy mean field agrees with the noise-free map in (\d+) of (\d+) cells \((\d+\.\d) percent; (\d+) cells, 90 percent, were needed\)"
 # DL-593 V6, V7: the F1 short caption states the RB1 counts once ('0 of 3 seeds agree (0 of 3 seeds at ramp durations of 10 s and 120 s), and 1 of 4 map cells ... agree'); the F5 short caption states the cells count
-SHORT_NET = r"(\d+) of (\d+) seeds agree at ramp durations of 10 s and 120 s, and (\d+) of (\d+) map cells"
+SHORT_NET = r"(\d+) of (\d+) seeds agree at ramp durations of 10 s and 120 s(?: \(the 10 s ramp is not drawn here\))?, and (\d+) of (\d+) map cells"       # DL-628 C5: the parenthesis was added; the numbers are those of before
 
 
 def short_rows(c: Ctx, R: Rows, figures) -> None:

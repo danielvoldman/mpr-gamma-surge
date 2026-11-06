@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import re
 
+import numpy as np
+
 from . import captions as CAP
 
 LABELS = ("Panels.", "Key and abbreviations.", "Classifier and spectrogram settings.", "Parameters.", "Failed checks.", "Limits.")
@@ -276,8 +278,8 @@ TITLE_MAP = {
     "F5": (("(a)", "network vs mean field, cells: FAIL", "RB1", "network against mean field, the 4 map cells"), ("(b)", "network vs mean field FAIL", "RB1", "network against mean field, the 4 map cells"),
            ("(c)", "90 percent agreement rule: FAILED", "D24", "the rule that at least 90% of the cells of the noisy subgrid agree with the noise-free class")),
     "F5c": (("(b)", "step-halving check: FAIL", "RB6", "numerical convergence, the network f_pk when the step is halved"),),
-    "F2": (),                                   # DL-616: no red title on F2 (no panel draws the result of a failed check)
-    "F6": (("(c)", "negative-control check: FAIL", "G7", "the negative-control gate: the network run of the first negative control must not be in a surge class"),),
+    "F2": (("(c)", "Network vs mean field: FAIL", "RB1", "network against mean field: the same class is required at the main example for ramp durations of 10 s and 120 s, at the 4 map cells and overall"),),     # DL-628 C1 (DL-616 had no red title on F2)
+    "F6": (("(c)", "Negative-control check: FAIL", "G7", "the negative-control gate: the network run of the first negative control must not be in a surge class"),),
 }
 WORD_MAP = {"F3": (("continuation", "A4", "the analysis step named \"M3 fixed points and Hopf curves\""), ("frequency-map", "A6", "the analysis step named \"M3 frequency map\""))}
 
@@ -588,7 +590,8 @@ def f5c_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list,
         "and a seed's x position is its slot in the N group (ramp seeds 0 to 9, then control seeds 0 to 2), a layout that carries no value.",
         f"In a surge class (S+, S-rel or S-abs), counted from the drawn classes: the ramp seeds {cn['ramp_text']}; the no-ramp controls {cn['ctrl_text']}; the no-ramp controls in S-sus (not a surge class): {cn['sus_text']}.",
         "(b) f_pk of every seed with a defined value against N (the title is red because the RB6 network f_pk check FAILED): the dotted line is the stored mean-field companion value at T_ramp 60 s; the grey bar is the stored minimum to maximum of the ramp seeds and the wide tick the stored median (these three marks are in the key above (a)).",
-        f"(c) The onset of every seed with a defined value against N, with the stored mean-field companion onset {d['ref_onset_s']:.3f} s as a dotted line; {c['onset_sentence']}",
+        f"(c) The onset of every seed with a defined value against N, with the stored mean-field companion onset {d['ref_onset_s']:.3f} s as a dotted line; {c['onset_sentence']} "
+        f"The no-ramp controls also flag onsets, from {float(np.nanmin(np.asarray(d['ctrl_onset_s'], float))):.1f} to {float(np.nanmax(np.asarray(d['ctrl_onset_s'], float))):.1f} s, so onset is not a ramp-specific signal in this figure.",
         f"(d) The duration of every ramp seed with a defined value against N (logarithmic axis; the controls were evaluated without the duration, so there are no control points): {c['duration_sentence']}",
         "The per-seed f_pk, onset and duration are recomputed from the stored series with the classifier's own routine, called as in the stored evaluation and with no new setting, and are labelled so; the recomputed classes equal the stored classes, "
         "and the recomputed counts, minimum, median and maximum equal the stored values (a build test; a difference stops the build); this is a logged exception to the rule that figures read stored tables first, and it is not verified as a rule. "

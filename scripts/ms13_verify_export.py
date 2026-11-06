@@ -27,6 +27,7 @@ from mprsurge.config import repo_root
 from mprsurge.plotting import collide as CO
 from mprsurge.plotting import figures as FG
 from mprsurge.plotting import jcaption as JCAP
+from mprsurge.plotting import jf26 as JF26
 from mprsurge.plotting import jchecks as JC
 from mprsurge.plotting import jshort as JSH
 from mprsurge.plotting import plain as PL
@@ -36,7 +37,7 @@ from mprsurge.plotting import style as S
 PILOT = ("F1", "F2", "F3", "F5", "F5c", "F6")            # 13t-1: F1, F3, F5, F5c; 13t-2 (DL-616): F2 and F6
 DRAFT_ID = {"F1": "F1", "F2": "F2", "F3": "F3", "F5": "F5", "F5c": "F5", "F6": "F6"}              # the figure whose draft files, digest and manifest rows a journal file is checked against
 CHECKS = ("A collisions", "B pdf", "size+shape", "text>=8pt", "fonts", "line width", "cmaps", "non-colour", "letters", "file names", "FAIL lines", "digest", "arrays", "drafts identical",
-          "image text", "image IDs", "plain words", "powers of ten", "minus signs", "red titles", "supplement", "sentence 1", "paragraphs", "caption words", "full caption", "key terms", "short caption", "short limits", "definitions", "failed count", "short numbers", "short parameters", "supplement FAILs", "superscripts",
+          "image text", "image IDs", "plain words", "powers of ten", "minus signs", "sentence case", "red titles", "supplement", "sentence 1", "paragraphs", "caption words", "full caption", "key terms", "short caption", "short limits", "definitions", "failed count", "short numbers", "short parameters", "supplement FAILs", "superscripts",
           "margins", "label-title gap", "contrast", "red-green", "greyscale", "cvd", "png+tiff", "no svg/wmf/emf", "file sizes")
 MAIN_FAILURES = {"F1": FG.F1_MAIN_FAILURES, "F2": FG.F2_MAIN_FAILURES, "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES, "F5c": FG.F5C_MAIN_FAILURES, "F6": FG.F6_MAIN_FAILURES}
 STRIP = {"F1": FG.f1_strip_lines, "F2": FG.strip_lines, "F3": FG.strip_lines, "F5": FG.f5_strip_lines, "F5c": FG.f5c_strip_lines, "F6": FG.f6_strip_lines}
@@ -48,7 +49,23 @@ SHORT_MAIN = {"F1": ("does not reproduce it",), "F2": ("does not follow the mean
               "F5c": ("step-halving check", "do not reproduce the mean field")}               # plain words of the main failure(s) that sentence 1 of the short caption holds (DL-582 U3 a, DL-593 V6)
 CHECK_TOKEN = {("RB1", "headline_10s"): "network against mean field", ("RB1", "headline_120s"): "network against mean field", ("RB1", "cells_30s"): "network against mean field",
                ("RB2", "noisy_subgrid_agreement"): "90 percent rule", ("RB6", "network_fpk_halving_dt"): "step-halving check", ("RB9", "b_spectral_vs_cycle_headline"): "frequency check",
-               ("G7", "gate"): "negative-control check"}
+               ("G7", "gate"): "negative-control check", ("RB1", "overall"): "network against mean field"}
+REASON_OTHER = "other (not a stored coincidence, a ruled size or a reference line)"
+STRICT_ALLOW = ("F2", "F6", "FS1", "FS2", "FS3", "FS4", "FS5")
+
+
+def reason_class(reason: str) -> str:
+    """DL-628 C7: the class of an allow-list reason: a value on a reference line, ruled mark sizes (with stored positions), stored coincident positions, else other (a STOP for F2, F6 and the FS figures)."""
+    r = reason.lower()
+    if "reference line" in r or "stored value on the line" in r:
+        return "value on a reference line"
+    if "ruled mark" in r:
+        return "stored coincident positions and ruled mark sizes"
+    if "stored" in r or "recorded" in r:
+        return "stored coincident positions"
+    return REASON_OTHER
+
+
 SHORT_CHECKS = {f: sorted(JSH.SHORT_NAMED[f]) for f in PILOT}      # DL-593 V7: only the failed checks whose result is drawn are named in a short caption
 SCHEMATIC_FACES = {"ramp": S.F1_SCHEMATIC["ramp_face"], "net": S.F1_SCHEMATIC["net_face"], "model": S.F1_SCHEMATIC["box_face"], "mf": S.F1_SCHEMATIC["box_face"], "out": S.F1_SCHEMATIC["box_face"]}
 
@@ -78,7 +95,13 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         # A: collisions
         bad, ok = CO.check(fig, pad_pt=cfg["collision"]["pad_pt"], allow=CO.JOURNAL_ALLOW.get(fid, ()))
         info["allowed"] = [(str(h), r) for h, r in ok]
-        res["A collisions"] = ("PASS" if not bad else "FAIL", f"{len(bad)} unlisted, {len(ok)} listed" + ("; " + str(bad[0]) if bad else ""))
+        classes: dict = {}
+        for _, r_ in ok:
+            classes[reason_class(r_)] = classes.get(reason_class(r_), 0) + 1
+        info["allowed_classes"] = classes
+        legib = classes.get(REASON_OTHER, 0) if fid in STRICT_ALLOW else 0               # DL-628 C7: an entry of F2, F6 or an FS figure whose reason is not a stored coincidence, a ruled size or a reference line is a STOP
+        res["A collisions"] = ("PASS" if not bad and not legib else "FAIL", f"{len(bad)} unlisted, {len(ok)} listed ({', '.join(f'{k} {v}' for k, v in sorted(classes.items()))})" + ("; " + str(bad[0]) if bad else "")
+                               + (f"; {legib} listed hits whose reason is not a stored coincidence, a ruled size or a reference line" if legib else ""))
         # B: pdf
         r = JC.pdf_report(pdf)
         embedded = r["descriptors"] > 0 and r["fontfile2"] + r["fontfile3"] >= r["descriptors"]
@@ -148,6 +171,8 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         res["plain words"] = ("PASS" if not pw else "FAIL", f"{len(pw)} image texts with stored, headline, companion, mode D, f_pk, P-1 or path time" + (f": {pw[0]}" if pw else ""))
         en = JC.e_notation_violations(fig)
         res["powers of ten"] = ("PASS" if not en else "FAIL", f"{len(en)} image texts with 1e3, 3e3, 1e4, 3e4 or 1e5 notation" + (f": {en[0]}" if en else ""))
+        lc = J.lowercase_starts(fig)
+        res["sentence case"] = ("PASS" if not lc else "FAIL", f"{len(lc)} image labels start with a lower-case word that is not an exception (DL-628 C9)" + (f": {lc[0]!r}" if lc else ""))
         hy = JC.tick_hyphens(fig)
         res["minus signs"] = ("PASS" if not hy else "FAIL", f"{len(hy)} tick labels with a hyphen-minus instead of U+2212" + (f": {hy[0]}" if hy else ""))
         reds = JC.red_titles(fig)
@@ -160,23 +185,26 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
             marks = [a for a in fig.findobj(lambda a: a.get_gid() == "frequency mark")]
             diff = [a for a in fig.findobj(lambda a: a.get_gid() == "frequency mark difference")]
             labs = " ".join(a.get_text() for a in fig.findobj(lambda a: a.get_gid() == "frequency mark label"))
-            if len(marks) != 2 or len(diff) != 1 or "cycle frequency, main example" not in labs or "spectral peak, main example" not in labs or "differ by 4.391 Hz; allowed 0.5 Hz" not in diff[0].get_text():
+            if len(marks) != 2 or len(diff) != 1 or "cycle frequency, main example" not in labs.lower() or "spectral peak, main example" not in labs.lower() or "differ by 4.391 Hz; allowed 0.5 Hz" not in diff[0].get_text():
                 evidence.append("F3 frequency marks, labels or difference text missing")
         if fid == "F5c":
             lines = [a.get_text() for a in fig.findobj(lambda a: a.get_gid() == "step-halving line")]
-            if not lines or " ".join(" ".join(lines).split()) != FG.F5CJ_B_LINE:
+            if not lines or " ".join(" ".join(lines).split()).lower() != FG.F5CJ_B_LINE.lower():
                 evidence.append("F5c (b) step-halving line missing")
         if fid == "F2":
-            if reds:
-                evidence.append("F2 has a red title")
-            if "There is no red title" not in short or "No panel title is red" not in cap:
-                evidence.append("F2 caption does not say that no title is red")
+            notes_ = [a.get_text() for a in fig.findobj(lambda a: a.get_gid() == "panel note")]
+            if len(reds) != 1 or not reds[0][1].startswith("(c)"):
+                evidence.append("F2 must have exactly one red title, on (c)")
+            if not any(" ".join(n_.split()).lower() == FG.F2J_NOTE_C.replace(chr(10), " ").lower() for n_ in notes_):
+                evidence.append("F2 (c) note missing")
+            if "have no red title" not in short or "have no red title" not in cap or JF26.F2_RED_NOTE not in short or JF26.F2_RED_NOTE not in cap:
+                evidence.append("F2 caption lacks the red-title note or the sentence that (a) and (b) have no red title")
         if fid == "F6":
             mk = [a for a in fig.findobj(lambda a: a.get_gid() == "class mark network run")]
             nt = [a.get_text() for a in fig.findobj(lambda a: a.get_gid() == "panel note")]
             if len(mk) != 1 or "S+" not in nt:
                 evidence.append("F6 (c) network-run mark or its S+ note missing")
-        okr = (not reds if fid == "F2" else bool(reds)) and not unmapped and not not_in_cap and not evidence
+        okr = bool(reds) and not unmapped and not not_in_cap and not evidence
         res["red titles"] = ("PASS" if okr else "FAIL", f"{len(reds)} red titles, each a plain title of the map; each in the full caption ('shown in the title as') and the supplement table" if okr
                              else f"unmapped {unmapped[:1]}; not in caption or table {not_in_cap[:1]}; {evidence}")
         # supplement
@@ -315,6 +343,7 @@ def main(argv=None) -> int:
             st, detail = table[f][c]
             print(f"{f} {c}: {st} - {detail}")
     for f in a.ids:
+        print(f"ALLOW-LIST {f} by reason class: {infos[f].get('allowed_classes')}")
         for h, r in infos[f]["allowed"]:
             print(f"ALLOW-LIST {f}: {h} -- reason: {r}")
         print(f"{f}: inches {infos[f].get('inches')}; colour maps {infos[f].get('cmaps')}; bytes {infos[f].get('bytes')}")
