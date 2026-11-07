@@ -210,8 +210,8 @@ def caption(d: dict, rows: list, *, ids, c: dict, FG) -> str:
               f"{n(min(d['a5c_up_tau_d'].min(), d['a5c_down_tau_d'].min()))} to {n(max(d['a5c_up_tau_d'].max(), d['a5c_down_tau_d'].max()))} ms; the traces are the last 400 ms of runs of {n(c['hold'])} s; "
               f"networks of N = {n(c['N'])} neurons, and {n(c['N5'])} for the extra run; eta_bar {', '.join(n(x) for x in sorted(set(d['k9_eta_bar'].tolist())))} for (i); J {', '.join(n(x).replace('-', MINUS) for x in d['k10_J_8.0'])} for (l).")
     failed = (f"Two failed or not reproduced results concern this figure and both are drawn. (1) The test of the straight-line fit of the squared amplitude of the cycle against tau_d over the pre-set window: the residual must not exceed {tolr:g} percent; it is {resid:.2f} percent "
-              f"(title of (b), red, as 'Amplitude squared: FAIL'). (2) The test of the dependence of the frequency on J: the frequency must change by at most {lim:.0f} percent over the J range; it changes by {ch[0]:.1f}, {ch[1]:.1f} and {ch[2]:.1f} percent "
-              f"(title of (l), red, as 'Frequency against J: FAIL'; single source, not verified). The Hopf point at {d['hopf_a4_ms']:.2f} ms against the published {FG.FS2_K7_PAPER_MS:g} ms is a recorded departure, drawn in (a). "
+              f"(panel (b)). (2) The test of the dependence of the frequency on J: the frequency must change by at most {lim:.0f} percent over the J range; it changes by {ch[0]:.1f}, {ch[1]:.1f} and {ch[2]:.1f} percent "
+              f"(panel (l); single source, not verified). " + JC.title_sentence(FS2_ID) + f" The Hopf point at {d['hopf_a4_ms']:.2f} ms against the published {FG.FS2_K7_PAPER_MS:g} ms is a recorded departure, drawn in (a). "
               "No row of the project's table of failed checks concerns this figure (our reading of where the checks apply; not verified); the version of the step test on a network is not part of this figure.")
     limits = JC.limits_paragraph(ids)
     rest = " ".join([take, panels, settings, params, failed, limits])

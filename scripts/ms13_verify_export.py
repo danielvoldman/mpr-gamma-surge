@@ -35,18 +35,19 @@ from mprsurge.plotting import journal as J
 from mprsurge.plotting import style as S
 
 PILOT = ("F1", "F2", "F3", "F5", "F5c", "F6")            # 13t-1: F1, F3, F5, F5c; 13t-2 (DL-616): F2 and F6
-FS_FIGS = ("FS1",)                                          # 13t-4 (DL-636 E5, DL-637): the supplementary figures that are exported (FS2 and FS3 are added when they are done)
+FS_SINGLE = ("FS2",)                                       # 13t-6 (DL-651 H1, H2): stand-alone supplement files with ONE caption (<ID>_journal_caption.txt); FS3 to FS5 are added when they are done
+FS_FIGS = ("FS1",) + FS_SINGLE                                          # 13t-4 (DL-636 E5, DL-637): the supplementary figures that are exported (FS2 and FS3 are added when they are done)
 ALL_FIGS = PILOT + FS_FIGS
-DRAFT_ID = {"F1": "F1", "F2": "F2", "F3": "F3", "F5": "F5", "F5c": "F5", "F6": "F6", "FS1": "FS1"}              # the figure whose draft files, digest and manifest rows a journal file is checked against
+DRAFT_ID = {"F1": "F1", "F2": "F2", "F3": "F3", "F5": "F5", "F5c": "F5", "F6": "F6", "FS1": "FS1", "FS2": "FS2"}              # the figure whose draft files, digest and manifest rows a journal file is checked against
 CHECKS = ("A collisions", "B pdf", "size+shape", "text>=8pt", "fonts", "line width", "cmaps", "non-colour", "letters", "file names", "FAIL lines", "digest", "arrays", "drafts identical",
           "image text", "image IDs", "plain words", "powers of ten", "minus signs", "sentence case", "red titles", "supplement", "sentence 1", "paragraphs", "caption words", "full caption", "key terms", "short caption", "short limits", "definitions", "failed count", "short numbers", "short parameters", "supplement FAILs", "superscripts",
           "margins", "label-title gap", "contrast", "red-green", "greyscale", "cvd", "png+tiff", "no svg/wmf/emf", "file sizes")
 MAIN_FAILURES = {"F1": FG.F1_MAIN_FAILURES, "F2": ("lies close to the mean-field branch",),      # 13t-4 (DL-636 E1): the journal sentence 1 of F2 follows the data; the draft constant FG.F2_MAIN_FAILURES is unchanged
-                  "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES, "F5c": FG.F5C_MAIN_FAILURES, "F6": FG.F6_MAIN_FAILURES, "FS1": ("passes only on our own reading", "was not run")}
-STRIP = {"F1": FG.f1_strip_lines, "F2": FG.strip_lines, "F3": FG.strip_lines, "F5": FG.f5_strip_lines, "F5c": FG.f5c_strip_lines, "F6": FG.f6_strip_lines, "FS1": lambda d: []}
+                  "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES, "F5c": FG.F5C_MAIN_FAILURES, "F6": FG.F6_MAIN_FAILURES, "FS1": ("passes only on our own reading", "was not run"), "FS2": ("does not reproduce the published Hopf point", "a failed check")}
+STRIP = {"F1": FG.f1_strip_lines, "F2": FG.strip_lines, "F3": FG.strip_lines, "F5": FG.f5_strip_lines, "F5c": FG.f5c_strip_lines, "F6": FG.f6_strip_lines, "FS1": lambda d: [], "FS2": lambda d: []}
 MIN_MARGIN_IN, MIN_LABEL_GAP_IN = 0.10, 0.05                                # DL-571 T5, T6
 CLAIM_IDS = {"F1": (FG.F1_CLAIM_LIMITS, None), "F2": (FG.F2_CLAIM_LIMITS, None), "F3": (FG.F3_CLAIM_LIMITS, None), "F5": (FG.F5_CLAIM_LIMITS, FG.F5_NOT_APPLICABLE), "F5c": (FG.F5_CLAIM_LIMITS, FG.F5_NOT_APPLICABLE),
-             "F6": (FG.F6_CLAIM_LIMITS, FG.F6_NOT_APPLICABLE), "FS1": (FG.FS1_CLAIM_LIMITS, None)}
+             "F6": (FG.F6_CLAIM_LIMITS, FG.F6_NOT_APPLICABLE), "FS1": (FG.FS1_CLAIM_LIMITS, None), "FS2": (FG.FS2_CLAIM_LIMITS, None)}
 NA_TEXT = {"F6": PL.NOT_APPLICABLE_PLAIN_F6}                          # the plain reason of a not-applicable limit, where it is not the F5 one (DL-616)
 SHORT_MAIN = {"F1": ("does not reproduce it",), "F2": ("lies close to the mean-field branch",), "F6": ("negative-control check failed",), "FS1": ("passes only on our own reading", "was not run"), "F3": ("frequency check",), "F5": ("holds for the noise-free mean field only",),
               "F5c": ("step-halving check", "do not reproduce the mean field")}               # plain words of the main failure(s) that sentence 1 of the short caption holds (DL-582 U3 a, DL-593 V6)
@@ -84,7 +85,8 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
     sup = base / "supplement"
     out = base / fid
     pdf, png = out / f"{fid}_journal.pdf", out / f"{fid}_journal.png"
-    cap_path, prov_path = out / f"{fid}_journal_caption_full.txt", out / f"{fid}_journal_provenance.json"           # the FULL caption (DL-582 U3 b); the short one is read below
+    single = fid in FS_SINGLE
+    cap_path, prov_path = out / (f"{fid}_journal_caption.txt" if single else f"{fid}_journal_caption_full.txt"), out / f"{fid}_journal_provenance.json"           # the FULL caption (DL-582 U3 b); the short one is read below
     short_path = out / f"{fid}_journal_caption.txt"
     missing = [p for p in (pdf, png, cap_path, short_path, prov_path, sup / f"{fid}_supplement.md", sup / f"{fid}_source_data.csv", sup / f"{fid}_alt_text.txt") if not p.is_file()]
     if missing:
@@ -237,36 +239,44 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         unused = JCAP.key_unused_terms(cap)
         res["key terms"] = ("PASS" if not unused else "FAIL", f"{len(unused)} Key entries whose term the caption does not use" + (f": {unused[:3]}" if unused else ""))
         # the SHORT caption (DL-582 U3 a, U5): words, order, plain words, failed checks, limits
-        limit = J.caption_limit(cfg, fid)
-        sbad = sorted({m.group(0) for m in JCAP.FORBIDDEN.finditer(short)} | {m.group(0) for m in JSH.ID_PATTERN.finditer(short)} | set(re.findall(r"\bstored\b", short)))
-        first_sentence = short[len(fid) + 2:].split(". ")[0]
-        miss_main = [m for m in SHORT_MAIN[fid] if m not in first_sentence]
-        miss_chk = [CHECK_TOKEN[k] for k in SHORT_CHECKS[fid] if CHECK_TOKEN[k] not in short]
-        ptr_ok = short.endswith(JSH.POINTER.format(fid=fid))
-        red_ok = "red title" in short.lower()
-        enot = re.findall(r"(?<![\w.+-])(?:1e3|3e3|1e4|3e4)\b", short + " " + cap)
-        n_words = JSH.words(short)
-        okshort = (n_words <= limit and not sbad and not miss_main and not miss_chk and ptr_ok and red_ok and not enot and short.startswith(f"{fid}. ") and "\n" not in short)
-        res["short caption"] = ("PASS" if okshort else "FAIL", f"{n_words} words (limit {limit}); " + (f"forbidden {sbad[:3]}; " if sbad else "") + (f"main failure missing {miss_main}; " if miss_main else "")
-                                + (f"failed checks missing {miss_chk[:3]}; " if miss_chk else "") + ("" if ptr_ok else "pointer sentence missing; ") + ("" if red_ok else "red-title sentence missing; ")
-                                + (f"e-notation of N in a caption {enot[:2]}; " if enot else "") + "order, plain words and the pointer to the supplement checked")
-        # short limits: the clauses of the figure (a distinctive phrase each), with numbers that are in the full caption
-        lim_miss = JSH.limits_missing(fid, short)
-        res["short limits"] = ("PASS" if not lim_miss else "FAIL", f"{len(JSH.SHORT_LIMIT_IDS[fid]) - len(lim_miss)} of {len(JSH.SHORT_LIMIT_IDS[fid])} limit clauses in the short caption" + (f"; missing {lim_miss}" if lim_miss else ""))
-        # V5: every technical term defined where first used; V7: the count of the other failed checks equals the full caption's; V8: numbers of the short caption are in the full caption
-        und = JSH.undefined_terms(short)
-        res["definitions"] = ("PASS" if not und else "FAIL", f"{len(JSH.DEFS)} terms checked; first use of each term used has its plain definition next to it" + (f"; undefined: {und[:4]}" if und else ""))
-        n_full = JSH.further_count(fid, cap)
-        m_ = re.search(r"(\d+) further failed checks? of the project|No other failed check is about this figure", short)          # DL-604 W4(e): the F3 wording
-        n_short = (int(m_.group(1)) if m_ and m_.group(1) else 0) if m_ else None
-        res["failed count"] = ("PASS" if n_short == n_full else "FAIL", f"{n_short} further failed checks in the short caption; {n_full} computed from the full caption (failed rows named in the full caption {len(JSH.failed_in_full(cap))}, named in the short {len(JSH.SHORT_NAMED[fid])})")
-        nn = JSH.numbers_not_in_full(short, cap)
-        res["short numbers"] = ("PASS" if not nn else "FAIL", "every number of the short caption is in the full caption" if not nn else f"numbers not in the full caption: {nn[:5]}")
-        # DL-603 W2: the one 'Parameters:' sentence takes its numbers from the Parameters and settings paragraphs of the full caption; F3 says that no classifier or spectrogram is used
-        pm = JSH.parameters_numbers_missing(short, cap)
-        f3_ok = fid != "F3" or ("no classifier" in JSH.parameters_sentence(short) and "is used" in JSH.parameters_sentence(short))
-        res["short parameters"] = ("PASS" if not pm and f3_ok else "FAIL", "every number of the short Parameters sentence is in the Parameters or settings paragraph of the full caption" if not pm and f3_ok
-                                   else f"numbers not in the full caption's Parameters or settings paragraphs: {pm[:5]}" + ("" if f3_ok else "; F3 must say that no classifier or spectrogram is used"))
+        if single:
+            na = ("PASS", "one caption only (DL-651 H2): the short-caption check does not apply")
+            for k_ in ("short caption", "short limits", "failed count", "short numbers", "short parameters"):
+                res[k_] = na
+            und = JSH.undefined_terms(cap)
+            res["definitions"] = ("PASS" if not und else "FAIL", f"{len(JSH.DEFS)} terms checked in the one caption; first use of each term used has its plain definition next to it" + (f"; undefined: {und[:4]}" if und else ""))
+            res["caption words"] = ("PASS" if not bad_words and not re.findall(r"\bstored\b", cap) else "FAIL", f"{len(bad_words)} forbidden words or codes; {len(cap.split())} words (no limit, DL-651 H2)" + (f": {bad_words[:5]}" if bad_words else ""))
+        if not single:
+            limit = J.caption_limit(cfg, fid)
+            sbad = sorted({m.group(0) for m in JCAP.FORBIDDEN.finditer(short)} | {m.group(0) for m in JSH.ID_PATTERN.finditer(short)} | set(re.findall(r"\bstored\b", short)))
+            first_sentence = short[len(fid) + 2:].split(". ")[0]
+            miss_main = [m for m in SHORT_MAIN[fid] if m not in first_sentence]
+            miss_chk = [CHECK_TOKEN[k] for k in SHORT_CHECKS[fid] if CHECK_TOKEN[k] not in short]
+            ptr_ok = short.endswith(JSH.POINTER.format(fid=fid))
+            red_ok = "red title" in short.lower()
+            enot = re.findall(r"(?<![\w.+-])(?:1e3|3e3|1e4|3e4)\b", short + " " + cap)
+            n_words = JSH.words(short)
+            okshort = (n_words <= limit and not sbad and not miss_main and not miss_chk and ptr_ok and red_ok and not enot and short.startswith(f"{fid}. ") and "\n" not in short)
+            res["short caption"] = ("PASS" if okshort else "FAIL", f"{n_words} words (limit {limit}); " + (f"forbidden {sbad[:3]}; " if sbad else "") + (f"main failure missing {miss_main}; " if miss_main else "")
+                                    + (f"failed checks missing {miss_chk[:3]}; " if miss_chk else "") + ("" if ptr_ok else "pointer sentence missing; ") + ("" if red_ok else "red-title sentence missing; ")
+                                    + (f"e-notation of N in a caption {enot[:2]}; " if enot else "") + "order, plain words and the pointer to the supplement checked")
+            # short limits: the clauses of the figure (a distinctive phrase each), with numbers that are in the full caption
+            lim_miss = JSH.limits_missing(fid, short)
+            res["short limits"] = ("PASS" if not lim_miss else "FAIL", f"{len(JSH.SHORT_LIMIT_IDS[fid]) - len(lim_miss)} of {len(JSH.SHORT_LIMIT_IDS[fid])} limit clauses in the short caption" + (f"; missing {lim_miss}" if lim_miss else ""))
+            # V5: every technical term defined where first used; V7: the count of the other failed checks equals the full caption's; V8: numbers of the short caption are in the full caption
+            und = JSH.undefined_terms(short)
+            res["definitions"] = ("PASS" if not und else "FAIL", f"{len(JSH.DEFS)} terms checked; first use of each term used has its plain definition next to it" + (f"; undefined: {und[:4]}" if und else ""))
+            n_full = JSH.further_count(fid, cap)
+            m_ = re.search(r"(\d+) further failed checks? of the project|No other failed check is about this figure", short)          # DL-604 W4(e): the F3 wording
+            n_short = (int(m_.group(1)) if m_ and m_.group(1) else 0) if m_ else None
+            res["failed count"] = ("PASS" if n_short == n_full else "FAIL", f"{n_short} further failed checks in the short caption; {n_full} computed from the full caption (failed rows named in the full caption {len(JSH.failed_in_full(cap))}, named in the short {len(JSH.SHORT_NAMED[fid])})")
+            nn = JSH.numbers_not_in_full(short, cap)
+            res["short numbers"] = ("PASS" if not nn else "FAIL", "every number of the short caption is in the full caption" if not nn else f"numbers not in the full caption: {nn[:5]}")
+            # DL-603 W2: the one 'Parameters:' sentence takes its numbers from the Parameters and settings paragraphs of the full caption; F3 says that no classifier or spectrogram is used
+            pm = JSH.parameters_numbers_missing(short, cap)
+            f3_ok = fid != "F3" or ("no classifier" in JSH.parameters_sentence(short) and "is used" in JSH.parameters_sentence(short))
+            res["short parameters"] = ("PASS" if not pm and f3_ok else "FAIL", "every number of the short Parameters sentence is in the Parameters or settings paragraph of the full caption" if not pm and f3_ok
+                                       else f"numbers not in the full caption's Parameters or settings paragraphs: {pm[:5]}" + ("" if f3_ok else "; F3 must say that no classifier or spectrogram is used"))
         # DL-604 W4(e): the F3 short caption points to the supplement for the project's other failed checks, so the F3 supplement must hold every FAIL row of the stored A11 table
         with open(root / "results" / "A11" / "a11_robustness.csv", newline="", encoding="utf-8") as fh_:
             a11_rows = list(csv.DictReader(fh_))

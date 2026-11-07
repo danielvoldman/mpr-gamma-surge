@@ -6113,7 +6113,7 @@ def f5c_strip_lines(d: dict) -> list[str]:
 
 def strip_rows_of(fid: str, d: dict) -> list:
     """The stored status rows listed in the journal caption of a journal file."""
-    if fid == "FS1":
+    if fid in ("FS1", "FS2"):
         return []                                   # no stored A11 row touches FS1 (FS1_STRIP_RB is empty); the drawn data hold no 'strip' entry (13t-4)
     return f5c_strip_rows(d) if fid == "F5c" else list(d["strip"])
 
