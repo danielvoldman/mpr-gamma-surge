@@ -36,6 +36,7 @@ def draw(d: dict, FG):
     cyc, hp = S.diagram_mark("a5_cycle"), S.diagram_mark("hopf_point")
     mf, n1, n5 = S.diagram_mark("s3_mf"), S.diagram_mark("s3_net_1e4"), S.diagram_mark("s3_net_5e4")
     paper, tol = S.diagram_mark("k7_paper"), S.diagram_mark("tol_band")
+    fig.get_layout_engine().set(w_pad=0.14, h_pad=0.14)
     gs = fig.add_gridspec(4, 6, height_ratios=[1.35, 0.95, 1.25, 1.25])
     lw_fit = 1.6
     # (a)
@@ -60,7 +61,7 @@ def draw(d: dict, FG):
              label=f"Fit, window {w[0]:g} to {w[1]:g} ms above the Hopf point:\nresidual {100 * d['fit_s4_up_max_resid_frac']:.2f} percent, {100 * d['fit_rel_tol']:g} allowed")
     pw = d["fit_posthoc_window_ms"]
     xp = np.array([h + pw[0], h + pw[1]])
-    axb.plot(xp, d["fit_posthoc_near_hopf_slope"] * (xp - h) + d["fit_posthoc_near_hopf_intercept"], color=tol.colour, lw=lw_fit, ls="-", zorder=4,
+    axb.plot(xp, d["fit_posthoc_near_hopf_slope"] * (xp - h) + d["fit_posthoc_near_hopf_intercept"], color=tol.colour, lw=lw_fit, ls="--", zorder=4,
              label=f"Exploratory fit (window chosen after the results),\n{pw[0]:g} to {pw[1]:g} ms: residual {100 * d['fit_posthoc_near_hopf_max_resid_frac']:.2f} percent")
     axb.axvline(h, color=hp.colour, ls=hp.linestyle, lw=hp.width, zorder=1)
     axb.set_xlim(h - 0.1, 6.0)
@@ -74,7 +75,7 @@ def draw(d: dict, FG):
     axl = fig.add_subplot(sub[0, :])
     axl.axis("off")
     axl.set_gid("legend axes")
-    axl.legend([Line2D([], [], color=m.colour, lw=m.width, ls=m.linestyle) for m in (mf, n1, n5)],
+    axl.legend([Line2D([], [], color=m.colour, lw=m.width, ls=("--" if m is n5 else m.linestyle)) for m in (mf, n1, n5)],
                ["Mean field", "Network, N = 10,000 (all panels)", "Network, N = 50,000 (point 2, 5 ms only)"], loc="center", ncol=3, frameon=False)
     specs = [("Point 1,\n3 ms", [("mf_ceni_3.0", "s3_mf"), ("net_ceni_3ms", "s3_net_1e4")]), ("Point 1,\n4.95 ms", [("mf_ceni_4.95", "s3_mf"), ("net_ceni_4.95ms", "s3_net_1e4")]),
              ("Point 1,\n8 ms", [("mf_ceni_8.0", "s3_mf"), ("net_ceni_8ms", "s3_net_1e4")]),
@@ -84,7 +85,7 @@ def draw(d: dict, FG):
         axt = fig.add_subplot(sub[1, i])
         for key, mark in series:
             st = S.diagram_mark(mark)
-            axt.plot(d[f"tr_{key}_t"], d[f"tr_{key}_r"], color=st.colour, lw=st.width, ls=st.linestyle, zorder=3 if mark == "s3_mf" else 2)
+            axt.plot(d[f"tr_{key}_t"], d[f"tr_{key}_r"], color=st.colour, lw=st.width, ls=("--" if mark == "s3_net_5e4" else st.linestyle), zorder=3 if mark == "s3_mf" else 2)
         FG._journal_title(axt, "cdefg"[i], title)
         axt.set_xlabel("Time (ms)")
         axt.set_xticks([9600.0, 10000.0])
@@ -114,8 +115,8 @@ def draw(d: dict, FG):
     axe.set_xticks(d["k9_eta_bar"])
     axe.set_ylim(FG.FS2_K9[0] - 3 * FG.FS2_K9[1], FG.FS2_K9[0] + 3 * FG.FS2_K9[1])
     axe.set_xlim(0.5, 4.5)
-    axe.set_xlabel("eta_bar (mean excitability)")
-    axe.set_ylabel("Delta/eta_bar")
+    axe.set_xlabel(FG.JETA + " (mean excitability)")
+    axe.set_ylabel("Delta/" + FG.JETA)
     FG._journal_title(axe, "i", "Heterogeneity ratio")
     axe.legend(loc="lower right", frameon=True, framealpha=0.95)
     # (j)
@@ -136,7 +137,7 @@ def draw(d: dict, FG):
     # (k)
     axf = fig.add_subplot(gs[3, 0:3])
     k10 = S.diagram_mark("k10_curve")
-    axf.plot(d["k10_tau_d"], d["k10_freq"], color=k10.colour, lw=k10.width, label=f"Linear frequency (eta_bar 1, J {MINUS}20)", zorder=3)
+    axf.plot(d["k10_tau_d"], d["k10_freq"], color=k10.colour, lw=k10.width, label=f"Linear frequency ({FG.JETA} 1, J {MINUS}20)", zorder=3)
     lo, hi = d["k10_band_hz"]
     sl = d["k10_band_slack"]
     for yv, lab in ((lo * (1 - sl), f"Target band, plus or minus {100 * sl:g} percent"), (hi * (1 + sl), None)):
@@ -182,11 +183,11 @@ def caption(d: dict, rows: list, *, ids, c: dict, FG) -> str:
     r2, resid, tolr = d["fit_s4_up_r2"], 100 * d["fit_s4_up_max_resid_frac"], 100 * d["fit_rel_tol"]
     ch = [100 * d[f"k10_rel_change_{t}"] for t in ("8.0", "20.0", "40.0")]
     lim = 100 * d["k10_j_limit"]
-    take = (f"The mean-field model M3 does not reproduce the published Hopf point: it is at tau_d {d['hopf_a4_ms']:.2f} ms, not {FG.FS2_K7_PAPER_MS:g} ms (a recorded departure), and the straight-line fit of the squared "
-            f"amplitude of v against tau_d leaves a residual of {resid:.2f} percent against {tolr:g} percent allowed (a failed check); it also does not reproduce the published dependence of the frequency on J as worded "
+    take = (f"The mean field of model M3 (the model's equations for the average activity of the population) does not reproduce the published Hopf point (where the resting state starts to oscillate): it is at the synaptic decay time tau_d {d['hopf_a4_ms']:.2f} ms, not {FG.FS2_K7_PAPER_MS:g} ms (a recorded departure), and the straight-line fit of the squared "
+            f"amplitude of v against tau_d leaves a residual of {resid:.2f} percent against {tolr:g} percent allowed (a failed check); it also does not reproduce the published dependence of the oscillation frequency on the coupling J as worded "
             f"(the frequency changes by {ch[0]:.1f}, {ch[1]:.1f} and {ch[2]:.1f} percent at tau_d 8, 20 and 40 ms against a limit of {lim:.0f} percent; the source is a single one and our reading is not verified). "
-            f"It reproduces the existence checks (a limit cycle at tau_d 5 ms and a fixed point at 50 ms; the peak frequency of the network with N = 50,000 neurons is within {100 * abs(d['k8_net_rel_diff']):.2f} percent of the mean field, "
-            f"tolerance 5 percent), the largest ratio of Delta to eta_bar on the Hopf curve ({d['k9_ratio'].max():.5f} at eta_bar 1, 2 and 4) and the ratio of the oscillation frequency to the linearised one "
+            f"It reproduces the existence checks (a limit cycle at tau_d 5 ms and a fixed point at 50 ms; the oscillation frequency of the network (a simulated network of N spiking neurons; N = 50,000 here) is within {100 * abs(d['k8_net_rel_diff']):.2f} percent of the mean field, "
+            f"tolerance 5 percent), the largest ratio of the heterogeneity Delta to the mean excitability eta_bar on the Hopf curve ({d['k9_ratio'].max():.5f} at eta_bar 1, 2 and 4) and the ratio of the oscillation frequency to the linearised one "
             f"(largest deviation from 1: {d['k11_max_dev']:.5f}).")
     panels = " ".join([
         f"(a) The amplitude of v (maximum minus minimum) of the stable cycle against tau_d ({n(min(d['a5c_up_tau_d'].min(), d['a5c_down_tau_d'].min()))} to {n(max(d['a5c_up_tau_d'].max(), d['a5c_down_tau_d'].max()))} ms, "
@@ -196,7 +197,7 @@ def caption(d: dict, rows: list, *, ids, c: dict, FG) -> str:
         f"(residual {100 * d['fit_posthoc_near_hopf_max_resid_frac']:.2f} percent); the title is red because the residual of the pre-set fit is above the allowance.",
         "(c) to (g) The firing rate r of the mean-field and network runs over the last 400 ms of each 10 s run at validation point 1 with tau_d 3, 4.95 and 8 ms and at validation point 2 with tau_d 5 and 50 ms; "
         "the network has N = 10,000 neurons in every panel and N = 50,000 as a third line at point 2 with 5 ms; each network run is a single run.",
-        "(h) The difference between network and mean field, relative to the mean field, in percent, for the peak frequency, the mean of r and the fitted amplitude of r; the cells at 3 ms and 50 ms have no "
+        "(h) The difference between network and mean field, relative to the mean field, in percent, for the oscillation frequency, the mean of r and the fitted amplitude of r; the cells at 3 ms and 50 ms have no "
         "mean-field oscillation, so their differences are undefined and not drawn; only the frequency has a tolerance (5 percent).",
         f"(i) The largest ratio of Delta to eta_bar on the Hopf curve at eta_bar 1, 2 and 4 (all {d['k9_ratio'].max():.5f} within {d['k9_ratio'].max() - d['k9_ratio'].min():.1e}), against the target band {FG.FS2_K9[0]:g} plus or minus {FG.FS2_K9[1]:g}.",
         f"(j) The ratio of the imaginary part of the linearised eigenvalue to 2 pi times the rate at the fixed point, for 20 Hopf points at Delta 0.0001, against the target band 1 plus or minus {FG.FS2_K11:g}; the largest deviation is "
@@ -204,7 +205,7 @@ def caption(d: dict, rows: list, *, ids, c: dict, FG) -> str:
         f"(k) The linearised frequency against tau_d ({n(d['k10_tau_d'].min())} to {n(d['k10_tau_d'].max())} ms) at eta_bar 1 and J {MINUS}20, against the target band {d['k10_band_hz'][0]:g} to {d['k10_band_hz'][1]:g} Hz widened by {100 * d['k10_band_slack']:g} percent.",
         f"(l) The linearised frequency against J ({n(d['k10_J_8.0'].min())} to {n(d['k10_J_8.0'].max())}) at tau_d 8, 20 and 40 ms, with the relative change over the J range ({ch[0]:.1f}, {ch[1]:.1f} and {ch[2]:.1f} percent against a limit of {lim:.0f} percent); the title is red because the dependence is not reproduced as worded; the linearised frequency is not the frequency of the cycle.",
     ])
-    settings = "No classifier or spectrogram is used in this figure."
+    settings = ("The classifier (a rule fixed before the analysis that sorts runs into classes) and the spectrogram (power against time and frequency) are not used in this figure.")
     params = (f"Recorded values (the complete list with the stored key names is in the supplement): model {c['type']} with membrane time constant {n(c['tau'])} ms; validation point 1: eta_bar {n(c['p1'][0])}, J {n(c['p1'][1]).replace('-', MINUS)}, "
               f"Delta {n(c['p1'][2])}, tau_d 3, 4.95 and 8 ms; validation point 2: eta_bar {n(c['p2'][0])}, J {n(c['p2'][1]).replace('-', MINUS)}, Delta {n(c['p2'][2])}, tau_d 5 and 50 ms; the cycle branch runs over tau_d "
               f"{n(min(d['a5c_up_tau_d'].min(), d['a5c_down_tau_d'].min()))} to {n(max(d['a5c_up_tau_d'].max(), d['a5c_down_tau_d'].max()))} ms; the traces are the last 400 ms of runs of {n(c['hold'])} s; "
