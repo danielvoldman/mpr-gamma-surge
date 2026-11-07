@@ -531,6 +531,13 @@ JOURNAL_ALLOW = {
                    "identical (48.048, 49, 49, 49.5 Hz) and in (d) the recorded onsets of P4b, P2 and P3 are within the width of the marks; they are told apart by the ruled concentric marks (fill and size per row) and "
                    "each point carries its small class mark (2.6 pt, ruled) on itself; no value is moved, jittered or shrunk, and the key and the caption name the coincident rows")
         for kind in ("marker-marker", "marker-line") for pl in ("d", "e")),
+    "FS1": (
+        AllowEntry("marker-line", "a", r"marks:(cusp|test point) mark", r"line:fold formula",
+                   "stored positions: the cusp is the point where the two recorded fold branches (formula) meet, and the test point (-5, 15) lies within the width of its mark of the lower fold branch; both keep their stored positions"),
+        AllowEntry("marker-cell", "*", r"marks:(cusp|test point) mark", r"cell of the mesh",
+                   "ruled mark sizes (DL-637, style.py: the cusp and test-point marks are 9 pt): a grid cell of the 241 by 201 map is about 0.01 in wide, so the ruled marks are larger than a cell by design; a mark of the size of a cell would be "
+                   "invisible; each mark stands at its stored position"),
+    ),
     "F5c": tuple(
         AllowEntry("marker-line", pl, r"marks:(seed|control) N\d s\d", r"mean-field companion reference|stored minimum duration",
                    "stored value on the line (DL-571 T10): the line is the stored mean-field companion value (f_pk 49 Hz, onset 33.698 s) or the stored minimum duration (1000 ms, the classifier floor), "
