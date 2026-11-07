@@ -64,6 +64,14 @@ def height_limit(cfg: dict, fid: str | None = None) -> float:
     return float(fs[fid]) if fid in fs else float(cfg["page"]["main_max_height_in"])
 
 
+def width_limit(cfg: dict, fid: str | None = None) -> float:
+    """Width of a supplementary figure: its own width (DL-651 H1: FS2 to FS5 keep the draft's 7.4 in), else the FS profile width, else the main page width."""
+    fs = cfg.get("fs_profile", {})
+    if fid in fs.get("width_in_by_fig", {}):
+        return float(fs["width_in_by_fig"][fid])
+    return float(fs["width_in"]) if fid in fs.get("max_height_in", {}) else float(cfg["page"]["main_width_in"])
+
+
 def page_size(cfg: dict, height_in: float, width: str = "main", fid: str | None = None) -> tuple[float, float]:
     """(width, height) in inches; the height is checked against the maximum of the setting. width: "main" (6.3 x 8.0 in, DL-554 R1), "double" (7.5 x 8.75 in, the second setting for
     other journals) or "single" (84 mm)."""
@@ -71,7 +79,7 @@ def page_size(cfg: dict, height_in: float, width: str = "main", fid: str | None 
     w, hmax = {"main": (pg["main_width_in"], pg["main_max_height_in"]), "double": (pg["double_column_width_in"], pg["double_column_max_height_in"]),
                "single": (pg["single_column_width_mm"] / 25.4, pg["double_column_max_height_in"])}[width]
     if fid is not None and fid in cfg.get("fs_profile", {}).get("max_height_in", {}):
-        w, hmax = float(cfg["fs_profile"]["width_in"]), height_limit(cfg, fid)
+        w, hmax = width_limit(cfg, fid), height_limit(cfg, fid)
     if height_in > hmax + 1e-9:
         raise JournalError(f"figure height {height_in} in is above the page maximum {hmax} in")
     return float(w), float(height_in)

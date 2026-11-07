@@ -10,7 +10,8 @@ page:
   single_column_width_mm: 84           # UNVERIFIED: the sources disagree whether 84 or 174 mm is the single column; a third setting, not used by the pilot
 fs_profile:                            # DL-636 E5 (UNVERIFIED): supplementary figures FS1 to FS3 (13t-4): width as the main figures, a taller page, same text, margin and collision rules
   width_in: 6.3                        # UNVERIFIED: as the main figures
-  max_height_in: {FS1: 9.5, FS2: 9.5, FS3: 9.5}   # UNVERIFIED: the supplement is a PDF or Zenodo file and no inline page limit was read; a figure that does not fit at 8 pt without touching is stopped and a split proposed (never smaller text)
+  width_in_by_fig: {FS2: 7.4, FS3: 7.4, FS4: 7.4, FS5: 7.4}   # UNVERIFIED (DL-651 H1): FS2 to FS5 keep the width of their draft; FS1 keeps width_in
+  max_height_in: {FS1: 9.5, FS2: 14.4, FS3: 14.4, FS4: 14.4, FS5: 14.4}   # FS1 as built (DL-640); FS2 to FS5 UNVERIFIED limit 14.4 in (DL-651 H1)   # UNVERIFIED: the supplement is a PDF or Zenodo file and no inline page limit was read; a figure that does not fit at 8 pt without touching is stopped and a split proposed (never smaller text)
 text:
   min_pt: 8                            # UNVERIFIED: all text at least 8 pt at the FINAL physical size (replaces the draft tick-label rule for the export only)
   title_pt: 8                          # panel titles; not below min_pt
@@ -40,14 +41,14 @@ collision:
   pad_pt: 0.5                          # two objects closer than this count as touching (UNVERIFIED)
 caption:
   short_max_words: 600                 # UNVERIFIED (DL-615 A6; DL-593 V8 had 330, DL-582 U3 a had 220): the most words of the SHORT caption of a figure (the one for the manuscript); the full caption goes to the supplement
-  short_max_words_F1: 600              # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 400, DL-582 U3 a had 280): F1 has eleven panels and a schematic; room for the claim limits and the Parameters sentence (W2)
-  short_max_words_F2: 600              # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6): F2 (13t-2)
-  short_max_words_F3: 600              # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 330)
-  short_max_words_F5: 600              # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 330)
-  short_max_words_F5c: 600             # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 330)
+  short_max_words_F1: 650              # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 400, DL-582 U3 a had 280): F1 has eleven panels and a schematic; room for the claim limits and the Parameters sentence (W2)
+  short_max_words_F2: 650              # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6): F2 (13t-2)
+  short_max_words_F3: 650              # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 330)
+  short_max_words_F5: 650              # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 330)
+  short_max_words_F5c: 650             # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 330)
   short_max_words_FS1: 600             # UNVERIFIED (DL-637; as DL-628 C6)
   short_max_words_FS2: 600             # UNVERIFIED (DL-637)
   short_max_words_FS3: 600             # UNVERIFIED (DL-637)
-  short_max_words_F6: 600              # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6): F6 (13t-2)
+  short_max_words_F6: 650              # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6): F6 (13t-2)
 files:
   name_pattern: "^[A-Za-z0-9_+=,.-]+$"   # a-z A-Z 0-9 underscore plus minus dot comma equals; no spaces

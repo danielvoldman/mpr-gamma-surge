@@ -15,6 +15,7 @@ import csv
 import hashlib
 import json
 import re
+import sys
 import time
 from pathlib import Path
 
@@ -824,12 +825,12 @@ def _strip_rows_for_supplement(d: dict, raw_a11: list, note_map: dict | None = N
 
 def _journal_tail(fig_id: str, out: Path, stem: str, saved: dict, cap, drawn: str, d: dict, raw: dict, prov_kw: dict, warnings: list, *, strip: list, footer: str, timing_t: dict,
                   source_rows: list, alt: dict, pointers, cfg: dict, note_map: dict | None = None, status_text: str = "", zip_note: bool = False, plain_md: str = "",
-                  prov_id: str | None = None, extra_sections: tuple = (), strip_rows: list | None = None) -> dict:
+                  prov_id: str | None = None, extra_sections: tuple = (), strip_rows: list | None = None, single_caption: bool = False) -> dict:
     """The journal-mode end of make_<ID> (13t): provenance (the same writer, file name <ID>_journal_provenance.json, with the journal settings), the supplement sheet, the source-data
     table and the alt text. The caption and the digest file were written before. Returns the same dict as the draft mode."""
     root = prov_kw["root"]
     pid = prov_id or fig_id                                  # F5c is written with the provenance figure id of the plan's F5 (figprov.FIGURES is not changed)
-    out_files = [*saved["paths"].values(), out / f"{stem}_caption.txt", out / f"{stem}_caption_full.txt", out / f"{stem}_drawn_data_sha256.txt"]
+    out_files = [*saved["paths"].values(), out / f"{stem}_caption.txt", *([] if single_caption else [out / f"{stem}_caption_full.txt"]), out / f"{stem}_drawn_data_sha256.txt"]
     fam, fallback = J.font_choice(cfg)
     keys = journal_keys(fig_id, d)
     dig = array_digests(d)
@@ -854,7 +855,7 @@ def _journal_tail(fig_id: str, out: Path, stem: str, saved: dict, cap, drawn: st
     extra = (("Status block of the draft figure (moved off the image)", status_text),) if status_text else ()
     if plain_md:                                     # DL-563 S4: each plain sentence of the journal caption paired with the ruled text, its DL numbers and codes
         extra += (("Plain-language claim limits of the journal caption and the ruled text (DL-563 S4)", plain_md),)
-    extra += (("Full caption (the long caption of the figure; the short caption for the manuscript is " + f"{stem}_caption.txt, DL-582 U3)", cap.text),
+    extra += ((("Caption (the one caption of this stand-alone supplement figure, " + f"{stem}_caption.txt, DL-651 H2)") if single_caption else ("Full caption (the long caption of the figure; the short caption for the manuscript is " + f"{stem}_caption.txt, DL-582 U3)"), cap.text),
               ("Plain titles and words on the image and the check or step IDs behind them (DL-581 U2)", JCAP.mapping_markdown(fig_id)))
     extra += tuple(extra_sections)                   # DL-571 T1, T2, T8: the mapping of draft panels, the stored FAIL rows named in the caption, the stored key names behind the plain words
     if zip_note:
@@ -939,6 +940,10 @@ def journal_figure(fig_id: str, res=None, root=None, close: bool = True):
         elif fig_id == "FS1":
             d = prepare_FS1(load_FS1(res))
             fig = _draw_FS1_journal(d)
+        elif fig_id == "FS2":
+            from . import jfs2
+            d = prepare_FS2(load_FS2(res))
+            fig = jfs2.draw(d, sys.modules[__name__])
         elif fig_id in ("F5", "F5c"):
             d = prepare_F5(load_F5(res))
             fig = _draw_F5(d, draft=False, mode="journal" if fig_id == "F5" else "journal_c")
@@ -2605,9 +2610,12 @@ def fs2_caption_notes(d: dict) -> tuple:
 
 
 def make_FS2(res=None, out_dir=None, *, tag_build: bool = False, take_home=FS2_TAKE_HOME, claim_limit_ids=FS2_CLAIM_LIMITS,
-             script="scripts/fig_FS2.py", root=None) -> dict:
-    """Build FS2 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov)."""
+             script="scripts/fig_FS2.py", root=None, mode: str = "draft") -> dict:
+    """Build FS2 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov). mode="journal": the stand-alone supplement file (13t-6, DL-651)."""
     F.require_buildable("FS2")
+    if mode == "journal":
+        from . import jfs2
+        return jfs2.build(sys.modules[__name__], res, out_dir, root, script, claim_limit_ids, tag_build)
     root = Path(root) if root is not None else repo_root()
     res = Path(res) if res is not None else root / "results"
     out = Path(out_dir) if out_dir is not None else root / "figures" / "FS2"

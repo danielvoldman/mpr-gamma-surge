@@ -279,6 +279,8 @@ TITLE_MAP = {
            ("(c)", "90 percent agreement rule: FAILED", "D24", "the rule that at least 90% of the cells of the noisy subgrid agree with the noise-free class")),
     "F5c": (("(b)", "step-halving check: FAIL", "RB6", "numerical convergence, the network f_pk when the step is halved"),),
     "F2": (("(c)", "Network vs mean field: FAIL", "RB1", "network against mean field: the same class is required at the main example for ramp durations of 10 s and 120 s, at the 4 map cells and overall"),),     # DL-628 C1 (DL-616 had no red title on F2)
+    "FS2": (("(b)", "Amplitude squared: FAIL", "K7 amplitude residual", "the straight-line fit of the squared amplitude of the cycle against tau_d over the pre-set window must leave a residual of at most 2 percent"),
+            ("(l)", "Frequency against J: FAIL", "K10 J dependence", "the frequency of the linearised model must change by at most 10 percent over the J range at tau_d 8, 20 and 40 ms (single source, UNVERIFIED)")),
     "FS1": (),                                                                       # 13t-4: no red title and no failed row (DL-637)
     "F6": (("(c)", "Negative-control check: FAIL", "G7", "the negative-control gate: the network run of the first negative control must not be in a surge class"),),
 }
