@@ -19,7 +19,7 @@ FS2_ID = "FS2"
 FS2J_HEIGHT = 11.2
 UNDEFINED_UNVERIFIED = ("validation points 1 and 2 (defined here from the parameter table of the plan; the names ref_ceni and ref_devalle are internal)",
                         "'REPORTED FAILURE' of the straight-line fit is written as 'failed check' (ruled draft wording kept in the supplement)",
-                        "the single-source status of the frequency-against-J check (ruled draft wording: single source, UNVERIFIED)")
+                        "the single-source status of the frequency-against-J check (ruled draft wording: single source, not verified)")
 CELL_NAMES = {"ceni_3ms": "Point 1, 3 ms", "ceni_4.95ms": "Point 1, 4.95 ms", "ceni_8ms": "Point 1, 8 ms", "devalle_5ms": "Point 2, 5 ms", "devalle_50ms": "Point 2, 50 ms",
               "k8_5e4_5ms": "Point 2, 5 ms, N 50,000"}
 MINUS = "−"
@@ -182,7 +182,7 @@ def caption(d: dict, rows: list, *, ids, c: dict, FG) -> str:
     lim = 100 * d["k10_j_limit"]
     take = (f"The mean-field model M3 does not reproduce the published Hopf point: it is at tau_d {d['hopf_a4_ms']:.2f} ms, not {FG.FS2_K7_PAPER_MS:g} ms (a recorded departure), and the straight-line fit of the squared "
             f"amplitude of v against tau_d leaves a residual of {resid:.2f} percent against {tolr:g} percent allowed (a failed check); it also does not reproduce the published dependence of the frequency on J as worded "
-            f"(the frequency changes by {ch[0]:.1f}, {ch[1]:.1f} and {ch[2]:.1f} percent at tau_d 8, 20 and 40 ms against a limit of {lim:.0f} percent; the source is a single one and the reading is UNVERIFIED). "
+            f"(the frequency changes by {ch[0]:.1f}, {ch[1]:.1f} and {ch[2]:.1f} percent at tau_d 8, 20 and 40 ms against a limit of {lim:.0f} percent; the source is a single one and our reading is not verified). "
             f"It reproduces the existence checks (a limit cycle at tau_d 5 ms and a fixed point at 50 ms; the peak frequency of the network with N = 50,000 neurons is within {100 * abs(d['k8_net_rel_diff']):.2f} percent of the mean field, "
             f"tolerance 5 percent), the largest ratio of Delta to eta_bar on the Hopf curve ({d['k9_ratio'].max():.5f} at eta_bar 1, 2 and 4) and the ratio of the oscillation frequency to the linearised one "
             f"(largest deviation from 1: {d['k11_max_dev']:.5f}).")
@@ -209,7 +209,7 @@ def caption(d: dict, rows: list, *, ids, c: dict, FG) -> str:
               f"networks of N = {n(c['N'])} neurons, and {n(c['N5'])} for the extra run; eta_bar {', '.join(n(x) for x in sorted(set(d['k9_eta_bar'].tolist())))} for (i); J {', '.join(n(x).replace('-', MINUS) for x in d['k10_J_8.0'])} for (l).")
     failed = (f"Two failed or not reproduced results concern this figure and both are drawn. (1) The test of the straight-line fit of the squared amplitude of the cycle against tau_d over the pre-set window: the residual must not exceed {tolr:g} percent; it is {resid:.2f} percent "
               f"(title of (b), red, as 'Amplitude squared: FAIL'). (2) The test of the dependence of the frequency on J: the frequency must change by at most {lim:.0f} percent over the J range; it changes by {ch[0]:.1f}, {ch[1]:.1f} and {ch[2]:.1f} percent "
-              f"(title of (l), red, as 'Frequency against J: FAIL'; single source, UNVERIFIED). The Hopf point at {d['hopf_a4_ms']:.2f} ms against the published {FG.FS2_K7_PAPER_MS:g} ms is a recorded departure, drawn in (a). "
+              f"(title of (l), red, as 'Frequency against J: FAIL'; single source, not verified). The Hopf point at {d['hopf_a4_ms']:.2f} ms against the published {FG.FS2_K7_PAPER_MS:g} ms is a recorded departure, drawn in (a). "
               "No row of the project's table of failed checks concerns this figure (our reading of where the checks apply; not verified); the version of the step test on a network is not part of this figure.")
     limits = JC.limits_paragraph(ids)
     rest = " ".join([take, panels, settings, params, failed, limits])
