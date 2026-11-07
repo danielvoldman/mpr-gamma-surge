@@ -41,10 +41,10 @@ def draw(d: dict, FG):
     # (a)
     ax = fig.add_subplot(gs[0, 0:3])
     for name in ("up", "down"):
-        ax.plot(d[f"a5c_{name}_tau_d"], d[f"a5c_{name}_amp"], color=cyc.colour, lw=cyc.width, zorder=3, label="Stable cycle, amplitude of v" if name == "up" else None)
-    ax.axvline(d["hopf_a4_ms"], color=hp.colour, ls=hp.linestyle, lw=hp.width, label=f"Hopf point: {d['hopf_a4_ms']:.4f} ms", zorder=1)
-    ax.axvline(FG.FS2_K7_PAPER_MS, color=paper.colour, ls=paper.linestyle, lw=paper.width, label=f"Published value {FG.FS2_K7_PAPER_MS:g} ms (not reproduced)", zorder=1)
-    ax.plot(d["k7_tau"], d["k7_mf_vptp"], ls="none", marker=mf.marker, ms=mf.size, color=mf.colour, zorder=5, label="Mean field, amplitude of v (3, 4.95, 8 ms)")
+        ax.plot(d[f"a5c_{name}_tau_d"], d[f"a5c_{name}_amp"], color=cyc.colour, lw=cyc.width, zorder=3, label="Stable cycle" if name == "up" else None)
+    ax.axvline(d["hopf_a4_ms"], color=hp.colour, ls=hp.linestyle, lw=hp.width, label=f"Hopf point {d['hopf_a4_ms']:.4f} ms", zorder=1)
+    ax.axvline(FG.FS2_K7_PAPER_MS, color=paper.colour, ls=paper.linestyle, lw=paper.width, label=f"Published {FG.FS2_K7_PAPER_MS:g} ms (not reproduced)", zorder=1)
+    ax.plot(d["k7_tau"], d["k7_mf_vptp"], ls="none", marker=mf.marker, ms=mf.size, color=mf.colour, zorder=5, label="Mean field (3, 4.95, 8 ms)")
     ax.set_xlabel("tau_d (ms)")
     ax.set_ylabel("Amplitude of v (max minus min)")
     ax.set_xlim(2.5, 10.5)
@@ -64,7 +64,7 @@ def draw(d: dict, FG):
              label=f"Exploratory fit (window chosen after the results),\n{pw[0]:g} to {pw[1]:g} ms: residual {100 * d['fit_posthoc_near_hopf_max_resid_frac']:.2f} percent")
     axb.axvline(h, color=hp.colour, ls=hp.linestyle, lw=hp.width, zorder=1)
     axb.set_xlim(h - 0.1, 6.0)
-    axb.set_ylim(0.0, 11.0)
+    axb.set_ylim(0.0, 14.0)
     axb.set_xlabel("tau_d (ms); axis cut at 6 ms, the cycle runs to 10 ms")
     axb.set_ylabel("Amplitude of v, squared")
     FG._journal_title(axb, "b", "Amplitude squared: FAIL", fail=True)
@@ -76,10 +76,15 @@ def draw(d: dict, FG):
     axl.set_gid("legend axes")
     axl.legend([Line2D([], [], color=m.colour, lw=m.width, ls=m.linestyle) for m in (mf, n1, n5)],
                ["Mean field", "Network, N = 10,000 (all panels)", "Network, N = 50,000 (point 2, 5 ms only)"], loc="center", ncol=3, frameon=False)
-    specs = [("Point 1, 3 ms", [("mf_ceni_3.0", "s3_mf"), ("net_ceni_3ms", "s3_net_1e4")]), ("Point 1, 4.95 ms", [("mf_ceni_4.95", "s3_mf"), ("net_ceni_4.95ms", "s3_net_1e4")]),
-             ("Point 1, 8 ms", [("mf_ceni_8.0", "s3_mf"), ("net_ceni_8ms", "s3_net_1e4")]),
-             ("Point 2, 5 ms", [("mf_devalle_5.0", "s3_mf"), ("net_devalle_5ms", "s3_net_1e4"), ("net_k8_5e4_5ms", "s3_net_5e4")]),
-             ("Point 2, 50 ms", [("mf_devalle_50.0", "s3_mf"), ("net_devalle_50ms", "s3_net_1e4")])]
+    specs = [("Point 1,
+3 ms", [("mf_ceni_3.0", "s3_mf"), ("net_ceni_3ms", "s3_net_1e4")]), ("Point 1,
+4.95 ms", [("mf_ceni_4.95", "s3_mf"), ("net_ceni_4.95ms", "s3_net_1e4")]),
+             ("Point 1,
+8 ms", [("mf_ceni_8.0", "s3_mf"), ("net_ceni_8ms", "s3_net_1e4")]),
+             ("Point 2,
+5 ms", [("mf_devalle_5.0", "s3_mf"), ("net_devalle_5ms", "s3_net_1e4"), ("net_k8_5e4_5ms", "s3_net_5e4")]),
+             ("Point 2,
+50 ms", [("mf_devalle_50.0", "s3_mf"), ("net_devalle_50ms", "s3_net_1e4")])]
     for i, (title, series) in enumerate(specs):
         axt = fig.add_subplot(sub[1, i])
         for key, mark in series:
@@ -87,6 +92,8 @@ def draw(d: dict, FG):
             axt.plot(d[f"tr_{key}_t"], d[f"tr_{key}_r"], color=st.colour, lw=st.width, ls=st.linestyle, zorder=3 if mark == "s3_mf" else 2)
         FG._journal_title(axt, "cdefg"[i], title)
         axt.set_xlabel("Time (ms)")
+        axt.set_xticks([9600.0, 10000.0])
+        axt.set_xticklabels(["9,600", "10,000"])
         if i == 0:
             axt.set_ylabel("r, last 400 ms")
     # (h)
@@ -95,20 +102,20 @@ def draw(d: dict, FG):
     xs = np.arange(len(names), dtype=float)
     for q, glyph, lab in (("f_rel_diff", "d_freq", "Peak frequency"), ("r_mean_rel_diff", "d_mean", "Mean of r"), ("r_fit_ptp_rel_diff", "d_ptp", "Fitted amplitude of r")):
         axd.plot(xs, 100 * d[f"net_{q}"], ls="none", marker=S.FS2_DIFF_MARKS[glyph], ms=S.FS_SIZES["fs2_diff"], color=S.FS_COLOURS["mark_dark"], label=lab, zorder=4)
-    axd.axhline(100 * FG.FS2_K8_TOL, color=tol.colour, ls=tol.linestyle, lw=tol.width, label="Frequency tolerance, 5 percent")
+    axd.axhline(100 * FG.FS2_K8_TOL, color=tol.colour, ls=tol.linestyle, lw=tol.width, label="Tolerance, 5 percent")
     axd.axhline(-100 * FG.FS2_K8_TOL, color=tol.colour, ls=tol.linestyle, lw=tol.width)
     axd.axhline(0.0, color=S.FS_COLOURS["patch_edge"], lw=0.5, zorder=1)
     axd.set_xticks(xs)
     axd.set_xticklabels([CELL_NAMES[n] for n in names], rotation=40, ha="right")
-    axd.set_ylim(-7.0, 31.0)
+    axd.set_ylim(-7.0, 42.0)
     axd.set_ylabel("(Network " + MINUS + " mean field) / mean field (percent)")
     FG._journal_title(axd, "h", "Network against mean field")
     axd.legend(loc="upper left", frameon=True, framealpha=0.95)
     # (i)
     axe = fig.add_subplot(gs[2, 2:4])
     k9 = S.diagram_mark("k9_pt")
-    axe.plot(d["k9_eta_bar"], d["k9_ratio"], ls="none", marker=k9.marker, ms=k9.size, color=k9.colour, zorder=4, label="Largest Delta/eta_bar")
-    axe.axhspan(FG.FS2_K9[0] - FG.FS2_K9[1], FG.FS2_K9[0] + FG.FS2_K9[1], color=tol.colour, alpha=0.3, lw=0, label=f"Target {FG.FS2_K9[0]:g} plus or minus {FG.FS2_K9[1]:g}")
+    axe.plot(d["k9_eta_bar"], d["k9_ratio"], ls="none", marker=k9.marker, ms=k9.size, color=k9.colour, zorder=4, label="Largest ratio")
+    axe.axhspan(FG.FS2_K9[0] - FG.FS2_K9[1], FG.FS2_K9[0] + FG.FS2_K9[1], color=tol.colour, alpha=0.3, lw=0, label="Target band")
     axe.set_xticks(d["k9_eta_bar"])
     axe.set_ylim(FG.FS2_K9[0] - 3 * FG.FS2_K9[1], FG.FS2_K9[0] + 3 * FG.FS2_K9[1])
     axe.set_xlim(0.5, 4.5)
@@ -119,9 +126,9 @@ def draw(d: dict, FG):
     # (j)
     axk = fig.add_subplot(gs[2, 4:6])
     k11 = S.diagram_mark("k11_pt")
-    axk.plot(-d["k11_J_H"], d["k11_ratio"], ls="none", marker=k11.marker, ms=k11.size, color=k11.colour, zorder=4, label="Frequency ratio, 20 branches")
+    axk.plot(-d["k11_J_H"], d["k11_ratio"], ls="none", marker=k11.marker, ms=k11.size, color=k11.colour, zorder=4, label="Frequency ratio")
     for sgn in (-1, 1):
-        axk.axhline(1.0 + sgn * FG.FS2_K11, color=tol.colour, ls=tol.linestyle, lw=tol.width, label="Target: 1 plus or minus 0.01" if sgn == -1 else None)
+        axk.axhline(1.0 + sgn * FG.FS2_K11, color=tol.colour, ls=tol.linestyle, lw=tol.width, label="Target band" if sgn == -1 else None)
     axk.set_xscale("log")
     axk.set_xticks([5e-4, 1e-3, 2e-3, 5e-3])
     axk.set_xticklabels(["0.0005", "0.001", "0.002", "0.005"])
@@ -134,10 +141,10 @@ def draw(d: dict, FG):
     # (k)
     axf = fig.add_subplot(gs[3, 0:3])
     k10 = S.diagram_mark("k10_curve")
-    axf.plot(d["k10_tau_d"], d["k10_freq"], color=k10.colour, lw=k10.width, label=f"Linear frequency, eta_bar 1, J {MINUS}20 (64 points)", zorder=3)
+    axf.plot(d["k10_tau_d"], d["k10_freq"], color=k10.colour, lw=k10.width, label=f"Linear frequency (eta_bar 1, J {MINUS}20)", zorder=3)
     lo, hi = d["k10_band_hz"]
     sl = d["k10_band_slack"]
-    for yv, lab in ((lo * (1 - sl), f"Target band {lo:g} to {hi:g} Hz, plus or minus {100 * sl:g} percent"), (hi * (1 + sl), None)):
+    for yv, lab in ((lo * (1 - sl), f"Target band, plus or minus {100 * sl:g} percent"), (hi * (1 + sl), None)):
         axf.axhline(yv, color=tol.colour, ls=tol.linestyle, lw=tol.width, label=lab)
     axf.set_xlabel("tau_d (ms)")
     axf.set_ylabel("Frequency (Hz)")
@@ -160,7 +167,7 @@ def draw(d: dict, FG):
     pts = axk.get_lines()[0]
     n_co = FG.coincident_marks(axk, pts, S.FS_SIZES["fs2_coincide_mark"])
     n_all = len(pts.get_xdata())
-    axk.text(0.98, 0.80, f"{n_co} of {n_all} marks overlap at the drawn size;\nthe recorded values all differ", transform=axk.transAxes, ha="right", va="top",
+    axk.text(0.5, 0.85, f"{n_co} of {n_all} marks overlap\nat the drawn size; the\nrecorded values differ", transform=axk.transAxes, ha="center", va="top",
              color=S.figure_colour("text_dark")).set_gid("coincide_note")
     J.finish(fig, cfg, FS2_ID)
     return fig
