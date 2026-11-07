@@ -6879,7 +6879,7 @@ F6J_ROWS = {"a": (0.38, 1.3), "b": (2.8, 2.05), "c": (5.62, 1.0), "d": (5.62, 1.
 F6J_COLS = {"a": (0.75, 5.35), "b": (1.78, 4.37), "c": (0.85, 0.96), "d": (2.95, 1.35), "e": (4.78, 1.2)}
 F6J_COL_C2 = (1.9, 0.28)                                                       # the network-run axes of panel (c): (left, width) in inches      # (left edge, width) in inches
 F6J_BAR_W = 0.22
-F6J_LABEL_WORDS = {"a": "Delta above critical", "b": "tau_d outside window", "c": "a flag, not a demonstrated cause (frequency below 25 Hz, no surge class)", "d": "ramp too fast for 10 cycles", "e": "no exit (D-sus or S-sus)",
+F6J_LABEL_WORDS = {"a": "Delta above critical", "b": "tau_d outside window", "c": "a flag, not a demonstrated cause (below 25 Hz)", "d": "ramp too fast for 10 cycles", "e": "no exit (D-sus or S-sus)",
                    "f": "amplitude below the fixed threshold", "g": "Hopf point, no time inside", "h": "rejected by the damped-oscillation test"}     # plain words of the stored short forms (A9_LABELS); h: the 'damped (D8) clause' without the ID
 F6J_ROW_LABELS = ("negative control 1\nmean field, no noise", "negative control 1\nmean field, noise (10 seeds)", "negative control 2\ndrive off", "negative control 2\ndrive on", "negative control 3\n(exploratory)")
 F6J_P3 = {0.5: "P3, drive 0.5", 1.0: "P3, drive 1", 2.0: "P3, drive 2"}

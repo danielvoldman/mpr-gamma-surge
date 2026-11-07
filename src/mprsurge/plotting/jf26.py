@@ -252,7 +252,7 @@ def f6_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list, 
         "P2 = the hypoxia-like path: eta_bar ramped up, with J ramped to 0 after a delay; P3 = P2 plus a common drive; P4a and P4b = P2 with Delta multiplied by 1.5 (P4a) or by 2/3 (P4b) over the ramp. "
         "A negative control is a run in which no surge is expected: the first = the hypoxia path with the mean excitability falling by the same amount, with coupling, heterogeneity and synaptic decay fixed and no common drive; "
         "the second = the full path with the common drive off or on (no expected class is stated); the third = inhibition raised while the mean excitability falls (exploratory; no expected class is stated).",
-        "Failure labels of a non-surge cell (the stored short forms): a = Delta above critical; b = tau_d outside the window; c = a flag, not a demonstrated cause (frequency below 25 Hz, no surge class); d = ramp too fast for 10 cycles; e = no exit (D-sus or S-sus); "
+        "Failure labels of a non-surge cell (the stored short forms): a = Delta above critical; b = tau_d outside the window; c = a flag, not a demonstrated cause (below 25 Hz; a cell without a surge class whose frequency is below 25 Hz); d = ramp too fast for 10 cycles; e = no exit (D-sus or S-sus); "
         "f = amplitude below the fixed threshold; g = Hopf point with no time inside; h = rejected by the damped-oscillation test.",
         "Marks: diamond = D-none, left triangle = NS, right triangle = D-tr, circle = S+. Filled bars = primary label; hatched bars = every label that applies.",
         "Checks: X.", JC.class_key(), JC.key_words(rest)] if x)
@@ -260,7 +260,7 @@ def f6_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list, 
     return text.replace("Checks: X.", "Checks: " + JC.defined_checks(text) + ".")
 
 
-F6_LIMIT_EXTRA = {"MS9(e)-3": "failure label c is a flag, not a demonstrated cause (frequency below 25 Hz, no surge class)",
+F6_LIMIT_EXTRA = {"MS9(e)-3": "failure label c is a flag, not a demonstrated cause (below 25 Hz; it marks a cell without a surge class whose frequency is below 25 Hz)",
                   "MS9(e)-5": "every class that depends on the test for damped against non-damped oscillations is provisional",
                   "MS9(e)-1": "network surge classes at N = 1e4 are not evidence of a ramp-driven surge (control flagged in 10 of 10 seeds, ramp runs 10 of 10; other network runs, not drawn)",
                   "G4-C3": "no-ramp network controls (the same network without the ramp) are classified into surge classes"}

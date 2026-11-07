@@ -36,11 +36,11 @@ def test_j3c_f1_short_rows_are_recorded_neurons_not_labelled():
 
 def test_j3b_f6_label_c_key_and_caption_agree():
     key = FG.F6J_LABEL_WORDS["c"]
-    assert key == "a flag, not a demonstrated cause (frequency below 25 Hz, no surge class)"
+    assert key == "a flag, not a demonstrated cause (below 25 Hz)"
     for f in ("jshort.py", "jf26.py"):
         t = (SRC / f).read_text(encoding="utf-8")
-        assert "frequency below 25 Hz, no surge class" in t
-    assert "failure label c is a flag, not a demonstrated cause (frequency below 25 Hz, no surge class)" in JF26.F6_LIMIT_EXTRA["MS9(e)-3"]
+        assert "a flag, not a demonstrated cause (below 25 Hz" in t
+    assert "failure label c is a flag, not a demonstrated cause (below 25 Hz; it marks a cell without a surge class" in JF26.F6_LIMIT_EXTRA["MS9(e)-3"]
 
 
 @pytest.mark.skipif(not _has(FG.F5_INPUTS), reason="stored inputs under results/ are absent")

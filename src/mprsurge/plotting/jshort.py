@@ -83,7 +83,7 @@ SHORT_LIMITS = {
     "MS11-C3": "the spectral and the cycle frequency differ by 4.39 Hz at the main example, and peak frequencies are the spectral peaks found by the classifier",
     "MS12-C1": "the surge result is stated for model M3 only",
     "G4-C2": "the surge result is stated for the mean field only, and there is no claim that it is robust to finite-size fluctuations",
-    "MS9(e)-3": "failure label c is a flag, not a demonstrated cause (frequency below 25 Hz, no surge class)",
+    "MS9(e)-3": "failure label c is a flag, not a demonstrated cause (below 25 Hz; it marks a cell without a surge class whose frequency is below 25 Hz)",
     "MS9(e)-5": "every class that depends on the test for damped against non-damped oscillations is provisional",
 }
 # 13t-1g (DL-603 W1): the limits G4-C3 (F5, F5c), G4-C4 (F5) and MS11-C2 (F5c) that 13t-1f (DL-596) had left out only for the word limits are restored (the limits are raised instead); the lists are those of 13t-1e (cf92272)
