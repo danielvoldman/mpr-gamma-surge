@@ -92,7 +92,7 @@ def test_u2_plain_titles_are_the_ruled_words(figs):
 
 
 def test_u2_title_map_names_every_plain_title_and_its_check():
-    assert set(JC.TITLE_MAP) == {"F1", "F2", "F3", "F5", "F5c", "F6"} and [x[2] for x in JC.TITLE_MAP["F2"]] == ["RB1"]            # DL-625: F2 and F6 added in 13t-2; DL-628 C1: F2 (c) has a red title
+    assert set(JC.TITLE_MAP) == {"F1", "F2", "F3", "F5", "F5c", "F6", "FS1"} and [x[2] for x in JC.TITLE_MAP["F2"]] == ["RB1"]            # DL-625: F2 and F6 added in 13t-2; DL-628 C1: F2 (c) has a red title
     assert [x[2] for x in JC.TITLE_MAP["F5"]] == ["RB1", "RB1", "D24"] and JC.TITLE_MAP["F3"][0][2] == "RB9(b)" and JC.TITLE_MAP["F5c"][0][2] == "RB6" and JC.TITLE_MAP["F1"][0][2] == "RB1"
     md = JC.mapping_markdown("F3")
     assert "frequency check: FAIL" in md and "RB9(b)" in md and "continuation | legend | A4" in md and "frequency-map | legend | A6" in md
