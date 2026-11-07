@@ -69,10 +69,12 @@ def f2_sentence_updown(d: dict) -> str:
             f"above eta_bar 3.0 it is {abs(f['big3'][2] - f['big3'][1]):.3f} at eta_bar {f['big3'][0]:.3f}.")
 
 
-def f2_sentence_hopf(d: dict) -> str:
+def f2_sentence_hopf(d: dict, rest: bool = True) -> str:
+    """rest=False (the short caption, 13t-4 E4: repeated prose removed): the 'does not rest' clause is already in sentence 2 of the short caption."""
     f = f2_facts(d)
-    return (f"At the Hopf point the network v amplitude is {f['hopf_net'][0]:.2f} (up sweep) and {f['hopf_net'][1]:.2f} (down sweep) against {f['hopf_mf'][0]:.2f} and {f['hopf_mf'][1]:.2f} for the mean field "
-            f"(the steps within 0.1 of the Hopf point are still relaxing); below the Hopf point the network does not rest (v amplitude {d['net_floor_v_ptp_min']:.2f} to {d['net_floor_v_ptp_max']:.2f}).")
+    s = (f"At the Hopf point the network v amplitude is {f['hopf_net'][0]:.2f} (up sweep) and {f['hopf_net'][1]:.2f} (down sweep) against {f['hopf_mf'][0]:.2f} and {f['hopf_mf'][1]:.2f} for the mean field "
+         f"(the steps within 0.1 of the Hopf point are still relaxing)")
+    return s + (f"; below the Hopf point the network does not rest (v amplitude {d['net_floor_v_ptp_min']:.2f} to {d['net_floor_v_ptp_max']:.2f})." if rest else ".")
 
 
 def f2_sentence1(d: dict) -> str:
@@ -139,8 +141,8 @@ def f2_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
         f"Below the Hopf point (where the resting state starts to oscillate) the network does not rest (v amplitude {d['net_floor_v_ptp_min']:.2f} to {d['net_floor_v_ptp_max']:.2f}). "
         f"In the mean field the limit cycle (a steady, repeating oscillation) appears at the Hopf point, eta_bar {d['eta_H']:.3f}, in a supercritical bifurcation (the oscillation grows smoothly from zero, with no jump and no hysteresis) and is stable to eta_bar {d['a5_eta_max']:g}.",
         "(a) Fixed point (grey) and maximum and minimum of v on the stable cycle (black) against eta_bar, with the Hopf point (dotted line and circled cross) and the sweeps (in a sweep eta_bar is raised step by step, then lowered again; "
-        f"{c['mf_n']} steps each way for the mean field, {c['n_net']} for the network, each step lasting {n(c['step_s'])} s): mean field filled triangle (up) and hollow caret (down), network open square (up) and open diamond (down). "
-        f"(b) The v amplitude (maximum minus minimum); the mean-field up and down sweeps coincide (largest difference {up_down} relative from 0.2 above the Hopf point). {f2_sentence_updown(d)} {f2_sentence_hopf(d)} "
+        f"{c['mf_n']} steps each way for the mean field, {c['n_net']} for the network, each step lasting {n(c['step_s'])} s; the symbols are in the key of the image). "
+        f"(b) The v amplitude (maximum minus minimum); the mean-field up and down sweeps coincide (largest difference {up_down} relative from 0.2 above the Hopf point). {f2_sentence_updown(d)} {f2_sentence_hopf(d, rest=False)} "
         f"(c) The relative difference of the network's v amplitude from the mean field's, above eta_bar {c['above']:.3f} only (nearer to the Hopf point the shaded steps are still relaxing).",
         "Failed check (red title of (c)): network against mean field (the same class is required), checked at the main example (the run fixed before the analysis as the main case) for ramp durations of 10 s and 120 s, "
         "at 4 map cells (one parameter pair of a grid of mean-field runs) and overall; all four checks failed. They compare classes, which this figure does not draw, so " + F2_RED_NOTE + ". Panels (a) and (b) have no red title.",
@@ -266,13 +268,13 @@ def f6_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
         "(a negative control is a run in which no surge is expected: here the hypoxia-like path with the mean excitability falling by the same amount) is in class S+ "
         f"(absolute and relative rise, ending: a surge, a transient rise of gamma-band power, 25 to 100 Hz) where {d['nc1_net_expected']} (no rise) is expected.",
         f"(a) Number of the {int(d['map_nonsurge'].sum())} non-surge map cells (one parameter pair of a grid of mean-field runs, in two maps; non-surge: not D-tr, an episode that ends) with each failure label a to h "
-        "(the labels are listed in the key below the bars of (a)); filled bars: the primary label (the first that applies); hatched and dotted bars: every label that applies. "
+        "(the labels are listed in the key below the bars); filled bars: the primary label (the first that applies); hatched and dotted bars: every label that applies. "
         f"(b) Class of each negative control against the ramp duration T_ramp at {n13} values: negative control 1 without and with noise (10 seeds; text: other-class seeds, S-rel in {s_rel_n} of {c['n_runs']} runs; "
-        "S-rel: relative rise only; NS: no rise, the noisy-run counterpart of D-none (no episode)), negative control 2 (the full path with the drive off and on) and negative control 3 (inhibition raised while the mean excitability falls; exploratory: no expected class is stated). "
+        "S-rel: relative rise only; NS: no rise, the noisy-run counterpart of D-none (no episode)), negative control 2 (the full path with the drive off and on) and negative control 3 (inhibition raised while the mean excitability falls; exploratory). "
         "In the mean field (the model's equations for the average activity of the population), negative control 2 is D-tr at every ramp duration; the failed check is the one on negative control 1 (network S+). "
         f"(c) The first negative control at the {len(c['cells'])} map cells (all D-none, no episode) and as the network run (red S+). "
         "(d), (e) Onset (when the classifier, a rule fixed before the analysis, first flags the gamma rise) and peak frequency (the peak of the power spectrum) of P2 (the hypoxia-like path: mean excitability raised, "
-        "coupling J ramped to 0 after a delay), P3 (P2 plus a common drive, amplitude 0.5, 1, 2), P4a and P4b (P2 with Delta, the heterogeneity, multiplied by 1.5 or 2/3) at T_ramp 10, 30, 120 and 300 s (the 120 s points lie right of the tick 100); "
+        "coupling J ramped to 0 after a delay), P3 (P2 plus a common drive, amplitude 0.5, 1, 2), P4a and P4b (P2 with Delta, the heterogeneity, multiplied by 1.5 or 2/3) at T_ramp 10, 30, 120 and 300 s (120 s points: right of tick 100); "
         f"all are D-tr. {f6_sentence_points(d)}",
         JS.further_sentence(F6_ID, full),
         f"Parameters: model M3 (the mean-field model); network run N = {c['N']:,}, heterogeneity Delta = {n(c['Delta'])}, synaptic decay time tau_d = {n(c['tau_d'])} ms, ramp duration {n(c['T_ramp'])} s; "

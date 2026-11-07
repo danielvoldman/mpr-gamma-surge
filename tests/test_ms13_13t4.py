@@ -37,7 +37,7 @@ def test_e1_numbers_come_from_the_arrays():
     p, up, r = np.asarray(d["net_param"], float), np.asarray(d["net_up"]) == 1.0, np.asarray(d["cmp_rel_v_ptp"], float)
     above = p > 2.996
     assert abs(100 * r[above].max() - 13.17) < 0.01 and abs(100 * r[above].min() + 2.48) < 0.01
-    at = lambda x, u: 100 * r[(np.abs(p - x) < 1e-6) & (up == u)][0]
+    at = lambda x, u: 100 * r[(np.abs(p - x) < 2e-3) & (up == u)][0]
     assert round(at(3.296, True), 1) == 13.2 and round(at(3.296, False), 1) == 12.4
     assert round(at(3.696, True)) == 7 and round(at(3.696, False)) == 7
     assert all(abs(100 * r[(p > 4.0) & (up == u)]).max() <= 4.8 for u in (True, False))
@@ -67,7 +67,7 @@ def test_e1_close_item_46_and_supplement_note():
 @needs
 def test_e2_f6_key_position_and_the_positional_words_that_stand(built):
     s, full = _txt(built, "F6"), _txt(built, "F6", True)
-    assert "key above panel (a)" not in s and "below the bars of (a)" in s and "listed under the panel" in full
+    assert "key above panel (a)" not in s and "key below the bars)" in s and "listed under the panel" in full
     assert "strip above: triangle" in _txt(built, "F1") and "a strip above the axes" in _txt(built, "F1", True)        # looked at in the recorded F1 image (DL-639): the strips stand above (d) and (f)
 
 
@@ -75,7 +75,7 @@ def test_e2_f6_key_position_and_the_positional_words_that_stand(built):
 def test_e4_f1_f2_f6_terms_defined_and_numbers_in_the_full_caption(built):
     f1, f2, f6 = _txt(built, "F1"), _txt(built, "F2"), _txt(built, "F6")
     assert "envelopes (the minimum to the maximum of a series in each pixel column)" in f1 and "(j), (k) The spikes of seed 0" in f1 and "12.000 s" in f1 and "58.698 s" in f1
-    assert "exploratory: no expected class is stated" in f6 and "the 120 s points lie right of the tick 100" in f6
+    assert "(120 s points: right of tick 100)" in f6
     assert "of the steps each way (0.896 to 6.496)" in f2
     for f in ("F1", "F2", "F6"):
         assert len(_txt(built, f).split()) <= 600

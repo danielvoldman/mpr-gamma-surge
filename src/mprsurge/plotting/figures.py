@@ -6893,9 +6893,7 @@ def _jnotes_26(fid: str) -> tuple:
     if fid != "F2":
         return ()
     return (("Notes for the reader (13t-4, DL-636 E1; close item 46)",
-             "| # | note |
-|---|---|
-| 1 | draft F2 take-home disagrees with its drawn data; journal caption follows the data; the draft stays. The ruled draft wording is 'does not follow the mean-field branch closely'; the recorded "
+             "| # | note |\n|---|---|\n| 1 | draft F2 take-home disagrees with its drawn data; journal caption follows the data; the draft stays. The ruled draft wording is 'does not follow the mean-field branch closely'; the recorded "
              "relative differences of the v amplitude above eta_bar 3.0 are +13.2 and +12.4 percent at eta_bar 3.296 (up and down sweep), about 7 percent at 3.696, at most 4.8 percent from 4.096 up and -2.5 percent at 6.496. "
              "The journal captions read 'Above the Hopf point the network amplitude lies close to the mean-field branch in (a) and (b) and differs from it by up to 13.2 percent in (c)'. |"),)
 
