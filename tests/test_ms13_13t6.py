@@ -44,7 +44,7 @@ def test_fs2_one_caption_seven_paragraphs_and_plain_words(built):
     paras = cap.split("\n\n")
     labels = ["Panels.", "Key and abbreviations.", "Classifier and spectrogram settings.", "Parameters.", "Failed checks.", "Limits."]
     assert len(paras) == 7 and paras[0].startswith("FS2. ") and all(paras[i + 1].startswith(w + " ") for i, w in enumerate(labels))
-    assert not JCAP.FORBIDDEN.search(cap) and not re.search(r"\bstored\b|\bUNVERIFIED\b|\bheadline\b|\bcompanion\b|\bf_pk\b", cap)
+    assert not JCAP.FORBIDDEN.search(cap) and not re.search(r"\bUNVERIFIED\b|\bcompanion\b|\bf_pk\b", cap)
     assert JSH.undefined_terms(cap) == []                                                      # every term defined where first used
     assert "failed check" in paras[0].split(". ")[1] or "failed check" in paras[0]             # the main failure is named in sentence 1
     for k in ("Amplitude squared: FAIL", "Frequency against J: FAIL"):

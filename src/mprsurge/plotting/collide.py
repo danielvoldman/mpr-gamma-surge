@@ -538,6 +538,10 @@ JOURNAL_ALLOW = {
                    "ruled mark sizes (DL-637, style.py: the cusp and test-point marks are 9 pt): a grid cell of the 241 by 201 map is about 0.01 in wide, so the ruled marks are larger than a cell by design; a mark of the size of a cell would be "
                    "invisible; each mark stands at its stored position"),
     ),
+    "FS3": tuple(
+        AllowEntry("marker-line", pl, r"marks:", r"line:",
+                   "stored positions: the median of the recorded errors lies between their minimum and maximum, so its mark lies on the range line that joins them (the line is drawn from the recorded minimum to the recorded maximum); no value is moved")
+        for pl in ("b", "c")),
     "FS2": (
         AllowEntry("marker-marker", "h", r"marks:", r"marks:",
                    "stored positions and ruled mark sizes (DL-651 H1): the recorded differences of the three kinds at one cell lie within the ruled mark size of each other (values near 0 to 18 percent against a 5 percent tolerance scale); "

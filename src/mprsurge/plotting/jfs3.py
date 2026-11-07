@@ -147,8 +147,7 @@ def draw(d: dict, FG):
 
 # ---- text ------------------------------------------------------------------------------------------------------------------------------------------
 
-CLASS_DEF = ("The classes are S+ (absolute and relative rise, ending), S-rel (relative rise only), S-abs (absolute rise only), "
-             "S-sus (a rise that does not end), NS (no rise); D-tr (a rise that ends) and D-none (no episode) are the classes of the noise-free mean field; a surge class is S+, S-rel or S-abs.")
+CLASS_DEF = ("The other classes are S-sus (a rise that does not end) and NS (no rise); D-tr (a rise that ends) and D-none (no episode) are the classes of the noise-free mean field.")
 
 
 def consts(d: dict, rows: list) -> dict:
@@ -162,7 +161,7 @@ def caption(d: dict, rows: list, a11: list, *, ids, c: dict, FG) -> str:
     surge, ctl = d["s9_surge"], d["s9_ctrl_surge"]
     pct = 100.0 * d["subgrid_agree"] / d["subgrid_cells"]
     sh = {s: d["shape_class"][i] for i, s in enumerate(FG.FS3_SHAPES)}
-    take = (f"At the reference run (the run that the project fixed before the analysis as its main case) the noise check failed: the surge class (a transient rise of gamma-band power, 25 to 100 Hz, classified as S+, S-rel or S-abs) is kept in only {d['gate_kept'][1]} of 10 noisy mean-field seeds at the noise level sigma against 8 needed "
+    take = (f"At the reference run (the run that the project fixed before the analysis as its main case) the noise check failed: the surge class (a transient rise of gamma-band power, 25 to 100 Hz: S+, absolute and relative rise, ending; S-rel, relative rise only; S-abs, absolute rise only) is kept in only {d['gate_kept'][1]} of 10 noisy mean-field seeds at the noise level sigma against 8 needed "
             f"(a failed check), and the noisy grid agrees with the noise-free map in {d['subgrid_agree']} of {d['subgrid_cells']} cells ({pct:.1f} percent) against {d['subgrid_needed']} needed (a failed check); "
             f"the effect of the heterogeneity shape cannot be evaluated (the check is NOT EVALUABLE), and the claim holds for Lorentzian heterogeneity only (a claim limit, not a result). " + CLASS_DEF + " "
             f"Finite size (the mean field is D-tr; ramp duration {n(c['T9'])} s, 10 seeds per N; the network is a simulated network of N spiking neurons, the mean field is the model's equations for the average activity of the population): the network gives a surge class in "
@@ -186,7 +185,7 @@ def caption(d: dict, rows: list, a11: list, *, ids, c: dict, FG) -> str:
     params = (f"Recorded values (the complete list with the key names as recorded is in the supplement): model {c['type']}; path P2 (the hypoxia-like path, mean excitability raised) with ramp duration {n(c['T9'])} s in (a) to (d); N = 1000, 3000, 10,000 and 30,000 in (a) to (c) and "
               f"{c['N10']:,} in (d) to (f); the noise level sigma = {n(c['sigma'])} in (e) and (f), with the noise factors 0.5, 1 and 2 and the ramp durations 10, 30, 120 and 300 s in (e).")
     rows_ = FG.strip_rows_of(FS3_ID, d)
-    lines = [JC.failed_line(r).replace("stored table", "recorded table") for r in rows_]
+    lines = [JC.failed_line(r) for r in rows_]
     failed = (f"Failed checks that concern this figure ({len(lines)}; the map cells (one parameter pair of a 30 x 30 grid of mean-field runs) are the cells of the project's map): " + "; ".join(lines) + ". The checks against the mean field at the ramp durations 10 s and 120 s and at the 4 map cells are not drawn here (their runs are not in this figure; (a) draws the network at 60 s); "
               "the title of (e) is red as 'Noise check: FAIL' and the title of (g) as '90 percent rule: FAILED'. The heterogeneity check is NOT EVALUABLE (panel (d)). "
               "The project's other failed checks are not about this figure; all of them are listed in the supplement. " + JC.title_sentence(FS3_ID))
@@ -195,7 +194,7 @@ def caption(d: dict, rows: list, a11: list, *, ids, c: dict, FG) -> str:
     rest = " ".join([take, panels, settings, params, failed, limits])
     key = " ".join(x for x in [
         JC.key_symbols(rest, "eta", "Delta", "J", "tau_d", "r", "v", "N", "T_ramp", "M3", "modes"),
-        "Mean field = the model of the average over the neurons; network = a simulation of N spiking neurons; noise level sigma = the amplitude of the additive white noise on v in the noisy mean-field runs; the noise factor multiplies it; "
+        "The main example = the run fixed before the analysis as the main case; mean field = the model of the average over the neurons; network = a simulation of N spiking neurons; noise level sigma = the amplitude of the additive white noise on v in the noisy mean-field runs; the noise factor multiplies it; "
         "a seed = one random realisation; a control = a run without the ramp; a failed check = a stated criterion that the result does not meet.",
         JC.key_words(rest)] if x)
     return JC.assemble(FS3_ID, take_home=take, panels=panels, key=key, settings=settings, parameters=params, failed=failed, limits=limits)

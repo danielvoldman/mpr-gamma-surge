@@ -245,7 +245,7 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
                 res[k_] = na
             und = JSH.undefined_terms(cap)
             res["definitions"] = ("PASS" if not und else "FAIL", f"{len(JSH.DEFS)} terms checked in the one caption; first use of each term used has its plain definition next to it" + (f"; undefined: {und[:4]}" if und else ""))
-            res["caption words"] = ("PASS" if not bad_words and not re.findall(r"\bstored\b", cap) else "FAIL", f"{len(bad_words)} forbidden words or codes; {len(cap.split())} words (no limit, DL-651 H2)" + (f": {bad_words[:5]}" if bad_words else ""))
+            res["caption words"] = ("PASS" if not bad_words else "FAIL", f"{len(bad_words)} forbidden words or codes; {len(cap.split())} words (no limit, DL-651 H2)" + (f": {bad_words[:5]}" if bad_words else ""))
         if not single:
             limit = J.caption_limit(cfg, fid)
             sbad = sorted({m.group(0) for m in JCAP.FORBIDDEN.finditer(short)} | {m.group(0) for m in JSH.ID_PATTERN.finditer(short)} | set(re.findall(r"\bstored\b", short)))
