@@ -254,7 +254,7 @@ def f3_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
         f"is {spec:.1f} Hz and the cycle frequency (the frequency of the oscillation that starts at the Hopf point, where the resting state starts to oscillate) is {cyc:.3f} Hz; they differ by {diff:.3f} Hz "
         "(values from the analysis record listed in the supplement).",
         "(a)-(c) Cycle frequency (colour) against mean excitability eta_bar and synaptic decay time tau_d (ms, log axis) for heterogeneity Delta = 0.05, 0.1, 0.3. "
-        "Each band is one slice (one fixed tau_d) from its Hopf point (black mark); a black bar marks where the cycle crosses 25 Hz and is absent where it never does "
+        "Each band is one slice (one fixed tau_d) from its Hopf point (black mark); a black bar marks where the cycle crosses 25 Hz (the lower edge of the gamma band, 25 to 100 Hz) and is absent where it never does "
         f"({cross} of {n_sl} slices have one, as recorded). {band_end_short(c)} In (c) the line is the Hopf curve, straight segments between recorded points; the grey open circle is the start of the paths "
         f"(eta_bar {d['P1_eta_start']:.3f}), the dark ring the Hopf point of the main example at tau_d {d['headline_tau_d_ms']:g} ms; (a) and (b) are the same frequency map at other Delta; the failed check was made at the main example in (c) and bears on them too.",
         "(d) Hopf curve against eta_bar and Delta (log axis), with the paths P1 (eta_bar ramped only), P2 (hypoxia-like: eta_bar raised, coupling J ramped to 0 after a delay), "

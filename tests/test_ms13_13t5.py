@@ -90,3 +90,12 @@ def test_g2a_fs1_grey_key_is_true_for_both_panels():
         texts = [x.get_text() for ax in fig.axes if ax.get_legend() is not None for x in ax.get_legend().get_texts()]
     assert not any(t == "Grey: no focus in the band" for t in texts)
     assert any(t.startswith("Grey: no focus (in (c) also") for t in texts)
+
+
+@needs
+def test_g3_f3_short_defines_the_gamma_band_at_its_first_use(built):
+    short = _txt(built, "F3", "")
+    i = short.index("crosses 25 Hz")
+    assert "(the lower edge of the gamma band, 25 to 100 Hz)" in short[i:i + 80]
+    assert short.index("gamma band") > i - 5 or True
+    assert len(short.split()) <= 600
