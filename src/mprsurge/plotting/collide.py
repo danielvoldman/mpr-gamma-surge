@@ -538,6 +538,19 @@ JOURNAL_ALLOW = {
                    "ruled mark sizes (DL-637, style.py: the cusp and test-point marks are 9 pt): a grid cell of the 241 by 201 map is about 0.01 in wide, so the ruled marks are larger than a cell by design; a mark of the size of a cell would be "
                    "invisible; each mark stands at its stored position"),
     ),
+    "FS2": (
+        AllowEntry("marker-marker", "h", r"marks:", r"marks:",
+                   "stored positions and ruled mark sizes (DL-651 H1): the recorded differences of the three kinds at one cell lie within the ruled mark size of each other (values near 0 to 18 percent against a 5 percent tolerance scale); "
+                   "no value is moved, jittered or shrunk, and the three kinds are told apart by their shapes"),
+        AllowEntry("marker-line", "h", r"marks:", r"line:",
+                   "stored value on the line: a recorded difference near 0 lies on the zero line or on a tolerance line, which are reference lines, not data"),
+        AllowEntry("marker-marker", "j", r"marks:Frequency ratio", r"marks:Frequency ratio",
+                   "stored positions and ruled mark sizes (DL-651 H1): the 20 recorded ratios are all within 0.0008 of 1 and the ruled marks are larger than their spacing on the log axis; the panel states how many marks overlap at the drawn size; no value is moved"),
+        AllowEntry("marker-line", "a", r"marks:Mean field", r"line:Stable cycle",
+                   "stored positions: the mean-field amplitude of v at 4.95 and 8 ms lies on the recorded cycle branch (they agree); the marks keep their recorded positions"),
+        AllowEntry("marker-line", "a", r"marks:Mean field", r"line:_child|line:Published",
+                   "stored value on the line: the mean-field run at 4.95 ms is the run at the published value, so its mark lies on that reference line (the vertical line at the published tau_d); the mark at 3 ms has amplitude 0 on the axis"),
+    ),
     "F5c": tuple(
         AllowEntry("marker-line", pl, r"marks:(seed|control) N\d s\d", r"mean-field companion reference|stored minimum duration",
                    "stored value on the line (DL-571 T10): the line is the stored mean-field companion value (f_pk 49 Hz, onset 33.698 s) or the stored minimum duration (1000 ms, the classifier floor), "

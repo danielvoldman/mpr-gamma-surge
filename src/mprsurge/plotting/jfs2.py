@@ -32,6 +32,7 @@ def _fmt(x: float, nd: int = 2) -> str:
 def draw(d: dict, FG):
     """FS2 journal drawing (own plain text, the draft's gridspec and size)."""
     from matplotlib.lines import Line2D
+    from matplotlib.ticker import MaxNLocator
     fig, cfg = FG._journal_fig(FS2J_HEIGHT, constrained=True, fid=FS2_ID)
     cyc, hp = S.diagram_mark("a5_cycle"), S.diagram_mark("hopf_point")
     mf, n1, n5 = S.diagram_mark("s3_mf"), S.diagram_mark("s3_net_1e4"), S.diagram_mark("s3_net_5e4")
@@ -44,8 +45,8 @@ def draw(d: dict, FG):
     for name in ("up", "down"):
         ax.plot(d[f"a5c_{name}_tau_d"], d[f"a5c_{name}_amp"], color=cyc.colour, lw=cyc.width, zorder=3, label="Stable cycle" if name == "up" else None)
     ax.axvline(d["hopf_a4_ms"], color=hp.colour, ls=hp.linestyle, lw=hp.width, label=f"Hopf point {d['hopf_a4_ms']:.4f} ms", zorder=1)
-    ax.axvline(FG.FS2_K7_PAPER_MS, color=paper.colour, ls=paper.linestyle, lw=paper.width, label=f"Published {FG.FS2_K7_PAPER_MS:g} ms (not reproduced)", zorder=1)
-    ax.plot(d["k7_tau"], d["k7_mf_vptp"], ls="none", marker=mf.marker, ms=mf.size, color=mf.colour, zorder=5, label="Mean field (3, 4.95, 8 ms)")
+    ax.axvline(FG.FS2_K7_PAPER_MS, color=paper.colour, ls=paper.linestyle, lw=paper.width, label=f"Published {FG.FS2_K7_PAPER_MS:g} ms", zorder=1)
+    ax.plot(d["k7_tau"], d["k7_mf_vptp"], ls="none", marker=mf.marker, ms=mf.size, color=mf.colour, zorder=5, label="Mean field")
     ax.set_xlabel("tau_d (ms)")
     ax.set_ylabel("Amplitude of v (max minus min)")
     ax.set_xlim(2.5, 10.5)
@@ -58,11 +59,11 @@ def draw(d: dict, FG):
     h, w = d["fit_hopf_ms"], d["fit_window_ms"]
     x = np.array([h + w[0], h + w[1]])
     axb.plot(x, d["fit_s4_up_slope"] * (x - h) + d["fit_s4_up_intercept"], color=paper.colour, lw=lw_fit, ls="-", zorder=4,
-             label=f"Fit, window {w[0]:g} to {w[1]:g} ms above the Hopf point:\nresidual {100 * d['fit_s4_up_max_resid_frac']:.2f} percent, {100 * d['fit_rel_tol']:g} allowed")
+             label=f"Fit, {w[0]:g} to {w[1]:g} ms above Hopf point:\nresidual {100 * d['fit_s4_up_max_resid_frac']:.2f} percent ({100 * d['fit_rel_tol']:g} allowed)")
     pw = d["fit_posthoc_window_ms"]
     xp = np.array([h + pw[0], h + pw[1]])
     axb.plot(xp, d["fit_posthoc_near_hopf_slope"] * (xp - h) + d["fit_posthoc_near_hopf_intercept"], color=tol.colour, lw=lw_fit, ls="--", zorder=4,
-             label=f"Exploratory fit (window chosen after the results),\n{pw[0]:g} to {pw[1]:g} ms: residual {100 * d['fit_posthoc_near_hopf_max_resid_frac']:.2f} percent")
+             label=f"Exploratory fit, window chosen\nafter the results: residual {100 * d['fit_posthoc_near_hopf_max_resid_frac']:.2f} percent")
     axb.axvline(h, color=hp.colour, ls=hp.linestyle, lw=hp.width, zorder=1)
     axb.set_xlim(h - 0.1, 6.0)
     axb.set_ylim(0.0, 14.0)
@@ -89,6 +90,7 @@ def draw(d: dict, FG):
         FG._journal_title(axt, "cdefg"[i], title)
         axt.set_xlabel("Time (ms)")
         axt.set_xticks([9600.0, 10000.0])
+        axt.yaxis.set_major_locator(MaxNLocator(3))
         axt.set_xticklabels(["9,600", "10,000"])
         if i == 0:
             axt.set_ylabel("r, last 400 ms")
@@ -102,7 +104,7 @@ def draw(d: dict, FG):
     axd.axhline(-100 * FG.FS2_K8_TOL, color=tol.colour, ls=tol.linestyle, lw=tol.width)
     axd.axhline(0.0, color=S.FS_COLOURS["patch_edge"], lw=0.5, zorder=1)
     axd.set_xticks(xs)
-    axd.set_xticklabels([CELL_NAMES[n] for n in names], rotation=40, ha="right")
+    axd.set_xticklabels([CELL_NAMES[n] for n in names], rotation=90, ha="center")
     axd.set_ylim(-7.0, 42.0)
     axd.set_ylabel("(Network " + MINUS + " mean field) / mean field (percent)")
     FG._journal_title(axd, "h", "Network against mean field")
