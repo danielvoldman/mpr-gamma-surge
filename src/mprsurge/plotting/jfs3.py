@@ -47,7 +47,7 @@ def draw(d: dict, FG):
         ax.text(x_ - 0.2, 1.02, f"{int(s_)}/{int(n_)}", ha="center", va="bottom", fontweight="bold")
         ax.text(x_ + 0.2, 1.02, f"{int(cs)}/{int(cn)}", ha="center", va="bottom", fontweight="bold", color=T("range_line"))
     ax.set_xticks(xs, nl)
-    ax.set_xlabel("N (neurons); in each pair: left bar ramp seeds, right bar controls without a ramp")
+    ax.set_xlabel("N (neurons)")
     ax.set_xlim(-0.6, 3.6)
     ax.set_ylim(0.0, 1.3)
     ax.set_ylabel("Share of seeds")
@@ -141,7 +141,7 @@ def draw(d: dict, FG):
     axs = fig.add_subplot(gs[3, 2:6])
     axs.axis("off")
     axs.set_gid("legend axes")
-    axs.text(0.0, 1.0, "Panels (a) to (d): network runs, ramp\nduration 60 s (N = 10,000 in (d), 3 seeds).\nPanels (e) and (f): mean-field runs with\nnoise, 10 seeds each.\n"
+    axs.text(0.0, 1.0, "In (a): left bar of each pair, ramp seeds;\nright bar, controls without a ramp.\nPanels (a) to (d): network runs, ramp\nduration 60 s (N = 10,000 in (d), 3 seeds).\nPanels (e) and (f): mean-field runs with\nnoise, 10 seeds each.\n"
              "A surge class is S+, S-rel or S-abs.\nBold numbers: seeds in a surge class.\nHatching and colour both mark the classes.", va="top", ha="left")
     J.finish(fig, cfg, FS3_ID)
     return fig
