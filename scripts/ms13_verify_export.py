@@ -35,18 +35,20 @@ from mprsurge.plotting import journal as J
 from mprsurge.plotting import style as S
 
 PILOT = ("F1", "F2", "F3", "F5", "F5c", "F6")            # 13t-1: F1, F3, F5, F5c; 13t-2 (DL-616): F2 and F6
-DRAFT_ID = {"F1": "F1", "F2": "F2", "F3": "F3", "F5": "F5", "F5c": "F5", "F6": "F6"}              # the figure whose draft files, digest and manifest rows a journal file is checked against
+FS_FIGS = ("FS1",)                                          # 13t-4 (DL-636 E5, DL-637): the supplementary figures that are exported (FS2 and FS3 are added when they are done)
+ALL_FIGS = PILOT + FS_FIGS
+DRAFT_ID = {"F1": "F1", "F2": "F2", "F3": "F3", "F5": "F5", "F5c": "F5", "F6": "F6", "FS1": "FS1"}              # the figure whose draft files, digest and manifest rows a journal file is checked against
 CHECKS = ("A collisions", "B pdf", "size+shape", "text>=8pt", "fonts", "line width", "cmaps", "non-colour", "letters", "file names", "FAIL lines", "digest", "arrays", "drafts identical",
           "image text", "image IDs", "plain words", "powers of ten", "minus signs", "sentence case", "red titles", "supplement", "sentence 1", "paragraphs", "caption words", "full caption", "key terms", "short caption", "short limits", "definitions", "failed count", "short numbers", "short parameters", "supplement FAILs", "superscripts",
           "margins", "label-title gap", "contrast", "red-green", "greyscale", "cvd", "png+tiff", "no svg/wmf/emf", "file sizes")
 MAIN_FAILURES = {"F1": FG.F1_MAIN_FAILURES, "F2": ("lies close to the mean-field branch",),      # 13t-4 (DL-636 E1): the journal sentence 1 of F2 follows the data; the draft constant FG.F2_MAIN_FAILURES is unchanged
-                  "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES, "F5c": FG.F5C_MAIN_FAILURES, "F6": FG.F6_MAIN_FAILURES}
-STRIP = {"F1": FG.f1_strip_lines, "F2": FG.strip_lines, "F3": FG.strip_lines, "F5": FG.f5_strip_lines, "F5c": FG.f5c_strip_lines, "F6": FG.f6_strip_lines}
+                  "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES, "F5c": FG.F5C_MAIN_FAILURES, "F6": FG.F6_MAIN_FAILURES, "FS1": ("passes only on our own reading", "was not run")}
+STRIP = {"F1": FG.f1_strip_lines, "F2": FG.strip_lines, "F3": FG.strip_lines, "F5": FG.f5_strip_lines, "F5c": FG.f5c_strip_lines, "F6": FG.f6_strip_lines, "FS1": lambda d: []}
 MIN_MARGIN_IN, MIN_LABEL_GAP_IN = 0.10, 0.05                                # DL-571 T5, T6
 CLAIM_IDS = {"F1": (FG.F1_CLAIM_LIMITS, None), "F2": (FG.F2_CLAIM_LIMITS, None), "F3": (FG.F3_CLAIM_LIMITS, None), "F5": (FG.F5_CLAIM_LIMITS, FG.F5_NOT_APPLICABLE), "F5c": (FG.F5_CLAIM_LIMITS, FG.F5_NOT_APPLICABLE),
-             "F6": (FG.F6_CLAIM_LIMITS, FG.F6_NOT_APPLICABLE)}
+             "F6": (FG.F6_CLAIM_LIMITS, FG.F6_NOT_APPLICABLE), "FS1": (FG.FS1_CLAIM_LIMITS, None)}
 NA_TEXT = {"F6": PL.NOT_APPLICABLE_PLAIN_F6}                          # the plain reason of a not-applicable limit, where it is not the F5 one (DL-616)
-SHORT_MAIN = {"F1": ("does not reproduce it",), "F2": ("lies close to the mean-field branch",), "F6": ("negative-control check failed",), "F3": ("frequency check",), "F5": ("holds for the noise-free mean field only",),
+SHORT_MAIN = {"F1": ("does not reproduce it",), "F2": ("lies close to the mean-field branch",), "F6": ("negative-control check failed",), "FS1": ("passes only on our own reading", "was not run"), "F3": ("frequency check",), "F5": ("holds for the noise-free mean field only",),
               "F5c": ("step-halving check", "do not reproduce the mean field")}               # plain words of the main failure(s) that sentence 1 of the short caption holds (DL-582 U3 a, DL-593 V6)
 CHECK_TOKEN = {("RB1", "headline_10s"): "network against mean field", ("RB1", "headline_120s"): "network against mean field", ("RB1", "cells_30s"): "network against mean field",
                ("RB2", "noisy_subgrid_agreement"): "90 percent rule", ("RB6", "network_fpk_halving_dt"): "step-halving check", ("RB9", "b_spectral_vs_cycle_headline"): "frequency check",
@@ -67,7 +69,7 @@ def reason_class(reason: str) -> str:
     return REASON_OTHER
 
 
-SHORT_CHECKS = {f: sorted(JSH.SHORT_NAMED[f]) for f in PILOT}      # DL-593 V7: only the failed checks whose result is drawn are named in a short caption
+SHORT_CHECKS = {f: sorted(JSH.SHORT_NAMED[f]) for f in ALL_FIGS}      # DL-593 V7: only the failed checks whose result is drawn are named in a short caption
 SCHEMATIC_FACES = {"ramp": S.F1_SCHEMATIC["ramp_face"], "net": S.F1_SCHEMATIC["net_face"], "model": S.F1_SCHEMATIC["box_face"], "mf": S.F1_SCHEMATIC["box_face"], "out": S.F1_SCHEMATIC["box_face"]}
 
 
@@ -114,9 +116,10 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         mb = r["mediabox"]
         from PIL import Image
         wpx, hpx = Image.open(png).size
-        okz = (W <= cfg["page"]["main_width_in"] + 1e-9 and H <= cfg["page"]["main_max_height_in"] + 1e-9 and mb is not None and abs(mb[2] / 72.0 - W) < 0.02 and abs(mb[3] / 72.0 - H) < 0.02
+        hmax = J.height_limit(cfg, fid)                                                       # 13t-4 (DL-636 E5): the per-figure height limit of the FS profile, else the main page maximum
+        okz = (W <= cfg["page"]["main_width_in"] + 1e-9 and H <= hmax + 1e-9 and mb is not None and abs(mb[2] / 72.0 - W) < 0.02 and abs(mb[3] / 72.0 - H) < 0.02
                and (wpx, hpx) == (round(W * cfg["output"]["png_dpi"]), round(H * cfg["output"]["png_dpi"])))
-        res["size+shape"] = ("PASS" if okz else "FAIL", f"{W:.3f} x {H:.3f} in (page max {cfg['page']['main_width_in']} x {cfg['page']['main_max_height_in']}); png {wpx} x {hpx} px at {cfg['output']['png_dpi']} dpi")
+        res["size+shape"] = ("PASS" if okz else "FAIL", f"{W:.3f} x {H:.3f} in (limit {cfg['page']['main_width_in']} x {hmax}); png {wpx} x {hpx} px at {cfg['output']['png_dpi']} dpi")
         info["inches"] = (W, H)
         # text, lines, cmaps, non-colour
         t_bad = JC.text_sizes(fig, cfg["text"]["min_pt"])
@@ -205,8 +208,9 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
             nt = [a.get_text() for a in fig.findobj(lambda a: a.get_gid() == "panel note")]
             if len(mk) != 1 or "S+" not in nt:
                 evidence.append("F6 (c) network-run mark or its S+ note missing")
-        okr = bool(reds) and not unmapped and not not_in_cap and not evidence
-        res["red titles"] = ("PASS" if okr else "FAIL", f"{len(reds)} red titles, each a plain title of the map; each in the full caption ('shown in the title as') and the supplement table" if okr
+        no_red = fid in FS_FIGS and not tmap and not reds                                       # 13t-4: FS1 has no failed row and so no red title (a red title would be a fault here)
+        okr = (bool(reds) or no_red) and not unmapped and not not_in_cap and not evidence
+        res["red titles"] = ("PASS" if okr else "FAIL", ("no red title (no failed row concerns this figure)" if no_red else f"{len(reds)} red titles, each a plain title of the map; each in the full caption ('shown in the title as') and the supplement table") if okr
                              else f"unmapped {unmapped[:1]}; not in caption or table {not_in_cap[:1]}; {evidence}")
         # supplement
         need = [f"{x['rb_id']} {x['check_id']}" for x in FG.strip_rows_of(fid, d)]
@@ -316,7 +320,7 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("ids", nargs="*", default=list(PILOT))
+    ap.add_argument("ids", nargs="*", default=list(ALL_FIGS))
     ap.add_argument("--dir", default="figures/journal")
     a = ap.parse_args(argv)
     root = repo_root()
