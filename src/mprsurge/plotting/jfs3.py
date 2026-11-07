@@ -189,11 +189,11 @@ def caption(d: dict, rows: list, a11: list, *, ids, c: dict, FG) -> str:
     failed = (f"Failed checks that concern this figure ({len(lines)}; the noisy subgrid (map cells re-run with noise) is the part of the project's map that was re-run with noise; the map cells (one parameter pair of a 30 x 30 grid of mean-field runs) are the cells of the project\'s map; the ramp-duration rule uses a duration (how long a ramp lasts)): " + "; ".join(lines) + ". The checks against the mean field at the ramp durations 10 s and 120 s and at the 4 map cells are not drawn here (their runs are not in this figure; (a) draws the network at 60 s); "
               "the title of (e) is red as 'Noise check: FAIL' and the title of (g) as '90 percent rule: FAILED' (the 90 percent rule: at least 90 percent of the cells of the noisy subgrid must agree with the noise-free class). The heterogeneity check is NOT EVALUABLE (panel (d)). "
               "The project's other failed checks are not about this figure; all of them are listed in the supplement. " + JC.title_sentence(FS3_ID))
-    limits = ("In the limits below, the main example (the run fixed before the analysis as the main case) is the reference run of the first paragraph, and control (the same network without the ramp) runs are runs without a ramp: the controls of (a) and (d); "
+    limits = ("In the limits below, T_ramp is the ramp duration T_ramp (in seconds), the main example (the run fixed before the analysis as the main case) is the reference run of the first paragraph, and control (the same network without the ramp) runs are runs without a ramp: the controls of (a) and (d); "
               "the constant-parameter controls of (f) are mean-field runs. " + JC.limits_paragraph(ids))
     rest = " ".join([take, panels, settings, params, failed, limits])
     key = " ".join(x for x in [
-        JC.key_symbols(rest, "eta", "Delta", "J", "tau_d", "r", "v", "N", "T_ramp"),
+        JC.key_symbols(rest, "eta", "Delta", "J", "tau_d", "r", "v", "N"),
         "The main example = the run fixed before the analysis as the main case; mean field = the model of the average over the neurons; network = a simulation of N spiking neurons; noise level sigma = the amplitude of the additive white noise on v in the noisy mean-field runs; the noise factor multiplies it; "
         "a seed = one random realisation; a control = a run without the ramp; a failed check = a stated criterion that the result does not meet.",
         JC.key_words(rest)] if x)
