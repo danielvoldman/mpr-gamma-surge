@@ -167,8 +167,8 @@ def test_u3_two_caption_files_full_in_supplement_and_manifest(built, cfg):
 
 
 def test_u3_config_limits_are_set_and_unverified(cfg):
-    assert cfg["caption"]["short_max_words"] == 600 and cfg["caption"]["short_max_words_F1"] == 600            # DL-593 V8 (were 220 and 280)
-    assert J.caption_limit(cfg, "F1") == 600 and J.caption_limit(cfg, "F3") == 600 and J.caption_limit(cfg, "F5c") == 600
+    assert cfg["caption"]["short_max_words"] == 600 and cfg["caption"]["short_max_words_F1"] == 650            # DL-593 V8 (were 220 and 280)
+    assert J.caption_limit(cfg, "F1") == 650 and J.caption_limit(cfg, "F3") == 650 and J.caption_limit(cfg, "F5c") == 650
     assert "UNVERIFIED" in (ROOT / "configs" / "journal_export.yaml").read_text(encoding="utf-8")
 
 

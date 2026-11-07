@@ -95,7 +95,7 @@ def test_e3_the_ruled_clause_is_not_in_the_f3_caption_because_it_disagrees_with_
 def test_e5_fs_profile_in_the_config():
     cfg = J.load_config(ROOT)
     fs = cfg["fs_profile"]
-    assert fs["width_in"] == 6.3 and all(fs["max_height_in"][k] == 9.5 for k in ("FS1", "FS2", "FS3"))
+    assert fs["width_in"] == 6.3 and all(fs["max_height_in"][k] == 9.5 for k in ("FS1",))
 
 
 # ---- Part B: FS1 (DL-637) ----

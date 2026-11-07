@@ -32,7 +32,8 @@ import ms13_independent as IND  # noqa: E402
 OUT_MD, OUT_CSV = "docs/ms13_independent_results.md", "docs/ms13_independent_results.csv"
 COLUMNS = ("figure", "id", "quantity", "independent_value", "drawn_value", "printed_value", "source_of_drawn", "source_of_printed", "equal", "tolerance", "shared", "independent_source",
            "journal_files", "journal_pattern", "journal_printed_value", "journal_equal", "short_files", "short_pattern", "short_printed_value", "short_equal")
-JOURNAL_FILES = ("F1", "F2", "F3", "F5", "F5c", "F6", "FS1")
+JOURNAL_FILES = ("F1", "F2", "F3", "F5", "F5c", "F6", "FS1", "FS2")
+FS_SINGLE = ("FS2",)                                  # 13t-6 (DL-651 H2): one caption, <ID>_journal_caption.txt, searched by the journal (full) rows; no short rows
 
 
 def _norm(text: str) -> str:
@@ -102,7 +103,7 @@ def journal_captions(base=None) -> dict:
     base = Path(base) if base is not None else ROOT / "figures" / "journal"
     out: dict = {}
     for f in JOURNAL_FILES:
-        p = base / f / f"{f}_journal_caption_full.txt"
+        p = base / f / (f"{f}_journal_caption.txt" if f in FS_SINGLE else f"{f}_journal_caption_full.txt")
         out[f] = _norm(p.read_text(encoding="utf-8")) if p.is_file() else None
     return out
 
@@ -113,6 +114,9 @@ def short_captions(base=None) -> dict:
     out: dict = {}
     for f in JOURNAL_FILES:
         p = base / f / f"{f}_journal_caption.txt"
+        if f in FS_SINGLE:
+            out[f] = None
+            continue
         out[f] = _norm(p.read_text(encoding="utf-8")) if p.is_file() else None
     return out
 
