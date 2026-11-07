@@ -111,3 +111,7 @@ RB1 FAIL; RB2 FAIL; RB6 solver FAIL (181 ms); RB6 network f_pk FAIL; RB9(b) FAIL
 
 ## STOP RULE 12
 On any pre-check mismatch, unopenable or changed file, a stored-input hash differing from the provenance, an independent value disagreeing with an original value, record or log text disagreeing with a stored value, a drawn-data digest of an export differing from its draft, a draft file changing, or a pre-existing test failing in the committed state: STOP, report both values and the reading, patch nothing.
+
+## H1 to H2 (13t-6, DL-651; H1 replaces Z1 for FS2 to FS5, FS1 stays as built)
+H1. FS profile v2: FS2 to FS5 are stand-alone supplement files at the size of their draft (7.4 in wide; UNVERIFIED limits 7.4 x 14.4 in, per figure in `fs_profile` of configs/journal_export.yaml), no squeezing, no split, no relayout unless a check fails (smallest layout change, two attempts per overlap, then STOP and propose a split under Z2). All other journal rules apply.
+H2. One caption per FS2 to FS5 figure (`<ID>_journal_caption.txt`, no word limit), the seven labelled paragraphs of T8, plain words, every term defined where first used, scope statements for counts of runs that are not drawn, no plan, milestone, DL or step reference, no code or key names. FS1 keeps its short and full captions.
