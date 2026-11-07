@@ -1960,12 +1960,12 @@ def _draw_FS1(d: dict, draft: bool):
     return _style_text(fig, FS1_FOOTER if draft else "")
 
 
-FS1J_HEIGHT = 9.0
+FS1J_HEIGHT = 9.2
 FS1J_MAPS = {"a": (0.80, 0.42, 2.20, 2.10), "b": (3.45, 0.42, 2.10, 2.10), "c": (0.80, 3.35, 2.10, 2.10)}       # (left, top, width, height) in inches
 FS1J_CB = {"b": (5.63, 0.42, 0.10, 2.10), "c": (2.98, 3.35, 0.10, 2.10)}
-FS1J_D = (4.25, 3.35, 1.85, 2.10)
-FS1J_E = {"r": (0.80, 6.00, 5.40, 1.05), "I": (0.80, 7.15, 5.40, 0.62)}
-FS1J_KEY_TOP = 8.30
+FS1J_D = (4.25, 3.35, 1.78, 2.10)
+FS1J_E = {"r": (0.80, 6.15, 5.30, 1.05), "I": (0.80, 7.30, 5.30, 0.62)}
+FS1J_KEY_TOP = 8.45
 FS1J_ETA_NOTE = "Own reading of this test, not verified"
 FS1J_XL, FS1J_YL = JETA + "/Δ", "J/√Δ"
 

@@ -323,6 +323,7 @@ def main(argv=None) -> int:
     ap.add_argument("ids", nargs="*", default=list(ALL_FIGS))
     ap.add_argument("--dir", default="figures/journal")
     a = ap.parse_args(argv)
+    sys.stdout.reconfigure(encoding="utf-8")                      # symbols such as Delta in the details (13t-4)
     root = repo_root()
     base = (root / a.dir) if not Path(a.dir).is_absolute() else Path(a.dir)
     with open(root / "docs" / "ms13_figure_manifest.csv", newline="", encoding="utf-8") as fh:
