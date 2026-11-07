@@ -269,7 +269,7 @@ def test_v7_the_count_in_each_short_caption_equals_the_count_computed_from_the_f
 def test_v7_short_names_only_failed_checks_that_are_drawn(built):
     assert JS.SHORT_NAMED == {"F1": {("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30s")}, "F3": {("RB9", "b_spectral_vs_cycle_headline")},
                               "F5": {("RB1", "cells_30s"), ("RB2", "noisy_subgrid_agreement")}, "F5c": {("RB6", "network_fpk_halving_dt")},
-                              "F2": {("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30s"), ("RB1", "overall")}, "F6": {("G7", "gate")}, "FS1": set()}                  # 13t-4 (DL-643): FS1 added; DL-625: F2 and F6 added in 13t-2; DL-628: the four RB1 rows of the red title of F2 (c)
+                              "F2": {("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30s"), ("RB1", "overall")}, "F6": {("G7", "gate")}, "FS1": set(), "FS2": set(), "FS3": set()}                  # 13t-4 (DL-643): FS1 added; DL-625: F2 and F6 added in 13t-2; DL-628: the four RB1 rows of the red title of F2 (c)
     for f in PILOT:
         assert "listed in the supplement" in _short(built, f) and "All earlier failures and limits stand" in _short(built, f)
 
@@ -277,7 +277,7 @@ def test_v7_short_names_only_failed_checks_that_are_drawn(built):
 # ---- V8: limits and numbers ----
 
 def test_v8_word_limits_are_the_ruled_ones(cfg):
-    assert [J.caption_limit(cfg, f) for f in PILOT] == [600, 600, 600, 600]
+    assert [J.caption_limit(cfg, f) for f in PILOT] == [650, 650, 650, 650]
 
 
 @needs

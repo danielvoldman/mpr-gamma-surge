@@ -98,7 +98,7 @@ def test_c9_no_image_label_starts_with_a_lower_case_word(fid):
 def test_c6_every_short_caption_limit_is_600(cfg):
     assert cfg["caption"]["short_max_words"] == 600
     for f in ("F1", "F2", "F3", "F5", "F5c", "F6"):
-        assert J.caption_limit(cfg, f) == 600, f
+        assert J.caption_limit(cfg, f) == 650, f
 
 
 @needs

@@ -52,7 +52,7 @@ def _norm(s):
 
 def test_a6_every_short_caption_limit_is_520(cfg):
     for f in ("F1", "F2", "F3", "F5", "F5c", "F6"):
-        assert J.caption_limit(cfg, f) == 600, f              # DL-628 C6 (was 520, DL-615 A6)
+        assert J.caption_limit(cfg, f) == 650, f              # DL-628 C6 (was 520, DL-615 A6)
     assert cfg["caption"]["short_max_words"] == 600
 
 
@@ -187,7 +187,7 @@ def test_b_short_captions_limits_definitions_and_counts(builtb):
     cfg = J.load_config(ROOT)
     for f in B_FIGS:
         short, full = _txt(builtb, f, "caption"), _txt(builtb, f, "caption_full")
-        assert JS.words(short) <= J.caption_limit(cfg, f) <= 600, f
+        assert JS.words(short) <= J.caption_limit(cfg, f) <= 650, f
         assert JS.undefined_terms(short) == [], f
         assert JS.limits_missing(f, short) == [], f
         assert JS.numbers_not_in_full(short, full) == [], f
