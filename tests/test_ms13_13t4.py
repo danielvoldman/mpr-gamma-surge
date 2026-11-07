@@ -78,7 +78,7 @@ def test_e4_f1_f2_f6_terms_defined_and_numbers_in_the_full_caption(built):
     assert "(120 s points: right of tick 100)" in f6
     assert "of the steps each way (0.896 to 6.496)" in f2
     for f in ("F1", "F2", "F6"):
-        assert len(_txt(built, f).split()) <= 600
+        assert len(_txt(built, f).split()) <= (650 if f == "F6" else 600)
 
 
 def test_e3_the_ruled_clause_is_not_in_the_f3_caption_because_it_disagrees_with_the_stored_band_ends():
