@@ -136,9 +136,9 @@ def f2_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
     up_down = _e3(d["mf_updown_max_abs_from_0p2"])
     n = JC.num
     return JS.finish(F2_ID, [
-        f"{f2_sentence1(d)} The network is the simulated network of N = 10,000 spiking neurons and the mean field is the model's equations for the average activity of the population; the amplitude is that of v "
-        f"(v is the mean membrane potential; the network's v is the mean over the neurons that are not refractory, a different definition), and it differs by {_pct(d['cmp_rel_v_above_max'])} to {_pct(d['cmp_rel_v_above_min'])} percent above a mean excitability eta_bar of 3.0. "
-        f"Below the Hopf point (where the resting state starts to oscillate) the network does not rest (v amplitude {d['net_floor_v_ptp_min']:.2f} to {d['net_floor_v_ptp_max']:.2f}). "
+        f"{f2_sentence1(d)} The Hopf point is where the resting state starts to oscillate. The network is the simulated network of N = 10,000 spiking neurons and the mean field is the model's equations for the average activity of the population; "
+        f"the amplitude is that of v (the mean membrane potential; the network's v is the mean over the neurons that are not refractory, a different definition), differing by {_pct(d['cmp_rel_v_above_max'])} to {_pct(d['cmp_rel_v_above_min'])} percent above a mean excitability eta_bar of 3.0. "
+        f"Below the Hopf point the network does not rest (v amplitude {d['net_floor_v_ptp_min']:.2f} to {d['net_floor_v_ptp_max']:.2f}). "
         f"In the mean field the limit cycle (a steady, repeating oscillation) appears at the Hopf point, eta_bar {d['eta_H']:.3f}, in a supercritical bifurcation (the oscillation grows smoothly from zero, with no jump and no hysteresis) and is stable to eta_bar {d['a5_eta_max']:g}.",
         "(a) Fixed point (grey) and maximum and minimum of v on the stable cycle (black) against eta_bar, with the Hopf point (dotted line and circled cross) and the sweeps (in a sweep eta_bar is raised step by step, then lowered again; "
         f"{c['mf_n']} steps each way for the mean field, {c['n_net']} for the network, each step lasting {n(c['step_s'])} s; the symbols are in the key of the image). "

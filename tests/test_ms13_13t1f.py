@@ -221,7 +221,7 @@ def test_v6_f3_states_the_slice_counts_the_grey_circle_and_the_one_arrow(built):
 @needs
 def test_v6_f1_states_the_ruled_facts(built):
     short = _short(built, "F1")
-    for want in ("By eye the network envelopes in (d) and (f) look similar to the mean-field ones in (c) and (e)", "no claim is made about the visual shape, either way", "(nearly coincident)",
+    for want in ("By eye the network envelopes (the minimum to the maximum of a series in each pixel column) in (d) and (f) look similar to the mean-field ones in (c) and (e)", "no claim is made about the visual shape, either way", "(nearly coincident)",
                  "same y axes as (c), (e)", "dashed lines: 25 and 100 Hz, the gamma band", "an orange solid line and an orange dashed line mark the two windows shown in (j) and (k) (orange frames)",
                  "coupling J (negative = inhibitory)", "peaks at 49.0 Hz (not drawn)", "all 3 random seeds"):
         assert want in short, want

@@ -152,7 +152,7 @@ def test_c3_f2_short_caption_new_sentences_numbers_from_the_arrays(built, f2d):
     assert abs(abs(big[2] - big[1]) - 0.095) < 5e-4 and abs(big[0] - 2.896) < 5e-4                     # the values read in DL-630
     assert f"is {abs(big[2] - big[1]):.3f} ({big[1]:.3f} up, {big[2]:.3f} down) at eta_bar {big[0]:.3f}" in short
     assert (f"At the Hopf point the network v amplitude is {f['hopf_net'][0]:.2f} (up sweep) and {f['hopf_net'][1]:.2f} (down sweep) against {f['hopf_mf'][0]:.2f} and {f['hopf_mf'][1]:.2f} for the mean field") in short
-    assert "below the Hopf point the network does not rest" in short
+    assert "below the hopf point the network does not rest" in short.lower()
     assert (round(f["hopf_net"][0], 2), round(f["hopf_net"][1], 2), round(f["hopf_mf"][0], 2), round(f["hopf_mf"][1], 2)) == (1.07, 1.17, 0.08, 0.55)
     assert "in a sweep eta_bar is raised step by step, then lowered again" in short
     assert "no classifier" not in short and "spectrogram" not in short.split("Parameters:")[1].split("Limits:")[0]
@@ -164,7 +164,8 @@ def test_c3_f2_short_caption_new_sentences_numbers_from_the_arrays(built, f2d):
 @needs
 def test_c3_the_ruled_f2_sentence_one_is_not_changed(built):
     assert FG.F2_TAKE_HOME.startswith("The N = 1e4 network sweep does not follow the mean-field branch closely")
-    assert _short(built, "F2").startswith("F2. The network (the simulated network of N = 10,000 spiking neurons) does not follow the mean-field branch closely")
+    # 13t-4 (DL-636 E1): the journal captions no longer carry the ruled draft wording; the draft constant above is unchanged and the journal sentence 1 is the ruled E1 sentence
+    assert _short(built, "F2").startswith("F2. Above the Hopf point the network amplitude lies close to the mean-field branch in (a) and (b) and differs from it by up to 13.2 percent in (c).")
 
 
 # ---- C4: F6 ----
@@ -172,7 +173,7 @@ def test_c3_the_ruled_f2_sentence_one_is_not_changed(built):
 @needs
 def test_c4_f6_short_caption(built, f6d):
     short = _short(built, "F6")
-    assert "listed in the key above panel (a)" in short
+    assert "listed in the key below the bars)" in short                      # 13t-4 (DL-636 E2): the key stands below the bars of (a)
     assert "filled bars: the primary label (the first that applies); hatched and dotted bars: every label that applies" in short
     assert FG.S.figure_hatch("map1_any") != FG.S.figure_hatch("map2_any") and "." in FG.S.figure_hatch("map2_any")
     assert "NS: no rise, the noisy-run counterpart of D-none" in short

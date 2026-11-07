@@ -39,13 +39,14 @@ DRAFT_ID = {"F1": "F1", "F2": "F2", "F3": "F3", "F5": "F5", "F5c": "F5", "F6": "
 CHECKS = ("A collisions", "B pdf", "size+shape", "text>=8pt", "fonts", "line width", "cmaps", "non-colour", "letters", "file names", "FAIL lines", "digest", "arrays", "drafts identical",
           "image text", "image IDs", "plain words", "powers of ten", "minus signs", "sentence case", "red titles", "supplement", "sentence 1", "paragraphs", "caption words", "full caption", "key terms", "short caption", "short limits", "definitions", "failed count", "short numbers", "short parameters", "supplement FAILs", "superscripts",
           "margins", "label-title gap", "contrast", "red-green", "greyscale", "cvd", "png+tiff", "no svg/wmf/emf", "file sizes")
-MAIN_FAILURES = {"F1": FG.F1_MAIN_FAILURES, "F2": FG.F2_MAIN_FAILURES, "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES, "F5c": FG.F5C_MAIN_FAILURES, "F6": FG.F6_MAIN_FAILURES}
+MAIN_FAILURES = {"F1": FG.F1_MAIN_FAILURES, "F2": ("lies close to the mean-field branch",),      # 13t-4 (DL-636 E1): the journal sentence 1 of F2 follows the data; the draft constant FG.F2_MAIN_FAILURES is unchanged
+                  "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES, "F5c": FG.F5C_MAIN_FAILURES, "F6": FG.F6_MAIN_FAILURES}
 STRIP = {"F1": FG.f1_strip_lines, "F2": FG.strip_lines, "F3": FG.strip_lines, "F5": FG.f5_strip_lines, "F5c": FG.f5c_strip_lines, "F6": FG.f6_strip_lines}
 MIN_MARGIN_IN, MIN_LABEL_GAP_IN = 0.10, 0.05                                # DL-571 T5, T6
 CLAIM_IDS = {"F1": (FG.F1_CLAIM_LIMITS, None), "F2": (FG.F2_CLAIM_LIMITS, None), "F3": (FG.F3_CLAIM_LIMITS, None), "F5": (FG.F5_CLAIM_LIMITS, FG.F5_NOT_APPLICABLE), "F5c": (FG.F5_CLAIM_LIMITS, FG.F5_NOT_APPLICABLE),
              "F6": (FG.F6_CLAIM_LIMITS, FG.F6_NOT_APPLICABLE)}
 NA_TEXT = {"F6": PL.NOT_APPLICABLE_PLAIN_F6}                          # the plain reason of a not-applicable limit, where it is not the F5 one (DL-616)
-SHORT_MAIN = {"F1": ("does not reproduce it",), "F2": ("does not follow the mean-field branch closely",), "F6": ("negative-control check failed",), "F3": ("frequency check",), "F5": ("holds for the noise-free mean field only",),
+SHORT_MAIN = {"F1": ("does not reproduce it",), "F2": ("lies close to the mean-field branch",), "F6": ("negative-control check failed",), "F3": ("frequency check",), "F5": ("holds for the noise-free mean field only",),
               "F5c": ("step-halving check", "do not reproduce the mean field")}               # plain words of the main failure(s) that sentence 1 of the short caption holds (DL-582 U3 a, DL-593 V6)
 CHECK_TOKEN = {("RB1", "headline_10s"): "network against mean field", ("RB1", "headline_120s"): "network against mean field", ("RB1", "cells_30s"): "network against mean field",
                ("RB2", "noisy_subgrid_agreement"): "90 percent rule", ("RB6", "network_fpk_halving_dt"): "step-halving check", ("RB9", "b_spectral_vs_cycle_headline"): "frequency check",
