@@ -176,7 +176,7 @@ def caption(d: dict, rows: list, a11: list, *, ids, c: dict, FG) -> str:
     ])
     settings = ("The classifier (a rule fixed before the analysis that sorts runs into classes) and its settings are those of the project's frozen criteria; the spectrogram (power against time and frequency) is not drawn in this figure; "
                 "the values are not repeated here because no panel draws a classifier run.")
-    params = (f"Recorded values (the complete list with the key names as recorded is in the supplement): model {c['type']}; path {c['path']} with ramp duration {n(c['T9'])} s in (a) to (d); N = 1000, 3000, 10,000 and 30,000 in (a) to (c) and "
+    params = (f"Recorded values (the complete list with the key names as recorded is in the supplement): model {c['type']}; path P2 (the hypoxia-like path, mean excitability raised) with ramp duration {n(c['T9'])} s in (a) to (d); N = 1000, 3000, 10,000 and 30,000 in (a) to (c) and "
               f"{c['N10']:,} in (d) to (f); the noise level sigma = {n(c['sigma'])} in (e) and (f), with the noise factors 0.5, 1 and 2 and the ramp durations 10, 30, 120 and 300 s in (e).")
     rows_ = FG.strip_rows_of(FS3_ID, d)
     lines = [JC.failed_line(r) for r in rows_]
