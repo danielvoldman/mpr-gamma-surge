@@ -218,12 +218,12 @@ def f1_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
         f"In the mean field the surge ends (class D-tr: an episode that ends); its power spectrum peaks at {d['ref_f_pk_hz']:.1f} Hz (not drawn). "
         f"The classifier (a rule fixed before the analysis) labels the network {d['cls120'][0]} (a rise that does not end) in all 3 random seeds; "
         f"its onset (when it first flags the gamma rise) is {d['onset120_s'][0]:.1f} s for the network and {d['ref_onset_s']:.3f} s for the mean field.",
-        "By eye the network envelopes in (d) and (f) look similar to the mean-field ones in (c) and (e); the failed check concerns the class given by the fixed classifier, which labels all three network runs "
+        "By eye the network envelopes (the minimum to the maximum of a series in each pixel column) in (d) and (f) look similar to the mean-field ones in (c) and (e); the failed check concerns the class given by the fixed classifier, which labels all three network runs "
         f"{d['cls120'][0]} (no end), and no claim is made about the visual shape, either way.",
         "(a), (b) Mean excitability and coupling J (negative = inhibitory). (c), (e) Rate r and mean potential v of the mean field. "
         "(d), (f) The 3 network seeds (nearly coincident), same y axes as (c), (e); strip above: triangle = classifier onset, circle, plus, star = first crossing of its detection threshold, seeds 0, 1, 2. "
         "(g), (h) Spectrograms (power against time and frequency) of v; dashed lines: 25 and 100 Hz, the gamma band. "
-        "(i) Spike counts of seed 0; an orange solid line and an orange dashed line mark the two windows shown in (j) and (k) (orange frames).",
+        "(i) Spike counts of seed 0; an orange solid line and an orange dashed line mark the two windows shown in (j) and (k) (orange frames). (j), (k) The spikes of seed 0 (one row per neuron, as in (i)) in 1 s windows that start at the classifier onset (12.000 s) and at the mean-field onset (58.698 s).",
         # DL-603 W2: values copied from the Parameters and settings paragraphs of the full caption (numbers_missing is checked in finish); t_on is read as the ramp start (reviewer's wording, UNVERIFIED)
         "Parameters: model M3 (the mean-field model) with J = -21, heterogeneity Delta = 0.3, synaptic decay time tau_d = 5 ms and membrane time constant 10 ms; ramp duration 120 s, starting at 5 s; "
         "network N = 10,000; classifier window 2 s, step 1 s, gamma band 25 to 100 Hz; noise level sigma = 0.0624 (checked, not confirmed; its check failed).",

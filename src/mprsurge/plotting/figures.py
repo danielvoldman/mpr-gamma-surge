@@ -6888,6 +6888,18 @@ def _make_F2_journal(res, out_dir, root, script, take_home, claim_limit_ids, tag
                          pointers=(), cfg=cfg, status_text="\n\n".join([strip_heading("F2"), *strip_lines(d)]), plain_md=plain_md, extra_sections=sections)
 
 
+def _jnotes_26(fid: str) -> tuple:
+    """13t-4 E1 (DL-636): the notes table of the F2 supplement: the departure of sentence 1 of the journal captions from the ruled draft wording (close item 46)."""
+    if fid != "F2":
+        return ()
+    return (("Notes for the reader (13t-4, DL-636 E1; close item 46)",
+             "| # | note |
+|---|---|
+| 1 | draft F2 take-home disagrees with its drawn data; journal caption follows the data; the draft stays. The ruled draft wording is 'does not follow the mean-field branch closely'; the recorded "
+             "relative differences of the v amplitude above eta_bar 3.0 are +13.2 and +12.4 percent at eta_bar 3.296 (up and down sweep), about 7 percent at 3.696, at most 4.8 percent from 4.096 up and -2.5 percent at 6.496. "
+             "The journal captions read 'Above the Hopf point the network amplitude lies close to the mean-field branch in (a) and (b) and differs from it by up to 13.2 percent in (c)'. |"),)
+
+
 def _jsections_26(fid: str, a11: list) -> tuple:
     """Supplement sections of the F2 and F6 journal files (DL-616 B3): the mapping of panels, the list of every FAIL row of the stored table (the short caption refers to it), the stored names behind the plain words."""
     mapping = {"F2": "The journal panels (a) to (c) are the draft panels (a) to (c) (same letters, same data; the legend of the draft is the key under the panels).",
@@ -6896,7 +6908,7 @@ def _jsections_26(fid: str, a11: list) -> tuple:
     about = {"F2": "The four RB1 rows are listed with this figure because the figure draws network symbols (our reading, not verified); no panel draws their result.",
              "F6": "Only the negative-control row (G7) is about this figure."}[fid]
     return ((f"Mapping of the draft panels to the journal panels (DL-616 B4)", mapping), (f"All FAIL rows of the stored A11 table (DL-616 B3)", JCAP.all_fail_rows_for(a11, about)),
-            ("Stored names behind the plain words of the caption (DL-571 T8)", CODE_NAMES_MD))
+            ("Stored names behind the plain words of the caption (DL-571 T8)", CODE_NAMES_MD)) + _jnotes_26(fid)
 
 
 # F6 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
