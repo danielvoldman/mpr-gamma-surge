@@ -6997,3 +6997,13 @@ Chosen:          as done   Default from: the prompt (H3: stop after FS2 and FS3)
 Test:            tests/test_ms13_13t6.py; scripts/ms13_verify_export.py (trial folder); scripts/ms13_check_hashes.py
 Status:          FS2 and FS3 pass their trials; FS4, FS5, Part A (H4, H5, H6 text), the recorded build and the review are NOT done; no tag
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-656  MS13 13t-6: fast suite at the end of the step; FS2 and FS3 done as trials, FS4, FS5, Part A and the recorded build NOT done, no tag    [ID: MS13, 13t, 13t-6, DL-654, DL-655]
+Date:            2026-11-07        Author:
+Decision:        FACT. FAST SUITE at the end (HEAD before this entry: the commit of the figures.py manifest row): 1466 passed, 24 deselected, 9 xfailed, 3 warnings, 0 failed, exit 0 taken from pytest itself (1044.85 s; run with -q). Start of the step 1460 passed; +6 tests (tests/test_ms13_13t6.py). scripts/ms13_check_hashes.py 104 rows, 0 problems; the eleven drafts byte-identical. No tag, no push, no upload. The folder C:\Users\Alpha\AppData\Local\Temp\review_crops is outside the project and was not touched. OPEN FOR THE REVIEWER: FS4, FS5 (not done), Part A (H4 findings a to e, H5 FS1 sentence; H6 only the config limit 650 is done), the one recorded build of all finished journal figures with the verifier table, the independent comparison, the digest equality, the pilot sheet and the fresh-subagent review (none run), the FS2 and FS3 allow-lists (stored coincident positions, ruled mark sizes, reference lines; no legibility reason), items 44, 45, 46.
+Reason:          instruction of the reviewer (13t-6 prompt)
+Options:         -
+Chosen:          as done   Default from: the prompt (H3)
+Test:            fast suite
+Status:          13t-6 stopped after FS2 and FS3 (trials); no tag
+Commit/tag:      the commit that adds this entry; no tag
