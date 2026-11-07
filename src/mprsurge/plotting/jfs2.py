@@ -76,15 +76,10 @@ def draw(d: dict, FG):
     axl.set_gid("legend axes")
     axl.legend([Line2D([], [], color=m.colour, lw=m.width, ls=m.linestyle) for m in (mf, n1, n5)],
                ["Mean field", "Network, N = 10,000 (all panels)", "Network, N = 50,000 (point 2, 5 ms only)"], loc="center", ncol=3, frameon=False)
-    specs = [("Point 1,
-3 ms", [("mf_ceni_3.0", "s3_mf"), ("net_ceni_3ms", "s3_net_1e4")]), ("Point 1,
-4.95 ms", [("mf_ceni_4.95", "s3_mf"), ("net_ceni_4.95ms", "s3_net_1e4")]),
-             ("Point 1,
-8 ms", [("mf_ceni_8.0", "s3_mf"), ("net_ceni_8ms", "s3_net_1e4")]),
-             ("Point 2,
-5 ms", [("mf_devalle_5.0", "s3_mf"), ("net_devalle_5ms", "s3_net_1e4"), ("net_k8_5e4_5ms", "s3_net_5e4")]),
-             ("Point 2,
-50 ms", [("mf_devalle_50.0", "s3_mf"), ("net_devalle_50ms", "s3_net_1e4")])]
+    specs = [("Point 1,\n3 ms", [("mf_ceni_3.0", "s3_mf"), ("net_ceni_3ms", "s3_net_1e4")]), ("Point 1,\n4.95 ms", [("mf_ceni_4.95", "s3_mf"), ("net_ceni_4.95ms", "s3_net_1e4")]),
+             ("Point 1,\n8 ms", [("mf_ceni_8.0", "s3_mf"), ("net_ceni_8ms", "s3_net_1e4")]),
+             ("Point 2,\n5 ms", [("mf_devalle_5.0", "s3_mf"), ("net_devalle_5ms", "s3_net_1e4"), ("net_k8_5e4_5ms", "s3_net_5e4")]),
+             ("Point 2,\n50 ms", [("mf_devalle_50.0", "s3_mf"), ("net_devalle_50ms", "s3_net_1e4")])]
     for i, (title, series) in enumerate(specs):
         axt = fig.add_subplot(sub[1, i])
         for key, mark in series:
