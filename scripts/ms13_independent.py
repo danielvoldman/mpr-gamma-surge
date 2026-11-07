@@ -727,7 +727,7 @@ FUNCS = {"F1": f1, "F2": f2, "F3": f3, "F4": f4, "F5": f5, "F6": f6, "FS1": fs1,
 
 
 # ---------------------------------------------------------------------------------------------------- journal captions (13t-1d, DL-571 T9, DL-572)
-JOURNAL_FIGURES = ("F1", "F2", "F3", "F5", "F5c", "F6", "FS1", "FS2")             # the journal files whose captions are searched (F5c is the second file of the F5 build)
+JOURNAL_FIGURES = ("F1", "F2", "F3", "F5", "F5c", "F6", "FS1", "FS2", "FS3")             # the journal files whose captions are searched (F5c is the second file of the F5 build)
 SIGMA_NOTE = r"mean-field baseline std ([0-9.]+) against the network range ([0-9.]+) to ([0-9.]+)"
 # Patterns of the JOURNAL caption that differ from the draft pattern (`printed`) because the plain journal wording differs; the numbers sought are the same, the values are the stored ones,
 # nothing is loosened. A row of F1, F3 or F5 with a `printed` pattern and no entry here is searched in the journal caption with its draft pattern.
@@ -754,6 +754,12 @@ JOURNAL_OVERRIDE = {
     "FS2.k10_20.0": (r"the frequency changes by \d+\.\d, (\d+\.\d) and", 1),
     "FS2.k10_40.0": (r"and (\d+\.\d) percent at tau_d 8", 1),
     "FS2.k8_tol": (r"tolerance (\d+) percent\)", 1),
+    # 13t-6 (DL-651 H2): FS3 one caption; N written 3000, 10,000 and 30,000 (DL-592 V4), the same stored numbers
+    "FS3.ctrl_surge_N3000": (r"\((\d+) of 3 at 3000", 1),
+    "FS3.ctrl_surge_N10000": (r"(\d+) of 3 at 10,000", 1),
+    "FS3.nrule_1e4": (r"against (\d+) at 10,000", 1),
+    "FS3.nrule_3e4": (r"passes \((\d+) seeds at 30,000", 1),
+    "FS3.s11_kept_10": (r"and (\d+) of 10 at sigma \(", 1),
     "FS2.k7_resid": (r"leaves a residual of (\d+\.\d+) percent against", 1),
 }
 JOURNAL_TARGETS = {"F5.rb1_cells": ("F5", "F5c"), "F5.rb1_cells_den": ("F5", "F5c"), "F5.cells_disagree": ("F5", "F5c"), "F5.ramp_N3000_S+": ("F5", "F5c"), "F5.ramp_N10000_NS": ("F5", "F5c")}
@@ -803,7 +809,7 @@ def journal_rows(c: Ctx, R: Rows, figures) -> None:
                                             ("s1_needed", math.ceil(0.9 * n), "cells needed (sentence 1)")), start=1):
             R.add("F5", nm, qty, val, "A9/a9_subgrid_agreement.parquet: d24_cell_agrees", printed=(pat, k), jprinted=(pat, k), jtargets=("F5",))
     for r in R:
-        if r["figure"] in ("F1", "F2", "F3", "F5", "F6", "FS1", "FS2") and r["figure"] in figures and r["jprinted"] is None and r["printed"] is not None:
+        if r["figure"] in ("F1", "F2", "F3", "F5", "F6", "FS1", "FS2", "FS3") and r["figure"] in figures and r["jprinted"] is None and r["printed"] is not None:
             r["jprinted"] = JOURNAL_OVERRIDE.get(r["id"], r["printed"])
             r["jtargets"] = JOURNAL_TARGETS.get(r["id"], (r["figure"],))
         if r["jprinted"] is not None and r["jtargets"] is None:

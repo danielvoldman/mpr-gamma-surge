@@ -940,6 +940,10 @@ def journal_figure(fig_id: str, res=None, root=None, close: bool = True):
         elif fig_id == "FS1":
             d = prepare_FS1(load_FS1(res))
             fig = _draw_FS1_journal(d)
+        elif fig_id == "FS3":
+            from . import jfs3
+            d = prepare_FS3(load_FS3(res))
+            fig = jfs3.draw(d, sys.modules[__name__])
         elif fig_id == "FS2":
             from . import jfs2
             d = prepare_FS2(load_FS2(res))
@@ -3945,9 +3949,12 @@ def fs3_caption_notes(d: dict) -> tuple:
 
 
 def make_FS3(res=None, out_dir=None, *, tag_build: bool = False, take_home=FS3_TAKE_HOME, claim_limit_ids=FS3_CLAIM_LIMITS,
-             script="scripts/fig_FS3.py", root=None) -> dict:
-    """Build FS3 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov)."""
+             script="scripts/fig_FS3.py", root=None, mode: str = "draft") -> dict:
+    """Build FS3 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov). mode="journal": the stand-alone supplement file (13t-6, DL-651)."""
     F.require_buildable("FS3")
+    if mode == "journal":
+        from . import jfs3
+        return jfs3.build(sys.modules[__name__], res, out_dir, root, script, claim_limit_ids, tag_build)
     root = Path(root) if root is not None else repo_root()
     res = Path(res) if res is not None else root / "results"
     out = Path(out_dir) if out_dir is not None else root / "figures" / "FS3"
@@ -6113,7 +6120,7 @@ def f5c_strip_lines(d: dict) -> list[str]:
 
 def strip_rows_of(fid: str, d: dict) -> list:
     """The stored status rows listed in the journal caption of a journal file."""
-    if fid in ("FS1", "FS2"):
+    if fid == "FS1":
         return []                                   # no stored A11 row touches FS1 (FS1_STRIP_RB is empty); the drawn data hold no 'strip' entry (13t-4)
     return f5c_strip_rows(d) if fid == "F5c" else list(d["strip"])
 

@@ -35,19 +35,19 @@ from mprsurge.plotting import journal as J
 from mprsurge.plotting import style as S
 
 PILOT = ("F1", "F2", "F3", "F5", "F5c", "F6")            # 13t-1: F1, F3, F5, F5c; 13t-2 (DL-616): F2 and F6
-FS_SINGLE = ("FS2",)                                       # 13t-6 (DL-651 H1, H2): stand-alone supplement files with ONE caption (<ID>_journal_caption.txt); FS3 to FS5 are added when they are done
+FS_SINGLE = ("FS2", "FS3")                                       # 13t-6 (DL-651 H1, H2): stand-alone supplement files with ONE caption (<ID>_journal_caption.txt); FS3 to FS5 are added when they are done
 FS_FIGS = ("FS1",) + FS_SINGLE                                          # 13t-4 (DL-636 E5, DL-637): the supplementary figures that are exported (FS2 and FS3 are added when they are done)
 ALL_FIGS = PILOT + FS_FIGS
-DRAFT_ID = {"F1": "F1", "F2": "F2", "F3": "F3", "F5": "F5", "F5c": "F5", "F6": "F6", "FS1": "FS1", "FS2": "FS2"}              # the figure whose draft files, digest and manifest rows a journal file is checked against
+DRAFT_ID = {"F1": "F1", "F2": "F2", "F3": "F3", "F5": "F5", "F5c": "F5", "F6": "F6", "FS1": "FS1", "FS2": "FS2", "FS3": "FS3"}              # the figure whose draft files, digest and manifest rows a journal file is checked against
 CHECKS = ("A collisions", "B pdf", "size+shape", "text>=8pt", "fonts", "line width", "cmaps", "non-colour", "letters", "file names", "FAIL lines", "digest", "arrays", "drafts identical",
           "image text", "image IDs", "plain words", "powers of ten", "minus signs", "sentence case", "red titles", "supplement", "sentence 1", "paragraphs", "caption words", "full caption", "key terms", "short caption", "short limits", "definitions", "failed count", "short numbers", "short parameters", "supplement FAILs", "superscripts",
           "margins", "label-title gap", "contrast", "red-green", "greyscale", "cvd", "png+tiff", "no svg/wmf/emf", "file sizes")
 MAIN_FAILURES = {"F1": FG.F1_MAIN_FAILURES, "F2": ("lies close to the mean-field branch",),      # 13t-4 (DL-636 E1): the journal sentence 1 of F2 follows the data; the draft constant FG.F2_MAIN_FAILURES is unchanged
-                  "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES, "F5c": FG.F5C_MAIN_FAILURES, "F6": FG.F6_MAIN_FAILURES, "FS1": ("passes only on our own reading", "was not run"), "FS2": ("does not reproduce the published Hopf point", "a failed check")}
-STRIP = {"F1": FG.f1_strip_lines, "F2": FG.strip_lines, "F3": FG.strip_lines, "F5": FG.f5_strip_lines, "F5c": FG.f5c_strip_lines, "F6": FG.f6_strip_lines, "FS1": lambda d: [], "FS2": lambda d: []}
+                  "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES, "F5c": FG.F5C_MAIN_FAILURES, "F6": FG.F6_MAIN_FAILURES, "FS1": ("passes only on our own reading", "was not run"), "FS2": ("does not reproduce the published Hopf point", "a failed check"), "FS3": ("noise check failed", "a failed check")}
+STRIP = {"F1": FG.f1_strip_lines, "F2": FG.strip_lines, "F3": FG.strip_lines, "F5": FG.f5_strip_lines, "F5c": FG.f5c_strip_lines, "F6": FG.f6_strip_lines, "FS1": lambda d: [], "FS2": lambda d: [], "FS3": FG.fs3_strip_lines}
 MIN_MARGIN_IN, MIN_LABEL_GAP_IN = 0.10, 0.05                                # DL-571 T5, T6
 CLAIM_IDS = {"F1": (FG.F1_CLAIM_LIMITS, None), "F2": (FG.F2_CLAIM_LIMITS, None), "F3": (FG.F3_CLAIM_LIMITS, None), "F5": (FG.F5_CLAIM_LIMITS, FG.F5_NOT_APPLICABLE), "F5c": (FG.F5_CLAIM_LIMITS, FG.F5_NOT_APPLICABLE),
-             "F6": (FG.F6_CLAIM_LIMITS, FG.F6_NOT_APPLICABLE), "FS1": (FG.FS1_CLAIM_LIMITS, None), "FS2": (FG.FS2_CLAIM_LIMITS, None)}
+             "F6": (FG.F6_CLAIM_LIMITS, FG.F6_NOT_APPLICABLE), "FS1": (FG.FS1_CLAIM_LIMITS, None), "FS2": (FG.FS2_CLAIM_LIMITS, None), "FS3": (FG.FS3_CLAIM_LIMITS, None)}
 NA_TEXT = {"F6": PL.NOT_APPLICABLE_PLAIN_F6}                          # the plain reason of a not-applicable limit, where it is not the F5 one (DL-616)
 SHORT_MAIN = {"F1": ("does not reproduce it",), "F2": ("lies close to the mean-field branch",), "F6": ("negative-control check failed",), "FS1": ("passes only on our own reading", "was not run"), "F3": ("frequency check",), "F5": ("holds for the noise-free mean field only",),
               "F5c": ("step-halving check", "do not reproduce the mean field")}               # plain words of the main failure(s) that sentence 1 of the short caption holds (DL-582 U3 a, DL-593 V6)
