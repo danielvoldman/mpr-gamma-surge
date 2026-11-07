@@ -433,6 +433,17 @@ def f1_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list, 
 
 # ---- F3 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+def band_end_sentence(c: dict) -> str:
+    """DL-645 G1: the band-end clause of the F3 FULL caption, written from the recorded band ends (c['bands'] = [(Delta, tau_d ms, end)])."""
+    bands = c.get("bands")
+    if not bands:
+        raise JCaptionError("F3: the band ends are not available (DL-645 G1)")
+    short = [(D, t, e) for D, t, e in bands if e < 8.0]
+    lst = "; ".join(f"Delta {D}, tau_d {t:g} ms: {e:.2f}" for D, t, e in short)
+    return (f"Each band ends at the last recorded eta_bar of its cycle branch; the reason is not recorded. {len(short)} of the {len(bands)} bands end before eta_bar 8.0 (heterogeneity Delta, tau_d, end value): {lst}. "
+            "All other bands end at 8.0.")
+
+
 def f3_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list, ids, c: dict) -> str:
     """The journal caption of F3. c: constants of figures.py: deltas, path order, overlap note, tau_d range text, RB9(b) frequencies (spectral, cycle, difference)."""
     deltas = c["deltas"]
@@ -471,6 +482,7 @@ def f3_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list, 
                  f"of the curve in (c)), because the frequency map stores no Delta slices; the combined path arrow lies at Delta {num(d['P1_Delta'])}, "
                  f"P4a leaves it upward to Delta {d['P4a_Delta_end_derived']:.3g} and P4b downward to Delta {d['P4b_Delta_end_derived']:.3g} (both end Delta values are derived: stored Delta times stored Delta factor), and the Hopf point of the frequency map is at eta_bar {hl_eta:.3f}.")
     panel.append("(e) The path strip: one row per path leg (P1, P2, P3, P4a, P4b, P5 up and P5 return), each from its stored start to its stored end in eta_bar; the rows are labels, not a parameter axis, and the ramp duration of each stored record is in its row label.")
+    panel.append(band_end_sentence(c))
     panel.append(f"Arrows show the stored linear-profile path values (T_ramp {', '.join(f'{x:g}' for x in t_ramp)} s; the path values are identical at every stored T_ramp); P3 is drawn for a drive amplitude of {num(d['P3_I_amp'])} only, and the J ramp of P2 and P3 is not drawn. "
                  + c["shared"] + " " + c["overlap"] + " " + c["arrow_note"])
     settings = ("No classifier or spectrogram is used in this figure; the 25 Hz and 100 Hz contours are the edges of the gamma band of the classifier (25 to 100 Hz). Colour and contours show the limit-cycle frequency of the continuation, "

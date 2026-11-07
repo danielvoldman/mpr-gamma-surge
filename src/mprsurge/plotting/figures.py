@@ -1081,14 +1081,39 @@ def _f3_overlap_j(d: dict) -> str:
 F3_A4_POINTS = (30, 100)               # DL-582 U4: the stored points of the Hopf curve drawn in (c) (tau_d against eta_bar) and in (d) (Delta against eta_bar); a build stops if the stored arrays differ
 
 
-def _f3_jconst(d: dict) -> dict:
+def _f3_band_ends(raw: dict) -> list:
+    """DL-645 G1: the end of each of the 27 bands (3 Delta x 9 tau_d) read from the stored A6 arrays (eta_tau_D<Delta>_param_last); each must equal branch_end_eta of the stored A6 summary, else DataError (STOP).
+    Returns [(Delta text, tau_d ms, last recorded eta_bar)] in the order of DELTAS and of the stored tau_d."""
+    a6, planes = raw["a6"], raw["summary"]["planes"]
+    out = []
+    for D in DELTAS:
+        taus, last, be = (np.asarray(x, dtype=float) for x in (a6[f"eta_tau_D{D}_other"], a6[f"eta_tau_D{D}_param_last"], planes[f"eta_tau_D{D}"]["branch_end_eta"]))
+        if taus.shape != last.shape or not np.allclose(last, be, rtol=0.0, atol=1e-9):
+            raise DataError(f"F3: the last recorded eta_bar of the bands at Delta {D} differs from branch_end_eta of the A6 summary: STOP and report")
+        out += [(D, float(t), float(e)) for t, e in zip(taus, last)]
+    if len(out) != 27:
+        raise DataError(f"F3: {len(out)} bands, 27 expected")
+    return out
+
+
+def _f3_band_table_md(bands: list) -> str:
+    rows = ["| Delta | tau_d (ms) | last recorded eta_bar of the cycle branch (band end) | ends before 8.0 |", "|---|---|---|---|"]
+    rows += [f"| {D} | {t:g} | {e:.4f} | {'yes' if e < 8.0 else 'no'} |" for D, t, e in bands]
+    return "
+".join(rows) + f"
+
+{sum(e < 8.0 for _, _, e in bands)} of the {len(bands)} bands end before eta_bar 8.0. Each band ends at the last recorded eta_bar of its cycle branch; the reason is not recorded."
+
+
+def _f3_jconst(d: dict, raw: dict | None = None) -> dict:
     ts = sorted(float(v) for v in d["D0.3_tau_d_ms"])
     n_c, n_d = len(d["a4_tau_d_ms"]), len(d["a4_Delta"])
     if (n_c, n_d) != F3_A4_POINTS or len(d["a4_tau_d_eta_H"]) != n_c or len(d["a4_Delta_eta_H"]) != n_d:
         raise DataError(f"F3: the stored Hopf curves have {n_c} points in (c) and {n_d} in (d), {F3_A4_POINTS[0]} and {F3_A4_POINTS[1]} expected: STOP and report")
     return {"deltas": DELTAS, "path_order": PATH_ORDER, "a4_points": n_c, "a4_points_d": n_d, "rb9b": F3_RB9B, "cross_text": F3_CROSS_TEXT, "ref_range": F3_REF_RANGE,
             "tau_range": f"{CAP.number_text(ts[0])} to {CAP.number_text(ts[-1])} ms", "combined": ", ".join(_f3_combined_group(d)[:-1]) + " and " + _f3_combined_group(d)[-1],
-            "shared": _f3_shared_j(d), "overlap": _f3_overlap_j(d), "arrow_note": F3_ARROW_NOTE}
+            "shared": _f3_shared_j(d), "overlap": _f3_overlap_j(d), "arrow_note": F3_ARROW_NOTE,
+            "bands": _f3_band_ends(raw) if raw is not None else None}
 
 
 CODE_NAMES_MD = "\n".join([
@@ -1111,7 +1136,7 @@ CODE_NAMES_MD = "\n".join([
 ])
 
 
-def _jsections(fid: str, a11: list, panels: str = "") -> tuple:
+def _jsections(fid: str, a11: list, panels: str = "", bands: list | None = None) -> tuple:
     """The supplement sections of a journal file (DL-571): the mapping of journal panels to draft panels, the stored FAIL rows named in the caption (T2) and the stored names behind the plain words (T8)."""
     mapping = {"F1": "The journal panels (a) to (k) are the draft panels (a) to (k) (same letters, same data).", "F3": "The journal panels (a) to (e) are the draft panels (a) to (e) (same letters, same data).",
                "F5": "The journal panels (a) to (e) of F5 are the draft panels (a) to (e) of F5 (same letters, same data); the draft panels (f) to (i) are in the second journal file F5c.",
@@ -1122,6 +1147,8 @@ def _jsections(fid: str, a11: list, panels: str = "") -> tuple:
         out.append(("Stored FAIL rows named in the caption but not in the status strip (DL-571 T2)", JCAP.supplement_rows(a11)))
     if fid == "F3":
         out.append(("All FAIL rows of the stored A11 table (DL-604 W4(e))", JCAP.all_fail_rows(a11)))
+        if bands is not None:
+            out.append(("The end of each of the 27 bands (DL-645 G1; read from the recorded frequency map)", _f3_band_table_md(bands)))
     out.append(("Stored names behind the plain words of the caption (DL-571 T8)", CODE_NAMES_MD))
     return tuple(out)
 
@@ -1369,10 +1396,10 @@ def make_F3(res=None, out_dir=None, *, tag_build: bool = False, take_home=F3_TAK
         import dataclasses
         crit3, _ = F.K.load_frozen_criteria(root)
         plain_md = PL.pairing_markdown(claim_limit_ids, None, cap.text)
-        jtext = JCAP.f3_caption(d, [], crit3, [r for r in rows if r["key"] in CAPTION_KEYS], strip_rows=list(d["strip"]), ids=claim_limit_ids, c=_f3_jconst(d))
+        jtext = JCAP.f3_caption(d, [], crit3, [r for r in rows if r["key"] in CAPTION_KEYS], strip_rows=list(d["strip"]), ids=claim_limit_ids, c=_f3_jconst(d, raw))
         cap = dataclasses.replace(cap, text=jtext)
-        short_text = JSH.f3_short(d, [], list(d["strip"]), _f3_jconst(d), J.caption_limit(J.load_config(root), "F3"), jtext)
-        sections = _jsections("F3", raw["a11"])
+        short_text = JSH.f3_short(d, [], list(d["strip"]), _f3_jconst(d, raw), J.caption_limit(J.load_config(root), "F3"), jtext)
+        sections = _jsections("F3", raw["a11"], bands=_f3_band_ends(raw))
     import matplotlib.pyplot as plt
     out.mkdir(parents=True, exist_ok=True)
     stem = "F3_journal" if journal else "F3"
@@ -1960,7 +1987,7 @@ def _draw_FS1(d: dict, draft: bool):
     return _style_text(fig, FS1_FOOTER if draft else "")
 
 
-FS1J_HEIGHT = 9.2
+FS1J_HEIGHT = 9.4
 FS1J_MAPS = {"a": (0.80, 0.42, 2.20, 2.10), "b": (3.45, 0.42, 2.10, 2.10), "c": (0.80, 3.35, 2.10, 2.10)}       # (left, top, width, height) in inches
 FS1J_CB = {"b": (5.63, 0.42, 0.10, 2.10), "c": (2.98, 3.35, 0.10, 2.10)}
 FS1J_D = (4.25, 3.35, 1.78, 2.10)
@@ -2058,7 +2085,8 @@ def _draw_FS1_journal(d: dict):
           Line2D([], [], color=k4t.colour, lw=k4t.width, ls=k4t.linestyle), Line2D([], [], color=rst.colour, lw=rst.width, ls=rst.linestyle), Line2D([], [], color=win.colour, lw=win.width, ls=win.linestyle),
           Line2D([], [], color=k5t.colour, lw=k5t.width, ls=k5t.linestyle), Line2D([], [], color=frc.colour, lw=frc.width, ls=frc.linestyle)]
     ll = ["One fixed point (grid node)", "Three fixed points (grid node)", "Fold formula, two branches", "Cusp, formula", f"Test point ({d['k_eta'] / d['k_Delta']:g}, {d['k_J'] / np.sqrt(d['k_Delta']):g})".replace("-", MINUS),
-          "Grey: no focus in the band", "Recorded r(t)", "Focus value of r", "Fit window start and end", "Recorded r(t), forced", "Forcing I(t)"]
+          "Grey: no focus (in (c) also
+a focus outside the band)", "Recorded r(t)", "Focus value of r", "Fit window start and end", "Recorded r(t), forced", "Forcing I(t)"]
     lg = kx.legend(hh, ll, loc="upper left", bbox_to_anchor=(0.0, 1.0), ncol=3, frameon=False, borderaxespad=0, labelspacing=0.25, handlelength=2.0, columnspacing=1.0)
     lg.set_in_layout(False)
     J.finish(fig, cfg, "FS1")
