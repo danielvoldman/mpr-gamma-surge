@@ -2057,7 +2057,7 @@ def _draw_FS1_journal(d: dict):
           Line2D([], [], ls="none", marker=kpt.marker, ms=kpt.size, color=kpt.colour, mew=kpt.width), Patch(fc=S.FS_COLOURS["no_data"], ec=S.FS_COLOURS["patch_edge"], lw=0.5),
           Line2D([], [], color=k4t.colour, lw=k4t.width, ls=k4t.linestyle), Line2D([], [], color=rst.colour, lw=rst.width, ls=rst.linestyle), Line2D([], [], color=win.colour, lw=win.width, ls=win.linestyle),
           Line2D([], [], color=k5t.colour, lw=k5t.width, ls=k5t.linestyle), Line2D([], [], color=frc.colour, lw=frc.width, ls=frc.linestyle)]
-    ll = ["One fixed point (grid node)", "Three fixed points (grid node)", "Fold formula, two branches", "Cusp, formula", f"Test point ({d['k_eta'] / d['k_Delta']:g}, {d['k_J'] / np.sqrt(d['k_Delta']):g})",
+    ll = ["One fixed point (grid node)", "Three fixed points (grid node)", "Fold formula, two branches", "Cusp, formula", f"Test point ({d['k_eta'] / d['k_Delta']:g}, {d['k_J'] / np.sqrt(d['k_Delta']):g})".replace("-", MINUS),
           "Grey: no focus in the band", "Recorded r(t)", "Focus value of r", "Fit window start and end", "Recorded r(t), forced", "Forcing I(t)"]
     lg = kx.legend(hh, ll, loc="upper left", bbox_to_anchor=(0.0, 1.0), ncol=3, frameon=False, borderaxespad=0, labelspacing=0.25, handlelength=2.0, columnspacing=1.0)
     lg.set_in_layout(False)

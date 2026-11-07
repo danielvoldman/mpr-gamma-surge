@@ -96,3 +96,72 @@ def test_e5_fs_profile_in_the_config():
     cfg = J.load_config(ROOT)
     fs = cfg["fs_profile"]
     assert fs["width_in"] == 6.3 and all(fs["max_height_in"][k] == 9.5 for k in ("FS1", "FS2", "FS3"))
+
+
+# ---- Part B: FS1 (DL-637) ----
+from mprsurge.plotting import jfs as JFS
+
+fs1_needs = pytest.mark.skipif(not all((RES / p).is_file() for p in FG.FS1_INPUTS), reason="stored FS1 inputs under results/ are absent")
+
+
+@pytest.fixture(scope="module")
+def fs1(tmp_path_factory):
+    base = tmp_path_factory.mktemp("fs1") / "journal"
+    out = FG.make_FS1(mode="journal", out_dir=base / "FS1")
+    return {"base": base, "out": out}
+
+
+@fs1_needs
+def test_fs1_digest_equals_the_draft_and_the_draft_files_are_untouched(fs1):
+    draft = (ROOT / "figures" / "FS1" / "FS1_drawn_data_sha256.txt").read_text(encoding="utf-8").strip()
+    assert fs1["out"]["drawn_sha256"] == draft == FG.drawn_data_sha256(FG.prepare_FS1(FG.load_FS1(RES)))
+
+
+@fs1_needs
+def test_fs1_fits_the_fs_profile_at_8_pt_without_an_unlisted_collision(fs1):
+    import importlib.util
+    import csv
+    spec = importlib.util.spec_from_file_location("ms13_verify_export", ROOT / "scripts" / "ms13_verify_export.py")
+    V = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(V)
+    with open(ROOT / "docs" / "ms13_figure_manifest.csv", newline="", encoding="utf-8") as fh:
+        manifest = {(r["figure"], r["file"]): r["sha256"] for r in csv.DictReader(fh)}
+    res, info = V.check_figure("FS1", fs1["base"], ROOT, manifest)
+    bad = {k: v for k, v in res.items() if v[0] == "FAIL"}
+    assert not bad, bad
+    W, H = info["inches"]
+    cfg = J.load_config(ROOT)
+    assert abs(W - 6.3) < 1e-9 and H <= cfg["fs_profile"]["max_height_in"]["FS1"] and H > cfg["page"]["main_max_height_in"]      # uses the taller FS profile, not the 8.0 in page
+    assert info["allowed_classes"].keys() <= {"stored coincident positions", "stored coincident positions and ruled mark sizes"}
+
+
+@fs1_needs
+def test_fs1_captions_numbers_and_main_failures(fs1):
+    short, full = _txt(fs1["base"], "FS1"), _txt(fs1["base"], "FS1", True)
+    d = FG.prepare_FS1(FG.load_FS1(RES))
+    assert len(short.split()) <= 600 and len(full.split("Panels.")) == 2
+    for s in ("for 20 of 20 r values", "18 of 20 at base spacing", "(0 of 25727;", "decays to 2.1e-4 and 6.1e-3", "inside the 25 to 100 Hz band is 5.1"):
+        assert s in short and s in full, s
+    first = short[len("FS1. "):].split(". ")[0]
+    assert "passes only on our own reading" in first and "was not run" in first
+    assert "UNVERIFIED" not in short + full and "No panel has a red title" in short and "No other failed check is about this figure" in short
+    assert d["k1_pass_half"] == 20 and d["k1_pass_base"] == 18 and d["ring_n_focus"] == 25727 and d["ring_n_nondamped"] == 0
+
+
+@fs1_needs
+def test_fs1_supplement_has_the_replication_table_and_the_source_data(fs1):
+    sup = fs1["base"] / "supplement"
+    text = (sup / "FS1_supplement.md").read_text(encoding="utf-8")
+    d = FG.prepare_FS1(FG.load_FS1(RES))
+    for t in d["a0_target"]:
+        assert f"| {t} | pass |" in text
+    assert "Replication table of the draft panel (f), verbatim" in text and (sup / "FS1_source_data.csv").stat().st_size < 20e6
+    assert (sup / "FS1_alt_text.txt").read_text(encoding="utf-8").count("Panel (") == 5
+
+
+def test_fs1_height_limit_reads_the_fs_profile_and_main_figures_keep_8_in():
+    cfg = J.load_config(ROOT)
+    assert J.height_limit(cfg, "FS1") == 9.5 and J.height_limit(cfg, "F2") == 8.0 and J.height_limit(cfg) == 8.0
+    with pytest.raises(J.JournalError):
+        J.page_size(cfg, 9.6, fid="FS1")
+    assert J.page_size(cfg, 9.4, fid="FS1") == (6.3, 9.4)

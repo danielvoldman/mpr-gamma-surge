@@ -727,7 +727,7 @@ FUNCS = {"F1": f1, "F2": f2, "F3": f3, "F4": f4, "F5": f5, "F6": f6, "FS1": fs1,
 
 
 # ---------------------------------------------------------------------------------------------------- journal captions (13t-1d, DL-571 T9, DL-572)
-JOURNAL_FIGURES = ("F1", "F2", "F3", "F5", "F5c", "F6")             # the journal files whose captions are searched (F5c is the second file of the F5 build)
+JOURNAL_FIGURES = ("F1", "F2", "F3", "F5", "F5c", "F6", "FS1")             # the journal files whose captions are searched (F5c is the second file of the F5 build)
 SIGMA_NOTE = r"mean-field baseline std ([0-9.]+) against the network range ([0-9.]+) to ([0-9.]+)"
 # Patterns of the JOURNAL caption that differ from the draft pattern (`printed`) because the plain journal wording differs; the numbers sought are the same, the values are the stored ones,
 # nothing is loosened. A row of F1, F3 or F5 with a `printed` pattern and no entry here is searched in the journal caption with its draft pattern.
@@ -795,7 +795,7 @@ def journal_rows(c: Ctx, R: Rows, figures) -> None:
                                             ("s1_needed", math.ceil(0.9 * n), "cells needed (sentence 1)")), start=1):
             R.add("F5", nm, qty, val, "A9/a9_subgrid_agreement.parquet: d24_cell_agrees", printed=(pat, k), jprinted=(pat, k), jtargets=("F5",))
     for r in R:
-        if r["figure"] in ("F1", "F2", "F3", "F5", "F6") and r["figure"] in figures and r["jprinted"] is None and r["printed"] is not None:
+        if r["figure"] in ("F1", "F2", "F3", "F5", "F6", "FS1") and r["figure"] in figures and r["jprinted"] is None and r["printed"] is not None:
             r["jprinted"] = JOURNAL_OVERRIDE.get(r["id"], r["printed"])
             r["jtargets"] = JOURNAL_TARGETS.get(r["id"], (r["figure"],))
         if r["jprinted"] is not None and r["jtargets"] is None:
@@ -897,6 +897,9 @@ def short_rows(c: Ctx, R: Rows, figures) -> None:
               jprinted=(r"S-rel in (\d+) of \d+ runs", 1), jtargets=("F6",), sprinted=(r"S-rel in (\d+) of \d+ runs", 1), stargets=("F6",))
         R.add("F6", "srel_total", "runs of the noisy first negative control (mode-N rows)", tot, "A10/a10_controls.csv: NC1 mode_N_summary_per_window n_seeds", shared="stored class counts",
               jprinted=(r"S-rel in \d+ of (\d+) runs", 1), jtargets=("F6",), sprinted=(r"S-rel in \d+ of (\d+) runs", 1), stargets=("F6",))
+    for r in R:                                         # 13t-4 (DL-637): the FS1 short caption states the take-home numbers in the words of the draft constant, so the draft pattern finds them (same numbers, nothing loosened)
+        if r["figure"] == "FS1" and "FS1" in figures and r["printed"] is not None and r["sprinted"] is None:
+            r["sprinted"], r["stargets"] = r["printed"], ("FS1",)
     for r in R:
         if r["id"] in SHORT_OVERRIDE and r["figure"] in figures:
             r["sprinted"] = SHORT_OVERRIDE[r["id"]]
