@@ -87,3 +87,36 @@ def test_fs2_png_margins_and_caption_numbers(built):
         assert x in cap
     for t in ("8.0", "20.0", "40.0"):
         assert f"{100 * d[f'k10_rel_change_{t}']:.1f}" in cap
+
+
+needs3 = pytest.mark.skipif(not all((RES / p).is_file() for p in FG.FS3_INPUTS), reason="stored inputs under results/ are absent")
+
+
+@pytest.fixture(scope="module")
+def built3(tmp_path_factory):
+    base = tmp_path_factory.mktemp("journal13t6fs3")
+    FG.make_FS3(mode="journal", out_dir=base / "journal" / "FS3")
+    return base / "journal"
+
+
+@needs3
+def test_fs3_one_caption_digest_size_collisions_and_failures_shown(built3):
+    assert not (built3 / "FS3" / "FS3_journal_caption_full.txt").exists()
+    cap = (built3 / "FS3" / "FS3_journal_caption.txt").read_text(encoding="utf-8").strip()
+    paras = cap.split("\n\n")
+    assert len(paras) == 7 and paras[0].startswith("FS3. ") and not JCAP.FORBIDDEN.search(cap) and JSH.undefined_terms(cap) == [] and not JCAP.key_unused_terms(cap)
+    d = FG.prepare_FS3(FG.load_FS3(RES))
+    for r in d["strip"]:                                                                       # every failed row of the figure is in the caption in plain words
+        assert JCAP.failed_line(r) in cap
+    for x in ("97 of 225", "203 needed", "NOT EVALUABLE", "Lorentzian heterogeneity only"):
+        assert x in cap
+    draft = (ROOT / "figures" / "FS3" / "FS3_drawn_data_sha256.txt").read_text(encoding="utf-8").strip()
+    assert (built3 / "FS3" / "FS3_journal_drawn_data_sha256.txt").read_text(encoding="utf-8").strip() == draft
+    with FG.journal_figure("FS3", root=ROOT) as (fig, d2, cfg):
+        assert tuple(round(v, 3) for v in fig.get_size_inches()) == (7.4, 12.6)
+        assert JC.text_sizes(fig, cfg["text"]["min_pt"]) == []
+        bad, ok = CO.check(fig, pad_pt=cfg["collision"]["pad_pt"], allow=CO.JOURNAL_ALLOW.get("FS3", ()))
+        assert bad == [] and all("stored" in r for _, r in ok)
+        assert JC.image_id_violations(fig) == [] and JC.plain_word_violations(fig) == [] and J.lowercase_starts(fig) == [] and JC.non_colour_violations(fig) == []
+        assert sorted(s for _, s in JC.red_titles(fig)) == ["(e) Noise check: FAIL", "(g) 90 percent rule: FAILED"]
+    assert not JC.margin_violations(built3 / "FS3" / "FS3_journal.png", 0.10)

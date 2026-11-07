@@ -759,6 +759,10 @@ JOURNAL_OVERRIDE = {
     "FS3.ctrl_surge_N10000": (r"(\d+) of 3 at 10,000", 1),
     "FS3.nrule_1e4": (r"against (\d+) at 10,000", 1),
     "FS3.nrule_3e4": (r"passes \((\d+) seeds at 30,000", 1),
+    "FS3.s11_ctrl_0.5": (r"constant parameters reach (\d+) of 10 at every sigma", 1),
+    "FS3.subgrid_agree": (r"in (\d+) of 225 cells \(", 1),
+    "FS3.subgrid_cells": (r"in \d+ of (\d+) cells \(", 1),
+    "FS3.subgrid_needed": (r"percent\) against (\d+) needed", 1),
     "FS3.s11_kept_10": (r"and (\d+) of 10 at sigma \(", 1),
     "FS2.k7_resid": (r"leaves a residual of (\d+\.\d+) percent against", 1),
 }
