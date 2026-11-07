@@ -159,7 +159,7 @@ def draw(d: dict, FG):
     axg.set_ylabel("Linear frequency (Hz)")
     axg.set_xticks(d["k10_J_8.0"])
     axg.set_xticklabels([f"{x:g}".replace("-", MINUS) for x in d["k10_J_8.0"]])
-    axg.set_ylim(top=25.0)
+    axg.set_ylim(top=28.0)
     FG._journal_title(axg, "l", "Frequency against J: FAIL", fail=True)
     axg.legend(loc="upper left", frameon=True, framealpha=0.95)
     fig.canvas.draw()
