@@ -117,9 +117,9 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         from PIL import Image
         wpx, hpx = Image.open(png).size
         hmax = J.height_limit(cfg, fid)                                                       # 13t-4 (DL-636 E5): the per-figure height limit of the FS profile, else the main page maximum
-        okz = (W <= cfg["page"]["main_width_in"] + 1e-9 and H <= hmax + 1e-9 and mb is not None and abs(mb[2] / 72.0 - W) < 0.02 and abs(mb[3] / 72.0 - H) < 0.02
+        okz = (W <= J.width_limit(cfg, fid) + 1e-9 and H <= hmax + 1e-9 and mb is not None and abs(mb[2] / 72.0 - W) < 0.02 and abs(mb[3] / 72.0 - H) < 0.02
                and (wpx, hpx) == (round(W * cfg["output"]["png_dpi"]), round(H * cfg["output"]["png_dpi"])))
-        res["size+shape"] = ("PASS" if okz else "FAIL", f"{W:.3f} x {H:.3f} in (limit {cfg['page']['main_width_in']} x {hmax}); png {wpx} x {hpx} px at {cfg['output']['png_dpi']} dpi")
+        res["size+shape"] = ("PASS" if okz else "FAIL", f"{W:.3f} x {H:.3f} in (limit {J.width_limit(cfg, fid)} x {hmax}); png {wpx} x {hpx} px at {cfg['output']['png_dpi']} dpi")
         info["inches"] = (W, H)
         # text, lines, cmaps, non-colour
         t_bad = JC.text_sizes(fig, cfg["text"]["min_pt"])

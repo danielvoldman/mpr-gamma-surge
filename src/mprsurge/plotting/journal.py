@@ -219,7 +219,7 @@ def finish(fig, cfg: dict, fid: str | None = None) -> dict:
                 sp.set_linewidth(lw)
                 n_line += 1
     w, h = fig.get_size_inches()
-    if w > cfg["page"]["main_width_in"] + 1e-9 or h > height_limit(cfg, fid) + 1e-9:
+    if w > width_limit(cfg, fid) + 1e-9 or h > height_limit(cfg, fid) + 1e-9:
         raise JournalError(f"figure size {w:.3f} x {h:.3f} in is above the page size of the config")
     return {"text_raised": n_text, "lines_thickened": n_line}
 
