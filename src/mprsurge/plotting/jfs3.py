@@ -141,10 +141,8 @@ def draw(d: dict, FG):
     axs = fig.add_subplot(gs[3, 2:6])
     axs.axis("off")
     axs.set_gid("legend axes")
-    axs.text(0.0, 1.0, "Panels (a) to (d): network runs, ramp duration 60 s (N = 10,000 in (d), 3 seeds).\n"
-             "Panels (e) and (f): mean-field runs with noise, 10 seeds each.\n"
-             "A surge class is S+, S-rel or S-abs. Bold numbers: seeds in a surge class.\n"
-             "Hatching and colour both mark the classes.", va="top", ha="left")
+    axs.text(0.0, 1.0, "Panels (a) to (d): network runs, ramp\nduration 60 s (N = 10,000 in (d), 3 seeds).\nPanels (e) and (f): mean-field runs with\nnoise, 10 seeds each.\n"
+             "A surge class is S+, S-rel or S-abs.\nBold numbers: seeds in a surge class.\nHatching and colour both mark the classes.", va="top", ha="left")
     J.finish(fig, cfg, FS3_ID)
     return fig
 
