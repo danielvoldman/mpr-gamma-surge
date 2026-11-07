@@ -78,6 +78,11 @@ def sha256_file(p) -> str:
     return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 
 
+def _strip_rows(fid, d):
+    """13t-7 (DL-663): FS2 has no stored status row and its drawn data have no 'strip' entry."""
+    return [] if (fid in FS_SINGLE and "strip" not in d) else FG.strip_rows_of(fid, d)
+
+
 def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict, dict]:
     """Returns ({check: (status, detail)}, info)."""
     res: dict = {}
@@ -146,7 +151,7 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         res["file names"] = ("PASS" if not names_bad and not case_bad else "FAIL", f"{len(names_bad)} invalid names, {len(case_bad)} case mismatches")
         # draft FAIL lines in the caption
         lines = STRIP[fid](d)
-        srows = FG.strip_rows_of(fid, d)
+        srows = _strip_rows(fid, d)
         # 13t-1d (DL-571 T8): the journal caption holds the plain form of every strip row (JCAP.failed_line), and the supplement holds the ruled (verbatim) line
         absent = [ln for ln, r in zip(lines, srows) if JCAP.failed_line(r) not in cap or ln not in sup_text]
         res["FAIL lines"] = ("PASS" if not absent else "FAIL", f"{len(lines) - len(absent)} of {len(lines)} strip lines in the caption (plain) and the supplement (ruled)" + (f"; absent: {absent[0][:50]}" if absent else ""))
@@ -215,7 +220,7 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         res["red titles"] = ("PASS" if okr else "FAIL", ("no red title (no failed row concerns this figure)" if no_red else f"{len(reds)} red titles, each a plain title of the map; each in the full caption ('shown in the title as') and the supplement table") if okr
                              else f"unmapped {unmapped[:1]}; not in caption or table {not_in_cap[:1]}; {evidence}")
         # supplement
-        need = [f"{x['rb_id']} {x['check_id']}" for x in FG.strip_rows_of(fid, d)]
+        need = [f"{x['rb_id']} {x['check_id']}" for x in _strip_rows(fid, d)]
         lack = [n for n in need if n not in sup_text]
         res["supplement"] = ("PASS" if not lack else "FAIL", f"{len(need) - len(lack)} of {len(need)} strip rows in the supplement")
         # sentence 1

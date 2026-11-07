@@ -7067,3 +7067,13 @@ Chosen:          as done   Default from: the prompt
 Test:            tests/test_ms13_13t3.py, tests/test_ms13_13t4.py, tests/test_ms13_review_aids.py
 Status:          done
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-663  MS13 13t-7: verifier fix after the recorded build (FS2 has no strip rows); no rebuild    [ID: MS13, 13t, 13t-7, FS2, DL-654]
+Date:            2026-11-07        Author:
+Decision:        FACT. The recorded build ran from commit df8d8feb4664c110833aadbe81475b829e754f7f (clean tree, exit 0; the drawn-data digest of each of the nine journal files equals the draft's). scripts/ms13_verify_export.py then stopped with KeyError 'strip' for FS2: FG.strip_rows_of reads d["strip"], which the FS2 drawn data do not have (no stored status row concerns FS2; the verifier's own STRIP table already maps FS2 to no lines). The draft data and the digest are not changed. FIX, in the verifier script only (src/ and the build are untouched, so the recorded files stay valid and no rebuild is made): a helper _strip_rows in scripts/ms13_verify_export.py returns [] for a single-caption FS figure whose data have no 'strip' entry and calls FG.strip_rows_of otherwise (both uses, the FAIL-line check and the supplement check). Nothing is loosened: FS2 had 0 strip rows to check before and has 0 now; the other eight figures use the same call as before.
+Reason:          a check script failed on its first run over FS2 (the 13t-6 trials had verified FS2 in a way that did not reach this line; reading: the trial folder run took the data from the build)
+Options:         rebuild from a new commit (rejected: the fix is outside src/, J5 one build)
+Chosen:          verifier script change   Default from: the prompt (one build)
+Test:            scripts/ms13_verify_export.py
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
