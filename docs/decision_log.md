@@ -7007,3 +7007,43 @@ Chosen:          as done   Default from: the prompt (H3)
 Test:            fast suite
 Status:          13t-6 stopped after FS2 and FS3 (trials); no tag
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-657  MS13 13t-7: pre-checks and the start-of-step fast suite (close out 13t-6: J3, one recorded build of nine figures, checks, review)    [ID: MS13, 13t, 13t-7, DL-650 to DL-656]
+Date:            2026-11-07        Author:
+Decision:        FACT (pre-checks, read-only). cwd C:\dev\mpr-gamma-surge; HEAD e799c75 (no later commit); tree clean (git-ignored .claude/settings.local.json is not a stray file); no fig-*-v tag; criteria-loader gate (verify_frozen_criteria) PASS against tag criteria-frozen (tag object to commit dd8330c5eaacd63d21e7b7969430988d00862769), criteria SHA-256 c7d2f36b74ea611c8777c1b408d5085333e55230834c27e5f0eb839f1162fa05; docs/decision_log.md working copy and LF blob b2bf4ec5cf8079d9de9a7b1e213f2425240cfab90f2e0288c33e3187daf2484c (before this entry; the stray CR and the duplicated DL-606 heading are known, not fixed); src/mprsurge/plotting/figures.py a55c1ac5c5f1fa86e0ada97a15c1c9d7f62b8462eacfe8dfbc5bb53da35c908a. BASELINE HASHES (working copy = HEAD blob, tree clean): docs/ms13_figure_manifest.csv 6eb569a8159817436194d69dce03c25109589849024cd3cd684880a5fd4844a4; docs/ms13_13t_progress.md f2ff4d73dd2ad8adf2e4813b37e0ab179461ed5323473d3c2ae632b0bd3a8b4e; docs/ms13_export_checklist.json 31bd0eb1da06b4edd950514f7d768956421e25f98b813961761122401f67741e; docs/ms13_figure_rules.md cc3feaa80d5023d470c516c6b9cdc31377d88eb1c105efa1c1f4098d7a334489. The DL-650 values (rules 36acb1bf..., and the manifest, progress and checklist values of that entry) differ because commits after DL-650 changed those files (90891f3 rules file with H1 to H8; ecac552 and 748df82 manifest, progress and checklist, DL-655); DL-651 to DL-656 quote no newer values; the committed values are the baseline of this step (the exception ruled in the 13t-7 prompt). scripts/ms13_check_hashes.py 104 rows, 0 problems; the eleven drafts byte-identical; journal PNG prefixes of F1, F2, F3, F5, F5c, F6, FS1 equal DL-650 (c01f9558, b6fc7221, e4b1d360, 22cc0dff, 84713c33, 9baa72ee, e10a6825); TIFF prefixes F1 89525e91, F3 b48bd0c6, FS1 c49127bf equal DL-650 (FS2 and FS3 have no recorded files yet); MS11 digest cdafcc0831580ea4b9f7dfd8e095deb50e8b86db2974f556cf7ffe7d75637f53 over 724 files (the records group, recomputed in memory with hash_ms11_results.records(); nothing written); results/A11/a11_robustness.csv b4f26b003d88f7d13dcb582786da32c1a2fe4e3b8de051ce1f494e81a1d8cffb. FAST SUITE at the start (before any change): 1466 passed, 24 deselected, 9 xfailed, 3 warnings, 0 failed, exit 0 taken from pytest itself (1046.04 s; run with -q -x). Known stray non-project folder: C:\Users\Alpha\AppData\Local\Temp\review_crops (listed, not deleted).
+Reason:          instruction of the reviewer (13t-7 prompt)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            scripts/ms13_check_hashes.py; fast suite
+Status:          pre-checks passed
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-658  MS13 13t-7: rulings J1 (FS2 and FS3 allow-lists, FS3 axes in inches) and J2 (FS captions)    [ID: MS13, 13t, 13t-7, J1, J2]
+Date:            2026-11-07        Author:
+Decision:        RULING (reviewer). J1 ACCEPTED (one line): the FS2 and FS3 allow-lists (12 and 8 entries: stored coincident positions, ruled mark sizes, reference lines; printed grouped by reason class with counts in the step report; a legibility reason is a STOP) and FS3 with the axes placed in inches (the constrained layout could not place the draft panels at 8 pt); items 44, 45 and 46 stay open for the user. J2 FS CAPTIONS: the FS2 caption (about 1270 words) and the FS3 caption (about 1810 words) are accepted as one caption each under H2 for now; a trim pass for the supplement captions is an optional later polish and is NOT done in this step; their exact word counts are reported after the build.
+Reason:          instruction of the reviewer (13t-7 prompt)
+Options:         -
+Chosen:          as ruled   Default from: the prompt
+Test:            -
+Status:          ruled
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-659  MS13 13t-7: ruling J3 (H4 (a) to (e), H5 and H6 of DL-653 carried out now, unchanged)    [ID: MS13, 13t, 13t-7, J3, H4, H5, H6]
+Date:            2026-11-07        Author:
+Decision:        RULING (reviewer). The rulings H4 (a) to (e), H5 and H6 of DL-653 that 13t-6 did not carry out are carried out exactly as ruled there: (a) F3 '(e) one row per path leg (P5 has an up row and a return row)'; (b) F6 failure-label key and caption say the same for label c; (c) F1 'each row is one of the 300 recorded neurons; the rows are not labelled'; (d) F5c READ-ONLY array check of the claim that controls are missing; the caption is fixed only if image and arrays show a mismatch; (e) every other finding of docs/ms13_13t5_review.md and DL-648 that the image or the recorded numbers prove wrong and that needs no change of a ruled take-home or limit; H5 the FS1 sentence stating the parameter values of (c) and (d) and that they differ (the table of values per panel goes in the report; if the draft FS1 caption says they are the same point, STOP that sentence and print both); H6 the F6 omission of DL-647 (P3 drive 2 and P4a in the (e) sentence) is added (word limit 650 is set). A ruled limit is never dropped; repeated prose that carries no ruled limit is removed before words are added.
+Reason:          instruction of the reviewer (13t-7 prompt)
+Options:         -
+Chosen:          as ruled   Default from: the prompt
+Test:            tests/test_ms13_13t7.py (to be written)
+Status:          ruled
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-660  MS13 13t-7: rulings J4 (no new figure) and J5 (process)    [ID: MS13, 13t, 13t-7, J4, J5]
+Date:            2026-11-07        Author:
+Decision:        RULING (reviewer). J4: no new figure, no relayout and no change of a drawn value in this step; any image change comes from a failed check or from J3 and keeps the drawn-data digest equal to the draft's. J5 PROCESS: rulings logged and committed BEFORE any trial render; each change committed BEFORE it is run; at most two attempts on the same overlap; a command blocked by a safety check is reported, not reworded; long text to files; ONE recorded build from one clean commit (recorded results only, no simulation) of F1, F2, F3, F5, F5c, F6, FS1, FS2 and FS3; every RECORDED PNG of FS2 and FS3 is looked at in full and in 4 quadrant crops (a tall figure also in the crops of each quarter of its height), and every recorded PNG of a figure whose image changed in this step in full and in 4 crops, with the list of what was looked at in the report; scripts/ms13_verify_export.py, the collision checker, the independent comparison, the drawn-data digest equality of all nine, the draft-file check, scripts/ms13_check_hashes.py, the pilot sheet with all nine, ONE NEW fresh-subagent review (findings unedited in docs/ms13_13t7_review.md, with a triage, no rebuild after it); no tag, no push, no upload; the eleven drafts are not rebuilt and stay byte-identical.
+Reason:          instruction of the reviewer (13t-7 prompt)
+Options:         -
+Chosen:          as ruled   Default from: the prompt
+Test:            -
+Status:          ruled
+Commit/tag:      the commit that adds this entry; no tag
