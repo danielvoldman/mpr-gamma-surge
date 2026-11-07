@@ -1652,10 +1652,58 @@
    "note": "13t-4 (DL-637/DL-640): built in scratch and checked (all verifier rows pass in scratch, trial 4); failing until verified on the recorded build, the independent comparison and the looked-at crops | verified on the recorded build from 86b7d86 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t4.py; all seven recorded PNGs looked at in full and four crops; DL-641)"
   },
   {
-   "id": "F-fs2-fs3-not-tried",
-   "figure": "FS2, FS3",
+   "id": "G1-f3-band-ends",
+   "figure": "F3",
    "status": "failing",
-   "note": "13t-4 (DL-640): not tried; the step became too large"
+   "note": "13t-5 (DL-645): E3 band-end clause from the stored A6 arrays in the full and short caption; 27-row table in the supplement (DL-645 G1)"
+  },
+  {
+   "id": "G2a-fs1-grey-key",
+   "figure": "FS1",
+   "status": "failing",
+   "note": "13t-5 (DL-645): key entry 'Grey: no focus in the band' true for every panel where it appears"
+  },
+  {
+   "id": "G2b-fs1-test-point",
+   "figure": "FS1",
+   "status": "failing",
+   "note": "13t-5 (DL-645): read-only check done: STOPPED, nothing patched (DL-646)"
+  },
+  {
+   "id": "G2c-f1-raster-rows",
+   "figure": "F1",
+   "status": "failing",
+   "note": "13t-5 (DL-645): short caption says (i) draws 300 raster rows of the 10,000 neurons"
+  },
+  {
+   "id": "G3-review-faults",
+   "figure": "F1, F5c, FS1, F6",
+   "status": "failing",
+   "note": "13t-5 (DL-645): faults of docs/ms13_13t4_review.md proved by image or stored numbers fixed; list in the DL"
+  },
+  {
+   "id": "G4-FS2",
+   "figure": "FS2",
+   "status": "failing",
+   "note": "13t-5 (DL-645): journal export (split allowed, Z2)"
+  },
+  {
+   "id": "G4-FS3",
+   "figure": "FS3",
+   "status": "failing",
+   "note": "13t-5 (DL-645): journal export (split allowed, Z2); RB1 and RB2 rows"
+  },
+  {
+   "id": "G4-FS4",
+   "figure": "FS4",
+   "status": "failing",
+   "note": "13t-5 (DL-645): journal export (split allowed, Z2); RB6 solver result"
+  },
+  {
+   "id": "G4-FS5",
+   "figure": "FS5",
+   "status": "failing",
+   "note": "13t-5 (DL-645): journal export (split allowed, Z2); RB9(b) frequency check"
   }
  ]
 }
