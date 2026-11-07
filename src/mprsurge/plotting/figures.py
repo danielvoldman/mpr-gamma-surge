@@ -1959,7 +1959,7 @@ def _draw_FS1(d: dict, draft: bool):
 FS1J_HEIGHT = 9.0
 FS1J_MAPS = {"a": (0.80, 0.42, 2.20, 2.10), "b": (3.45, 0.42, 2.10, 2.10), "c": (0.80, 3.35, 2.10, 2.10)}       # (left, top, width, height) in inches
 FS1J_CB = {"b": (5.63, 0.42, 0.10, 2.10), "c": (2.98, 3.35, 0.10, 2.10)}
-FS1J_D = (4.25, 3.35, 1.95, 2.10)
+FS1J_D = (4.25, 3.35, 1.85, 2.10)
 FS1J_E = {"r": (0.80, 6.00, 5.40, 1.05), "I": (0.80, 7.15, 5.40, 0.62)}
 FS1J_KEY_TOP = 8.30
 FS1J_ETA_NOTE = "Own reading of this test, not verified"
@@ -2041,9 +2041,7 @@ def _draw_FS1_journal(d: dict):
     axe2 = _ax_in(fig, *FS1J_E["I"], sharex=axe)
     (l3,) = axe2.plot(d["K5_t_ms"], d["K5_I"], color=frc.colour, lw=frc.width, ls=frc.linestyle, zorder=1)
     l3.set_gid("line:forcing")
-    axe2.set_ylabel("Forcing I", color=frc.colour)
-    axe2.tick_params(axis="y", colors=frc.colour)
-    axe2.spines["left"].set_color(frc.colour)
+    axe2.set_ylabel("Forcing I")
     axe2.set_ylim(-3.9, 3.9)
     axe2.set_xlabel("Time (ms)")
     # key under the panels
@@ -2057,7 +2055,7 @@ def _draw_FS1_journal(d: dict):
           Line2D([], [], color=k5t.colour, lw=k5t.width, ls=k5t.linestyle), Line2D([], [], color=frc.colour, lw=frc.width, ls=frc.linestyle)]
     ll = ["One fixed point (grid node)", "Three fixed points (grid node)", "Fold formula, two branches", "Cusp, formula", f"Test point ({d['k_eta'] / d['k_Delta']:g}, {d['k_J'] / np.sqrt(d['k_Delta']):g})",
           "Grey: no focus in the band", "Recorded r(t)", "Focus value of r", "Fit window start and end", "Recorded r(t), forced", "Forcing I(t)"]
-    lg = kx.legend(hh, ll, loc="upper left", bbox_to_anchor=(0.0, 1.0), ncol=2, frameon=False, borderaxespad=0, labelspacing=0.25, handlelength=2.4, columnspacing=1.2)
+    lg = kx.legend(hh, ll, loc="upper left", bbox_to_anchor=(0.0, 1.0), ncol=3, frameon=False, borderaxespad=0, labelspacing=0.25, handlelength=2.0, columnspacing=1.0)
     lg.set_in_layout(False)
     J.finish(fig, cfg, "FS1")
     return fig
