@@ -818,7 +818,7 @@ SHORT_OVERRIDE = {
     "F2.hopf_eta": (r"Hopf point, eta_bar (\d+\.\d+), in a supercritical", 1),
     "F2.cycle_eta_max": (r"is stable to eta_bar (\d+)", 1),
     "F2.updown_max_rel": (r"largest difference (\d+\.\d+e-\d+) relative", 1),
-    "F2.net_rel_above_max": (r"differs from the mean field's by \+(\d+\.\d) to", 1),
+    "F2.net_rel_above_max": (r"(?:differs from the mean field's by|differing by) \+(\d+\.\d) to", 1),       # 13t-4 (DL-636 E1): the short caption now says 'differing by +13.2 to -2.5 percent'; the same number
     "F2.net_rel_above_min": (r"to (-\d+\.\d) percent above", 1),
     "F2.net_floor_min": (r"v amplitude (0\.\d+) to", 1),
     "F2.net_floor_max": (r"v amplitude 0\.\d+ to (0\.\d+)\)", 1),
