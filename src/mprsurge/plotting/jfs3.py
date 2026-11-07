@@ -31,15 +31,13 @@ def _bars(ax):
 
 def draw(d: dict, FG):
     from matplotlib.patches import Rectangle
-    fig, cfg = FG._journal_fig(FS3J_HEIGHT, constrained=True, fid=FS3_ID)
-    fig.get_layout_engine().set(w_pad=0.18, h_pad=0.14)
+    fig, cfg = FG._journal_fig(FS3J_HEIGHT, constrained=False, fid=FS3_ID)           # axes placed in inches (the constrained layout cannot place the draft panels at 8 pt)
     T = S.figure_colour
-    gs = fig.add_gridspec(4, 6, height_ratios=[2.2, 1.7, 2.3, 1.6])
     tol = S.diagram_mark("tol_band")
     pt = S.diagram_mark("fs3_median")
     nl = [NLAB[int(n)] for n in d["N"]]
     # (a)
-    ax = fig.add_subplot(gs[0, 0:4])
+    ax = FG._ax_in(fig, 0.8, 0.4, 4.1, 2.5)
     xs = np.arange(4, dtype=float)
     h_a = FG._fs3_stack(ax, xs - 0.2, d["s9_count"], d["s9_seeds"][:, None].astype(float), width=0.36)
     FG._fs3_stack(ax, xs + 0.2, d["s9_ctrl_count"], d["s9_ctrl_n"][:, None].astype(float), width=0.36, label_min=0.2)
@@ -52,10 +50,10 @@ def draw(d: dict, FG):
     ax.set_ylim(0.0, 1.3)
     ax.set_ylabel("Share of seeds")
     FG._journal_title(ax, "a", "Class at each N; bold: seeds in a surge class")
-    ax.legend(handles=h_a, loc="upper left", ncol=5, frameon=True, framealpha=0.95, handlelength=1.4, columnspacing=0.8)
+    ax.legend(handles=h_a, loc="upper left", ncol=5, frameon=True, framealpha=0.95, handlelength=1.0, columnspacing=0.5, handletextpad=0.3, borderpad=0.3)
     _bars(ax)
     # (b)
-    axb = fig.add_subplot(gs[0, 4:6])
+    axb = FG._ax_in(fig, 5.65, 0.4, 1.55, 2.5)
     for x_, lo, md, hi in zip(xs, d["s9_fpk_err_min"], d["s9_fpk_err_median"], d["s9_fpk_err_max"]):
         axb.plot([x_, x_], [lo, hi], color=T("range_line"), lw=1.0, zorder=2)
         axb.plot([x_], [md], ls="none", marker=pt.marker, ms=pt.size, color=pt.colour, mew=pt.width, zorder=4)
@@ -66,7 +64,7 @@ def draw(d: dict, FG):
     axb.set_ylabel("Peak frequency error (fraction)")
     FG._journal_title(axb, "b", "Frequency error")
     # (c)
-    axc = fig.add_subplot(gs[1, 0:3])
+    axc = FG._ax_in(fig, 0.8, 3.95, 2.6, 2.0)
     for x_, lo, md, hi in zip(xs, d["s9_onset_err_min"], d["s9_onset_err_median"], d["s9_onset_err_max"]):
         axc.plot([x_, x_], [lo, hi], color=T("range_line"), lw=1.0, zorder=2)
         axc.plot([x_], [md], ls="none", marker=pt.marker, ms=pt.size, color=pt.colour, mew=pt.width, zorder=4)
@@ -77,7 +75,7 @@ def draw(d: dict, FG):
     axc.set_ylabel("Onset error (s)")
     FG._journal_title(axc, "c", "Onset error against the mean field")
     # (d)
-    axd = fig.add_subplot(gs[1, 3:6])
+    axd = FG._ax_in(fig, 4.6, 3.95, 2.6, 2.0)
     for i in range(3):
         for j in range(3):
             st = S.get(d["shape_class"][i][j])
@@ -94,7 +92,7 @@ def draw(d: dict, FG):
     axd.set_ylim(3.6, -0.5)
     FG._journal_title(axd, "d", "Heterogeneity shape: not evaluable")
     # (e)
-    axe = fig.add_subplot(gs[2, 0:4])
+    axe = FG._ax_in(fig, 0.8, 7.05, 4.1, 2.7)
     xe = np.arange(12, dtype=float) + np.repeat(np.arange(3), 4) * 0.5
     gate_y = FG.FS3_RB2_KEPT_NEEDED / 10.0
     FG._fs3_stack(axe, xe, d["noise_count"], np.full((12, 1), 10.0), width=0.8, label_min=0.12, avoid=[gate_y if g else None for g in d["noise_gated"]])
@@ -113,7 +111,7 @@ def draw(d: dict, FG):
     axe.legend([Line2D([], [], color=T("gate_line"), ls=tol.linestyle, lw=tol.width + 0.4)], ["At least 8 of 10 seeds needed (bars of 120 s)"], loc="upper left", frameon=True, framealpha=0.95)
     _bars(axe)
     # (f)
-    axf = fig.add_subplot(gs[2, 4:6])
+    axf = FG._ax_in(fig, 5.65, 7.05, 1.55, 2.7)
     xf = np.arange(3, dtype=float)
     FG._fs3_stack(axf, xf, d["noise_ctrl_count"], np.full((3, 1), 10.0), width=0.7, label_min=0.12)
     for x_, k in zip(xf, d["noise_ctrl_kept"]):
@@ -125,7 +123,7 @@ def draw(d: dict, FG):
     FG._journal_title(axf, "f", "Controls without a ramp")
     _bars(axf)
     # (g)
-    axg = fig.add_subplot(gs[3, 0:2])
+    axg = FG._ax_in(fig, 0.8, 10.95, 1.9, 1.3)
     axg.add_patch(Rectangle((-0.3, 0), 0.6, d["subgrid_agree"], fc=T("subgrid_bar"), ec=T("bar_edge"), lw=0.4, zorder=3))
     axg.axhline(d["subgrid_needed"], color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label="Needed: 90 percent", zorder=2)
     axg.text(0.0, d["subgrid_agree"] / 2, f"{d['subgrid_agree']} of {d['subgrid_cells']}", ha="center", va="center",
@@ -138,7 +136,7 @@ def draw(d: dict, FG):
     axg.legend(loc="upper right", frameon=True, framealpha=0.95)
     _bars(axg)
     # key
-    axs = fig.add_subplot(gs[3, 2:6])
+    axs = FG._ax_in(fig, 3.3, 10.95, 3.9, 1.5)
     axs.axis("off")
     axs.set_gid("legend axes")
     axs.text(0.0, 1.0, "In (a): left bar of each pair, ramp seeds;\nright bar, controls without a ramp.\nPanels (a) to (d): network runs, ramp\nduration 60 s (N = 10,000 in (d), 3 seeds).\nPanels (e) and (f): mean-field runs with\nnoise, 10 seeds each.\n"
