@@ -171,7 +171,7 @@ def caption(d: dict, rows: list, a11: list, *, ids, c: dict, FG) -> str:
             f"Noise (ramp duration 120 s, 10 seeds): the surge class is kept in {d['gate_kept'][0]} of 10 seeds at 0.5 sigma (passes) and {d['gate_kept'][1]} of 10 at sigma (a failed check), and controls with constant parameters reach "
             f"{d['noise_ctrl_kept'][0]} of 10 at every sigma.")
     panels = " ".join([
-        f"(a) For each N (1000, 3000, 10,000 and 30,000 neurons), the share of the 10 ramp seeds (a ramp seed is a simulated network run with the ramp, one random realisation) in each class (left bar) and of the 3 control seeds without a ramp (right bar); the bold number above a bar is the number of seeds in a surge class; ramp duration {n(c['T9'])} s.",
+        f"(a) For each N (1000, 3000, 10,000 and 30,000 neurons), the share of the 10 ramp seeds (a simulated network run with the ramp, one random realisation each) in each class (left bar) and of the 3 control seeds without a ramp (right bar); the bold number above a bar is the number of seeds in a surge class; ramp duration {n(c['T9'])} s.",
         f"(b) The error of the peak frequency (the peak of the power spectrum of the mean potential v) of the network relative to the mean field, per N: the line is the range and the mark the median ({', '.join(str(int(x)) for x in d['s9_fpk_err_n'])} seeds with a defined value).",
         "(c) The absolute error of the onset (when the classifier, a rule fixed before the analysis that sorts runs into classes, first flags the rise) of the network against the mean field, per N: range and median.",
         f"(d) The class of each of 3 seeds for Lorentzian, Gaussian and uniform heterogeneity at N = {c['N10']:,}, and the classes of the {int(d['shape_ctrl_n'])} control runs without a ramp with Lorentzian heterogeneity; the title is not red because the check is not evaluable, not failed.",
@@ -182,18 +182,18 @@ def caption(d: dict, rows: list, a11: list, *, ids, c: dict, FG) -> str:
     ])
     settings = ("The classifier (a rule fixed before the analysis that sorts runs into classes) and its settings are those of the project's frozen criteria; the spectrogram (power against time and frequency) is not drawn in this figure; "
                 "the values are not repeated here because no panel draws a classifier run.")
-    params = (f"Recorded values (the complete list with the key names as recorded is in the supplement): model {c['type']}; path P2 (the hypoxia-like path, mean excitability raised) with ramp duration {n(c['T9'])} s in (a) to (d); N = 1000, 3000, 10,000 and 30,000 in (a) to (c) and "
+    params = (f"Recorded values (the complete list with the key names as recorded is in the supplement): model {c['type']} (the mean-field model of the project); path P2 (the hypoxia-like path, mean excitability raised) with ramp duration {n(c['T9'])} s in (a) to (d); N = 1000, 3000, 10,000 and 30,000 in (a) to (c) and "
               f"{c['N10']:,} in (d) to (f); the noise level sigma = {n(c['sigma'])} in (e) and (f), with the noise factors 0.5, 1 and 2 and the ramp durations 10, 30, 120 and 300 s in (e).")
     rows_ = FG.strip_rows_of(FS3_ID, d)
     lines = [JC.failed_line(r) for r in rows_]
-    failed = (f"Failed checks that concern this figure ({len(lines)}; the noisy subgrid (map cells re-run with noise) is the part of the project's map that was re-run with noise; the map cells (one parameter pair of a 30 x 30 grid of mean-field runs) are the cells of the project's map): " + "; ".join(lines) + ". The checks against the mean field at the ramp durations 10 s and 120 s and at the 4 map cells are not drawn here (their runs are not in this figure; (a) draws the network at 60 s); "
-              "the title of (e) is red as 'Noise check: FAIL' and the title of (g) as '90 percent rule: FAILED'. The heterogeneity check is NOT EVALUABLE (panel (d)). "
+    failed = (f"Failed checks that concern this figure ({len(lines)}; the noisy subgrid (map cells re-run with noise) is the part of the project's map that was re-run with noise; the map cells (one parameter pair of a 30 x 30 grid of mean-field runs) are the cells of the project\'s map; the ramp-duration rule uses a duration (how long a ramp lasts)): " + "; ".join(lines) + ". The checks against the mean field at the ramp durations 10 s and 120 s and at the 4 map cells are not drawn here (their runs are not in this figure; (a) draws the network at 60 s); "
+              "the title of (e) is red as 'Noise check: FAIL' and the title of (g) as '90 percent rule: FAILED' (the 90 percent rule: at least 90 percent of the cells of the noisy subgrid must agree with the noise-free class). The heterogeneity check is NOT EVALUABLE (panel (d)). "
               "The project's other failed checks are not about this figure; all of them are listed in the supplement. " + JC.title_sentence(FS3_ID))
     limits = ("In the limits below, the main example (the run fixed before the analysis as the main case) is the reference run of the first paragraph, and control (the same network without the ramp) runs are runs without a ramp: the controls of (a) and (d); "
               "the constant-parameter controls of (f) are mean-field runs. " + JC.limits_paragraph(ids))
     rest = " ".join([take, panels, settings, params, failed, limits])
     key = " ".join(x for x in [
-        JC.key_symbols(rest, "eta", "Delta", "J", "tau_d", "r", "v", "N", "T_ramp", "M3", "modes"),
+        JC.key_symbols(rest, "eta", "Delta", "J", "tau_d", "r", "v", "N", "T_ramp"),
         "The main example = the run fixed before the analysis as the main case; mean field = the model of the average over the neurons; network = a simulation of N spiking neurons; noise level sigma = the amplitude of the additive white noise on v in the noisy mean-field runs; the noise factor multiplies it; "
         "a seed = one random realisation; a control = a run without the ramp; a failed check = a stated criterion that the result does not meet.",
         JC.key_words(rest)] if x)
