@@ -58,12 +58,20 @@ def rc_params(cfg: dict) -> dict:
             "ytick.major.size": 3.0, "figure.dpi": cfg["output"]["pdf_dpi"], "savefig.dpi": cfg["output"]["pdf_dpi"], "savefig.facecolor": "white", "figure.facecolor": "white"}
 
 
-def page_size(cfg: dict, height_in: float, width: str = "main") -> tuple[float, float]:
+def height_limit(cfg: dict, fid: str | None = None) -> float:
+    """The most height of a journal figure: the main page maximum, or for a supplementary figure the per-figure limit of the FS profile (DL-636 E5, UNVERIFIED)."""
+    fs = cfg.get("fs_profile", {}).get("max_height_in", {})
+    return float(fs[fid]) if fid in fs else float(cfg["page"]["main_max_height_in"])
+
+
+def page_size(cfg: dict, height_in: float, width: str = "main", fid: str | None = None) -> tuple[float, float]:
     """(width, height) in inches; the height is checked against the maximum of the setting. width: "main" (6.3 x 8.0 in, DL-554 R1), "double" (7.5 x 8.75 in, the second setting for
     other journals) or "single" (84 mm)."""
     pg = cfg["page"]
     w, hmax = {"main": (pg["main_width_in"], pg["main_max_height_in"]), "double": (pg["double_column_width_in"], pg["double_column_max_height_in"]),
                "single": (pg["single_column_width_mm"] / 25.4, pg["double_column_max_height_in"])}[width]
+    if fid is not None and fid in cfg.get("fs_profile", {}).get("max_height_in", {}):
+        w, hmax = float(cfg["fs_profile"]["width_in"]), height_limit(cfg, fid)
     if height_in > hmax + 1e-9:
         raise JournalError(f"figure height {height_in} in is above the page maximum {hmax} in")
     return float(w), float(height_in)
@@ -176,7 +184,7 @@ def capitals_inside(fig) -> list[str]:
     return sorted(out)
 
 
-def finish(fig, cfg: dict) -> dict:
+def finish(fig, cfg: dict, fid: str | None = None) -> dict:
     """The final guard on the figure object: true minus signs on tick labels, no text below the minimum size, no line thinner than the minimum width. Returns what it changed (a count, for the provenance)."""
     true_minus(fig)
     sentence_case(fig)
@@ -203,7 +211,7 @@ def finish(fig, cfg: dict) -> dict:
                 sp.set_linewidth(lw)
                 n_line += 1
     w, h = fig.get_size_inches()
-    if w > cfg["page"]["main_width_in"] + 1e-9 or h > cfg["page"]["main_max_height_in"] + 1e-9:
+    if w > cfg["page"]["main_width_in"] + 1e-9 or h > height_limit(cfg, fid) + 1e-9:
         raise JournalError(f"figure size {w:.3f} x {h:.3f} in is above the page size of the config")
     return {"text_raised": n_text, "lines_thickened": n_line}
 

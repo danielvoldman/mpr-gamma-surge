@@ -553,14 +553,14 @@ JTAU = "tau_d"                    # DL-571 T3: tau_d with the underscore on ever
 NB = " "                          # no-break space: a number and its unit stay on one line
 
 
-def _journal_fig(height_in: float, constrained: bool = True):
+def _journal_fig(height_in: float, constrained: bool = True, fid: str | None = None):
     """A figure at the journal page width (config) and the given height, created at the export dpi; constrained layout, or (constrained=False) axes placed in inches by _ax_in.
     Call inside plt.rc_context(J.rc_params(cfg))."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     cfg = J.load_config()
-    w, h = J.page_size(cfg, height_in)
+    w, h = J.page_size(cfg, height_in, fid=fid)
     return plt.figure(figsize=(w, h), constrained_layout=constrained), cfg
 
 
@@ -1954,6 +1954,113 @@ def _draw_FS1(d: dict, draft: bool):
     lines += ["", FS1_K5, FS1_K4NET, strip_heading("FS1") + " none (Table 7.2 names no RB check for FS1; UNVERIFIED reading)."]
     status_block(axf, lines, size=T["status"], width=150)
     return _style_text(fig, FS1_FOOTER if draft else "")
+
+
+FS1J_HEIGHT = 9.0
+FS1J_MAPS = {"a": (0.80, 0.42, 2.20, 2.10), "b": (3.45, 0.42, 2.10, 2.10), "c": (0.80, 3.35, 2.10, 2.10)}       # (left, top, width, height) in inches
+FS1J_CB = {"b": (5.63, 0.42, 0.10, 2.10), "c": (2.98, 3.35, 0.10, 2.10)}
+FS1J_D = (4.25, 3.35, 1.95, 2.10)
+FS1J_E = {"r": (0.80, 6.00, 5.40, 1.05), "I": (0.80, 7.15, 5.40, 0.62)}
+FS1J_KEY_TOP = 8.30
+FS1J_ETA_NOTE = "Own reading of this test, not verified"
+FS1J_XL, FS1J_YL = JETA + "/Δ", "J/√Δ"
+
+
+def _draw_FS1_journal(d: dict):
+    """FS1 journal export (13t-4, DL-636 E5, DL-637): own layout code (inches), 6.3 x 9.0 in; plain words on the image, no check, step or draft code; layout only, every drawn value is the draft's."""
+    from matplotlib.colors import ListedColormap
+    from matplotlib.lines import Line2D
+    from matplotlib.patches import Patch
+    fold, cusp, kpt = S.diagram_mark("m2_fold"), S.diagram_mark("m2_cusp"), S.diagram_mark("m2_k_point")
+    k4t, k5t, frc = S.diagram_mark("s1_k4_trace"), S.diagram_mark("s1_k5_trace"), S.diagram_mark("s1_forcing")
+    win, rst = S.diagram_mark("k4_window"), S.diagram_mark("k4_r_star")
+    fig, cfg = _journal_fig(FS1J_HEIGHT, constrained=False, fid="FS1")
+    eta, J_ = d["eta"], d["J"]
+    ext = dict(shading="nearest", rasterized=True)
+    kx_, ky_ = d["k_eta"] / d["k_Delta"], d["k_J"] / np.sqrt(d["k_Delta"])
+
+    def mark_k(ax):
+        (h,) = ax.plot([kx_], [ky_], ls="none", marker=kpt.marker, ms=kpt.size, color=kpt.colour, mew=kpt.width, zorder=6)
+        h.set_gid("test point mark")
+
+    ax = _ax_in(fig, *FS1J_MAPS["a"])
+    cm = ListedColormap([S.ROOT_COUNT_COLOURS[1], S.ROOT_COUNT_COLOURS[3]])
+    ax.pcolormesh(eta, J_, d["n_roots_T"], cmap=cm, vmin=1, vmax=3, **ext)
+    for col in ("fold_eta_a", "fold_eta_b"):
+        (ln,) = ax.plot(d[col], d["fold_J"], color=fold.colour, lw=fold.width, ls=fold.linestyle, zorder=3)
+        ln.set_gid("line:fold formula")
+    (cu,) = ax.plot([d["cusp_eta"]], [d["cusp_J"]], ls="none", marker=cusp.marker, ms=cusp.size, color=cusp.colour, mew=cusp.width, zorder=5)
+    cu.set_gid("cusp mark")
+    mark_k(ax)
+    ax.set_xlim(eta.min(), eta.max())
+    ax.set_ylim(J_.min(), J_.max())
+    ax.set_xlabel(FS1J_XL)
+    ax.set_ylabel(FS1J_YL)
+    _journal_title(ax, "a", "number of fixed points")
+    axb = _ax_in(fig, *FS1J_MAPS["b"], sharex=ax, sharey=ax)
+    m = axb.pcolormesh(eta, J_, d["ring_freq_T"], cmap=S.FREQUENCY_CMAP, **ext)
+    axb.set_facecolor(S.FS_COLOURS["no_data"])
+    mark_k(axb)
+    axb.tick_params(labelleft=False)
+    axb.set_xlabel(FS1J_XL)
+    _journal_title(axb, "b", "frequency of the stable focus")
+    cax = _ax_in(fig, *FS1J_CB["b"])
+    cax.set_gid("colour bar axes")
+    fig.colorbar(m, cax=cax).set_label("Ring frequency (Hz)")
+    axc = _ax_in(fig, *FS1J_MAPS["c"], sharex=ax, sharey=ax)
+    axc.set_facecolor(S.FS_COLOURS["no_data"])
+    mc = axc.pcolormesh(eta, J_, d["ring_cyc_inG_T"], cmap=S.CYCLES_CMAP, **ext)
+    mark_k(axc)
+    axc.set_xlabel(FS1J_XL)
+    axc.set_ylabel(FS1J_YL)
+    _journal_title(axc, "c", "cycles per e-fold in the band")
+    caxc = _ax_in(fig, *FS1J_CB["c"])
+    caxc.set_gid("colour bar axes")
+    fig.colorbar(mc, cax=caxc).set_label("Cycles per e-fold")
+    # (d) step response
+    axd = _ax_in(fig, *FS1J_D)
+    (l1,) = axd.plot(d["K4_t_ms"], d["K4_r"], color=k4t.colour, lw=k4t.width, ls=k4t.linestyle, zorder=3)
+    l1.set_gid("line:recorded r(t)")
+    axd.axhline(d["k4_r_star"], color=rst.colour, lw=rst.width, ls=rst.linestyle, zorder=2).set_gid("line:focus value")
+    for x in (d["k4_t_start_ms"], d["k4_t_end_ms"]):
+        axd.axvline(x, color=win.colour, lw=win.width, ls=win.linestyle, zorder=1).set_gid("line:fit window")
+    axd.set_xlim(0.0, 600.0)
+    axd.set_xlabel("Time (ms)")
+    axd.set_ylabel("r (firing rate)")
+    _journal_title(axd, "d", "step response, test point")
+    # (e) sinusoidal forcing: r(t) above, the forcing below on the same time axis
+    axe = _ax_in(fig, *FS1J_E["r"])
+    (l2,) = axe.plot(d["K5_t_ms"], d["K5_r"], color=k5t.colour, lw=k5t.width, ls=k5t.linestyle, zorder=3)
+    l2.set_gid("line:recorded r(t) forced")
+    axe.set_xlim(d["K5_t_ms"].min(), d["K5_t_ms"].max())
+    axe.set_ylabel("r (firing rate)")
+    axe.set_ylim(0.0, 4.8)
+    axe.tick_params(labelbottom=False)
+    axe.text(0.99, 0.95, FS1J_ETA_NOTE, transform=axe.transAxes, va="top", ha="right").set_gid("panel note")
+    _journal_title(axe, "e", "sinusoidal forcing, test point")
+    axe2 = _ax_in(fig, *FS1J_E["I"], sharex=axe)
+    (l3,) = axe2.plot(d["K5_t_ms"], d["K5_I"], color=frc.colour, lw=frc.width, ls=frc.linestyle, zorder=1)
+    l3.set_gid("line:forcing")
+    axe2.set_ylabel("Forcing I", color=frc.colour)
+    axe2.tick_params(axis="y", colors=frc.colour)
+    axe2.spines["left"].set_color(frc.colour)
+    axe2.set_ylim(-3.9, 3.9)
+    axe2.set_xlabel("Time (ms)")
+    # key under the panels
+    kx = _ax_in(fig, 0.13, FS1J_KEY_TOP, 6.04, 0.62)
+    kx.axis("off")
+    kx.set_gid("legend axes")
+    hh = [Patch(fc=S.ROOT_COUNT_COLOURS[1], ec=S.FS_COLOURS["patch_edge"], lw=0.5), Patch(fc=S.ROOT_COUNT_COLOURS[3], ec=S.FS_COLOURS["patch_edge"], lw=0.5),
+          Line2D([], [], color=fold.colour, lw=fold.width, ls=fold.linestyle), Line2D([], [], ls="none", marker=cusp.marker, ms=cusp.size, color=cusp.colour, mew=cusp.width),
+          Line2D([], [], ls="none", marker=kpt.marker, ms=kpt.size, color=kpt.colour, mew=kpt.width), Patch(fc=S.FS_COLOURS["no_data"], ec=S.FS_COLOURS["patch_edge"], lw=0.5),
+          Line2D([], [], color=k4t.colour, lw=k4t.width, ls=k4t.linestyle), Line2D([], [], color=rst.colour, lw=rst.width, ls=rst.linestyle), Line2D([], [], color=win.colour, lw=win.width, ls=win.linestyle),
+          Line2D([], [], color=k5t.colour, lw=k5t.width, ls=k5t.linestyle), Line2D([], [], color=frc.colour, lw=frc.width, ls=frc.linestyle)]
+    ll = ["One fixed point (grid node)", "Three fixed points (grid node)", "Fold formula, two branches", "Cusp, formula", f"Test point ({d['k_eta'] / d['k_Delta']:g}, {d['k_J'] / np.sqrt(d['k_Delta']):g})",
+          "Grey: no focus in the band", "Recorded r(t)", "Focus value of r", "Fit window start and end", "Recorded r(t), forced", "Forcing I(t)"]
+    lg = kx.legend(hh, ll, loc="upper left", bbox_to_anchor=(0.0, 1.0), ncol=2, frameon=False, borderaxespad=0, labelspacing=0.25, handlelength=2.4, columnspacing=1.2)
+    lg.set_in_layout(False)
+    J.finish(fig, cfg, "FS1")
+    return fig
 
 
 def fs1_caption_notes(d: dict) -> tuple:
