@@ -187,13 +187,20 @@ def f6_facts(d: dict) -> dict:
     n2 = sum(1 for x in list(d["nc2_I0_class"]) + list(d["nc2_I1_class"]) if x == "D-tr")
     if n2 != 2 * len(d["nc2_I0_class"]):
         raise JC.JCaptionError("F6: negative control 2 is not D-tr at every ramp duration (DL-628 C4 d: stop)")
-    return {"n_all": n_all, "n_pre": n_pre, "n_cmp": n_all - n_pre, "fpk": vals}
+    fmt = lambda row: [f"{x:.3f}".rstrip("0").rstrip(".") for x in fp[lab.index(row)]]
+    if [float(t) for t in d["s6_T"]] != [10.0, 30.0, 120.0, 300.0]:
+        raise JC.JCaptionError("F6: the ramp durations of (d) and (e) are not 10, 30, 120 and 300 s (13t-7 H6: stop)")
+    other = {"P3, I_amp 2": fmt("P3, I_amp 2"), "P4a": fmt("P4a")}      # 13t-7 (DL-659 H6): the two rows of (e) that differ from the identical group; read from the arrays
+    if any(v == vals for v in other.values()) or any(len(v) != 4 for v in other.values()):
+        raise JC.JCaptionError("F6: the peak frequencies of P3 (drive 2) or P4a equal the identical group, or are not 4 values (13t-7 H6: stop)")
+    return {"n_all": n_all, "n_pre": n_pre, "n_cmp": n_all - n_pre, "fpk": vals, "other": other}
 
 
 def f6_sentence_points(d: dict) -> str:
     f = f6_facts(d)
     return (f"The {f['n_all']} points drawn in (d) and (e) are the {f['n_pre']} pre-registered runs and {f['n_cmp']} P2 comparator runs. In (e) the recorded peak frequencies of P3 (drive 0.5 and 1), P4b and the P2 comparators "
-            f"are identical ({', '.join(f['fpk'][:-1])} and {f['fpk'][-1]} Hz), so those lines overlap.")
+            f"are identical ({', '.join(f['fpk'][:-1])} and {f['fpk'][-1]} Hz), so those lines overlap. P3 with drive 2 and P4a differ: peak frequencies "
+            f"{', '.join(f['other']['P3, I_amp 2'][:-1])} and {f['other']['P3, I_amp 2'][-1]} Hz for P3 with drive 2, and {', '.join(f['other']['P4a'][:-1])} and {f['other']['P4a'][-1]} Hz for P4a, at T_ramp 10, 30, 120 and 300 s in that order.")
 
 
 def _f6_rows_none(d: dict) -> int:
@@ -245,7 +252,7 @@ def f6_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list, 
         "P2 = the hypoxia-like path: eta_bar ramped up, with J ramped to 0 after a delay; P3 = P2 plus a common drive; P4a and P4b = P2 with Delta multiplied by 1.5 (P4a) or by 2/3 (P4b) over the ramp. "
         "A negative control is a run in which no surge is expected: the first = the hypoxia path with the mean excitability falling by the same amount, with coupling, heterogeneity and synaptic decay fixed and no common drive; "
         "the second = the full path with the common drive off or on (no expected class is stated); the third = inhibition raised while the mean excitability falls (exploratory; no expected class is stated).",
-        "Failure labels of a non-surge cell (the stored short forms): a = Delta above critical; b = tau_d outside the window; c = a flag, not a demonstrated cause; d = ramp too fast for 10 cycles; e = no exit (D-sus or S-sus); "
+        "Failure labels of a non-surge cell (the stored short forms): a = Delta above critical; b = tau_d outside the window; c = a flag, not a demonstrated cause (frequency below 25 Hz, no surge class); d = ramp too fast for 10 cycles; e = no exit (D-sus or S-sus); "
         "f = amplitude below the fixed threshold; g = Hopf point with no time inside; h = rejected by the damped-oscillation test.",
         "Marks: diamond = D-none, left triangle = NS, right triangle = D-tr, circle = S+. Filled bars = primary label; hatched bars = every label that applies.",
         "Checks: X.", JC.class_key(), JC.key_words(rest)] if x)
@@ -253,7 +260,7 @@ def f6_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list, 
     return text.replace("Checks: X.", "Checks: " + JC.defined_checks(text) + ".")
 
 
-F6_LIMIT_EXTRA = {"MS9(e)-3": "failure label c (a cell without a surge class whose frequency is below 25 Hz) is a flag, not a demonstrated cause",
+F6_LIMIT_EXTRA = {"MS9(e)-3": "failure label c is a flag, not a demonstrated cause (frequency below 25 Hz, no surge class)",
                   "MS9(e)-5": "every class that depends on the test for damped against non-damped oscillations is provisional",
                   "MS9(e)-1": "network surge classes at N = 1e4 are not evidence of a ramp-driven surge (control flagged in 10 of 10 seeds, ramp runs 10 of 10; other network runs, not drawn)",
                   "G4-C3": "no-ramp network controls (the same network without the ramp) are classified into surge classes"}

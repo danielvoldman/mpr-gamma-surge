@@ -22,7 +22,13 @@ UNDEFINED_UNVERIFIED = ("M2 (the comparison model; 'kept as the damped-ring comp
 def fs1_consts(d: dict, rows: list) -> dict:
     """The stored values that the FS1 captions state (parameter rows of the S1 and A1 records, the prepared data)."""
     pv = lambda k, p=None: JC.pv(rows, k, p)
-    return {"tau": pv("model.tau_ms", "d"), "Delta": pv("model.Delta", "d"), "type": pv("model.type", "d"), "I_step": pv("path.I_amp", "d"), "I_sin": pv("path.I_amp", "e"), "period_s": pv("path.I_period_s", "e"),
+    a1 = {r["key"]: r["value"] for r in rows if str(r.get("source_run_id", "")).startswith("A1_")}
+    if a1.get("model.I_drive") is None or a1.get("path.I_amp") is None:
+        raise JC.JCaptionError("FS1: the root-count grid record lists no input drive or amplitude (13t-7 H5: stop)")
+    for p in ("d", "e"):
+        if (float(pv("model.eta_bar", p)), float(pv("model.J", p)), float(pv("model.Delta", p))) != (float(d["k_eta"]), float(d["k_J"]), float(d["k_Delta"])):
+            raise JC.JCaptionError(f"FS1: the record of panel ({p}) is not at the test point of the prepared data (13t-7 H5: stop)")
+    return {"map_I_drive": a1["model.I_drive"], "map_I_amp": a1["path.I_amp"], "d_I_drive": pv("model.I_drive", "d"), "tau": pv("model.tau_ms", "d"), "Delta": pv("model.Delta", "d"), "type": pv("model.type", "d"), "I_step": pv("path.I_amp", "d"), "I_sin": pv("path.I_amp", "e"), "period_s": pv("path.I_period_s", "e"),
             "eta_lo": float(d["eta"].min()), "eta_hi": float(d["eta"].max()), "n_eta": len(d["eta"]), "J_lo": float(d["J"].min()), "J_hi": float(d["J"].max()), "n_J": len(d["J"]),
             "n_checks": len(d["a0_target"]), "k_eta": d["k_eta"], "k_J": d["k_J"], "k_Delta": d["k_Delta"]}
 
@@ -37,6 +43,15 @@ def _take(d: dict, c: dict) -> str:
             f"(not drawn; the two cusp points need half spacing); the test point ({c['k_eta']:g}, {c['k_J']:g}) has a saddle, a stable focus and a stable node (not drawn); and the step response rings at the linearised "
             f"frequency and decays to {_e(d['k4_rel_err_frequency'])} and {_e(d['k4_rel_err_decay'])} relative. No stable focus on the grid is non-damped ({d['ring_n_nondamped']} of {d['ring_n_focus']}; the linearised rate has "
             f"standard error 0), and the largest cycles per e-fold inside the {d['band_hz'][0]:g} to {d['band_hz'][1]:g} Hz band is {d['ring_cyc_inG_max']:.1f}.")
+
+
+def panel_values_sentence(c: dict) -> str:
+    """13t-7 (DL-659 H5): the parameter values each panel is drawn at, from the recorded parameter rows, and that (c) and (d) differ; nothing is interpreted."""
+    n = JC.num
+    return (f"Parameter values by panel: (a) to (c) are drawn on the grid of the root-count run, whose record lists an input drive of {n(c['map_I_drive'])} and an input amplitude of {n(c['map_I_amp'])} "
+            f"(the ring-map file itself stores no input current), with membrane time constant {n(c['tau'])} ms and Delta = 1 (the axes are scaled by Delta); (d) is drawn at eta_bar {c['k_eta']:g}, J {c['k_J']:g} and Delta {c['k_Delta']:g} "
+            f"with the input current stepped from {n(c['d_I_drive'])} to {n(c['d_I_drive'] + c['I_step'])}; (e) is drawn at the same eta_bar, J and Delta with a sinusoidal input current of amplitude {n(c['I_sin'])} and period "
+            f"{n(c['period_s'] * 1000)} ms. Panels (c) and (d) are drawn at different parameter values.")
 
 
 def _e(x: float) -> str:
@@ -69,7 +84,7 @@ def fs1_caption(d: dict, rows: list, *, ids, c: dict) -> str:
     settings = f"No classifier or spectrogram is used in this figure; the band of {d['band_hz'][0]:g} to {d['band_hz'][1]:g} Hz is the gamma band of the classifier."
     params = (f"Recorded values (the complete list with the stored key names is in the supplement): model {c['type']} with membrane time constant {n(c['tau'])} ms and heterogeneity Delta = {n(c['Delta'])}; "
               f"the maps sweep eta_bar/Delta from {n(c['eta_lo'])} to {n(c['eta_hi'])} ({c['n_eta']} values) and J/sqrt(Delta) from {n(c['J_lo'])} to {n(c['J_hi'])} ({c['n_J']} values); the test point of (d) and (e) is eta_bar {c['k_eta']:g}, "
-              f"J {c['k_J']:g}, Delta {c['k_Delta']:g}; the step of (d) has amplitude {n(c['I_step'])}; the sinusoid of (e) has amplitude {n(c['I_sin'])} and period {n(c['period_s'] * 1000)} ms ({n(c['period_s'])} s).")
+              f"J {c['k_J']:g}, Delta {c['k_Delta']:g}; the step of (d) has amplitude {n(c['I_step'])}; the sinusoid of (e) has amplitude {n(c['I_sin'])} and period {n(c['period_s'] * 1000)} ms ({n(c['period_s'])} s). " + panel_values_sentence(c))
     failed = ("No row of the project's table of failed checks concerns this figure (our reading of where the checks apply; not verified). Two limits of the checks are stated instead of failures: the sinusoidal-forcing check passes only on "
               "our own reading of its burst definition, tolerance and time mapping, with the check against the primary source deferred, and the version of the step test on a network of N simulated spiking neurons was not run because "
               "the coupling of an M2 network is unsourced. No panel has a red title: no failed check is drawn here.")
@@ -98,6 +113,6 @@ def fs1_short(d: dict, c: dict, max_words: int, full: str) -> str:
         "No panel has a red title: no failed check is drawn here.",
         JS.further_sentence(FS1_ID, full),
         f"Parameters: model {c['type']} with membrane time constant {n(c['tau'])} ms and heterogeneity Delta = {n(c['Delta'])}; eta_bar/Delta from {n(c['eta_lo'])} to {n(c['eta_hi'])} ({c['n_eta']} values), "
-        f"J/sqrt(Delta) from {n(c['J_lo'])} to {n(c['J_hi'])} ({c['n_J']} values); step amplitude {n(c['I_step'])}; sinusoid amplitude {n(c['I_sin'])}, period {n(c['period_s'] * 1000)} ms.",
+        f"J/sqrt(Delta) from {n(c['J_lo'])} to {n(c['J_hi'])} ({c['n_J']} values); step amplitude {n(c['I_step'])}; sinusoid amplitude {n(c['I_sin'])}, period {n(c['period_s'] * 1000)} ms. " + panel_values_sentence(c),
         "Limits: M2 is the comparison model, so nothing in this figure is a result for model M3 (the mean-field model); the focus is damped by construction (the ring rate is the linearised rate, not a fit to simulated rings).",
         JS._pointer(FS1_ID)], max_words, full)

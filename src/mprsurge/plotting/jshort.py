@@ -83,7 +83,7 @@ SHORT_LIMITS = {
     "MS11-C3": "the spectral and the cycle frequency differ by 4.39 Hz at the main example, and peak frequencies are the spectral peaks found by the classifier",
     "MS12-C1": "the surge result is stated for model M3 only",
     "G4-C2": "the surge result is stated for the mean field only, and there is no claim that it is robust to finite-size fluctuations",
-    "MS9(e)-3": "failure label c (a cell without a surge class whose frequency is below 25 Hz) is a flag, not a demonstrated cause",
+    "MS9(e)-3": "failure label c is a flag, not a demonstrated cause (frequency below 25 Hz, no surge class)",
     "MS9(e)-5": "every class that depends on the test for damped against non-damped oscillations is provisional",
 }
 # 13t-1g (DL-603 W1): the limits G4-C3 (F5, F5c), G4-C4 (F5) and MS11-C2 (F5c) that 13t-1f (DL-596) had left out only for the word limits are restored (the limits are raised instead); the lists are those of 13t-1e (cf92272)
@@ -224,7 +224,7 @@ def f1_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
         "(a), (b) Mean excitability and coupling J (negative = inhibitory). (c), (e) Rate r and mean potential v of the mean field. "
         "(d), (f) The 3 network seeds (nearly coincident), same y axes as (c), (e); strip above: triangle = classifier onset, circle, plus, star = first crossing of its detection threshold, seeds 0, 1, 2. "
         "(g), (h) Spectrograms (power against time and frequency) of v; dashed lines: 25 and 100 Hz, the gamma band. "
-        f"(i) Spike counts of seed 0 for {d['ras_n_rows']} of the 10,000 neurons (one row per neuron shown, 1 s bins); an orange solid line and an orange dashed line mark the two windows shown in (j) and (k) (orange frames). (j), (k) The spikes of seed 0 (the same {d['ras_n_rows']} neurons, one row each, as in (i)) in 1 s windows that start at the classifier onset (12.000 s) and at the mean-field onset (58.698 s).",
+        f"(i) Spike counts of seed 0 for {d['ras_n_rows']} of the 10,000 neurons (each row is one of the {d['ras_n_rows']} recorded neurons; the rows are not labelled; 1 s bins); an orange solid line and an orange dashed line mark the two windows shown in (j) and (k) (orange frames). (j), (k) The spikes of seed 0 (the same {d['ras_n_rows']} neurons as in (i); the rows are not labelled) in 1 s windows that start at the classifier onset (12.000 s) and at the mean-field onset (58.698 s).",
         # DL-603 W2: values copied from the Parameters and settings paragraphs of the full caption (numbers_missing is checked in finish); t_on is read as the ramp start (reviewer's wording, UNVERIFIED)
         "Parameters: model M3 (the mean-field model) with J = -21, heterogeneity Delta = 0.3, synaptic decay time tau_d = 5 ms and membrane time constant 10 ms; ramp duration 120 s, starting at 5 s; "
         "network N = 10,000; classifier window 2 s, step 1 s, gamma band 25 to 100 Hz; noise level sigma = 0.0624 (checked, not confirmed; its check failed).",
@@ -258,7 +258,7 @@ def f3_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
         f"({cross} of {n_sl} slices have one, as recorded). {band_end_short(c)} In (c) the line is the Hopf curve, straight segments between recorded points; the grey open circle is the start of the paths "
         f"(eta_bar {d['P1_eta_start']:.3f}), the dark ring the Hopf point of the main example at tau_d {d['headline_tau_d_ms']:g} ms; (a) and (b) are the same frequency map at other Delta; the failed check was made at the main example in (c) and bears on them too.",
         "(d) Hopf curve against eta_bar and Delta (log axis), with the paths P1 (eta_bar ramped only), P2 (hypoxia-like: eta_bar raised, coupling J ramped to 0 after a delay), "
-        "P3 (P2 plus a common drive) and P5 (up, then back), drawn as one arrow because their eta_bar, Delta and tau_d are equal; P4a, P4b (P2 with Delta multiplied by 1.5 or 2/3) are separate. The paths coincide in (c) and (d) because they differ in J, drive or time course, which these planes do not show. (e) One row per path.",
+        "P3 (P2 plus a common drive) and P5 (up, then back), drawn as one arrow because their eta_bar, Delta and tau_d are equal; P4a, P4b (P2 with Delta multiplied by 1.5 or 2/3) are separate. The paths coincide in (c) and (d) because they differ in J, drive or time course, which these planes do not show. (e) One row per path leg (P5 has an up row and a return row).",
         # DL-603 W2: values copied from the Parameters paragraph of the full caption; the M3 gloss moved here from the limit clause (first use); no classifier or spectrogram is used (settings paragraph)
         "Parameters: model M3 (the mean-field model with rate, mean potential and a synaptic variable) with membrane time constant 10 ms and J = -21; Delta = 0.05, 0.1 and 0.3; "
         "tau_d = 1 to 50 ms (9 values); no classifier (a rule fixed before the analysis) or spectrogram (power against time and frequency) is used.",
@@ -314,6 +314,8 @@ def f5c_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, ful
     ctrl_clause = (f"no seed is S-rel; 3 control seeds per N is a small sample; the controls also flag onsets from {np.nanmin(con):.1f} to {np.nanmax(con):.1f} s, so onset is not a ramp-specific signal in this figure; "
                    "the plotted peak frequencies come from runs whose step-halving check failed, so they are not shown to be converged")
     labs = JC._and_list([f"{int(n):,}".replace(",", "") if int(n) < 10000 else f"{int(n):,}" for n in d["n_values"]])
+    n_ctrl_pk = JC._and_list([str(int(np.sum(np.isfinite(np.asarray(d["ctrl_f_pk_hz"], dtype=float)[k])))) for k in range(len(d["n_values"]))])
+    ctrl_drawn = f"Control seeds are drawn only where their value is defined: {n_ctrl_pk} of 3 at N = {labs} in (b) and (c), and none in (d)"
     return finish("F5c", [
         "Network classes do not reproduce the mean field (the mean-field classes are not drawn in this figure), and the step-halving check failed (halving the numerical time step must change the network peak frequency, the peak of its power spectrum, by less than 2 percent; its runs are not recorded, so not drawn). "
         "Network: N simulated spiking neurons; mean field: the model's equations for the average activity of the population. "
@@ -323,7 +325,7 @@ def f5c_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, ful
         f"Controls in a surge class: {JC._and_list([str(x) for x in cn['ctrl']])} of 3; controls in S-sus: {JC._and_list([str(x) for x in sus])} of 3. "
         "(b) Peak frequency, (c) onset (when the classifier, a rule fixed before the analysis, first flags the gamma rise) and (d) duration (how long it flags it; log axis); "
         "grey bar and tick: range and median of the ramp seeds; dotted line in (b), (c): the matching mean-field run; dashed line in (d): the smallest duration the classifier can give (recorded minimum, 1e3 ms). "
-        f"In (c), {onset_clause}. Failed check (red title of (b)): the step-halving check; a seed on the dotted line is not evidence of agreement (the check of this panel failed). {ctrl_clause[0].upper() + ctrl_clause[1:]}.",
+        f"{ctrl_drawn}. In (c), {onset_clause}. Failed check (red title of (b)): the step-halving check; a seed on the dotted line is not evidence of agreement (the check of this panel failed). {ctrl_clause[0].upper() + ctrl_clause[1:]}.",
         # DL-603 W2: values copied from the Parameters and settings paragraphs of the full caption
         f"Parameters: model M3 (the mean-field model) with membrane time constant 10 ms, coupling J = -21, heterogeneity Delta = 0.3 and synaptic decay time tau_d = 5 ms; ramp duration 60 s; "
         f"network size N = {labs}; classifier window 2 s, step 1 s, gamma band 25 to 100 Hz; noise level sigma = 0.0624 (checked, not confirmed; its check failed).",

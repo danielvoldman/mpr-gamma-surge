@@ -74,7 +74,7 @@ def test_g2c_f1_short_says_how_many_raster_rows(built):
     n = FG.prepare_F1(FG.load_F1(RES), FG.F.K.load_frozen_criteria(ROOT)[0])["ras_n_rows"]
     assert n == 300
     assert "(i) Spike counts of seed 0 for 300 of the 10,000 neurons" in short
-    assert "the same 300 neurons, one row each, as in (i)" in short
+    assert "the same 300 neurons as in (i); the rows are not labelled" in short
 
 
 @needs
