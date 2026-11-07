@@ -1589,13 +1589,13 @@
    "id": "D-FS2",
    "figure": "FS2",
    "status": "failing",
-   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: journal export of FS2 | 13t-4 (DL-637): reset to failing; journal export of FS2 tried under the FS profile (E5)"
+   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: journal export of FS2 | 13t-4 (DL-637): reset to failing; journal export of FS2 tried under the FS profile (E5) | 13t-4 (DL-640): not tried, the step became too large (F2 ruling); the split proposals stand"
   },
   {
    "id": "D-FS3",
    "figure": "FS3",
    "status": "failing",
-   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: journal export of FS3 | 13t-4 (DL-637): reset to failing; journal export of FS3 tried under the FS profile (E5)"
+   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: journal export of FS3 | 13t-4 (DL-637): reset to failing; journal export of FS3 tried under the FS profile (E5) | 13t-4 (DL-640): not tried, the step became too large (F2 ruling); the split proposals stand"
   },
   {
    "id": "D-FS4",
@@ -1644,6 +1644,18 @@
    "figure": "FS1, FS2, FS3",
    "status": "failing",
    "note": "13t-4 (DL-636/DL-637): new item, failing until verified on the recorded build, tests and looked-at crops: FS profile in configs/journal_export.yaml per figure; the verifier reads the per-figure height limit"
+  },
+  {
+   "id": "F1-fs1-journal",
+   "figure": "FS1",
+   "status": "failing",
+   "note": "13t-4 (DL-637/DL-640): built in scratch and checked (all verifier rows pass in scratch, trial 4); failing until verified on the recorded build, the independent comparison and the looked-at crops"
+  },
+  {
+   "id": "F-fs2-fs3-not-tried",
+   "figure": "FS2, FS3",
+   "status": "failing",
+   "note": "13t-4 (DL-640): not tried; the step became too large"
   }
  ]
 }
