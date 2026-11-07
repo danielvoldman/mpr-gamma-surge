@@ -87,6 +87,6 @@ def test_g3_f5c_short_says_the_mean_field_class_is_not_drawn(built):
 @needs
 def test_g2a_fs1_grey_key_is_true_for_both_panels():
     with FG.journal_figure("FS1") as (fig, d, cfg):
-        texts = [t.get_text() for ax in fig.axes for t in ax.get_legend().get_texts()] if any(ax.get_legend() for ax in fig.axes) else []
+        texts = [x.get_text() for ax in fig.axes if ax.get_legend() is not None for x in ax.get_legend().get_texts()]
     assert not any(t == "Grey: no focus in the band" for t in texts)
     assert any(t.startswith("Grey: no focus (in (c) also") for t in texts)
