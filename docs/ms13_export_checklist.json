@@ -1618,14 +1618,14 @@
   {
    "id": "E1-f2-sentence-1-journal",
    "figure": "F2",
-   "status": "failing",
-   "note": "13t-4 (DL-636/DL-637): new item, failing until verified on the recorded build, tests and looked-at crops: sentence 1 of the short and full journal caption follows the data (numbers re-read from the arrays; departure from the ruled draft wording; close item 46)"
+   "status": "passing",
+   "note": "13t-4 (DL-636/DL-637): new item, failing until verified on the recorded build, tests and looked-at crops: sentence 1 of the short and full journal caption follows the data (numbers re-read from the arrays; departure from the ruled draft wording; close item 46) | verified on the recorded build from 86b7d86 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t4.py; all seven recorded PNGs looked at in full and four crops; DL-641)"
   },
   {
    "id": "E2-positional-words",
    "figure": "all",
-   "status": "failing",
-   "note": "13t-4 (DL-636/DL-637): new item, failing until verified on the recorded build, tests and looked-at crops: every positional word of the six short and six full captions checked against the image by looking; wrong ones fixed"
+   "status": "passing",
+   "note": "13t-4 (DL-636/DL-637): new item, failing until verified on the recorded build, tests and looked-at crops: every positional word of the six short and six full captions checked against the image by looking; wrong ones fixed | verified on the recorded build from 86b7d86 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t4.py; all seven recorded PNGs looked at in full and four crops; DL-641)"
   },
   {
    "id": "E3-f3-band-ends",
@@ -1636,20 +1636,20 @@
   {
    "id": "E4-review-findings-caption-faults",
    "figure": "all",
-   "status": "failing",
-   "note": "13t-4 (DL-636/DL-637): new item, failing until verified on the recorded build, tests and looked-at crops: caption faults of docs/ms13_13t3_review.md that the image or stored numbers prove"
+   "status": "passing",
+   "note": "13t-4 (DL-636/DL-637): new item, failing until verified on the recorded build, tests and looked-at crops: caption faults of docs/ms13_13t3_review.md that the image or stored numbers prove | verified on the recorded build from 86b7d86 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t4.py; all seven recorded PNGs looked at in full and four crops; DL-641)"
   },
   {
    "id": "E5-fs-profile",
    "figure": "FS1, FS2, FS3",
-   "status": "failing",
-   "note": "13t-4 (DL-636/DL-637): new item, failing until verified on the recorded build, tests and looked-at crops: FS profile in configs/journal_export.yaml per figure; the verifier reads the per-figure height limit"
+   "status": "passing",
+   "note": "13t-4 (DL-636/DL-637): new item, failing until verified on the recorded build, tests and looked-at crops: FS profile in configs/journal_export.yaml per figure; the verifier reads the per-figure height limit | verified on the recorded build from 86b7d86 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t4.py; all seven recorded PNGs looked at in full and four crops; DL-641)"
   },
   {
    "id": "F1-fs1-journal",
    "figure": "FS1",
-   "status": "failing",
-   "note": "13t-4 (DL-637/DL-640): built in scratch and checked (all verifier rows pass in scratch, trial 4); failing until verified on the recorded build, the independent comparison and the looked-at crops"
+   "status": "passing",
+   "note": "13t-4 (DL-637/DL-640): built in scratch and checked (all verifier rows pass in scratch, trial 4); failing until verified on the recorded build, the independent comparison and the looked-at crops | verified on the recorded build from 86b7d86 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests/test_ms13_13t4.py; all seven recorded PNGs looked at in full and four crops; DL-641)"
   },
   {
    "id": "F-fs2-fs3-not-tried",
