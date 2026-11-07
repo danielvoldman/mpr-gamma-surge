@@ -8,6 +8,9 @@ page:
   double_column_width_in: 7.5          # UNVERIFIED: the second setting for other journals (190 mm), not used by the pilot
   double_column_max_height_in: 8.75    # UNVERIFIED: the second setting for other journals, not used by the pilot
   single_column_width_mm: 84           # UNVERIFIED: the sources disagree whether 84 or 174 mm is the single column; a third setting, not used by the pilot
+fs_profile:                            # DL-636 E5 (UNVERIFIED): supplementary figures FS1 to FS3 (13t-4): width as the main figures, a taller page, same text, margin and collision rules
+  width_in: 6.3                        # UNVERIFIED: as the main figures
+  max_height_in: {FS1: 9.5, FS2: 9.5, FS3: 9.5}   # UNVERIFIED: the supplement is a PDF or Zenodo file and no inline page limit was read; a figure that does not fit at 8 pt without touching is stopped and a split proposed (never smaller text)
 text:
   min_pt: 8                            # UNVERIFIED: all text at least 8 pt at the FINAL physical size (replaces the draft tick-label rule for the export only)
   title_pt: 8                          # panel titles; not below min_pt
@@ -42,6 +45,9 @@ caption:
   short_max_words_F3: 600              # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 330)
   short_max_words_F5: 600              # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 330)
   short_max_words_F5c: 600             # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 330)
+  short_max_words_FS1: 600             # UNVERIFIED (DL-637; as DL-628 C6)
+  short_max_words_FS2: 600             # UNVERIFIED (DL-637)
+  short_max_words_FS3: 600             # UNVERIFIED (DL-637)
   short_max_words_F6: 600              # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6): F6 (13t-2)
 files:
   name_pattern: "^[A-Za-z0-9_+=,.-]+$"   # a-z A-Z 0-9 underscore plus minus dot comma equals; no spaces

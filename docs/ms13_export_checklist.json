@@ -1583,19 +1583,19 @@
    "id": "D-FS1",
    "figure": "FS1",
    "status": "failing",
-   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: journal export of FS1"
+   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: journal export of FS1 | 13t-4 (DL-637): reset to failing; journal export of FS1 tried under the FS profile (E5)"
   },
   {
    "id": "D-FS2",
    "figure": "FS2",
    "status": "failing",
-   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: journal export of FS2"
+   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: journal export of FS2 | 13t-4 (DL-637): reset to failing; journal export of FS2 tried under the FS profile (E5)"
   },
   {
    "id": "D-FS3",
    "figure": "FS3",
    "status": "failing",
-   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: journal export of FS3"
+   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: journal export of FS3 | 13t-4 (DL-637): reset to failing; journal export of FS3 tried under the FS profile (E5)"
   },
   {
    "id": "D-FS4",
@@ -1614,6 +1614,36 @@
    "figure": "all",
    "status": "passing",
    "note": "13t-3: a NEW fresh subagent read the six short captions; findings unedited in docs/ms13_13t3_review.md; triaged (DL-633); findings open for the reviewer, no rebuild"
+  },
+  {
+   "id": "E1-f2-sentence-1-journal",
+   "figure": "F2",
+   "status": "failing",
+   "note": "13t-4 (DL-636/DL-637): new item, failing until verified on the recorded build, tests and looked-at crops: sentence 1 of the short and full journal caption follows the data (numbers re-read from the arrays; departure from the ruled draft wording; close item 46)"
+  },
+  {
+   "id": "E2-positional-words",
+   "figure": "all",
+   "status": "failing",
+   "note": "13t-4 (DL-636/DL-637): new item, failing until verified on the recorded build, tests and looked-at crops: every positional word of the six short and six full captions checked against the image by looking; wrong ones fixed"
+  },
+  {
+   "id": "E3-f3-band-ends",
+   "figure": "F3",
+   "status": "failing",
+   "note": "13t-4 (DL-636/DL-637): new item, failing until verified on the recorded build, tests and looked-at crops: STOPPED (DL-638): the ruled clause disagrees with the stored band ends; open for the reviewer"
+  },
+  {
+   "id": "E4-review-findings-caption-faults",
+   "figure": "all",
+   "status": "failing",
+   "note": "13t-4 (DL-636/DL-637): new item, failing until verified on the recorded build, tests and looked-at crops: caption faults of docs/ms13_13t3_review.md that the image or stored numbers prove"
+  },
+  {
+   "id": "E5-fs-profile",
+   "figure": "FS1, FS2, FS3",
+   "status": "failing",
+   "note": "13t-4 (DL-636/DL-637): new item, failing until verified on the recorded build, tests and looked-at crops: FS profile in configs/journal_export.yaml per figure; the verifier reads the per-figure height limit"
   }
  ]
 }

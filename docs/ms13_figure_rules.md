@@ -100,6 +100,9 @@ Y1. A panel that compares the network with the mean field at amplitude level whi
 Y2. Word limit of every short caption at most 600 words (UNVERIFIED, configs/journal_export.yaml; replaces X2). Repeated prose without a ruled limit is removed first; a caption that does not fit stops the build; a ruled limit is never dropped.
 Y3. Sentence case on every journal image: every label, title, legend entry, key line, schematic text and in-panel note starts with a capital and is otherwise lower case. Exceptions keep their form: eta_bar, Delta, J, tau_d, tau, T_ramp, t_on, N, f; S+, S-rel, S-abs, S-sus, NS, D-tr, D-sus, D-none; M3, ING, P1 to P5 (P4a, P4b); panel letters (a) to (k); units (ms, Hz, s, dB); FAIL and FAILED in titles. A test checks it on the built figures.
 
+## Z1 (13t-4, DL-636 E5; the FS profile)
+Z1. Supplementary figures (FS1, FS2, FS3 in 13t-4; FS4, FS5 later): width 6.3 in, height up to 9.5 in per figure (UNVERIFIED: the supplement is a PDF or Zenodo file and no inline page limit was read; `fs_profile` in configs/journal_export.yaml, read by the verifier per figure); PNG and TIFF 600 dpi, PDF extra; text at least 8 pt; margins at least 0.10 in; zero unlisted collision hits; plain words; sentence case; short and full captions; supplement tables; source-data CSV; alt text. First try the FS profile; if the figure fits at 8 pt without touching, use it; if not, STOP that figure and propose a split (FSna/FSnb) in docs/ms13_13t4_notes.md; no shrinking of text or marks, no hidden data, no split without the user's ruling.
+
 ## Failures that stay visible (plan 7.2; shown, not dropped)
 RB1 FAIL; RB2 FAIL; RB6 solver FAIL (181 ms); RB6 network f_pk FAIL; RB9(b) FAIL (4.391 Hz against 0.5 Hz); G7 NOT PASSED; D24 noisy subgrid FAILED (97 of 225 = 43.1 percent, 203 needed).
 
