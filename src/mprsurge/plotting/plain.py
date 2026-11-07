@@ -19,6 +19,9 @@ class PlainError(ValueError):
 
 # One plain sentence per claim limit: same meaning, same numbers as the ruled short form (claim_labels), never weaker. The ruled text and its DL numbers go to the supplement.
 PLAIN_LIMITS = {
+    # 13t-6 (DL-651 H2; UNVERIFIED plain wording of the ruled label, same meaning and numbers): the two limits that FS3 lists and the earlier captions did not
+    "G4-C5": "No claim is made about whether the result holds for other shapes of the heterogeneity (the check of the heterogeneity shape, RB8, is not evaluable).",
+    "DL-163-D4": "The classifier flags a surge on pure trend plus noise at a window length of 0.2 s; short windows give false surges (306, 400, 172 and 24 of 500 white-noise records at window lengths of 0.2, 0.333, 0.593 and 1.054 s).",
     "MS11-C7": "All earlier failures and limits stand: the failure of check RB1 (network against mean field), gate G7 not passed, the failure of the D24 rule, the six limits set when gate G4 "
                "(network against mean field) was triggered, and the limits ruled for the map, control and perturbation runs.",
     "MS12-C1": "The surge result is stated for model M3 only; there is no claim about the models M4 or M3a and M3b, and the parts of check RB8 that concern M4 and adaptation have no result.",
