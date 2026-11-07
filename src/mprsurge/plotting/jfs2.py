@@ -23,6 +23,7 @@ UNDEFINED_UNVERIFIED = ("validation points 1 and 2 (defined here from the parame
 CELL_NAMES = {"ceni_3ms": "Point 1, 3 ms", "ceni_4.95ms": "Point 1, 4.95 ms", "ceni_8ms": "Point 1, 8 ms", "devalle_5ms": "Point 2, 5 ms", "devalle_50ms": "Point 2, 50 ms",
               "k8_5e4_5ms": "Point 2, 5 ms, N 50,000"}
 MINUS = "−"
+LS_NET = {"s3_net_1e4": "--", "s3_net_5e4": ":"}           # non-colour distinction of the three line kinds in (c) to (g): mean field solid, network of 10,000 dashed, network of 50,000 dotted
 
 
 def _fmt(x: float, nd: int = 2) -> str:
@@ -37,7 +38,7 @@ def draw(d: dict, FG):
     cyc, hp = S.diagram_mark("a5_cycle"), S.diagram_mark("hopf_point")
     mf, n1, n5 = S.diagram_mark("s3_mf"), S.diagram_mark("s3_net_1e4"), S.diagram_mark("s3_net_5e4")
     paper, tol = S.diagram_mark("k7_paper"), S.diagram_mark("tol_band")
-    fig.get_layout_engine().set(w_pad=0.14, h_pad=0.14)
+    fig.get_layout_engine().set(w_pad=0.18, h_pad=0.14)
     gs = fig.add_gridspec(4, 6, height_ratios=[1.35, 0.95, 1.25, 1.25])
     lw_fit = 1.6
     # (a)
@@ -58,7 +59,7 @@ def draw(d: dict, FG):
         axb.plot(d[f"a5c_{name}_tau_d"], d[f"a5c_{name}_amp"] ** 2, color=cyc.colour, lw=cyc.width, zorder=3, label="Stable cycle, amplitude squared" if name == "up" else None)
     h, w = d["fit_hopf_ms"], d["fit_window_ms"]
     x = np.array([h + w[0], h + w[1]])
-    axb.plot(x, d["fit_s4_up_slope"] * (x - h) + d["fit_s4_up_intercept"], color=paper.colour, lw=lw_fit, ls="-", zorder=4,
+    axb.plot(x, d["fit_s4_up_slope"] * (x - h) + d["fit_s4_up_intercept"], color=paper.colour, lw=lw_fit, ls="-.", zorder=4,
              label=f"Fit, {w[0]:g} to {w[1]:g} ms above Hopf point:\nresidual {100 * d['fit_s4_up_max_resid_frac']:.2f} percent ({100 * d['fit_rel_tol']:g} allowed)")
     pw = d["fit_posthoc_window_ms"]
     xp = np.array([h + pw[0], h + pw[1]])
@@ -76,7 +77,7 @@ def draw(d: dict, FG):
     axl = fig.add_subplot(sub[0, :])
     axl.axis("off")
     axl.set_gid("legend axes")
-    axl.legend([Line2D([], [], color=m.colour, lw=m.width, ls=("--" if m is n5 else m.linestyle)) for m in (mf, n1, n5)],
+    axl.legend([Line2D([], [], color=m.colour, lw=m.width, ls=LS_NET.get(k_, m.linestyle)) for k_, m in (("s3_mf", mf), ("s3_net_1e4", n1), ("s3_net_5e4", n5))],
                ["Mean field", "Network, N = 10,000 (all panels)", "Network, N = 50,000 (point 2, 5 ms only)"], loc="center", ncol=3, frameon=False)
     specs = [("Point 1,\n3 ms", [("mf_ceni_3.0", "s3_mf"), ("net_ceni_3ms", "s3_net_1e4")]), ("Point 1,\n4.95 ms", [("mf_ceni_4.95", "s3_mf"), ("net_ceni_4.95ms", "s3_net_1e4")]),
              ("Point 1,\n8 ms", [("mf_ceni_8.0", "s3_mf"), ("net_ceni_8ms", "s3_net_1e4")]),
@@ -86,11 +87,11 @@ def draw(d: dict, FG):
         axt = fig.add_subplot(sub[1, i])
         for key, mark in series:
             st = S.diagram_mark(mark)
-            axt.plot(d[f"tr_{key}_t"], d[f"tr_{key}_r"], color=st.colour, lw=st.width, ls=("--" if mark == "s3_net_5e4" else st.linestyle), zorder=3 if mark == "s3_mf" else 2)
+            axt.plot(d[f"tr_{key}_t"], d[f"tr_{key}_r"], color=st.colour, lw=st.width, ls=LS_NET.get(mark, st.linestyle), zorder=3 if mark == "s3_mf" else 2)
         FG._journal_title(axt, "cdefg"[i], title)
         axt.set_xlabel("Time (ms)")
         axt.set_xticks([9600.0, 10000.0])
-        axt.yaxis.set_major_locator(MaxNLocator(3))
+        axt.yaxis.set_major_locator(MaxNLocator(nbins=2, min_n_ticks=2))
         axt.set_xticklabels(["9,600", "10,000"])
         if i == 0:
             axt.set_ylabel("r, last 400 ms")
@@ -185,7 +186,7 @@ def caption(d: dict, rows: list, *, ids, c: dict, FG) -> str:
     r2, resid, tolr = d["fit_s4_up_r2"], 100 * d["fit_s4_up_max_resid_frac"], 100 * d["fit_rel_tol"]
     ch = [100 * d[f"k10_rel_change_{t}"] for t in ("8.0", "20.0", "40.0")]
     lim = 100 * d["k10_j_limit"]
-    take = (f"The mean field of model M3 (the model's equations for the average activity of the population) does not reproduce the published Hopf point (where the resting state starts to oscillate): it is at the synaptic decay time tau_d {d['hopf_a4_ms']:.2f} ms, not {FG.FS2_K7_PAPER_MS:g} ms (a recorded departure), and the straight-line fit of the squared "
+    take = (f"The mean field of model M3 (the mean-field model, that is the model's equations for the average activity of the population) does not reproduce the published Hopf point (where the resting state starts to oscillate): it is at the synaptic decay time tau_d {d['hopf_a4_ms']:.2f} ms, not {FG.FS2_K7_PAPER_MS:g} ms (a recorded departure), and the straight-line fit of the squared "
             f"amplitude of v against tau_d leaves a residual of {resid:.2f} percent against {tolr:g} percent allowed (a failed check); it also does not reproduce the published dependence of the oscillation frequency on the coupling J as worded "
             f"(the frequency changes by {ch[0]:.1f}, {ch[1]:.1f} and {ch[2]:.1f} percent at tau_d 8, 20 and 40 ms against a limit of {lim:.0f} percent; the source is a single one and our reading is not verified). "
             f"It reproduces the existence checks (a limit cycle at tau_d 5 ms and a fixed point at 50 ms; the oscillation frequency of the network (a simulated network of N spiking neurons; N = 50,000 here) is within {100 * abs(d['k8_net_rel_diff']):.2f} percent of the mean field, "
@@ -216,7 +217,7 @@ def caption(d: dict, rows: list, *, ids, c: dict, FG) -> str:
               f"(panel (b)). (2) The test of the dependence of the frequency on J: the frequency must change by at most {lim:.0f} percent over the J range; it changes by {ch[0]:.1f}, {ch[1]:.1f} and {ch[2]:.1f} percent "
               f"(panel (l); single source, not verified). " + JC.title_sentence(FS2_ID) + f" The Hopf point at {d['hopf_a4_ms']:.2f} ms against the published {FG.FS2_K7_PAPER_MS:g} ms is a recorded departure, drawn in (a). "
               "No row of the project's table of failed checks concerns this figure (our reading of where the checks apply; not verified); the version of the step test on a network is not part of this figure.")
-    limits = JC.limits_paragraph(ids)
+    limits = JC.limits_paragraph(ids) + " In these limits, control (the same network without the ramp) runs are runs of the project that are not drawn in this figure."
     rest = " ".join([take, panels, settings, params, failed, limits])
     key = " ".join(x for x in [
         JC.key_symbols(rest, "eta", "Delta", "J", "tau_d", "tau", "r", "v", "N", "M3"),
