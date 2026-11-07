@@ -1099,10 +1099,7 @@ def _f3_band_ends(raw: dict) -> list:
 def _f3_band_table_md(bands: list) -> str:
     rows = ["| Delta | tau_d (ms) | last recorded eta_bar of the cycle branch (band end) | ends before 8.0 |", "|---|---|---|---|"]
     rows += [f"| {D} | {t:g} | {e:.4f} | {'yes' if e < 8.0 else 'no'} |" for D, t, e in bands]
-    return "
-".join(rows) + f"
-
-{sum(e < 8.0 for _, _, e in bands)} of the {len(bands)} bands end before eta_bar 8.0. Each band ends at the last recorded eta_bar of its cycle branch; the reason is not recorded."
+    return chr(10).join(rows) + f"{chr(10)}{chr(10)}{sum(e < 8.0 for _, _, e in bands)} of the {len(bands)} bands end before eta_bar 8.0. Each band ends at the last recorded eta_bar of its cycle branch; the reason is not recorded."
 
 
 def _f3_jconst(d: dict, raw: dict | None = None) -> dict:
