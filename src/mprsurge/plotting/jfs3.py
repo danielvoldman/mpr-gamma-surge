@@ -23,6 +23,12 @@ UNDEFINED_UNVERIFIED = ("'surge class' and the class names are defined in the Ke
 NLAB = {1000: "1000", 3000: "3000", 10000: "10,000", 30000: "30,000"}
 
 
+def _bars(ax):
+    """The filled bar segments are containers of their count labels: a label must lie wholly inside its segment (collision checker)."""
+    for p in ax.patches:
+        p.set_gid("container:bar segment")
+
+
 def draw(d: dict, FG):
     from matplotlib.patches import Rectangle
     fig, cfg = FG._journal_fig(FS3J_HEIGHT, constrained=True, fid=FS3_ID)
@@ -40,12 +46,14 @@ def draw(d: dict, FG):
     for x_, s_, n_, cs, cn in zip(xs, d["s9_surge"], d["s9_seeds"], d["s9_ctrl_surge"], d["s9_ctrl_n"]):
         ax.text(x_ - 0.2, 1.02, f"{int(s_)}/{int(n_)}", ha="center", va="bottom", fontweight="bold")
         ax.text(x_ + 0.2, 1.02, f"{int(cs)}/{int(cn)}", ha="center", va="bottom", fontweight="bold", color=T("range_line"))
-    ax.set_xticks(np.concatenate([xs - 0.2, xs + 0.2]), [f"Ramp\nN {n}" for n in nl] + [f"No ramp\nN {n}" for n in nl])
+    ax.set_xticks(xs, nl)
+    ax.set_xlabel("N (neurons); in each pair: left bar ramp seeds, right bar controls without a ramp")
     ax.set_xlim(-0.6, 3.6)
     ax.set_ylim(0.0, 1.3)
     ax.set_ylabel("Share of seeds")
     FG._journal_title(ax, "a", "Class at each N; bold: seeds in a surge class")
     ax.legend(handles=h_a, loc="upper left", ncol=5, frameon=True, framealpha=0.95, handlelength=1.4, columnspacing=0.8)
+    _bars(ax)
     # (b)
     axb = fig.add_subplot(gs[0, 4:6])
     for x_, lo, md, hi in zip(xs, d["s9_fpk_err_min"], d["s9_fpk_err_median"], d["s9_fpk_err_max"]):
@@ -103,6 +111,7 @@ def draw(d: dict, FG):
     FG._journal_title(axe, "e", "Noise check: FAIL", fail="FAIL" in d["gate_status"])
     from matplotlib.lines import Line2D
     axe.legend([Line2D([], [], color=T("gate_line"), ls=tol.linestyle, lw=tol.width + 0.4)], ["At least 8 of 10 seeds needed (bars of 120 s)"], loc="upper left", frameon=True, framealpha=0.95)
+    _bars(axe)
     # (f)
     axf = fig.add_subplot(gs[2, 4:6])
     xf = np.arange(3, dtype=float)
@@ -114,6 +123,7 @@ def draw(d: dict, FG):
     axf.set_ylim(0.0, 1.14)
     axf.set_xlabel("Noise factor (×)")
     FG._journal_title(axf, "f", "Controls without a ramp")
+    _bars(axf)
     # (g)
     axg = fig.add_subplot(gs[3, 0:2])
     axg.add_patch(Rectangle((-0.3, 0), 0.6, d["subgrid_agree"], fc=T("subgrid_bar"), ec=T("bar_edge"), lw=0.4, zorder=3))
@@ -126,6 +136,7 @@ def draw(d: dict, FG):
     axg.set_ylabel(f"Cells (of {d['subgrid_cells']})")
     FG._journal_title(axg, "g", "90 percent rule: FAILED", fail="FAIL" in d["subgrid_status"])
     axg.legend(loc="upper right", frameon=True, framealpha=0.95)
+    _bars(axg)
     # key
     axs = fig.add_subplot(gs[3, 2:6])
     axs.axis("off")
@@ -140,7 +151,7 @@ def draw(d: dict, FG):
 
 # ---- text ------------------------------------------------------------------------------------------------------------------------------------------
 
-CLASS_DEF = ("A surge (a transient rise of gamma-band power, 25 to 100 Hz) is sorted into classes: S+ (absolute and relative rise, ending), S-rel (relative rise only), S-abs (absolute rise only), "
+CLASS_DEF = ("The classes are S+ (absolute and relative rise, ending), S-rel (relative rise only), S-abs (absolute rise only), "
              "S-sus (a rise that does not end), NS (no rise); D-tr (a rise that ends) and D-none (no episode) are the classes of the noise-free mean field; a surge class is S+, S-rel or S-abs.")
 
 
@@ -155,7 +166,7 @@ def caption(d: dict, rows: list, a11: list, *, ids, c: dict, FG) -> str:
     surge, ctl = d["s9_surge"], d["s9_ctrl_surge"]
     pct = 100.0 * d["subgrid_agree"] / d["subgrid_cells"]
     sh = {s: d["shape_class"][i] for i, s in enumerate(FG.FS3_SHAPES)}
-    take = (f"At the reference run (the run that the project fixed before the analysis as its main case) the noise check failed: the surge class is kept in only {d['gate_kept'][1]} of 10 noisy mean-field seeds at the noise level sigma against 8 needed "
+    take = (f"At the reference run (the run that the project fixed before the analysis as its main case) the noise check failed: the surge class (a transient rise of gamma-band power, 25 to 100 Hz, classified as S+, S-rel or S-abs) is kept in only {d['gate_kept'][1]} of 10 noisy mean-field seeds at the noise level sigma against 8 needed "
             f"(a failed check), and the noisy grid agrees with the noise-free map in {d['subgrid_agree']} of {d['subgrid_cells']} cells ({pct:.1f} percent) against {d['subgrid_needed']} needed (a failed check); "
             f"the effect of the heterogeneity shape cannot be evaluated (the check is NOT EVALUABLE), and the claim holds for Lorentzian heterogeneity only (a claim limit, not a result). " + CLASS_DEF + " "
             f"Finite size (the mean field is D-tr; ramp duration {n(c['T9'])} s, 10 seeds per N; the network is a simulated network of N spiking neurons, the mean field is the model's equations for the average activity of the population): the network gives a surge class in "
@@ -166,7 +177,7 @@ def caption(d: dict, rows: list, a11: list, *, ids, c: dict, FG) -> str:
             f"{d['noise_ctrl_kept'][0]} of 10 at every sigma.")
     panels = " ".join([
         f"(a) For each N (1000, 3000, 10,000 and 30,000 neurons), the share of the 10 ramp seeds in each class (left bar) and of the 3 control seeds without a ramp (right bar); the bold number above a bar is the number of seeds in a surge class; ramp duration {n(c['T9'])} s.",
-        f"(b) The error of the peak frequency of the network (the peak of the power spectrum of its mean potential v) relative to the mean field, per N: the line is the range and the mark the median ({', '.join(str(int(x)) for x in d['s9_fpk_err_n'])} seeds with a defined value).",
+        f"(b) The error of the peak frequency (the peak of the power spectrum of the mean potential v) of the network relative to the mean field, per N: the line is the range and the mark the median ({', '.join(str(int(x)) for x in d['s9_fpk_err_n'])} seeds with a defined value).",
         "(c) The absolute error of the onset time of the network (when the classifier, a rule fixed before the analysis that sorts runs into classes, first flags the rise) against the mean field, per N: range and median.",
         f"(d) The class of each of 3 seeds for Lorentzian, Gaussian and uniform heterogeneity at N = {c['N10']:,}, and the classes of the {int(d['shape_ctrl_n'])} control runs without a ramp with Lorentzian heterogeneity; the title is not red because the check is not evaluable, not failed.",
         "(e) The share of 10 noisy mean-field seeds in each class for ramp durations of 10, 30, 120 and 300 s and the noise factors 0.5, 1 and 2 (multiples of the calibrated noise level sigma); the number above a bar is the number of seeds in a surge class; for the 120 s bars "
@@ -179,11 +190,12 @@ def caption(d: dict, rows: list, a11: list, *, ids, c: dict, FG) -> str:
     params = (f"Recorded values (the complete list with the key names as recorded is in the supplement): model {c['type']}; path P2 (the hypoxia-like path, mean excitability raised) with ramp duration {n(c['T9'])} s in (a) to (d); N = 1000, 3000, 10,000 and 30,000 in (a) to (c) and "
               f"{c['N10']:,} in (d) to (f); the noise level sigma = {n(c['sigma'])} in (e) and (f), with the noise factors 0.5, 1 and 2 and the ramp durations 10, 30, 120 and 300 s in (e).")
     rows_ = FG.strip_rows_of(FS3_ID, d)
-    lines = [JC.failed_line(r) for r in rows_]
-    failed = (f"Failed checks that concern this figure ({len(lines)}): " + "; ".join(lines) + ". The checks against the mean field at the ramp durations 10 s and 120 s and at the 4 map cells are not drawn here (their runs are not in this figure; (a) draws the network at 60 s); "
+    lines = [JC.failed_line(r).replace("stored table", "recorded table") for r in rows_]
+    failed = (f"Failed checks that concern this figure ({len(lines)}; the map cells (one parameter pair of a 30 x 30 grid of mean-field runs) are the cells of the project's map): " + "; ".join(lines) + ". The checks against the mean field at the ramp durations 10 s and 120 s and at the 4 map cells are not drawn here (their runs are not in this figure; (a) draws the network at 60 s); "
               "the title of (e) is red as 'Noise check: FAIL' and the title of (g) as '90 percent rule: FAILED'. The heterogeneity check is NOT EVALUABLE (panel (d)). "
               "The project's other failed checks are not about this figure; all of them are listed in the supplement. " + JC.title_sentence(FS3_ID))
-    limits = JC.limits_paragraph(ids) + " In these limits, control (the same network without the ramp) runs are runs without a ramp: the controls of (a) and (d), and the constant-parameter controls of (f) are mean-field runs."
+    limits = ("In the limits below, the main example (the run fixed before the analysis as the main case) is the reference run of the first paragraph, and control (the same network without the ramp) runs are runs without a ramp: the controls of (a) and (d); "
+              "the constant-parameter controls of (f) are mean-field runs. " + JC.limits_paragraph(ids))
     rest = " ".join([take, panels, settings, params, failed, limits])
     key = " ".join(x for x in [
         JC.key_symbols(rest, "eta", "Delta", "J", "tau_d", "r", "v", "N", "T_ramp", "M3", "modes"),
