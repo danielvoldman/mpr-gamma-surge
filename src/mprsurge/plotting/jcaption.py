@@ -279,6 +279,7 @@ TITLE_MAP = {
            ("(c)", "90 percent agreement rule: FAILED", "D24", "the rule that at least 90% of the cells of the noisy subgrid agree with the noise-free class")),
     "F5c": (("(b)", "step-halving check: FAIL", "RB6", "numerical convergence, the network f_pk when the step is halved"),),
     "F2": (("(c)", "Network vs mean field: FAIL", "RB1", "network against mean field: the same class is required at the main example for ramp durations of 10 s and 120 s, at the 4 map cells and overall"),),     # DL-628 C1 (DL-616 had no red title on F2)
+    "FS1": (),                                                                       # 13t-4: no red title and no failed row (DL-637)
     "F6": (("(c)", "Negative-control check: FAIL", "G7", "the negative-control gate: the network run of the first negative control must not be in a surge class"),),
 }
 WORD_MAP = {"F3": (("continuation", "A4", "the analysis step named \"M3 fixed points and Hopf curves\""), ("frequency-map", "A6", "the analysis step named \"M3 frequency map\""))}

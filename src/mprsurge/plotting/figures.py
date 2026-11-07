@@ -26,6 +26,7 @@ from ..params import make_param_table
 from . import captions as CAP
 from .claim_labels import A9_LABELS, CLAIM_LIMIT_LABELS
 from . import jf26 as JF
+from . import jfs as JFS
 from . import figprov as F
 from . import jcaption as JCAP
 from . import jshort as JSH
@@ -935,6 +936,9 @@ def journal_figure(fig_id: str, res=None, root=None, close: bool = True):
         elif fig_id == "F2":
             d = prepare_F2(load_F2(res))
             fig = _draw_F2(d, draft=False, strip_lines=strip_lines(d), mode="journal")
+        elif fig_id == "FS1":
+            d = prepare_FS1(load_FS1(res))
+            fig = _draw_FS1_journal(d)
         elif fig_id in ("F5", "F5c"):
             d = prepare_F5(load_F5(res))
             fig = _draw_F5(d, draft=False, mode="journal" if fig_id == "F5" else "journal_c")
@@ -2061,6 +2065,98 @@ def _draw_FS1_journal(d: dict):
     return fig
 
 
+def _fs1_source_rows(d: dict) -> list:
+    rows: list = []
+    ee, jj = np.meshgrid(d["eta"], d["J"], indexing="xy")                      # (J, eta), the layout of the (J, eta) arrays of the draft
+    for pl, name, arr in (("a", "number of fixed points (x = eta_bar/Delta, y = J/sqrt(Delta))", d["n_roots_T"]), ("b", "frequency of the stable focus in Hz (x = eta_bar/Delta, y = J/sqrt(Delta))", d["ring_freq_T"]),
+                          ("c", "cycles per e-fold inside the band (x = eta_bar/Delta, y = J/sqrt(Delta))", d["ring_cyc_inG_T"])):
+        ok = np.isfinite(arr)
+        _src(rows, pl, name, ee[ok], jj[ok], arr[ok])
+    for k, ln in enumerate(("fold formula, branch 1", "fold formula, branch 2")):
+        _src(rows, "a", ln + " (x = eta_bar/Delta, y = J/sqrt(Delta))", d["fold_eta_a" if k == 0 else "fold_eta_b"], d["fold_J"])
+    _src(rows, "a", "cusp (formula)", [d["cusp_eta"]], [d["cusp_J"]])
+    for pl in ("a", "b", "c"):
+        _src(rows, pl, "test point", [d["k_eta"] / d["k_Delta"]], [d["k_J"] / np.sqrt(d["k_Delta"])])
+    _src(rows, "d", "recorded r(t) (x = time in ms)", d["K4_t_ms"], d["K4_r"])
+    _src(rows, "d", "focus value of r", [0.0, 600.0], [d["k4_r_star"]] * 2)
+    _src(rows, "d", "fit window start and end (x = time in ms)", [d["k4_t_start_ms"], d["k4_t_end_ms"]])
+    _src(rows, "e", "recorded r(t), forced (x = time in ms)", d["K5_t_ms"], d["K5_r"])
+    _src(rows, "e", "forcing I(t) (x = time in ms)", d["K5_t_ms"], d["K5_I"])
+    return rows
+
+
+def _fs1_alt_text(d: dict) -> dict:
+    return {
+        "a": (f"Map of the number of fixed points of the M2 model against eta_bar/Delta (-10 to 2) and J/sqrt(Delta) (0 to 20): pale blue where there is one, orange between the two black fold lines where there are three; the fold lines meet at "
+              f"the circled-plus cusp (eta_bar/Delta {d['cusp_eta']:.3f}, J/sqrt(Delta) {d['cusp_J']:.3f}); a circled dot marks the test point (-5, 15), inside the orange region."),
+        "b": (f"Map of the frequency of the stable focus in the same plane, viridis colours from {d['ring_freq_min']:.2f} to {d['ring_freq_max']:.1f} Hz, rising towards the upper right; grey where there is no stable focus (a wedge on the "
+              "left); the test point is on the grey boundary."),
+        "c": (f"Map of the cycles per e-fold in the same plane, cividis colours, drawn only where the focus frequency is between {d['band_hz'][0]:g} and {d['band_hz'][1]:g} Hz; largest value {d['ring_cyc_inG_max']:.2f}; grey elsewhere."),
+        "d": (f"Step response of the firing rate r at the test point: it rises from {d['k4_start_r']:.4f} to a first peak near 2.9 and rings with falling amplitude towards {d['k4_end_r']:.4f}; a dashed horizontal line marks the focus value, "
+              f"two dash-dot vertical lines the fit window ({d['k4_t_start_ms']:g} and {d['k4_t_end_ms']:g} ms); the axis ends at 600 ms."),
+        "e": ("Response of r to the sinusoidal input current (below, dotted): seven bursts, one per period, each starting with a high peak and ringing down; the note on the panel says that the test is our own reading and not verified."),
+    }
+
+
+def _fs1_sections(d: dict, c: dict) -> tuple:
+    """Supplement sections of the FS1 journal file (13t-4): the mapping of the draft panels, the replication table of the draft panel (f) (verbatim), the numbers that the draft prints inside panel (d), the notes."""
+    mapping = ("The journal panels (a) to (e) are the draft panels (a) to (e) (same letters, same data). The draft panel (f) (a text block with the replication table and two status lines) is not on the image: its table is below. "
+               "The number box of the draft panel (d) is not on the image: its numbers are below and in the caption.")
+    tab = ["| row | status | measured | criterion |", "|---|---|---|---|"]
+    tab += [f"| {t} | {p} | {m} | {tol} |".replace("\n", " ") for t, p, m, tol in zip(d["a0_target"], d["a0_pass"], d["a0_measured"], d["a0_tolerance"])]
+    tab += ["", FS1_K5, FS1_K4NET, strip_heading("FS1") + " none (the project's table names no robustness check for FS1; our reading, not verified)."]
+    box = (f"fit: omega {d['k4_omega_fit']:.4f}, decay {d['k4_decay_fit']:.5f} per tau; linearised: omega {d['k4_omega_lin']:.4f}, decay {d['k4_decay_lin']:.5f}; relative error {d['k4_rel_err_frequency']:.2g} (frequency), "
+           f"{d['k4_rel_err_decay']:.2g} (decay); tolerance {d['k4_tol_frequency']:g}; {'pass' if d['k4_pass'] else 'FAIL'}; {d['k4_cycles']:.1f} tail cycles.")
+    return (("Mapping of the draft panels to the journal panels (DL-637)", mapping), ("Replication table of the draft panel (f), verbatim", "\n".join(tab)),
+            ("Numbers of the draft number box of panel (d)", box), ("Stored names behind the plain words of the caption (DL-571 T8)", CODE_NAMES_MD))
+
+
+def _make_FS1_journal(res, out_dir, root, script, take_home, claim_limit_ids, tag_build) -> dict:
+    import dataclasses
+    root = Path(root) if root is not None else repo_root()
+    res = Path(res) if res is not None else root / "results"
+    out = Path(out_dir) if out_dir is not None else root / "figures" / "journal" / "FS1"
+    t = {"start": time.perf_counter()}
+    raw = load_FS1(res)
+    t["load"] = time.perf_counter()
+    d = prepare_FS1(raw)
+    t["prepare"] = time.perf_counter()
+    rows = []
+    for panel, key in (("a-c", "A1"), ("a-c", "A2"), ("d", "S1_K4"), ("e", "S1_K5")):
+        rec = raw["records"][key]
+        for r in make_param_table(rec["config"]):
+            rows.append({**r, "panel": panel, "section": "", "source_run_id": rec["name"], "source_config_hash12": rec["config_hash12"]})
+    crows = [r for r in rows if r["key"] in FS1_CAPTION_KEYS and not (r["panel"] == "a-c" and r["key"].startswith("path."))]
+    cap = CAP.build_caption("FS1", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=crows, spectrogram=None, symbol_keys=(), notes=fs1_caption_notes(d),
+                            main_failures=FS1_MAIN_FAILURES, swept={"model.eta_bar": list(d["eta"]), "model.J": list(d["J"])})
+    plain_md = PL.pairing_markdown(claim_limit_ids, None, cap.text)
+    c = JFS.fs1_consts(d, rows)
+    jtext = JFS.fs1_caption(d, rows, ids=claim_limit_ids, c=c)
+    cap = dataclasses.replace(cap, text=jtext)
+    cfg = J.load_config(root)
+    short_text = JFS.fs1_short(d, c, J.caption_limit(cfg, "FS1"), jtext)
+    import matplotlib.pyplot as plt
+    out.mkdir(parents=True, exist_ok=True)
+    stem = "FS1_journal"
+    with plt.rc_context(J.rc_params(cfg)):
+        fig = _draw_FS1_journal(d)
+        saved = J.save_all(fig, out, stem, cfg)
+    plt.close(fig)
+    t["draw"] = time.perf_counter()
+    from .. import provenance as P
+    drawn = drawn_data_sha256(d)
+    P.atomic_write_text(out / f"{stem}_caption.txt", short_text + "\n")
+    P.atomic_write_text(out / f"{stem}_caption_full.txt", cap.text + "\n")
+    P.atomic_write_text(out / f"{stem}_drawn_data_sha256.txt", drawn + "\n")
+    warnings = [f"input record {k} ({rec['name']}) was written with git dirty = true" for k, rec in {**raw["records"], **raw["copies"]}.items() if (rec.get("git") or {}).get("dirty")]
+    prov_kw = dict(script=script, inputs=[res / p for p in FS1_INPUTS], params_rows=rows,
+                   modules=["src/mprsurge/plotting/figures.py", "src/mprsurge/plotting/style.py", "src/mprsurge/plotting/captions.py", "src/mprsurge/plotting/jfs.py", "src/mprsurge/plotting/nordlie.py",
+                            "src/mprsurge/plotting/figprov.py"],
+                   configs=["configs/A1.yaml", "configs/A2.yaml", "configs/S1.yaml"], claim_limits=cap.claim_limits, spectrogram=None, tag_build=tag_build, root=root)
+    return _journal_tail("FS1", out, stem, saved, cap, drawn, d, {**raw, "a11": []}, prov_kw, warnings, strip=[], footer=FS1_FOOTER, timing_t=t, source_rows=_fs1_source_rows(d), alt=_fs1_alt_text(d),
+                         pointers=(), cfg=cfg, status_text="", plain_md=plain_md, extra_sections=_fs1_sections(d, c), strip_rows=[], zip_note=True)
+
+
 def fs1_caption_notes(d: dict) -> tuple:
     """Sentences about what is and is not drawn (13h). Values come from the prepared data; only the wording is typed here."""
     return (
@@ -2081,9 +2177,11 @@ def fs1_caption_notes(d: dict) -> tuple:
 
 
 def make_FS1(res=None, out_dir=None, *, tag_build: bool = False, take_home=FS1_TAKE_HOME, claim_limit_ids=FS1_CLAIM_LIMITS,
-             script="scripts/fig_FS1.py", root=None) -> dict:
-    """Build FS1 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov)."""
+             script="scripts/fig_FS1.py", root=None, mode: str = "draft") -> dict:
+    """Build FS1 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov). mode="journal": the journal export (13t-4)."""
     F.require_buildable("FS1")
+    if mode == "journal":
+        return _make_FS1_journal(res, out_dir, root, script, take_home, claim_limit_ids, tag_build)
     root = Path(root) if root is not None else repo_root()
     res = Path(res) if res is not None else root / "results"
     out = Path(out_dir) if out_dir is not None else root / "figures" / "FS1"
@@ -5983,6 +6081,8 @@ def f5c_strip_lines(d: dict) -> list[str]:
 
 def strip_rows_of(fid: str, d: dict) -> list:
     """The stored status rows listed in the journal caption of a journal file."""
+    if fid == "FS1":
+        return []                                   # no stored A11 row touches FS1 (FS1_STRIP_RB is empty); the drawn data hold no 'strip' entry (13t-4)
     return f5c_strip_rows(d) if fid == "F5c" else list(d["strip"])
 
 
