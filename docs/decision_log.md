@@ -6867,3 +6867,13 @@ Chosen:          as done   Default from: the prompt
 Test:            -
 Status:          findings left for the reviewer; no rebuild
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-643  MS13 13t-4: fast suite at the end of the step; Part A and FS1 built and checked, E3 stopped, FS2 and FS3 not done, no tag    [ID: MS13, 13t, 13t-4, DL-641, DL-642]
+Date:            2026-11-06        Author:
+Decision:        FACT. FAST SUITE at the end of 13t-4 (HEAD 330a680): 1453 passed, 24 deselected, 9 xfailed, 0 failed, exit 0 taken from pytest itself (1170.64 s; run with -q). Start of the step: 1440 passed; +13 tests (tests/test_ms13_13t4.py). The first end-of-step run (HEAD before 330a680) had 1444 passed and 9 failed for three reasons, all fixed before the rerun: two older tests pin the key sets of the figures (tests/test_ms13_13t1e.py test_u2_title_map_names_every_plain_title_and_its_check, tests/test_ms13_13t1f.py test_v7_short_names_only_failed_checks_that_are_drawn) and now list FS1 (text edits, no data assertion changed); the manifest row of src/mprsurge/plotting/figures.py had an empty DL column until DL-641 logged its hash (seven tests of tests/test_ms13_review_aids.py), rewritten with --write-manifest. scripts/ms13_check_hashes.py 104 rows, 0 problems; the eleven drafts byte-identical. No tag, no push, no upload. The old review_crops folder (C:\Users\Alpha\AppData\Local\Temp\review_crops) is outside the project and was not touched. OPEN FOR THE REVIEWER: E3 (DL-638, corrected clause proposed), close items 46 and 47, the FS1 allow-list and glosses (DL-640), the findings of DL-642, FS2 and FS3 (not tried, DL-640).
+Reason:          instruction of the reviewer (13t-4 prompt)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            fast suite
+Status:          13t-4 closed (Part A except E3, FS1); no tag
+Commit/tag:      the commit that adds this entry; no tag
