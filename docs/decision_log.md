@@ -7057,3 +7057,13 @@ Chosen:          as done   Default from: the prompt
 Test:            tests/test_ms13_13t7.py; subset of the 13t tests
 Status:          J3 done in code; recorded build next
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-662  MS13 13t-7: shared manifest row of figures.py rewritten (F6 key, DL-661); two test text edits for the F6 word limit 650    [ID: MS13, 13t, 13t-7, J3, H6, DL-653, DL-661]
+Date:            2026-11-07        Author:
+Decision:        FACT. src/mprsurge/plotting/figures.py changed by DL-661 (F6 key of label c); manifest row rewritten with scripts/ms13_check_hashes.py --write-manifest (route of DL-541, DL-551, DL-641, DL-655): HASH OF THE SHARED FILE as written: src/mprsurge/plotting/figures.py c47fb86da8dbf2a5e745501b9c7bba0e3aca53136db9f4a22b266ae25cfef0ee (was a55c1ac5c5f1fa86e0ada97a15c1c9d7f62b8462eacfe8dfbc5bb53da35c908a); the eleven drafts byte-identical (the only differing manifest row is that shared one). The F6 short caption has 645 words after the H6 addition (limit 650, DL-653); two older tests still pin 600 for it. TEST TEXT EDITS (expected text follows the ruling, no data assertion changes), logged BEFORE they are made: tests/test_ms13_13t3.py line 108 and tests/test_ms13_13t4.py (the line 'assert len(_txt(built, f).split()) <= 600') read the limit 650 for F6 only (other figures keep 600 where they had it). Subset run after DL-661: 9 failed, 321 passed: these two and the seven manifest-row tests of tests/test_ms13_review_aids.py (the manifest row).
+Reason:          instruction of the reviewer (13t-7 prompt, DL-653 H6)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            tests/test_ms13_13t3.py, tests/test_ms13_13t4.py, tests/test_ms13_review_aids.py
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
