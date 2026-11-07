@@ -6927,3 +6927,13 @@ Chosen:          as done   Default from: the prompt
 Test:            -
 Status:          findings left for the reviewer; no rebuild
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-649  MS13 13t-5: fast suite at the end of the step; Part A built and checked, FS2 to FS5 not done, no tag    [ID: MS13, 13t, 13t-5, DL-647, DL-648]
+Date:            2026-11-07        Author:
+Decision:        FACT. FAST SUITE at the end of 13t-5 (HEAD 7c4621f): 1460 passed, 24 deselected, 9 xfailed, 0 failed, exit 0 taken from pytest itself (1041.34 s; run with -q). Start of the step 1453 passed; +7 tests (tests/test_ms13_13t5.py). scripts/ms13_check_hashes.py 104 rows, 0 problems; the eleven drafts byte-identical. No tag, no push, no upload. The old review_crops folder (C:\Users\Alpha\AppData\Local\Temp\review_crops) is outside the project and was not touched. OPEN FOR THE REVIEWER: FS2 to FS5 (not done, splits pre-approved), the FS1 (c) against (d) item (DL-646), the findings of DL-648, close items 44, 45, 46, the reason the F3 bands end (docs/ms13_13t5_notes.md).
+Reason:          instruction of the reviewer (13t-5 prompt)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            fast suite
+Status:          13t-5 closed (Part A; FS1 data unchanged); FS2 to FS5 failing in the checklist; no tag
+Commit/tag:      the commit that adds this entry; no tag
