@@ -57,7 +57,7 @@ CHECK_TOKEN = {("RB1", "headline_10s"): "network against mean field", ("RB1", "h
                ("RB2", "noisy_subgrid_agreement"): "90 percent rule", ("RB6", "network_fpk_halving_dt"): "step-halving check", ("RB9", "b_spectral_vs_cycle_headline"): "frequency check",
                ("G7", "gate"): "negative-control check", ("RB1", "overall"): "network against mean field",
                ("RB3", "a_inrange_runs"): "within one step of the prediction", ("RB3", "b_classifier_onset"): "classifier-onset reading", ("RB6", "solver_onset_headline"): "two numerical solvers differ",
-               ("RB2", "headline_class_kept_1.0_sigma"): "kept in 7 of 10"}
+               ("RB2", "headline_class_kept_1.0_sigma"): "in 7 of 10 noisy seeds"}
 REASON_OTHER = "other (not a stored coincidence, a ruled size or a reference line)"
 STRICT_ALLOW = ("F2", "F4a", "F4b", "F6", "FS1", "FS2", "FS3", "FS4", "FS5")
 

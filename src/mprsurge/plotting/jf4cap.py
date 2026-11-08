@@ -97,7 +97,7 @@ def f4a_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list,
     panels = " ".join([
         f"(a) {JC.cap1(_DELAY)}, against {_RAMP}, for the noise-free mean-field runs (mode D) of the paths P1, P2 and P5, each with the linear profile (solid line, filled marks) and the sigmoid profile (dashed line, open marks), "
         f"at {nT} ramp durations from {n(c['T_lo'])} to {n(c['T_hi'])} s. The onset is the first crossing of the envelope of v at 0.1 x A_ref (the raw first crossing; the primary reading); the onset of the classifier's episode "
-        "(the second reading) is the small double dagger. The dash-dot lines are the entry-exit prediction as recorded, drawn for the linear profiles where the predicted entry lies in the run. "
+        "(the second reading) is the small double dagger. The dashed and dash-dot lines (a different dash pattern for each path) are the entry-exit prediction as recorded, drawn for the linear profiles where the predicted entry lies in the run. "
         f"An octagon ring marks a run inside the range of the onset check that is testable; the recorded error of the run in steps of the prediction grid (one step is the spacing of the eta_bar grid of the prediction) is not drawn on the ring and is in the source data, and the {d['n_testable']} testable "
         f"runs have errors {_fmt_list(c['steps'])} steps (25.1 here, P5 linear; the other five in (c)); a diamond ring marks the {c['n_untest']} in-range runs that are not testable (eta_bar is constant at the predicted time). "
         f"The red ring marks the main example, where the two solvers give the onsets {n(c['head_a'])} s and {n(c['head_b'])} s, {c['head_ms']:.0f} ms apart against 1 ms allowed; this run is not used as evidence. "
@@ -133,9 +133,9 @@ def f4a_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list,
     return text.replace("Checks: X.", "Checks: " + JC.defined_checks(text) + ".")
 
 
-F4A_LIMIT_EXTRA = {"G6-D1": "there is no claim that the onset follows the entry-exit prediction; the onset check is not validated (0 of 6 testable in-range runs within one step of the prediction)",
+F4A_LIMIT_EXTRA = {"G6-D1": "there is no claim that the onset follows the entry-exit prediction; the onset check is not validated (0 of 6 testable in-range runs within one step)",
                    "G6-D2": "the delay of the main example is taken from the runs with a noise floor, and the noise-free onset depends on the solver (58.698 s and 58.879 s, unexplained)",
-                   "G6-D3": "the delay under a noise floor is reported under both onset readings (the raw crossing meets, the classifier onset ties and does not meet)",
+                   "G6-D3": "the delay under a noise floor is reported under both onset readings (the raw crossing meets, the classifier onset gives equal delays and does not meet)",
                    "DL-163-D3": "the onset check is not judged at the main example (it covers 0 to 2 of the 13 ramp durations)",
                    "MS11-C6": "the direction of the change of the delay with the floor level is unresolved at ramp durations of 10 s and 316 s"}
 
@@ -143,19 +143,22 @@ F4A_LIMIT_EXTRA = {"G6-D1": "there is no claim that the onset follows the entry-
 def f4a_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full: str) -> str:
     n = JC.num
     return JS.finish("F4a", [
-        "The onset of the surge (a transient rise of gamma-band power, 25 to 100 Hz) does not follow the entry-exit prediction (the onset time at which the integral of the real part of the eigenvalue of the linearised model along the ramp, "
-        f"taken from the start of the ramp, returns to zero), and the checks on it failed (red titles of (a) and (e)): none of the {d['n_testable']} testable runs lies within one step of the prediction, "
-        f"the two numerical solvers differ by {c['head_ms']:.0f} ms at the main example (1 ms allowed), and the delay under a noise floor does not meet its check under the classifier-onset reading.",
-        "Mean field: the model's equations for the average activity of the population; mode D: noise-free; ramp: eta_bar, the mean excitability, is changed from its start to its peak over the ramp duration T_ramp; "
-        "Hopf point: where the steady state loses stability and the oscillation starts. Recorded results are read from the saved result files of the analysis, not recalculated.",
+        "The onset (when the classifier, a rule fixed before the analysis, first flags the gamma rise) of the surge (a transient rise of gamma-band power, 25 to 100 Hz) does not follow the entry-exit prediction "
+        "(the time at which the integral of the real part of the eigenvalue of the linearised model, taken from the start of the ramp, returns to zero), and the checks on it failed (red titles of (a) and (e)): "
+        f"none of the {d['n_testable']} testable runs lies within one step of the prediction, the two numerical solvers differ by {c['head_ms']:.0f} ms at the main example (the run fixed before the analysis as the main case; "
+        "1 ms allowed), and the delay under a noise floor does not meet its check under the classifier-onset reading.",
+        "Mean field: the model's equations for the average activity of the population; mode D: noise-free; ramp: eta_bar (mean excitability) is changed from its start to its peak over the ramp duration T_ramp; "
+        "Hopf point (where the resting state starts to oscillate).",
         f"(a) The delay of the onset (eta_bar at the onset minus eta_bar at the Hopf point; negative: the onset comes before the Hopf point) against the ramp rate (the change of eta_bar over the ramp divided by T_ramp, in units of tau, the membrane time constant) "
-        f"for the paths P1, P2 and P5 (P2: the hypoxia-like path; P5: up and then down), linear (solid) and sigmoid (dashed) profile, at {c['n_T']} ramp durations from {n(c['T_lo'])} to {n(c['T_hi'])} s: "
-        "the raw first crossing of the envelope at 0.1 times a reference amplitude (primary), the classifier's onset (second reading; double dagger), the prediction (dash-dot) and rings for the runs inside the range of the onset check "
-        f"(octagon: testable, errors {_fmt_list(c['steps'])} steps, not drawn, in the source data; diamond: not testable, {c['n_untest']} runs). "
-        f"The red ring is the main example (T_ramp 120 s), whose onset differs by {c['head_ms']:.0f} ms between the two solvers; it is not used as evidence. Open squares: onset during the hold, when eta_bar stays at its peak (our reading, not verified). "
+        f"for the paths P1 (eta_bar ramped only), P2 (hypoxia-like: mean excitability raised and coupling J ramped to 0 after a delay) and P5 (eta_bar up, then back down), linear (solid) and sigmoid (dashed) profile, "
+        f"at {c['n_T']} ramp durations from {n(c['T_lo'])} to {n(c['T_hi'])} s: "
+        "the raw first crossing of its detection threshold (the envelope at 0.1 times a reference amplitude; primary), the classifier's onset (second reading; double dagger), the prediction (dashed) "
+        "and rings for the runs inside the range of the onset check "
+        f"(octagon: testable, errors {_fmt_list(c['steps'])} steps, in the source data; diamond: not testable, {c['n_untest']} runs). "
+        f"The red ring: the main example (T_ramp 120 s), not used as evidence. Open squares: onset during the hold, when eta_bar stays at its peak (our reading, not verified). "
         "(b) P5: up delay, offset on the way down, hysteresis width. (c) P1 linear at start distances 0.5, 1.5 and 3.0. "
         f"(d), (e) The delay at the main example with a very small added noise (the noise floor), three levels, 10 seeds, four time steps drawn as concentric marks (equal values), dark mark: median; "
-        f"the classifier-onset delays tie at {MINUS}1.5 at the two lower levels (the reading is saturated).",
+        f"the classifier-onset delays are equal at {MINUS}1.5 at the two lower levels.",
         JS.further_sentence("F4a", full),
         "Parameters: model M3 (the mean-field model); ramp durations 1 to 1000 s (13 values) and 120 s at the main example; initial perturbation 1e-6; solver relative tolerance 1e-10; "
         "classifier window 2 s, step 1 s for ramp durations of 60 s or more, gamma band 25 to 100 Hz, minimum 10 cycles.",
@@ -204,20 +207,27 @@ def f4b_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list,
     return text.replace("Checks: X.", "Checks: " + JC.defined_checks(text) + ".")
 
 
-F4B_LIMIT_EXTRA = {"MS11-C1": "the main-example class is kept in 7 of 10 seeds at the noise level sigma (8 are needed); the controls without a ramp reach 7 of 10"}
+F4B_LIMIT_EXTRA = {"MS11-C1": "the main-example class is kept in 7 of 10 seeds at the noise level sigma (8 are needed); the runs without a ramp reach 7 of 10",
+                   "MS11-C3": "the spectral peak (the peak of the power spectrum of the simulated signal) and the cycle frequency (the frequency of the oscillation that starts at the Hopf point) differ by 4.39 Hz at the main example, "
+                              "and peak frequencies are the spectral peaks found by the classifier"}
 
 
 def f4b_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full: str) -> str:
     n = JC.num
     return JS.finish("F4b", [
-        "The noise-robustness checks failed (red title of (e)): with the noise level sigma = " + n(c["sigma"]) + f" the class of the main example is kept in 7 of 10 noisy seeds (8 needed), and in the 90 percent rule the noisy subgrid agrees with the noise-free map "
-        f"in 97 of 225 cells, 43.1 percent (203 needed); the classes of the noisy runs are mixed, and the median delay of the 10 seeds is negative from T_ramp {n(c['t_neg'])} s on. "
-        "Mean field: the model's equations for the average activity of the population; noisy runs: mode N; noise-free: mode D. Recorded results are read from the saved result files of the analysis, not recalculated.",
-        f"(a) to (d) Peak power (absolute, relative), peak frequency (the peak of the power spectrum, found by the classifier, a rule fixed before the analysis) and duration of the episode (log axis) of the six noise-free series "
-        f"(paths P1, P2 and P5; P2: the hypoxia-like path, P5: up and then down; linear and sigmoid profile) at {c['n_T']} ramp durations from {n(c['T_lo'])} to {n(c['T_hi'])} s, against the ramp rate (the change of eta_bar, the mean excitability, over the ramp "
-        "divided by the ramp duration, in units of tau, the membrane time constant), with the 10 noisy seeds of P2 as a grey bar (minimum to maximum) and a dark median mark; the number above each panel is the number of seeds counted; "
-        "rings: runs inside the range of the onset check (octagon: testable; diamond: not testable); foot marks: runs with no episode. The dotted line at 1 s in (d) is the smallest duration the classifier can give, so medians at 1.0 s are pinned. "
-        "(e) The delay (eta_bar at the onset minus eta_bar at the Hopf point, where the oscillation starts) of the noisy seeds beside the noise-free P2 line; the red lines give the two failed results. "
+        "The noise-robustness checks failed (red title of (e)): with the noise level sigma = " + n(c["sigma"]) + " the main example (the run fixed before the analysis as the main case) keeps its surge class "
+        "(a surge is a transient rise of gamma-band power, 25 to 100 Hz) in 7 of 10 noisy seeds (8 needed), and the 90 percent rule (at least 90 percent of the map cells (one parameter pair of a grid of mean-field runs) "
+        "re-run with noise must agree with the noise-free map) fails: 97 of 225 of these cells agree, 43.1 percent (203 needed); the classes of the noisy runs are mixed, "
+        f"and the median delay of the 10 seeds is negative from T_ramp {n(c['t_neg'])} s on.",
+        "Mean field: the model's equations for the average activity of the population; noisy runs: mode N; noise-free: mode D; the ramp duration T_ramp is the time over which eta_bar (mean excitability) is changed; "
+        "Hopf point (where the resting state starts to oscillate).",
+        f"(a) to (d) Peak power (absolute, relative), peak frequency (the peak of the power spectrum, found by the classifier, a rule fixed before the analysis) and duration (how long the episode lasts: flagged windows x step; log axis) "
+        f"of the six noise-free series (paths P1 (eta_bar ramped only), P2 (hypoxia-like: mean excitability raised and coupling J ramped to 0 after a delay) and P5 (eta_bar up, then back down); linear and sigmoid profile) "
+        f"at {c['n_T']} ramp durations from {n(c['T_lo'])} to {n(c['T_hi'])} s, against the ramp rate (the change of eta_bar over the ramp divided by the ramp duration, in units of tau, the membrane time constant), "
+        "with the 10 noisy seeds of P2 as a grey bar (minimum to maximum) and a dark median mark; the number above each panel is the number of seeds counted; "
+        "rings: runs inside the range of the onset (when the classifier first flags the gamma rise) check (octagon: testable; diamond: not testable); foot marks: runs with no episode. "
+        "The dotted line at 1 s in (d) is the smallest duration the classifier can give, so medians at 1.0 s are pinned. "
+        "(e) The delay (eta_bar at the onset minus eta_bar at the Hopf point) of the noisy seeds beside the noise-free P2 line; the red lines give the two failed results. "
         f"(f) The M2 ramp through the saddle-node (M2: the comparison model): the jump offset from the fold falls from {n(round(c['off_hi'], 3))} to {n(round(c['off_lo'], 4))}; no scaling law is claimed. "
         f"(g) The fitted ring rate is negative, between {MINUS}25.7 and {MINUS}24.3 per s, so the ring is damped at {c['n_nonneg']} of {c['n_T']}.",
         JS.further_sentence("F4b", full),

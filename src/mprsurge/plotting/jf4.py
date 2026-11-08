@@ -35,8 +35,10 @@ COL_L, COL_R = (0.80, 2.30), (3.62, 2.50)
 WIDE = (0.80, 5.32)
 # (top of the axes from the top edge, height) per journal panel, in inches; layout only
 ROWS = {"F4a": {"a": (1.78, 1.45), "b": (3.88, 1.25), "c": (3.88, 1.25), "d": (5.78, 1.25), "e": (5.78, 1.25)},
-        "F4b": {"a": (1.72, 1.0), "b": (1.72, 1.0), "c": (3.45, 1.0), "d": (3.45, 1.0), "e": (5.4, 0.8), "f": (6.9, 0.7), "g": (6.9, 0.7)}}
-KEY_BOX = {"F4a": (0.13, 0.06, 6.04, 1.45), "F4b": (0.13, 0.06, 6.04, 1.20)}
+        "F4b": {"a": (1.72, 1.0), "b": (1.72, 1.0), "c": (3.45, 1.0), "d": (3.45, 1.0), "e": (5.35, 0.8), "f": (6.82, 0.7), "g": (6.82, 0.7)}}
+# 13t-8b: the three prediction lines differ in colour only in the draft; each path gets its own dash pattern (P1 keeps the draft dash-dot), so that the colour is not the only difference
+PRED_DASH = {"P2": (0, (6, 2)), "P5": (0, (1, 1.5, 3, 1.5, 1, 1.5))}
+KEY_BOX = {"F4a": (0.13, 0.12, 6.04, 1.40), "F4b": (0.13, 0.06, 6.04, 1.20)}
 
 # ---- the array split (T1 style: the union of the two key lists is the draft's data; every entry has the draft's digest) -------------------------------------------------------------
 _FAM_RE = re.compile(r"^(p1_linear|p1_sigmoid|p2_linear|p2_sigmoid|p5_linear|p5_sigmoid)_(.+)$")
@@ -95,7 +97,7 @@ def _title(ax, letter: str, text: str, fail: bool = False, pad: float | None = N
     _journal_title(ax, letter, text, fail=fail)
     if pad is not None:
         ax.title.set_position((0.0, 1.0))
-        ax.set_title(ax.get_title(loc="left"), loc="left", pad=pad, color=ax.title.get_color())
+        ax.set_title(ax.get_title(loc="left"), loc="left", pad=pad, color=ax._left_title.get_color())      # the colour of the left title (red for a FAIL)
 
 
 def _decimal_log(ax, axis: str = "x"):
@@ -173,7 +175,7 @@ def draw_F4a(d: dict):
            Line2D([], [], color=down.colour, ls="-", marker=down.marker, ms=down.size - 2.5, lw=0.8), Line2D([], [], color=hyst.colour, ls=hyst.linestyle, lw=hyst.width),
            Line2D([], [], ls="none", marker=S.diagram_mark("fs4_l0").marker, ms=S.POINT_SIZES["f4_key"], mfc="none", mec=S.diagram_mark("fs4_l0").colour, mew=0.6)]
     labs = [h.get_label() for h in hs[:6]] + [
-        "Predicted onset, linear (dash-dot)", "Classifier onset, second reading", "No delay: onset at the Hopf point (dotted)",
+        "Predicted onset, linear (dash pattern by path)", "Classifier onset, second reading", "No delay: onset at the Hopf point (dotted)",
         "Octagon: in range, testable", "Diamond: in range, not testable", "Open square: onset during the hold",
         "Dash in the shaded foot band: no raw crossing", "Red ring: main example, solvers differ", "P5 down-ramp offset (triangles)", "P5 hysteresis width (dashed)",
         "Hollow marks in (d), (e): 10 seeds; dark: median"]
@@ -200,7 +202,7 @@ def draw_F4a(d: dict):
         _new(ax, n0, f"no crossing {path} {prof}")
         if prof == "linear":
             st = S.get(path)
-            (ln,) = ax.plot(x, d[f"{fam}_delay_eta_pred"], color=st.colour, ls=pred.linestyle, lw=pred.width, zorder=2)
+            (ln,) = ax.plot(x, d[f"{fam}_delay_eta_pred"], color=st.colour, ls=PRED_DASH.get(path, pred.linestyle), lw=pred.width, zorder=2)
             ln.set_gid(f"prediction {path}")
     (ln,) = (ax.axhline(0.0, color=ref.colour, ls=ref.linestyle, lw=ref.width, zorder=1),)
     ln.set_gid("zero line")
