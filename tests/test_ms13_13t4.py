@@ -140,7 +140,7 @@ def test_fs1_captions_numbers_and_main_failures(fs1):
     short, full = _txt(fs1["base"], "FS1"), _txt(fs1["base"], "FS1", True)
     d = FG.prepare_FS1(FG.load_FS1(RES))
     assert len(short.split()) <= 600 and len(full.split("Panels.")) == 2
-    for s in ("for 20 of 20 r values", "18 of 20 at base spacing", "(0 of 25727;", "decays to 2.1e-4 and 6.1e-3", "inside the 25 to 100 Hz band is 5.1"):
+    for s in ("for 20 of 20 r values", "18 of 20 at base spacing", "(0 of 25727;", "differ from the linearised ones by 2.1e-4 and 6.1e-3", "inside the 25 to 100 Hz band is 5.1"):
         assert s in short and s in full, s
     first = short[len("FS1. "):].split(". ")[0]
     assert "passes only on our own reading" in first and "was not run" in first

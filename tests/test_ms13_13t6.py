@@ -107,7 +107,7 @@ def test_fs3_one_caption_digest_size_collisions_and_failures_shown(built3):
     assert len(paras) == 7 and paras[0].startswith("FS3. ") and not JCAP.FORBIDDEN.search(cap) and JSH.undefined_terms(cap) == [] and not JCAP.key_unused_terms(cap)
     d = FG.prepare_FS3(FG.load_FS3(RES))
     for r in d["strip"]:                                                                       # every failed row of the figure is in the caption in plain words
-        assert JCAP.failed_line(r) in cap
+        assert JCAP.uncode(JCAP.failed_line(r), "FS3") in cap
     for x in ("97 of 225", "203 needed", "NOT EVALUABLE", "Lorentzian heterogeneity only"):
         assert x in cap
     draft = (ROOT / "figures" / "FS3" / "FS3_drawn_data_sha256.txt").read_text(encoding="utf-8").strip()
