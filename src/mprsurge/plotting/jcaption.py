@@ -77,7 +77,7 @@ def failed_line(r: dict) -> str:
     if why:
         return f"{name}: {r['status']} ({why})"
     val = r["value"] or "value blank in the stored table"
-    thr = f"threshold {r['threshold'].replace('1/W', 'the inverse of the window length')}" if r["threshold"] else "threshold blank in the stored table"
+    thr = f"threshold {r['threshold'].replace('1/W', 'the inverse of the window length').replace('one A4 step', 'one step of the prediction grid')}" if r["threshold"] else "threshold blank in the stored table"   # 13t-8b: A4 is a step code
     gloss = " (n failed = failed runs among the seeds, counted as not kept)" if "failed)" in str(r["value"]) else ""
     return f"{name}: {r['status']} ({val}; {thr}){gloss}"
 

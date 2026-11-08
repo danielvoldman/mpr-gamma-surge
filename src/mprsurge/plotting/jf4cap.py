@@ -151,13 +151,13 @@ def f4a_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, ful
         f"(a) The delay of the onset (eta_bar at the onset minus eta_bar at the Hopf point; negative: the onset comes before the Hopf point) against the ramp rate (the change of eta_bar over the ramp divided by T_ramp, in units of tau, the membrane time constant) "
         f"for the paths P1, P2 and P5 (P2: the hypoxia-like path; P5: up and then down), linear (solid) and sigmoid (dashed) profile, at {c['n_T']} ramp durations from {n(c['T_lo'])} to {n(c['T_hi'])} s: "
         "the raw first crossing of the envelope at 0.1 times a reference amplitude (primary), the classifier's onset (second reading; double dagger), the prediction (dash-dot) and rings for the runs inside the range of the onset check "
-        f"(octagon: testable, the error in steps of the prediction grid is {_fmt_list(c['steps'])}, not drawn and in the source data; diamond: not testable, {c['n_untest']} runs). "
+        f"(octagon: testable, errors {_fmt_list(c['steps'])} steps, not drawn, in the source data; diamond: not testable, {c['n_untest']} runs). "
         f"The red ring is the main example (T_ramp 120 s), whose onset differs by {c['head_ms']:.0f} ms between the two solvers; it is not used as evidence. Open squares: onset during the hold, when eta_bar stays at its peak (our reading, not verified). "
-        "(b) P5: up delay, offset on the way down and hysteresis width. (c) P1 linear at the start distances 0.5, 1.5 and 3.0. "
+        "(b) P5: up delay, offset on the way down, hysteresis width. (c) P1 linear at start distances 0.5, 1.5 and 3.0. "
         f"(d), (e) The delay at the main example with a very small added noise (the noise floor), three levels, 10 seeds, four time steps drawn as concentric marks (equal values), dark mark: median; "
         f"the classifier-onset delays tie at {MINUS}1.5 at the two lower levels (the reading is saturated).",
         JS.further_sentence("F4a", full),
-        "Parameters: model M3 (the mean-field model); ramp durations 1 to 1000 s (13 values) and 120 s at the main example; initial perturbation 1e-06; solver relative tolerance 1e-10; "
+        "Parameters: model M3 (the mean-field model); ramp durations 1 to 1000 s (13 values) and 120 s at the main example; initial perturbation 1e-6; solver relative tolerance 1e-10; "
         "classifier window 2 s, step 1 s for ramp durations of 60 s or more, gamma band 25 to 100 Hz, minimum 10 cycles.",
         JS.limit_clauses("F4a", F4A_LIMIT_EXTRA),
         JS._pointer("F4a")], max_words, full)
@@ -222,6 +222,6 @@ def f4b_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, ful
         f"(g) The fitted ring rate is negative, between {MINUS}25.7 and {MINUS}24.3 per s, so the ring is damped at {c['n_nonneg']} of {c['n_T']}.",
         JS.further_sentence("F4b", full),
         "Parameters: model M3 (the mean-field model); ramp durations 1 to 1000 s (13 values); noisy runs: P2 linear, 10 seeds per ramp duration, noise level sigma = 0.0624 (checked, not confirmed; its check failed); "
-        "initial perturbation 1e-06; solver relative tolerance 1e-10; classifier window 2 s, step 1 s for ramp durations of 60 s or more, gamma band 25 to 100 Hz, minimum 10 cycles.",
+        "initial perturbation 1e-6; solver relative tolerance 1e-10; classifier window 2 s, step 1 s for ramp durations of 60 s or more, gamma band 25 to 100 Hz, minimum 10 cycles.",
         JS.limit_clauses("F4b", F4B_LIMIT_EXTRA),
         JS._pointer("F4b")], max_words, full)
