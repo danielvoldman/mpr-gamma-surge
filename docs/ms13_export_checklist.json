@@ -1752,6 +1752,66 @@
    "figure": "all nine",
    "status": "passing",
    "note": "13t-7 (DL-659/DL-660): one recorded build, verifier, comparison, digests, review (done in 13t-7, DL-661, DL-664)"
+  },
+  {
+   "id": "K1-F4",
+   "figure": "F4a, F4b",
+   "status": "failing",
+   "note": "13t-8 F4 journal export as a main figure: size, 8 pt, margins, zero unlisted collisions, plain words, digest equal, captions, supplement (DL-667)"
+  },
+  {
+   "id": "K2-split",
+   "figure": "F4a, F4b",
+   "status": "failing",
+   "note": "13t-8 split F4a and F4b pre-approved: array union equals the draft's, each array digest equal, sentence 1 names its own failure, points to the sibling, mapping table (DL-667)"
+  },
+  {
+   "id": "K3-close",
+   "figure": "F5c",
+   "status": "failing",
+   "note": "13t-8 close item 48 added; no control duration drawn (DL-668)"
+  },
+  {
+   "id": "K4-codes",
+   "figure": "FS2, FS3",
+   "status": "failing",
+   "note": "13t-8 no check, gate or key name in the FS2 and FS3 captions; mapping in the supplement tables (DL-668)"
+  },
+  {
+   "id": "K4-check",
+   "figure": "all",
+   "status": "failing",
+   "note": "13t-8 verifier flags K/RB/G + digits, D24 and underscore names in every caption file; run on all figures (DL-668)"
+  },
+  {
+   "id": "K5-1",
+   "figure": "FS3",
+   "status": "failing",
+   "note": "13t-8 PASS/FAIL words and dashed line named for exactly the bars that carry them (DL-668)"
+  },
+  {
+   "id": "K5-2",
+   "figure": "F3",
+   "status": "failing",
+   "note": "13t-8 P1, P2, P3 and P5 coincide in (c) and (d) because they differ in J, drive or time course; P4a and P4b are drawn apart (DL-668)"
+  },
+  {
+   "id": "K5-3",
+   "figure": "FS1",
+   "status": "failing",
+   "note": "13t-8 take-home and (d) sentence say the same about 2.1e-4 and 6.1e-3 (DL-668)"
+  },
+  {
+   "id": "K5-4",
+   "figure": "FS2",
+   "status": "failing",
+   "note": "13t-8 caption says exactly what is drawn at 3 ms and 50 ms and what is not (DL-668)"
+  },
+  {
+   "id": "K7-build",
+   "figure": "all ten or eleven",
+   "status": "failing",
+   "note": "13t-8 one recorded build, verifier, comparison, digests, review of F4a, F4b and changed captions (DL-669)"
   }
  ]
 }
