@@ -249,7 +249,8 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         # the full caption (DL-582 U3 b, e): in the supplement; every ruled claim limit (plain sentence) in it; the Key keeps only terms that the caption uses (U5)
         ids_, na_ = CLAIM_IDS[fid]
         norm = lambda s: " ".join(s.split())
-        lim_missing = [i for i in ids_ if norm(JCAP.plain_n(PL.plain_limit_text((i,), na_, NA_TEXT.get(fid)))) not in norm(cap)]
+        lim_text = (lambda i: JCAP.uncode(PL.plain_limit_text((i,), na_, NA_TEXT.get(fid)), fid)) if fid in JCAP.UNCODE_FIGS else (lambda i: PL.plain_limit_text((i,), na_, NA_TEXT.get(fid)))       # 13t-8b (K4): FS2 and FS3 hold the plain wording of the codes
+        lim_missing = [i for i in ids_ if norm(JCAP.plain_n(lim_text(i))) not in norm(cap)]
         in_sup = norm(cap) in norm(sup_text)
         res["full caption"] = ("PASS" if in_sup and not lim_missing else "FAIL", f"in the supplement: {in_sup}; {len(ids_) - len(lim_missing)} of {len(ids_)} ruled claim limits in the full caption" + (f"; missing {lim_missing[:2]}" if lim_missing else ""))
         unused = JCAP.key_unused_terms(cap)
