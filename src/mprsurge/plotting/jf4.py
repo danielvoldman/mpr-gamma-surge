@@ -36,8 +36,8 @@ WIDE = (0.80, 5.32)
 # (top of the axes from the top edge, height) per journal panel, in inches; layout only
 ROWS = {"F4a": {"a": (1.78, 1.45), "b": (3.88, 1.25), "c": (3.88, 1.25), "d": (5.78, 1.25), "e": (5.78, 1.25)},
         "F4b": {"a": (1.72, 1.0), "b": (1.72, 1.0), "c": (3.45, 1.0), "d": (3.45, 1.0), "e": (5.35, 0.8), "f": (6.82, 0.7), "g": (6.82, 0.7)}}
-# 13t-8b: the three prediction lines differ in colour only in the draft; each path gets its own dash pattern (P1 keeps the draft dash-dot), so that the colour is not the only difference
-PRED_DASH = {"P2": (0, (6, 2)), "P5": (0, (1, 1.5, 3, 1.5, 1, 1.5))}
+# 13t-8b: the three prediction lines differ in colour only in the draft; each path gets its own line style (P1 keeps the draft dash-dot, P2 dashed, P5 solid; matplotlib treats custom dash patterns as dashed), so that the colour is not the only difference
+PRED_DASH = {"P2": "--", "P5": "-"}
 KEY_BOX = {"F4a": (0.13, 0.12, 6.04, 1.40), "F4b": (0.13, 0.06, 6.04, 1.20)}
 
 # ---- the array split (T1 style: the union of the two key lists is the draft's data; every entry has the draft's digest) -------------------------------------------------------------
@@ -175,7 +175,7 @@ def draw_F4a(d: dict):
            Line2D([], [], color=down.colour, ls="-", marker=down.marker, ms=down.size - 2.5, lw=0.8), Line2D([], [], color=hyst.colour, ls=hyst.linestyle, lw=hyst.width),
            Line2D([], [], ls="none", marker=S.diagram_mark("fs4_l0").marker, ms=S.POINT_SIZES["f4_key"], mfc="none", mec=S.diagram_mark("fs4_l0").colour, mew=0.6)]
     labs = [h.get_label() for h in hs[:6]] + [
-        "Predicted onset, linear (dash pattern by path)", "Classifier onset, second reading", "No delay: onset at the Hopf point (dotted)",
+        "Predicted onset, linear (line style by path)", "Classifier onset, second reading", "No delay: onset at the Hopf point (dotted)",
         "Octagon: in range, testable", "Diamond: in range, not testable", "Open square: onset during the hold",
         "Dash in the shaded foot band: no raw crossing", "Red ring: main example, solvers differ", "P5 down-ramp offset (triangles)", "P5 hysteresis width (dashed)",
         "Hollow marks in (d), (e): 10 seeds; dark: median"]
