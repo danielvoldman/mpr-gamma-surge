@@ -7087,3 +7087,13 @@ Chosen:          as done   Default from: the prompt
 Test:            scripts/ms13_verify_export.py; scripts/ms13_independent_compare.py; scripts/ms13_check_hashes.py
 Status:          build and checks done; findings left for the reviewer; no tag, no push, no upload
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-665  MS13 13t-7: fast suite at the end of the step; no tag, no push, no upload    [ID: MS13, 13t, 13t-7, DL-657, DL-664]
+Date:            2026-11-07        Author:
+Decision:        FACT. FAST SUITE at the end (HEAD e35b5a3 before this entry, clean tree): 1472 passed, 24 deselected, 9 xfailed, 3 warnings, 0 failed, exit 0 taken from pytest itself (1012.36 s; run with -q). Start of the step 1466 passed; +6 tests (tests/test_ms13_13t7.py). Test text edits of the step (no data assertion changed): tests/test_ms13_13t5.py line 77 (logged late, DL-661: process slip), tests/test_ms13_13t3.py line 108 and tests/test_ms13_13t4.py line 81 (F6 limit 650, DL-662). scripts/ms13_check_hashes.py 104 rows, 0 problems; the eleven drafts byte-identical. Folder C:\Users\Alpha\AppData\Local\Temp\review_crops is outside the project and was not touched. OPEN FOR THE REVIEWER: the five findings of DL-664 (FS3 PASS/FAIL words for the 120 s bars, F3 'paths coincide', FS1 take-home against (d) sentence, FS2 (h) 'not drawn', codes in the FS2 and FS3 captions), F5c (d) control durations exist in the records and are not drawn (DL-661), the FS2 and FS3 allow-lists (accepted in J1, no legibility reason), caption trim for FS2 and FS3 (optional later, J2), items 44, 45, 46, FS4, FS5, tagging.
+Reason:          instruction of the reviewer (13t-7 prompt)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            fast suite
+Status:          13t-7 done; no tag
+Commit/tag:      the commit that adds this entry; no tag
