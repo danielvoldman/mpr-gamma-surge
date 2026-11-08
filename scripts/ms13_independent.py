@@ -727,7 +727,7 @@ FUNCS = {"F1": f1, "F2": f2, "F3": f3, "F4": f4, "F5": f5, "F6": f6, "FS1": fs1,
 
 
 # ---------------------------------------------------------------------------------------------------- journal captions (13t-1d, DL-571 T9, DL-572)
-JOURNAL_FIGURES = ("F1", "F2", "F3", "F5", "F5c", "F6", "FS1", "FS2", "FS3")             # the journal files whose captions are searched (F5c is the second file of the F5 build)
+JOURNAL_FIGURES = ("F1", "F2", "F3", "F4a", "F4b", "F5", "F5c", "F6", "FS1", "FS2", "FS3")             # the journal files whose captions are searched (F5c is the second file of the F5 build)
 SIGMA_NOTE = r"mean-field baseline std ([0-9.]+) against the network range ([0-9.]+) to ([0-9.]+)"
 # Patterns of the JOURNAL caption that differ from the draft pattern (`printed`) because the plain journal wording differs; the numbers sought are the same, the values are the stored ones,
 # nothing is loosened. A row of F1, F3 or F5 with a `printed` pattern and no entry here is searched in the journal caption with its draft pattern.
@@ -818,6 +818,52 @@ def journal_rows(c: Ctx, R: Rows, figures) -> None:
             r["jtargets"] = JOURNAL_TARGETS.get(r["id"], (r["figure"],))
         if r["jprinted"] is not None and r["jtargets"] is None:
             r["jtargets"] = (r["figure"],)
+    f4_text_patterns(R, figures)
+
+
+# 13t-8b (DL-671): the F4a and F4b captions. Each F4 row that a caption states gets a pattern of the plain journal wording (full caption: jprinted; short caption: sprinted) and its target file; the numbers
+# sought are the same stored values, nothing is loosened. The minus sign of the journal captions is U+2212 (compare.printed_same reads it as a minus).
+_F4_SKIP = r"\d+\.\d(?:, | and )"
+F4_J = {
+    "F4.n_testable": ((r"0 of (\d+) testable in-range runs", 1), ("F4a",), (r"none of the (\d+) testable runs", 1)),
+    "F4.n_within": ((r"(\d+) of \d+ testable in-range runs within one step", 1), ("F4a",), None),
+    "F4.n_const": ((r"diamond ring marks the (\d+) in-range runs that are not testable", 1), ("F4a",), (r"diamond: not testable, (\d+) runs", 1)),
+    "F4.head_onset": ((r"has its onset at (\d+\.\d+) s", 1), ("F4a",), None),
+    "F4.head_pred": ((r"predicted entry at (\d+\.\d) s", 1), ("F4a",), None),
+    "F4.head_dop": ((r"the two solvers give the onsets (\d+\.\d+) s and", 1), ("F4a",), (r"solver \((\d+\.\d+) s and", 1)),
+    "F4.head_radau": ((r"the two solvers give the onsets \d+\.\d+ s and (\d+\.\d+) s", 1), ("F4a",), (r"s and (\d+\.\d+) s, unexplained", 1)),
+    "F4.radau_ms": ((r"differ by (\d+) ms at the main example", 1), ("F4a",), (r"differ by (\d+) ms at the main example", 1)),
+    "F4.floor0_median_cross": ((r"The medians of \(d\) are (−0\.000760)", 1), ("F4a",), None),
+    "F4.floor1_median_cross": ((r"The medians of \(d\) are −0\.000760, (−0\.0423)", 1), ("F4a",), None),
+    "F4.floor2_median_cross": ((r"The medians of \(d\) are −0\.000760, −0\.0423 and (−0\.1051)", 1), ("F4a",), None),
+    "F4.floor0_median_cls": ((r"tie at (−1\.5) at", 1), ("F4a",), (r"tie at (−1\.5) at", 1)),
+    "F4.floor1_median_cls": ((r"tie at (−1\.5) at levels 0 and 1", 1), ("F4a",), None),
+    "F4.noise_sigma": ((r"sigma = (0\.\d+),", 1), ("F4b",), (r"sigma = (0\.\d+) the class", 1)),
+    "F4.noise_median_negative_from": ((r"negative from T_ramp (\d+\.\d+) s", 1), ("F4b",), (r"negative from T_ramp (\d+\.\d+) s", 1)),
+    "F4.m2_rows": ((r"damped at all (\d+) ramp durations", 1), ("F4b",), None),
+    "F4.m2_damped": ((r"so the ring is damped at (\d+) of \d+", 1), ("F4b",), (r"so the ring is damped at (\d+) of \d+", 1)),
+    "F4.m2_offset_first": ((r"falls from (\d+\.\d+) to", 1), ("F4b",), (r"falls from (\d+\.\d+) to", 1)),
+    "F4.m2_offset_last": ((r"falls from \d+\.\d+ to (\d+\.\d+)", 1), ("F4b",), (r"falls from \d+\.\d+ to (\d+\.\d+)", 1)),
+}
+
+
+def f4_text_patterns(R, figures) -> None:
+    if "F4" not in figures:
+        return
+    steps = sorted(next(r["value"] for r in R if r["id"] == "F4.steps_sorted"))
+    for r in R:
+        if r["id"] in F4_J:
+            j, tg, sh = F4_J[r["id"]]
+            r["jprinted"], r["jtargets"] = j, tg
+            if sh is not None:
+                r["sprinted"], r["stargets"] = sh, tg
+        elif r["id"].startswith("F4.step_"):
+            i = int(r["id"].split("_")[1])
+            x = float(r["value"])
+            k = min(range(len(steps)), key=lambda m: abs(steps[m] - x))          # the rank of this value among the six, the captions list them in ascending order
+            skip = _F4_SKIP * k
+            r["jprinted"], r["jtargets"] = (r"runs have errors " + skip + r"(\d+\.\d)", 1), ("F4a",)
+            r["sprinted"], r["stargets"] = (r"testable, errors " + skip + r"(\d+\.\d)", 1), ("F4a",)
 
 
 # ---------------------------------------------------------------------------------------------------- short journal captions (13t-1e, DL-582 U3 d)

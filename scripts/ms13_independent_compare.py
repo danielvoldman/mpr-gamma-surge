@@ -72,6 +72,7 @@ def printed_same(value, token: str) -> bool:
         return value == token
     if value is None:
         return False
+    token = token.replace("−", "-")                       # 13t-8b: the journal captions write the minus sign as U+2212
     v = float(value)
     if "e" in token:
         mant = token.split("e")[0]
