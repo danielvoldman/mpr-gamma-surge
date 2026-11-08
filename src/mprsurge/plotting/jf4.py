@@ -369,6 +369,7 @@ def draw_F4b(d: dict):
         lo_, hi_ = getter()
         k_ = (hi_ / lo_) ** 0.06
         setter(lo_ / k_, hi_ * k_)
+    ax.set_xticks([1e-4, 1e-3, 1e-2])                         # 13t-8b: the padded limit showed a tick label 0.1 that touched the y label of (g); the labelled ticks are the decades of the data
     ax.set_ylabel("Jump offset (" + r"$\bar{\eta}$" + "), log axis")
     _title(ax, "f", "M2 ramp: jump offset from the fold")
     ax = _axes(fig, "F4b", "g", COL_R)
