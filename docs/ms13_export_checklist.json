@@ -1708,50 +1708,50 @@
   {
    "id": "J3a",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-7 (DL-659/DL-660): short caption (e) one row per path leg"
+   "status": "passing",
+   "note": "13t-7 (DL-659/DL-660): short caption (e) one row per path leg (done in 13t-7, DL-661, DL-664)"
   },
   {
    "id": "J3b",
    "figure": "F6",
-   "status": "failing",
-   "note": "13t-7 (DL-659/DL-660): label c key and caption say the same"
+   "status": "passing",
+   "note": "13t-7 (DL-659/DL-660): label c key and caption say the same (done in 13t-7, DL-661, DL-664)"
   },
   {
    "id": "J3c",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-7 (DL-659/DL-660): (i) each row is one of the 300 recorded neurons, not labelled"
+   "status": "passing",
+   "note": "13t-7 (DL-659/DL-660): (i) each row is one of the 300 recorded neurons, not labelled (done in 13t-7, DL-661, DL-664)"
   },
   {
    "id": "J3d",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-7 (DL-659/DL-660): array check of controls in (d); caption only if mismatch"
+   "status": "passing",
+   "note": "13t-7 (DL-659/DL-660): array check of controls in (d); caption only if mismatch (done in 13t-7, DL-661, DL-664)"
   },
   {
    "id": "J3e",
    "figure": "all",
-   "status": "failing",
-   "note": "13t-7 (DL-659/DL-660): other proven-wrong findings"
+   "status": "passing",
+   "note": "13t-7 (DL-659/DL-660): other proven-wrong findings (done in 13t-7, DL-661, DL-664)"
   },
   {
    "id": "J3-H5",
    "figure": "FS1",
-   "status": "failing",
-   "note": "13t-7 (DL-659/DL-660): parameter values per panel and that (c), (d) differ"
+   "status": "passing",
+   "note": "13t-7 (DL-659/DL-660): parameter values per panel and that (c), (d) differ (done in 13t-7, DL-661, DL-664)"
   },
   {
    "id": "J3-H6",
    "figure": "F6",
-   "status": "failing",
-   "note": "13t-7 (DL-659/DL-660): omission of P3 drive 2 and P4a in the (e) sentence"
+   "status": "passing",
+   "note": "13t-7 (DL-659/DL-660): omission of P3 drive 2 and P4a in the (e) sentence (done in 13t-7, DL-661, DL-664)"
   },
   {
    "id": "J7-build",
    "figure": "all nine",
-   "status": "failing",
-   "note": "13t-7 (DL-659/DL-660): one recorded build, verifier, comparison, digests, review"
+   "status": "passing",
+   "note": "13t-7 (DL-659/DL-660): one recorded build, verifier, comparison, digests, review (done in 13t-7, DL-661, DL-664)"
   }
  ]
 }
