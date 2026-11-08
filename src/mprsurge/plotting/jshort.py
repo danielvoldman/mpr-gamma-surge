@@ -353,11 +353,13 @@ LIMIT_KEYS = {"G4-C3": "no-ramp network controls", "MS9(e)-1": "network surge cl
               "MS11-C1": "the runs without a ramp reach 7 of 10"}
 # 13t-8b (DL-668 K4, DL-671 L1): codes of checks, gates and rules in a caption: K, RB and G numbers (with a letter or a limit suffix), D24, and stored names with underscores and a digit (headline_class_kept_1.0_sigma).
 # A short caption, the FS2 and FS3 captions and the FS1 short caption FAIL on a hit; a FULL caption of F1 to F6, F4a, F4b and FS1 is reported as information only (L1).
-CODE_RE = re.compile(r"(?<![A-Za-z0-9_])(?:K\d+|RB\d+(?:\([a-d]\))?|G\d+(?:-[CD]\d+)?|D24)(?![A-Za-z0-9_])|[A-Za-z][A-Za-z0-9.]*(?:_[A-Za-z0-9.]+)*_[A-Za-z0-9.]*\d[A-Za-z0-9.]*")
+CODE_RE = re.compile(r"(?<![A-Za-z0-9_])(?:K\d+|RB\d+(?:\([a-d]\))?|G\d+(?:-[CD]\d+)?|D24)(?![A-Za-z0-9_])")
+UNDERSCORE_NAME_RE = re.compile(r"[A-Za-z][A-Za-z0-9.]*(?:_[A-Za-z0-9.]+)+")
 
 
 def code_hits(text: str) -> list:
-    return sorted({m.group(0) for m in CODE_RE.finditer(text)})
+    names = {m.group(0).rstrip(".") for m in UNDERSCORE_NAME_RE.finditer(text) if re.search(r"\d", m.group(0))}
+    return sorted({m.group(0) for m in CODE_RE.finditer(text)} | names)
 
 
 NUM = re.compile(r"\d+(?:\.\d+)?")
