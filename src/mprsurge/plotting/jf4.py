@@ -332,6 +332,9 @@ def draw_F4b(d: dict):
             ax.set_yscale("log")
             (ln,) = (ax.axhline(1.0, color=S.figure_colour("range_line"), ls=":", lw=0.6, zorder=1),)
             ln.set_gid("one second line")
+        if not logy:                                        # 13t-8b (DL-671 L2): display padding of the axis limit, so that the ring at the top value does not touch the frame (no value moved)
+            lo_, hi_ = ax.get_ylim()
+            ax.set_ylim(lo_, hi_ + (hi_ - lo_) * 0.07)
         _band(ax, logy)
         _tidy_x(ax, None if letter in ("a", "b") else XLAB)
         if logy:
@@ -349,7 +352,7 @@ def draw_F4b(d: dict):
     ax.text(0.01, 0.97, "Main-example class kept in 7 of 10 noisy seeds (8 needed)\nNoisy subgrid: 97 of 225 cells agree (203 needed)", transform=ax.transAxes, ha="left", va="top", color=red, weight="bold").set_gid("panel note")
     _tidy_x(ax)
     ax.set_ylabel(DELAY_SHORT)
-    ax.set_ylim(-1.0, 1.75)
+    ax.set_ylim(-1.15, 1.75)                                  # 13t-8b: display padding below, the lowest noise bar touched the frame
     _title(ax, "e", "Noise band on the delay, P2: noise robustness FAIL", fail=True, pad=13.0)
     # (f) and (g): M2 through the saddle-node (A3)
     mf = S.get("mean_field")
@@ -358,6 +361,7 @@ def draw_F4b(d: dict):
     ax.plot(d["a3_eps"], d["a3_offset"], color=mf.colour, ls="-", lw=0.8, marker=mf.marker, ms=S.POINT_SIZES["f4_m2"], zorder=3)
     _new(ax, n0, "M2 jump offset")
     ax.set_yscale("log")
+    ax.margins(x=0.04, y=0.08)                              # 13t-8b: display padding, the last mark touched the frame
     _decimal_log(ax, "y")
     _tidy_x(ax)
     ax.set_ylabel("Jump offset (" + r"$\bar{\eta}$" + "), log axis")
