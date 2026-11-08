@@ -7157,3 +7157,13 @@ Chosen:          as ruled   Default from: the prompt
 Test:            tests/test_ms13_13t8.py (to be written)
 Status:          ruled
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-672  MS13 13t-8b: figures.py manifest-row rewrite (ruling M1, route of DL-561/568/577)    [ID: MS13, 13t, 13t-8b, M1, DL-670]
+Date:            2026-11-08        Author:
+Decision:        ACTION. scripts/ms13_check_hashes.py --write-manifest run once; the only change is the figures.py row of docs/ms13_figure_manifest.csv: SHA-256 c47fb86da8dbf2a5e745501b9c7bba0e3aca53136db9f4a22b266ae25cfef0ee -> 886145a32626f576e87d31f3c05cd0b0ae576f4041fd1f7fff2008f20f8ec4b3, dl DL-662 -> DL-670 (the entry that logs the new hash). 104 rows written, 0 without a matching logged hash, 104 manifest rows, 0 problems. No other file and no other row changed (git diff: 1 line).
+Reason:          ruling M1
+Options:         -
+Chosen:          as ruled   Default from: the prompt
+Test:            tests/test_ms13_review_aids.py; scripts/ms13_check_hashes.py
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
