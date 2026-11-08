@@ -35,7 +35,7 @@ COL_L, COL_R = (0.80, 2.30), (3.62, 2.50)
 WIDE = (0.80, 5.32)
 # (top of the axes from the top edge, height) per journal panel, in inches; layout only
 ROWS = {"F4a": {"a": (1.78, 1.45), "b": (3.88, 1.25), "c": (3.88, 1.25), "d": (5.78, 1.25), "e": (5.78, 1.25)},
-        "F4b": {"a": (1.62, 1.05), "b": (1.62, 1.05), "c": (3.28, 1.05), "d": (3.28, 1.05), "e": (4.94, 0.95), "f": (6.50, 0.95), "g": (6.50, 0.95)}}
+        "F4b": {"a": (1.72, 1.0), "b": (1.72, 1.0), "c": (3.45, 1.0), "d": (3.45, 1.0), "e": (5.4, 0.8), "f": (6.9, 0.7), "g": (6.9, 0.7)}}
 KEY_BOX = {"F4a": (0.13, 0.06, 6.04, 1.45), "F4b": (0.13, 0.06, 6.04, 1.20)}
 
 # ---- the array split (T1 style: the union of the two key lists is the draft's data; every entry has the draft's digest) -------------------------------------------------------------
@@ -98,9 +98,32 @@ def _title(ax, letter: str, text: str, fail: bool = False, pad: float | None = N
         ax.set_title(ax.get_title(loc="left"), loc="left", pad=pad, color=ax.title.get_color())
 
 
-def _tidy_x(ax, label: str = XLAB):
+def _decimal_log(ax, axis: str = "x"):
+    """Plain decimal tick labels on a log axis (0.0001, 0.001, 0.01 ...; W3: no superscript on an image) and no minor labels."""
+    from matplotlib.ticker import FuncFormatter, NullFormatter
+
+    def fmt(v, _pos):
+        return f"{v:.10g}" if v >= 1 else f"{v:.6f}".rstrip("0")
+    a = ax.xaxis if axis == "x" else ax.yaxis
+    a.set_major_formatter(FuncFormatter(fmt))
+    a.set_minor_formatter(NullFormatter())
+
+
+def _band(ax, logy: bool = False):
+    """The foot band of the draft (_f4_band) without its name on the panel: the name is in the key (a text on the shaded band would touch the band and the frame)."""
+    from . import figures as FG
+    lo, hi = ax.get_ylim()
+    f = FG.F4_BAND_FRAC
+    new_lo = lo / (hi / lo) ** (f / (1.0 - f)) if logy else lo - (hi - lo) * f / (1.0 - f)
+    ax.set_ylim(new_lo, hi)
+    ax.axhspan(new_lo, lo, color=S.FS_COLOURS["patch_edge"], alpha=0.14, lw=0, zorder=0)
+
+
+def _tidy_x(ax, label: str | None = XLAB):
     ax.set_xscale("log")
-    ax.set_xlabel(label)
+    _decimal_log(ax)
+    if label:
+        ax.set_xlabel(label)
 
 
 def _series(ax, FG, x, y, path, prof, ms, name):
@@ -150,10 +173,10 @@ def draw_F4a(d: dict):
            Line2D([], [], color=down.colour, ls="-", marker=down.marker, ms=down.size - 2.5, lw=0.8), Line2D([], [], color=hyst.colour, ls=hyst.linestyle, lw=hyst.width),
            Line2D([], [], ls="none", marker=S.diagram_mark("fs4_l0").marker, ms=S.POINT_SIZES["f4_key"], mfc="none", mec=S.diagram_mark("fs4_l0").colour, mew=0.6)]
     labs = [h.get_label() for h in hs[:6]] + [
-        "Predicted onset, linear profiles (dash-dot)", "Classifier onset, second reading (double dagger)", "No delay: onset at the Hopf point (dotted)",
-        "Octagon: in range, testable (number: error in steps)", "Diamond: in range, not testable", "Open square: onset during the hold",
-        "Cross at the foot: no raw crossing", "Red ring: main example, solvers differ", "P5 down-ramp offset (triangles)", "P5 hysteresis width (dashed)",
-        "Circles in (d), (e): 10 seeds, 4 step sizes, drawn concentric; dark mark: median"]
+        "Predicted onset, linear (dash-dot)", "Classifier onset, second reading", "No delay: onset at the Hopf point (dotted)",
+        "Octagon: in range, testable", "Diamond: in range, not testable", "Open square: onset during the hold",
+        "Dash in the shaded foot band: no raw crossing", "Red ring: main example, solvers differ", "P5 down-ramp offset (triangles)", "P5 hysteresis width (dashed)",
+        "Hollow marks in (d), (e): 10 seeds; dark: median"]
     _key(fig, "F4a", hs, labs)
 
     # (a) delay against ramp rate, raw crossing primary
@@ -166,7 +189,7 @@ def draw_F4a(d: dict):
         ax.plot(x[ok], d[f"{fam}_delay_eta"][ok], ls="none", marker=cls_m.marker, ms=cls_m.size, color=cls_m.colour, mew=cls_m.width, zorder=4)
         _new(ax, n0, f"classifier onset {path} {prof}")
         n0 = len(ax.lines)
-        FG._f4_ring(ax, x, d[f"{fam}_delay_eta_cross"], d[f"{fam}_in_range"], const=d[f"{fam}_eta_const"], err=d[f"{fam}_match_err_steps"])
+        FG._f4_ring(ax, x, d[f"{fam}_delay_eta_cross"], d[f"{fam}_in_range"], const=d[f"{fam}_eta_const"])
         _new(ax, n0, f"ring {path} {prof}")
         n0 = len(ax.lines)
         FG._f4_hold(ax, x, d[f"{fam}_delay_eta_cross"], d[f"{fam}_hold_cross"])
@@ -184,10 +207,10 @@ def draw_F4a(d: dict):
     n0 = len(ax.lines)
     ax.plot([d["head_eps"]], [d["head_delay_eta_cross"]], ls="none", marker=S.F4_MARKS["fail_ring"], ms=S.F4_MARKS["fail_ring_size"], mfc="none", mec=red, mew=S.F4_MARKS["fail_ring_width"], zorder=6)
     _new(ax, n0, "red ring main example")
-    ax.set_ylim(-0.25, 3.45)
-    FG._f4_band(ax, "no raw crossing", logy=False)
-    ax.text(0.995, 0.97, f"Prediction: {d['n_testable_within_one_step']} of {d['n_testable']} testable runs within one step\nSolvers: main example onset differs by {d['head_radau_minus_default_ms']:.0f} ms (1 ms allowed)",
-            transform=ax.transAxes, ha="right", va="top", color=red, weight="bold", zorder=8).set_gid("panel note")
+    ax.set_ylim(-0.25, 3.6)
+    _band(ax)
+    ax.text(0.01, 0.97, f"Prediction: {d['n_testable_within_one_step']} of {d['n_testable']} testable runs within one step\nSolvers: main example onset differs by {d['head_radau_minus_default_ms']:.0f} ms (1 ms allowed)",
+            transform=ax.transAxes, ha="left", va="top", color=red, weight="bold", zorder=8).set_gid("panel note")
     _tidy_x(ax)
     ax.set_ylabel(DELAY_LAB)
     _title(ax, "a", "Onset delay against ramp rate, no noise: prediction FAIL, solver FAIL", fail=True)
@@ -208,7 +231,7 @@ def draw_F4a(d: dict):
         _new(ax, n0, f"no crossing P5 {prof}")
     (ln,) = (ax.axhline(0.0, color=ref.colour, ls=ref.linestyle, lw=ref.width, zorder=1),)
     ln.set_gid("zero line")
-    FG._f4_band(ax, "no raw crossing", logy=False)
+    _band(ax)
     _tidy_x(ax)
     ax.set_ylabel(DELAY_SHORT)
     _title(ax, "b", "Up and down ramp (P5)")
@@ -223,7 +246,7 @@ def draw_F4a(d: dict):
         ax.plot(x, y, color=p1.colour, ls=ls_, lw=0.8, marker=p1.marker, ms=S.POINT_SIZES["f4_series_p5"], fillstyle=fill, mec=p1.colour, mew=0.7, zorder=3)
         _new(ax, n0, f"series P1 start {tag}")
         n0 = len(ax.lines)
-        FG._f4_ring(ax, x, y, d[f"{tag}_in_range"], const=d[f"{tag}_eta_const"], err=d[f"{tag}_match_err_steps"], row=0.23)
+        FG._f4_ring(ax, x, y, d[f"{tag}_in_range"], const=d[f"{tag}_eta_const"])
         _new(ax, n0, f"ring start {tag}")
         n0 = len(ax.lines)
         FG._f4_hold(ax, x, y, d[f"{tag}_hold_cross"])
@@ -235,7 +258,7 @@ def draw_F4a(d: dict):
     ln.set_gid("zero line")
     ax.text(0.02, 0.97, "Start distance:\n0.5 dotted, 1.5 solid, 3.0 dashed", transform=ax.transAxes, va="top", ha="left").set_gid("panel note")
     ax.set_ylim(-0.1, 2.45)
-    FG._f4_band(ax, "no raw crossing", logy=False)
+    _band(ax)
     _tidy_x(ax)
     ax.set_ylabel(DELAY_SHORT)
     _title(ax, "c", "Start state (P1 linear)")
@@ -253,15 +276,14 @@ def draw_F4a(d: dict):
             n0 = len(ax.lines)
             ax.plot([lvl], [d[med][lvl]], ls="none", marker=md.marker, ms=md.size, color=S.F4_MARKS["median_colour"], mew=md.width, zorder=4)
             _new(ax, n0, f"median level {lvl}")
-        ax.set_xticks(range(3), [CAP.number_text(float(f"{s_:.3g}")) for s_ in d["floor_sigma"]])
+        ax.set_xticks(range(3), [CAP.number_text(float(f"{s_:.3g}")) + ("
+(main example)" if (lvl == 0 and not fail) else "") for lvl, s_ in enumerate(d["floor_sigma"])])
+        ax.margins(y=0.15)
         ax.set_xlim(-0.5, 2.5)
         lo_, hi_ = ax.get_ylim()
         ax.set_xlabel(f"Floor level (noise floor sigma)\ny range {CAP.number_text(float(f'{lo_:.3g}'))} to {CAP.number_text(float(f'{hi_:.3g}'))}, own axis")
         ax.set_ylabel(DELAY_SHORT)
-        if not fail:
-            ax.annotate("Main example:\nlevel 0", xy=(0, d[med][0]), xytext=(0.3, 0.55), textcoords="axes fraction", va="center",
-                        arrowprops=dict(arrowstyle="-", lw=0.5, color=S.figure_colour("range_line"))).set_gid("panel note")
-        else:
+        if fail:
             ax.text(0.04, 0.6, "Delays tie at " + MINUS + "1.5 at the two\nlower levels: onset at the\nramp start (saturated)", transform=ax.transAxes, ha="left", va="center", color=red, weight="bold",
                     bbox=dict(boxstyle="square,pad=0.15", fc=S.HALO_COLOUR, ec="none", alpha=0.85)).set_gid("panel note")
         _title(ax, letter, title, fail=fail)
@@ -283,11 +305,11 @@ def draw_F4b(d: dict):
            Line2D([], [], ls="none", marker=rg.marker, ms=S.POINT_SIZES["f4_key"], mfc="none", mec=rg.colour, mew=rg.width),
            Line2D([], [], ls="none", marker=S.F4_MARKS["untestable"], ms=S.POINT_SIZES["f4_key"] * 0.8, mfc="none", mec=rg.colour, mew=rg.width),
            Line2D([], [], ls="none", marker=S.get("D-none").marker, ms=S.POINT_SIZES["f4_none"], color=S.get("D-none").colour, mec=S.figure_colour("bar_edge"), mew=0.3),
-           Line2D([], [], color=S.figure_colour("range_line"), ls=":", lw=0.8), Line2D([], [], color=ref.colour, ls=ref.linestyle, lw=ref.width)]
+           Line2D([], [], color=S.figure_colour("range_line"), ls=":", lw=0.8), Line2D([], [], color=ref.colour, ls=ref.linestyle, lw=ref.width), Line2D([], [], color=S.FS_COLOURS["patch_edge"], lw=6, alpha=0.3)]
     labs = [h.get_label() for h in hs[:6]] + [
         "Grey bar: minimum to maximum of the 10 noisy seeds (P2)", "Dark mark: median of the seeds with a value",
         "Octagon: in range, testable", "Diamond: in range, not testable", "Foot mark: no episode (class D-none)",
-        "Dotted line in (d): 1 s, the smallest duration", "Dotted line in (e), (g): zero delay, zero rate"]
+        "Dotted line in (d): 1 s, the smallest duration", "Dotted line in (e), (g): zero delay, zero rate", "Shaded foot band: no episode (a to d)"]
     _key(fig, "F4b", hs, labs)
 
     # (a) to (d): peak power (absolute, relative), peak frequency, duration; the noise bars are P2, mode N
@@ -311,8 +333,10 @@ def draw_F4b(d: dict):
             ax.set_yscale("log")
             (ln,) = (ax.axhline(1.0, color=S.figure_colour("range_line"), ls=":", lw=0.6, zorder=1),)
             ln.set_gid("one second line")
-        FG._f4_band(ax, "no episode", logy=logy)
-        _tidy_x(ax)
+        _band(ax, logy)
+        _tidy_x(ax, None if letter in ("a", "b") else XLAB)
+        if logy:
+            _decimal_log(ax, "y")
         ax.set_ylabel(yl)
         _title(ax, letter, title, pad=13.0)
     # (e) noise band on the delay
@@ -326,6 +350,7 @@ def draw_F4b(d: dict):
     ax.text(0.01, 0.97, "Main-example class kept in 7 of 10 noisy seeds (8 needed)\nNoisy subgrid: 97 of 225 cells agree (203 needed)", transform=ax.transAxes, ha="left", va="top", color=red, weight="bold").set_gid("panel note")
     _tidy_x(ax)
     ax.set_ylabel(DELAY_SHORT)
+    ax.set_ylim(-1.0, 1.75)
     _title(ax, "e", "Noise band on the delay, P2: noise robustness FAIL", fail=True, pad=13.0)
     # (f) and (g): M2 through the saddle-node (A3)
     mf = S.get("mean_field")
@@ -334,6 +359,7 @@ def draw_F4b(d: dict):
     ax.plot(d["a3_eps"], d["a3_offset"], color=mf.colour, ls="-", lw=0.8, marker=mf.marker, ms=S.POINT_SIZES["f4_m2"], zorder=3)
     _new(ax, n0, "M2 jump offset")
     ax.set_yscale("log")
+    _decimal_log(ax, "y")
     _tidy_x(ax)
     ax.set_ylabel("Jump offset (" + r"$\bar{\eta}$" + "), log axis")
     _title(ax, "f", "M2 ramp: jump offset from the fold")
