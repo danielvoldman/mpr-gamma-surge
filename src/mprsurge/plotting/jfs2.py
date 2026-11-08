@@ -200,8 +200,8 @@ def caption(d: dict, rows: list, *, ids, c: dict, FG) -> str:
         f"(residual {100 * d['fit_posthoc_near_hopf_max_resid_frac']:.2f} percent); the title is red because the residual of the pre-set fit is above the allowance.",
         "(c) to (g) The firing rate r of the mean-field and network runs over the last 400 ms of each 10 s run at validation point 1 with tau_d 3, 4.95 and 8 ms and at validation point 2 with tau_d 5 and 50 ms; "
         "the network has N = 10,000 neurons in every panel and N = 50,000 as a third line at point 2 with 5 ms; each network run is a single run.",
-        "(h) The difference between network and mean field, relative to the mean field, in percent, for the oscillation frequency, the mean of r and the fitted amplitude of r; the cells at 3 ms and 50 ms have no "
-        "mean-field oscillation, so their differences are undefined and not drawn; only the frequency has a tolerance (5 percent).",
+        "(h) The difference between network and mean field, relative to the mean field, in percent, for the oscillation frequency, the mean of r and the fitted amplitude of r; at 3 ms and 50 ms the "
+        "mean-field run has no oscillation, so the differences of the frequency and of the fitted amplitude are undefined and not drawn there, and the difference of the mean of r is drawn there; only the frequency has a tolerance (5 percent).",
         f"(i) The largest ratio of Delta to eta_bar on the Hopf curve at eta_bar 1, 2 and 4 (all {d['k9_ratio'].max():.5f} within {d['k9_ratio'].max() - d['k9_ratio'].min():.1e}), against the target band {FG.FS2_K9[0]:g} plus or minus {FG.FS2_K9[1]:g}.",
         f"(j) The ratio of the imaginary part of the linearised eigenvalue to 2 pi times the rate at the fixed point, for 20 Hopf points at Delta 0.0001, against the target band 1 plus or minus {FG.FS2_K11:g}; the largest deviation is "
         f"{d['k11_max_dev']:.5f}; the panel counts the marks that overlap at the drawn size.",

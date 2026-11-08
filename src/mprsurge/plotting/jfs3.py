@@ -175,8 +175,8 @@ def caption(d: dict, rows: list, a11: list, *, ids, c: dict, FG) -> str:
         f"(b) The error of the peak frequency (the peak of the power spectrum of the mean potential v) of the network relative to the mean field, per N: the line is the range and the mark the median ({', '.join(str(int(x)) for x in d['s9_fpk_err_n'])} seeds with a defined value).",
         "(c) The absolute error of the onset (when the classifier, a rule fixed before the analysis that sorts runs into classes, first flags the rise) of the network against the mean field, per N: range and median.",
         f"(d) The class of each of 3 seeds for Lorentzian, Gaussian and uniform heterogeneity at N = {c['N10']:,}, and the classes of the {int(d['shape_ctrl_n'])} control runs without a ramp with Lorentzian heterogeneity; the title is not red because the check is not evaluable, not failed.",
-        "(e) The share of 10 noisy mean-field seeds in each class for ramp durations of 10, 30, 120 and 300 s and the noise factors 0.5, 1 and 2 (multiples of the calibrated noise level sigma); the number above a bar is the number of seeds in a surge class; for the 120 s bars "
-        f"the words PASS or FAIL and the dashed line (8 of 10 seeds needed) show the check; the title is red because it fails at the noise factor 1.",
+        "(e) The share of 10 noisy mean-field seeds in each class for ramp durations of 10, 30, 120 and 300 s and the noise factors 0.5, 1 and 2 (multiples of the calibrated noise level sigma); the number above a bar is the number of seeds in a surge class; "
+        f"the words PASS or FAIL and the dashed line (8 of 10 seeds needed) show the check on the 120 s bars at the noise factors 0.5 and 1 only (the 120 s bar at the noise factor 2 has neither); the title is red because it fails at the noise factor 1.",
         f"(f) The share of 10 constant-parameter control seeds (no ramp) in each class for the three noise factors; the number above a bar is the number of seeds in a surge class ({', '.join(str(int(x)) for x in d['noise_ctrl_kept'])}).",
         f"(g) The number of cells of the noisy grid ({d['subgrid_cells']} cells) whose class agrees with the noise-free class ({d['subgrid_agree']}) against the 90 percent needed ({d['subgrid_needed']}); the title is red because the rule failed.",
     ])
@@ -233,7 +233,7 @@ def alt_text(d: dict) -> dict:
         "b": "Range and median of the relative error of the peak frequency of the network against the mean field at the four network sizes.",
         "c": "Range and median of the onset error in seconds at the four network sizes.",
         "d": "A grid of class marks: three seeds each for Lorentzian, Gaussian and uniform heterogeneity, and the classes of the Lorentzian controls without a ramp; the title says the check is not evaluable.",
-        "e": f"Stacked bars of the classes of 10 noisy seeds for four ramp durations and three noise factors; a dashed line marks 8 of 10 on the 120 s bars; above them PASS at 0.5 and FAIL at 1 ({int(d['gate_kept'][0])} and {int(d['gate_kept'][1])} of 10 seeds); the title is red and reads 'Noise check: FAIL'.",
+        "e": f"Stacked bars of the classes of 10 noisy seeds for four ramp durations and three noise factors; a dashed line marks 8 of 10 on the 120 s bars at the noise factors 0.5 and 1 (the 120 s bar at the noise factor 2 has none); above them PASS at 0.5 and FAIL at 1 ({int(d['gate_kept'][0])} and {int(d['gate_kept'][1])} of 10 seeds); the title is red and reads 'Noise check: FAIL'.",
         "f": "Stacked bars of the classes of 10 constant-parameter control seeds at three noise factors.",
         "g": f"One bar of {d['subgrid_agree']} cells that agree out of {d['subgrid_cells']}, below a dashed line at {d['subgrid_needed']} cells needed; the title is red and reads '90 percent rule: FAILED'.",
     }

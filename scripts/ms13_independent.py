@@ -755,6 +755,8 @@ JOURNAL_OVERRIDE = {
     "FS2.k10_40.0": (r"and (\d+\.\d) percent at tau_d 8", 1),
     "FS2.k8_tol": (r"tolerance (\d+) percent\)", 1),
     # 13t-6 (DL-651 H2): FS3 one caption; N written 3000, 10,000 and 30,000 (DL-592 V4), the same stored numbers
+    "FS1.k4_rel_freq": (r"differ from the linearised ones by (\d+\.\d+e-\d+) and", 1),       # 13t-8b (K5): the take-home and the (d) sentence say the same
+    "FS1.k4_rel_decay": (r"differ from the linearised ones by \d+\.\d+e-\d+ and (\d+\.\d+e-\d+)", 1),
     "FS3.ctrl_surge_N3000": (r"\((\d+) of 3 at 3000", 1),
     "FS3.ctrl_surge_N10000": (r"(\d+) of 3 at 10,000", 1),
     "FS3.nrule_1e4": (r"against (\d+) at 10,000", 1),
@@ -870,6 +872,8 @@ def f4_text_patterns(R, figures) -> None:
 # Patterns of the SHORT caption (the one for the manuscript): every quantity found in a short caption is searched with a pattern of its own wording; the independent value must reproduce the printed
 # token to its digits. Existing rows get their short pattern here; rows that exist only for the short caption are added in short_rows. Short rows are counted and reported separately.
 SHORT_OVERRIDE = {
+    "FS1.k4_rel_freq": (r"differ from the linearised ones by (\d+\.\d+e-\d+) and", 1),
+    "FS1.k4_rel_decay": (r"differ from the linearised ones by \d+\.\d+e-\d+ and (\d+\.\d+e-\d+)", 1),
     "F1.ref_fpk": (r"power spectrum peaks at (\d+\.\d) Hz", 1),
     "F1.ref_onset": (r"and (\d+\.\d+) s for the mean field", 1),
     "F1.onset120_text": (r"first flags the gamma rise\) is (\d+\.\d) s for the network", 1),

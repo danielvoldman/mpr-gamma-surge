@@ -42,7 +42,53 @@ def assemble(fig_id: str, *, take_home: str, panels: str, key: str, settings: st
     bad = sorted({m.group(0) for m in FORBIDDEN.finditer(text)})
     if bad:
         raise JCaptionError(f"{fig_id}: the journal caption holds forbidden words or codes: {bad}")
+    if fig_id in UNCODE_FIGS:
+        text = uncode(text, fig_id)
     return text
+
+
+# 13t-8b (DL-668 K4, DL-671 L1): the captions of FS2 and FS3 hold no check, gate or rule code (K, RB, G numbers, D24, stored names with underscores and digits); each code is replaced by its plain wording here, in
+# this order, and the code-to-plain mapping is in the supplement table of the figure (mapping_markdown). The same numbers and the same failures stand; only the name of the check changes. A code that remains stops the build.
+UNCODE_FIGS = ("FS2", "FS3")
+UNCODE = (
+    (r"The check K7 amplitude residual \(", "The amplitude-residual check (", "K7 amplitude residual"),
+    (r"The check K10 J dependence \(", "The J-dependence check (", "K10 J dependence"),
+    (r"The check RB2 headline_class_kept_1\.0_sigma \(", "The noise check (", "RB2 headline_class_kept_1.0_sigma"),
+    (r"The check D24 \(", "The 90 percent rule (", "D24"),
+    (r"check RB1 \(network against mean field\)", "the network-against-mean-field check", "RB1"),
+    (r"RB1 \(network against mean field\)", "network-against-mean-field check", "RB1"),
+    (r"RB2 \(noise robustness\)", "noise-robustness check", "RB2"),
+    (r"\(rule D24\)", "(the 90 percent rule)", "D24"),
+    (r"\(90 percent, D24\)", "(90 percent)", "D24"),
+    (r"the failure of the D24 rule", "the failure of the 90 percent rule", "D24"),
+    (r"The D24 rule failed", "The 90 percent rule failed", "D24"),
+    (r"gate G7 not passed", "the negative-control gate not passed", "G7"),
+    (r"gate G4 \(network against mean field\)", "the network-against-mean-field gate", "G4"),
+    (r"the check of the heterogeneity shape, RB8, is not", "the check of the heterogeneity shape is not", "RB8"),
+    (r"the RB6 check of the network peak frequency", "the numerical-convergence check of the network peak frequency", "RB6"),
+    (r"RB2 failed:", "The noise-robustness check failed:", "RB2"),
+)
+UNCODE_LEFT = re.compile(r"(?<![A-Za-z0-9_])(?:K\d+|RB\d+(?:\([a-d]\))?|G\d+(?:-[CD]\d+)?|D24)(?![A-Za-z0-9_])|[A-Za-z][A-Za-z0-9.]*(?:_[A-Za-z0-9.]+)*_[A-Za-z0-9.]*\d[A-Za-z0-9.]*")
+
+
+def uncode(text: str, fid: str) -> str:
+    for rx, plain, _code in UNCODE:
+        text = re.sub(rx, plain, text)
+    left = sorted({m.group(0) for m in UNCODE_LEFT.finditer(text)})
+    if left:
+        raise JCaptionError(f"{fid}: the caption still holds codes after the plain wording: {left}")
+    return text
+
+
+def uncode_markdown(fid: str) -> str:
+    """The supplement table of FS2 and FS3: the plain wording of the caption and the check, gate or rule code that it stands for."""
+    lines = ["| plain wording in the caption | check, gate or rule code |", "|---|---|"]
+    seen = set()
+    for _rx, plain, code in UNCODE:
+        if (plain, code) not in seen:
+            seen.add((plain, code))
+            lines.append(f"| {plain.rstrip(' (')} | {code} |")
+    return "\n".join(lines)
 
 
 def paragraphs(text: str) -> list:
@@ -302,6 +348,8 @@ def mapping_markdown(fid: str) -> str:
     lines = ["| plain text on the image | panels | check or step ID | what it is |", "|---|---|---|---|"]
     lines += [f"| {plain} | {panels} | {cid} | {what} |" for panels, plain, cid, what in TITLE_MAP[fid]]
     lines += [f"| {w} | legend | {sid} | {what} |" for w, sid, what in WORD_MAP.get(fid, ())]
+    if fid in UNCODE_FIGS:                                                                          # 13t-8b (K4): the codes behind the plain wording of the caption
+        lines += ["", "Plain wording of the caption and the code behind it:", "", uncode_markdown(fid)]
     return "\n".join(lines)
 
 

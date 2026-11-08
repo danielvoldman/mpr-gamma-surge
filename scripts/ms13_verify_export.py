@@ -41,7 +41,7 @@ FS_FIGS = ("FS1",) + FS_SINGLE                                          # 13t-4 
 ALL_FIGS = PILOT + FS_FIGS
 DRAFT_ID = {"F1": "F1", "F2": "F2", "F3": "F3", "F5": "F5", "F5c": "F5", "F4a": "F4", "F4b": "F4", "F6": "F6", "FS1": "FS1", "FS2": "FS2", "FS3": "FS3"}              # the figure whose draft files, digest and manifest rows a journal file is checked against
 CHECKS = ("A collisions", "B pdf", "size+shape", "text>=8pt", "fonts", "line width", "cmaps", "non-colour", "letters", "file names", "FAIL lines", "digest", "arrays", "drafts identical",
-          "image text", "image IDs", "plain words", "powers of ten", "minus signs", "sentence case", "red titles", "supplement", "sentence 1", "paragraphs", "caption words", "full caption", "key terms", "short caption", "short limits", "definitions", "failed count", "short numbers", "short parameters", "supplement FAILs", "superscripts",
+          "image text", "image IDs", "plain words", "powers of ten", "minus signs", "sentence case", "red titles", "caption codes", "supplement", "sentence 1", "paragraphs", "caption words", "full caption", "key terms", "short caption", "short limits", "definitions", "failed count", "short numbers", "short parameters", "supplement FAILs", "superscripts",
           "margins", "label-title gap", "contrast", "red-green", "greyscale", "cvd", "png+tiff", "no svg/wmf/emf", "file sizes")
 MAIN_FAILURES = {"F1": FG.F1_MAIN_FAILURES, "F2": ("lies close to the mean-field branch",),      # 13t-4 (DL-636 E1): the journal sentence 1 of F2 follows the data; the draft constant FG.F2_MAIN_FAILURES is unchanged
                   "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES, "F5c": FG.F5C_MAIN_FAILURES, "F4a": JF4.MAIN_FAILURES["F4a"], "F4b": JF4.MAIN_FAILURES["F4b"], "F6": FG.F6_MAIN_FAILURES, "FS1": ("passes only on our own reading", "was not run"), "FS2": ("does not reproduce the published Hopf point", "a failed check"), "FS3": ("noise check failed", "a failed check")}
@@ -157,7 +157,8 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         lines = STRIP[fid](d)
         srows = _strip_rows(fid, d)
         # 13t-1d (DL-571 T8): the journal caption holds the plain form of every strip row (JCAP.failed_line), and the supplement holds the ruled (verbatim) line
-        absent = [ln for ln, r in zip(lines, srows) if JCAP.failed_line(r) not in cap or ln not in sup_text]
+        plain_line = (lambda r: JCAP.uncode(JCAP.failed_line(r), fid)) if fid in JCAP.UNCODE_FIGS else JCAP.failed_line          # 13t-8b (K4): the FS2 and FS3 captions hold the plain wording of the check names
+        absent = [ln for ln, r in zip(lines, srows) if plain_line(r) not in cap or ln not in sup_text]
         res["FAIL lines"] = ("PASS" if not absent else "FAIL", f"{len(lines) - len(absent)} of {len(lines)} strip lines in the caption (plain) and the supplement (ruled)" + (f"; absent: {absent[0][:50]}" if absent else ""))
         # digest
         draft_dig = (root / "figures" / did / f"{did}_drawn_data_sha256.txt").read_text(encoding="utf-8").strip()
@@ -223,6 +224,12 @@ def check_figure(fid: str, base: Path, root: Path, manifest: dict) -> tuple[dict
         okr = (bool(reds) or no_red) and not unmapped and not not_in_cap and not evidence
         res["red titles"] = ("PASS" if okr else "FAIL", ("no red title (no failed row concerns this figure)" if no_red else f"{len(reds)} red titles, each a plain title of the map; each in the full caption ('shown in the title as') and the supplement table") if okr
                              else f"unmapped {unmapped[:1]}; not in caption or table {not_in_cap[:1]}; {evidence}")
+        # 13t-8b (DL-668 K4, DL-671 L1): codes of checks, gates and rules: a FAIL in every SHORT caption and in the FS2 and FS3 captions; the FULL captions are reported as information only
+        scope_text = cap if fid in FS_SINGLE else short
+        code_fail = JSH.code_hits(scope_text)
+        info["full_codes"] = [] if fid in FS_SINGLE else JSH.code_hits(cap)
+        res["caption codes"] = ("PASS" if not code_fail else "FAIL", (f"{'the caption' if fid in FS_SINGLE else 'the short caption'} holds no check, gate or rule code; the full caption holds {len(info['full_codes'])} (information only)" if not code_fail
+                                                                       else f"codes in {'the caption' if fid in FS_SINGLE else 'the short caption'}: {code_fail[:6]}"))
         # supplement
         need = [f"{x['rb_id']} {x['check_id']}" for x in _strip_rows(fid, d)]
         lack = [n for n in need if n not in sup_text]
@@ -369,6 +376,8 @@ def main(argv=None) -> int:
         for c in CHECKS:
             st, detail = table[f][c]
             print(f"{f} {c}: {st} - {detail}")
+    for f in a.ids:
+        print(f"INFO {f} full-caption codes (L1: information only): {infos[f].get('full_codes')}")
     for f in a.ids:
         print(f"ALLOW-LIST {f} by reason class: {infos[f].get('allowed_classes')}")
         for h, r in infos[f]["allowed"]:

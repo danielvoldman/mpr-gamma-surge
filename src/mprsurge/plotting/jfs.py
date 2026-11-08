@@ -40,8 +40,8 @@ def _take(d: dict, c: dict) -> str:
     return (f"The comparison model M2 (kept as the damped-ring comparison) passes {n4} of its {c['n_checks']} replication checks on the recorded results, the {c['n_checks']}th (a sinusoidal-forcing check) passes only on our own reading, "
             f"with its check against the primary source deferred, and the version of the step test on a network of N simulated spiking neurons was not run (the coupling of an M2 network is unsourced). "
             f"The root-count boundary lies within one cell of the formula fold at half spacing for {d['k1_pass_half']} of {d['k1_n']} r values (not drawn), {d['k1_pass_base']} of {d['k1_n']} at base spacing "
-            f"(not drawn; the two cusp points need half spacing); the test point ({c['k_eta']:g}, {c['k_J']:g}) has a saddle, a stable focus and a stable node (not drawn); and the step response rings at the linearised "
-            f"frequency and decays to {_e(d['k4_rel_err_frequency'])} and {_e(d['k4_rel_err_decay'])} relative. No stable focus on the grid is non-damped ({d['ring_n_nondamped']} of {d['ring_n_focus']}; the linearised rate has "
+            f"(not drawn; the two cusp points need half spacing); the test point ({c['k_eta']:g}, {c['k_J']:g}) has a saddle, a stable focus and a stable node (not drawn); and the fitted frequency and decay rate of the step response "
+            f"differ from the linearised ones by {_e(d['k4_rel_err_frequency'])} and {_e(d['k4_rel_err_decay'])} relative. No stable focus on the grid is non-damped ({d['ring_n_nondamped']} of {d['ring_n_focus']}; the linearised rate has "
             f"standard error 0), and the largest cycles per e-fold inside the {d['band_hz'][0]:g} to {d['band_hz'][1]:g} Hz band is {d['ring_cyc_inG_max']:.1f}.")
 
 

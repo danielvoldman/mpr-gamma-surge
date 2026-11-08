@@ -268,7 +268,7 @@ def f3_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, full
         f"({cross} of {n_sl} slices have one, as recorded). {band_end_short(c)} In (c) the line is the Hopf curve, straight segments between recorded points; the grey open circle is the start of the paths "
         f"(eta_bar {d['P1_eta_start']:.3f}), the dark ring the Hopf point of the main example at tau_d {d['headline_tau_d_ms']:g} ms; (a) and (b) are the same frequency map at other Delta; the failed check was made at the main example in (c) and bears on them too.",
         "(d) Hopf curve against eta_bar and Delta (log axis), with the paths P1 (eta_bar ramped only), P2 (hypoxia-like: eta_bar raised, coupling J ramped to 0 after a delay), "
-        "P3 (P2 plus a common drive) and P5 (up, then back), drawn as one arrow because their eta_bar, Delta and tau_d are equal; P4a, P4b (P2 with Delta multiplied by 1.5 or 2/3) are separate. The paths coincide in (c) and (d) because they differ in J, drive or time course, which these planes do not show. (e) One row per path leg (P5 has an up row and a return row).",
+        "P3 (P2 plus a common drive) and P5 (up, then back), drawn as one arrow because their eta_bar, Delta and tau_d are equal; P4a, P4b (P2 with Delta multiplied by 1.5 or 2/3) are separate. P1, P2, P3 and P5 coincide in (c) and (d) because they differ in J, drive or time course, which these planes do not show; P4a and P4b are drawn apart. (e) One row per path leg (P5 has an up row and a return row).",
         # DL-603 W2: values copied from the Parameters paragraph of the full caption; the M3 gloss moved here from the limit clause (first use); no classifier or spectrogram is used (settings paragraph)
         "Parameters: model M3 (the mean-field model with rate, mean potential and a synaptic variable) with membrane time constant 10 ms and J = -21; Delta = 0.05, 0.1 and 0.3; "
         "tau_d = 1 to 50 ms (9 values); no classifier (a rule fixed before the analysis) or spectrogram (power against time and frequency) is used.",
@@ -351,6 +351,15 @@ LIMIT_KEYS = {"G4-C3": "no-ramp network controls", "MS9(e)-1": "network surge cl
               "MS9(e)-5": "is provisional", "G6-D1": "no claim that the onset follows the entry-exit prediction", "G6-D2": "the noise-free onset depends on the solver",
               "G6-D3": "reported under both onset readings", "DL-163-D3": "not judged at the main example", "MS11-C6": "is unresolved at ramp durations of 10 s and 316 s",
               "MS11-C1": "the runs without a ramp reach 7 of 10"}
+# 13t-8b (DL-668 K4, DL-671 L1): codes of checks, gates and rules in a caption: K, RB and G numbers (with a letter or a limit suffix), D24, and stored names with underscores and a digit (headline_class_kept_1.0_sigma).
+# A short caption, the FS2 and FS3 captions and the FS1 short caption FAIL on a hit; a FULL caption of F1 to F6, F4a, F4b and FS1 is reported as information only (L1).
+CODE_RE = re.compile(r"(?<![A-Za-z0-9_])(?:K\d+|RB\d+(?:\([a-d]\))?|G\d+(?:-[CD]\d+)?|D24)(?![A-Za-z0-9_])|[A-Za-z][A-Za-z0-9.]*(?:_[A-Za-z0-9.]+)*_[A-Za-z0-9.]*\d[A-Za-z0-9.]*")
+
+
+def code_hits(text: str) -> list:
+    return sorted({m.group(0) for m in CODE_RE.finditer(text)})
+
+
 NUM = re.compile(r"\d+(?:\.\d+)?")
 def numbers_of(text: str) -> set:
     return set(NUM.findall(re.sub(r"(?<=\d),(?=\d{3}\b)", "", text)))
