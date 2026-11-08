@@ -177,7 +177,7 @@ def draw_F4a(d: dict):
     labs = [h.get_label() for h in hs[:6]] + [
         "Predicted onset, linear (line style by path)", "Classifier onset, second reading", "No delay: onset at the Hopf point (dotted)",
         "Octagon: in range, testable", "Diamond: in range, not testable", "Open square: onset during the hold",
-        "Dash in the shaded foot band: no raw crossing", "Red ring: main example, solvers differ", "P5 down-ramp offset (triangles)", "P5 hysteresis width (dashed)",
+        "Dash in the shaded foot band: no raw crossing", "Red ring: main example, solvers differ", "P5 down-ramp offset (triangles)", "P5 hysteresis width (dashed; dash-dot for sigmoid)",
         "Hollow marks in (d), (e): 10 seeds; dark: median"]
     _key(fig, "F4a", hs, labs)
 
@@ -226,7 +226,7 @@ def draw_F4a(d: dict):
         ax.plot(x, d[f"{fam}_offset_minus_eta_H"], color=down.colour, ls="-" if prof == "linear" else ":", lw=0.8, marker=down.marker, ms=down.size - 1.5, zorder=3)
         _new(ax, n0, f"P5 down offset {prof}")
         n0 = len(ax.lines)
-        ax.plot(x, d[f"{fam}_hysteresis_width"], color=hyst.colour, ls=hyst.linestyle if prof == "linear" else ":", lw=hyst.width, zorder=2)
+        ax.plot(x, d[f"{fam}_hysteresis_width"], color=hyst.colour, ls=hyst.linestyle if prof == "linear" else "-.", lw=hyst.width, zorder=2)
         _new(ax, n0, f"P5 hysteresis width {prof}")
         n0 = len(ax.lines)
         FG._f4_none_marks(ax, x, np.isnan(d[f"{fam}_delay_eta_cross"]), kind="crossing")
@@ -460,7 +460,7 @@ def alt_text(fid: str, d: dict, c: dict) -> dict:
             "a": (f"Delay of the onset against the ramp rate (logarithmic axis, {n(c['eps_lo'])} to {n(c['eps_hi'])}) for six series (P1, P2, P5, linear and sigmoid): delays from about 0 to about 3 (positive: the onset after the Hopf point), most of them rising "
                   "as the ramp slows; octagon rings on the testable runs (their error numbers are not drawn; they are in the source data), diamond rings on three untestable runs, a red ring on the main example, open squares on eight onsets during the hold, a band at the foot with one run without a crossing. "
                   f"The title is red: prediction FAIL, solver FAIL; a red note gives 0 of {d['n_testable']} testable runs within one step and the solver difference of {c['head_ms']:.0f} ms."),
-            "b": "P5: the up delay, the offset on the way down (triangles, negative at the fast end) and the hysteresis width (dashed) against the ramp rate, linear solid and sigmoid dotted; a dotted zero line.",
+            "b": "P5: the up delay, the offset on the way down (triangles, negative at the fast end) and the hysteresis width (dashed, dash-dot for the sigmoid profile) against the ramp rate, linear solid and sigmoid dotted; a dotted zero line.",
             "c": "P1 linear at three start distances (0.5 dotted, 1.5 solid, 3.0 dashed): the delay against the ramp rate with octagon rings on the testable runs (their errors, 4.4 to 33.1 steps, are not drawn and are in the source data); a dotted zero line; a band at the foot.",
             "d": "The floored delay at the main example for three noise-floor levels (0, 1, 2 on the x axis): ten seeds at four time steps drawn as concentric hollow circles, the medians are small negative numbers (about -0.0008, -0.042, -0.105); a note points to the main example.",
             "e": "The same runs read by the classifier onset: the delays tie at -1.5 at levels 0 and 1 and a higher value at level 2; the title is red (FAIL) and a red note says the delays tie at -1.5 at the two lower levels (saturated).",

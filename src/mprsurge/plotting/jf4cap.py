@@ -105,7 +105,7 @@ def f4a_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list,
         f"when eta_bar stays at its peak); there the delay equals eta_peak {MINUS} eta_H = {d['hold_delay_max']:g} (our reading of the recorded values, not verified; no logged ruling discusses it). P5 has no hold: it turns down after the ramp. "
         "The dotted zero line is the quasi-static reference by the definition of the delay (onset at eta_H); no quasi-static onset is computed here. " + _coincide(d),
         f"(b) For P5 (up and down ramp) at the {nT} ramp durations: the up delay (raw crossing), the offset on the way down (eta_bar at the onset of the down ramp minus eta_H; triangles) and the hysteresis width, as recorded; "
-        "solid for the linear profile, dotted for the sigmoid profile.",
+        "the offset is solid for the linear profile and dotted for the sigmoid profile; the hysteresis width is dashed for the linear profile and dash-dot for the sigmoid profile.",
         f"(c) The delay of P1 linear at the start distances 0.5 (dotted), 1.5 (solid; the P1 linear series of (a)) and 3.0 (dashed); the start distance is a parameter of the start state. The octagon rings of the start distance 0.5 mark runs with the errors "
         f"{_fmt_list(c['sd5'])} steps; these numbers are not drawn on the image and are in the source data.",
         f"(d), (e) The delay at the main example (T_ramp 120 s) in runs with a very small added noise (the noise floor; standard deviation {JC.pv(rows, 'noise.sigma', 'S13_floor')} at level 0, {n(c['floor'][1])} at level 1 and {n(c['floor'][2])} at level 2), "
