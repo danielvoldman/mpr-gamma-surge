@@ -265,7 +265,7 @@ def draw_F4a(d: dict):
 
     # (d), (e): the D43 floor at the main example, per level, 4 Heun steps x 10 seeds, both onset readings
     for letter, col, key, med, title, fail in (("d", COL_L, "floor_delay_cross", "floor_median_cross", "Floor, raw crossing", False),
-                                               ("e", COL_R, "floor_delay_cls", "floor_median_cls", "Floor, classifier onset", True)):
+                                               ("e", COL_R, "floor_delay_cls", "floor_median_cls", "Floor, classifier onset: FAIL", True)):
         ax = _axes(fig, "F4a", letter, col)
         for lvl in range(3):
             mk = S.diagram_mark(f"fs4_l{lvl}")
@@ -449,10 +449,10 @@ def alt_text(fid: str, d: dict, c: dict) -> dict:
     if fid == "F4a":
         return {
             "a": (f"Delay of the onset against the ramp rate (logarithmic axis, {n(c['eps_lo'])} to {n(c['eps_hi'])}) for six series (P1, P2, P5, linear and sigmoid): delays from about 0 to about 3 (positive: the onset after the Hopf point), most of them rising "
-                  "as the ramp slows; octagon rings with error numbers on the testable runs, diamond rings on three untestable runs, a red ring on the main example, open squares on eight onsets during the hold, a band at the foot with one run without a crossing. "
+                  "as the ramp slows; octagon rings on the testable runs (their error numbers are not drawn; they are in the source data), diamond rings on three untestable runs, a red ring on the main example, open squares on eight onsets during the hold, a band at the foot with one run without a crossing. "
                   f"The title is red: prediction FAIL, solver FAIL; a red note gives 0 of {d['n_testable']} testable runs within one step and the solver difference of {c['head_ms']:.0f} ms."),
             "b": "P5: the up delay, the offset on the way down (triangles, negative at the fast end) and the hysteresis width (dashed) against the ramp rate, linear solid and sigmoid dotted; a dotted zero line.",
-            "c": "P1 linear at three start distances (0.5 dotted, 1.5 solid, 3.0 dashed): the delay against the ramp rate with octagon rings and their numbers (4.4 to 33.1 steps) in a row; a dotted zero line; a band at the foot.",
+            "c": "P1 linear at three start distances (0.5 dotted, 1.5 solid, 3.0 dashed): the delay against the ramp rate with octagon rings on the testable runs (their errors, 4.4 to 33.1 steps, are not drawn and are in the source data); a dotted zero line; a band at the foot.",
             "d": "The floored delay at the main example for three noise-floor levels (0, 1, 2 on the x axis): ten seeds at four time steps drawn as concentric hollow circles, the medians are small negative numbers (about -0.0008, -0.042, -0.105); a note points to the main example.",
             "e": "The same runs read by the classifier onset: the delays tie at -1.5 at levels 0 and 1 and a higher value at level 2; the title is red (FAIL) and a red note says the delays tie at -1.5 at the two lower levels (saturated).",
         }

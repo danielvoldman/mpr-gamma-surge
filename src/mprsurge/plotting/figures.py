@@ -954,6 +954,10 @@ def journal_figure(fig_id: str, res=None, root=None, close: bool = True):
         elif fig_id in ("F5", "F5c"):
             d = prepare_F5(load_F5(res))
             fig = _draw_F5(d, draft=False, mode="journal" if fig_id == "F5" else "journal_c")
+        elif fig_id in ("F4a", "F4b"):                       # 13t-8b (DL-667 K2): the two journal files of the draft F4
+            from . import jf4
+            d = prepare_F4(load_F4(res))
+            fig = jf4.draw_F4a(d) if fig_id == "F4a" else jf4.draw_F4b(d)
         elif fig_id == "F1":
             crit, _ = F.K.load_frozen_criteria(root)
             d = prepare_F1(load_F1(res), crit)
@@ -6127,6 +6131,9 @@ def f5c_strip_lines(d: dict) -> list[str]:
 
 def strip_rows_of(fid: str, d: dict) -> list:
     """The stored status rows listed in the journal caption of a journal file."""
+    if fid in ("F4a", "F4b"):                        # 13t-8b (DL-667 K2)
+        from . import jf4
+        return jf4.strip_rows_of(fid, d)
     if fid == "FS1":
         return []                                   # no stored A11 row touches FS1 (FS1_STRIP_RB is empty); the drawn data hold no 'strip' entry (13t-4)
     return f5c_strip_rows(d) if fid == "F5c" else list(d["strip"])

@@ -25,6 +25,12 @@ PLAIN_LIMITS = {
     "MS11-C7": "All earlier failures and limits stand: the failure of check RB1 (network against mean field), gate G7 not passed, the failure of the D24 rule, the six limits set when gate G4 "
                "(network against mean field) was triggered, and the limits ruled for the map, control and perturbation runs.",
     "MS12-C1": "The surge result is stated for model M3 only; there is no claim about the models M4 or M3a and M3b, and the parts of check RB8 that concern M4 and adaptation have no result.",
+    # 13t-8b (DL-671 L3; UNVERIFIED plain wording of the ruled label, same meaning and numbers): the five limits that only the F4 files list
+    "G6-D1": "There is no claim that the onset follows the entry-exit prediction; the onset check is not validated (0 of 6 testable in-range runs within one step of the prediction).",
+    "G6-D2": "The delay of the main example is taken from the runs with a noise floor, and the noise-free onset depends on the solver (58.698 s and 58.879 s for the two solvers, 181 ms apart, unexplained).",
+    "G6-D3": "The delay under a noise floor is reported under both onset readings (the raw crossing meets the check, the classifier onset ties and does not meet it).",
+    "DL-163-D3": "The onset check is not judged at the main example (it covers 0 to 2 of the 13 ramp durations).",
+    "MS11-C6": "The direction of the change of the delay with the floor level is unresolved at ramp durations of 10 s and 316 s.",
     "MS9(e)-1": "Surge classes found in network records at N = 1e4 are not evidence of a ramp-driven surge: the network control without a ramp was flagged in 10 of 10 seeds, and the ramp runs in 10 of 10.",
     "MS9(e)-2": "There is no claim that the regime map is robust to noise, and the class S-rel is not counted as evidence of a ramp in the noisy mode (mode N).",
     "MS9(e)-3": "Failure label (c) of the regime map (a cell without a surge class whose frequency is below 25 Hz; drawn in F6) is a flag, not a demonstrated cause.",

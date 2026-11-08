@@ -98,7 +98,7 @@ def f4a_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list,
         f"(a) {JC.cap1(_DELAY)}, against {_RAMP}, for the noise-free mean-field runs (mode D) of the paths P1, P2 and P5, each with the linear profile (solid line, filled marks) and the sigmoid profile (dashed line, open marks), "
         f"at {nT} ramp durations from {n(c['T_lo'])} to {n(c['T_hi'])} s. The onset is the first crossing of the envelope of v at 0.1 x A_ref (the raw first crossing; the primary reading); the onset of the classifier's episode "
         "(the second reading) is the small double dagger. The dash-dot lines are the entry-exit prediction as recorded, drawn for the linear profiles where the predicted entry lies in the run. "
-        f"An octagon ring marks a run inside the range of the onset check; it carries the recorded error in steps of the prediction grid (one step is the spacing of the eta_bar grid of the prediction), and the {d['n_testable']} testable "
+        f"An octagon ring marks a run inside the range of the onset check that is testable; the recorded error of the run in steps of the prediction grid (one step is the spacing of the eta_bar grid of the prediction) is not drawn on the ring and is in the source data, and the {d['n_testable']} testable "
         f"runs have errors {_fmt_list(c['steps'])} steps (25.1 here, P5 linear; the other five in (c)); a diamond ring marks the {c['n_untest']} in-range runs that are not testable (eta_bar is constant at the predicted time). "
         f"The red ring marks the main example, where the two solvers give the onsets {n(c['head_a'])} s and {n(c['head_b'])} s, {c['head_ms']:.0f} ms apart against 1 ms allowed; this run is not used as evidence. "
         f"The one run with no raw crossing is drawn in the band at the foot of the axes, not dropped. An open square marks the {d['n_hold']} drawn delays whose onset lies after the end of the ramp on P1 or P2 (an onset during the hold, "
@@ -106,8 +106,8 @@ def f4a_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list,
         "The dotted zero line is the quasi-static reference by the definition of the delay (onset at eta_H); no quasi-static onset is computed here. " + _coincide(d),
         f"(b) For P5 (up and down ramp) at the {nT} ramp durations: the up delay (raw crossing), the offset on the way down (eta_bar at the onset of the down ramp minus eta_H; triangles) and the hysteresis width, as recorded; "
         "solid for the linear profile, dotted for the sigmoid profile.",
-        f"(c) The delay of P1 linear at the start distances 0.5 (dotted), 1.5 (solid; the P1 linear series of (a)) and 3.0 (dashed); the start distance is a parameter of the start state. The octagon rings of the start distance 0.5 carry the errors "
-        f"{_fmt_list(c['sd5'])} steps; the numbers are in a row at the height 0.23 of the panel, each joined to its ring.",
+        f"(c) The delay of P1 linear at the start distances 0.5 (dotted), 1.5 (solid; the P1 linear series of (a)) and 3.0 (dashed); the start distance is a parameter of the start state. The octagon rings of the start distance 0.5 mark runs with the errors "
+        f"{_fmt_list(c['sd5'])} steps; these numbers are not drawn on the image and are in the source data.",
         f"(d), (e) The delay at the main example (T_ramp 120 s) in runs with a very small added noise (the noise floor; standard deviation {JC.pv(rows, 'noise.sigma', 'S13_floor')} at level 0, {n(c['floor'][1])} at level 1 and {n(c['floor'][2])} at level 2), "
         "integrated with a fixed-step Heun scheme at four step sizes (1e-3, 5e-4, 2.5e-4 and 1e-4 tau), 10 seeds each, under the raw crossing (d) and under the classifier onset (e). The four step sizes are drawn as concentric hollow marks, "
         "because their values are identical (the floored delay does not depend on the step at the 1 ms output grid); the dark mark is the median of the 10 seeds. "
@@ -151,7 +151,7 @@ def f4a_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, ful
         f"(a) The delay of the onset (eta_bar at the onset minus eta_bar at the Hopf point; negative: the onset comes before the Hopf point) against the ramp rate (the change of eta_bar over the ramp divided by T_ramp, in units of tau, the membrane time constant) "
         f"for the paths P1, P2 and P5 (P2: the hypoxia-like path; P5: up and then down), linear (solid) and sigmoid (dashed) profile, at {c['n_T']} ramp durations from {n(c['T_lo'])} to {n(c['T_hi'])} s: "
         "the raw first crossing of the envelope at 0.1 times a reference amplitude (primary), the classifier's onset (second reading; double dagger), the prediction (dash-dot) and rings for the runs inside the range of the onset check "
-        f"(octagon: testable, the number is the error in steps of the prediction grid, {_fmt_list(c['steps'])}; diamond: not testable, {c['n_untest']} runs). "
+        f"(octagon: testable, the error in steps of the prediction grid is {_fmt_list(c['steps'])}, not drawn and in the source data; diamond: not testable, {c['n_untest']} runs). "
         f"The red ring is the main example (T_ramp 120 s), whose onset differs by {c['head_ms']:.0f} ms between the two solvers; it is not used as evidence. Open squares: onset during the hold, when eta_bar stays at its peak (our reading, not verified). "
         "(b) P5: up delay, offset on the way down and hysteresis width. (c) P1 linear at the start distances 0.5, 1.5 and 3.0. "
         f"(d), (e) The delay at the main example with a very small added noise (the noise floor), three levels, 10 seeds, four time steps drawn as concentric marks (equal values), dark mark: median; "

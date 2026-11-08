@@ -49,6 +49,8 @@ caption:
   short_max_words_FS1: 600             # UNVERIFIED (DL-637; as DL-628 C6)
   short_max_words_FS2: 600             # UNVERIFIED (DL-637)
   short_max_words_FS3: 600             # UNVERIFIED (DL-637)
+  short_max_words_F4a: 650             # UNVERIFIED (DL-667 K1: 650, as the other main figures): F4a (13t-8)
+  short_max_words_F4b: 650             # UNVERIFIED (DL-667 K1): F4b (13t-8)
   short_max_words_F6: 650              # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6): F6 (13t-2)
 files:
   name_pattern: "^[A-Za-z0-9_+=,.-]+$"   # a-z A-Z 0-9 underscore plus minus dot comma equals; no spaces

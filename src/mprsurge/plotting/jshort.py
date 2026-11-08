@@ -85,10 +85,18 @@ SHORT_LIMITS = {
     "G4-C2": "the surge result is stated for the mean field only, and there is no claim that it is robust to finite-size fluctuations",
     "MS9(e)-3": "failure label c is a flag, not a demonstrated cause (below 25 Hz; it marks a cell without a surge class whose frequency is below 25 Hz)",
     "MS9(e)-5": "every class that depends on the test for damped against non-damped oscillations is provisional",
+    # 13t-8b (DL-671 L3): the F4a and F4b clauses (the same wording as jf4cap.F4A_LIMIT_EXTRA and F4B_LIMIT_EXTRA; every number is a number of the plain sentence)
+    "G6-D1": "there is no claim that the onset follows the entry-exit prediction; the onset check is not validated (0 of 6 testable in-range runs within one step of the prediction)",
+    "G6-D2": "the delay of the main example is taken from the runs with a noise floor, and the noise-free onset depends on the solver (58.698 s and 58.879 s, unexplained)",
+    "G6-D3": "the delay under a noise floor is reported under both onset readings (the raw crossing meets, the classifier onset ties and does not meet)",
+    "DL-163-D3": "the onset check is not judged at the main example (it covers 0 to 2 of the 13 ramp durations)",
+    "MS11-C6": "the direction of the change of the delay with the floor level is unresolved at ramp durations of 10 s and 316 s",
+    "MS11-C1": "the main-example class is kept in 7 of 10 seeds at the noise level sigma (8 are needed); the controls without a ramp reach 7 of 10",
 }
 # 13t-1g (DL-603 W1): the limits G4-C3 (F5, F5c), G4-C4 (F5) and MS11-C2 (F5c) that 13t-1f (DL-596) had left out only for the word limits are restored (the limits are raised instead); the lists are those of 13t-1e (cf92272)
 SHORT_LIMIT_IDS = {"F1": ("G4-C3", "MS9(e)-1"), "F3": ("MS11-C3", "MS12-C1"), "F5": ("G4-C4", "MS9(e)-2", "G4-C3"), "F5c": ("G4-C3", "MS11-C2", "MS9(e)-1"),
-                   "F2": ("MS12-C1", "G4-C2"), "F6": ("MS12-C1", "MS9(e)-1", "MS9(e)-3", "MS9(e)-5", "G4-C3", "G4-C4"), "FS1": (), "FS2": (), "FS3": ()}
+                   "F2": ("MS12-C1", "G4-C2"), "F6": ("MS12-C1", "MS9(e)-1", "MS9(e)-3", "MS9(e)-5", "G4-C3", "G4-C4"), "FS1": (), "FS2": (), "FS3": (),
+                   "F4a": ("MS12-C1", "MS9(e)-5", "G6-D1", "G6-D2", "G6-D3", "DL-163-D3", "MS11-C6"), "F4b": ("MS12-C1", "MS9(e)-2", "MS9(e)-5", "G4-C4", "MS11-C1", "MS11-C3")}      # 13t-8b (DL-671)
 
 # V7: detectors of the failed rows named in the "Failed checks." paragraph of a FULL caption: key -> regex (a row counts once)
 FAILED_DETECT = {
@@ -115,6 +123,8 @@ SHORT_NAMED = {
     "F2": {("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30s"), ("RB1", "overall")},      # DL-628 C1: the red title of F2 (c) is the four RB1 rows
     "F6": {("G7", "gate")},
     "FS1": set(), "FS2": set(), "FS3": set(),                                                                # 13t-4: no failed row concerns FS1
+    "F4a": {("RB3", "a_inrange_runs"), ("RB3", "b_classifier_onset"), ("RB6", "solver_onset_headline")},      # 13t-8b: the three rows the F4a panels draw
+    "F4b": {("RB2", "noisy_subgrid_agreement"), ("RB2", "headline_class_kept_1.0_sigma")},
 }
 FAILED_PARA_START = "Failed checks. "
 
@@ -338,7 +348,9 @@ def f5c_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, ful
 # ---- checks shared by scripts/ms13_verify_export.py and the tests (DL-593 V5 to V8) --------------------------------------------------------------------------------------------------------------
 LIMIT_KEYS = {"G4-C3": "no-ramp network controls", "MS9(e)-1": "network surge classes at N =", "MS9(e)-2": "no claim that the regime map is robust to noise", "G4-C4": "noise level sigma = 0.0624",
               "MS11-C2": "no claim of agreement in peak frequency", "MS11-C3": "differ by 4.39 Hz", "MS12-C1": "stated for model M3 only", "G4-C2": "stated for the mean field only", "MS9(e)-3": "is a flag, not a demonstrated cause",
-              "MS9(e)-5": "is provisional"}
+              "MS9(e)-5": "is provisional", "G6-D1": "no claim that the onset follows the entry-exit prediction", "G6-D2": "the noise-free onset depends on the solver",
+              "G6-D3": "reported under both onset readings", "DL-163-D3": "not judged at the main example", "MS11-C6": "is unresolved at ramp durations of 10 s and 316 s",
+              "MS11-C1": "the controls without a ramp reach 7 of 10"}
 NUM = re.compile(r"\d+(?:\.\d+)?")
 def numbers_of(text: str) -> set:
     return set(NUM.findall(re.sub(r"(?<=\d),(?=\d{3}\b)", "", text)))

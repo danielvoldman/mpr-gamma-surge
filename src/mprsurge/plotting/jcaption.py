@@ -283,6 +283,9 @@ TITLE_MAP = {
             ("(l)", "Frequency against J: FAIL", "K10 J dependence", "the frequency of the linearised model must change by at most 10 percent over the J range at tau_d 8, 20 and 40 ms (single source, not verified)")),
     "FS3": (("(e)", "Noise check: FAIL", "RB2 headline_class_kept_1.0_sigma", "the headline class must be kept (a surge class) in at least 8 of 10 noisy seeds at the noise level sigma"),
             ("(g)", "90 percent rule: FAILED", "D24", "the rule that at least 90% of the cells of the noisy subgrid agree with the noise-free class")),
+    "F4a": (("(a)", "prediction FAIL, solver FAIL", "RB3(a), RB6 solver onset", "the onset must lie within one step of the entry-exit prediction in the testable runs, and the two solvers must agree on the onset at the main example"),
+            ("(e)", "Floor, classifier onset: FAIL", "RB3(b)", "the delay under a noise floor must meet the check under the classifier-onset reading")),      # 13t-8b (DL-671)
+    "F4b": (("(e)", "noise robustness FAIL", "RB2", "the main-example class must be kept in at least 8 of 10 noisy seeds, and at least 90 percent of the cells of the noisy subgrid must agree with the noise-free class"),),
     "FS1": (),                                                                       # 13t-4: no red title and no failed row (DL-637)
     "F6": (("(c)", "Negative-control check: FAIL", "G7", "the negative-control gate: the network run of the first negative control must not be in a surge class"),),
 }

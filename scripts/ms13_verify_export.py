@@ -28,34 +28,38 @@ from mprsurge.plotting import collide as CO
 from mprsurge.plotting import figures as FG
 from mprsurge.plotting import jcaption as JCAP
 from mprsurge.plotting import jf26 as JF26
+from mprsurge.plotting import jf4 as JF4
 from mprsurge.plotting import jchecks as JC
 from mprsurge.plotting import jshort as JSH
 from mprsurge.plotting import plain as PL
 from mprsurge.plotting import journal as J
 from mprsurge.plotting import style as S
 
-PILOT = ("F1", "F2", "F3", "F5", "F5c", "F6")            # 13t-1: F1, F3, F5, F5c; 13t-2 (DL-616): F2 and F6
+PILOT = ("F1", "F2", "F3", "F4a", "F4b", "F5", "F5c", "F6")            # 13t-1: F1, F3, F5, F5c; 13t-2 (DL-616): F2 and F6
 FS_SINGLE = ("FS2", "FS3")                                       # 13t-6 (DL-651 H1, H2): stand-alone supplement files with ONE caption (<ID>_journal_caption.txt); FS3 to FS5 are added when they are done
 FS_FIGS = ("FS1",) + FS_SINGLE                                          # 13t-4 (DL-636 E5, DL-637): the supplementary figures that are exported (FS2 and FS3 are added when they are done)
 ALL_FIGS = PILOT + FS_FIGS
-DRAFT_ID = {"F1": "F1", "F2": "F2", "F3": "F3", "F5": "F5", "F5c": "F5", "F6": "F6", "FS1": "FS1", "FS2": "FS2", "FS3": "FS3"}              # the figure whose draft files, digest and manifest rows a journal file is checked against
+DRAFT_ID = {"F1": "F1", "F2": "F2", "F3": "F3", "F5": "F5", "F5c": "F5", "F4a": "F4", "F4b": "F4", "F6": "F6", "FS1": "FS1", "FS2": "FS2", "FS3": "FS3"}              # the figure whose draft files, digest and manifest rows a journal file is checked against
 CHECKS = ("A collisions", "B pdf", "size+shape", "text>=8pt", "fonts", "line width", "cmaps", "non-colour", "letters", "file names", "FAIL lines", "digest", "arrays", "drafts identical",
           "image text", "image IDs", "plain words", "powers of ten", "minus signs", "sentence case", "red titles", "supplement", "sentence 1", "paragraphs", "caption words", "full caption", "key terms", "short caption", "short limits", "definitions", "failed count", "short numbers", "short parameters", "supplement FAILs", "superscripts",
           "margins", "label-title gap", "contrast", "red-green", "greyscale", "cvd", "png+tiff", "no svg/wmf/emf", "file sizes")
 MAIN_FAILURES = {"F1": FG.F1_MAIN_FAILURES, "F2": ("lies close to the mean-field branch",),      # 13t-4 (DL-636 E1): the journal sentence 1 of F2 follows the data; the draft constant FG.F2_MAIN_FAILURES is unchanged
-                  "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES, "F5c": FG.F5C_MAIN_FAILURES, "F6": FG.F6_MAIN_FAILURES, "FS1": ("passes only on our own reading", "was not run"), "FS2": ("does not reproduce the published Hopf point", "a failed check"), "FS3": ("noise check failed", "a failed check")}
-STRIP = {"F1": FG.f1_strip_lines, "F2": FG.strip_lines, "F3": FG.strip_lines, "F5": FG.f5_strip_lines, "F5c": FG.f5c_strip_lines, "F6": FG.f6_strip_lines, "FS1": lambda d: [], "FS2": lambda d: [], "FS3": FG.fs3_strip_lines}
+                  "F3": FG.F3_MAIN_FAILURES, "F5": FG.F5_MAIN_FAILURES, "F5c": FG.F5C_MAIN_FAILURES, "F4a": JF4.MAIN_FAILURES["F4a"], "F4b": JF4.MAIN_FAILURES["F4b"], "F6": FG.F6_MAIN_FAILURES, "FS1": ("passes only on our own reading", "was not run"), "FS2": ("does not reproduce the published Hopf point", "a failed check"), "FS3": ("noise check failed", "a failed check")}
+STRIP = {"F1": FG.f1_strip_lines, "F2": FG.strip_lines, "F3": FG.strip_lines, "F5": FG.f5_strip_lines, "F5c": FG.f5c_strip_lines, "F4a": lambda d: JF4.strip_lines_of("F4a", d), "F4b": lambda d: JF4.strip_lines_of("F4b", d), "F6": FG.f6_strip_lines, "FS1": lambda d: [], "FS2": lambda d: [], "FS3": FG.fs3_strip_lines}
 MIN_MARGIN_IN, MIN_LABEL_GAP_IN = 0.10, 0.05                                # DL-571 T5, T6
-CLAIM_IDS = {"F1": (FG.F1_CLAIM_LIMITS, None), "F2": (FG.F2_CLAIM_LIMITS, None), "F3": (FG.F3_CLAIM_LIMITS, None), "F5": (FG.F5_CLAIM_LIMITS, FG.F5_NOT_APPLICABLE), "F5c": (FG.F5_CLAIM_LIMITS, FG.F5_NOT_APPLICABLE),
+CLAIM_IDS = {"F1": (FG.F1_CLAIM_LIMITS, None), "F2": (FG.F2_CLAIM_LIMITS, None), "F3": (FG.F3_CLAIM_LIMITS, None), "F5": (FG.F5_CLAIM_LIMITS, FG.F5_NOT_APPLICABLE), "F5c": (FG.F5_CLAIM_LIMITS, FG.F5_NOT_APPLICABLE), "F4a": (JF4.F4A_LIMITS, None), "F4b": (JF4.F4B_LIMITS, None),
              "F6": (FG.F6_CLAIM_LIMITS, FG.F6_NOT_APPLICABLE), "FS1": (FG.FS1_CLAIM_LIMITS, None), "FS2": (FG.FS2_CLAIM_LIMITS, None), "FS3": (FG.FS3_CLAIM_LIMITS, None)}
 NA_TEXT = {"F6": PL.NOT_APPLICABLE_PLAIN_F6}                          # the plain reason of a not-applicable limit, where it is not the F5 one (DL-616)
 SHORT_MAIN = {"F1": ("does not reproduce it",), "F2": ("lies close to the mean-field branch",), "F6": ("negative-control check failed",), "FS1": ("passes only on our own reading", "was not run"), "F3": ("frequency check",), "F5": ("holds for the noise-free mean field only",),
-              "F5c": ("step-halving check", "do not reproduce the mean field")}               # plain words of the main failure(s) that sentence 1 of the short caption holds (DL-582 U3 a, DL-593 V6)
+              "F5c": ("step-halving check", "do not reproduce the mean field"),
+              "F4a": ("does not follow the entry-exit prediction", "the two numerical solvers differ"), "F4b": ("noise-robustness checks failed",)}               # plain words of the main failure(s) that sentence 1 of the short caption holds (DL-582 U3 a, DL-593 V6)
 CHECK_TOKEN = {("RB1", "headline_10s"): "network against mean field", ("RB1", "headline_120s"): "network against mean field", ("RB1", "cells_30s"): "network against mean field",
                ("RB2", "noisy_subgrid_agreement"): "90 percent rule", ("RB6", "network_fpk_halving_dt"): "step-halving check", ("RB9", "b_spectral_vs_cycle_headline"): "frequency check",
-               ("G7", "gate"): "negative-control check", ("RB1", "overall"): "network against mean field"}
+               ("G7", "gate"): "negative-control check", ("RB1", "overall"): "network against mean field",
+               ("RB3", "a_inrange_runs"): "within one step of the prediction", ("RB3", "b_classifier_onset"): "classifier-onset reading", ("RB6", "solver_onset_headline"): "two numerical solvers differ",
+               ("RB2", "headline_class_kept_1.0_sigma"): "kept in 7 of 10"}
 REASON_OTHER = "other (not a stored coincidence, a ruled size or a reference line)"
-STRICT_ALLOW = ("F2", "F6", "FS1", "FS2", "FS3", "FS4", "FS5")
+STRICT_ALLOW = ("F2", "F4a", "F4b", "F6", "FS1", "FS2", "FS3", "FS4", "FS5")
 
 
 def reason_class(reason: str) -> str:
@@ -347,13 +351,15 @@ def main(argv=None) -> int:
     for fid in a.ids:
         table[fid], infos[fid] = check_figure(fid, base, root, manifest)
     union = None
-    if "F5" in a.ids and "F5c" in a.ids:
-        # DL-571 T1: the two journal builds together draw exactly the arrays of the draft F5, with equal per-array digests
-        names = set(infos["F5"].get("arrays", {})) | set(infos["F5c"].get("arrays", {}))
-        draft = infos["F5"].get("draft_arrays", {})
-        both = {**infos["F5"].get("arrays", {}), **infos["F5c"].get("arrays", {})}
-        union = names == set(draft) and all(both[k] == draft[k] for k in names)
-        print(f"F5+F5c arrays: union of {len(names)} array names {'equals' if names == set(draft) else 'DIFFERS FROM'} the draft's {len(draft)}; per-array digests {'equal' if union else 'NOT all equal'}")
+    for first, second in (("F5", "F5c"), ("F4a", "F4b")):                   # 13t-8b: F4a and F4b are the two journal files of the draft F4 (DL-667 K2)
+        if first in a.ids and second in a.ids:
+            # DL-571 T1: the two journal builds together draw exactly the arrays of the draft figure, with equal per-array digests
+            names = set(infos[first].get("arrays", {})) | set(infos[second].get("arrays", {}))
+            draft = infos[first].get("draft_arrays", {})
+            both = {**infos[first].get("arrays", {}), **infos[second].get("arrays", {})}
+            ok_u = names == set(draft) and all(both[k] == draft[k] for k in names)
+            union = ok_u if union is None else (union and ok_u)
+            print(f"{first}+{second} arrays: union of {len(names)} array names {'equals' if names == set(draft) else 'DIFFERS FROM'} the draft's {len(draft)}; per-array digests {'equal' if ok_u else 'NOT all equal'}")
     w = max(len(c) for c in CHECKS) + 2
     print("check".ljust(w) + "".join(f.ljust(8) for f in a.ids))
     for c in CHECKS:

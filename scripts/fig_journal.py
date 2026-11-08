@@ -15,7 +15,7 @@ import sys
 from mprsurge.config import repo_root
 from mprsurge.plotting import figures, journal
 
-PILOT = ("F1", "F2", "F3", "F5", "F5c", "F6", "FS1", "FS2", "FS3")      # 13t-7 (DL-659): FS2, FS3; 13t-1: F1, F3, F5, F5c; 13t-2 (DL-616): F2 and F6; 13t-4 (DL-637): FS1
+PILOT = ("F1", "F2", "F3", "F4a", "F4b", "F5", "F5c", "F6", "FS1", "FS2", "FS3")      # 13t-8b (DL-671): F4a, F4b; 13t-7 (DL-659): FS2, FS3; 13t-1: F1, F3, F5, F5c; 13t-2 (DL-616): F2 and F6; 13t-4 (DL-637): FS1
 
 
 def main(argv=None) -> int:
@@ -27,10 +27,11 @@ def main(argv=None) -> int:
         print(f"not built in 13t-1 (J7: F1, F3 and F5 only): {bad}", file=sys.stderr)
         return 2
     root = repo_root()
-    ids = list(dict.fromkeys("F5" if i == "F5c" else i for i in a.ids))               # F5 and F5c are built together by make_F5
+    ids = list(dict.fromkeys({"F5c": "F5", "F4a": "F4", "F4b": "F4"}.get(i, i) for i in a.ids))     # F5 and F5c are built together by make_F5, F4a and F4b by make_F4
     for fid in ids:
         out = getattr(figures, f"make_{fid}")(mode="journal", root=root)
-        for name, o in ([(fid, out)] + ([("F5c", out["F5c"])] if fid == "F5" else [])):
+        pairs = {"F5": (("F5", out), ("F5c", out["F5c"])), "F4": (("F4a", out), ("F4b", out["F4b"]))}.get(fid, ((fid, out),))
+        for name, o in pairs:
             print(json.dumps({"figure": name, "timing_s": o["timing_s"], "drawn_sha256": o["drawn_sha256"], "draft": o["prov"]["draft"], "git": o["prov"]["git"],
                               "paths": [str(p) for p in o["paths"]]}, indent=1, default=str))
     print("export manifest:", journal.write_export_manifest(root / "figures" / "journal"))
