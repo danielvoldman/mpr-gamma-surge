@@ -7177,3 +7177,13 @@ Chosen:          as ruled   Default from: the prompt
 Test:            tests/test_ms13_13t8.py (new, 18 tests pass); the five edited tests
 Status:          done (the edits follow in the next commit)
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-674  MS13 13t-8b: figures.py after the F4a and F4b integration; manifest row rewritten by --write-manifest (ruling M1 route)    [ID: MS13, 13t, 13t-8b, M1, F4a, F4b, DL-670, DL-672]
+Date:            2026-11-08        Author:
+Decision:        FACT AND ACTION. src/mprsurge/plotting/figures.py changed in this step only by: the journal_figure branch for F4a and F4b (jf4.draw_F4a, jf4.draw_F4b) and strip_rows_of for F4a and F4b (jf4.strip_rows_of); the draft constants and the draft drawing are not changed. Its SHA-256 is now 37678a2d90c948d3893583aef77cce063770ccec2b54175e0ac998c0fec76f81 (DL-670 and DL-672 log 886145a32626f576e87d31f3c05cd0b0ae576f4041fd1f7fff2008f20f8ec4b3). The figures.py row of docs/ms13_figure_manifest.csv is rewritten by scripts/ms13_check_hashes.py --write-manifest (the only change allowed to the manifest) in the commit after this entry.
+Reason:          the manifest checker (DL-561/568/577) and ruling M1
+Options:         -
+Chosen:          as ruled   Default from: the prompt
+Test:            tests/test_ms13_review_aids.py; scripts/ms13_check_hashes.py
+Status:          done
+Commit/tag:      the commit that adds this entry and the commit after it; no tag
