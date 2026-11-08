@@ -7197,3 +7197,13 @@ Chosen:          log again with the new hash only
 Test:            scripts/ms13_check_hashes.py
 Status:          done
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-676  MS13 13t-8b: figures.py hash in the form that the checker reads (path, then hash)    [ID: MS13, 13t, 13t-8b, M1, DL-674, DL-675]
+Date:            2026-11-08        Author:
+Decision:        FACT. The checker reads the 64-hex string that follows the path of a file; DL-674 and DL-675 gave the hash after other words. Hash of the working-tree file: src/mprsurge/plotting/figures.py 37678a2d90c948d3893583aef77cce063770ccec2b54175e0ac998c0fec76f81. The manifest row of figures.py is rewritten by --write-manifest in the next commit (dl DL-676).
+Reason:          scripts/ms13_check_hashes.py
+Options:         -
+Chosen:          log in the form of DL-670
+Test:            scripts/ms13_check_hashes.py
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
