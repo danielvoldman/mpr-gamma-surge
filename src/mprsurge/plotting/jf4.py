@@ -361,9 +361,12 @@ def draw_F4b(d: dict):
     ax.plot(d["a3_eps"], d["a3_offset"], color=mf.colour, ls="-", lw=0.8, marker=mf.marker, ms=S.POINT_SIZES["f4_m2"], zorder=3)
     _new(ax, n0, "M2 jump offset")
     ax.set_yscale("log")
-    ax.margins(x=0.04, y=0.08)                              # 13t-8b: display padding, the last mark touched the frame
     _decimal_log(ax, "y")
     _tidy_x(ax)
+    for setter, getter in ((ax.set_xlim, ax.get_xlim), (ax.set_ylim, ax.get_ylim)):      # 13t-8b: display padding of the limits (log axes: a factor), the last mark touched the frame; no value moved
+        lo_, hi_ = getter()
+        k_ = (hi_ / lo_) ** 0.06
+        setter(lo_ / k_, hi_ * k_)
     ax.set_ylabel("Jump offset (" + r"$\bar{\eta}$" + "), log axis")
     _title(ax, "f", "M2 ramp: jump offset from the fold")
     ax = _axes(fig, "F4b", "g", COL_R)
