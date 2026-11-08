@@ -7217,3 +7217,13 @@ Chosen:          as done   Default from: the prompt
 Test:            scripts/ms13_verify_export.py; scripts/ms13_independent_compare.py; scripts/ms13_check_hashes.py; fast suite
 Status:          done; one STOP (review item 2) open
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-678  MS13 13t-8b: correction of one reference in DL-677    [ID: MS13, 13t-8b, DL-677]
+Date:            2026-11-08        Author:
+Decision:        FACT. DL-677 item (9) names the HEAD before that entry with a placeholder ('14b1c6c..'). The HEAD before DL-677 was 1ca15d4 (the review commit), clean tree. No other change.
+Reason:          accuracy of the log
+Options:         -
+Chosen:          correct by a new entry (no amend)
+Test:            -
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
