@@ -30,7 +30,12 @@ def main(argv=None) -> int:
     ids = list(dict.fromkeys({"F5c": "F5", "F4a": "F4", "F4b": "F4"}.get(i, i) for i in a.ids))     # F5 and F5c are built together by make_F5, F4a and F4b by make_F4
     for fid in ids:
         out = getattr(figures, f"make_{fid}")(mode="journal", root=root)
-        pairs = {"F5": (("F5", out), ("F5c", out["F5c"])), "F4": (("F4a", out), ("F4b", out["F4b"]))}.get(fid, ((fid, out),))
+        if fid == "F5":
+            pairs = (("F5", out), ("F5c", out["F5c"]))
+        elif fid == "F4":
+            pairs = (("F4a", out), ("F4b", out["F4b"]))
+        else:
+            pairs = ((fid, out),)
         for name, o in pairs:
             print(json.dumps({"figure": name, "timing_s": o["timing_s"], "drawn_sha256": o["drawn_sha256"], "draft": o["prov"]["draft"], "git": o["prov"]["git"],
                               "paths": [str(p) for p in o["paths"]]}, indent=1, default=str))
