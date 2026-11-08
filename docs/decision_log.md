@@ -7187,3 +7187,13 @@ Chosen:          as ruled   Default from: the prompt
 Test:            tests/test_ms13_review_aids.py; scripts/ms13_check_hashes.py
 Status:          done
 Commit/tag:      the commit that adds this entry and the commit after it; no tag
+
+## DL-675  MS13 13t-8b: figures.py hash as the last logged hash (correction of the form of DL-674)    [ID: MS13, 13t, 13t-8b, M1, DL-674]
+Date:            2026-11-08        Author:
+Decision:        FACT. The checker reads the last full hash of a file in the log; DL-674 names the new hash and, after it, the old one, so the checker read the old one. The hash of src/mprsurge/plotting/figures.py in the working tree and in the manifest row is 37678a2d90c948d3893583aef77cce063770ccec2b54175e0ac998c0fec76f81. No file changes.
+Reason:          scripts/ms13_check_hashes.py (NOT-LAST-LOGGED)
+Options:         -
+Chosen:          log again with the new hash only
+Test:            scripts/ms13_check_hashes.py
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
