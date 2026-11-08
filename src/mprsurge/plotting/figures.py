@@ -279,6 +279,9 @@ F5C_MAIN_FAILURES = ("RB6 network f_pk", "per-N results")
 
 def journal_keys(fid: str, d: dict) -> list:
     """The entries of the drawn data that a journal file draws or states: all for F1 and F3; for F5 and F5c the split above (DL-571 T1; the union is the whole draft data)."""
+    if fid in ("F4a", "F4b"):                                      # 13t-8 (DL-667 K2): the two journal files of the draft F4 (jf4.part_of)
+        from . import jf4
+        return jf4.journal_keys(fid, d)
     if fid == "F5c":
         return sorted(k for k in d if k in F5C_ONLY or k in F5C_SHARED)
     if fid == "F5":
@@ -4968,8 +4971,12 @@ def f4_caption_notes(d: dict) -> tuple:
 
 
 def make_F4(res=None, out_dir=None, *, tag_build: bool = False, take_home=F4_TAKE_HOME, claim_limit_ids=F4_CLAIM_LIMITS,
-            script="scripts/fig_F4.py", root=None) -> dict:
-    """Build F4 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov)."""
+            script="scripts/fig_F4.py", root=None, mode: str = "draft") -> dict:
+    """Build F4 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov).
+    mode="journal" (13t-8, DL-667 K2) builds the TWO journal files of the one data step, 'F4a' and 'F4b' (jf4.build); the dict returned is that of F4a with the dict of F4b under the key 'F4b'."""
+    if mode == "journal":
+        from . import jf4
+        return jf4.build(res, out_dir, root=root, script="scripts/fig_journal.py", tag_build=tag_build)
     F.require_buildable("F4")
     root = Path(root) if root is not None else repo_root()
     res = Path(res) if res is not None else root / "results"
