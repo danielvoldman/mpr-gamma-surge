@@ -276,8 +276,7 @@ def draw_F4a(d: dict):
             n0 = len(ax.lines)
             ax.plot([lvl], [d[med][lvl]], ls="none", marker=md.marker, ms=md.size, color=S.F4_MARKS["median_colour"], mew=md.width, zorder=4)
             _new(ax, n0, f"median level {lvl}")
-        ax.set_xticks(range(3), [CAP.number_text(float(f"{s_:.3g}")) + ("
-(main example)" if (lvl == 0 and not fail) else "") for lvl, s_ in enumerate(d["floor_sigma"])])
+        ax.set_xticks(range(3), [CAP.number_text(float(f"{s_:.3g}")) + ("\n(main example)" if (lvl == 0 and not fail) else "") for lvl, s_ in enumerate(d["floor_sigma"])])
         ax.margins(y=0.15)
         ax.set_xlim(-0.5, 2.5)
         lo_, hi_ = ax.get_ylim()
