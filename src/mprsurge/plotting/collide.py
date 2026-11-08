@@ -560,4 +560,27 @@ JOURNAL_ALLOW = {
                    "stored value on the line (DL-571 T10): the line is the stored mean-field companion value (f_pk 49 Hz, onset 33.698 s) or the stored minimum duration (1000 ms, the classifier floor), "
                    "and a seed whose stored value is that value lies on it")
         for pl in ("b", "c", "d")),
+    # 13t-8b (DL-671 L2): F4a and F4b. Only stored coincident positions and ruled mark sizes; the entries are printed by reason class with counts by the verifier; a legibility reason would be a STOP
+    "F4a": tuple(
+        AllowEntry("marker-marker", pl, r"marks:", r"marks:",
+                   "stored coincident positions and ruled mark sizes: the recorded delays of different series (P1, P2, P5; linear and sigmoid) coincide or lie within the ruled mark size of each other at several ramp durations "
+                   "(at the slow end and on the plateau), and the classifier-onset reading equals the raw-crossing reading at the ramp durations where the two recorded values are equal; no value is moved, jittered or shrunk")
+        for pl in ("a", "b", "c")) + tuple(
+        AllowEntry("marker-line", pl, r"marks:", r"line:",
+                   "stored coincident positions and ruled mark sizes: a mark lies on the line that joins the recorded points of its own or of another series where the recorded values coincide or lie within the ruled mark size; "
+                   "the lines join stored points and no value is moved")
+        for pl in ("a", "b", "c")) + tuple(
+        AllowEntry("marker-marker", pl, r"marks:", r"marks:",
+                   "stored coincident positions: the recorded floored delays are identical at the four Heun steps (drawn as concentric marks) and the 10 seeds of one level lie within the ruled mark size of each other; "
+                   "no value is moved, jittered or shrunk")
+        for pl in ("d", "e")),
+    "F4b": tuple(
+        AllowEntry("marker-marker", pl, r"marks:", r"marks:",
+                   "stored coincident positions and ruled mark sizes: the recorded values of different series (P1, P2, P5; linear and sigmoid) coincide or lie within the ruled mark size of each other at several ramp durations, "
+                   "and a median mark or a seed mark of the noisy runs lies within the ruled mark size of a recorded series value; no value is moved, jittered or shrunk")
+        for pl in ("a", "b", "c", "d", "e")) + tuple(
+        AllowEntry("marker-line", pl, r"marks:", r"line:",
+                   "stored coincident positions and ruled mark sizes: a mark lies on the line that joins the recorded points of its own or of another series, or on the bar line of the noisy seeds, where the recorded values coincide "
+                   "or lie within the ruled mark size; the lines join stored points and no value is moved")
+        for pl in ("a", "b", "c", "d", "e", "g")),
 }
