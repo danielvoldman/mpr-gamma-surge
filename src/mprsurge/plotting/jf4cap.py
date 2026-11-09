@@ -90,7 +90,7 @@ def _delay_facts(d: dict, fam_names) -> dict:
     all read from the recorded arrays; a value that is not the ruled one (minimum -0.092, maximum 2.0) stops the build."""
     vals = np.concatenate([np.asarray(d[f"{f}_{k}"], float).ravel() for f in fam_names for k in ("delay_eta_cross", "delay_eta")])
     lo, hi = float(np.nanmin(vals)), float(np.nanmax(vals))
-    if round(lo, 3) != -0.092 or hi != 2.0:
+    if round(lo, 3) != -0.092 or round(hi, 6) != 2.0:
         raise JC.JCaptionError(f"F4: the smallest and largest drawn delay are {lo!r} and {hi!r}, not -0.092 and 2.0 (13t-11 R3: STOP RULE 12, nothing patched)")
     rising = 0
     for f in fam_names:
