@@ -7526,3 +7526,13 @@ Chosen:          as ruled   Default from: the prompt
 Test:            tests/test_ms13_13v.py
 Status:          code committed, not yet run
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-709  MS13 13v V2: item 44, read-only look for a stored reason of the class S-sus; P4 proof added to the re-check script (code committed before it is re-run)    [ID: MS13, 13v, V2, V4, F1]
+Date:            2026-11-09        Author:
+Decision:        FACT. (1) V2, one bounded read-only pass, no result edited, nothing recomputed. Looked at: docs/decision_log.md (grep of S-sus; DL-583 at line 6263 and DL-586 at line 6291 give the stored fields of the three network seeds); results/ms10/eval/ms10_eval.json, key rb1_headline, 120.0, seeds (fields class, ref_class, class_match, f_pk_hz, onset_s, onset_ref_s, onset_ok, onset_raw_s and margins: no termination flag or time, no power-test result, no onset reason); docs/ms10_results.md lines 33 to 35 and docs/ms10_g_evidence.md line 13 (class, onsets, f_pk); docs/ms10_close.md, docs/ms10_eval_rules.md, docs/ms10_plan.md (no per-seed reason); configs/ms10/ms10_eval.yaml; configs/robustness_criteria.yaml line 127 (rule O10: 'Mode N: first qualifying episode per test; S-sus if any is unterminated'); docs/plan.md line 260 (Table 2.1: S-sus = no termination, either power test). FOUND: the class DEFINITION is stored (plan line 260, criteria line 127); a reason for these three seeds is NOT. Item 44 therefore reads (docs/ms13_close_items.md, section L): the class S-sus of the F1 network seeds has no recorded reason in the stored results; the traces look like the mean field; the paper must say so; cause UNVERIFIED. It is accepted by the user (V1). (2) The re-check script gets a --hashes input: item P4-final-hash-list is 're-verified' when the output of scripts/ms13_check_hashes.py (this step) reads 'N manifest rows, 0 problems'; otherwise it stays 'not re-verified'. The script is re-run after this commit with the same verifier, comparison and JUnit files. (3) tests/test_ms13_13v.py has 10 tests (DL-708 said 11; the list there is correct, the count was not).
+Reason:          rulings V2, V4 (DL-703)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            tests/test_ms13_13v.py
+Status:          done (1); code committed, not yet run (2)
+Commit/tag:      the commit that adds this entry; no tag

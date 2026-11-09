@@ -68,6 +68,7 @@ def main(argv=None) -> int:
     ap.add_argument("--verify", required=True)
     ap.add_argument("--compare", required=True)
     ap.add_argument("--junit", required=True)
+    ap.add_argument("--hashes", help="output of scripts/ms13_check_hashes.py (proof of P4-final-hash-list)")
     ap.add_argument("--write-checklist", action="store_true")
     a = ap.parse_args(argv)
     root = repo_root()
@@ -95,6 +96,8 @@ def main(argv=None) -> int:
         if iid == "G2b-fs1-test-point":
             result = "not re-verified"
             proof = "the read-only check of DL-646 STOPPED (the values of (c) and (d) differ: 52.82 Hz and 1.710 cycles per e-fold against 91.77 Hz and 3.96); no later entry settles it; no evidence is available to set it passing"
+        elif iid == "P4-final-hash-list" and a.hashes and re.search(r"\d+ manifest rows, 0 problems", open(a.hashes, encoding="utf-8").read()):
+            result, proof = "re-verified", "scripts/ms13_check_hashes.py (this run): " + open(a.hashes, encoding="utf-8").read().strip().splitlines()[-1] + "; the PNG, TIFF and PDF of the 13 figures equal docs/ms13_journal_final_hashes.txt"
         elif iid.startswith("R2-cvd"):
             result, proof = "MANUAL", "verifier row cvd reads MANUAL for all 13 figures (the user checks the final PNGs with an online simulator)"
         elif HUMAN.search(iid):
