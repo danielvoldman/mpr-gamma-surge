@@ -504,6 +504,7 @@ def sections(fid: str, a11: list) -> tuple:
             ("Stored names behind the plain words of the caption (DL-571 T8)", FG.CODE_NAMES_MD))
 
 
+GLYPH_UNIT = 1.0           # scale of the glyph path (the marker is normalised afterwards; this is not a font size of drawn text)
 DAGGER_EDGE = 0.3          # 13t-10 (DL-691 O3, second attempt): outline width in pt of the hollow double dagger (UNVERIFIED); the ruled size 6.0 pt and the stored positions are unchanged
 
 
@@ -513,7 +514,7 @@ def _dagger_outline():
     from matplotlib.markers import MarkerStyle
     from matplotlib.path import Path
     from matplotlib.textpath import TextPath
-    tp = TextPath((0, 0), "‡", size=1.0, prop=FontProperties(family="DejaVu Sans"))
+    tp = TextPath((0, 0), "‡", size=GLYPH_UNIT, prop=FontProperties(family="DejaVu Sans"))
     v = tp.vertices.copy()
     ctr = (v.max(axis=0) + v.min(axis=0)) / 2.0
     return MarkerStyle(Path(v - ctr, tp.codes))
