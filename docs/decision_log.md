@@ -7306,3 +7306,13 @@ Chosen:          as done   Default from: the prompt
 Test:            scripts/ms13_verify_export.py; scripts/ms13_independent_compare.py; scripts/ms13_check_hashes.py
 Status:          done
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-687  MS13 13t-9: end-of-step fast suite (2 failures that follow the FS4 and FS5 registrations) and the text edit of the two expected sets    [ID: MS13, 13t-9, FS4, FS5, DL-685]
+Date:            2026-11-08        Author:
+Decision:        FACT AND ACTION. The end-of-step fast suite run on the committed state of DL-686 (exit code taken from pytest itself, PYTEST-EXIT=1): 1512 passed, 2 failed, 24 deselected, 9 xfailed, 3 warnings, 1349.88 s. The two failures are expected-set assertions of earlier steps that name the registered figures: tests/test_ms13_13t1e.py::test_u2_title_map_names_every_plain_title_and_its_check (set(JC.TITLE_MAP) lacks FS4 and FS5) and tests/test_ms13_13t1f.py::test_v7_short_names_only_failed_checks_that_are_drawn (JS.SHORT_NAMED lacks FS4 and FS5, both empty sets: no short caption). Cause: the registrations of DL-685; no data differs. Edit (text of the expected sets only, no data assertion changed): FS4 and FS5 are added to the two expected sets. The two tests then pass (run alone after the edit; the full 22-minute suite was not repeated after this edit: reported).
+Reason:          rulings N7 (test text edits logged first)
+Options:         -
+Chosen:          as ruled   Default from: the prompt
+Test:            tests/test_ms13_13t1e.py; tests/test_ms13_13t1f.py
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag

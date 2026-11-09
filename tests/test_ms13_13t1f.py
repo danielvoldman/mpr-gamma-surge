@@ -269,7 +269,7 @@ def test_v7_the_count_in_each_short_caption_equals_the_count_computed_from_the_f
 def test_v7_short_names_only_failed_checks_that_are_drawn(built):
     assert JS.SHORT_NAMED == {"F1": {("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30s")}, "F3": {("RB9", "b_spectral_vs_cycle_headline")},
                               "F5": {("RB1", "cells_30s"), ("RB2", "noisy_subgrid_agreement")}, "F5c": {("RB6", "network_fpk_halving_dt")},
-                              "F2": {("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30s"), ("RB1", "overall")}, "F6": {("G7", "gate")}, "FS1": set(), "FS2": set(), "FS3": set(),
+                              "F2": {("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30s"), ("RB1", "overall")}, "F6": {("G7", "gate")}, "FS1": set(), "FS2": set(), "FS3": set(), "FS4": set(), "FS5": set(),
                               "F4a": {("RB3", "a_inrange_runs"), ("RB3", "b_classifier_onset"), ("RB6", "solver_onset_headline")},
                               "F4b": {("RB2", "noisy_subgrid_agreement"), ("RB2", "headline_class_kept_1.0_sigma")}}                  # 13t-4 (DL-643): FS1 added; DL-625: F2 and F6 added in 13t-2; DL-628: the four RB1 rows of the red title of F2 (c)
     for f in PILOT:
