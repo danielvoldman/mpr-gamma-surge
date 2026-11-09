@@ -232,7 +232,7 @@ def f4a_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, ful
     n = JC.num
     return JS.finish("F4a", [
         f"The onset (when the classifier, a rule fixed before the analysis, first flags the gamma rise) of the surge (a transient rise of gamma-band power, {c['band'][0]} to {c['band'][1]} Hz) does not follow the entry-exit prediction "
-        "(the time at which the integral of the real part of the eigenvalue of the linearised model, taken from the start of the ramp, returns to zero), and the checks on it failed (red titles of (a) and (e)): "
+        "(the time at which the integral of the real part of the eigenvalue of the linearised model, taken from the start of the ramp, returns to zero), and the checks on it failed (red titles (a), (e)): "
         f"none of the {d['n_testable']} testable runs lies within one step of the prediction, the two numerical solvers differ by {c['head_ms']:.0f} ms at the main example (the main case fixed before the analysis; "
         f"{c['bound_ms']:g} ms allowed), and the delay under a noise floor does not meet its check under the classifier-onset reading.",
         "Hopf point: where the resting state starts to oscillate.",
