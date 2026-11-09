@@ -1,5 +1,5 @@
 """MS13 13t-9 (DL-681 N4, DL-651 H1, H2): the journal export of FS4 (numerical checks: solver, tolerance, initial perturbation, noise floor, network time step and peak value V_p) as a stand-alone
-supplement file at the width of the draft (7.4 in; height 14.4 in, the limit of the FS profile, because the panels are placed in inches).
+supplement file at the width of the draft (7.4 x 13.8 in; the panels are placed in inches because the constrained layout cannot place them at 8 pt).
 
 Same drawing data as the draft (prepare_FS4); plain words on the image, 8 pt, sentence case; the status block of the draft is not on the image (its lines are in the caption and the supplement). ONE caption
 (`FS4_journal_caption.txt`, seven labelled paragraphs, no word limit). Every number of the caption is read from the prepared data, the stored A11 rows, the stored A7 table or the recorded parameter rows (N2);
@@ -17,7 +17,7 @@ from . import journal as J
 from . import style as S
 
 FS4_ID = "FS4"
-FS4J_HEIGHT = 14.4
+FS4J_HEIGHT = 13.8
 MINUS = chr(0x2212)
 PM = chr(0xb1)
 UNDEFINED_UNVERIFIED = ("'classifier onset' and 'raw first crossing' are the two onset readings of the plan; the plain glosses are ours",
@@ -60,7 +60,7 @@ def draw(d: dict, FG):
     axb.set_xticks(range(4), [plain_ms11_label(x).split("\n")[1] for x in d["ms11_col_label"]])
     for kind in ("Perturbation", "Tolerance"):
         xs_ = [j for j, x in enumerate(d["ms11_col_label"]) if plain_ms11_label(x).startswith(kind)]
-        axb.text(float(np.mean(xs_)), 1.0, kind, transform=axb.get_xaxis_transform(), ha="center", va="top", clip_on=False).set_gid("column group")
+        axb.text(float(np.mean(xs_)), -0.2, kind, transform=axb.get_xaxis_transform(), ha="center", va="top", clip_on=False).set_gid("column group")
     axb.set_yticks(range(2), [f"{t:g} s" for t in d["ms11_T"]])
     axb.set_ylabel("Ramp duration")
     axb.set_ylim(1.6, -0.5)
@@ -90,7 +90,7 @@ def draw(d: dict, FG):
                  mfc=mk.colour if mk.filled else "none", mew=mk.width, zorder=3, label=f"{T_:g} s: {FG.FS4_D3_WORDS.get(d['floorT_direction'][i], d['floorT_direction'][i])}")
     axd.set_xticks([0, 1, 2], ["Level 0", "Level 1", "Level 2"])
     axd.set_xlim(-0.4, 2.4)
-    axd.set_ylim(-2.1, -0.4)
+    axd.set_ylim(-2.3, -0.4)
     axd.set_ylabel("Median delay")
     FG._journal_title(axd, "e", "Noise floor at 10 s and 316 s")
     axd.legend(loc="lower center", frameon=True, framealpha=0.95, title="Ramp duration")
@@ -111,7 +111,7 @@ def draw(d: dict, FG):
     axe.set_ylim(40.0, 135.0)
     axe.legend(loc="upper center", ncol=2, frameon=True, framealpha=0.95, handletextpad=0.3, columnspacing=1.0)
     lo_f, hi_f = int(round(100 * float(d["net_rel_change"][:, 0].min()))), int(round(100 * float(d["net_rel_change"][:, 0].max())))
-    axe.text(0.5, 0.80, f"First halving: change of {lo_f} to {hi_f} percent\nagainst {100 * FG.FS4_RB6_FPK_BOUND:g} percent allowed (g)", transform=axe.transAxes, ha="center", va="center", color=T("fail_text"),
+    axe.text(0.5, 0.66, f"First halving: change of {lo_f} to {hi_f} percent\nagainst {100 * FG.FS4_RB6_FPK_BOUND:g} percent allowed (g)", transform=axe.transAxes, ha="center", va="center", color=T("fail_text"),
              bbox=dict(boxstyle="square,pad=0.2", fc=S.FS_COLOURS["box_face"], ec=T("fail_text"), lw=0.5)).set_gid("panel note")
     # (g)
     axf = ax_in(fig, 0.95, 8.7, 2.7, 2.0)
