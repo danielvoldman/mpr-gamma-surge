@@ -42,7 +42,8 @@ def case_numbers(d: dict) -> tuple:
 
 
 def draw(d: dict, FG):
-    """FS5 journal drawing (own plain text; the draft's panels and data placed in inches because the constrained layout cannot place them at 8 pt)."""
+    """FS5 journal drawing (own plain text; the draft's panels and data placed in inches because the constrained layout cannot place them at 8 pt). Panel (a) is two axes (the cases of the noise mode and of the
+    no-noise mode) with the same columns as (c), whose variant labels stand under (c)."""
     from matplotlib.patches import Patch, Rectangle
     fig, cfg = FG._journal_fig(FS5J_HEIGHT, constrained=False, fid=FS5_ID)
     T = S.figure_colour
@@ -50,53 +51,70 @@ def draw(d: dict, FG):
     edge = T("bar_edge")
     classes, var = d["class_order"], d["variants"]
     nums, _names = case_numbers(d)
-    # (a)
-    ax = ax_in(fig, 1.15, 0.45, 3.5, 4.9)
+    n_noise = d["syn_mode"].count("N")
     nrow = len(d["syn_label"])
-    for ci, name in enumerate(classes):
-        sel = d["syn_code"] == ci
-        if not sel.any():
-            continue
-        yy, xx = np.nonzero(sel)
-        if name == "not_run":
-            mk = S.diagram_mark("not_run")
-            ax.plot(xx, yy, ls="none", marker=mk.marker, ms=mk.size, color=mk.colour, mew=mk.width, label="Not run (window does not fit)", zorder=4)
+    pitch = 0.125
+    h1, h2 = n_noise * pitch + 0.1, (nrow - n_noise) * pitch + 0.1
+    left, wid = 1.15, 3.5
+    handles: dict = {}
+    # (a) in two axes: noise mode (top) and no-noise mode (below)
+    for part, (lo, hi, top, hgt) in enumerate(((0, n_noise, 0.45, h1), (n_noise, nrow, 0.45 + h1 + 0.12, h2))):
+        ax = ax_in(fig, left, top, wid, hgt)
+        for ci, name in enumerate(classes):
+            sel = d["syn_code"][lo:hi] == ci
+            if not sel.any():
+                continue
+            yy, xx = np.nonzero(sel)
+            if name == "not_run":
+                mk = S.diagram_mark("not_run")
+                ax.plot(xx, yy, ls="none", marker=mk.marker, ms=mk.size, color=mk.colour, mew=mk.width, zorder=4)
+                handles.setdefault(name, (mk, "Not run (window does not fit)"))
+            else:
+                st = S.get(name)
+                ax.plot(xx, yy, ls="none", marker=st.marker, ms=S.FS_SIZES["fs5_class"], color=st.colour, mec=edge, mew=0.25, zorder=4)
+                handles[name] = handles.get(name, (st, 0))
+                handles[name] = (st, handles[name][1] + int(sel.sum()))
+        ax.set_ylim(hi - lo - 0.5, -0.5)
+        ax.set_xlim(-0.6, len(var) - 0.4)
+        ax.set_xticks(range(len(var)), [])
+        ax.set_yticks(np.arange(hi - lo), [f"Case {k}, {lab.split(' | ')[1]}" for k, lab in zip(nums[lo:hi], d["syn_label"][lo:hi])])
+        ax.tick_params(length=2)
+        if part == 0:
+            FG._journal_title(ax, "a", "Synthetic cases: class under each variant (noise mode above, no-noise mode below)")
         else:
-            st = S.get(name)
-            ax.plot(xx, yy, ls="none", marker=st.marker, ms=S.FS_SIZES["fs5_class"], color=st.colour, mec=edge, mew=0.25, label=f"{name} ({int(sel.sum())})", zorder=4)
-    ax.axhline(d["syn_mode"].count("N") - 0.5, color=S.FS_COLOURS["patch_edge"], lw=0.6, zorder=1)
-    ax.set_ylim(nrow - 0.5, -0.5)
-    ax.set_xlim(-0.6, len(var) - 0.4)
-    ax.set_xticks(range(len(var)), [VAR_LABELS[v] for v in var], rotation=40, ha="right")
-    ax.set_yticks(np.arange(nrow), [f"Case {k}, {lab.split(' | ')[1]}" for k, lab in zip(nums, d["syn_label"])])
-    ax.tick_params(length=2)
-    FG._journal_title(ax, "a", "Synthetic cases: class under each variant")
-    h_a, l_a = ax.get_legend_handles_labels()
+            ax.set_gid("panel part")
     # (b)
-    axb = ax_in(fig, 5.2, 0.45, 2.0, 4.9)
+    axb = ax_in(fig, 5.2, 0.45, 2.0, 5.1)
     axb.axis("off")
     FG._journal_title(axb, "b", "Tests of the classifier")
     lines = textwrap.wrap("The synthetic tests of the classifier, read as source text and not run.", width=24)
     lines += [f"File {i + 1}: {n} test functions" for i, n in enumerate(d["tests_n"])]
     lines += textwrap.wrap(f"{len(d['tests_xfail_name'])} of them are marked as expected failures (strict); their names and reasons are in the supplement.", width=24)
-    lines += [""] + textwrap.wrap("Rows of (a): noise mode above the line, no-noise mode below it.", width=24)
     axb.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", linespacing=1.25, transform=axb.transAxes)
-    axb.legend(h_a, l_a, loc="lower left", ncol=1, frameon=True, framealpha=0.95, title="Class (cells)", borderaxespad=0.0)
+    from matplotlib.lines import Line2D
+    hh, ll = [], []
+    for name, (mk, cnt) in handles.items():
+        hh.append(Line2D([], [], ls="none", marker=mk.marker, ms=getattr(mk, "size", 5.0) if name == "not_run" else S.FS_SIZES["fs5_class"], color=mk.colour, mec=edge if name != "not_run" else mk.colour, mew=0.25))
+        ll.append(cnt if name == "not_run" else f"{name} ({cnt})")
+    axb.legend(hh, ll, loc="lower left", ncol=1, frameon=True, framealpha=0.95, title="Class (cells)", borderaxespad=0.0)
     # (c)
-    axc = ax_in(fig, 1.55, 6.5, 3.55, 1.6)
+    ctop = 0.45 + h1 + 0.12 + h2 + 0.5
+    axc = ax_in(fig, left, ctop, wid, 1.5)
     frac = d["chg_changed"] / d["chg_n"][:, None]
-    axc.pcolormesh(np.arange(frac.shape[1] + 1) - 0.5, np.arange(frac.shape[0] + 1) - 0.5, frac, cmap=S.CHANGE_CMAP, vmin=0.0, vmax=1.0, shading="flat", edgecolor=S.FS_COLOURS["cell_edge"], lw=0.6)
+    xs_c = np.arange(1, len(var))
+    axc.pcolormesh(np.arange(1, len(var) + 1) - 0.5, np.arange(frac.shape[0] + 1) - 0.5, frac, cmap="viridis_r", vmin=0.0, vmax=1.0, shading="flat", edgecolor=S.FS_COLOURS["cell_edge"], lw=0.6)
     for i in range(frac.shape[0]):
         for j in range(frac.shape[1]):
             nr = int(d["chg_not_run"][i, j])
-            axc.text(j, i, f"{int(d['chg_changed'][i, j])}/{int(d['chg_n'][i])}" + ("*" if nr else ""), ha="center", va="center",
+            axc.text(j + 1, i, f"{int(d['chg_changed'][i, j])}/{int(d['chg_n'][i])}" + ("*" if nr else ""), ha="center", va="center",
                      color=S.FS_COLOURS["text_on_light"] if frac[i, j] < S.FS5_TEXT_DARK_ABOVE else S.FS_COLOURS["text_on_dark"])
-    axc.set_xticks(range(frac.shape[1]), [VAR_LABELS[v] for v in var[1:]], rotation=40, ha="right")
+    axc.set_xlim(-0.6, len(var) - 0.4)
+    axc.set_xticks(range(len(var)), [VAR_LABELS[v] for v in var], rotation=90)
     axc.set_yticks(range(frac.shape[0]), GROUP_LABELS)
     axc.set_ylim(frac.shape[0] - 0.5, -0.5)
     FG._journal_title(axc, "c", "Class changes against baseline; * includes not run")
     # (d)
-    axd = ax_in(fig, 5.55, 6.5, 1.65, 1.6)
+    axd = ax_in(fig, 5.55, ctop, 1.65, 1.5)
     for i, w in enumerate(d["reach_W"]):
         mk = S.diagram_mark(f"w_{i}")
         axd.plot(d["reach_level"], d["reach_share"][i], color=mk.colour, ls=mk.linestyle, lw=0.8, marker=mk.marker, ms=mk.size, mfc=mk.colour if mk.filled else "none", mew=mk.width, zorder=3,
@@ -107,7 +125,8 @@ def draw(d: dict, FG):
     FG._journal_title(axd, "d", "Baseline rho reached")
     axd.legend(loc="lower left", frameon=True, framealpha=0.95, title="Window (cells)")
     # (e)
-    axe = ax_in(fig, 0.95, 9.3, 3.0, 1.9)
+    etop = ctop + 1.5 + 1.75 + 0.45
+    axe = ax_in(fig, 0.95, etop, 3.0, 1.7)
     bottom = np.zeros(len(d["white_W"]))
     xw = np.arange(len(d["white_W"]), dtype=float)
     legend_h = []
@@ -124,14 +143,14 @@ def draw(d: dict, FG):
     for x_, n_ in zip(xw, d["white_nonNS"]):
         axe.text(x_, 1.015, f"{int(n_)}", ha="center", va="bottom", fontweight="bold")
     axe.set_xticks(xw, [f"{w:.3g}" for w in d["white_W"]])
-    axe.set_ylim(0.0, 1.62)
+    axe.set_ylim(0.0, 1.75)
     axe.set_xlabel("Window length (s)")
     axe.set_ylabel(f"Share of {int(d['white_den'][0])} records")
     FG._journal_title(axe, "e", "White noise (bold: records not NS)")
     axe.set_xlim(-0.6, len(xw) - 0.4)
     axe.legend(handles=legend_h, loc="upper center", ncol=3, frameon=True, framealpha=0.95, handletextpad=0.3, columnspacing=0.8)
     # (f)
-    axf = ax_in(fig, 5.45, 9.3, 1.75, 1.9)
+    axf = ax_in(fig, 5.45, etop, 1.75, 1.7)
     mk10 = S.diagram_mark("fs5_pt")
     yv = np.arange(len(d["rb10_variant"]), dtype=float)
     axf.plot(d["rb10_fraction"], yv, ls="none", marker=mk10.marker, ms=mk10.size, color=mk10.colour, mew=mk10.width, zorder=4, label="Cells that change class")
@@ -140,12 +159,13 @@ def draw(d: dict, FG):
     axf.set_yticks(yv, [VAR_LABELS[v] for v in d["rb10_variant"]])
     axf.set_ylim(len(yv) - 0.5, -0.5)
     axf.set_xlim(-0.005, 0.30)
-    axf.set_xlabel("Fraction of cells")
+    axf.set_xlabel("Fraction of map-1 cells")
     FG._journal_title(axf, "f", "Main-example class " + ("unchanged" if d["rb10_headline_all_pass"] else "changed"))
     axf.legend(loc="center right", frameon=True, framealpha=0.95)
     # (g) to (j)
+    rtop = etop + 1.7 + 0.75
     pt = S.diagram_mark("fs5_pt")
-    a1 = ax_in(fig, 0.8, 12.0, 1.05, 1.5)
+    a1 = ax_in(fig, 0.8, rtop, 1.05, 1.3)
     for i, tau in enumerate(d["rb9a_tau_ms"]):
         mk = S.diagram_mark(f"rb9a_{i}")
         a1.plot([0, 1, 2], d["rb9a_diff"][i], ls="none", marker=mk.marker, ms=mk.size, color=mk.colour, zorder=4, label=f"tau {tau:g} ms")
@@ -155,37 +175,37 @@ def draw(d: dict, FG):
     a1.minorticks_off()
     a1.set_ylim(1e-10, 3e-2)
     a1.set_xlim(-0.5, 2.5)
-    a1.set_xticks([0, 1, 2], ["r*tau", "v", "s*tau"])
+    a1.set_xticks([0, 1, 2], ["r*tau", "v", "s*tau"], rotation=90)
     FG._journal_title(a1, "g", "Unit level")
     a1.legend(loc="center", bbox_to_anchor=(0.5, 0.62), frameon=True, framealpha=0.95)
     a1.set_ylabel("Relative difference")
-    a2 = ax_in(fig, 2.5, 12.0, 0.9, 1.5)
+    a2 = ax_in(fig, 2.5, rtop, 0.9, 1.3)
     sp, cy = S.diagram_mark("fs5_spectral"), S.diagram_mark("fs5_cycle")
     a2.plot([0], [d["rb9b_f_spectral"]], ls="none", marker=sp.marker, ms=sp.size, color=sp.colour, zorder=4, label="Spectral peak")
     a2.errorbar([1], [d["rb9b_f_cycle"]], yerr=[d["rb9b_bound"]], ls="none", marker=cy.marker, ms=cy.size, color=cy.colour, capsize=3, lw=1.0, zorder=4, label=f"Cycle {PM} 1/W")
     a2.set_xlim(-0.6, 1.6)
     a2.set_ylim(38.0, 51.0)
-    a2.set_xticks([0, 1], ["Spectral", "Cycle"], rotation=30, ha="right")
+    a2.set_xticks([0, 1], ["Peak", "Cycle"], rotation=90)
     FG._journal_title(a2, "h", "Frequency check: " + ("PASS" if d["rb9b_within"] else "FAIL"), fail=not d["rb9b_within"])
     a2.set_ylabel("Frequency (Hz)")
-    a2.text(0.5, 0.06, f"Difference {d['rb9b_diff']:.3f} Hz\n> {d['rb9b_bound']:g} Hz", transform=a2.transAxes, ha="center", va="bottom", bbox=dict(boxstyle="square,pad=0.2", fc=S.FS_COLOURS["box_face"], ec=S.FS_COLOURS["patch_edge"], lw=0.4))
-    a3 = ax_in(fig, 4.2, 12.0, 1.3, 1.5)
+    a2.text(0.5, 0.05, f"Difference {d['rb9b_diff']:.3f} Hz\n> {d['rb9b_bound']:g} Hz", transform=a2.transAxes, ha="center", va="bottom", bbox=dict(boxstyle="square,pad=0.2", fc=S.FS_COLOURS["box_face"], ec=S.FS_COLOURS["patch_edge"], lw=0.4))
+    a3 = ax_in(fig, 4.2, rtop, 1.3, 1.3)
     xs3 = np.arange(3, dtype=float)
     fr3 = d["rb9c_changed"] / d["rb9c_n"]
     a3.plot(xs3, fr3, ls="none", marker=pt.marker, ms=pt.size, color=pt.colour, mew=pt.width, zorder=4)
     a3.axhline(d["rb9c_bound"], color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label=f"Allowed {d['rb9c_bound']:g}", zorder=2)
     a3.plot(xs3[1:], fr3[1:], ls="none", marker=S.FS5_REPORTED["marker"], ms=S.FS_SIZES["fs5_reported_ring"], mfc="none", mec=S.FS5_REPORTED["colour"], mew=S.FS5_REPORTED["width"], zorder=3,
             label="Reported only", gid="rb9c_reported")
-    a3.set_xticks(xs3, ["Map 1", "Map 2", "Subgrid"], rotation=30, ha="right")
+    a3.set_xticks(xs3, ["Map 1", "Map 2", "Subgrid"], rotation=90)
     a3.set_xlim(-0.5, 2.5)
-    a3.set_ylim(-0.09, 0.9)
+    a3.set_ylim(-0.09, 0.95)
     FG._journal_title(a3, "i", "Band 30 to 120 Hz")
     a3.set_ylabel("Fraction changed")
     a3.legend(loc="upper left", frameon=True, framealpha=0.95)
     for x_, c_, n_ in zip(xs3, d["rb9c_changed"], d["rb9c_n"]):
-        hi = c_ / n_ > 0.2
-        a3.text(x_ - (0.25 if hi else 0.0), c_ / n_ + (0.0 if hi else 0.06), f"{int(c_)}/{int(n_)}", ha="right" if hi else "center", va="center" if hi else "bottom")
-    a4 = ax_in(fig, 6.2, 12.0, 1.0, 1.5)
+        hi_ = c_ / n_ > 0.2
+        a3.text(x_ - (0.25 if hi_ else 0.0), c_ / n_ + (0.0 if hi_ else 0.06), f"{int(c_)}/{int(n_)}", ha="right" if hi_ else "center", va="center" if hi_ else "bottom")
+    a4 = ax_in(fig, 6.2, rtop, 1.0, 1.3)
     for i, (tau, f, c) in enumerate(zip(d["rb9d_tau_ms"], d["rb9d_f_pk"], d["rb9d_class"])):
         st = S.get(c)
         a4.plot([tau], [f], ls="none", marker=st.marker, ms=S.FS_SIZES["fs5_class_g4"], color=st.colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"], zorder=4, label=f"{c}" if i == 0 else None)
@@ -242,10 +262,10 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
     wl = d["white_W"][:4]
     if not d["rb10_headline_all_pass"] or d["rb9b_within"]:
         raise JC.JCaptionError("FS5: the stored RB10 or RB9(b) result is not the one the take-home wording needs (RB10 passes, RB9(b) fails)")
-    take = (f"The surge classifier (the rule fixed before the analysis that sorts runs into classes; its call for damped against non-damped oscillations is provisional) was run on {c['n_cases']} synthetic cases and on recorded mean-field runs under "
+    take = (f"The surge classifier (the rule fixed before the analysis that sorts runs into classes; a surge is a transient rise of gamma-band power, {c['band'][0]} to {c['band'][1]} Hz; its call for damped against non-damped oscillations is provisional) was run on {c['n_cases']} synthetic cases and on recorded mean-field runs under "
             f"{c['n_var']} variants that each change one setting, and the frequency check failed ({d['rb9b_f_spectral']:.1f} Hz spectral peak against a {d['rb9b_f_cycle']:.3f} Hz cycle frequency, {d['rb9b_diff']:.3f} Hz against 1/W = {d['rb9b_bound']:g} Hz, "
             f"where W = {n(W)} s is the window length; a failed check). Which classes change is drawn per variant. Short windows give false surges: {int(fw[0])}, {int(fw[1])}, {int(fw[2])} and {int(fw[3])} of {int(d['white_den'][0])} white-noise records "
-            f"are not NS at windows of {n(round(wl[0], 3))}, {n(round(wl[1], 3))}, {n(round(wl[2], 3))} and {n(round(wl[3], 3))} s. The class of the main example is unchanged under all {c['n_var']} variants, and at most {c['rb10_max_pct']:.2f} percent of the "
+            f"are not NS (no rise) at windows of {n(round(wl[0], 3))}, {n(round(wl[1], 3))}, {n(round(wl[2], 3))} and {n(round(wl[3], 3))} s. The class of the main example is unchanged under all {c['n_var']} variants, and at most {c['rb10_max_pct']:.2f} percent of the "
             f"{d['rb10_n_cells']} map-1 cells change class against the {100 * FG.FS5_RB10_BOUND:g} percent allowed (passes). The frequency mapping at the unit level passes ({_e(d['rb9a_value'])} against {d['rb9a_tol']:g}; one test at a time), the band check "
             f"passes ({int(d['rb9c_changed'][0])} of {int(d['rb9c_n'][0])} cells change class), and the check at other synaptic decay times is reported only.")
     panels = " ".join([
@@ -273,13 +293,13 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
     lines = [JC.failed_line(r) for r in d["strip"]]
     failed = (f"Failed checks that concern this figure ({len(lines)}): " + "; ".join(lines) + f". The value is blank in the stored table; the numbers ({d['rb9b_f_spectral']:.1f} Hz, {d['rb9b_f_cycle']:.3f} Hz and the difference {d['rb9b_diff']:.3f} Hz) are those of the recorded evaluation. "
               "The estimator for damped against non-damped oscillations also fails part of its own test (a limit, listed below). The project's other failed checks are not about this figure; all of them are listed in the supplement. " + JC.title_sentence(FS5_ID))
-    limits = ("In the limits below, T_ramp is the ramp duration T_ramp (in seconds), the main example is the run fixed before the analysis as the main case, and control (the same network without the ramp) runs are runs of the project that are not drawn in this figure. "
+    limits = ("In the limits below, T_ramp is the ramp duration T_ramp (in seconds), the main example is the run fixed before the analysis as the main case, the network is a simulated network of N spiking neurons, and control (the same network without the ramp) runs are runs of the project that are not drawn in this figure. "
               + JC.limits_paragraph(ids))
     rest = JC.uncode(" ".join([take, panels, settings, params, failed, limits]), FS5_ID)
     key = " ".join(x for x in [
         JC.key_symbols(rest, "eta", "J", "tau", "r", "v", "N"),
         "A surge is a transient rise of gamma-band power; the classes are S+ (absolute and relative rise, ending), S-rel (relative rise only), S-abs (absolute rise only), S-sus (a rise that does not end), NS (no rise), "
-        "D-tr (a rise that ends, noise-free mean field), D-sus and D-none (no episode); a failed check = a stated criterion that the result does not meet; W = the window length of the classifier.",
+        "D-tr (a rise that ends, in the noise-free mean field, which is the model's equations for the average activity of the population), D-sus and D-none (no episode); a failed check = a stated criterion that the result does not meet; W = the window length of the classifier.",
         JC.key_words(rest)] if x)
     return JC.assemble(FS5_ID, take_home=take, panels=panels, key=key, settings=settings, parameters=params, failed=failed, limits=limits)
 
