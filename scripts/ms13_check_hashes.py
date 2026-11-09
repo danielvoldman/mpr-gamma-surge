@@ -129,12 +129,16 @@ def journal_reference_problems(root: Path, log_text: str) -> list[str]:
     hash is not checked, and an older logged hash is not used (the PNG of F3 is not byte-reproducible between builds, so only the hash of the final build is the reference). Read-only."""
     entries = parse_log(log_text)
     problems = []
+    logged = {}
     for fid in JOURNAL_IDS:
         for suf in JOURNAL_SUFFIXES:
             rel = f"figures/journal/{fid}/{fid}_journal.{suf}"
             ll = last_logged(entries, rel)
-            if ll is None:
-                continue
+            if ll is not None:
+                logged[rel] = ll
+    latest = max((ll[0] for ll in logged.values()), default=None)           # only the files that the latest entry with journal hashes logs are checked: an older entry is not a reference
+    for rel, ll in logged.items():
+        if ll[0] == latest:
             p = root / rel
             if not p.is_file():
                 problems.append(f"JOURNAL-MISSING {rel}: logged in DL-{ll[0]:03d} ({ll[1]})")

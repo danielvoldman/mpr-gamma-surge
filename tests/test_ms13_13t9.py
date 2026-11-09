@@ -201,6 +201,17 @@ def test_n6_journal_reference_compares_with_the_latest_logged_hash_only(tmp_path
     assert H.journal_reference_problems(tmp_path, "## DL-1 x\nDecision: nothing logged\n") == []        # a file with no logged hash is not checked
     f.unlink()
     assert H.journal_reference_problems(tmp_path, log)[0].startswith("JOURNAL-MISSING")
+    other = "figures/journal/F6/F6_journal.png"
+    (tmp_path / other).parent.mkdir(parents=True)
+    (tmp_path / other).write_bytes(b"f6")
+    stale = f"## DL-50 early
+Decision: {other} {old}
+
+## DL-200 second
+Decision: {rel} {new}
+"
+    f.write_bytes(b"new build")
+    assert H.journal_reference_problems(tmp_path, stale) == []             # F6 is logged only in an older entry than the latest one with journal hashes: not a reference
 
 
 def test_n6_the_real_f3_files_match_the_reference_logged_in_the_decision_log():
