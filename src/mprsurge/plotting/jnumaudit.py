@@ -171,6 +171,9 @@ def _grids(root) -> dict:
     out["fs2_vals"] = sorted(vals)
     d6 = FG.prepare_F6(FG.load_F6())
     out["f6_T"] = sorted({float(x) for x in d6["s6_T"]})
+    d5 = FG.prepare_F5(FG.load_F5())
+    out["f5_vals"] = sorted({float(x) for x in (d5["map1_Delta"].min(), d5["map1_Delta"].max(), d5["map1_tau_d_ms"].min(), d5["map1_tau_d_ms"].max(), d5["map2_J0"].min(), d5["map2_J0"].max(),
+                                                len(d5["map1_Delta"]), len(d5["map1_tau_d_ms"]), len(d5["map2_J0"]), len(d5["map2_T_ramp_s"]), float(d5["cell_T_ramp_s"][0]))})
     return out
 
 
@@ -199,6 +202,7 @@ S_RULES = [
     (r"10|30|120|300", r"ramp durations 10, 30|10, 30, 120|10 s and 120 s|120 and 300", "fs3_T", 1),
     (r"0\.5|1|2", r"noise factors 0\.5", "fs3_sigma", 1),
     (r"10|30|120|300", r"T_ramp 10, 30, 120|10, 30, 120 and 300|in that order", "f6_T", 1),
+    (r"0\.01|0\.6|1|50|40|5|30|25|13", r"map 1 at Delta|tau_d 1 to 50|map 2 at J0|\(30 values|\(25 values|\(13 values|J0 -40|T_ramp 30 s", "f5_vals", 1),
 ]
 GROUP_RULES: list = []      # (file regex, function regex, token regex, kind, note)
 _ANY = r".*"
@@ -209,6 +213,7 @@ GROUP_RULES += [
     (r"jf26", r"UNDEFINED_UNVERIFIED", r"2\.4", "P", "plan section 2.4 reference"),
     (r"jfs2", r"(names|mapping)", r"3\.2", "P", "plan Table 3.2 reference"),
     (r"plain", r"PHRASES", r"8\.1|11", "P", "plan Table 8.1 / Table 11.2 reference"),
+    (r"plain", r"PHRASES", r"1e4|3e4|10|25", "R", "ruled phrase table of the plain wording (N = 1e4 and 3e4, 10 of 10 seeds, 25 Hz of the failure label)"),
     (r"plain", r"DEFINITIONS", r"1e4", "R", "ruled definition text (plan Table 7.2 names; N = 1e4 of the claim limit)"),
     (r"plain", r"PLAIN_LIMITS|DELETE", _ANY, "R", "ruled plain wording of a claim limit (docs/claim_limit_labels.md, same numbers); the stored numbers are S rows, the others are ruled counts not re-derived here"),
     (r"jshort", r"SHORT_LIMITS|LIMIT_KEYS|SHORT_LIMIT_IDS", _ANY, "R", "ruled short form of a claim limit (same numbers as the plain wording, test)"),
