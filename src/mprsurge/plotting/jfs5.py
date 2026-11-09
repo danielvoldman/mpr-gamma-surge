@@ -26,7 +26,7 @@ UNDEFINED_UNVERIFIED = ("'baseline ratio rho' = the gamma-band share of the tota
                         "'hold runs' for the stored runs at fixed parameters at the two validation points (the draft's 'holds'; our reading, not verified)")
 VAR_LABELS = {"V0": "Baseline", "band_30_120": "Band 30 to 120 Hz", "factors_1.5": "Factors 1.5", "factors_4": "Factors 4", "amin_0.05": "Minimum amplitude 0.05", "amin_0.2": "Minimum amplitude 0.2",
               "window_x0.5": "Window x0.5", "window_x2": "Window x2", "cycles_5": "Minimum cycles 5", "cycles_20": "Minimum cycles 20"}
-GROUP_LABELS = ("Mean-field runs", "Hold runs, point 1", "Hold runs, point 2", "Synthetic, noise mode", "Synthetic, no-noise mode")
+GROUP_LABELS = ("Mean field", "Hold, point 1", "Hold, point 2", "Noise cases", "No-noise cases")
 
 
 def case_numbers(d: dict) -> tuple:
@@ -113,25 +113,25 @@ def draw(d: dict, FG):
     for i in range(frac.shape[0]):
         for j in range(frac.shape[1]):
             nr = int(d["chg_not_run"][i, j])
-            axc.text(j + 1, i, f"{int(d['chg_changed'][i, j])}/{int(d['chg_n'][i])}" + ("*" if nr else ""), ha="center", va="center",
+            axc.text(j + 1, i, f"{int(d['chg_changed'][i, j])}" + ("*" if nr else ""), ha="center", va="center",
                      color=S.FS_COLOURS["text_on_light"] if frac[i, j] < S.FS5_TEXT_DARK_ABOVE else S.FS_COLOURS["text_on_dark"])
     axc.set_xlim(-0.6, len(var) - 0.4)
     axc.set_xticks(range(len(var)), [VAR_LABELS[v] for v in var], rotation=90)
-    axc.set_yticks(range(frac.shape[0]), GROUP_LABELS)
+    axc.set_yticks(range(frac.shape[0]), [f"{g} ({int(n_)})" for g, n_ in zip(GROUP_LABELS, d["chg_n"])])
     axc.set_ylim(frac.shape[0] - 0.5, -0.5)
-    FG._journal_title(axc, "c", "Class changes against baseline; * includes not run")
+    FG._journal_title(axc, "c", "Records changed (of n); * includes not run")
     # (d)
     axd = ax_in(fig, 5.55, ctop, 1.65, 1.5)
     for i, w in enumerate(d["reach_W"]):
         mk = S.diagram_mark(f"w_{i}")
         axd.plot(d["reach_level"], d["reach_share"][i], color=mk.colour, ls=mk.linestyle, lw=0.8, marker=mk.marker, ms=mk.size, mfc=mk.colour if mk.filled else "none", mew=mk.width, zorder=3,
-                 label=f"{w:.3g} s ({int(d['reach_n_cells'][i])})")
+                 label=f"{w:.3g} s")
     axd.set_xlabel("Baseline ratio rho, level")
     axd.set_ylabel("Share of cells")
-    axd.set_ylim(-0.75, 1.05)
+    axd.set_ylim(-0.75, 1.15)
     axd.set_yticks([0.0, 0.25, 0.5, 0.75, 1.0])
     FG._journal_title(axd, "d", "Baseline rho reached")
-    axd.legend(loc="lower center", ncol=2, frameon=True, framealpha=0.95, title="Window (cells)", columnspacing=0.6, handletextpad=0.3, handlelength=1.4)
+    axd.legend(loc="lower center", ncol=2, frameon=True, framealpha=0.95, title="Window", columnspacing=0.6, handletextpad=0.3, handlelength=1.4)
     # (e)
     etop = ctop + 1.5 + 1.75 + 0.45
     axe = ax_in(fig, 0.95, etop, 3.0, 1.7)
@@ -142,7 +142,9 @@ def draw(d: dict, FG):
         st = S.get(name)
         h = d["white_count"][:, ci] / d["white_den"]
         for x_, b_, h_ in zip(xw, bottom, h):
-            axe.add_patch(Rectangle((x_ - 0.35, b_), 0.7, h_, fc=st.colour, ec=edge, lw=0.3, hatch=S.CLASS_HATCH[name], zorder=3))
+            seg = Rectangle((x_ - 0.35, b_), 0.7, h_, fc=st.colour, ec=edge, lw=0.3, hatch=S.CLASS_HATCH[name], zorder=3)
+            seg.set_gid("container:bar segment")
+            axe.add_patch(seg)
         legend_h.append(Patch(fc=st.colour, ec=edge, lw=0.3, hatch=S.CLASS_HATCH[name], label=name))
         for x_, b_, h_, c_ in zip(xw, bottom, h, d["white_count"][:, ci]):
             if h_ >= 0.09:
@@ -161,7 +163,7 @@ def draw(d: dict, FG):
     axf = ax_in(fig, 5.45, etop, 1.75, 1.7)
     mk10 = S.diagram_mark("fs5_pt")
     yv = np.arange(len(d["rb10_variant"]), dtype=float)
-    axf.plot(d["rb10_fraction"], yv, ls="none", marker=mk10.marker, ms=mk10.size, color=mk10.colour, mew=mk10.width, zorder=4, label="Cells that change class")
+    axf.plot(d["rb10_fraction"], yv, ls="none", marker=mk10.marker, ms=mk10.size, color=mk10.colour, mew=mk10.width, zorder=4, label="Cells changed")
     tol = S.diagram_mark("tol_band")
     axf.axvline(FG.FS5_RB10_BOUND, color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label=f"Allowed {FG.FS5_RB10_BOUND:g}", zorder=2)
     axf.set_yticks(yv, [VAR_LABELS[v] for v in d["rb10_variant"]])
@@ -169,7 +171,7 @@ def draw(d: dict, FG):
     axf.set_xlim(-0.015, 0.40)
     axf.set_xlabel("Fraction of map-1 cells")
     FG._journal_title(axf, "f", "Main-example class " + ("unchanged" if d["rb10_headline_all_pass"] else "changed"))
-    axf.legend(loc="center right", frameon=True, framealpha=0.95)
+    axf.legend(loc="lower right", frameon=True, framealpha=0.95)
     # (g) to (j)
     rtop = etop + 1.7 + 0.75
     pt = S.diagram_mark("fs5_pt")
@@ -196,8 +198,8 @@ def draw(d: dict, FG):
     a2.set_xticks([0, 1], ["Peak", "Cycle"], rotation=90)
     FG._journal_title(a2, "h", "Frequency check: " + ("PASS" if d["rb9b_within"] else "FAIL"), fail=not d["rb9b_within"])
     a2.set_ylabel("Frequency (Hz)")
-    a2.text(0.5, 0.05, f"Difference {d['rb9b_diff']:.3f} Hz\n> {d['rb9b_bound']:g} Hz", transform=a2.transAxes, ha="center", va="bottom", bbox=dict(boxstyle="square,pad=0.2", fc=S.FS_COLOURS["box_face"], ec=S.FS_COLOURS["patch_edge"], lw=0.4))
-    a3 = ax_in(fig, 4.35, rtop, 1.35, 1.3)
+    a2.text(0.5, 0.1, f"Difference {d['rb9b_diff']:.3f} Hz\n> {d['rb9b_bound']:g} Hz", transform=a2.transAxes, ha="center", va="bottom", bbox=dict(boxstyle="square,pad=0.2", fc=S.FS_COLOURS["box_face"], ec=S.FS_COLOURS["patch_edge"], lw=0.4))
+    a3 = ax_in(fig, 4.3, rtop, 1.25, 1.3)
     xs3 = np.arange(3, dtype=float)
     fr3 = d["rb9c_changed"] / d["rb9c_n"]
     a3.plot(xs3, fr3, ls="none", marker=pt.marker, ms=pt.size, color=pt.colour, mew=pt.width, zorder=4)
@@ -212,13 +214,13 @@ def draw(d: dict, FG):
     a3.legend(loc="upper left", frameon=True, framealpha=0.95)
     for x_, c_, n_ in zip(xs3, d["rb9c_changed"], d["rb9c_n"]):
         hi_ = c_ / n_ > 0.2
-        a3.text(x_ - (0.25 if hi_ else 0.0), c_ / n_ + (0.0 if hi_ else 0.06), f"{int(c_)}/{int(n_)}", ha="right" if hi_ else "center", va="center" if hi_ else "bottom")
-    a4 = ax_in(fig, 6.45, rtop, 0.75, 1.3)
+        a3.text(x_ - (0.25 if hi_ else 0.0), c_ / n_ + (0.0 if hi_ else 0.16), f"{int(c_)}/{int(n_)}", ha="right" if hi_ else "center", va="center" if hi_ else "bottom")
+    a4 = ax_in(fig, 6.3, rtop, 0.9, 1.3)
     for i, (tau, f, c) in enumerate(zip(d["rb9d_tau_ms"], d["rb9d_f_pk"], d["rb9d_class"])):
         st = S.get(c)
         a4.plot([tau], [f], ls="none", marker=st.marker, ms=S.FS_SIZES["fs5_class_g4"], color=st.colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"], zorder=4, label=f"{c}" if i == 0 else None)
     ex = S.diagram_mark("fs5_expected")
-    a4.plot(d["rb9d_tau_ms"], d["rb9d_headline_f"] * d["rb9d_expected_ratio"], ls="none", marker=ex.marker, ms=ex.size, color=ex.colour, zorder=3, label="x 10/tau")
+    a4.plot(d["rb9d_tau_ms"], d["rb9d_headline_f"] * d["rb9d_expected_ratio"], ls="none", marker=ex.marker, ms=ex.size, color=ex.colour, zorder=3, label="10/tau")
     a4.set_xticks(d["rb9d_tau_ms"], [f"{t:g}" for t in d["rb9d_tau_ms"]])
     a4.set_xlim(7.0, 13.0)
     a4.set_ylim(38.0, 82.0)
@@ -284,7 +286,7 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
         f"(b) A summary of the tests of the classifier, read as source text and never run: {d['tests_n'][0]} and {d['tests_n'][1]} test functions in two files, {len(d['tests_xfail_name'])} of them marked as expected failures (strict); the names and the reasons are in the supplement.",
         f"(c) For each group of records (rows) and each variant (columns), the number of records whose class differs from the baseline over the number of records, with the shade giving the fraction (0 to 1); records that the variant could not run "
         f"(window too long) are counted as not run, not as unchanged; {int(d['chg_changed'].sum())} changes over all groups and variants.",
-        f"(d) The share of the cells of the maps whose baseline ratio rho (the gamma-band share of the total power in a baseline-only run) is at or above each level, for the {len(d['reach_W'])} window lengths (lines); the numbers of cells are in the legend.",
+        f"(d) The share of the cells of the maps whose baseline ratio rho (the gamma-band share of the total power in a baseline-only run) is at or above each level, for the {len(d['reach_W'])} window lengths (lines; the numbers of cells per window are {_and([int(x) for x in d['reach_n_cells']])}).",
         f"(e) The number of white-noise records (of {int(d['white_den'][0])} per window) in each class at the baseline settings, by window length; white noise has no resonance, so these are rates of the classifier's logic and not predictions for the model's own noise; "
         "the bold number above a bar is the number of records that are not NS.",
         f"(f) The fraction of the {d['rb10_n_cells']} map-1 cells whose class changes under each variant (marks) against the {FG.FS5_RB10_BOUND:g} allowed (dashed line); the class of the main example is unchanged under every variant.",
@@ -292,13 +294,13 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
         f"(h) The frequency check at the main example: the spectral peak ({d['rb9b_f_spectral']:.1f} Hz) and the cycle frequency ({d['rb9b_f_cycle']:.3f} Hz, with the allowed difference 1/W = {d['rb9b_bound']:g} Hz as the bar); the difference is {d['rb9b_diff']:.3f} Hz, so the check fails, "
         f"and the cells of map 1 and map 2 in which the two frequencies agree within 1/W are {d['rb9b_map1_within']} of {d['rb9b_map1_n']} and {d['rb9b_map2_within']} of {d['rb9b_map2_n']} (reported, no allowed fraction).",
         f"(i) The fraction of cells that change class when the gamma band is {n(c['var']['band'][0])} to {n(c['var']['band'][1])} Hz instead of {c['band'][0]} to {c['band'][1]} Hz: map 1 ({int(d['rb9c_changed'][0])} of {int(d['rb9c_n'][0])}, judged against {d['rb9c_bound']:g}), and map 2 and the noisy subgrid (map cells re-run with noise; a map cell (one parameter pair of a grid of mean-field runs) is one cell of a map), reported, not judged (open rings).",
-        f"(j) The peak frequency (the peak of the power spectrum) and class of the main example at the synaptic decay times {_and(c['tau_d'])} ms against the main-example value times 10/tau (marks); reported only, it feeds no check.",
+        f"(j) The peak frequency (the peak of the power spectrum) and class of the main example at the synaptic decay times {_and(c['tau_d'])} ms, and the main-example value times 10/tau (marks labelled 10/tau); reported only, it feeds no check.",
     ])
-    settings = ("No spectrogram (power against time and frequency) is drawn in this figure. " + JC.settings_line(crit))
+    settings = ("No spectrogram (power against time and frequency) is drawn in this figure. In the settings below the symbols of the reference point are eta_bar (mean excitability), J (coupling), Delta (heterogeneity) and tau_d (synaptic decay time). " + JC.settings_line(crit))
     params = (f"Recorded values (the complete list with the key names as recorded is in the supplement): model {c['type']} (the mean-field model; the mean field is the model's equations for the average activity of the population); "
               f"classifier settings of the baseline: window {n(W)} s, gamma band {c['band'][0]} to {c['band'][1]} Hz, minimum {c['cycles']} cycles, threshold {c['amin']} times the reference amplitude; the {c['n_var']} variants change one of these settings each "
               f"(band {n(c['var']['band'][0])} to {n(c['var']['band'][1])} Hz; the relative and absolute factors together {_and(c['var']['factors'])}; the minimum amplitude {_and(c['var']['amin'])}; the window times {_and(c['var']['window'])}; the minimum cycles {_and(c['var']['cycles'])}); "
-              f"{c['n_a8']} recorded classifications; window lengths {_and([round(float(x), 3) for x in d['white_W']])} s in (d) and (e); {int(d['env_n_records'])} baseline records ({int(d['env_any_above'])} have a sample at or above {c['amin']} times the reference amplitude {d['a_ref']:.6f}). The symbols of the reference point in the settings above are eta_bar (mean excitability), J (coupling), Delta (heterogeneity) and tau_d (synaptic decay time).")
+              f"{c['n_a8']} recorded classifications; window lengths {_and([round(float(x), 3) for x in d['white_W']])} s in (d) and (e); {int(d['env_n_records'])} baseline records ({int(d['env_any_above'])} have a sample at or above {c['amin']} times the reference amplitude {d['a_ref']:.6f}).")
     lines = [JC.failed_line(r) for r in d["strip"]]
     failed = (f"Failed checks that concern this figure ({len(lines)}): " + "; ".join(lines) + f". The value is blank in the stored table; the numbers ({d['rb9b_f_spectral']:.1f} Hz, {d['rb9b_f_cycle']:.3f} Hz and the difference {d['rb9b_diff']:.3f} Hz) are those of the recorded evaluation. "
               "The estimator for damped against non-damped oscillations also fails part of its own test (a limit, listed below). The project's other failed checks are not about this figure; all of them are listed in the supplement. " + JC.title_sentence(FS5_ID))
