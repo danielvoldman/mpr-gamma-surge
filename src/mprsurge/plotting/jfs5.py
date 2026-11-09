@@ -284,6 +284,14 @@ def _and(xs) -> str:
     return xs[0] if len(xs) == 1 else ", ".join(xs[:-1]) + " and " + xs[-1]
 
 
+def not_run_clause(n_cells: int, n_not_run_a: int, n_not_run_c: int) -> str:
+    """13v (DL-705, V3): the (a) clause about 'not run'. Pure. The wording of 13t-11 said 'not run' where the variant's window does not fit; the stored table holds no such cell among the synthetic cases of (a)."""
+    if n_not_run_a == 0:
+        return (f"one mark per cell, class names as in the Key; all {n_cells} cells hold a class and none is 'not run' (the {n_not_run_c} records that a variant could not run, "
+                "because its window is too long, are in (c), marked *)")
+    return f"one mark per cell, class names as in the Key, and 'not run' where the variant's window does not fit ({n_not_run_a} cells)"
+
+
 def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
     n = JC.num
     W = float(JC.pv(rows, "analysis.window_s", "A8_sensitivity"))
@@ -300,7 +308,7 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
             f"passes ({int(d['rb9c_changed'][0])} of {int(d['rb9c_n'][0])} cells change class), and the check at other membrane time constants is reported only.")
     panels = " ".join([
         f"(a) The class that the classifier gives each of the {c['n_cases']} synthetic cases (the {c['n_rows']} rows: the cases of the noise mode at the ramp durations {_and(c['rw']['N'][0])} s, the window being {_and(c['rw']['N'][1])} s, and the cases of the no-noise mode at {_and(c['rw']['D'][0])} s) "
-        f"under the baseline settings and the {c['n_var']} variants (columns, left to right as the labels under (c): the baseline and then the variants in the order of those labels; (a) has no column labels of its own): one mark per cell, class names as in the Key, and 'not run' where the variant's window does not fit; the expected class of a case is not recorded and is not drawn. "
+        f"under the baseline settings and the {c['n_var']} variants (columns, left to right as the labels under (c): the baseline and then the variants in the order of those labels; (a) has no column labels of its own): {not_run_clause(int(d['syn_code'].size), int((d['syn_code'] == d['class_order'].index('not_run')).sum()), int(d['chg_not_run'].sum()))}; the expected class of a case is not recorded and is not drawn. "
         "The case numbers stand for the recorded case names (in the supplement).",
         f"(b) A summary of the tests of the classifier, read as source text and never run: {d['tests_n'][0]} and {d['tests_n'][1]} test functions in two files, {len(d['tests_xfail_name'])} of them marked as expected failures (strict); the names and the reasons are in the supplement.",
         f"(c) For each group of records (rows) and each variant (columns), the number of records whose class differs from the baseline over the number of records, with the shade giving the fraction (0 to 1; the colour bar under (d) gives the scale); records that the variant could not run "
