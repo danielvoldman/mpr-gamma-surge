@@ -205,6 +205,10 @@ def consts(d: dict, rows: list, raw: dict, crit: dict) -> dict:
             "n_rows": len(d["head_class"]), "ms11_T": [float(x) for x in d["ms11_T"]]}
 
 
+def _range(lo: int, hi: int) -> str:
+    return f"{lo}" if lo == hi else f"{lo} to {hi}"
+
+
 def _and(xs) -> str:
     xs = [JC.num(x) for x in xs]
     return xs[0] if len(xs) == 1 else ", ".join(xs[:-1]) + " and " + xs[-1]
@@ -236,7 +240,7 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
         f"so the points of one level lie on one another. In (d) the delays {MINUS}{abs(c['tie']):g} at levels {c['tie_levels'][0]} and {c['tie_levels'][1]} are onsets at the ramp start (the classifier-onset reading is saturated); no gate verdict changes.",
         f"(e) The median delay at the noise floor under the classifier onset at the ramp durations {_and(c['ms11_T'])} s, by level (reported only); the direction of the change with the level is called \"not strictly monotone\" at both durations "
         f"(the medians at {n(c['ms11_T'][1])} s are {MINUS}{abs(d['floorT_median'][1][0]):.4g}, {MINUS}{abs(d['floorT_median'][1][1]):.4g} and {MINUS}{abs(d['floorT_median'][1][2]):.4g}); under the raw first crossing "
-        f"{int(d['floorT_raw_noonset_seeds'].min())} to {int(d['floorT_raw_noonset_seeds'].max())} of {c['n_floor_seeds']} seeds have no onset.",
+        f"{_range(int(d['floorT_raw_noonset_seeds'].min()), int(d['floorT_raw_noonset_seeds'].max()))} of {c['n_floor_seeds']} seeds have no onset.",
         f"(f) The peak frequency (the peak of the power spectrum) of the {c['n_seeds']} network seeds against the network time step {_and(sorted(d['net_dt'], reverse=True))} tau; open marks: the spectrum-maximum reading of the first halving.",
         f"(g) The relative change of the peak frequency per halving of the time step against the bound {FG.FS4_RB6_FPK_BOUND:g} (a change of {n(FG.FS4_RB6_FPK_BOUND)} is {fb:g} percent); the largest change, at the first halving, is {c['rel_hi']} percent.",
         f"(h) The class of the network for each time step and each peak value V_p ({n(c['Vp'])} and 200), seeds 0 to {c['n_seeds'] - 1}: S+ (absolute and relative rise, ending), S-rel (relative rise only) and S-abs (absolute rise only) "

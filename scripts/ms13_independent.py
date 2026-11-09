@@ -727,7 +727,7 @@ FUNCS = {"F1": f1, "F2": f2, "F3": f3, "F4": f4, "F5": f5, "F6": f6, "FS1": fs1,
 
 
 # ---------------------------------------------------------------------------------------------------- journal captions (13t-1d, DL-571 T9, DL-572)
-JOURNAL_FIGURES = ("F1", "F2", "F3", "F4a", "F4b", "F5", "F5c", "F6", "FS1", "FS2", "FS3")             # the journal files whose captions are searched (F5c is the second file of the F5 build)
+JOURNAL_FIGURES = ("F1", "F2", "F3", "F4a", "F4b", "F5", "F5c", "F6", "FS1", "FS2", "FS3", "FS4")             # the journal files whose captions are searched (F5c is the second file of the F5 build)
 SIGMA_NOTE = r"mean-field baseline std ([0-9.]+) against the network range ([0-9.]+) to ([0-9.]+)"
 # Patterns of the JOURNAL caption that differ from the draft pattern (`printed`) because the plain journal wording differs; the numbers sought are the same, the values are the stored ones,
 # nothing is loosened. A row of F1, F3 or F5 with a `printed` pattern and no entry here is searched in the journal caption with its draft pattern.
@@ -767,6 +767,11 @@ JOURNAL_OVERRIDE = {
     "FS3.subgrid_needed": (r"percent\) against (\d+) needed", 1),
     "FS3.s11_kept_10": (r"and (\d+) of 10 at sigma \(", 1),
     "FS2.k7_resid": (r"leaves a residual of (\d+\.\d+) percent against", 1),
+    # 13t-9 (DL-681 N4): FS4 one caption in plain words; the numbers sought are the same stored values
+    "FS4.onset_radau": (r"and (\d+\.\d+) s, \d+ ms apart", 1),
+    "FS4.radau_ms": (r"(\d+) ms apart against", 1),
+    "FS4.net_rel_min": (r"by (\d+) to \d+ percent when", 1),
+    "FS4.net_rel_max": (r"by \d+ to (\d+) percent when", 1),
 }
 JOURNAL_TARGETS = {"F5.rb1_cells": ("F5", "F5c"), "F5.rb1_cells_den": ("F5", "F5c"), "F5.cells_disagree": ("F5", "F5c"), "F5.ramp_N3000_S+": ("F5", "F5c"), "F5.ramp_N10000_NS": ("F5", "F5c")}
 
