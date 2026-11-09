@@ -119,7 +119,8 @@ def draw(d: dict, FG):
     axc.set_xticks(range(len(var)), [VAR_LABELS[v] for v in var], rotation=90)
     axc.set_yticks(range(frac.shape[0]), [f"{g} ({int(n_)})" for g, n_ in zip(GROUP_LABELS, d["chg_n"])])
     axc.set_ylim(frac.shape[0] - 0.5, -0.5)
-    FG._journal_title(axc, "c", "Records changed (of n); * includes not run")
+    axc.set_xlabel("Variant")
+    FG._journal_title(axc, "c", "Records changed (shade: fraction); * includes not run")
     # (d)
     axd = ax_in(fig, 5.55, ctop, 1.65, 1.5)
     for i, w in enumerate(d["reach_W"]):
