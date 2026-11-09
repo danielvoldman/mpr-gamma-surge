@@ -854,7 +854,7 @@ F4_J = {
     "F4.noise_sigma": ((r"sigma = (0\.\d+),", 1), ("F4b",), (r"sigma = (0\.\d+) the main example", 1)),
     "F4.noise_median_negative_from": ((r"negative from T_ramp (\d+\.\d+) s", 1), ("F4b",), (r"negative from T_ramp (\d+\.\d+) s", 1)),
     "F4.m2_rows": ((r"damped at all (\d+) ramp durations", 1), ("F4b",), None),
-    "F4.m2_damped": ((r"so the ring is damped at (\d+) of \d+", 1), ("F4b",), (r"so the ring is damped at (\d+) of \d+", 1)),
+    "F4.m2_damped": ((r"so the ring is damped at (\d+) of \d+", 1), ("F4b",), (r"\(negative: damped\) at (\d+) of \d+", 1)),          # 13t-9: the short caption says (negative: damped) at 13 of 13 ramp durations
     "F4.m2_offset_first": ((r"falls from (\d+\.\d+) to", 1), ("F4b",), (r"falls from (\d+\.\d+) to", 1)),
     "F4.m2_offset_last": ((r"falls from \d+\.\d+ to (\d+\.\d+)", 1), ("F4b",), (r"falls from \d+\.\d+ to (\d+\.\d+)", 1)),
 }
@@ -876,7 +876,7 @@ def f4_text_patterns(R, figures) -> None:
             k = min(range(len(steps)), key=lambda m: abs(steps[m] - x))          # the rank of this value among the six, the captions list them in ascending order
             skip = _F4_SKIP * k
             r["jprinted"], r["jtargets"] = (r"runs have errors " + skip + r"(\d+\.\d)", 1), ("F4a",)
-            r["sprinted"], r["stargets"] = (r"testable, errors " + skip + r"(\d+\.\d)", 1), ("F4a",)
+            r["sprinted"], r["stargets"] = (r"predicted time; errors " + skip + r"(\d+\.\d)", 1), ("F4a",)          # 13t-9: the short caption defines testable before the errors (same numbers)
 
 
 # ---------------------------------------------------------------------------------------------------- short journal captions (13t-1e, DL-582 U3 d)
