@@ -319,7 +319,7 @@ def f4b_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, ful
         f"with the {c['n_seeds']} noisy seeds of P2 as a grey bar (minimum to maximum) and a dark median mark; the number above each panel is the number of seeds counted; "
         "rings: runs where the prediction of F4a (a) can be tested (octagon: testable; diamond: not testable); foot marks: runs with no episode. "
         "The dotted line at 1 s in (d) is the smallest duration the classifier can give, so medians at 1.0 s are pinned. "
-        "(e) The delay (as in F4a (a)) of the noisy seeds beside the noise-free P2 line; the two red text lines state the two failed results. "
+        "(e) The delay (as in F4a (a)) of the noisy seeds beside the noise-free P2 line. "
         f"(f) The M2 ramp (M2: the comparison model) through the saddle-node (the fold, where the resting state disappears): the jump offset (eta_bar at the jump minus eta_bar at the fold) rises with the ramp rate, from {n(round(c['off_slow'], 4))} to {n(round(c['off_fast'], 3))}; no scaling law is claimed. "
         f"(g) The fitted rate of the ring (the damped oscillation after the jump) lies between {MINUS}{abs(c['rate_lo']):.1f} and {MINUS}{abs(c['rate_hi']):.1f} per s (negative: damped) at {c['n_nonneg']} of {c['n_T']} ramp durations.",
         JS.further_sentence("F4b", full),
