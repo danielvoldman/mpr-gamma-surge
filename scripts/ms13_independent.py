@@ -666,8 +666,23 @@ def fs4(c: Ctx, R: Rows):
     R.add("FS4", "net_ce_pass", "seeds that pass the classifier-episode f_pk bound", int(ce["n_pass"]), "A11/a11_evaluators.json:rb6_network", shared=sh, printed=(r"(\d+) of 3 seeds pass[;)]", 1), drawn="d['net_ce_n_pass']")
     psd_key = [k for k in pr if k != "classifier_episode_fpk"][0]
     R.add("FS4", "net_psd_pass", "seeds that pass the PSD-argmax f_pk bound", int(pr[psd_key]["n_pass"]), "A11/a11_evaluators.json:rb6_network", shared=sh, printed=(r"passes in (\d+) of 3", 1), drawn="d['net_psd_n_pass']")
-    R.add("FS4", "net_rel_min", "smallest classifier-episode f_pk change (percent, rounded)", int(round(100 * min(rel))), "A11/a11_evaluators.json:rb6_network", shared=sh, printed=(r"by (\d+) to \d+ percent against", 1))
-    R.add("FS4", "net_rel_max", "largest classifier-episode f_pk change (percent, rounded)", int(round(100 * max(rel))), "A11/a11_evaluators.json:rb6_network", shared=sh, printed=(r"by \d+ to (\d+) percent against", 1))
+    R.add("FS4", "net_rel_min", "smallest classifier-episode f_pk change of the FIRST halving (percent, rounded)", int(round(100 * min(rel))), "A11/a11_evaluators.json:rb6_network", shared=sh, printed=(r"by (\d+) to \d+ percent against", 1))
+    R.add("FS4", "net_rel_max", "largest classifier-episode f_pk change of the FIRST halving (percent, rounded)", int(round(100 * max(rel))), "A11/a11_evaluators.json:rb6_network", shared=sh, printed=(r"by \d+ to (\d+) percent against", 1))
+    # 13t-10 (DL-690 O1): the maximum and the range over ALL stored halvings, recomputed from the stored frequencies f1 and f2 of every rung (|f2 - f1| / f1), not from the stored 'rel'
+    rungs = {1: [r for r in ce["rows"]]}
+    for k, dtf in ((2, 0.0005), (3, 0.00025)):
+        rungs[k] = [r for r in ev["rb6_network"]["ladder_info"] if r["reading"] == "classifier_episode_fpk" and r["dt_from"] == dtf]
+    relk = {k: [abs(float(r["f2_hz"]) - float(r["f1_hz"])) / float(r["f1_hz"]) for r in rs] for k, rs in rungs.items()}
+    allrel = [x for k in relk for x in relk[k]]
+    jt = "A11/a11_evaluators.json:rb6_network (f1_hz, f2_hz of every rung)"
+    R.add("FS4", "net_all_min", "smallest f_pk change over all stored halvings (percent, rounded)", int(round(100 * min(allrel))), jt, shared=sh, jprinted=(r"by (\d+) to \d+ percent per halving", 1))
+    R.add("FS4", "net_all_max", "largest f_pk change over all stored halvings (percent, rounded)", int(round(100 * max(allrel))), jt, shared=sh, jprinted=(r"by \d+ to (\d+) percent per halving", 1))
+    R.add("FS4", "net_all_max_halving", "halving at which the largest change occurs", ("first", "second", "third")[max(relk, key=lambda k: max(relk[k])) - 1], jt, shared=sh, jprinted=(r"is at the (\w+) halving, seed", 1))
+    R.add("FS4", "net_all_n_above", "changes above the bound 0.02 over all stored halvings", int(sum(1 for x in allrel if x > 0.02)), jt, shared=sh, jprinted=(r"(\d+) of the \d+ changes are above it", 1))
+    R.add("FS4", "net_all_n", "stored changes (3 seeds x 3 halvings)", len(allrel), jt, shared=sh, jprinted=(r"of the (\d+) changes are above it", 1))
+    for k, w in ((1, "first"), (2, "second"), (3, "third")):
+        R.add("FS4", f"net_h{k}_min", f"smallest f_pk change of the {w} halving (percent, rounded)", int(round(100 * min(relk[k]))), jt, shared=sh, jprinted=(w + r" halving (\d+) to \d+ percent", 1))
+        R.add("FS4", f"net_h{k}_max", f"largest f_pk change of the {w} halving (percent, rounded)", int(round(100 * max(relk[k]))), jt, shared=sh, jprinted=(w + r" halving \d+ to (\d+) percent", 1))
     R.add("FS4", "net_status", "RB6 network row status", ev["rb6_network"]["status"], "A11/a11_evaluators.json:rb6_network", shared=sh, drawn="d['net_status']")
     d5 = ev["rb5_delta0"]["rows"]
     R.add("FS4", "rb5_delta0_rows", "rows of the RB5 delta0 evaluation", len(d5), "A11/a11_evaluators.json:rb5_delta0", shared=sh)
@@ -773,8 +788,8 @@ JOURNAL_OVERRIDE = {
     # 13t-9 (DL-681 N4): FS4 one caption in plain words; the numbers sought are the same stored values
     "FS4.onset_radau": (r"and (\d+\.\d+) s, \d+ ms apart", 1),
     "FS4.radau_ms": (r"(\d+) ms apart against", 1),
-    "FS4.net_rel_min": (r"by (\d+) to \d+ percent when", 1),
-    "FS4.net_rel_max": (r"by \d+ to (\d+) percent when", 1),
+    "FS4.net_rel_min": (r"first halving (\d+) to \d+ percent", 1),                  # 13t-10 (DL-690 O1): the first-halving range is now stated per halving; the same stored numbers
+    "FS4.net_rel_max": (r"first halving \d+ to (\d+) percent", 1),
     # 13t-9 (DL-681 N4): FS5 one caption; the band check is named in plain words
     "FS5.rb9b_spectral": (r"is at (\d+\.\d) Hz and the cycle", 1),
     "FS5.rb9b_cycle": (r"oscillate\) is (\d+\.\d+) Hz, a difference", 1),
@@ -861,8 +876,8 @@ F4_J = {
     "F4.m2_damped": ((r"so the ring is damped at (\d+) of \d+", 1), ("F4b",), (r"\(negative: damped\) at (\d+) of \d+", 1)),          # 13t-9: the short caption says (negative: damped) at 13 of 13 ramp durations
     "F4.m2_eps_lo": ((r"values from (\d+\.\d+e-\d+) to", 1), ("F4b",), None),          # 13t-9 (DL-680 N1): the M2 ramp-rate range of (f), in the full caption only
     "F4.m2_eps_hi": ((r"values from \d+\.\d+e-\d+ to (\d+\.\d+),", 1), ("F4b",), None),
-    "F4.m2_offset_first": ((r"falls from (\d+\.\d+) to", 1), ("F4b",), (r"falls from (\d+\.\d+) to", 1)),
-    "F4.m2_offset_last": ((r"falls from \d+\.\d+ to (\d+\.\d+)", 1), ("F4b",), (r"falls from \d+\.\d+ to (\d+\.\d+)", 1)),
+    "F4.m2_offset_first": ((r"falls from (\d+\.\d+) to", 1), ("F4b",), (r"rises with the ramp rate, from \d+\.\d+(?: at the slowest)? to (\d+\.\d+)", 1)),      # 13t-10 (DL-690 O2): the journal text gives the direction against the ramp rate; the same two stored numbers (smallest T_ramp = fastest ramp = the larger offset)
+    "F4.m2_offset_last": ((r"falls from \d+\.\d+ to (\d+\.\d+)", 1), ("F4b",), (r"rises with the ramp rate, from (\d+\.\d+)(?: at the slowest)? to", 1)),
 }
 
 

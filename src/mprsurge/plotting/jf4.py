@@ -165,7 +165,7 @@ def draw_F4a(d: dict):
     red = S.figure_colour("fail_text")
     # key
     hs = _key_series_handles(FG, S.POINT_SIZES["f4_series"])
-    hs += [Line2D([], [], color=pred.colour, ls=pred.linestyle, lw=pred.width), Line2D([], [], ls="none", marker=cls_m.marker, ms=cls_m.size, color=cls_m.colour),
+    hs += [Line2D([], [], color=pred.colour, ls=pred.linestyle, lw=pred.width), Line2D([], [], ls="none", marker=cls_m.marker, ms=cls_m.size, mfc="none", mec=cls_m.colour, mew=cls_m.width),
            Line2D([], [], color=ref.colour, ls=ref.linestyle, lw=ref.width),
            Line2D([], [], ls="none", marker=rg.marker, ms=S.POINT_SIZES["f4_key"], mfc="none", mec=rg.colour, mew=rg.width),
            Line2D([], [], ls="none", marker=S.F4_MARKS["untestable"], ms=S.POINT_SIZES["f4_key"] * 0.8, mfc="none", mec=rg.colour, mew=rg.width),
@@ -188,7 +188,7 @@ def draw_F4a(d: dict):
         _series(ax, FG, x, d[f"{fam}_delay_eta_cross"], path, prof, S.POINT_SIZES["f4_series"], "")
         ok = ~np.isnan(d[f"{fam}_delay_eta"])
         n0 = len(ax.lines)
-        ax.plot(x[ok], d[f"{fam}_delay_eta"][ok], ls="none", marker=cls_m.marker, ms=cls_m.size, color=cls_m.colour, mew=cls_m.width, zorder=4)
+        ax.plot(x[ok], d[f"{fam}_delay_eta"][ok], ls="none", marker=cls_m.marker, ms=cls_m.size, mfc="none", mec=cls_m.colour, mew=cls_m.width, zorder=4)      # 13t-10 (DL-691 O3): hollow, so the raw-crossing marks beneath stay visible; same size, same stored position
         _new(ax, n0, f"classifier onset {path} {prof}")
         n0 = len(ax.lines)
         FG._f4_ring(ax, x, d[f"{fam}_delay_eta_cross"], d[f"{fam}_in_range"], const=d[f"{fam}_eta_const"])
@@ -483,7 +483,7 @@ def alt_text(fid: str, d: dict, c: dict) -> dict:
         "d": "Duration (s, logarithmic axis) against the ramp rate with a dotted line at 1 s (the smallest duration the classifier can give); medians at 1 s are pinned by this floor.",
         "e": (f"The delay of the ten noisy seeds of P2 at each ramp rate (grey bars from minimum to maximum, dark medians; the medians are negative from T_ramp {n(c['t_neg'])} s on) beside the noise-free P2 line; the title is red (noise robustness FAIL) "
               f"and two red lines give {c['kept']} of {c['kept_n']} seeds ({c['kept_need']} needed) and {c['sub_agree']} of {c['sub_cells']} cells ({c['sub_needed']} needed)."),
-        "f": f"The jump offset of the M2 ramp from the fold (logarithmic axis) against the ramp rate: it falls from {c['off_hi']:.3f} to {c['off_lo']:.4f} over {c['n_T']} ramp rates.",
+        "f": f"The jump offset of the M2 ramp from the fold (logarithmic axis) against the ramp rate: it rises with the ramp rate, from {c['off_slow']:.4f} to {c['off_fast']:.3f} over {c['n_T']} ramp rates.",
         "g": f"The fitted ring rate of the M2 ramp against the ramp rate with one-standard-error bars: all values lie between {MINUS}{abs(c['rate_lo']):.1f} and {MINUS}{abs(c['rate_hi']):.1f} per s, below the dotted zero line (damped at {c['n_nonneg']} of {c['n_T']}).",
     }
 

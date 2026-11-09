@@ -186,7 +186,7 @@ def plain_ms11_label(lab: str) -> str:
 
 # ---- text -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def consts(d: dict, rows: list, raw: dict, crit: dict) -> dict:
+def consts(d: dict, rows: list, raw: dict, crit: dict, bound: float) -> dict:
     pv = JC.pv
     a7 = raw["a7"]
     base = a7[a7["family"] == "S5ramp"]
@@ -196,13 +196,24 @@ def consts(d: dict, rows: list, raw: dict, crit: dict) -> dict:
     d0 = sorted(float(x) for x in a7.loc[a7["family"] == "delta0", "delta0"])
     rt = sorted(float(x) for x in a7.loc[a7["family"] == "rtol", "rtol"])
     ce = d["net_rel_change"][:, 0]
+    allc = d["net_rel_change"]                                                                  # 13t-10 (DL-690 O1): the changes over ALL stored halvings, read from the array at build time
+    s_hi, k_hi = (int(i) for i in np.unravel_index(int(np.argmax(allc)), allc.shape))
     return {"type": pv(rows, "model.type", "S13_MS8_delta0"), "ref": pv(rows, "model.ref_point", "S13_MS8_delta0"), "T_main": float(base["T_ramp_s"].iloc[0]), "T_net": pv(rows, "path.T_ramp_s", "S13_MS11_network"),
             "N": int(pv(rows, "network.N", "S13_MS11_network")), "Vp": float(pv(rows, "network.V_peak", "S13_MS11_network")), "d0_default": float(base["delta0"].iloc[0]), "rtol_default": float(base["rtol"].iloc[0]),
             "d0": d0, "rtol": rt, "radau_rtol": float(rad["rtol"].iloc[0]), "n_seeds": int(d["net_f_pk_hz"].shape[0]), "n_floor_seeds": int(d["floor_l0_cross_delay"].shape[1]),
-            "rel_lo": int(round(100 * float(ce.min()))), "rel_hi": int(round(100 * float(ce.max()))), "onset_default": float(d["head_onset_cross_s"][0]), "onset_radau": float(d["head_onset_cross_s"][-1]),
+            "rel_lo": int(round(100 * float(ce.min()))), "rel_hi": int(round(100 * float(ce.max()))),
+            "all_lo": int(round(100 * float(allc.min()))), "all_hi": int(round(100 * float(allc.max()))), "hi_seed": s_hi, "hi_halving": k_hi + 1, "n_above": int((allc > bound).sum()), "n_changes": int(allc.size),
+            "per_halving": [(int(round(100 * float(allc[:, k].min()))), int(round(100 * float(allc[:, k].max())))) for k in range(allc.shape[1])], "onset_default": float(d["head_onset_cross_s"][0]), "onset_radau": float(d["head_onset_cross_s"][-1]),
             "shift_max": float(np.max(np.abs(d["ms11_onset_shift_s"]))), "band": [JC.num(v) for v in crit["classifier"]["band_primary_hz"]["value"]], "amin": JC.num(crit["classifier"]["amin_factor"]["value"]), "n_ms11": int(len(d["ms11_class"]) * len(d["ms11_class"][0])), "tie": float(np.min(d["floor_l0_class_delay"])),
             "tie_levels": [L for L in range(3) if np.allclose(d[f"floor_l{L}_class_delay"], np.min(d["floor_l0_class_delay"]))], "ok_rows": int(sum(1 for c in d["head_class"] if c == "D-tr")),
             "n_rows": len(d["head_class"]), "ms11_T": [float(x) for x in d["ms11_T"]]}
+
+
+ORD = ("first", "second", "third")
+
+
+def _halvings(c: dict) -> str:
+    return ", ".join(f"{ORD[k]} halving {_range(lo, hi)} percent" for k, (lo, hi) in enumerate(c["per_halving"]))
 
 
 def _range(lo: int, hi: int) -> str:
@@ -225,9 +236,9 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
         raise JC.JCaptionError(f"FS4: the classifier-onset delays at the minimum are {c['tie']} at levels {c['tie_levels']}, not -1.5 at 0 and 1")
     take = (f"The numerical checks of the main example (the run fixed before the analysis as the main case: path P2 (hypoxia-like: mean excitability raised and coupling J ramped to 0 after a waiting time) at the second validation point, ramp duration {n(c['T_main'])} s, no noise) "
             f"failed in two places: the default solver and the Radau solver (a second solver for the model's differential equations) give the onset (when the classifier, a rule fixed before the analysis, first flags the gamma rise) {n(c['onset_default'])} s and {n(c['onset_radau'])} s, {ms:.0f} ms apart against {bound:g} ms allowed "
-            f"(a failed check, the cause is not known), and the peak frequency (the peak of the power spectrum) of the network (a simulated network of N spiking neurons, N = {c['N']:,}, {c['n_seeds']} seeds, ramp duration {n(c['T_net'])} s) changes by {c['rel_lo']} to {c['rel_hi']} percent when the "
-            f"time step is halved, against {fb:g} percent allowed ({d['net_ce_n_pass']} of {c['n_seeds']} seeds pass; the spectrum-maximum reading of the peak frequency passes in {d['net_psd_n_pass']} of {c['n_seeds']} seeds; a failed check). "
-            f"Results that rest on the network peak frequency are shown labelled FAIL and are not used as evidence. The class of the main example is D-tr (a rise that ends) under every setting of the initial perturbation, the relative tolerance and the solver, "
+            f"(a failed check, the cause is not known), and the peak frequency (the peak of the power spectrum) of the network (a simulated network of N spiking neurons, N = {c['N']:,}, {c['n_seeds']} seeds, ramp duration {n(c['T_net'])} s) changes by {c['all_lo']} to {c['all_hi']} percent per halving of the "
+            f"time step ({_halvings(c)}; the largest change, {c['all_hi']} percent, is at the {ORD[c['hi_halving'] - 1]} halving, seed {c['hi_seed']}), against {fb:g} percent allowed ({c['n_above']} of the {c['n_changes']} changes are above it; {d['net_ce_n_pass']} of {c['n_seeds']} seeds pass; the spectrum-maximum reading of the peak frequency passes in {d['net_psd_n_pass']} of {c['n_seeds']} seeds; a failed check). "
+            f"Results that rest on the network peak frequency are not used as evidence: panels (f) and (g) carry a red title with FAIL, and (h) and (i) are information only. The class of the main example is D-tr (a rise that ends) under every setting of the initial perturbation, the relative tolerance and the solver, "
             f"and the onset is {n(c['onset_default'])} s everywhere except under Radau; the delays of the noise-floor runs do not depend on the Heun time step at the 1 ms output grid.")
     panels = " ".join([
         f"(a) The onset of the main example for {c['n_rows']} settings (rows): the default, the initial perturbations {_and(c['d0'])}, the relative tolerances {_and(c['rtol'])} and the Radau solver. The class mark is the classifier onset "
@@ -242,7 +253,7 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
         f"(the medians at {n(c['ms11_T'][1])} s are {MINUS}{abs(d['floorT_median'][1][0]):.4g}, {MINUS}{abs(d['floorT_median'][1][1]):.4g} and {MINUS}{abs(d['floorT_median'][1][2]):.4g}); under the raw first crossing "
         f"{_range(int(d['floorT_raw_noonset_seeds'].min()), int(d['floorT_raw_noonset_seeds'].max()))} of {c['n_floor_seeds']} seeds have no onset.",
         f"(f) The peak frequency (the peak of the power spectrum) of the {c['n_seeds']} network seeds against the network time step {_and(sorted(d['net_dt'], reverse=True))} tau; open marks: the spectrum-maximum reading of the first halving.",
-        f"(g) The relative change of the peak frequency per halving of the time step against the bound {FG.FS4_RB6_FPK_BOUND:g} (a change of {n(FG.FS4_RB6_FPK_BOUND)} is {fb:g} percent); the largest change, at the first halving, is {c['rel_hi']} percent.",
+        f"(g) The relative change of the peak frequency per halving of the time step against the bound {FG.FS4_RB6_FPK_BOUND:g} (a change of {n(FG.FS4_RB6_FPK_BOUND)} is {fb:g} percent); the largest change, {c['all_hi']} percent, is at the {ORD[c['hi_halving'] - 1]} halving (seed {c['hi_seed']}); {c['n_above']} of the {c['n_changes']} changes are above the bound.",
         f"(h) The class of the network for each time step and each peak value V_p ({n(c['Vp'])} and 200), seeds 0 to {c['n_seeds'] - 1}: S+ (absolute and relative rise, ending), S-rel (relative rise only) and S-abs (absolute rise only) "
         f"are surge classes (a surge is a transient rise of gamma-band power, {c['band'][0]} to {c['band'][1]} Hz); S-sus (a rise that does not end) is not; information only, one seed per cell, not evidence of a ramp-driven surge.",
         f"(i) The peak frequency of each seed at V_p {PM}{n(c['Vp'])} against {PM}200 (reported only).",
@@ -307,7 +318,7 @@ def alt_text(d: dict, c: dict) -> dict:
         "d": f"The same runs under the classifier onset: the delays are {c['tie']:g} at levels 0 and 1 and higher at level 2; a note says that {c['tie']:g} is the onset at the ramp start.",
         "e": "Median delay at the noise floor for the levels 0, 1 and 2 at two ramp durations (lines with marks); the legend gives the direction word 'not strictly monotone' for both.",
         "f": "Peak frequency of three network seeds against the network time step (log axis, decreasing to the right), with open marks for the spectrum-maximum reading at the first halving; the title is red and reads 'Network peak frequency against step: FAIL (not evidence)'.",
-        "g": f"Relative change of the peak frequency per step halving for three seeds against a dashed bound at {FG_BOUND}; the first halving lies far above the bound ({c['rel_lo']} to {c['rel_hi']} percent); the title is red.",
+        "g": f"Relative change of the peak frequency per step halving for three seeds against a dashed bound at {FG_BOUND}; {c['n_above']} of the {c['n_changes']} changes lie above the bound (range {c['all_lo']} to {c['all_hi']} percent over the three halvings); the title is red.",
         "h": "A grid of class marks, one row per time step and V_p, one column per seed; information only.",
         "i": "Peak frequency of each seed at V_p 100 (filled) and 200 (open) for each step and seed; reported only.",
     }
@@ -347,7 +358,7 @@ def build(FG, res, out_dir, root, script, claim_limit_ids, tag_build) -> dict:
     cap0 = FG.CAP.build_caption("FS4", take_home=FG.FS4_TAKE_HOME, claim_limit_ids=claim_limit_ids, params_rows=crows, spectrogram=None, symbol_keys=(), notes=FG.fs4_caption_notes(d),
                                 class_key=FG.CAP.class_key_line("ND"), classifier_line=FG.CAP.classifier_line(crit), main_failures=FG.FS4_MAIN_FAILURES, swept={})
     plain_md = FG.PL.pairing_markdown(claim_limit_ids, None, cap0.text)
-    c = consts(d, rows, raw, crit)
+    c = consts(d, rows, raw, crit, FG.FS4_RB6_FPK_BOUND)
     text = caption(d, rows, crit, ids=claim_limit_ids, c=c, FG=FG)
     cap = dataclasses.replace(cap0, text=text)
     cfg = J.load_config(root)

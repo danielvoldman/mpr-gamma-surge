@@ -536,25 +536,25 @@ def f3_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list, 
         n, ts = first[D]
         extra = ""
         if f"{d['a4_curve_Delta']:g}" == D:
-            extra = (f" Panel (c) also shows the Hopf curve of the continuation at Delta {num(d['a4_curve_Delta'])}, J {num(d['a4_curve_J'])} (black line; this curve, the stored result of the analysis step \"M3 fixed points and Hopf curves\", is drawn as straight segments between its {c['a4_points']} stored points), "
+            extra = (f" Panel (c) also shows the Hopf curve at Delta {num(d['a4_curve_Delta'])}, J {num(d['a4_curve_J'])} (black line; this curve, the stored result of the analysis step \"M3 fixed points and Hopf curves\", is drawn as straight segments between its {c['a4_points']} stored points), "
                      f"the combined path arrow of {c['combined']} (a thin line from eta_bar {d['P1_eta_start']:.3f} to {d['P1_eta_peak']:.3f} at tau_d {num(d['P1_tau_d_ms'])} ms, open circle at the start, arrowhead at the end) "
-                     f"and the Hopf point of the frequency map at its headline value (hollow ring, eta_bar {hl_eta:.3f}, tau_d {num(hl_tau)} ms), which is the Hopf point of the tau_d {num(hl_tau)} ms slice of this panel: one stored point drawn twice and not moved.")
+                     f"and the Hopf point of the frequency map at the main example (small dark-red ring, eta_bar {hl_eta:.3f}, tau_d {num(hl_tau)} ms), which is the Hopf point of the tau_d {num(hl_tau)} ms slice of this panel: one stored point drawn twice and not moved.")
         if j == 0:
             lead = (f"(a) Limit-cycle frequency (colour, one scale from {d['f_min_hz']:.1f} to {d['f_max_hz']:.1f} Hz for (a) to (c); largest here {d[f'D{D}_f_max_hz']:.1f} Hz) in the (eta_bar, tau_d) plane for Delta = {D}: one horizontal "
-                    f"band per stored slice (tau_d {c['tau_range']}, {len(sl)} values, logarithmic axis; nothing is interpolated between slices), each starting at its Hopf point (black mark with a white outline), "
-                    "and a tall black bar at the slices where the 25 Hz contour crosses the cycle branch")
+                    f"band per stored slice (tau_d {c['tau_range']}, {len(sl)} values, logarithmic axis; nothing is interpolated between slices), each starting at its Hopf point (small black three-pronged mark with a white outline), "
+                    "and a thin black vertical line with a white outline at the slices where the cycle frequency crosses 25 Hz")
         else:
-            lead = f"({'abc'[j]}) The same for Delta = {D} (largest cycle frequency here {d[f'D{D}_f_max_hz']:.1f} Hz): the 25 Hz contour crosses the cycle branch"
+            lead = f"({'abc'[j]}) The same for Delta = {D} (largest cycle frequency here {d[f'D{D}_f_max_hz']:.1f} Hz): the cycle frequency crosses 25 Hz (thin vertical line)"
         panel.append(lead + f" at {n} of {len(sl)} slices" + (f" (tau_d {', '.join(f'{x:g}' for x in ts)} ms)" if n else "") + f"; the title is red because the shading carries the RB9(b) FAIL.{extra}")
-    panel.append(f"(d) The (eta_bar, Delta) plane (logarithmic Delta axis): the Hopf curve of the continuation only (drawn as straight segments between its {c['a4_points_d']} stored points, next to the {c['a4_points']} stored points "
+    panel.append(f"(d) The (eta_bar, Delta) plane (logarithmic Delta axis): the Hopf curve only (drawn as straight segments between its {c['a4_points_d']} stored points, next to the {c['a4_points']} stored points "
                  f"of the curve in (c)), because the frequency map stores no Delta slices; the combined path arrow lies at Delta {num(d['P1_Delta'])}, "
                  f"P4a leaves it upward to Delta {d['P4a_Delta_end_derived']:.3g} and P4b downward to Delta {d['P4b_Delta_end_derived']:.3g} (both end Delta values are derived: stored Delta times stored Delta factor), and the Hopf point of the frequency map is at eta_bar {hl_eta:.3f}.")
     panel.append("(e) The path strip: one row per path leg (P1, P2, P3, P4a, P4b, P5 up and P5 return), each from its stored start to its stored end in eta_bar; the rows are labels, not a parameter axis, and the ramp duration of each stored record is in its row label.")
     panel.append(band_end_sentence(c))
     panel.append(f"Arrows show the stored linear-profile path values (T_ramp {', '.join(f'{x:g}' for x in t_ramp)} s; the path values are identical at every stored T_ramp); P3 is drawn for a drive amplitude of {num(d['P3_I_amp'])} only, and the J ramp of P2 and P3 is not drawn. "
                  + c["shared"] + " " + c["overlap"] + " " + c["arrow_note"])
-    settings = ("No classifier or spectrogram is used in this figure; the 25 Hz and 100 Hz contours are the edges of the gamma band of the classifier (25 to 100 Hz). Colour and contours show the limit-cycle frequency of the continuation, "
-                "not the classifier's spectral peak, and there is no interpolation between slices.")
+    settings = ("No classifier or spectrogram is used in this figure; 25 Hz and 100 Hz are the edges of the gamma band of the classifier (25 to 100 Hz); no contour line is drawn, only the thin vertical lines at the 25 Hz crossings. "
+                "Colour shows the limit-cycle frequency, not the classifier's spectral peak, and there is no interpolation between slices.")
     params = (f"Stored values (the complete list with the stored key names is in the supplement): model {pv(rows, 'model.type')} with membrane time constant {num(pv(rows, 'model.tau_ms'))} ms and J = {num(pv(rows, 'model.J'))} "
               f"(the frequency map is at this fixed J; its J slices are not drawn); Delta = {', '.join(deltas)} and synaptic decay time tau_d = {c['tau_range']} ({len(sl)} values), swept; the reference validation point is "
               "(eta_bar 4, J = -21, Delta 0.3, tau_d 5 ms). Only the parameters that define the plotted slices and the regime are listed.")
@@ -569,10 +569,10 @@ def f3_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list, 
         key_symbols(rest, "eta", "Delta", "J", "tau_d", "T_ramp", "M3"),
         "P1 = the path that ramps eta_bar only; P2 = the hypoxia-like path (eta_bar ramped up, with J ramped to 0 after a delay); P3 = P2 plus a common drive; P4a and P4b = P2 with Delta multiplied by 1.5 (P4a) or by 2/3 (P4b) over the ramp; "
         "P5 = eta_bar up, then down, J fixed.",
-        "Marks: a black mark with a white outline = the Hopf point of a slice; a tall black bar = the 25 Hz crossing of a slice; the black line = the Hopf curve of the continuation; the hollow ring = the Hopf point of the frequency map at the headline; "
+        "Marks: a small black three-pronged mark with a white outline = the Hopf point of a slice (legend: Hopf point of a slice); a thin black vertical line = the 25 Hz crossing of a slice (legend: 25 Hz crossing of a slice); the black line = the Hopf curve; the small dark-red ring = the Hopf point of the main example; "
         "the thin dark arrow = the combined path of P1, P2, P3 and P5; the two ticks on the colour bar = the cycle frequency and the spectral peak of the failed frequency check.",
         "Checks: X; G2 = the gate for no gamma transient (a switch to another model).",
-        "Stored sources: the Hopf curve (called 'continuation' in the legend) is the result of the analysis step \"M3 fixed points and Hopf curves\" and the limit-cycle frequencies (called 'frequency-map' in the legend) are the result of the analysis step "
+        "Stored sources: the Hopf curve is the result of the analysis step \"M3 fixed points and Hopf curves\" and the limit-cycle frequencies are the result of the analysis step "
         "\"M3 frequency map\" (step names as written in the project's analysis specification).",
         "The classifier's spectral peak is the peak frequency of its spectrogram; the cycle frequency is the frequency of the limit cycle found by continuation. The tau_d and Delta axes are logarithmic (tick labels are plain numbers).",
         key_words(rest)] if x)

@@ -124,6 +124,9 @@ def draw(d: dict, FG):
     axc.set_ylim(frac.shape[0] - 0.5, -0.5)
     axc.set_xlabel("Variant")
     FG._journal_title(axc, "c", "Records changed (shade: fraction); * includes not run")
+    cb_ax = ax_in(fig, 5.55, ctop + 2.25, 1.65, 0.14)
+    cb = fig.colorbar(matplotlib.cm.ScalarMappable(norm=matplotlib.colors.Normalize(0.0, 1.0), cmap=cmap), cax=cb_ax, orientation="horizontal", ticks=[0.0, 0.5, 1.0])
+    cb.set_label("Fraction of records changed, as shaded in (c)")
     # (d)
     axd = ax_in(fig, 5.55, ctop, 1.65, 1.5)
     for i, w in enumerate(d["reach_W"]):
@@ -294,23 +297,23 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
             f"where W = {n(W)} s is the window length (a failed check). Which classes change is drawn per variant. Short windows give false surges: {int(fw[0])}, {int(fw[1])}, {int(fw[2])} and {int(fw[3])} of {int(d['white_den'][0])} white-noise records "
             f"are not NS (no rise) at windows of {n(round(wl[0], 3))}, {n(round(wl[1], 3))}, {n(round(wl[2], 3))} and {n(round(wl[3], 3))} s. The class of the main example is unchanged under all {c['n_var']} variants, and at most {c['rb10_max_pct']:.2f} percent of the "
             f"{d['rb10_n_cells']} map-1 cells change class against the {100 * FG.FS5_RB10_BOUND:g} percent allowed (passes). The frequency mapping at the unit level passes ({_e(d['rb9a_value'])} against {d['rb9a_tol']:g}; one test at a time), the band check "
-            f"passes ({int(d['rb9c_changed'][0])} of {int(d['rb9c_n'][0])} cells change class), and the check at other synaptic decay times is reported only.")
+            f"passes ({int(d['rb9c_changed'][0])} of {int(d['rb9c_n'][0])} cells change class), and the check at other membrane time constants is reported only.")
     panels = " ".join([
         f"(a) The class that the classifier gives each of the {c['n_cases']} synthetic cases (the {c['n_rows']} rows: the cases of the noise mode at the ramp durations {_and(c['rw']['N'][0])} s, the window being {_and(c['rw']['N'][1])} s, and the cases of the no-noise mode at {_and(c['rw']['D'][0])} s) "
-        f"under the baseline settings and the {c['n_var']} variants (columns): one mark per cell, class names as in the Key, and 'not run' where the variant's window does not fit; the expected class of a case is not recorded and is not drawn. "
+        f"under the baseline settings and the {c['n_var']} variants (columns, left to right as the labels under (c): the baseline and then the variants in the order of those labels; (a) has no column labels of its own): one mark per cell, class names as in the Key, and 'not run' where the variant's window does not fit; the expected class of a case is not recorded and is not drawn. "
         "The case numbers stand for the recorded case names (in the supplement).",
         f"(b) A summary of the tests of the classifier, read as source text and never run: {d['tests_n'][0]} and {d['tests_n'][1]} test functions in two files, {len(d['tests_xfail_name'])} of them marked as expected failures (strict); the names and the reasons are in the supplement.",
-        f"(c) For each group of records (rows) and each variant (columns), the number of records whose class differs from the baseline over the number of records, with the shade giving the fraction (0 to 1); records that the variant could not run "
+        f"(c) For each group of records (rows) and each variant (columns), the number of records whose class differs from the baseline over the number of records, with the shade giving the fraction (0 to 1; the colour bar under (d) gives the scale); records that the variant could not run "
         f"(window too long) are counted as not run, not as unchanged; {int(d['chg_changed'].sum())} changes over all groups and variants.",
         f"(d) The share of the cells of the maps whose baseline ratio rho (the gamma-band share of the total power in a baseline-only run) is at or above each level, for the {len(d['reach_W'])} window lengths (lines; the numbers of cells per window are {_and([int(x) for x in d['reach_n_cells']])}).",
         f"(e) The number of white-noise records (of {int(d['white_den'][0])} per window) in each class at the baseline settings, by window length; white noise has no resonance, so these are rates of the classifier's logic and not predictions for the model's own noise; "
         "the bold number above a bar is the number of records that are not NS.",
         f"(f) The fraction of the {d['rb10_n_cells']} map-1 cells whose class changes under each variant (marks) against the {FG.FS5_RB10_BOUND:g} allowed (dashed line); the class of the main example is unchanged under every variant.",
-        f"(g) The relative difference between the dimensional and the non-dimensional computation of r times tau, v and s times tau at the synaptic decay times {_and(c['tau_a'])} ms (a test at the unit level on a 1 s ramp, not on the main example), against {d['rb9a_tol']:g} allowed (dashed line).",
+        f"(g) The relative difference between the dimensional and the non-dimensional computation of r times tau, v and s times tau at the membrane time constants tau {_and(c['tau_a'])} ms, the synaptic decay time tau_d staying at its reference value (a test at the unit level on a 1 s ramp, not on the main example), against {d['rb9a_tol']:g} allowed (dashed line).",
         f"(h) The frequency check at the main example: the spectral peak ({d['rb9b_f_spectral']:.1f} Hz) and the cycle frequency ({d['rb9b_f_cycle']:.3f} Hz, with the allowed difference 1/W = {d['rb9b_bound']:g} Hz as the bar); the difference is {d['rb9b_diff']:.3f} Hz, so the check fails, "
         f"and the cells of map 1 and map 2 in which the two frequencies agree within 1/W are {d['rb9b_map1_within']} of {d['rb9b_map1_n']} and {d['rb9b_map2_within']} of {d['rb9b_map2_n']} (reported, no allowed fraction).",
         f"(i) The fraction of cells that change class when the gamma band is {n(c['var']['band'][0])} to {n(c['var']['band'][1])} Hz instead of {c['band'][0]} to {c['band'][1]} Hz: map 1 ({int(d['rb9c_changed'][0])} of {int(d['rb9c_n'][0])}, judged against {d['rb9c_bound']:g}), and map 2 and the noisy subgrid (map cells re-run with noise; a map cell (one parameter pair of a grid of mean-field runs) is one cell of a map), reported, not judged (open rings).",
-        f"(j) The peak frequency (the peak of the power spectrum) and class of the main example at the synaptic decay times {_and(c['tau_d'])} ms, and the main-example value times 10/tau (marks labelled 10/tau); reported only, it feeds no check.",
+        f"(j) The peak frequency (the peak of the power spectrum) and class of the main example at the membrane time constants tau {_and(c['tau_d'])} ms, the synaptic decay time tau_d staying at its reference value, and the main-example value times 10/tau (marks labelled 10/tau); reported only, it feeds no check.",
     ])
     settings = ("No spectrogram (power against time and frequency) is drawn in this figure. In the settings below the symbols of the reference point are eta_bar (mean excitability), J (coupling), Delta (heterogeneity) and tau_d (synaptic decay time). " + JC.settings_line(crit))
     params = (f"Recorded values (the complete list with the key names as recorded is in the supplement): model {c['type']} (the mean-field model; the mean field is the model's equations for the average activity of the population); "
@@ -368,10 +371,10 @@ def alt_text(d: dict, c: dict) -> dict:
         "d": "Six lines of the share of cells at or above five levels of the baseline ratio rho, one line per window length.",
         "e": f"Six stacked bars of the classes of {int(d['white_den'][0])} white-noise records at six window lengths, with the number of records that are not NS above each bar ({', '.join(str(int(x)) for x in d['white_nonNS'])}).",
         "f": f"Nine marks of the fraction of map-1 cells that change class under the nine variants, all left of the dashed line at {FG_RB10}.",
-        "g": f"Marks of the relative difference at the unit level for two synaptic decay times and three quantities, far below a dashed line at {d['rb9a_tol']:g}.",
+        "g": f"Marks of the relative difference at the unit level for two membrane time constants and three quantities, far below a dashed line at {d['rb9a_tol']:g}.",
         "h": f"A spectral peak at {d['rb9b_f_spectral']:.1f} Hz and a cycle frequency at {d['rb9b_f_cycle']:.3f} Hz with an error bar of {d['rb9b_bound']:g} Hz; the title is red and reads 'Frequency check: FAIL'.",
         "i": f"Three marks of the fraction of cells that change class (map 1, map 2, subgrid) with a dashed line at {d['rb9c_bound']:g} and open rings on the two reported ones.",
-        "j": "Three marks of the peak frequency at three synaptic decay times with the main-example value times 10 over tau as a second mark.",
+        "j": "Three marks of the peak frequency at three membrane time constants with the main-example value times 10 over tau as a second mark.",
     }
 
 

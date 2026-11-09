@@ -121,11 +121,15 @@ def f4_facts(d: dict) -> dict:
     m2lo, m2hi = float(np.min(d["a3_eps"])), float(np.max(d["a3_eps"]))
     if (float(format(m2lo, ".4g")), float(format(m2hi, ".4g"))) != (4.607e-05, 0.04607):
         raise JC.JCaptionError(f"F4: the stored A3 ramp table has ramp rates {m2lo!r} to {m2hi!r}, not 4.607e-05 to 0.04607 (13t-9 N1: STOP RULE 12, nothing patched)")
+    eps_ = np.asarray(d["a3_eps"], float)                                                      # 13t-10 (DL-690 O2): the direction of the jump offset against the ramp RATE (the drawn axis), read from the arrays
+    order_ = np.argsort(eps_)
+    if not bool(np.all(np.diff(off[order_]) > 0)):
+        raise JC.JCaptionError("F4: the M2 jump offset does not rise with the ramp rate at every step (the caption says it does)")
     tie = med_cls[0]
     cls_all = np.asarray(d["floor_delay_cls"], float)
     return {"m2_eps_lo": float(format(m2lo, ".4g")), "m2_eps_hi": float(format(m2hi, ".4g")), "tie": tie, "n_tie_levels": int(sum(1 for m in med_cls if m == tie)), "tie_levels": [i for i, m in enumerate(med_cls) if m == tie],
             "n_tie_drawn": int(np.isclose(cls_all, tie).sum()), "n_drawn_e": int(cls_all.size), "n_series_runs": len(fam_names) * len(d["p1_linear_T_ramp_s"]), "n_seeds": 10,
-            "head_delay": float(d["head_delay_eta_cross"]), "steps": steps, "sd5": sd5, "p5": p5, "t_neg": t_neg, "off_hi": float(off.max()), "off_lo": float(off.min()), "rate_lo": float(np.min(d["a3_rate"])), "rate_hi": float(np.max(d["a3_rate"])),
+            "head_delay": float(d["head_delay_eta_cross"]), "steps": steps, "sd5": sd5, "p5": p5, "t_neg": t_neg, "off_hi": float(off.max()), "off_lo": float(off.min()), "off_fast": float(off[order_[-1]]), "off_slow": float(off[order_[0]]), "rate_lo": float(np.min(d["a3_rate"])), "rate_hi": float(np.max(d["a3_rate"])),
             "n_none6": n_none6, "n_untest": int(d["n_in_range"] - d["n_testable"]), "eps_lo": float(np.min(d["p1_linear_eps"])), "eps_hi": float(np.max(d["p1_linear_eps"])),
             "T_lo": float(np.min(d["p1_linear_T_ramp_s"])), "T_hi": float(np.max(d["p1_linear_T_ramp_s"])), "n_T": len(d["p1_linear_T_ramp_s"]), "head_ms": float(d["head_radau_minus_default_ms"]),
             "head_a": float(d["head_onset_cross_s"]), "head_b": float(d["head_radau_onset_cross_s"]), "t_pred": float(d["head_t_pred_s"]), "floor": [float(x) for x in d["floor_sigma"]],
@@ -176,7 +180,7 @@ def f4a_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list,
     panels = " ".join([
         f"(a) {JC.cap1(_DELAY)}, against {_RAMP}, for the noise-free mean-field runs (mode D) of the paths P1, P2 and P5, each with the linear profile (solid line for P1 and P2, dash-dot line for P5; filled marks) and the sigmoid profile (dashed line, open marks), "
         f"at {nT} ramp durations from {n(c['T_lo'])} to {n(c['T_hi'])} s. The onset is the first crossing of the envelope of v at 0.1 x A_ref (the raw first crossing; the primary reading); the onset of the classifier's episode "
-        "(the second reading) is the small double dagger. The lines without marks (dash-dot for P1, dashed for P2, solid for P5) are the entry-exit prediction as recorded, drawn for the linear profiles where the predicted entry lies in the run. "
+        "(the second reading) is the small hollow double dagger. The lines without marks (dash-dot for P1, dashed for P2, solid for P5) are the entry-exit prediction as recorded, drawn for the linear profiles where the predicted entry lies in the run. "
         f"An octagon ring marks a run inside the range of the onset check that is testable; the recorded error of the run in steps of the prediction grid (one step is the spacing of the eta_bar grid of the prediction) is not drawn on the ring and is in the source data, and the {d['n_testable']} testable "
         f"runs have errors {_fmt_list(c['steps'])} steps ({_fmt(c['p5'][0])} here, P5 linear; the other {_NW[len(c['sd5'])]} in (c)); a diamond ring marks the {c['n_untest']} in-range runs that are not testable (eta_bar is constant at the predicted time). "
         f"The red ring marks the main example, where the two solvers give the onsets {n(c['head_a'])} s and {n(c['head_b'])} s, {c['head_ms']:.0f} ms apart against {c['bound_ms']:g} ms allowed; this run is not used as evidence. "
@@ -239,7 +243,7 @@ def f4a_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, ful
         "Hopf point: where the resting state starts to oscillate.",
         f"(a) The delay of the onset (eta_bar (mean excitability) at the onset minus its value at the Hopf point; negative: before the Hopf point) against the ramp rate (the change of eta_bar over the ramp divided by the ramp duration T_ramp, in units of tau, the membrane time constant) "
         f"for the paths P1 (eta_bar ramped only), P2 (hypoxia-like: mean excitability raised and coupling J ramped to 0 after a waiting time) and P5 (eta_bar up, then back down), linear (solid; P5 dash-dot) and sigmoid (dashed) profile: "
-        f"the raw first crossing of its detection threshold (the envelope at {c['amin']} times a reference amplitude; primary), the classifier's onset (double dagger), the prediction (line style by path) "
+        f"the raw first crossing of its detection threshold (the envelope at {c['amin']} times a reference amplitude; primary), the classifier's onset (hollow double dagger), the prediction (line style by path) "
         "and rings for the runs where the prediction can be tested "
         f"(octagon: testable, eta_bar not constant at the predicted time; errors {_fmt_list(c['steps'])} steps of the prediction grid, in the source data; diamond: not testable, {c['n_untest']} runs). "
         f"The red ring: the main example (T_ramp {n(c['t_main'])} s) at its noise-free, solver-dependent delay {n(round(c['head_delay'], 4))}, not used as evidence (the value used is the level-0 median of (d), {_sig(c['med_cross'][0], 3)}). "
@@ -260,7 +264,7 @@ def f4b_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list,
     nT = c["n_T"]
     take = (f"The noise-robustness checks FAILED: RB2 (the noisy subgrid agrees with the noise-free map in {c['sub_agree']} of {c['sub_cells']} cells, {c['sub_pct']} percent, against {c['sub_needed']} needed) and RB2 (the main-example class is kept in "
             f"{c['kept']} of {c['kept_n']} noisy seeds at the noise level sigma = {n(c['sigma'])}, against {c['kept_need']} needed), and the classes of the noisy runs are mixed; with noise the median delay of the {c['n_seeds']} seeds is negative from T_ramp {n(c['t_neg'])} s on. "
-            f"The M2 ramp through the saddle-node is damped at all {c['n_T']} ramp durations and its jump offset from the fold falls from {n(round(c['off_hi'], 3))} to {n(round(c['off_lo'], 4))}.")
+            f"The M2 ramp through the saddle-node is damped at all {c['n_T']} ramp durations and its jump offset from the fold rises with the ramp rate, from {n(round(c['off_slow'], 4))} to {n(round(c['off_fast'], 3))}.")
     panels = " ".join([
         f"(a) to (d) The peak power (absolute (a), relative (b)), the peak frequency (c) and the duration of the episode (d, logarithmic axis) of the same noise-free runs as in F4a (a) (six series: P1, P2 and P5, linear and sigmoid profile, {nT} ramp durations "
         f"from {n(c['T_lo'])} to {n(c['T_hi'])} s), against {_RAMP}. The 10 noisy seeds of P2 (mode N, sigma = {n(c['sigma'])}, checked and not confirmed) at each ramp rate are a grey bar from the minimum to the maximum of the seeds with a value and a dark median mark; "
@@ -272,7 +276,7 @@ def f4b_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list,
         f"the red lines state its two results (the main-example class kept in {c['kept']} of {c['kept_n']} seeds, {c['kept_need']} needed; {c['sub_agree']} of {c['sub_cells']} noisy subgrid cells agree, {c['sub_needed']} needed), which are class counts and not drawn as marks. "
         "The classes of the noisy seeds are mixed (S+, S-rel, S-abs, S-sus and NS occur).",
         f"(f) The M2 ramp through the saddle-node (M2 = the comparison model with a damped ring; from the recorded table of the M2 saddle-node ramps): the jump offset from the fold in eta_bar (logarithmic axis) against the ramp rate "
-        f"({nT} values from {n(c['m2_eps_lo'])} to {n(c['m2_eps_hi'])}, the recorded ramp rates of the M2 ramp table); it falls from {n(round(c['off_hi'], 3))} to {n(round(c['off_lo'], 4))}; no scaling law is claimed. "
+        f"({nT} values from {n(c['m2_eps_lo'])} to {n(c['m2_eps_hi'])}, the recorded ramp rates of the M2 ramp table); it rises with the ramp rate, from {n(round(c['off_slow'], 4))} at the slowest to {n(round(c['off_fast'], 3))} at the fastest; no scaling law is claimed. "
         f"(g) The fitted rate of the ring after the jump (per s, with {chr(0xb1)}1 standard error) against the ramp rate: between {MINUS}{abs(c['rate_lo']):.1f} and {MINUS}{abs(c['rate_hi']):.1f} per s, so the ring is damped at {c['n_nonneg']} of {nT}; the dotted zero line marks a non-damped ring. "
         "The static map of the rings of M2 has no ramp and is not drawn here.",
         "The delay panels, the onset prediction and the noise-floor runs are in F4a.",
@@ -316,7 +320,7 @@ def f4b_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, ful
         "rings: runs where the prediction of F4a (a) can be tested (octagon: testable; diamond: not testable); foot marks: runs with no episode. "
         "The dotted line at 1 s in (d) is the smallest duration the classifier can give, so medians at 1.0 s are pinned. "
         "(e) The delay (as in F4a (a)) of the noisy seeds beside the noise-free P2 line; the two red text lines state the two failed results. "
-        f"(f) The M2 ramp (M2: the comparison model) through the saddle-node (the fold, where the resting state disappears): the jump offset (eta_bar at the jump minus eta_bar at the fold) falls from {n(round(c['off_hi'], 3))} to {n(round(c['off_lo'], 4))}; no scaling law is claimed. "
+        f"(f) The M2 ramp (M2: the comparison model) through the saddle-node (the fold, where the resting state disappears): the jump offset (eta_bar at the jump minus eta_bar at the fold) rises with the ramp rate, from {n(round(c['off_slow'], 4))} to {n(round(c['off_fast'], 3))}; no scaling law is claimed. "
         f"(g) The fitted rate of the ring (the damped oscillation after the jump) lies between {MINUS}{abs(c['rate_lo']):.1f} and {MINUS}{abs(c['rate_hi']):.1f} per s (negative: damped) at {c['n_nonneg']} of {c['n_T']} ramp durations.",
         JS.further_sentence("F4b", full),
         f"Parameters: model {c['type']} (the mean-field model); ramp durations {n(c['T_lo'])} to {n(c['T_hi'])} s ({c['n_T']} values); noisy runs: P2 linear, {c['n_seeds']} seeds per ramp duration, noise level sigma = {n(c['sigma'])} "
