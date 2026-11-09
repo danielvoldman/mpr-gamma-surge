@@ -776,6 +776,7 @@ JOURNAL_OVERRIDE = {
     "FS5.rb9b_spectral": (r"is at (\d+\.\d) Hz and the cycle", 1),
     "FS5.rb9b_cycle": (r"oscillate\) is (\d+\.\d+) Hz, a difference", 1),
     "FS5.rb9b_diff": (r"a difference of (\d+\.\d+) Hz against", 1),
+    "FS5.rb9b_bound": (r"allowed 1/W = (0\.\d+) Hz", 1),
     "FS5.rb9c_changed": (r"band check passes \((\d+) of", 1),
     "FS5.rb9c_cells": (r"band check passes \(\d+ of (\d+) cells", 1),
 }
