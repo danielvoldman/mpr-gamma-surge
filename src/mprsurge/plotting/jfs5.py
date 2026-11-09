@@ -55,7 +55,7 @@ def draw(d: dict, FG):
     nrow = len(d["syn_label"])
     pitch = 0.125
     h1, h2 = n_noise * pitch + 0.1, (nrow - n_noise) * pitch + 0.1
-    left, wid = 1.15, 3.5
+    left, wid = 1.4, 3.3
     handles: dict = {}
     # (a) in two axes: noise mode (top) and no-noise mode (below)
     for part, (lo, hi, top, hgt) in enumerate(((0, n_noise, 0.45, h1), (n_noise, nrow, 0.45 + h1 + 0.12, h2))):
@@ -80,7 +80,7 @@ def draw(d: dict, FG):
         ax.set_yticks(np.arange(hi - lo), [f"Case {k}, {lab.split(' | ')[1]}" for k, lab in zip(nums[lo:hi], d["syn_label"][lo:hi])])
         ax.tick_params(length=2)
         if part == 0:
-            FG._journal_title(ax, "a", "Synthetic cases: class under each variant (noise mode above, no-noise mode below)")
+            FG._journal_title(ax, "a", "Synthetic cases: class under each variant")
         else:
             ax.set_gid("panel part")
     # (b)
@@ -90,6 +90,7 @@ def draw(d: dict, FG):
     lines = textwrap.wrap("The synthetic tests of the classifier, read as source text and not run.", width=24)
     lines += [f"File {i + 1}: {n} test functions" for i, n in enumerate(d["tests_n"])]
     lines += textwrap.wrap(f"{len(d['tests_xfail_name'])} of them are marked as expected failures (strict); their names and reasons are in the supplement.", width=24)
+    lines += [""] + textwrap.wrap("Rows of (a): noise mode above the gap, no-noise mode below it.", width=24)
     axb.text(0.0, 1.0, "\n".join(lines), va="top", ha="left", linespacing=1.25, transform=axb.transAxes)
     from matplotlib.lines import Line2D
     hh, ll = [], []
@@ -263,8 +264,9 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
     if not d["rb10_headline_all_pass"] or d["rb9b_within"]:
         raise JC.JCaptionError("FS5: the stored RB10 or RB9(b) result is not the one the take-home wording needs (RB10 passes, RB9(b) fails)")
     take = (f"The surge classifier (the rule fixed before the analysis that sorts runs into classes; a surge is a transient rise of gamma-band power, {c['band'][0]} to {c['band'][1]} Hz; its call for damped against non-damped oscillations is provisional) was run on {c['n_cases']} synthetic cases and on recorded mean-field runs under "
-            f"{c['n_var']} variants that each change one setting, and the frequency check failed ({d['rb9b_f_spectral']:.1f} Hz spectral peak against a {d['rb9b_f_cycle']:.3f} Hz cycle frequency, {d['rb9b_diff']:.3f} Hz against 1/W = {d['rb9b_bound']:g} Hz, "
-            f"where W = {n(W)} s is the window length; a failed check). Which classes change is drawn per variant. Short windows give false surges: {int(fw[0])}, {int(fw[1])}, {int(fw[2])} and {int(fw[3])} of {int(d['white_den'][0])} white-noise records "
+            f"{c['n_var']} variants that each change one setting, and the frequency check failed at the main example (the run fixed before the analysis as the main case): the spectral peak (the peak of the power spectrum of the simulated signal) is at {d['rb9b_f_spectral']:.1f} Hz and the cycle frequency "
+            f"(the frequency of the oscillation that starts at the Hopf point, where the resting state starts to oscillate) is {d['rb9b_f_cycle']:.3f} Hz, a difference of {d['rb9b_diff']:.3f} Hz against the allowed 1/W = {d['rb9b_bound']:g} Hz, "
+            f"where W = {n(W)} s is the window length (a failed check). Which classes change is drawn per variant. Short windows give false surges: {int(fw[0])}, {int(fw[1])}, {int(fw[2])} and {int(fw[3])} of {int(d['white_den'][0])} white-noise records "
             f"are not NS (no rise) at windows of {n(round(wl[0], 3))}, {n(round(wl[1], 3))}, {n(round(wl[2], 3))} and {n(round(wl[3], 3))} s. The class of the main example is unchanged under all {c['n_var']} variants, and at most {c['rb10_max_pct']:.2f} percent of the "
             f"{d['rb10_n_cells']} map-1 cells change class against the {100 * FG.FS5_RB10_BOUND:g} percent allowed (passes). The frequency mapping at the unit level passes ({_e(d['rb9a_value'])} against {d['rb9a_tol']:g}; one test at a time), the band check "
             f"passes ({int(d['rb9c_changed'][0])} of {int(d['rb9c_n'][0])} cells change class), and the check at other synaptic decay times is reported only.")

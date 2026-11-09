@@ -773,6 +773,9 @@ JOURNAL_OVERRIDE = {
     "FS4.net_rel_min": (r"by (\d+) to \d+ percent when", 1),
     "FS4.net_rel_max": (r"by \d+ to (\d+) percent when", 1),
     # 13t-9 (DL-681 N4): FS5 one caption; the band check is named in plain words
+    "FS5.rb9b_spectral": (r"is at (\d+\.\d) Hz and the cycle", 1),
+    "FS5.rb9b_cycle": (r"oscillate\) is (\d+\.\d+) Hz, a difference", 1),
+    "FS5.rb9b_diff": (r"a difference of (\d+\.\d+) Hz against", 1),
     "FS5.rb9c_changed": (r"band check passes \((\d+) of", 1),
     "FS5.rb9c_cells": (r"band check passes \(\d+ of (\d+) cells", 1),
 }
