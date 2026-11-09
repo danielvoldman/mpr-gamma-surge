@@ -826,7 +826,7 @@ def journal_rows(c: Ctx, R: Rows, figures) -> None:
                                             ("s1_needed", math.ceil(0.9 * n), "cells needed (sentence 1)")), start=1):
             R.add("F5", nm, qty, val, "A9/a9_subgrid_agreement.parquet: d24_cell_agrees", printed=(pat, k), jprinted=(pat, k), jtargets=("F5",))
     for r in R:
-        if r["figure"] in ("F1", "F2", "F3", "F5", "F6", "FS1", "FS2", "FS3") and r["figure"] in figures and r["jprinted"] is None and r["printed"] is not None:
+        if r["figure"] in ("F1", "F2", "F3", "F5", "F6", "FS1", "FS2", "FS3", "FS4", "FS5") and r["figure"] in figures and r["jprinted"] is None and r["printed"] is not None:
             r["jprinted"] = JOURNAL_OVERRIDE.get(r["id"], r["printed"])
             r["jtargets"] = JOURNAL_TARGETS.get(r["id"], (r["figure"],))
         if r["jprinted"] is not None and r["jtargets"] is None:
