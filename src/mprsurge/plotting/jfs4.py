@@ -125,7 +125,7 @@ def draw(d: dict, FG):
     axf.set_ylim(-0.03, 0.78)
     axf.set_ylabel("Relative change")
     FG._journal_title(axf, "g", "Change per step halving: FAIL", fail=bool((d["net_rel_change"] > FG.FS4_RB6_FPK_BOUND).any()))
-    axf.legend(loc="upper right", frameon=True, framealpha=0.95, labelspacing=0.5)
+    axf.legend(loc="upper center", frameon=True, framealpha=0.95, labelspacing=0.5)
     # (h)
     axg = ax_in(fig, 5.05, 8.7, 2.15, 2.0)
     for i, row in enumerate(d["netcls_class"]):
