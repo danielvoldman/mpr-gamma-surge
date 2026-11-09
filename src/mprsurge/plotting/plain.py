@@ -28,7 +28,7 @@ PLAIN_LIMITS = {
     # 13t-8b (DL-671 L3; UNVERIFIED plain wording of the ruled label, same meaning and numbers): the five limits that only the F4 files list
     "G6-D1": "There is no claim that the onset follows the entry-exit prediction; the onset check is not validated (0 of 6 testable in-range runs within one step of the prediction).",
     "G6-D2": "The delay of the main example is taken from the runs with a noise floor, and the noise-free onset depends on the solver (58.698 s and 58.879 s for the two solvers, 181 ms apart, unexplained).",
-    "G6-D3": "The delay under a noise floor is reported under both onset readings (the raw crossing meets the check, the classifier onset ties and does not meet it).",
+    "G6-D3": "The delay under a noise floor is reported under both onset readings (the raw crossing meets the check, the classifier onset gives equal delays and does not meet it).",
     "DL-163-D3": "The onset check is not judged at the main example (it covers 0 to 2 of the 13 ramp durations).",
     "MS11-C6": "The direction of the change of the delay with the floor level is unresolved at ramp durations of 10 s and 316 s.",
     "MS9(e)-1": "Surge classes found in network records at N = 1e4 are not evidence of a ramp-driven surge: the network control without a ramp was flagged in 10 of 10 seeds, and the ramp runs in 10 of 10.",

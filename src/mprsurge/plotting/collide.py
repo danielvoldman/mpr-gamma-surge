@@ -552,6 +552,8 @@ JOURNAL_ALLOW = {
                    "stored coincident positions and ruled mark sizes: the delays of the 10 seeds of one level at one step lie within the ruled mark size of each other (levels 0 and 1 are all equal at the minimum); no value is moved, jittered or shrunk"),
         AllowEntry("marker-line", "e", r"marks:", r"line:",
                    "stored coincident positions and ruled mark sizes: at level 0 the two recorded medians (about -1.497 and -1.5) lie within the ruled mark size of each other, so the mark of one series lies on the line of the other; no value is moved"),
+        AllowEntry("marker-marker", "e", r"marks:", r"marks:",
+                   "stored coincident positions and ruled mark sizes: at level 0 the two recorded medians (about -1.497 and -1.5) lie within the ruled mark size of each other; no value is moved"),
         AllowEntry("marker-marker", "f", r"marks:", r"marks:",
                    "stored coincident positions: where the two readings of the peak frequency give the same recorded value, the ring of the spectrum-maximum reading lies on the mark of the classifier-episode reading, and the seeds share values at some steps; no value is moved"),
         AllowEntry("marker-line", "f", r"marks:", r"line:",

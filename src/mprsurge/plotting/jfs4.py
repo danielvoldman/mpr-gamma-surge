@@ -254,7 +254,7 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
               f"classifier-episode reading and {d['net_psd_n_pass']} of {c['n_seeds']} under the spectrum-maximum reading (the check fails if any seed that can be evaluated fails). The solver difference is drawn in (a) and the changes of the network peak "
               "frequency in (f) and (g); results that rest on the network peak frequency are not used as evidence. The project's other failed checks are not about this figure; all of them are listed in the supplement. " + JC.title_sentence(FS4_ID))
     limits_text = ("In the limits below, T_ramp is the ramp duration T_ramp (in seconds), the main example is the run of the first paragraph, and control (the same network without the ramp) runs are runs of the project that are not drawn in this figure. " + JC.limits_paragraph(ids))
-    limits = limits_text.replace("the classifier onset ties and does not meet it", "the classifier onset gives equal delays and does not meet it")      # 'ties' needs the map-cell definition of the term; the meaning here is equal delays
+    limits = limits_text
     rest = JC.uncode(" ".join([take, panels, settings, params, failed, limits]), FS4_ID)
     key = " ".join(x for x in [
         JC.key_symbols(rest, "eta", "Delta", "J", "tau_d", "tau", "r", "v", "N", "M3"),
