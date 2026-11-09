@@ -7506,3 +7506,23 @@ Chosen:          as done   Default from: the prompt
 Test:            scripts/ms13_check_hashes.py
 Status:          done
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-707  MS13 13v V4: the read-only re-checks of the committed build and the checklist re-check script (code committed before it is run)    [ID: MS13, 13v, V4]
+Date:            2026-11-09        Author:
+Decision:        FACT AND ACTION. (1) Read-only re-checks of the committed build, no rebuild (HEAD after DL-706): scripts/ms13_verify_export.py exit 0, 0 FAIL, 13 MANUAL (the colour-vision row of each figure), every other row PASS for all 13 figures; scripts/ms13_independent_compare.py exit 0 (draft rows 561: 462 equal, 0 not equal, 0 unresolved, 99 without comparison; journal rows and short rows of every figure: 0 not equal, 0 unresolved). The comparison rewrites docs/ms13_independent_results.md; only the line 'Run time of the comparison' differed (9.3 s to 6.1 s) and the file was restored with git checkout (the .csv was unchanged). (2) Method of the re-check (scripts/ms13_13v_checklist_recheck.py, tests in tests/test_ms13_13v.py): an item is 're-verified' through a verifier row of its own name for its figure(s) or through the independent-comparison rows (T9, U3d); 're-verified (name-matched tests)' when tests named for its ruling code passed in a JUnit-recorded run of the figure tests (weaker: coverage of the whole claim not checked item by item); every other item is 'not re-verified' with the reason (a human look or review record cannot be re-run; no item-specific check found). The colour-vision item stays MANUAL. G2b-fs1-test-point is set 'not re-verified' (STOP of DL-646, no later entry settles it). With --write-checklist each item of docs/ms13_export_checklist.json gets the key recheck_13v (result, proof) and its status becomes passing / MANUAL / not re-verified; the list is not reduced or reworded. Output: docs/ms13_13v_checklist_recheck.md. This changes the status of every item that is not re-verified from 'passing' (set by instruction in 13t-11, DL-699 P5) to 'not re-verified', as ruled in V4.
+Reason:          ruling V4 (DL-703)
+Options:         -
+Chosen:          as ruled   Default from: the prompt
+Test:            tests/test_ms13_13v.py
+Status:          code committed, not yet run
+Commit/tag:      the commit that adds this entry; no tag
+
+## DL-708  MS13 13v V5: the evidence-sheet script and the 13v tests (code committed before it is run)    [ID: MS13, 13v, V5, V6]
+Date:            2026-11-09        Author:
+Decision:        ACTION. scripts/ms13_evidence_sheet.py writes docs/ms13_evidence_sheet.md from stored files: the hashes, build commit, drawn-data digest and the eleven draft files are copied from docs/ms13_journal_final_hashes.txt; the draft digest from figures/<draft>/<draft>_drawn_data_sha256.txt; the verifier and comparison counts from the output of the read-only runs of 13v; the failed-check and limit paragraphs word for word from the full caption (single caption for FS2 to FS5); the audit counts from docs/ms13_13t11_alt_table.md (P2) and docs/ms13_13t10_o2_table.md (O2) and the status of the audit tests from the JUnit file; the tags from git tag -l; the open close items by a fixed table in the script (from docs/ms13_close_items.md). tests/test_ms13_13v.py (11 tests): the final hash list equals the files on disk; the evidence-sheet hashes equal the list and the files; the sheet says no figure tag exists and lists eleven drafts; not_run_clause; the stored table (71 not-run records, none in the synthetic cases); the FS5 caption and supplement carry the corrected clause; the re-check table covers every checklist item and has no passing item without proof, G2b not passing, cvd MANUAL; close items 44, 45, 46, 48 accepted and 49 to 57 open; the close document names every failure and the user tasks. docs/ms13_close.md (V6) is written by hand from the evidence sheet and the close items; it is not generated.
+Reason:          rulings V5, V6 (DL-703)
+Options:         -
+Chosen:          as ruled   Default from: the prompt
+Test:            tests/test_ms13_13v.py
+Status:          code committed, not yet run
+Commit/tag:      the commit that adds this entry; no tag
