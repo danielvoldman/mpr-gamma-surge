@@ -17,7 +17,7 @@ from . import jcaption as JC
 from . import journal as J
 from . import plain as PL
 from . import style as S
-from .jf4cap import f4_consts, f4a_caption, f4a_short, f4b_caption, f4b_short
+from .jf4cap import _NW, _fmt, _levels, a11_counts, f4_consts, f4a_caption, f4a_short, f4b_caption, f4b_short
 
 F4_PARTS = ("F4a", "F4b")
 # journal panel -> draft panel (the mapping table of the supplements)
@@ -211,7 +211,7 @@ def draw_F4a(d: dict):
     _new(ax, n0, "red ring main example")
     ax.set_ylim(-0.25, 3.6)
     _band(ax)
-    ax.text(0.01, 0.97, f"Prediction: {d['n_testable_within_one_step']} of {d['n_testable']} testable runs within one step\nSolvers: main example onset differs by {d['head_radau_minus_default_ms']:.0f} ms (1 ms allowed)",
+    ax.text(0.01, 0.97, f"Prediction: {d['n_testable_within_one_step']} of {d['n_testable']} testable runs within one step\nSolvers: main example onset differs by {d['head_radau_minus_default_ms']:.0f} ms ({a11_counts(d['strip'])['bound_ms']:g} ms allowed)",
             transform=ax.transAxes, ha="left", va="top", color=red, weight="bold", zorder=8).set_gid("panel note")
     _tidy_x(ax)
     ax.set_ylabel(DELAY_LAB)
@@ -351,7 +351,8 @@ def draw_F4b(d: dict):
     _series(ax, FG, d["p2_linear_eps"], d["p2_linear_delay_eta_cross"], "P2", "linear", S.POINT_SIZES["f4_series_p5"], " no noise")
     (ln,) = (ax.axhline(0.0, color=ref.colour, ls=ref.linestyle, lw=ref.width, zorder=1),)
     ln.set_gid("zero line")
-    ax.text(0.01, 0.97, "Main-example class kept in 7 of 10 noisy seeds (8 needed)\nNoisy subgrid: 97 of 225 cells agree (203 needed)", transform=ax.transAxes, ha="left", va="top", color=red, weight="bold").set_gid("panel note")
+    k = a11_counts(d["strip"])
+    ax.text(0.01, 0.97, f"Main-example class kept in {k['kept']} of {k['kept_n']} noisy seeds ({k['kept_need']} needed)\nNoisy subgrid: {k['sub_agree']} of {k['sub_cells']} cells agree ({k['sub_needed']} needed)", transform=ax.transAxes, ha="left", va="top", color=red, weight="bold").set_gid("panel note")
     _tidy_x(ax)
     ax.set_ylabel(DELAY_SHORT)
     ax.set_ylim(-1.15, 1.75)                                  # 13t-8b: display padding below, the lowest noise bar touched the frame
@@ -412,6 +413,11 @@ def strip_lines_of(fid: str, d: dict) -> list:
     return [strip_line(r) for r in strip_rows_of(fid, d)]
 
 
+def FG_F4_DT():
+    from .figures import F4_DT
+    return F4_DT
+
+
 def source_rows(fid: str, d: dict) -> list:
     from .figures import _src
     rows: list = []
@@ -423,8 +429,8 @@ def source_rows(fid: str, d: dict) -> list:
             _src(rows, "a", f"{nm}: delay, classifier onset", e, d[f"{fam}_delay_eta"])
             if prof == "linear":
                 _src(rows, "a", f"{nm}: predicted delay", e, d[f"{fam}_delay_eta_pred"])
-            m = np.asarray(d[f"{fam}_in_range"], bool)
-            _src(rows, "a", f"{nm}: error of the prediction in steps (runs in range)", np.asarray(e)[m], np.asarray(d[f"{fam}_match_err_steps"])[m])
+            m = np.asarray(d[f"{fam}_in_range"], bool) & ~np.asarray(d[f"{fam}_eta_const"], bool)       # testable runs only: the error of an untestable run is not a result (13t-9 N3 item 3)
+            _src(rows, "a", f"{nm}: error of the prediction in steps (testable runs in range)", np.asarray(e)[m], np.asarray(d[f"{fam}_match_err_steps"])[m])
             _src(rows, "a", f"{nm}: in range and constant eta at the predicted time (1 = untestable)", e, None, np.asarray(d[f"{fam}_eta_const"], float))
         _src(rows, "a", "main example: delay, raw first crossing", [d["head_eps"]], [d["head_delay_eta_cross"]])
         for fam, prof in (("p5_linear", "linear"), ("p5_sigmoid", "sigmoid")):
@@ -434,9 +440,13 @@ def source_rows(fid: str, d: dict) -> list:
             _src(rows, "b", f"P5 {prof}: hysteresis width", e, d[f"{fam}_hysteresis_width"])
         for tag, nm in (("sd05", "start distance 0.5"), ("p1_linear", "start distance 1.5"), ("sd30", "start distance 3.0")):
             _src(rows, "c", f"P1 linear, {nm}: delay, raw first crossing", d[f"{tag}_eps"], d[f"{tag}_delay_eta_cross"])
+            if f"{tag}_match_err_steps" in d:
+                m = np.asarray(d[f"{tag}_in_range"], bool) & ~np.asarray(d[f"{tag}_eta_const"], bool)
+                if m.any():
+                    _src(rows, "c", f"P1 linear, {nm}: error of the prediction in steps (testable runs in range)", np.asarray(d[f"{tag}_eps"])[m], np.asarray(d[f"{tag}_match_err_steps"])[m])
         for pn, key, med in (("d", "floor_delay_cross", "floor_median_cross"), ("e", "floor_delay_cls", "floor_median_cls")):
             for lvl in range(3):
-                for k, dt in enumerate((1e-3, 5e-4, 2.5e-4, 1e-4)):
+                for k, dt in enumerate(FG_F4_DT()):
                     _src(rows, pn, f"floor level {lvl} (sigma {d['floor_sigma'][lvl]:.3g}), Heun step {dt:g} tau: delay of the 10 seeds", [lvl] * 10, d[key][lvl][k])
                 _src(rows, pn, f"floor level {lvl}: median", [lvl], [d[med][lvl]])
         return rows
@@ -459,12 +469,12 @@ def alt_text(fid: str, d: dict, c: dict) -> dict:
     if fid == "F4a":
         return {
             "a": (f"Delay of the onset against the ramp rate (logarithmic axis, {n(c['eps_lo'])} to {n(c['eps_hi'])}) for six series (P1, P2, P5, linear and sigmoid): delays from about 0 to about 3 (positive: the onset after the Hopf point), most of them rising "
-                  "as the ramp slows; octagon rings on the testable runs (their error numbers are not drawn; they are in the source data), diamond rings on three untestable runs, a red ring on the main example, open squares on eight onsets during the hold, a band at the foot with one run without a crossing. "
-                  f"The title is red: prediction FAIL, solver FAIL; a red note gives 0 of {d['n_testable']} testable runs within one step and the solver difference of {c['head_ms']:.0f} ms."),
+                  f"as the ramp slows; octagon rings on the testable runs (their error numbers are not drawn; they are in the source data), diamond rings on {_NW[c['n_untest']]} untestable runs, a red ring on the main example, open squares on {_NW[d['n_hold']]} onsets during the hold, a band at the foot with {_NW[d['n_nocross']]} run without a crossing. "
+                  f"The title is red: prediction FAIL, solver FAIL; a red note gives {d['n_testable_within_one_step']} of {d['n_testable']} testable runs within one step and the solver difference of {c['head_ms']:.0f} ms."),
             "b": "P5: the up delay, the offset on the way down (triangles, negative at the fast end) and the hysteresis width (dashed, dash-dot for the sigmoid profile) against the ramp rate, linear solid and sigmoid dotted; a dotted zero line.",
-            "c": "P1 linear at three start distances (0.5 dotted, 1.5 solid, 3.0 dashed): the delay against the ramp rate with octagon rings on the testable runs (their errors, 4.4 to 33.1 steps, are not drawn and are in the source data); a dotted zero line; a band at the foot.",
-            "d": "The floored delay at the main example for three noise-floor levels (0, 1, 2 on the x axis): ten seeds at four time steps drawn as concentric hollow circles, the medians are small negative numbers (about -0.0008, -0.042, -0.105); a note points to the main example.",
-            "e": "The same runs read by the classifier onset: the delays tie at -1.5 at levels 0 and 1 and a higher value at level 2; the title is red (FAIL) and a red note says the delays tie at -1.5 at the two lower levels (saturated).",
+            "c": f"P1 linear at three start distances (0.5 dotted, 1.5 solid, 3.0 dashed): the delay against the ramp rate with octagon rings on the testable runs (their errors, {_fmt(min(c['sd5']))} to {_fmt(max(c['sd5']))} steps, are not drawn and are in the source data); a dotted zero line; a band at the foot.",
+            "d": f"The floored delay at the main example for three noise-floor levels (0, 1, 2 on the x axis): ten seeds at four time steps drawn as concentric hollow circles, the medians are small negative numbers (about {c['med_cross'][0]:.4f}, {c['med_cross'][1]:.3f}, {c['med_cross'][2]:.3f}); a note points to the main example.",
+            "e": f"The same runs read by the classifier onset: the delays tie at {c['tie']:g} at levels {_levels(c['tie_levels'])} and a higher value at level 2; the title is red (FAIL) and a red note says the delays tie at {c['tie']:g} at the {_NW[c['n_tie_levels']]} lower levels (saturated).",
         }
     return {
         "a": "Peak power (absolute) against the ramp rate for six noise-free series and a grey bar with a dark median mark for the ten noisy seeds of P2 at each of 13 ramp rates; the seed count is written above the panel; rings and foot marks as in F4a.",
@@ -472,9 +482,9 @@ def alt_text(fid: str, d: dict, c: dict) -> dict:
         "c": "Peak frequency (Hz) against the ramp rate, same marks as (a); the axis does not start at zero.",
         "d": "Duration (s, logarithmic axis) against the ramp rate with a dotted line at 1 s (the smallest duration the classifier can give); medians at 1 s are pinned by this floor.",
         "e": (f"The delay of the ten noisy seeds of P2 at each ramp rate (grey bars from minimum to maximum, dark medians; the medians are negative from T_ramp {n(c['t_neg'])} s on) beside the noise-free P2 line; the title is red (noise robustness FAIL) "
-              "and two red lines give 7 of 10 seeds (8 needed) and 97 of 225 cells (203 needed)."),
-        "f": f"The jump offset of the M2 ramp from the fold (logarithmic axis) against the ramp rate: it falls from {c['off_hi']:.3f} to {c['off_lo']:.4f} over 13 ramp rates.",
-        "g": f"The fitted ring rate of the M2 ramp against the ramp rate with one-standard-error bars: all values lie between {MINUS}25.7 and {MINUS}24.3 per s, below the dotted zero line (damped at {c['n_nonneg']} of 13).",
+              f"and two red lines give {c['kept']} of {c['kept_n']} seeds ({c['kept_need']} needed) and {c['sub_agree']} of {c['sub_cells']} cells ({c['sub_needed']} needed)."),
+        "f": f"The jump offset of the M2 ramp from the fold (logarithmic axis) against the ramp rate: it falls from {c['off_hi']:.3f} to {c['off_lo']:.4f} over {c['n_T']} ramp rates.",
+        "g": f"The fitted ring rate of the M2 ramp against the ramp rate with one-standard-error bars: all values lie between {MINUS}{abs(c['rate_lo']):.1f} and {MINUS}{abs(c['rate_hi']):.1f} per s, below the dotted zero line (damped at {c['n_nonneg']} of {c['n_T']}).",
     }
 
 
@@ -515,7 +525,7 @@ def build(res=None, out_dir=None, *, root=None, script="scripts/fig_journal.py",
             rows.append({**r, "panel": key, "section": "", "source_run_id": rec["name"], "source_config_hash12": rec["config_hash12"]})
     crit, _ = FG.F.K.load_frozen_criteria(root)
     cfg = J.load_config(root)
-    c = f4_consts(d, rows)
+    c = f4_consts(d, rows, raw, raw["a11"], crit)
     drawn = FG.drawn_data_sha256(d)
     import matplotlib.pyplot as plt
     out: dict = {}
