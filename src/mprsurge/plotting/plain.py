@@ -51,6 +51,14 @@ PLAIN_LIMITS = {
     "D24 failed (plan label)": "The D24 rule failed: subgrid agreement is 43.1 percent on the raw classes.",
     "G7 not passed (plan label)": "Gate G7 was not passed: the network run of the first negative control (the hypoxia path with the mean excitability falling by the same amount, with coupling, heterogeneity and synaptic decay fixed and no common drive) is in class S+.",
     "RB9(b) FAIL (plan label)": "RB9(b) failed: the spectral frequency differs from the cycle frequency by 4.391 Hz against the allowed 0.5 Hz.",
+    # 13t-9 (DL-681 N4; UNVERIFIED plain wording of the ruled label, same meaning and numbers, no check or gate codes): the limits that only FS4 and FS5 list
+    "G4-C6": "The rerun of the numerical-convergence check for the network, named when the network-against-mean-field gate was triggered, is read as the network part of the numerical checks (our reading, not verified).",
+    "MS11-C4": "The check of the dimensional against the non-dimensional frequency mapping rests on a test at the unit level only (a 1 s ramp, synaptic decay times of 10 and 20 ms), not on the main example.",
+    "MS11-C5": "The comparison of the default solver with the Radau solver covers the ramp duration 120 s only.",
+    "MS11-C8": "In the numerical-convergence check of the network, the peak frequency of episodes shorter than the window is found by a method that the rules fixed before the analysis do not state.",
+    "MS11-C9": "The rules fixed before the analysis do not name the estimator of the cycle frequency in the frequency check; the fractions of map cells within the bound are 51 of 760 (Hilbert phase) and 45 of 760 (zero crossings), both reported, "
+               "and the failure of the frequency check at the main example holds under either estimator.",
+    "RB6 FAIL (plan label)": "The numerical-convergence check failed for the peak frequency of the network, under both readings of the peak frequency.",
 }
 NOT_APPLICABLE_PLAIN = "not applicable here because no failure label is drawn in F5 (F6 draws them)"
 NOT_APPLICABLE_PLAIN_F6 = "not applicable here because neither the boundary of the regime map nor the exit extension of the episode rule to P3 and P4 is drawn"
