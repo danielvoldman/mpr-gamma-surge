@@ -563,6 +563,25 @@ JOURNAL_ALLOW = {
         AllowEntry("marker-marker", "i", r"marks:", r"marks:",
                    "stored coincident positions: at two of the six positions the recorded peak frequencies at the two peak values are equal, so the two marks lie on each other; no value is moved"),
     ),
+    # 13t-9 (DL-681 N4): FS5. Only stored coincident positions and ruled mark sizes (verifier: by reason class, a legibility reason would be a STOP)
+    "FS5": (
+        AllowEntry("marker-marker", "d", r"marks:", r"marks:",
+                   "stored coincident positions: at the lower baseline levels the recorded shares of several windows are equal (1.0, 0.92 or 0.52), so their marks lie on each other; no value is moved"),
+        AllowEntry("marker-line", "d", r"marks:", r"line:",
+                   "stored coincident positions: a mark lies on the line that joins the recorded points of another window where the recorded shares are equal; the lines join stored points"),
+        AllowEntry("marker-marker", "g", r"marks:", r"marks:",
+                   "ruled mark sizes: the recorded differences at the two decay times differ by a factor of 2.8 at one quantity, which is within the ruled mark size on the logarithmic axis; no value is moved"),
+        AllowEntry("marker-marker", "h", r"marks:", r"marks:",
+                   "ruled mark sizes: the allowed difference 1/W = 0.5 Hz is shorter than the ruled mark of the cycle frequency, so the end caps of its bar lie on the mark; no value is moved"),
+        AllowEntry("marker-tick", "h", r"marks:", r"ticks:",
+                   "ruled mark sizes: an end cap of the bar of 1/W = 0.5 Hz lies within the ruled mark size of a tick mark; no value is moved"),
+        AllowEntry("marker-line", "i", r"marks:", r"line:",
+                   "stored value on the line: the recorded fractions 0.016 and 0 lie within the ruled mark size of the reference line at the allowed fraction 0.05, which is a reference line, not data; no value is moved"),
+        AllowEntry("marker-marker", "i", r"marks:", r"marks:",
+                   "ruled mark sizes: the open ring that marks a value as reported, not judged, is drawn around the mark of the same recorded value by design; no value is moved"),
+        AllowEntry("marker-marker", "j", r"marks:", r"marks:",
+                   "stored coincident positions: at the decay time 10 ms the recorded peak frequency (49.0 Hz) is the main-example value that the other mark is scaled from, so the two marks lie on each other; no value is moved"),
+    ),
     "FS2": (
         AllowEntry("marker-marker", "h", r"marks:", r"marks:",
                    "stored positions and ruled mark sizes (DL-651 H1): the recorded differences of the three kinds at one cell lie within the ruled mark size of each other (values near 0 to 18 percent against a 5 percent tolerance scale); "

@@ -198,7 +198,7 @@ def draw(d: dict, FG):
     a2.set_xticks([0, 1], ["Peak", "Cycle"], rotation=90)
     FG._journal_title(a2, "h", "Frequency check: " + ("PASS" if d["rb9b_within"] else "FAIL"), fail=not d["rb9b_within"])
     a2.set_ylabel("Frequency (Hz)")
-    a2.text(0.5, 0.1, f"Difference {d['rb9b_diff']:.3f} Hz\n> {d['rb9b_bound']:g} Hz", transform=a2.transAxes, ha="center", va="bottom", bbox=dict(boxstyle="square,pad=0.2", fc=S.FS_COLOURS["box_face"], ec=S.FS_COLOURS["patch_edge"], lw=0.4))
+    a2.text(0.5, 0.1, f"Difference\n{d['rb9b_diff']:.3f} Hz\n> {d['rb9b_bound']:g} Hz", transform=a2.transAxes, ha="center", va="bottom", bbox=dict(boxstyle="square,pad=0.2", fc=S.FS_COLOURS["box_face"], ec=S.FS_COLOURS["patch_edge"], lw=0.4))
     a3 = ax_in(fig, 4.3, rtop, 1.25, 1.3)
     xs3 = np.arange(3, dtype=float)
     fr3 = d["rb9c_changed"] / d["rb9c_n"]
