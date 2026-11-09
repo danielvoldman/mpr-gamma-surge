@@ -140,6 +140,8 @@ def journal_reference_problems(root: Path, log_text: str) -> list[str]:
     for rel, ll in logged.items():
         if ll[0] == latest:
             p = root / rel
+            if not (root / "figures" / "journal").is_dir():
+                continue                                   # a tree without any journal export (a clean checkout, a test root) has nothing to compare
             if not p.is_file():
                 problems.append(f"JOURNAL-MISSING {rel}: logged in DL-{ll[0]:03d} ({ll[1]})")
             elif sha256_file(p) != ll[1]:

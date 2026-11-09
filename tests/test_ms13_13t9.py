@@ -204,12 +204,7 @@ def test_n6_journal_reference_compares_with_the_latest_logged_hash_only(tmp_path
     other = "figures/journal/F6/F6_journal.png"
     (tmp_path / other).parent.mkdir(parents=True)
     (tmp_path / other).write_bytes(b"f6")
-    stale = f"## DL-50 early
-Decision: {other} {old}
-
-## DL-200 second
-Decision: {rel} {new}
-"
+    stale = f"## DL-50 early\nDecision: {other} {old}\n\n## DL-200 second\nDecision: {rel} {new}\n"
     f.write_bytes(b"new build")
     assert H.journal_reference_problems(tmp_path, stale) == []             # F6 is logged only in an older entry than the latest one with journal hashes: not a reference
 
