@@ -126,7 +126,8 @@ def draw(d: dict, FG):
     FG._journal_title(axc, "c", "Records changed (shade: fraction); * includes not run")
     cb_ax = ax_in(fig, 5.55, ctop + 2.25, 1.65, 0.14)
     cb = fig.colorbar(matplotlib.cm.ScalarMappable(norm=matplotlib.colors.Normalize(0.0, 1.0), cmap=cmap), cax=cb_ax, orientation="horizontal", ticks=[0.0, 0.5, 1.0])
-    cb.set_label("Fraction of records changed, as shaded in (c)")
+    cb.set_label("Fraction of records changed
+(the shade of (c))")
     # (d)
     axd = ax_in(fig, 5.55, ctop, 1.65, 1.5)
     for i, w in enumerate(d["reach_W"]):
