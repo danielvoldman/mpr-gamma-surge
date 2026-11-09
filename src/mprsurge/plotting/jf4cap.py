@@ -223,7 +223,7 @@ F4A_LIMIT_EXTRA = {"G6-D1": "there is no claim that the onset follows the entry-
 
 def _params_short(c: dict, main: bool) -> str:
     n = JC.num
-    return (f"Parameters: model {c['type']} (the mean-field model); ramp durations {n(c['T_lo'])} to {n(c['T_hi'])} s ({c['n_T']} values)" + (f" and {n(c['t_main'])} s at the main example" if main else "")
+    return (f"Parameters: model {c['type']} (the mean-field model: the equations for the average activity of the population); ramp durations {n(c['T_lo'])} to {n(c['T_hi'])} s ({c['n_T']} values)" + (f" and {n(c['t_main'])} s at the main example" if main else "")
             + f"; initial perturbation {n(c['delta0'])}; solver relative tolerance {n(c['rtol'])}; classifier window {c['W']} s, step {c['win_step']} s for ramp durations of {c['T_win']} s or more, "
             f"gamma band {c['band'][0]} to {c['band'][1]} Hz, minimum {c['cycles']} cycles.")
 
@@ -235,18 +235,16 @@ def f4a_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, ful
         "(the time at which the integral of the real part of the eigenvalue of the linearised model, taken from the start of the ramp, returns to zero), and the checks on it failed (red titles of (a) and (e)): "
         f"none of the {d['n_testable']} testable runs lies within one step of the prediction, the two numerical solvers differ by {c['head_ms']:.0f} ms at the main example (the run fixed before the analysis as the main case; "
         f"{c['bound_ms']:g} ms allowed), and the delay under a noise floor does not meet its check under the classifier-onset reading.",
-        "Mean field: the model's equations for the average activity of the population; mode D: noise-free; ramp: eta_bar (mean excitability) is changed from its start to its peak over the ramp duration T_ramp; "
-        "Hopf point (where the resting state starts to oscillate).",
-        f"(a) The delay of the onset (eta_bar at the onset minus eta_bar at the Hopf point; negative: the onset comes before the Hopf point) against the ramp rate (the change of eta_bar over the ramp divided by T_ramp, in units of tau, the membrane time constant) "
-        f"for the paths P1 (eta_bar ramped only), P2 (hypoxia-like: mean excitability raised and coupling J ramped to 0 after a waiting time) and P5 (eta_bar up, then back down), linear (solid; P5 dash-dot) and sigmoid (dashed) profile, "
-        f"at {c['n_T']} ramp durations from {n(c['T_lo'])} to {n(c['T_hi'])} s: "
-        f"the raw first crossing of its detection threshold (the envelope at {c['amin']} times a reference amplitude; primary), the classifier's onset (second reading; double dagger), the prediction (line style by path) "
+        "Hopf point: where the resting state starts to oscillate.",
+        f"(a) The delay of the onset (eta_bar, the mean excitability, at the onset minus its value at the Hopf point; negative: before the Hopf point) against the ramp rate (the change of eta_bar over the ramp divided by the ramp duration T_ramp, in units of tau, the membrane time constant) "
+        f"for the paths P1 (eta_bar ramped only), P2 (hypoxia-like: mean excitability raised and coupling J ramped to 0 after a waiting time) and P5 (eta_bar up, then back down), linear (solid; P5 dash-dot) and sigmoid (dashed) profile: "
+        f"the raw first crossing of the envelope at {c['amin']} times a reference amplitude (primary), the classifier's onset (second reading; double dagger), the prediction (line style by path) "
         "and rings for the runs where the prediction can be tested "
         f"(octagon: testable, eta_bar not constant at the predicted time; errors {_fmt_list(c['steps'])} steps of the prediction grid, in the source data; diamond: not testable, {c['n_untest']} runs). "
-        f"The red ring: the main example (T_ramp {n(c['t_main'])} s) at its noise-free, solver-dependent delay {n(round(c['head_delay'], 4))}; the value used is the median of floor level 0 in (d), {_sig(c['med_cross'][0], 3)}; not used as evidence. "
-        "Open squares: onset during the hold, when eta_bar stays at its peak (our reading, not verified). "
+        f"The red ring: the main example (T_ramp {n(c['t_main'])} s) at its noise-free, solver-dependent delay {n(round(c['head_delay'], 4))}, not used as evidence (the value used is the level-0 median of (d), {_sig(c['med_cross'][0], 3)}). "
+        "Open squares: onset during the hold at the peak of eta_bar (our reading, not verified). "
         "(b) P5: up delay, offset on the way down (eta_bar at the start of the down ramp minus eta_bar at the Hopf point), hysteresis width. (c) P1 linear at start distances 0.5, 1.5 and 3.0. "
-        f"(d), (e) The delay at the main example with a very small added noise (the noise floor), three levels, {c['n_seeds']} seeds, {_NW[len(c['dts'])]} time steps drawn as concentric marks (equal values), dark mark: median; "
+        f"(d), (e) The delay at the main example with a very small added noise (the noise floor), three levels, {c['n_seeds']} seeds, {_NW[len(c['dts'])]} time steps drawn as concentric marks, dark mark: median; "
         f"the classifier-onset delays are equal at {MINUS}{abs(c['tie']):g} at the {_NW[c['n_tie_levels']]} lower levels.",
         JS.further_sentence("F4a", full),
         _params_short(c, True),
@@ -308,17 +306,17 @@ def f4b_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, ful
         "(one parameter pair of a grid of mean-field runs) re-run with noise must agree with the noise-free map) fails: "
         f"{c['sub_agree']} of {c['sub_cells']} of these cells agree, {c['sub_pct']} percent ({c['sub_needed']} needed); the classes of the noisy runs are mixed (surge and non-surge classes occur). "
         f"Separately, the median delay of the {c['n_seeds']} seeds is negative from T_ramp {n(c['t_neg'])} s on (a result, not a check).",
-        "Mean field: the model's equations for the average activity of the population; mode N: noise added; mode D: noise-free; the ramp duration T_ramp is the time over which eta_bar (mean excitability) is changed; "
-        "Hopf point (where the resting state starts to oscillate).",
+        "Mean field: the model's equations for the average activity of the population; the ramp duration T_ramp is the time over which eta_bar (mean excitability) is changed; "
+        "Hopf point: where the resting state starts to oscillate.",
         f"(a) to (d) Peak power (absolute, relative), peak frequency (the peak of the power spectrum, found by the classifier, a rule fixed before the analysis) and duration (how long the episode lasts: flagged windows x step; log axis) "
         f"of the six noise-free series (paths P1 (eta_bar ramped only), P2 (hypoxia-like: mean excitability raised and coupling J ramped to 0 after a waiting time) and P5 (eta_bar up, then back down); linear and sigmoid profile) "
-        f"at {c['n_T']} ramp durations from {n(c['T_lo'])} to {n(c['T_hi'])} s, against the ramp rate (the change of eta_bar over the ramp divided by the ramp duration, in units of tau, the membrane time constant), "
+        "against the ramp rate (the change of eta_bar over the ramp divided by the ramp duration, in units of tau, the membrane time constant), "
         f"with the {c['n_seeds']} noisy seeds of P2 as a grey bar (minimum to maximum) and a dark median mark; the number above each panel is the number of seeds counted; "
         "rings: runs where the onset prediction (see F4a) can be tested (octagon: testable; diamond: not testable); foot marks: runs with no episode. "
         "The dotted line at 1 s in (d) is the smallest duration the classifier can give, so medians at 1.0 s are pinned. "
-        "(e) The delay (eta_bar at the onset minus eta_bar at the Hopf point) of the noisy seeds beside the noise-free P2 line; the two red text lines state the two failed results. "
+        "(e) The delay (as in F4a (a)) of the noisy seeds beside the noise-free P2 line; the two red text lines state the two failed results. "
         f"(f) The M2 ramp (M2: the comparison model) through the saddle-node (the fold, where the resting state disappears): the jump offset (eta_bar at the jump minus eta_bar at the fold) falls from {n(round(c['off_hi'], 3))} to {n(round(c['off_lo'], 4))}; no scaling law is claimed. "
-        f"(g) The fitted rate of the ring (the damped oscillation after the jump) is negative, between {MINUS}{abs(c['rate_lo']):.1f} and {MINUS}{abs(c['rate_hi']):.1f} per s, so the ring is damped at {c['n_nonneg']} of {c['n_T']}.",
+        f"(g) The fitted rate of the ring (the damped oscillation after the jump) lies between {MINUS}{abs(c['rate_lo']):.1f} and {MINUS}{abs(c['rate_hi']):.1f} per s (negative: damped) at {c['n_nonneg']} of {c['n_T']} ramp durations.",
         JS.further_sentence("F4b", full),
         f"Parameters: model {c['type']} (the mean-field model); ramp durations {n(c['T_lo'])} to {n(c['T_hi'])} s ({c['n_T']} values); noisy runs: P2 linear, {c['n_seeds']} seeds per ramp duration, noise level sigma = {n(c['sigma'])} "
         f"(checked, not confirmed; its check failed); initial perturbation {n(c['delta0'])}; solver relative tolerance {n(c['rtol'])}; classifier window {c['W']} s, step {c['win_step']} s for ramp durations of {c['T_win']} s or more, "
