@@ -161,11 +161,12 @@ def draw_F4a(d: dict):
     from . import figures as FG
     fig, cfg = FG._journal_fig(HEIGHT["F4a"], constrained=False)
     pred, ref, cls_m = S.diagram_mark("f4_pred"), S.diagram_mark("f4_ref"), S.diagram_mark("f4_cls")
+    dag = _dagger_outline()
     down, hyst, rg, md = S.diagram_mark("f4_down"), S.diagram_mark("f4_hyst"), S.diagram_mark("f4_inrange"), S.diagram_mark("fs3_median")
     red = S.figure_colour("fail_text")
     # key
     hs = _key_series_handles(FG, S.POINT_SIZES["f4_series"])
-    hs += [Line2D([], [], color=pred.colour, ls=pred.linestyle, lw=pred.width), Line2D([], [], ls="none", marker=cls_m.marker, ms=cls_m.size, mfc="none", mec=cls_m.colour, mew=cls_m.width),
+    hs += [Line2D([], [], color=pred.colour, ls=pred.linestyle, lw=pred.width), Line2D([], [], ls="none", marker=dag, ms=cls_m.size, mfc="none", mec=cls_m.colour, mew=DAGGER_EDGE),
            Line2D([], [], color=ref.colour, ls=ref.linestyle, lw=ref.width),
            Line2D([], [], ls="none", marker=rg.marker, ms=S.POINT_SIZES["f4_key"], mfc="none", mec=rg.colour, mew=rg.width),
            Line2D([], [], ls="none", marker=S.F4_MARKS["untestable"], ms=S.POINT_SIZES["f4_key"] * 0.8, mfc="none", mec=rg.colour, mew=rg.width),
@@ -188,7 +189,7 @@ def draw_F4a(d: dict):
         _series(ax, FG, x, d[f"{fam}_delay_eta_cross"], path, prof, S.POINT_SIZES["f4_series"], "")
         ok = ~np.isnan(d[f"{fam}_delay_eta"])
         n0 = len(ax.lines)
-        ax.plot(x[ok], d[f"{fam}_delay_eta"][ok], ls="none", marker=cls_m.marker, ms=cls_m.size, mfc="none", mec=cls_m.colour, mew=cls_m.width, zorder=4)      # 13t-10 (DL-691 O3): hollow, so the raw-crossing marks beneath stay visible; same size, same stored position
+        ax.plot(x[ok], d[f"{fam}_delay_eta"][ok], ls="none", marker=dag, ms=cls_m.size, mfc="none", mec=cls_m.colour, mew=DAGGER_EDGE, zorder=4)      # 13t-10 (DL-691 O3): hollow, so the raw-crossing marks beneath stay visible; same size, same stored position
         _new(ax, n0, f"classifier onset {path} {prof}")
         n0 = len(ax.lines)
         FG._f4_ring(ax, x, d[f"{fam}_delay_eta_cross"], d[f"{fam}_in_range"], const=d[f"{fam}_eta_const"])
@@ -501,6 +502,21 @@ def sections(fid: str, a11: list) -> tuple:
              "F4b": "The two RB2 rows are about this figure; the RB3(a), RB3(b) and RB6 (solver) rows are about F4a."}[fid]
     return (("Mapping of the draft panels to the journal panels (DL-667 K2)", mapping_text), ("All FAIL rows of the stored A11 table (DL-667)", FG.JCAP.all_fail_rows_for(a11, about)),
             ("Stored names behind the plain words of the caption (DL-571 T8)", FG.CODE_NAMES_MD))
+
+
+DAGGER_EDGE = 0.3          # 13t-10 (DL-691 O3, second attempt): outline width in pt of the hollow double dagger (UNVERIFIED); the ruled size 6.0 pt and the stored positions are unchanged
+
+
+def _dagger_outline():
+    """The double dagger of the classifier onset as an outline marker (the glyph path of U+2021, centred, no fill when drawn with mfc='none'): the string marker $\ddagger$ is always filled by matplotlib (attempt 1)."""
+    from matplotlib.font_manager import FontProperties
+    from matplotlib.markers import MarkerStyle
+    from matplotlib.path import Path
+    from matplotlib.textpath import TextPath
+    tp = TextPath((0, 0), "‡", size=1.0, prop=FontProperties(family="DejaVu Sans"))
+    v = tp.vertices.copy()
+    ctr = (v.max(axis=0) + v.min(axis=0)) / 2.0
+    return MarkerStyle(Path(v - ctr, tp.codes))
 
 
 def build(res=None, out_dir=None, *, root=None, script="scripts/fig_journal.py", tag_build: bool = False) -> dict:
