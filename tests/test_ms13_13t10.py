@@ -87,7 +87,7 @@ def test_o1_o4a_fs4_caption_states_the_range_and_the_largest_change_over_all_hal
     t, alt = b4
     assert "changes by 0 to 55 percent per halving of the time step (first halving 5 to 43 percent, second halving 0 to 33 percent, third halving 5 to 55 percent; the largest change, 55 percent, is at the third halving, seed 0)" in t
     assert "(g) The relative change of the peak frequency per halving of the time step against the bound 0.02 (a change of 0.02 is 2 percent); the largest change, 55 percent, is at the third halving (seed 0); 8 of the 9 changes are above the bound." in t
-    assert "the largest change, at the first halving" not in t and "when the time step is halved" not in t
+    assert "the largest change, at the first halving" not in t and "changes by 5 to 43 percent" not in t
     assert "panels (f) and (g) carry a red title with FAIL, and (h) and (i) are information only" in t and "shown labelled FAIL" not in t
     assert "first halving lies far above" not in alt and "8 of the 9 changes lie above the bound (range 0 to 55 percent" in alt
 
@@ -149,6 +149,7 @@ def test_o4b_fs5_names_tau_as_the_membrane_time_constant_where_the_stored_parame
     assert "synaptic decay times" not in t and "synaptic decay times" not in alt
     assert "at the membrane time constants tau 10 and 20 ms, the synaptic decay time tau_d staying at its reference value" in t
     assert "at the membrane time constants tau 8, 10 and 12 ms, the synaptic decay time tau_d staying at its reference value" in t
+    assert "membrane time constants tau of 10 and 20 ms" in t           # the ruled limit MS11-C4 (stored: tau 10 and 20 ms), plain wording corrected
     assert "tau = membrane time constant" in t and "tau_d (synaptic decay time)" in t
     # the stored parameter of the unit-level test is model.tau_ms (the membrane time constant)
     assert 'resolve_config(None, {"model.tau_ms": tau_ms' in open(ROOT / "src/mprsurge/analysis/rb9a_unit.py", encoding="utf-8").read()
