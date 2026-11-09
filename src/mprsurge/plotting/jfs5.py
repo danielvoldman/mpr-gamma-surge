@@ -103,7 +103,13 @@ def draw(d: dict, FG):
     axc = ax_in(fig, left, ctop, wid, 1.5)
     frac = d["chg_changed"] / d["chg_n"][:, None]
     xs_c = np.arange(1, len(var))
-    axc.pcolormesh(np.arange(1, len(var) + 1) - 0.5, np.arange(frac.shape[0] + 1) - 0.5, frac, cmap="viridis_r", vmin=0.0, vmax=1.0, shading="flat", edgecolor=S.FS_COLOURS["cell_edge"], lw=0.6)
+    import matplotlib
+    cmap = matplotlib.colormaps["viridis_r"]
+    for i in range(frac.shape[0]):
+        for j in range(frac.shape[1]):
+            cell = Rectangle((j + 1 - 0.5, i - 0.5), 1.0, 1.0, fc=cmap(float(frac[i, j])), ec=S.FS_COLOURS["cell_edge"], lw=0.6, zorder=2)
+            cell.set_gid("container:cell")
+            axc.add_patch(cell)
     for i in range(frac.shape[0]):
         for j in range(frac.shape[1]):
             nr = int(d["chg_not_run"][i, j])
@@ -122,9 +128,10 @@ def draw(d: dict, FG):
                  label=f"{w:.3g} s ({int(d['reach_n_cells'][i])})")
     axd.set_xlabel("Baseline ratio rho, level")
     axd.set_ylabel("Share of cells")
-    axd.set_ylim(0.0, 1.05)
+    axd.set_ylim(-0.75, 1.05)
+    axd.set_yticks([0.0, 0.25, 0.5, 0.75, 1.0])
     FG._journal_title(axd, "d", "Baseline rho reached")
-    axd.legend(loc="lower left", frameon=True, framealpha=0.95, title="Window (cells)")
+    axd.legend(loc="lower center", ncol=2, frameon=True, framealpha=0.95, title="Window (cells)", columnspacing=0.6, handletextpad=0.3, handlelength=1.4)
     # (e)
     etop = ctop + 1.5 + 1.75 + 0.45
     axe = ax_in(fig, 0.95, etop, 3.0, 1.7)
@@ -159,18 +166,18 @@ def draw(d: dict, FG):
     axf.axvline(FG.FS5_RB10_BOUND, color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label=f"Allowed {FG.FS5_RB10_BOUND:g}", zorder=2)
     axf.set_yticks(yv, [VAR_LABELS[v] for v in d["rb10_variant"]])
     axf.set_ylim(len(yv) - 0.5, -0.5)
-    axf.set_xlim(-0.005, 0.30)
+    axf.set_xlim(-0.015, 0.40)
     axf.set_xlabel("Fraction of map-1 cells")
     FG._journal_title(axf, "f", "Main-example class " + ("unchanged" if d["rb10_headline_all_pass"] else "changed"))
     axf.legend(loc="center right", frameon=True, framealpha=0.95)
     # (g) to (j)
     rtop = etop + 1.7 + 0.75
     pt = S.diagram_mark("fs5_pt")
-    a1 = ax_in(fig, 0.8, rtop, 1.05, 1.3)
+    a1 = ax_in(fig, 0.8, rtop, 1.0, 1.3)
     for i, tau in enumerate(d["rb9a_tau_ms"]):
         mk = S.diagram_mark(f"rb9a_{i}")
-        a1.plot([0, 1, 2], d["rb9a_diff"][i], ls="none", marker=mk.marker, ms=mk.size, color=mk.colour, zorder=4, label=f"tau {tau:g} ms")
-    a1.axhline(d["rb9a_tol"], color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label=f"Allowed {d['rb9a_tol']:g}", zorder=2)
+        a1.plot([0, 1, 2], d["rb9a_diff"][i], ls="none", marker=mk.marker, ms=mk.size, color=mk.colour, zorder=4, label=f"{tau:g} ms")
+    a1.axhline(d["rb9a_tol"], color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label="Allowed", zorder=2)
     a1.set_yscale("log")
     a1.set_yticks([1e-9, 1e-6, 1e-3], ["1e-9", "1e-6", "1e-3"])
     a1.minorticks_off()
@@ -178,9 +185,9 @@ def draw(d: dict, FG):
     a1.set_xlim(-0.5, 2.5)
     a1.set_xticks([0, 1, 2], ["r*tau", "v", "s*tau"], rotation=90)
     FG._journal_title(a1, "g", "Unit level")
-    a1.legend(loc="center", bbox_to_anchor=(0.5, 0.62), frameon=True, framealpha=0.95)
+    a1.legend(loc="center", bbox_to_anchor=(0.5, 0.62), frameon=True, framealpha=0.95, title="tau", handlelength=1.2)
     a1.set_ylabel("Relative difference")
-    a2 = ax_in(fig, 2.5, rtop, 0.9, 1.3)
+    a2 = ax_in(fig, 2.6, rtop, 0.95, 1.3)
     sp, cy = S.diagram_mark("fs5_spectral"), S.diagram_mark("fs5_cycle")
     a2.plot([0], [d["rb9b_f_spectral"]], ls="none", marker=sp.marker, ms=sp.size, color=sp.colour, zorder=4, label="Spectral peak")
     a2.errorbar([1], [d["rb9b_f_cycle"]], yerr=[d["rb9b_bound"]], ls="none", marker=cy.marker, ms=cy.size, color=cy.colour, capsize=3, lw=1.0, zorder=4, label=f"Cycle {PM} 1/W")
@@ -190,7 +197,7 @@ def draw(d: dict, FG):
     FG._journal_title(a2, "h", "Frequency check: " + ("PASS" if d["rb9b_within"] else "FAIL"), fail=not d["rb9b_within"])
     a2.set_ylabel("Frequency (Hz)")
     a2.text(0.5, 0.05, f"Difference {d['rb9b_diff']:.3f} Hz\n> {d['rb9b_bound']:g} Hz", transform=a2.transAxes, ha="center", va="bottom", bbox=dict(boxstyle="square,pad=0.2", fc=S.FS_COLOURS["box_face"], ec=S.FS_COLOURS["patch_edge"], lw=0.4))
-    a3 = ax_in(fig, 4.2, rtop, 1.3, 1.3)
+    a3 = ax_in(fig, 4.35, rtop, 1.35, 1.3)
     xs3 = np.arange(3, dtype=float)
     fr3 = d["rb9c_changed"] / d["rb9c_n"]
     a3.plot(xs3, fr3, ls="none", marker=pt.marker, ms=pt.size, color=pt.colour, mew=pt.width, zorder=4)
@@ -206,7 +213,7 @@ def draw(d: dict, FG):
     for x_, c_, n_ in zip(xs3, d["rb9c_changed"], d["rb9c_n"]):
         hi_ = c_ / n_ > 0.2
         a3.text(x_ - (0.25 if hi_ else 0.0), c_ / n_ + (0.0 if hi_ else 0.06), f"{int(c_)}/{int(n_)}", ha="right" if hi_ else "center", va="center" if hi_ else "bottom")
-    a4 = ax_in(fig, 6.2, rtop, 1.0, 1.3)
+    a4 = ax_in(fig, 6.45, rtop, 0.75, 1.3)
     for i, (tau, f, c) in enumerate(zip(d["rb9d_tau_ms"], d["rb9d_f_pk"], d["rb9d_class"])):
         st = S.get(c)
         a4.plot([tau], [f], ls="none", marker=st.marker, ms=S.FS_SIZES["fs5_class_g4"], color=st.colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"], zorder=4, label=f"{c}" if i == 0 else None)
@@ -264,7 +271,7 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
     if not d["rb10_headline_all_pass"] or d["rb9b_within"]:
         raise JC.JCaptionError("FS5: the stored RB10 or RB9(b) result is not the one the take-home wording needs (RB10 passes, RB9(b) fails)")
     take = (f"The surge classifier (the rule fixed before the analysis that sorts runs into classes; a surge is a transient rise of gamma-band power, {c['band'][0]} to {c['band'][1]} Hz; its call for damped against non-damped oscillations is provisional) was run on {c['n_cases']} synthetic cases and on recorded mean-field runs under "
-            f"{c['n_var']} variants that each change one setting, and the frequency check failed at the main example (the run fixed before the analysis as the main case): the spectral peak (the peak of the power spectrum of the simulated signal) is at {d['rb9b_f_spectral']:.1f} Hz and the cycle frequency "
+            f"{c['n_var']} variants that each change one setting, and the frequency check (the spectral and the cycle frequency must differ by at most {d['rb9b_bound']:g} Hz) failed at the main example (the run fixed before the analysis as the main case): the spectral peak (the peak of the power spectrum of the simulated signal) is at {d['rb9b_f_spectral']:.1f} Hz and the cycle frequency "
             f"(the frequency of the oscillation that starts at the Hopf point, where the resting state starts to oscillate) is {d['rb9b_f_cycle']:.3f} Hz, a difference of {d['rb9b_diff']:.3f} Hz against the allowed 1/W = {d['rb9b_bound']:g} Hz, "
             f"where W = {n(W)} s is the window length (a failed check). Which classes change is drawn per variant. Short windows give false surges: {int(fw[0])}, {int(fw[1])}, {int(fw[2])} and {int(fw[3])} of {int(d['white_den'][0])} white-noise records "
             f"are not NS (no rise) at windows of {n(round(wl[0], 3))}, {n(round(wl[1], 3))}, {n(round(wl[2], 3))} and {n(round(wl[3], 3))} s. The class of the main example is unchanged under all {c['n_var']} variants, and at most {c['rb10_max_pct']:.2f} percent of the "
@@ -284,14 +291,14 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
         f"(g) The relative difference between the dimensional and the non-dimensional computation of r times tau, v and s times tau at the synaptic decay times {_and(c['tau_a'])} ms (a test at the unit level on a 1 s ramp, not on the main example), against {d['rb9a_tol']:g} allowed (dashed line).",
         f"(h) The frequency check at the main example: the spectral peak ({d['rb9b_f_spectral']:.1f} Hz) and the cycle frequency ({d['rb9b_f_cycle']:.3f} Hz, with the allowed difference 1/W = {d['rb9b_bound']:g} Hz as the bar); the difference is {d['rb9b_diff']:.3f} Hz, so the check fails, "
         f"and the cells of map 1 and map 2 in which the two frequencies agree within 1/W are {d['rb9b_map1_within']} of {d['rb9b_map1_n']} and {d['rb9b_map2_within']} of {d['rb9b_map2_n']} (reported, no allowed fraction).",
-        f"(i) The fraction of cells that change class when the gamma band is {n(c['var']['band'][0])} to {n(c['var']['band'][1])} Hz instead of {c['band'][0]} to {c['band'][1]} Hz: map 1 ({int(d['rb9c_changed'][0])} of {int(d['rb9c_n'][0])}, judged against {d['rb9c_bound']:g}), and map 2 and the noisy subgrid (reported, not judged; open rings).",
-        f"(j) The peak frequency and class of the main example at the synaptic decay times {_and(c['tau_d'])} ms against the main-example value times 10/tau (marks); reported only, it feeds no check.",
+        f"(i) The fraction of cells that change class when the gamma band is {n(c['var']['band'][0])} to {n(c['var']['band'][1])} Hz instead of {c['band'][0]} to {c['band'][1]} Hz: map 1 ({int(d['rb9c_changed'][0])} of {int(d['rb9c_n'][0])}, judged against {d['rb9c_bound']:g}), and map 2 and the noisy subgrid (map cells re-run with noise; a map cell (one parameter pair of a grid of mean-field runs) is one cell of a map), reported, not judged (open rings).",
+        f"(j) The peak frequency (the peak of the power spectrum) and class of the main example at the synaptic decay times {_and(c['tau_d'])} ms against the main-example value times 10/tau (marks); reported only, it feeds no check.",
     ])
     settings = ("No spectrogram (power against time and frequency) is drawn in this figure. " + JC.settings_line(crit))
     params = (f"Recorded values (the complete list with the key names as recorded is in the supplement): model {c['type']} (the mean-field model; the mean field is the model's equations for the average activity of the population); "
               f"classifier settings of the baseline: window {n(W)} s, gamma band {c['band'][0]} to {c['band'][1]} Hz, minimum {c['cycles']} cycles, threshold {c['amin']} times the reference amplitude; the {c['n_var']} variants change one of these settings each "
               f"(band {n(c['var']['band'][0])} to {n(c['var']['band'][1])} Hz; the relative and absolute factors together {_and(c['var']['factors'])}; the minimum amplitude {_and(c['var']['amin'])}; the window times {_and(c['var']['window'])}; the minimum cycles {_and(c['var']['cycles'])}); "
-              f"{c['n_a8']} recorded classifications; window lengths {_and([round(float(x), 3) for x in d['white_W']])} s in (d) and (e); {int(d['env_n_records'])} baseline records ({int(d['env_any_above'])} have a sample at or above {c['amin']} times the reference amplitude {d['a_ref']:.6f}).")
+              f"{c['n_a8']} recorded classifications; window lengths {_and([round(float(x), 3) for x in d['white_W']])} s in (d) and (e); {int(d['env_n_records'])} baseline records ({int(d['env_any_above'])} have a sample at or above {c['amin']} times the reference amplitude {d['a_ref']:.6f}). The symbols of the reference point in the settings above are eta_bar (mean excitability), J (coupling), Delta (heterogeneity) and tau_d (synaptic decay time).")
     lines = [JC.failed_line(r) for r in d["strip"]]
     failed = (f"Failed checks that concern this figure ({len(lines)}): " + "; ".join(lines) + f". The value is blank in the stored table; the numbers ({d['rb9b_f_spectral']:.1f} Hz, {d['rb9b_f_cycle']:.3f} Hz and the difference {d['rb9b_diff']:.3f} Hz) are those of the recorded evaluation. "
               "The estimator for damped against non-damped oscillations also fails part of its own test (a limit, listed below). The project's other failed checks are not about this figure; all of them are listed in the supplement. " + JC.title_sentence(FS5_ID))
@@ -299,7 +306,7 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
               + JC.limits_paragraph(ids))
     rest = JC.uncode(" ".join([take, panels, settings, params, failed, limits]), FS5_ID)
     key = " ".join(x for x in [
-        JC.key_symbols(rest, "eta", "J", "tau", "r", "v", "N"),
+        JC.key_symbols(rest, "tau", "r", "v"),
         "A surge is a transient rise of gamma-band power; the classes are S+ (absolute and relative rise, ending), S-rel (relative rise only), S-abs (absolute rise only), S-sus (a rise that does not end), NS (no rise), "
         "D-tr (a rise that ends, in the noise-free mean field, which is the model's equations for the average activity of the population), D-sus and D-none (no episode); a failed check = a stated criterion that the result does not meet; W = the window length of the classifier.",
         JC.key_words(rest)] if x)
