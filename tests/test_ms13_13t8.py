@@ -150,7 +150,7 @@ def test_k5_1_fs3_says_which_bars_carry_the_check():
 
 def test_k5_2_f3_short_says_which_paths_coincide():
     t = (SRC / "jshort.py").read_text(encoding="utf-8")
-    assert "P1, P2, P3 and P5 coincide in (c) and (d) because they differ in J, drive or time course, which these planes do not show; P4a and P4b are drawn apart." in t
+    assert "P1, P2, P3 and P5 coincide in (c) and (d) because they differ in J, drive or time course, which these planes do not show; P4a and P4b are drawn apart in (d)." in t
     assert "The paths coincide in (c) and (d)" not in t
 
 

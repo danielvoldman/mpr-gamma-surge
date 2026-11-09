@@ -7266,3 +7266,13 @@ Chosen:          as ruled   Default from: the prompt
 Test:            -
 Status:          ruled
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-683  MS13 13t-9: text edit of one test (the expected F3 K5 sentence follows the ruled fix of review item 11)    [ID: MS13, 13t, 13t-9, N3, K5, F3, DL-681]
+Date:            2026-11-08        Author:
+Decision:        ACTION. N3 item 11 (DL-681): the F3 short caption now says 'P4a and P4b are drawn apart in (d)' (the image draws one combined arrow in (c); P4a and P4b appear only in (d) and (e)); the expected text in tests/test_ms13_13t8.py::test_k5_2_f3_short_says_which_paths_coincide follows. No data assertion is changed. The commit that changed the caption text (jshort.py) is b378fc0; this entry and the test edit are committed before the test is run again.
+Reason:          rulings N3 and N7 (test text edits logged first)
+Options:         -
+Chosen:          as ruled   Default from: the prompt
+Test:            tests/test_ms13_13t8.py
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
