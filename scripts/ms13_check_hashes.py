@@ -120,6 +120,29 @@ def check(root: Path, log_text: str, manifest: list[dict]) -> list[str]:
     return problems
 
 
+JOURNAL_IDS = ("F1", "F2", "F3", "F4a", "F4b", "F5", "F5c", "F6", "FS1", "FS2", "FS3", "FS4", "FS5")
+JOURNAL_SUFFIXES = ("png", "tiff")
+
+
+def journal_reference_problems(root: Path, log_text: str) -> list[str]:
+    """13t-9 (DL-682 N6): the journal PNG and TIFF of a figure are compared with the hash that the LATEST decision-log entry gives for the file (the path followed by the full SHA-256); a file with no logged
+    hash is not checked, and an older logged hash is not used (the PNG of F3 is not byte-reproducible between builds, so only the hash of the final build is the reference). Read-only."""
+    entries = parse_log(log_text)
+    problems = []
+    for fid in JOURNAL_IDS:
+        for suf in JOURNAL_SUFFIXES:
+            rel = f"figures/journal/{fid}/{fid}_journal.{suf}"
+            ll = last_logged(entries, rel)
+            if ll is None:
+                continue
+            p = root / rel
+            if not p.is_file():
+                problems.append(f"JOURNAL-MISSING {rel}: logged in DL-{ll[0]:03d} ({ll[1]})")
+            elif sha256_file(p) != ll[1]:
+                problems.append(f"JOURNAL-CHANGED {rel}: file {sha256_file(p)}, last logged DL-{ll[0]:03d} {ll[1]}")
+    return problems
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--write-manifest", action="store_true", help="write docs/ms13_figure_manifest.csv (the only write)")
@@ -135,7 +158,7 @@ def main(argv=None) -> int:
             w.writerows(rows)
         print(f"{len(rows)} rows written to {MANIFEST}; {sum(1 for r in rows if not r['dl'])} without a matching logged hash")
     manifest = read_manifest(root / MANIFEST)
-    problems = check(root, log_text, manifest)
+    problems = check(root, log_text, manifest) + journal_reference_problems(root, log_text)
     print(f"{len(manifest)} manifest rows, {len(problems)} problems")
     for p in problems:
         print(p)
