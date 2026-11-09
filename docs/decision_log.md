@@ -7386,3 +7386,13 @@ Chosen:          as done   Default from: the prompt
 Test:            scripts/ms13_verify_export.py; scripts/ms13_independent_compare.py; scripts/ms13_check_hashes.py
 Status:          done
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-695  MS13 13t-10: fresh-subagent review, triage, end of step    [ID: MS13, 13t-10, F3, F4a, F4b, FS4, FS5, O5, O8]
+Date:            2026-11-09        Author:
+Decision:        FACT. ONE NEW fresh-subagent review (general-purpose, read-only) of F3, F4a, F4b, FS4 and FS5; its report is written WORD FOR WORD (harness indentation removed) in docs/ms13_13t10_review.md (F3, F4a, F4b) and docs/ms13_13t10_review_part2.md (FS4, FS5, five most serious findings); my triage in docs/ms13_13t10_triage.md. No rebuild after the review (O8). Confirmed by the reviewer: the FS4 numbers (0 to 55 percent; 5 to 43, 0 to 33, 5 to 55; 55 percent at the third halving, seed 0; 8 of 9 above the bound), the hollow dagger (the filled marks beneath are visible), the tau and tau_d wording of FS5, the explanation of the columns of FS5 (a), the F3 numbers. FINDINGS THAT EARN THE ONE TARGETED REBUILD OF THE NEXT STEP (each checked by me): (A1) FS4 (a) caption and alt text call the raw first crossing a small cross; the image draws a small nabla (style fs4_cross); (A2) the F4b short caption states that 1 s is the smallest duration the classifier can give; the drawn durations of the ramps shorter than 60 s are 0.3 to 0.8 s (the full caption has the scope 'ramp durations of 60 s or more'); (A3) the F4a alt text says delays 'from about 0 to about 3', the maximum is 2.0. All other findings (wording, jargon, density, design) are in the triage table B and left. Tests added: tests/test_ms13_13t10.py 15 (1514 + 15 = 1529 expected); test text edits: one (tests/test_ms13_13t9_fs.py line 59, DL-693) and the new text of the 15. Nothing tagged, pushed or uploaded. FAILS SHOWN, none dropped: RB1 FAIL, RB2 FAIL, RB3(a), RB3(b), RB6 solver FAIL (181 ms), RB6 network f_pk FAIL, RB9(b) FAIL (4.391 Hz against 0.5 Hz), G7 NOT PASSED, D24 noisy subgrid FAILED (97 of 225 = 43.1 percent, 203 needed), the sigma check FAIL. The end-of-step fast suite result follows in the next entry.
+Reason:          O5, O8
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            full fast suite
+Status:          done; three caption findings open for the next step
+Commit/tag:      the commit that adds this entry; no tag

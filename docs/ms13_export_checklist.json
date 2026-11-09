@@ -1854,6 +1854,54 @@
    "figure": "all",
    "status": "passing",
    "note": "13t-9 one recorded build of the finished journal figures, verifier, comparison, digests, new review (DL-682)"
+  },
+  {
+   "id": "O1-fs4-number",
+   "figure": "FS4",
+   "status": "passing",
+   "note": "13t-10 FS4 range 0 to 55 and largest 55 at the third halving read from the array; independent rows over all halvings equal (DL-690, DL-693, DL-694)"
+  },
+  {
+   "id": "O2-superlatives",
+   "figure": "all",
+   "status": "passing",
+   "note": "13t-10 caption claims listed by script, 47 data claims checked, 4 wrong statements fixed (FS4, F4b direction, FS5 tau wording, F3 words); superlative review added to the number audit (docs/ms13_13t10_o2_table.md)"
+  },
+  {
+   "id": "O3-f4a-dagger",
+   "figure": "F4a",
+   "status": "passing",
+   "note": "13t-10 hollow outline dagger at ruled size 6.0 pt, stored positions; two attempts; looked at in full and four crops (DL-693)"
+  },
+  {
+   "id": "O4-fs4-fail-panels",
+   "figure": "FS4",
+   "status": "passing",
+   "note": "13t-10 caption says which panels are red (f, g) and which are information only"
+  },
+  {
+   "id": "O4-fs5-tau-columns-colourbar",
+   "figure": "FS5",
+   "status": "passing",
+   "note": "13t-10 tau = membrane time constant in (g), (j) and limit MS11-C4; columns of (a) stated; colour bar for (c); looked at in full and crops"
+  },
+  {
+   "id": "O4-f3-caption-words",
+   "figure": "F3",
+   "status": "passing",
+   "note": "13t-10 caption names what the image shows"
+  },
+  {
+   "id": "O5-suite-and-review",
+   "figure": "all",
+   "status": "passing",
+   "note": "13t-10 review verbatim in docs/ms13_13t10_review.md and _part2.md, triage in docs/ms13_13t10_triage.md; end suite in DL-695"
+  },
+  {
+   "id": "O8-next-step-rebuild",
+   "figure": "FS4,F4b,F4a",
+   "status": "failing",
+   "note": "next step, ONE targeted rebuild: FS4 caption/alt 'cross' vs triangle; F4b short caption 1 s floor scope (60 s or more); F4a alt text 'about 3' (docs/ms13_13t10_triage.md table A)"
   }
  ]
 }
