@@ -542,6 +542,25 @@ JOURNAL_ALLOW = {
         AllowEntry("marker-line", pl, r"marks:", r"line:",
                    "stored positions: the median of the recorded errors lies between their minimum and maximum, so its mark lies on the range line that joins them (the line is drawn from the recorded minimum to the recorded maximum); no value is moved")
         for pl in ("b", "c")),
+    # 13t-9 (DL-681 N4): FS4. Only stored coincident positions and ruled mark sizes; the verifier prints the hits by reason class (a legibility reason would be a STOP)
+    "FS4": (
+        AllowEntry("marker-marker", "a", r"marks:", r"marks:",
+                   "stored coincident positions: the raw first crossing equals the classifier onset in every recorded run, so the small cross lies on the class mark of the same row; no value is moved"),
+        AllowEntry("marker-marker", "c", r"marks:", r"marks:",
+                   "stored coincident positions and ruled mark sizes: the delays of the 10 seeds of one level at one step lie within the ruled mark size of each other (the delay does not depend on the step at the 1 ms output grid, so the four steps coincide); no value is moved, jittered or shrunk"),
+        AllowEntry("marker-marker", "d", r"marks:", r"marks:",
+                   "stored coincident positions and ruled mark sizes: the delays of the 10 seeds of one level at one step lie within the ruled mark size of each other (levels 0 and 1 are all equal at the minimum); no value is moved, jittered or shrunk"),
+        AllowEntry("marker-line", "e", r"marks:", r"line:",
+                   "stored coincident positions and ruled mark sizes: at level 0 the two recorded medians (about -1.497 and -1.5) lie within the ruled mark size of each other, so the mark of one series lies on the line of the other; no value is moved"),
+        AllowEntry("marker-marker", "f", r"marks:", r"marks:",
+                   "stored coincident positions: where the two readings of the peak frequency give the same recorded value, the ring of the spectrum-maximum reading lies on the mark of the classifier-episode reading, and the seeds share values at some steps; no value is moved"),
+        AllowEntry("marker-line", "f", r"marks:", r"line:",
+                   "stored coincident positions: a mark or a ring lies on the line that joins the recorded points of its own or of another seed where the recorded values coincide; the lines join stored points"),
+        AllowEntry("marker-line", "g", r"marks:", r"line:",
+                   "ruled mark sizes: a recorded change of 0, 0.05 or 0.053 lies within the ruled mark size of the reference line at the allowed change 0.02, which is a reference line, not data; no value is moved"),
+        AllowEntry("marker-marker", "i", r"marks:", r"marks:",
+                   "stored coincident positions: at two of the six positions the recorded peak frequencies at the two peak values are equal, so the two marks lie on each other; no value is moved"),
+    ),
     "FS2": (
         AllowEntry("marker-marker", "h", r"marks:", r"marks:",
                    "stored positions and ruled mark sizes (DL-651 H1): the recorded differences of the three kinds at one cell lie within the ruled mark size of each other (values near 0 to 18 percent against a 5 percent tolerance scale); "

@@ -231,7 +231,7 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
         f"The red title and the red note give the solver check: Radau minus default = {ms:g} ms against the {bound:g} ms allowed.",
         f"(b) The class and the onset shift (s) at the ramp durations {_and(c['ms11_T'])} s for the initial perturbations {_and(c['d0'])} and the relative tolerances {_and(c['rtol'])} (the default values are those of (a)): D-tr in all {c['n_ms11']} cells; "
         f"the largest shift is {n(c['shift_max'])} s.",
-        f"(c) and (d) The delay (eta_bar at the onset minus eta_bar at the Hopf point, where the resting state starts to oscillate) of every run of the noise floor (a very small added noise at three levels, 0, 1 and 2, {c['n_floor_seeds']} seeds each, integrated with the Heun scheme at "
+        f"(c) and (d) The delay (eta_bar (mean excitability) at the onset minus eta_bar at the Hopf point, where the resting state starts to oscillate) of every run of the noise floor (a very small added noise at three levels, 0, 1 and 2, {c['n_floor_seeds']} seeds each, integrated with the Heun scheme at "
         f"{len(d['floor_dt'])} time steps {_and(sorted(d['floor_dt'], reverse=True))} tau) at the main example, under the raw first crossing (c) and under the classifier onset (d); the delay is the same at every step at the 1 ms output grid, "
         f"so the points of one level lie on one another. In (d) the delays {MINUS}{abs(c['tie']):g} at levels {c['tie_levels'][0]} and {c['tie_levels'][1]} are onsets at the ramp start (the classifier-onset reading is saturated); no gate verdict changes.",
         f"(e) The median delay at the noise floor under the classifier onset at the ramp durations {_and(c['ms11_T'])} s, by level (reported only); the direction of the change with the level is called \"not strictly monotone\" at both durations "
@@ -244,7 +244,7 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
         f"(i) The peak frequency of each seed at V_p {PM}{n(c['Vp'])} against {PM}200 (reported only).",
     ])
     settings = "No spectrogram (power against time and frequency) is drawn in this figure. " + JC.settings_line(crit)
-    params = (f"Recorded values (the complete list with the key names as recorded is in the supplement): model {c['type']} (the mean field, that is the model's equations for the average activity of the population) at the second validation point (eta_bar {n(JC.pv(rows, 'model.eta_bar'))}, "
+    params = (f"Recorded values (the complete list with the key names as recorded is in the supplement): model {c['type']} (the mean-field model; the mean field is the model's equations for the average activity of the population) at the second validation point (eta_bar {n(JC.pv(rows, 'model.eta_bar'))}, "
               f"J {n(JC.pv(rows, 'model.J')).replace('-', MINUS)}, Delta {n(JC.pv(rows, 'model.Delta'))}, tau_d {n(JC.pv(rows, 'model.tau_d_ms'))} ms); default initial perturbation {n(c['d0_default'])} and relative tolerance {n(c['rtol_default'])}; "
               f"initial perturbations {_and(sorted(c['d0'] + [c['d0_default']]))} and relative tolerances {_and(sorted(c['rtol'] + [c['rtol_default']]))} in (a) and (b); the ramp duration is {n(c['T_main'])} s in (a), (c) and (d), "
               f"{_and(c['ms11_T'])} s in (b) and (e) and {n(c['T_net'])} s in (f) to (i); noise: the {JC.pv(rows, 'noise.scheme')} scheme with the time steps of (c) and (d); network of N = {c['N']:,} neurons with {c['n_seeds']} seeds, peak value V_p = {n(c['Vp'])} "
@@ -253,7 +253,8 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
     failed = (f"Failed checks that concern this figure ({len(lines)}): " + "; ".join(lines) + f". The network row has no value in the stored table; the recorded evaluation gives {d['net_ce_n_pass']} of {c['n_seeds']} seeds passing under the "
               f"classifier-episode reading and {d['net_psd_n_pass']} of {c['n_seeds']} under the spectrum-maximum reading (the check fails if any seed that can be evaluated fails). The solver difference is drawn in (a) and the changes of the network peak "
               "frequency in (f) and (g); results that rest on the network peak frequency are not used as evidence. The project's other failed checks are not about this figure; all of them are listed in the supplement. " + JC.title_sentence(FS4_ID))
-    limits = ("In the limits below, T_ramp is the ramp duration T_ramp (in seconds), the main example is the run of the first paragraph, and control (the same network without the ramp) runs are runs of the project that are not drawn in this figure. " + JC.limits_paragraph(ids))
+    limits_text = ("In the limits below, T_ramp is the ramp duration T_ramp (in seconds), the main example is the run of the first paragraph, and control (the same network without the ramp) runs are runs of the project that are not drawn in this figure. " + JC.limits_paragraph(ids))
+    limits = limits_text.replace("the classifier onset ties and does not meet it", "the classifier onset gives equal delays and does not meet it")      # 'ties' needs the map-cell definition of the term; the meaning here is equal delays
     rest = JC.uncode(" ".join([take, panels, settings, params, failed, limits]), FS4_ID)
     key = " ".join(x for x in [
         JC.key_symbols(rest, "eta", "Delta", "J", "tau_d", "tau", "r", "v", "N", "M3"),

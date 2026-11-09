@@ -69,7 +69,7 @@ UNCODE = (
     (r"RB2 failed:", "The noise-robustness check failed:", "RB2"),
     # 13t-9 (DL-681 N4): FS4 and FS5
     (r"The check RB6 solver onset \(", "The solver check (", "RB6 solver_onset_headline"),
-    (r"The check RB6 network f_pk \(", "The network peak-frequency check (", "RB6 network_fpk_halving_dt"),
+    (r"The check RB6 network f_pk \(", "The check of the network peak frequency (", "RB6 network_fpk_halving_dt"),
     (r"The check RB9\(b\) \(", "The frequency check (", "RB9(b)"),
     (r"RB6 \(numerical convergence\), agreement of the two solvers on the headline onset", "Numerical-convergence check, agreement of the two solvers on the onset of the main example", "RB6 solver_onset_headline"),
     (r"RB6 \(numerical convergence\), the network peak frequency f_pk when the step is halved", "Numerical-convergence check, the network peak frequency when the time step is halved", "RB6 network_fpk_halving_dt"),
