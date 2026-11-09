@@ -29,6 +29,9 @@ VAR_LABELS = {"V0": "Baseline", "band_30_120": "Band 30 to 120 Hz", "factors_1.5
 GROUP_LABELS = ("Mean field", "Hold, point 1", "Hold, point 2", "Noise cases", "No-noise cases")
 
 
+VBAND = (30, 120)      # the band of the variant band_30_120; tests/test_ms13_13t9_fs.py compares it with the stored variant name
+
+
 def case_numbers(d: dict) -> tuple:
     """([case number of each row of (a)], [(case number, stored record name)]): the cases are numbered in the order of their first row."""
     names = []
@@ -210,7 +213,7 @@ def draw(d: dict, FG):
     a3.set_xticks(xs3, ["Map 1", "Map 2", "Subgrid"], rotation=90)
     a3.set_xlim(-0.5, 2.5)
     a3.set_ylim(-0.09, 0.95)
-    FG._journal_title(a3, "i", "Band 30 to 120 Hz")
+    FG._journal_title(a3, "i", f"Band {VBAND[0]} to {VBAND[1]} Hz")
     a3.set_ylabel("Fraction changed")
     a3.legend(loc="upper left", frameon=True, framealpha=0.95)
     for x_, c_, n_ in zip(xs3, d["rb9c_changed"], d["rb9c_n"]):
@@ -241,7 +244,19 @@ def consts(d: dict, rows: list, raw: dict, crit: dict) -> dict:
     syn_cases = len({lab.split(" | ")[0] for lab in d["syn_label"]})
     return {"type": pv(rows, "model.type", "A8_sensitivity"), "n_cases": syn_cases, "n_rows": len(d["syn_label"]), "n_var": len(d["variants"]) - 1, "band": [JC.num(v) for v in c["band_primary_hz"]["value"]],
             "cycles": JC.num(c["min_cycles"]["value"]), "amin": JC.num(c["amin_factor"]["value"]), "rb10_max_pct": 100.0 * float(np.max(d["rb10_fraction"])), "n_a8": len(raw["a8"]),
-            "tau_a": [float(x) for x in d["rb9a_tau_ms"]], "tau_d": [float(x) for x in d["rb9d_tau_ms"]], "var": variant_values(d)}
+            "tau_a": [float(x) for x in d["rb9a_tau_ms"]], "tau_d": [float(x) for x in d["rb9d_tau_ms"]], "var": variant_values(d), "rw": ramp_windows(d)}
+
+
+def ramp_windows(d: dict) -> dict:
+    """The ramp durations and window lengths of the rows of (a), per mode, parsed from the row labels 'record | 120 s | W 2'."""
+    out: dict = {"N": ([], []), "D": ([], [])}
+    for lab, mode in zip(d["syn_label"], d["syn_mode"]):
+        _rec, t, w = lab.split(" | ")
+        t_, w_ = float(t.replace(" s", "")), float(w.replace("W ", ""))
+        if t_ not in out[mode][0]:
+            out[mode][0].append(t_)
+            out[mode][1].append(w_)
+    return out
 
 
 def variant_values(d: dict) -> dict:
@@ -281,7 +296,7 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
             f"{d['rb10_n_cells']} map-1 cells change class against the {100 * FG.FS5_RB10_BOUND:g} percent allowed (passes). The frequency mapping at the unit level passes ({_e(d['rb9a_value'])} against {d['rb9a_tol']:g}; one test at a time), the band check "
             f"passes ({int(d['rb9c_changed'][0])} of {int(d['rb9c_n'][0])} cells change class), and the check at other synaptic decay times is reported only.")
     panels = " ".join([
-        f"(a) The class that the classifier gives each of the {c['n_cases']} synthetic cases (the {c['n_rows']} rows: the cases of the noise mode at the ramp durations 120 s and 3 s, the window being 2 s and 0.2 s, and the cases of the no-noise mode at 120 s) "
+        f"(a) The class that the classifier gives each of the {c['n_cases']} synthetic cases (the {c['n_rows']} rows: the cases of the noise mode at the ramp durations {_and(c['rw']['N'][0])} s, the window being {_and(c['rw']['N'][1])} s, and the cases of the no-noise mode at {_and(c['rw']['D'][0])} s) "
         f"under the baseline settings and the {c['n_var']} variants (columns): one mark per cell, class names as in the Key, and 'not run' where the variant's window does not fit; the expected class of a case is not recorded and is not drawn. "
         "The case numbers stand for the recorded case names (in the supplement).",
         f"(b) A summary of the tests of the classifier, read as source text and never run: {d['tests_n'][0]} and {d['tests_n'][1]} test functions in two files, {len(d['tests_xfail_name'])} of them marked as expected failures (strict); the names and the reasons are in the supplement.",
@@ -353,9 +368,9 @@ def alt_text(d: dict, c: dict) -> dict:
         "d": "Six lines of the share of cells at or above five levels of the baseline ratio rho, one line per window length.",
         "e": f"Six stacked bars of the classes of {int(d['white_den'][0])} white-noise records at six window lengths, with the number of records that are not NS above each bar ({', '.join(str(int(x)) for x in d['white_nonNS'])}).",
         "f": f"Nine marks of the fraction of map-1 cells that change class under the nine variants, all left of the dashed line at {FG_RB10}.",
-        "g": "Marks of the relative difference at the unit level for two synaptic decay times and three quantities, far below a dashed line at 0.005.",
+        "g": f"Marks of the relative difference at the unit level for two synaptic decay times and three quantities, far below a dashed line at {d['rb9a_tol']:g}.",
         "h": f"A spectral peak at {d['rb9b_f_spectral']:.1f} Hz and a cycle frequency at {d['rb9b_f_cycle']:.3f} Hz with an error bar of {d['rb9b_bound']:g} Hz; the title is red and reads 'Frequency check: FAIL'.",
-        "i": "Three marks of the fraction of cells that change class (map 1, map 2, subgrid) with a dashed line at 0.05 and open rings on the two reported ones.",
+        "i": f"Three marks of the fraction of cells that change class (map 1, map 2, subgrid) with a dashed line at {d['rb9c_bound']:g} and open rings on the two reported ones.",
         "j": "Three marks of the peak frequency at three synaptic decay times with the main-example value times 10 over tau as a second mark.",
     }
 

@@ -23,7 +23,7 @@ import json
 import re
 from pathlib import Path
 
-CAPTION_FILES = ("jcaption", "jshort", "jf26", "jf4cap", "jfs2", "jfs3", "jfs", "plain", "captions", "jf4")      # the builders of the journal captions and the text of the journal images
+CAPTION_FILES = ("jcaption", "jshort", "jf26", "jf4cap", "jfs2", "jfs3", "jfs4", "jfs5", "jfs", "plain", "captions", "jf4")      # the builders of the journal captions and the text of the journal images
 NUM = re.compile(r"(?<![A-Za-z_0-9.\-−+/])(?:[−-])?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?:e[−+-]?\d+)?(?![A-Za-z_]|\.\d)")
 SKIP_NAMES = {"FAILED_DETECT", "ID_PATTERN", "PLAIN_WORD_BAN"}
 SMALL = {"0", "1", "2", "3"}
@@ -233,6 +233,10 @@ GROUP_RULES += [
     (r"jfs", _ANY, _ANY, "T", "a parameter of FS1 that the text restates (built from the recorded rows)"),
     (r"captions", r"(DURATION_FLOOR_TEXT|D2_STATEMENT|NOISE_BAR_TEXT)", _ANY, "R", "ruled wording of the draft captions (duration floor, D2 statement, noise bar)"),
     (r"jf4cap|jf4", _ANY, _ANY, "T", "a grid value or count of the F4 files that the text restates (start distances 0.5, 1.5, 3.0 of the F4 sweep; counts read by f4_facts)"),
+    (r"jfs4", r"(draw|alt_text|source_rows|panels|params|key)", r"200|100", "R", "the V_p check value 200 and the default 100 of the project's peak and reset values (plan R5, single source); 100 is also read from the recorded network parameters at build time"),
+    (r"jfs4", _ANY, _ANY, "T", "an axis limit, tick or label of the FS4 drawing, or a setting that the text restates and that is read at build time (consts: the recorded rows and the stored A7 and A11 tables)"),
+    (r"jfs5", r"UNDEFINED_UNVERIFIED", _ANY, "P", "plan wording of the total band (1 to 150 Hz)"),
+    (r"jfs5", _ANY, _ANY, "T", "an axis limit, tick or label of the FS5 drawing, a typed plain label of a stored variant name (tests/test_ms13_13t9_fs.py compares its number with the stored name), or a setting read at build time"),
 ]
 
 

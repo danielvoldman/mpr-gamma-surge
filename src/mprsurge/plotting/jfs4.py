@@ -123,7 +123,7 @@ def draw(d: dict, FG):
         mk = S.diagram_mark(f"fs4_s{s_}")
         axf.plot([0, 1, 2], d["net_rel_change"][s_], ls="none", marker=mk.marker, ms=mk.size, color=mk.colour, mew=mk.width, zorder=3, label=f"Seed {s_}")
     axf.axhline(FG.FS4_RB6_FPK_BOUND, color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label=f"Allowed {FG.FS4_RB6_FPK_BOUND:g}", zorder=2)
-    axf.set_xticks([0, 1, 2], ["1e-3 to\n5e-4", "5e-4 to\n2.5e-4", "2.5e-4 to\n1e-4"])
+    axf.set_xticks([0, 1, 2], [f"{a:g} to\n{b:g}" for a, b in zip(d["net_dt"][:-1], d["net_dt"][1:])])
     axf.set_xlabel("Halving of the network time step")
     axf.set_xlim(-0.5, 2.5)
     axf.set_ylim(-0.03, 0.78)
@@ -300,7 +300,7 @@ def source_rows(d: dict, FG) -> list:
 
 def alt_text(d: dict, c: dict) -> dict:
     return {
-        "a": f"Six rows, one per numerical setting, with a class mark and a cross at the onset of the main example between 58.65 and 58.93 s; five rows lie at {c['onset_default']:g} s and the Radau row at {c['onset_radau']:g} s; the title is red "
+        "a": f"{c['n_rows']} rows, one per numerical setting, with a class mark and a cross at the onset of the main example between 58.65 and 58.93 s; five rows lie at {c['onset_default']:g} s and the Radau row at {c['onset_radau']:g} s; the title is red "
              f"('Solver check: FAIL') and a red note gives Radau minus default = {d['head_radau_minus_default_ms']:g} ms against 1 ms allowed.",
         "b": f"Two rows of marks (ramp durations {c['ms11_T'][0]:g} s and {c['ms11_T'][1]:g} s) for four settings, each labelled with its onset shift in s; all marks are the class D-tr.",
         "c": "Delay of the noise-floor runs under the raw first crossing against the Heun time step (log axis): three levels of ten seeds each at four steps, the points of one level on one another; the delays are small and negative.",
