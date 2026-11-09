@@ -7406,3 +7406,13 @@ Chosen:          as done   Default from: the prompt
 Test:            tests/test_ms13_13r2.py; full fast suite
 Status:          done
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-697  MS13 13t-10: second end-of-step fast suite passes    [ID: MS13, 13t-10, O5]
+Date:            2026-11-09        Author:
+Decision:        FACT. Second end-of-step fast suite on the committed state of DL-696 (exit code taken from pytest itself, PYTEST-EXIT=0): 1529 passed, 24 deselected, 9 xfailed, 7 warnings, 1190.87 s (1514 at the start plus the 15 tests of tests/test_ms13_13t10.py). This entry (text only) was added after that run; after it scripts/ms13_check_hashes.py and the log-reading tests (tests/test_ms13_review_aids.py) were run again, the full suite was not (reported). Nothing tagged, pushed or uploaded.
+Reason:          O5 (b)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            full fast suite
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
