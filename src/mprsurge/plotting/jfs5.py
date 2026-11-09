@@ -89,23 +89,23 @@ def draw(d: dict, FG):
     for i in range(frac.shape[0]):
         for j in range(frac.shape[1]):
             nr = int(d["chg_not_run"][i, j])
-            axc.text(j, i, f"{int(d['chg_changed'][i, j])}/{int(d['chg_n'][i])}" + (f"\n{nr} not run" if nr else ""), ha="center", va="center",
+            axc.text(j, i, f"{int(d['chg_changed'][i, j])}/{int(d['chg_n'][i])}" + ("*" if nr else ""), ha="center", va="center",
                      color=S.FS_COLOURS["text_on_light"] if frac[i, j] < S.FS5_TEXT_DARK_ABOVE else S.FS_COLOURS["text_on_dark"])
     axc.set_xticks(range(frac.shape[1]), [VAR_LABELS[v] for v in var[1:]], rotation=40, ha="right")
     axc.set_yticks(range(frac.shape[0]), GROUP_LABELS)
     axc.set_ylim(frac.shape[0] - 0.5, -0.5)
-    FG._journal_title(axc, "c", "Records whose class changes against the baseline")
+    FG._journal_title(axc, "c", "Class changes against baseline; * includes not run")
     # (d)
     axd = ax_in(fig, 5.55, 6.5, 1.65, 1.6)
     for i, w in enumerate(d["reach_W"]):
         mk = S.diagram_mark(f"w_{i}")
         axd.plot(d["reach_level"], d["reach_share"][i], color=mk.colour, ls=mk.linestyle, lw=0.8, marker=mk.marker, ms=mk.size, mfc=mk.colour if mk.filled else "none", mew=mk.width, zorder=3,
-                 label=f"{w:.3g} s ({int(d['reach_n_cells'][i])} cells)")
+                 label=f"{w:.3g} s ({int(d['reach_n_cells'][i])})")
     axd.set_xlabel("Baseline ratio rho, level")
     axd.set_ylabel("Share of cells")
     axd.set_ylim(0.0, 1.05)
     FG._journal_title(axd, "d", "Baseline rho reached")
-    axd.legend(loc="lower left", frameon=True, framealpha=0.95, title="Window", fontsize=None)
+    axd.legend(loc="lower left", frameon=True, framealpha=0.95, title="Window (cells)")
     # (e)
     axe = ax_in(fig, 0.95, 9.3, 3.0, 1.9)
     bottom = np.zeros(len(d["white_W"]))
@@ -134,7 +134,7 @@ def draw(d: dict, FG):
     axf = ax_in(fig, 5.45, 9.3, 1.75, 1.9)
     mk10 = S.diagram_mark("fs5_pt")
     yv = np.arange(len(d["rb10_variant"]), dtype=float)
-    axf.plot(d["rb10_fraction"], yv, ls="none", marker=mk10.marker, ms=mk10.size, color=mk10.colour, mew=mk10.width, zorder=4, label=f"Map-1 cells that change class (of {d['rb10_n_cells']})")
+    axf.plot(d["rb10_fraction"], yv, ls="none", marker=mk10.marker, ms=mk10.size, color=mk10.colour, mew=mk10.width, zorder=4, label="Cells that change class")
     tol = S.diagram_mark("tol_band")
     axf.axvline(FG.FS5_RB10_BOUND, color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label=f"Allowed {FG.FS5_RB10_BOUND:g}", zorder=2)
     axf.set_yticks(yv, [VAR_LABELS[v] for v in d["rb10_variant"]])
@@ -142,16 +142,16 @@ def draw(d: dict, FG):
     axf.set_xlim(-0.005, 0.30)
     axf.set_xlabel("Fraction of cells")
     FG._journal_title(axf, "f", "Main-example class " + ("unchanged" if d["rb10_headline_all_pass"] else "changed"))
-    axf.legend(loc="lower right", frameon=True, framealpha=0.95)
+    axf.legend(loc="center right", frameon=True, framealpha=0.95)
     # (g) to (j)
     pt = S.diagram_mark("fs5_pt")
-    a1 = ax_in(fig, 0.85, 12.0, 1.3, 1.5)
+    a1 = ax_in(fig, 0.8, 12.0, 1.05, 1.5)
     for i, tau in enumerate(d["rb9a_tau_ms"]):
         mk = S.diagram_mark(f"rb9a_{i}")
         a1.plot([0, 1, 2], d["rb9a_diff"][i], ls="none", marker=mk.marker, ms=mk.size, color=mk.colour, zorder=4, label=f"tau {tau:g} ms")
     a1.axhline(d["rb9a_tol"], color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label=f"Allowed {d['rb9a_tol']:g}", zorder=2)
     a1.set_yscale("log")
-    a1.set_yticks([1e-9, 1e-6, 1e-3], ["0.000000001", "0.000001", "0.001"])
+    a1.set_yticks([1e-9, 1e-6, 1e-3], ["1e-9", "1e-6", "1e-3"])
     a1.minorticks_off()
     a1.set_ylim(1e-10, 3e-2)
     a1.set_xlim(-0.5, 2.5)
@@ -159,7 +159,7 @@ def draw(d: dict, FG):
     FG._journal_title(a1, "g", "Unit level")
     a1.legend(loc="center", bbox_to_anchor=(0.5, 0.62), frameon=True, framealpha=0.95)
     a1.set_ylabel("Relative difference")
-    a2 = ax_in(fig, 3.0, 12.0, 1.05, 1.5)
+    a2 = ax_in(fig, 2.5, 12.0, 0.9, 1.5)
     sp, cy = S.diagram_mark("fs5_spectral"), S.diagram_mark("fs5_cycle")
     a2.plot([0], [d["rb9b_f_spectral"]], ls="none", marker=sp.marker, ms=sp.size, color=sp.colour, zorder=4, label="Spectral peak")
     a2.errorbar([1], [d["rb9b_f_cycle"]], yerr=[d["rb9b_bound"]], ls="none", marker=cy.marker, ms=cy.size, color=cy.colour, capsize=3, lw=1.0, zorder=4, label=f"Cycle {PM} 1/W")
@@ -169,7 +169,7 @@ def draw(d: dict, FG):
     FG._journal_title(a2, "h", "Frequency check: " + ("PASS" if d["rb9b_within"] else "FAIL"), fail=not d["rb9b_within"])
     a2.set_ylabel("Frequency (Hz)")
     a2.text(0.5, 0.06, f"Difference {d['rb9b_diff']:.3f} Hz\n> {d['rb9b_bound']:g} Hz", transform=a2.transAxes, ha="center", va="bottom", bbox=dict(boxstyle="square,pad=0.2", fc=S.FS_COLOURS["box_face"], ec=S.FS_COLOURS["patch_edge"], lw=0.4))
-    a3 = ax_in(fig, 4.9, 12.0, 1.3, 1.5)
+    a3 = ax_in(fig, 4.2, 12.0, 1.3, 1.5)
     xs3 = np.arange(3, dtype=float)
     fr3 = d["rb9c_changed"] / d["rb9c_n"]
     a3.plot(xs3, fr3, ls="none", marker=pt.marker, ms=pt.size, color=pt.colour, mew=pt.width, zorder=4)
@@ -185,7 +185,7 @@ def draw(d: dict, FG):
     for x_, c_, n_ in zip(xs3, d["rb9c_changed"], d["rb9c_n"]):
         hi = c_ / n_ > 0.2
         a3.text(x_ - (0.25 if hi else 0.0), c_ / n_ + (0.0 if hi else 0.06), f"{int(c_)}/{int(n_)}", ha="right" if hi else "center", va="center" if hi else "bottom")
-    a4 = ax_in(fig, 6.35, 12.0, 0.85, 1.5)
+    a4 = ax_in(fig, 6.2, 12.0, 1.0, 1.5)
     for i, (tau, f, c) in enumerate(zip(d["rb9d_tau_ms"], d["rb9d_f_pk"], d["rb9d_class"])):
         st = S.get(c)
         a4.plot([tau], [f], ls="none", marker=st.marker, ms=S.FS_SIZES["fs5_class_g4"], color=st.colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"], zorder=4, label=f"{c}" if i == 0 else None)
