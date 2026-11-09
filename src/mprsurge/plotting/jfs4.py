@@ -1,5 +1,5 @@
 """MS13 13t-9 (DL-681 N4, DL-651 H1, H2): the journal export of FS4 (numerical checks: solver, tolerance, initial perturbation, noise floor, network time step and peak value V_p) as a stand-alone
-supplement file at the size of the draft (7.4 x 13.8 in).
+supplement file at the width of the draft (7.4 in; height 14.4 in, the limit of the FS profile, because the panels are placed in inches).
 
 Same drawing data as the draft (prepare_FS4); plain words on the image, 8 pt, sentence case; the status block of the draft is not on the image (its lines are in the caption and the supplement). ONE caption
 (`FS4_journal_caption.txt`, seven labelled paragraphs, no word limit). Every number of the caption is read from the prepared data, the stored A11 rows, the stored A7 table or the recorded parameter rows (N2);
@@ -17,7 +17,7 @@ from . import journal as J
 from . import style as S
 
 FS4_ID = "FS4"
-FS4J_HEIGHT = 13.8
+FS4J_HEIGHT = 14.4
 MINUS = chr(0x2212)
 PM = chr(0xb1)
 UNDEFINED_UNVERIFIED = ("'classifier onset' and 'raw first crossing' are the two onset readings of the plan; the plain glosses are ours",
@@ -27,17 +27,15 @@ UNDEFINED_UNVERIFIED = ("'classifier onset' and 'raw first crossing' are the two
 
 
 def draw(d: dict, FG):
-    """FS4 journal drawing (own plain text; the draft's gridspec rows without the status row; the draft's size 7.4 x 13.8 in)."""
-    from matplotlib.lines import Line2D
-    fig, cfg = FG._journal_fig(FS4J_HEIGHT, constrained=True, fid=FS4_ID)
+    """FS4 journal drawing (own plain text; the draft's panels and data, placed in inches because the constrained layout cannot place them at 8 pt; width 7.4 in as the draft)."""
+    fig, cfg = FG._journal_fig(FS4J_HEIGHT, constrained=False, fid=FS4_ID)
     T = S.figure_colour
-    fig.get_layout_engine().set(w_pad=0.18, h_pad=0.14)
-    gs = fig.add_gridspec(4, 6, height_ratios=list(S.FS_LAYOUT["fs4_row_ratios"][:4]))
     tol = S.diagram_mark("tol_band")
     fcl = S.diagram_mark("fs4_cross")
     edge = T("bar_edge")
+    ax_in = FG._ax_in
     # (a)
-    ax = fig.add_subplot(gs[0, 0:4])
+    ax = ax_in(fig, 1.7, 0.45, 3.0, 2.15)
     n = len(d["head_label"])
     for i in range(n):
         st = S.get(d["head_class"][i])
@@ -48,25 +46,26 @@ def draw(d: dict, FG):
     ax.set_ylim(n - 0.5, -0.5)
     ax.set_xlim(58.65, 58.93)
     ax.set_xlabel("Onset (s)")
-    FG._journal_title(ax, "a", "Main example: onset by setting; solver check: FAIL", fail=d["head_radau_minus_default_ms"] > FG.FS4_RB6_SOLVER_BOUND_MS)
-    ax.text(0.99, 0.42, f"Solver check: FAIL\nRadau {MINUS} default = {d['head_radau_minus_default_ms']:g} ms\nagainst the {FG.FS4_RB6_SOLVER_BOUND_MS:g} ms bound", transform=ax.transAxes, ha="right", va="center",
+    FG._journal_title(ax, "a", "Onset by setting; solver check: FAIL", fail=d["head_radau_minus_default_ms"] > FG.FS4_RB6_SOLVER_BOUND_MS)
+    ax.text(0.98, 0.40, f"Solver check: FAIL\nRadau {MINUS} default = {d['head_radau_minus_default_ms']:g} ms\nagainst the {FG.FS4_RB6_SOLVER_BOUND_MS:g} ms allowed", transform=ax.transAxes, ha="right", va="center",
             color=T("fail_text"), bbox=dict(boxstyle="square,pad=0.25", fc=S.FS_COLOURS["box_face"], ec=T("fail_text"), lw=0.5))
     ax.legend(loc="upper right", frameon=True, framealpha=0.95)
     # (b)
-    axb = fig.add_subplot(gs[0, 4:6])
+    axb = ax_in(fig, 5.6, 0.45, 1.6, 2.15)
     for j in range(4):
         for i in range(2):
             st = S.get(d["ms11_class"][i][j])
             axb.plot([j], [i], ls="none", marker=st.marker, ms=S.FS_SIZES["fs4_class_b"], color=st.colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"], zorder=4)
             axb.text(j, i + 0.32, f"{d['ms11_onset_shift_s'][i, j]:g} s", ha="center", va="center")
-    axb.set_xticks(range(4), [plain_ms11_label(x) for x in d["ms11_col_label"]])
-    axb.set_yticks(range(2), [f"T_ramp {t:g} s" for t in d["ms11_T"]])
+    axb.set_xticks(range(4), [plain_ms11_label(x).replace("\n", " ") for x in d["ms11_col_label"]], rotation=45, ha="right")
+    axb.set_yticks(range(2), [f"{t:g} s" for t in d["ms11_T"]])
+    axb.set_ylabel("Ramp duration")
     axb.set_ylim(1.6, -0.5)
     axb.set_xlim(-0.6, 3.6)
-    FG._journal_title(axb, "b", "Class and onset shift")
+    FG._journal_title(axb, "b", "Class, onset shift")
     # (c), (d)
-    for col, (q, ttl, letter) in enumerate((("cross", "Noise floor, raw first crossing", "c"), ("class", "Noise floor, classifier onset", "d"))):
-        axc = fig.add_subplot(gs[1, col * 2:col * 2 + 2])
+    for col, (q, ttl, letter, left) in enumerate((("cross", "Noise floor, raw first crossing", "c", 0.95), ("class", "Noise floor, classifier onset", "d", 4.45))):
+        axc = ax_in(fig, left, 3.4, 2.7, 2.15)
         for L in (0, 1, 2):
             mk = S.diagram_mark(f"fs4_l{L}")
             arr = d[f"floor_l{L}_{q}_delay"]
@@ -76,26 +75,26 @@ def draw(d: dict, FG):
         axc.set_xlabel("Heun step (tau)")
         axc.set_ylabel("Delay of the onset" if col == 0 else "")
         FG._journal_title(axc, letter, ttl)
-        axc.set_ylim((-0.125, 0.055) if q == "cross" else (-1.64, -0.62))
+        axc.set_ylim((-0.125, 0.065) if q == "cross" else (-1.64, -0.52))
         if q == "class":
             axc.text(0.5, 0.2, f"{MINUS}1.5: onset at the ramp start", transform=axc.transAxes, ha="center", va="bottom").set_gid("d2_note")
-        axc.legend(loc="upper center", ncol=3, frameon=True, framealpha=0.95, handletextpad=0.2, columnspacing=0.8)
+        axc.legend(loc="upper center", ncol=3, frameon=True, framealpha=0.95, handletextpad=0.2, columnspacing=0.6, handlelength=1.0)
     # (e)
-    axd = fig.add_subplot(gs[1, 4:6])
+    axd = ax_in(fig, 0.95, 6.35, 2.7, 2.15)
     for i, T_ in enumerate(d["ms11_T"]):
         mk = S.diagram_mark(f"w_{i}")
         axd.plot([0, 1, 2], d["floorT_median"][i], ls="-" if i == 0 else "--", lw=0.8, marker=mk.marker, ms=S.FS_SIZES["fs4_floor_T"], color=mk.colour,
-                 mfc=mk.colour if mk.filled else "none", mew=mk.width, zorder=3, label=f"T_ramp {T_:g} s: {FG.FS4_D3_WORDS.get(d['floorT_direction'][i], d['floorT_direction'][i])}")
+                 mfc=mk.colour if mk.filled else "none", mew=mk.width, zorder=3, label=f"{T_:g} s: {FG.FS4_D3_WORDS.get(d['floorT_direction'][i], d['floorT_direction'][i])}")
     axd.set_xticks([0, 1, 2], ["Level 0", "Level 1", "Level 2"])
     axd.set_xlim(-0.4, 2.4)
-    axd.set_ylim(-1.95, -0.55)
-    axd.set_ylabel("Median delay, classifier onset")
+    axd.set_ylim(-2.1, -0.4)
+    axd.set_ylabel("Median delay")
     FG._journal_title(axd, "e", "Noise floor at 10 s and 316 s")
-    axd.legend(loc="lower center", frameon=True, framealpha=0.95)
+    axd.legend(loc="lower center", frameon=True, framealpha=0.95, title="Ramp duration")
     lo_, hi_ = int(d["floorT_raw_noonset_seeds"].min()), int(d["floorT_raw_noonset_seeds"].max())
     axd.text(0.5, 0.97, "Raw crossing: no onset in " + (f"{lo_}" if lo_ == hi_ else f"{lo_} to {hi_}") + " of 10 seeds", transform=axd.transAxes, ha="center", va="top")
     # (f)
-    axe = fig.add_subplot(gs[2, 0:3])
+    axe = ax_in(fig, 4.45, 6.35, 2.75, 2.15)
     psd = S.diagram_mark("fs4_psd")
     for s_ in range(3):
         mk = S.diagram_mark(f"fs4_s{s_}")
@@ -103,46 +102,48 @@ def draw(d: dict, FG):
         axe.plot(d["net_dt"][:2], d["net_psd_f_pk_hz"][s_], ls="none", marker=psd.marker, ms=psd.size, color=mk.colour, mew=psd.width, zorder=4, label="Open: spectrum maximum" if s_ == 0 else None)
     axe.set_xscale("log")
     axe.invert_xaxis()
-    axe.set_xlabel("Network time step (tau), decreasing")
+    axe.set_xlabel("Network time step (tau)")
     axe.set_ylabel("Peak frequency (Hz)")
-    FG._journal_title(axe, "f", "Network peak frequency against step: FAIL (not evidence)", fail="FAIL" in d["net_status"])
-    axe.set_ylim(40.0, 125.0)
+    FG._journal_title(axe, "f", "Network peak frequency: FAIL", fail="FAIL" in d["net_status"])
+    axe.set_ylim(40.0, 135.0)
     axe.legend(loc="upper center", ncol=2, frameon=True, framealpha=0.95, handletextpad=0.3, columnspacing=1.0)
     # (g)
-    axf = fig.add_subplot(gs[2, 3:6])
+    axf = ax_in(fig, 0.95, 9.15, 2.7, 2.15)
     for s_ in range(3):
         mk = S.diagram_mark(f"fs4_s{s_}")
         axf.plot([0, 1, 2], d["net_rel_change"][s_], ls="none", marker=mk.marker, ms=mk.size, color=mk.colour, mew=mk.width, zorder=3, label=f"Seed {s_}")
-    axf.axhline(FG.FS4_RB6_FPK_BOUND, color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label=f"Bound {FG.FS4_RB6_FPK_BOUND:g}", zorder=2)
+    axf.axhline(FG.FS4_RB6_FPK_BOUND, color=tol.colour, ls=tol.linestyle, lw=tol.width + 0.3, label=f"Allowed {FG.FS4_RB6_FPK_BOUND:g}", zorder=2)
     axf.set_xticks([0, 1, 2], ["1e-3 to\n5e-4", "5e-4 to\n2.5e-4", "2.5e-4 to\n1e-4"])
+    axf.set_xlabel("Halving of the network time step")
     axf.set_xlim(-0.5, 2.5)
     axf.set_ylim(-0.03, 0.78)
-    axf.set_ylabel("Relative change of peak frequency")
+    axf.set_ylabel("Relative change")
     FG._journal_title(axf, "g", "Change per step halving: FAIL", fail=bool((d["net_rel_change"] > FG.FS4_RB6_FPK_BOUND).any()))
-    axf.legend(loc="upper left", frameon=True, framealpha=0.95, labelspacing=0.5)
+    axf.legend(loc="upper right", frameon=True, framealpha=0.95, labelspacing=0.5)
     # (h)
-    axg = fig.add_subplot(gs[3, 0:3])
+    axg = ax_in(fig, 5.05, 9.15, 2.15, 2.15)
     for i, row in enumerate(d["netcls_class"]):
         for s_, c in enumerate(row):
             st = S.get(c)
             axg.plot([s_], [i], ls="none", marker=st.marker, ms=S.FS_SIZES["fs4_class"], color=st.colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"], zorder=4)
             axg.text(s_ + 0.16, i, c, va="center")
-    axg.set_yticks(range(len(d["netcls_row"])), [r.replace("V_p ", "V_p ").replace("dt", "step") for r in d["netcls_row"]])
+    axg.set_yticks(range(len(d["netcls_row"])), [r.replace("dt", "step") for r in d["netcls_row"]])
     axg.set_xticks(range(3), ["Seed 0", "Seed 1", "Seed 2"])
-    axg.set_xlim(-0.35, 2.85)
+    axg.set_xlim(-0.35, 2.95)
     axg.set_ylim(len(d["netcls_row"]) - 0.6, -0.4)
-    FG._journal_title(axg, "h", "Network class by step and V_p: information only")
+    FG._journal_title(axg, "h", "Class by step and V_p")
     # (i)
-    axh = fig.add_subplot(gs[3, 3:6])
+    axh = ax_in(fig, 0.95, 11.95, 3.6, 1.85)
     v1, v2 = S.diagram_mark("fs4_vp100"), S.diagram_mark("fs4_vp200")
     xx = np.arange(len(d["vp_seed"]), dtype=float)
-    axh.plot(xx, d["vp_f100_hz"], ls="none", marker=v1.marker, ms=v1.size, color=v1.colour, zorder=3, label="V_p " + chr(0xb1) + "100")
-    axh.plot(xx, d["vp_f200_hz"], ls="none", marker=v2.marker, ms=v2.size, color=v2.colour, mew=v2.width, zorder=4, label="V_p " + chr(0xb1) + "200")
+    axh.plot(xx, d["vp_f100_hz"], ls="none", marker=v1.marker, ms=v1.size, color=v1.colour, zorder=3, label="V_p " + PM + "100")
+    axh.plot(xx, d["vp_f200_hz"], ls="none", marker=v2.marker, ms=v2.size, color=v2.colour, mew=v2.width, zorder=4, label="V_p " + PM + "200")
     axh.set_xticks(xx, [f"{dt:g}\nseed {int(s)}" for dt, s in zip(d["vp_dt"], d["vp_seed"])])
+    axh.set_xlabel("Network time step (tau) and seed")
     axh.set_ylim(40.0, 118.0)
     axh.set_xlim(-0.5, len(xx) - 0.5)
     axh.set_ylabel("Peak frequency (Hz)")
-    FG._journal_title(axh, "i", "V_p " + chr(0xb1) + "100 against " + chr(0xb1) + "200: reported only")
+    FG._journal_title(axh, "i", "V_p " + PM + "100 against " + PM + "200")
     axh.legend(loc="upper left", frameon=True, framealpha=0.95)
     J.finish(fig, cfg, FS4_ID)
     return fig
@@ -155,7 +156,7 @@ def plain_head_label(lab: str) -> str:
     import re
     m = re.fullmatch(r"default: delta0 (\S+), rtol (\S+)", lab)
     if m:
-        return f"Default (perturbation {m.group(1)}, tolerance {m.group(2)})"
+        return "Default"
     m = re.fullmatch(r"delta0 (\S+)", lab)
     if m:
         return f"Perturbation {m.group(1)}"
@@ -164,7 +165,7 @@ def plain_head_label(lab: str) -> str:
         return f"Tolerance {m.group(1)}"
     m = re.fullmatch(r"Radau, rtol (\S+)", lab)
     if m:
-        return f"Radau solver, tolerance {m.group(1)}"
+        return "Radau solver"
     raise JC.JCaptionError(f"FS4: the setting label {lab!r} of the draft data has no plain form")
 
 
