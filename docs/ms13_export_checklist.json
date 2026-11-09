@@ -1812,6 +1812,48 @@
    "figure": "all ten or eleven",
    "status": "failing",
    "note": "13t-8 one recorded build, verifier, comparison, digests, review of F4a, F4b and changed captions (DL-669)"
+  },
+  {
+   "id": "N1-f4b-range",
+   "figure": "F4b",
+   "status": "failing",
+   "note": "13t-9 F4b (f) M2 ramp-rate range read from the stored A3 table (4.607e-05 to 0.04607), not 3.5e-5 to 0.035; STOP if the table differs (DL-680)"
+  },
+  {
+   "id": "N2-audit",
+   "figure": "all",
+   "status": "failing",
+   "note": "13t-9 audit of the numbers typed into the caption builders (docs/ms13_13t9_n2_audit.md), every wrong one fixed, test for a number without a source (DL-680)"
+  },
+  {
+   "id": "N3-items",
+   "figure": "F4a, F4b, F3",
+   "status": "failing",
+   "note": "13t-9 review items 1 to 5, 8 to 11 of docs/ms13_13t8_review.md fixed or listed; items 6 and 7 not changed (DL-681, DL-682 N5)"
+  },
+  {
+   "id": "N4-FS4",
+   "figure": "FS4",
+   "status": "failing",
+   "note": "13t-9 FS4 stand-alone supplement file under the FS profile v2, one plain caption (DL-681)"
+  },
+  {
+   "id": "N4-FS5",
+   "figure": "FS5",
+   "status": "failing",
+   "note": "13t-9 FS5 stand-alone supplement file under the FS profile v2, one plain caption (DL-681)"
+  },
+  {
+   "id": "N6-f3-png",
+   "figure": "F3",
+   "status": "failing",
+   "note": "13t-9 F3 PNG not byte-reproducible: reference = hash of the latest decision-log entry; checker compares journal files with it (DL-682)"
+  },
+  {
+   "id": "N7-build",
+   "figure": "all",
+   "status": "failing",
+   "note": "13t-9 one recorded build of the finished journal figures, verifier, comparison, digests, new review (DL-682)"
   }
  ]
 }

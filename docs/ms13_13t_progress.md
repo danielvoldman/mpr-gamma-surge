@@ -82,3 +82,26 @@ Journal split (DL-667 K2): F4a = draft (a), (f), (g), (i), (j) (the delay panels
 
 
 | 13t-8b (done, one STOP open) | rulings L1 to L5 and M1 (DL-670, DL-671); F4a and F4b integrated (plain limits, registrations, allow-lists, independent rows, K4 code check, K5 fixes, 18 new tests); one recorded build from a1199939, verifier exit 0, comparison all equal, 1490 passed at the end; fresh review in docs/ms13_13t8_review.md | a1199939 | OPEN: review item 2 (F4b (f) range 3.5e-5 to 0.035 against stored 4.607e-05 to 0.04607, STOP RULE 12) and items 1, 3 to 11 of the triage; F3 PNG not byte-reproducible (DL-677); a rebuild is needed for any fix |
+
+| 13t-9 step 1 | pre-checks passed (DL-679); fast suite at the start 1490 passed, 24 deselected, 9 xfailed, 1288.33 s; rulings N1 to N7 logged (DL-680 to DL-682) before any trial render; HEAD da31d9b; docs/ms13_13t8_notes.md named in the prompt does not exist | the commit that adds them | Part A: N1, N2 (audit table first), N3, N6; then FS4, FS5 (only after Part A is committed and tested); one build; review |
+
+## 13t-9 reading of the draft FS4 and FS5 for the journal export (DL-681 N4; read from `_draw_FS4`, `prepare_FS4`, FS4_TAKE_HOME, `fs4_caption_notes` and the same for FS5; the stored A7, A11 and A8 tables; nothing was built or changed)
+
+| figure | draft panel | what it draws | stored FAIL rows (A11 table) that concern it |
+|---|---|---|---|
+| FS4 | (a) | onset of the main example (P2 at the second validation point, T_ramp 120 s, no noise) by solver setting (perturbation 1e-9, 1e-6, 1e-3; tolerance 1e-8, 1e-10, 1e-12; Radau): classifier-onset class mark and raw first crossing; red note: Radau minus default = 181 ms against 1 ms | RB6 solver_onset_headline FAIL (181 ms, bound 1 ms) |
+| FS4 | (b) | class and onset shift of the perturbation and tolerance variants at T_ramp 10 s and 316.2278 s (2 x 4 marks, shift in s) | none (RB5 and RB6 rows PASS or REPORTED) |
+| FS4 | (c), (c2) | the delay of every noise-floor run (levels 0 to 2, 10 seeds) against the Heun step (four values), under the raw first crossing and under the classifier onset; the classifier delays tie at -1.5 at levels 0 and 1 | RB3(b) is not an FS4 row; shown as information |
+| FS4 | (d) | median delay at the noise floor at 10 s and 316 s, classifier onset, by level (direction word 'not strictly monotone') | none (reported only) |
+| FS4 | (e) | network peak frequency of 3 seeds against the network time step (4 values), open marks: the spectrum-maximum reading of the first halving | RB6 network_fpk_halving_dt FAIL (0 of 3 seeds pass under the classifier-episode reading, 2 of 3 under the spectrum maximum) |
+| FS4 | (f) | relative change of the network peak frequency per halving of the step against the bound 0.02 (5 to 43 percent for the first halving) | RB6 network_fpk_halving_dt FAIL |
+| FS4 | (g) | network class by step and V_p, 3 seeds (information only) | none |
+| FS4 | (h) | peak frequency at V_p +-100 against +-200 per step and seed (reported only) | none |
+| FS5 | (a) | classes of the 26 synthetic cases (39 rows) under the baseline and nine variants (one mark per cell; class names; 'not run') | RB9(b) is not drawn here; the classifier's D8 estimator fails 2 of 8 ring items (limit, not a row) |
+| FS5 | (b) | the test source text: counts of test functions and the strict-xfail marks (names and reasons) | none |
+| FS5 | (c) | records whose class changes against the baseline, per group and variant | none |
+| FS5 | (d) | share of cells whose baseline rho is at or above a level, per window | none |
+| FS5 | (e) | white-noise records per class out of 500, per window (306, 400, 172 and 24 not NS) | none (limit DL-163 departure 4) |
+| FS5 | (f) | fraction of map-1 cells that change class under nine variants against the bound 0.10 (largest 1.67 percent) | none (RB10 PASS) |
+| FS5 | (g1) to (g4) | unit-level frequency mapping; spectral peak 49.0 Hz against cycle frequency 44.609 Hz +- 1/W (0.5 Hz); band 30 to 120 Hz on map 1, map 2 and the subgrid; synaptic time 8, 10, 12 ms | RB9(b) b_spectral_vs_cycle_headline FAIL (4.391 Hz against 0.5 Hz) |
+| 13t-9 Part A | N1, N2, N3, N5, N6 done (DL-683, DL-684): F4b (f) range from the stored A3 table, number audit (docs/ms13_13t9_n2_audit.md, 244 stored numbers all equal), review items fixed or listed, F3 reference rule; tests/test_ms13_13t9.py | the commits after 2f311cc | Part B: FS4, FS5, then one build, verifier, comparison, review; no tag |
