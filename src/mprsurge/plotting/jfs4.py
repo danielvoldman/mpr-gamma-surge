@@ -245,7 +245,7 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
     rest = " ".join([take, panels, settings, params, failed, limits])
     key = " ".join(x for x in [
         JC.key_symbols(rest, "eta", "Delta", "J", "tau_d", "tau", "r", "v", "N", "M3"),
-        "V_p = the peak value of the membrane potential of a network neuron at which it is reset to the negative of that value (plan: peak and reset values, 100 and the check value 200); the Heun scheme is the fixed-step scheme for the noisy runs; "
+        "V_p = the peak value of the membrane potential of a network neuron at which it is reset to the negative of that value (the project's values are 100 and, as a check, 200); the Heun scheme is the fixed-step scheme for the noisy runs; "
         "the initial perturbation is the small starting displacement of v; the relative tolerance is the error tolerance of the solver; a failed check = a stated criterion that the result does not meet.",
         JC.class_key(), JC.key_words(rest)] if x)
     return JC.assemble(FS4_ID, take_home=take, panels=panels, key=key, settings=settings, parameters=params, failed=failed, limits=limits)
