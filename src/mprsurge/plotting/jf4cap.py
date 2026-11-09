@@ -202,6 +202,7 @@ def f4a_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list,
               f"ramp durations T_ramp {n(c['T_lo'])} to {n(c['T_hi'])} s ({nT} values, swept) and, at the main example, T_ramp 120 s; initial perturbation delta0 = {n(c['delta0'])} on v; solver relative tolerance {n(c['rtol'])} "
               f"(the solver is named in the supplement); noise floor levels {', '.join(n(x) for x in c['floor'])} with the {c['scheme']} scheme; no other noise in this figure.")
     failed = ("Shown, not dropped (the full list with value, threshold and source is in the supplement): " + "; ".join(JC.failed_line(r) for r in strip_rows) + ". " + JC.title_sentence("F4a")
+              + f" The RB3(b) row has no stored value or threshold; what is drawn is that the classifier-onset delays tie at {MINUS}{abs(c['tie']):g} at levels {_levels(c['tie_levels'])}."
               + " The noise-robustness FAILs (RB2 headline class kept, RB2 noisy subgrid agreement, rule D24) are listed with F4b.")
     limits = JC.limits_paragraph(ids, None) + " " + JC.limit_scope(ids)
     rest = " ".join([take, panels, settings, params, failed, limits])
