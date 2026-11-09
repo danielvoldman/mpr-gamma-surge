@@ -7456,3 +7456,13 @@ Chosen:          as done   Default from: the prompt
 Test:            scripts/ms13_verify_export.py; scripts/ms13_independent_compare.py; scripts/ms13_check_hashes.py; tests/test_ms13_13t11.py
 Status:          done
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-702  MS13 13t-11: end-of-step fast suite passes, MS11 digest and A11 table unchanged    [ID: MS13, 13t-11, P5, P6]
+Date:            2026-11-09        Author:
+Decision:        FACT. End-of-step fast suite on the committed state after the last edit of the step before this entry (commit 6857b39; exit code taken from pytest itself, PYTEST-EXIT=0): 1546 passed, 24 deselected, 9 xfailed, 8 warnings, 1585.48 s (1529 at the start plus the 17 tests of tests/test_ms13_13t11.py). This entry (text only) was added after that run; after it scripts/ms13_check_hashes.py and tests/test_ms13_review_aids.py (the log-reading tests) were run again, the full suite was not (reported). MS11 digest cdafcc0831580ea4b9f7dfd8e095deb50e8b86db2974f556cf7ffe7d75637f53 over 724 files and results/A11/a11_robustness.csv b4f26b003d88f7d13dcb582786da32c1a2fe4e3b8de051ce1f494e81a1d8cffb unchanged (recomputed at the end). Failures stay visible and none was dropped: RB1 FAIL, RB2 FAIL, RB3(a), RB3(b), RB6 solver FAIL (181 ms), RB6 network f_pk FAIL, RB9(b) FAIL (4.391 Hz against 0.5 Hz), G7 NOT PASSED, D24 noisy subgrid FAILED (97 of 225 = 43.1 percent, 203 needed), the sigma check FAIL. Nothing tagged, pushed or uploaded; no subagent review; no package installed; the stray folder C:\Users\Alpha\AppData\Local\Temp\review_crops is known and was not deleted.
+Reason:          P6 end-of-step suite
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            full fast suite
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
