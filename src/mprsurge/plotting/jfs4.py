@@ -245,7 +245,7 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
     ])
     settings = "No spectrogram (power against time and frequency) is drawn in this figure. " + JC.settings_line(crit)
     params = (f"Recorded values (the complete list with the key names as recorded is in the supplement): model {c['type']} (the mean-field model; the mean field is the model's equations for the average activity of the population) at the second validation point (eta_bar {n(JC.pv(rows, 'model.eta_bar'))}, "
-              f"J {n(JC.pv(rows, 'model.J')).replace('-', MINUS)}, Delta {n(JC.pv(rows, 'model.Delta'))}, tau_d {n(JC.pv(rows, 'model.tau_d_ms'))} ms); default initial perturbation {n(c['d0_default'])} and relative tolerance {n(c['rtol_default'])}; "
+              f"J {n(JC.pv(rows, 'model.J')).replace('-', MINUS)}, heterogeneity Delta {n(JC.pv(rows, 'model.Delta'))}, synaptic decay time tau_d {n(JC.pv(rows, 'model.tau_d_ms'))} ms); default initial perturbation {n(c['d0_default'])} and relative tolerance {n(c['rtol_default'])}; "
               f"initial perturbations {_and(sorted(c['d0'] + [c['d0_default']]))} and relative tolerances {_and(sorted(c['rtol'] + [c['rtol_default']]))} in (a) and (b); the ramp duration is {n(c['T_main'])} s in (a), (c) and (d), "
               f"{_and(c['ms11_T'])} s in (b) and (e) and {n(c['T_net'])} s in (f) to (i); noise: the {JC.pv(rows, 'noise.scheme')} scheme with the time steps of (c) and (d); network of N = {c['N']:,} neurons with {c['n_seeds']} seeds, peak value V_p = {n(c['Vp'])} "
               f"(the reset value is {MINUS}{n(c['Vp'])}) and the check value 200.")
@@ -257,7 +257,7 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
     limits = limits_text
     rest = JC.uncode(" ".join([take, panels, settings, params, failed, limits]), FS4_ID)
     key = " ".join(x for x in [
-        JC.key_symbols(rest, "eta", "Delta", "J", "tau_d", "tau", "r", "v", "N", "M3"),
+        JC.key_symbols(rest, "eta", "J", "tau", "r", "v", "N"),
         "V_p = the peak value of the membrane potential of a network neuron at which it is reset to the negative of that value (the project's values are 100 and, as a check, 200); the Heun scheme is the fixed-step scheme for the noisy runs; "
         "the initial perturbation is the small starting displacement of v; the relative tolerance is the error tolerance of the solver; a failed check = a stated criterion that the result does not meet.",
         JC.class_key(), JC.key_words(rest)] if x)
