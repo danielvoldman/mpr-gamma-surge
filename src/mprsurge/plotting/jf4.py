@@ -298,7 +298,7 @@ def _neg(x: float) -> str:
     return f"{x:.1f}".replace("-", MINUS)
 
 
-_F4B_DURATION_LABEL = "Dotted line in (d): {dur_floor:g} s, smallest duration for ramps of {dur_T:g} s or more"        # 13t-11 (DL-699 R2): attempt 1 of the legend text; the values are read, not typed
+_F4B_DURATION_LABEL = "Dotted line in (d): {dur_floor:g} s"        # 13t-11 (DL-699 R2): attempt 1 ('..., smallest duration for ramps of 60 s or more') ran past the right edge of the key; attempt 2 is the ruled fallback; the value is read, not typed
 
 
 def _floor_facts(FG, d: dict) -> dict:

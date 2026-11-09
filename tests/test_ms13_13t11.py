@@ -66,8 +66,8 @@ def test_r1_the_wording_is_built_from_the_facts_and_has_no_range_for_shorter_ram
 
 
 def test_r1_the_legend_text_is_a_template_over_the_read_facts():
-    assert "{dur_floor" in jf4._F4B_DURATION_LABEL and "{dur_T" in jf4._F4B_DURATION_LABEL
-    assert "the smallest duration" not in jf4._F4B_DURATION_LABEL.replace("smallest duration for ramps of", "")          # the old claim 'the smallest duration' without its scope is gone
+    assert jf4._F4B_DURATION_LABEL == "Dotted line in (d): {dur_floor:g} s"                   # R2 fallback (attempt 2): the scope is in the caption and the alt text; the old claim 'the smallest duration' is gone
+    assert "smallest" not in jf4._F4B_DURATION_LABEL
 
 
 # ---- R3: the delays of F4a (a) ---------------------------------------------------------------------------------------------------------------------------------------------------------
