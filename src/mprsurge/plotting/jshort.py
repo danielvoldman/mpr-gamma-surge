@@ -124,7 +124,7 @@ SHORT_NAMED = {
     "F6": {("G7", "gate")},
     "FS1": set(), "FS2": set(), "FS3": set(),                                                                # 13t-4: no failed row concerns FS1
     "F4a": {("RB3", "a_inrange_runs"), ("RB3", "b_classifier_onset"), ("RB6", "solver_onset_headline")},      # 13t-8b: the three rows the F4a panels draw
-    "F4b": {("RB2", "noisy_subgrid_agreement"), ("RB2", "headline_class_kept_1.0_sigma"), ("sigma_check", "S8_baseline_std")},      # 13t-9 (N3 item 4): the short caption states that the sigma check failed
+    "F4b": {("RB2", "noisy_subgrid_agreement"), ("RB2", "headline_class_kept_1.0_sigma")},
 }
 FAILED_PARA_START = "Failed checks. "
 
