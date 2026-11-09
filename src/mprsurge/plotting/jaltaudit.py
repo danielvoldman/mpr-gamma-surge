@@ -161,6 +161,9 @@ def _checks():
     add("F6", "a", "largest primary bar of map 1 and of map 2", r"label ([a-h]) \((\d+)\) in map 1 and label ([a-h]) \((\d+)\) in map 2", lambda r: _f6_top(r))
     add("F6", "a", "largest any-label bar of map 1", r"map 1: label ([a-h]) \((\d+)\)\)", lambda r: _f6_top(r, any_=True))
     add("F6", "a", "primary label counts of both maps (a, c, f, g, h)", r"counts a (\d+), c (\d+), f (\d+), g (\d+), h (\d+)\)", lambda r: _f6_sum(r))
+    add("F2", "b", "largest relative difference of the mean-field up and down amplitudes from 0.2 above the Hopf point", r"relative difference ([\d.]+), recorded", lambda r: _f2_updown(r))
+    for L in range(3):
+        add("FS4", "c", f"raw-crossing delays of level {L}: smallest, largest, median", rf"level {L} from ([-−]?[\d.]+) to ([-−]?[\d.]+) \(median ([-−]?[\d.]+)\)", (lambda LL: lambda r: _fs4_level(r, LL))(L))
     # FS5
     add("FS5", "e", "records that are not NS (six windows)", r"\((\d+), (\d+), (\d+), (\d+), (\d+), (\d+)\)", lambda r: _fs5_nons(r))
     return [c for c in C if c is not None]
@@ -257,6 +260,20 @@ def _f6_top(r, any_=False):
 def _f6_sum(r):
     a = Y(sel(r, "F6", "a", startswith="map 1, primary label")) + Y(sel(r, "F6", "a", startswith="map 2, primary label"))
     return tuple(float(a["abcdefgh".index(c)]) for c in "acfgh")
+
+
+def _f2_updown(r):
+    hopf = X(sel(r, "F2", "a", startswith="Hopf point"))[0]
+    u = sel(r, "F2", "b", startswith="mean field sweep v amplitude, up").sort_values("x")
+    d = sel(r, "F2", "b", startswith="mean field sweep v amplitude, down").sort_values("x")
+    x, uy, dy = X(u), Y(u), Y(d)
+    m = x >= hopf + 0.2 - 1e-6
+    return (float(np.nanmax((np.abs(uy - dy) / uy)[m])),)
+
+
+def _fs4_level(r, L):
+    y = Y(sel(r, "FS4", "c", startswith=f"level {L},"))
+    return (float(y.min()), float(y.max()), float(np.median(y)))
 
 
 CHECKS = None
