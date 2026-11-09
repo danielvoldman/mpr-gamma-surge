@@ -486,6 +486,9 @@ def f4(c: Ctx, R: Rows):
     a3 = c.pq("A3/a3_sn_ramp.parquet").sort_values("T_ramp_s")
     R.add("F4", "m2_rows", "M2 saddle-node ramp runs", len(a3), "A3/a3_sn_ramp.parquet", printed=(r"damped at all (\d+) T_ramp", 1), drawn="len(d['a3_eps'])")
     R.add("F4", "m2_damped", "M2 runs with ring class damped", int((a3["ring_class"] == "damped").sum()), "A3/a3_sn_ramp.parquet: ring_class", shared="stored class column", drawn="sum(1 for x in d['a3_ring_class'] if x == 'damped')")
+    m2_eps = [float(c.json(f"A3/S2/{run}.json")["config"]["path"]["eps"]) for run in a3["run"]]           # 13t-9 (DL-680 N1): the ramp rate of each stored M2 run record, read here independently of the draft loader
+    R.add("F4", "m2_eps_lo", "smallest ramp rate of the 13 M2 ramp runs (stored run records of the A3 table)", min(m2_eps), "A3/S2/<run>.json: config.path.eps", tol=("rel", 1e-3))
+    R.add("F4", "m2_eps_hi", "largest ramp rate of the 13 M2 ramp runs (stored run records of the A3 table)", max(m2_eps), "A3/S2/<run>.json: config.path.eps", tol=("rel", 1e-3))
     R.add("F4", "m2_offset_first", "jump offset from the fold at the smallest T_ramp", float(a3["offset"].iloc[0]), "A3/a3_sn_ramp.parquet: offset", printed=(r"falls from (\d+\.\d+) to", 1))
     R.add("F4", "m2_offset_last", "jump offset from the fold at the largest T_ramp", float(a3["offset"].iloc[-1]), "A3/a3_sn_ramp.parquet: offset", printed=(r"to (\d+\.\d+) \(DL-109", 1))
     for f_ in ("p1_linear", "p1_sigmoid", "p2_linear", "p2_sigmoid", "p5_linear", "p5_sigmoid"):
@@ -856,6 +859,8 @@ F4_J = {
     "F4.noise_median_negative_from": ((r"negative from T_ramp (\d+\.\d+) s", 1), ("F4b",), (r"negative from T_ramp (\d+\.\d+) s", 1)),
     "F4.m2_rows": ((r"damped at all (\d+) ramp durations", 1), ("F4b",), None),
     "F4.m2_damped": ((r"so the ring is damped at (\d+) of \d+", 1), ("F4b",), (r"\(negative: damped\) at (\d+) of \d+", 1)),          # 13t-9: the short caption says (negative: damped) at 13 of 13 ramp durations
+    "F4.m2_eps_lo": ((r"values from (\d+\.\d+e-\d+) to", 1), ("F4b",), None),          # 13t-9 (DL-680 N1): the M2 ramp-rate range of (f), in the full caption only
+    "F4.m2_eps_hi": ((r"values from \d+\.\d+e-\d+ to (\d+\.\d+),", 1), ("F4b",), None),
     "F4.m2_offset_first": ((r"falls from (\d+\.\d+) to", 1), ("F4b",), (r"falls from (\d+\.\d+) to", 1)),
     "F4.m2_offset_last": ((r"falls from \d+\.\d+ to (\d+\.\d+)", 1), ("F4b",), (r"falls from \d+\.\d+ to (\d+\.\d+)", 1)),
 }
