@@ -7396,3 +7396,13 @@ Chosen:          as done   Default from: the prompt
 Test:            full fast suite
 Status:          done; three caption findings open for the next step
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-696  MS13 13t-10: first end-of-step fast suite (1 failure), the repair, second end-of-step run    [ID: MS13, 13t-10, O3, O5]
+Date:            2026-11-09        Author:
+Decision:        FACT AND ACTION. First end-of-step fast suite on the committed state of DL-695 (exit code taken from pytest itself, PYTEST-EXIT=1): 1528 passed, 1 failed, 24 deselected, 9 xfailed, 7 warnings, 1219.50 s. The failure: tests/test_ms13_13r2.py::test_no_literal_font_size_below_the_tick_size_in_the_plotting_code reads the keyword size=1.0 of the TextPath call in jf4._dagger_outline (the glyph path scale of the hollow dagger, not a text size) as a literal font size below 8 pt. Repair (commit after 350c87e, no behaviour change): the value is the named constant GLYPH_UNIT = 1.0 in jf4.py; the trial render of F4a after the repair is byte-identical to the recorded F4a PNG (SHA-256 prefix 04ccdaa6b557), scripts/ms13_check_hashes.py 104 rows 0 problems. The recorded build was made from 350c87e, before this edit; jf4.py now differs from that commit in this one named constant only; the figures were not rebuilt (O9: one build). Because an edit followed the end run, the full fast suite is run again; its result is reported in the step report and in the entry after it.
+Reason:          O5 (b): the suite is run again after any later edit
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            tests/test_ms13_13r2.py; full fast suite
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
