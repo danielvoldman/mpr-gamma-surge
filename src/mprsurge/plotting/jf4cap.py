@@ -233,18 +233,18 @@ def f4a_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, ful
     return JS.finish("F4a", [
         f"The onset (when the classifier, a rule fixed before the analysis, first flags the gamma rise) of the surge (a transient rise of gamma-band power, {c['band'][0]} to {c['band'][1]} Hz) does not follow the entry-exit prediction "
         "(the time at which the integral of the real part of the eigenvalue of the linearised model, taken from the start of the ramp, returns to zero), and the checks on it failed (red titles of (a) and (e)): "
-        f"none of the {d['n_testable']} testable runs lies within one step of the prediction, the two numerical solvers differ by {c['head_ms']:.0f} ms at the main example (the run fixed before the analysis as the main case; "
+        f"none of the {d['n_testable']} testable runs lies within one step of the prediction, the two numerical solvers differ by {c['head_ms']:.0f} ms at the main example (the main case fixed before the analysis; "
         f"{c['bound_ms']:g} ms allowed), and the delay under a noise floor does not meet its check under the classifier-onset reading.",
         "Hopf point: where the resting state starts to oscillate.",
         f"(a) The delay of the onset (eta_bar, the mean excitability, at the onset minus its value at the Hopf point; negative: before the Hopf point) against the ramp rate (the change of eta_bar over the ramp divided by the ramp duration T_ramp, in units of tau, the membrane time constant) "
         f"for the paths P1 (eta_bar ramped only), P2 (hypoxia-like: mean excitability raised and coupling J ramped to 0 after a waiting time) and P5 (eta_bar up, then back down), linear (solid; P5 dash-dot) and sigmoid (dashed) profile: "
-        f"the raw first crossing of the envelope at {c['amin']} times a reference amplitude (primary), the classifier's onset (second reading; double dagger), the prediction (line style by path) "
+        f"the raw first crossing of the envelope at {c['amin']} times a reference amplitude (primary), the classifier's onset (double dagger), the prediction (line style by path) "
         "and rings for the runs where the prediction can be tested "
         f"(octagon: testable, eta_bar not constant at the predicted time; errors {_fmt_list(c['steps'])} steps of the prediction grid, in the source data; diamond: not testable, {c['n_untest']} runs). "
         f"The red ring: the main example (T_ramp {n(c['t_main'])} s) at its noise-free, solver-dependent delay {n(round(c['head_delay'], 4))}, not used as evidence (the value used is the level-0 median of (d), {_sig(c['med_cross'][0], 3)}). "
         "Open squares: onset during the hold at the peak of eta_bar (our reading, not verified). "
         "(b) P5: up delay, offset on the way down (eta_bar at the start of the down ramp minus eta_bar at the Hopf point), hysteresis width. (c) P1 linear at start distances 0.5, 1.5 and 3.0. "
-        f"(d), (e) The delay at the main example with a very small added noise (the noise floor), three levels, {c['n_seeds']} seeds, {_NW[len(c['dts'])]} time steps drawn as concentric marks, dark mark: median; "
+        f"(d), (e) The delay at the main example with a very small added noise (the noise floor), three levels, {c['n_seeds']} seeds, {_NW[len(c['dts'])]} time steps (concentric marks), dark mark: median; "
         f"the classifier-onset delays are equal at {MINUS}{abs(c['tie']):g} at the {_NW[c['n_tie_levels']]} lower levels.",
         JS.further_sentence("F4a", full),
         _params_short(c, True),
@@ -304,8 +304,8 @@ def f4b_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, ful
         "The noise-robustness checks failed (red title of (e)): with the noise level sigma = " + n(c["sigma"]) + f" the main example (the run fixed before the analysis as the main case) keeps its surge class "
         f"(a surge is a transient rise of gamma-band power, {c['band'][0]} to {c['band'][1]} Hz) in {c['kept']} of {c['kept_n']} noisy seeds ({c['kept_need']} needed), and the {c['sub_rule_pct']} percent rule (at least {c['sub_rule_pct']} percent of the map cells "
         "(one parameter pair of a grid of mean-field runs) re-run with noise must agree with the noise-free map) fails: "
-        f"{c['sub_agree']} of {c['sub_cells']} of these cells agree, {c['sub_pct']} percent ({c['sub_needed']} needed); the classes of the noisy runs are mixed (surge and non-surge classes occur). "
-        f"Separately, the median delay of the {c['n_seeds']} seeds is negative from T_ramp {n(c['t_neg'])} s on (a result, not a check).",
+        f"{c['sub_agree']} of {c['sub_cells']} of these cells agree, {c['sub_pct']} percent ({c['sub_needed']} needed); the classes of the noisy runs are mixed (surge and non-surge). "
+        f"The median delay of the {c['n_seeds']} seeds is negative from T_ramp {n(c['t_neg'])} s on (a result, not a check).",
         "Mean field: the model's equations for the average activity of the population; the ramp duration T_ramp is the time over which eta_bar (mean excitability) is changed; "
         "Hopf point: where the resting state starts to oscillate.",
         f"(a) to (d) Peak power (absolute, relative), peak frequency (the peak of the power spectrum, found by the classifier, a rule fixed before the analysis) and duration (how long the episode lasts: flagged windows x step; log axis) "
