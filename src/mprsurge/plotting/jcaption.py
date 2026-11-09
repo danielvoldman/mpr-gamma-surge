@@ -341,8 +341,8 @@ TITLE_MAP = {
     "F4a": (("(a)", "prediction FAIL, solver FAIL", "RB3(a), RB6 solver onset", "the onset must lie within one step of the entry-exit prediction in the testable runs, and the two solvers must agree on the onset at the main example"),
             ("(e)", "Floor, classifier onset: FAIL", "RB3(b)", "the delay under a noise floor must meet the check under the classifier-onset reading")),      # 13t-8b (DL-671)
     "F4b": (("(e)", "noise robustness FAIL", "RB2", "the main-example class must be kept in at least 8 of 10 noisy seeds, and at least 90 percent of the cells of the noisy subgrid must agree with the noise-free class"),),
-    "FS4": (("(a)", "Solver check: FAIL", "RB6 solver onset", "the two solvers must agree on the onset of the main example within 1 ms"),
-            ("(f)", "Network peak frequency against step: FAIL (not evidence)", "RB6 network f_pk", "halving the network time step must change the peak frequency by less than 2 percent"),
+    "FS4": (("(a)", "Onset by setting; solver check: FAIL", "RB6 solver onset", "the two solvers must agree on the onset of the main example within 1 ms"),
+            ("(f)", "Network peak frequency: FAIL", "RB6 network f_pk", "halving the network time step must change the peak frequency by less than 2 percent"),
             ("(g)", "Change per step halving: FAIL", "RB6 network f_pk", "halving the network time step must change the peak frequency by less than 2 percent")),      # 13t-9 (DL-681 N4)
     "FS5": (("(h)", "Frequency check: FAIL", "RB9(b)", "the spectral and the cycle frequency of the main example must differ by at most 0.5 Hz"),),
     "FS1": (),                                                                       # 13t-4: no red title and no failed row (DL-637)

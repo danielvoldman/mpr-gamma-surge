@@ -75,6 +75,8 @@ def draw(d: dict, FG):
             for i, dt in enumerate(d["floor_dt"]):
                 axc.plot([dt] * arr.shape[1], arr[i], ls="none", marker=mk.marker, ms=mk.size, color=mk.colour, mew=mk.width, zorder=3, label=f"Level {L}" if i == 0 else None)
         axc.set_xscale("log")
+        axc.set_xticks(sorted(d["floor_dt"]), [f"{x:g}" for x in sorted(d["floor_dt"])])
+        axc.minorticks_off()
         axc.set_xlabel("Heun step (tau)")
         axc.set_ylabel("Delay of the onset" if col == 0 else "")
         FG._journal_title(axc, letter, ttl)
@@ -102,8 +104,10 @@ def draw(d: dict, FG):
     for s_ in range(3):
         mk = S.diagram_mark(f"fs4_s{s_}")
         axe.plot(d["net_dt"], d["net_f_pk_hz"][s_], color=mk.colour, ls=mk.linestyle, lw=0.8, marker=mk.marker, ms=mk.size, mew=mk.width, zorder=3, label=f"Seed {s_}")
-        axe.plot(d["net_dt"][:2], d["net_psd_f_pk_hz"][s_], ls="none", marker=psd.marker, ms=psd.size, color=mk.colour, mew=psd.width, zorder=4, label="Open: spectrum maximum" if s_ == 0 else None)
+        axe.plot(d["net_dt"][:2], d["net_psd_f_pk_hz"][s_], ls="none", marker=psd.marker, ms=psd.size * (1.0 + 0.45 * s_), color=mk.colour, mew=psd.width, zorder=4, label="Open: spectrum maximum" if s_ == 0 else None)
     axe.set_xscale("log")
+    axe.set_xticks(sorted(d["net_dt"]), [f"{x:g}" for x in sorted(d["net_dt"])])
+    axe.minorticks_off()
     axe.invert_xaxis()
     axe.set_xlabel("Network time step (tau)")
     axe.set_ylabel("Peak frequency (Hz)")
@@ -182,7 +186,7 @@ def plain_ms11_label(lab: str) -> str:
 
 # ---- text -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def consts(d: dict, rows: list, raw: dict) -> dict:
+def consts(d: dict, rows: list, raw: dict, crit: dict) -> dict:
     pv = JC.pv
     a7 = raw["a7"]
     base = a7[a7["family"] == "S5ramp"]
@@ -196,7 +200,7 @@ def consts(d: dict, rows: list, raw: dict) -> dict:
             "N": int(pv(rows, "network.N", "S13_MS11_network")), "Vp": float(pv(rows, "network.V_peak", "S13_MS11_network")), "d0_default": float(base["delta0"].iloc[0]), "rtol_default": float(base["rtol"].iloc[0]),
             "d0": d0, "rtol": rt, "radau_rtol": float(rad["rtol"].iloc[0]), "n_seeds": int(d["net_f_pk_hz"].shape[0]), "n_floor_seeds": int(d["floor_l0_cross_delay"].shape[1]),
             "rel_lo": int(round(100 * float(ce.min()))), "rel_hi": int(round(100 * float(ce.max()))), "onset_default": float(d["head_onset_cross_s"][0]), "onset_radau": float(d["head_onset_cross_s"][-1]),
-            "shift_max": float(np.max(np.abs(d["ms11_onset_shift_s"]))), "n_ms11": int(len(d["ms11_class"]) * len(d["ms11_class"][0])), "tie": float(np.min(d["floor_l0_class_delay"])),
+            "shift_max": float(np.max(np.abs(d["ms11_onset_shift_s"]))), "band": [JC.num(v) for v in crit["classifier"]["band_primary_hz"]["value"]], "n_ms11": int(len(d["ms11_class"]) * len(d["ms11_class"][0])), "tie": float(np.min(d["floor_l0_class_delay"])),
             "tie_levels": [L for L in range(3) if np.allclose(d[f"floor_l{L}_class_delay"], np.min(d["floor_l0_class_delay"]))], "ok_rows": int(sum(1 for c in d["head_class"] if c == "D-tr")),
             "n_rows": len(d["head_class"]), "ms11_T": [float(x) for x in d["ms11_T"]]}
 
@@ -217,7 +221,7 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
         raise JC.JCaptionError(f"FS4: the classifier-onset delays at the minimum are {c['tie']} at levels {c['tie_levels']}, not -1.5 at 0 and 1")
     take = (f"The numerical checks of the main example (the run that the project fixed before the analysis as its main case: path P2, the hypoxia-like path, at the second validation point, ramp duration {n(c['T_main'])} s, no noise) "
             f"failed in two places: the default solver and the Radau solver (a second solver for the model's differential equations) give the onset {n(c['onset_default'])} s and {n(c['onset_radau'])} s, {ms:.0f} ms apart against {bound:g} ms allowed "
-            f"(a failed check, the cause is not known), and the peak frequency of the network (a simulated network of {c['N']:,} spiking neurons, {c['n_seeds']} seeds, ramp duration {n(c['T_net'])} s) changes by {c['rel_lo']} to {c['rel_hi']} percent when the "
+            f"(a failed check, the cause is not known), and the peak frequency of the network (a simulated network of N spiking neurons, N = {c['N']:,}, {c['n_seeds']} seeds, ramp duration {n(c['T_net'])} s) changes by {c['rel_lo']} to {c['rel_hi']} percent when the "
             f"time step is halved, against {fb:g} percent allowed ({d['net_ce_n_pass']} of {c['n_seeds']} seeds pass; the spectrum-maximum reading of the peak frequency passes in {d['net_psd_n_pass']} of {c['n_seeds']} seeds; a failed check). "
             f"Results that rest on the network peak frequency are shown labelled FAIL and are not used as evidence. The class of the main example is D-tr (a rise that ends) under every setting of the initial perturbation, the relative tolerance and the solver, "
             f"and the onset is {n(c['onset_default'])} s everywhere except under Radau; the delays of the noise-floor runs do not depend on the Heun time step at the 1 ms output grid.")
@@ -235,11 +239,12 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
         f"{int(d['floorT_raw_noonset_seeds'].min())} to {int(d['floorT_raw_noonset_seeds'].max())} of {c['n_floor_seeds']} seeds have no onset.",
         f"(f) The peak frequency (the peak of the power spectrum) of the {c['n_seeds']} network seeds against the network time step {_and(sorted(d['net_dt'], reverse=True))} tau; open marks: the spectrum-maximum reading of the first halving.",
         f"(g) The relative change of the peak frequency per halving of the time step against the bound {FG.FS4_RB6_FPK_BOUND:g} (a change of {n(FG.FS4_RB6_FPK_BOUND)} is {fb:g} percent); the largest change, at the first halving, is {c['rel_hi']} percent.",
-        f"(h) The class of the network for each time step and each peak value V_p ({n(c['Vp'])} and 200), seeds 0 to {c['n_seeds'] - 1}; information only, one seed per cell, not evidence of a ramp-driven surge.",
+        f"(h) The class of the network for each time step and each peak value V_p ({n(c['Vp'])} and 200), seeds 0 to {c['n_seeds'] - 1}: S+ (absolute and relative rise, ending), S-rel (relative rise only) and S-abs (absolute rise only) "
+        f"are surge classes (a surge is a transient rise of gamma-band power, {c['band'][0]} to {c['band'][1]} Hz); S-sus (a rise that does not end) is not; information only, one seed per cell, not evidence of a ramp-driven surge.",
         f"(i) The peak frequency of each seed at V_p {PM}{n(c['Vp'])} against {PM}200 (reported only).",
     ])
     settings = JC.settings_line(crit)
-    params = (f"Recorded values (the complete list with the key names as recorded is in the supplement): model {c['type']} (the mean-field model of the project) at the second validation point (eta_bar {n(JC.pv(rows, 'model.eta_bar'))}, "
+    params = (f"Recorded values (the complete list with the key names as recorded is in the supplement): model {c['type']} (the mean field, that is the model's equations for the average activity of the population) at the second validation point (eta_bar {n(JC.pv(rows, 'model.eta_bar'))}, "
               f"J {n(JC.pv(rows, 'model.J')).replace('-', MINUS)}, Delta {n(JC.pv(rows, 'model.Delta'))}, tau_d {n(JC.pv(rows, 'model.tau_d_ms'))} ms); default initial perturbation {n(c['d0_default'])} and relative tolerance {n(c['rtol_default'])}; "
               f"initial perturbations {_and(sorted(c['d0'] + [c['d0_default']]))} and relative tolerances {_and(sorted(c['rtol'] + [c['rtol_default']]))} in (a) and (b); the ramp duration is {n(c['T_main'])} s in (a), (c) and (d), "
               f"{_and(c['ms11_T'])} s in (b) and (e) and {n(c['T_net'])} s in (f) to (i); noise: the {JC.pv(rows, 'noise.scheme')} scheme with the time steps of (c) and (d); network of N = {c['N']:,} neurons with {c['n_seeds']} seeds, peak value V_p = {n(c['Vp'])} "
@@ -249,7 +254,7 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
               f"classifier-episode reading and {d['net_psd_n_pass']} of {c['n_seeds']} under the spectrum-maximum reading (the check fails if any seed that can be evaluated fails). The solver difference is drawn in (a) and the changes of the network peak "
               "frequency in (f) and (g); results that rest on the network peak frequency are not used as evidence. The project's other failed checks are not about this figure; all of them are listed in the supplement. " + JC.title_sentence(FS4_ID))
     limits = ("In the limits below, T_ramp is the ramp duration T_ramp (in seconds), and the main example is the run of the first paragraph. " + JC.limits_paragraph(ids))
-    rest = " ".join([take, panels, settings, params, failed, limits])
+    rest = JC.uncode(" ".join([take, panels, settings, params, failed, limits]), FS4_ID)
     key = " ".join(x for x in [
         JC.key_symbols(rest, "eta", "Delta", "J", "tau_d", "tau", "r", "v", "N", "M3"),
         "V_p = the peak value of the membrane potential of a network neuron at which it is reset to the negative of that value (the project's values are 100 and, as a check, 200); the Heun scheme is the fixed-step scheme for the noisy runs; "
@@ -337,7 +342,7 @@ def build(FG, res, out_dir, root, script, claim_limit_ids, tag_build) -> dict:
     cap0 = FG.CAP.build_caption("FS4", take_home=FG.FS4_TAKE_HOME, claim_limit_ids=claim_limit_ids, params_rows=crows, spectrogram=None, symbol_keys=(), notes=FG.fs4_caption_notes(d),
                                 class_key=FG.CAP.class_key_line("ND"), classifier_line=FG.CAP.classifier_line(crit), main_failures=FG.FS4_MAIN_FAILURES, swept={})
     plain_md = FG.PL.pairing_markdown(claim_limit_ids, None, cap0.text)
-    c = consts(d, rows, raw)
+    c = consts(d, rows, raw, crit)
     text = caption(d, rows, crit, ids=claim_limit_ids, c=c, FG=FG)
     cap = dataclasses.replace(cap0, text=text)
     cfg = J.load_config(root)
