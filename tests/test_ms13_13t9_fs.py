@@ -56,7 +56,8 @@ def test_fs4_files_one_caption_seven_paragraphs_no_code(b4):
 def test_fs4_numbers_are_the_stored_ones_and_both_failures_are_named(b4):
     t = " ".join(_cap(b4, "FS4").split())
     assert "181 ms apart against 1 ms allowed" in t and "58.698 s and 58.879 s" in t.replace("(when the classifier, a rule fixed before the analysis, first flags the gamma rise) ", "")
-    assert "changes by 5 to 43 percent when the time step is halved, against 2 percent allowed (0 of 3 seeds pass" in t
+    assert ("changes by 0 to 55 percent per halving of the time step (first halving 5 to 43 percent, second halving 0 to 33 percent, third halving 5 to 55 percent; the largest change, 55 percent, "
+            "is at the third halving, seed 0), against 2 percent allowed (8 of the 9 changes are above it; 0 of 3 seeds pass") in t         # 13t-10 (DL-693): the range and the largest change over all stored halvings
     assert "passes in 2 of 3 seeds" in t
     assert "Numerical-convergence check, agreement of the two solvers on the onset of the main example: FAIL (181 ms; threshold 1 ms)" in t
     assert "Numerical-convergence check, the network peak frequency when the time step is halved: FAIL" in t
