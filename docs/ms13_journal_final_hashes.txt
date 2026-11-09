@@ -149,9 +149,9 @@ drawn-data digest: 66238f8b7f480cf98b6ed4d76f9ec52f6f1cb81802622076ef7f733fac8d3
 c94e9b2c722ae3cc595679d4eea8458caba16e9b8cd488364084f24cf2281786  png                figures/journal/FS5/FS5_journal.png
 dd4424f54bedd7a750dddf2652da9a08e24dba3d821fac9f73fae2e5ccab5f9f  tiff               figures/journal/FS5/FS5_journal.tiff
 1aa2437af1d64dada969a12fa5bc2186c8c77ffecad012ab75c55a0229425460  pdf                figures/journal/FS5/FS5_journal.pdf
-d7a15e2e64845fa044932180a936946b35fc586cd5457bdf6cd35454e4814ec8  caption (single)   figures/journal/FS5/FS5_journal_caption.txt
+b5adab6a2005fd99b1c855616fc6d6c6fc09bf3de58a2b66bd242fdee02b8b8f  caption (single)   figures/journal/FS5/FS5_journal_caption.txt
 55a35abedfa251de2fd52c9bdeb2609400af32854c8a9a37c89ef56bb38b507b  alt text           figures/journal/supplement/FS5_alt_text.txt
-95e015ae9075c407adfec8c7c526548f8c0fffa87717ba13e34f3c1bb220e6f4  supplement         figures/journal/supplement/FS5_supplement.md
+fd983284aafeedb0e012bc946a11471cd909ed3567d6afa80b5b1e57d2d9f895  supplement         figures/journal/supplement/FS5_supplement.md
 927f43ba0e6fbd1d2e7518d42a58dccdbfd8934e1a1015ee9b138bfab81cc9b6  source data csv    figures/journal/supplement/FS5_source_data.csv
 
 ## Build commits found in the provenance records: 5e9057563c6c24fbac16b99000e547d08ef9a31a

@@ -7496,3 +7496,13 @@ Chosen:          a) for the (a) sentence   Default from: the prompt
 Test:            tests/test_ms13_13v.py (added after this commit)
 Status:          code committed, not yet run
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-706  MS13 13v V3: the FS5 caption fix as run, the final hash list re-written, the manifest row of figures.py re-written once    [ID: MS13, 13v, V3, FS5]
+Date:            2026-11-09        Author:
+Decision:        FACT. (1) scripts/ms13_13v_fs5_caption_fix.py (commit c381a48) run once: figures/journal/FS5/FS5_journal_caption.txt old d7a15e2e64845fa044932180a936946b35fc586cd5457bdf6cd35454e4814ec8, new b5adab6a2005fd99b1c855616fc6d6c6fc09bf3de58a2b66bd242fdee02b8b8f; figures/journal/supplement/FS5_supplement.md old 95e015ae9075c407adfec8c7c526548f8c0fffa87717ba13e34f3c1bb220e6f4, new fd983284aafeedb0e012bc946a11471cd909ed3567d6afa80b5b1e57d2d9f895 (equal to DL-705). (2) scripts/ms13_write_final_hashes.py re-run: docs/ms13_journal_final_hashes.txt differs in exactly these two lines (the FS5 caption and the FS5 supplement); every PNG, TIFF and PDF line is unchanged. (3) scripts/ms13_check_hashes.py reported one problem after DL-704 quoted the hash of src/mprsurge/plotting/figures.py (DL-MISMATCH: the manifest dl column named DL-701, the last entry that quotes the hash is DL-704); as in DL-701 the dl field of that one manifest row is re-written to DL-704, the hash 3cc4969bb6969414d5b2a6cdd4fe21a8a12678d8b1eb5fff64fce4ce2bf0f3db is unchanged. No other manifest row changes.
+Reason:          ruling V3 (DL-703); DL-701 practice for the shared row
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            scripts/ms13_check_hashes.py
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
