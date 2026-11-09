@@ -104,7 +104,7 @@ def draw(d: dict, FG):
     for s_ in range(3):
         mk = S.diagram_mark(f"fs4_s{s_}")
         axe.plot(d["net_dt"], d["net_f_pk_hz"][s_], color=mk.colour, ls=mk.linestyle, lw=0.8, marker=mk.marker, ms=mk.size, mew=mk.width, zorder=3, label=f"Seed {s_}")
-        axe.plot(d["net_dt"][:2], d["net_psd_f_pk_hz"][s_], ls="none", marker=psd.marker, ms=psd.size * (1.0 + 0.45 * s_), color=mk.colour, mew=psd.width, zorder=4, label="Open: spectrum maximum" if s_ == 0 else None)
+        axe.plot(d["net_dt"][:2], d["net_psd_f_pk_hz"][s_], ls="none", marker=mk.marker, mfc="none", ms=mk.size * 1.9, mec=mk.colour, mew=psd.width, zorder=4, label="Open: spectrum maximum" if s_ == 0 else None)
     axe.set_xscale("log")
     axe.set_xticks(sorted(d["net_dt"]), [f"{x:g}" for x in sorted(d["net_dt"])])
     axe.minorticks_off()
@@ -219,9 +219,9 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
         raise JC.JCaptionError("FS4: a setting does not give the class D-tr (the take-home wording needs it)")
     if c["tie"] != -1.5 or c["tie_levels"] != [0, 1]:
         raise JC.JCaptionError(f"FS4: the classifier-onset delays at the minimum are {c['tie']} at levels {c['tie_levels']}, not -1.5 at 0 and 1")
-    take = (f"The numerical checks of the main example (the run that the project fixed before the analysis as its main case: path P2, the hypoxia-like path, at the second validation point, ramp duration {n(c['T_main'])} s, no noise) "
+    take = (f"The numerical checks of the main example (the run fixed before the analysis as the main case: path P2 (hypoxia-like: mean excitability raised and coupling J ramped to 0 after a waiting time) at the second validation point, ramp duration {n(c['T_main'])} s, no noise) "
             f"failed in two places: the default solver and the Radau solver (a second solver for the model's differential equations) give the onset {n(c['onset_default'])} s and {n(c['onset_radau'])} s, {ms:.0f} ms apart against {bound:g} ms allowed "
-            f"(a failed check, the cause is not known), and the peak frequency of the network (a simulated network of N spiking neurons, N = {c['N']:,}, {c['n_seeds']} seeds, ramp duration {n(c['T_net'])} s) changes by {c['rel_lo']} to {c['rel_hi']} percent when the "
+            f"(a failed check, the cause is not known), and the peak frequency (the peak of the power spectrum) of the network (a simulated network of N spiking neurons, N = {c['N']:,}, {c['n_seeds']} seeds, ramp duration {n(c['T_net'])} s) changes by {c['rel_lo']} to {c['rel_hi']} percent when the "
             f"time step is halved, against {fb:g} percent allowed ({d['net_ce_n_pass']} of {c['n_seeds']} seeds pass; the spectrum-maximum reading of the peak frequency passes in {d['net_psd_n_pass']} of {c['n_seeds']} seeds; a failed check). "
             f"Results that rest on the network peak frequency are shown labelled FAIL and are not used as evidence. The class of the main example is D-tr (a rise that ends) under every setting of the initial perturbation, the relative tolerance and the solver, "
             f"and the onset is {n(c['onset_default'])} s everywhere except under Radau; the delays of the noise-floor runs do not depend on the Heun time step at the 1 ms output grid.")
@@ -231,7 +231,7 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
         f"The red title and the red note give the solver check: Radau minus default = {ms:g} ms against the {bound:g} ms allowed.",
         f"(b) The class and the onset shift (s) at the ramp durations {_and(c['ms11_T'])} s for the initial perturbations {_and(c['d0'])} and the relative tolerances {_and(c['rtol'])} (the default values are those of (a)): D-tr in all {c['n_ms11']} cells; "
         f"the largest shift is {n(c['shift_max'])} s.",
-        f"(c) and (d) The delay (eta_bar at the onset minus eta_bar at the Hopf point) of every run of the noise floor (a very small added noise at three levels, 0, 1 and 2, {c['n_floor_seeds']} seeds each, integrated with the Heun scheme at "
+        f"(c) and (d) The delay (eta_bar at the onset minus eta_bar at the Hopf point, where the resting state starts to oscillate) of every run of the noise floor (a very small added noise at three levels, 0, 1 and 2, {c['n_floor_seeds']} seeds each, integrated with the Heun scheme at "
         f"{len(d['floor_dt'])} time steps {_and(sorted(d['floor_dt'], reverse=True))} tau) at the main example, under the raw first crossing (c) and under the classifier onset (d); the delay is the same at every step at the 1 ms output grid, "
         f"so the points of one level lie on one another. In (d) the delays {MINUS}{abs(c['tie']):g} at levels {c['tie_levels'][0]} and {c['tie_levels'][1]} are onsets at the ramp start (the classifier-onset reading is saturated); no gate verdict changes.",
         f"(e) The median delay at the noise floor under the classifier onset at the ramp durations {_and(c['ms11_T'])} s, by level (reported only); the direction of the change with the level is called \"not strictly monotone\" at both durations "
