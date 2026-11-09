@@ -908,7 +908,7 @@ def _f3_alt_text(d: dict) -> dict:
                      f"at tau_d {d['P1_tau_d_ms']:g} ms, with the frequency-map Hopf point on it.")
         alt["abc"[j]] = (f"Frequency shading in the (eta_bar, tau_d) plane for Delta {D}: horizontal bands, one per frequency-map slice, tau_d on a logarithmic axis from 1 to 50 ms, eta_bar from 0 to 8, "
                          f"coloured by the limit-cycle frequency (colour scale {d['f_min_hz']:.1f} to {d['f_max_hz']:.1f} Hz, shared by (a) to (c); the largest on this panel is {d[f'D{D}_f_max_hz']:.1f} Hz). "
-                         f"Each band starts at its Hopf point (black mark); {int(c.sum())} slices have a 25 Hz crossing (tall black bar); {note_100hz(d, D)}.{extra} "
+                         f"Each band starts at its Hopf point (black mark); {int(c.sum())} slices have a 25 Hz crossing (thin black vertical line); {note_100hz(d, D)}.{extra} "
                          f"The title is red and reads 'frequency check: FAIL' (check RB9(b)); the one shared colour bar below carries two ticks, at the cycle frequency {F3_RB9B[1]:g} Hz and the spectral peak {F3_RB9B[0]:g} Hz, "
                          f"with the text 'differ by {F3_RB9B[2]:g} Hz; allowed 0.5 Hz'.")
     alt["d"] = (f"The (eta_bar, Delta) plane with Delta on a logarithmic axis: the Hopf curve of the continuation rises from the lower left to eta_bar {float(d['a4_Delta_eta_H'].max()):.2f} at Delta "
@@ -1266,8 +1266,8 @@ def _f1_alt_text(d: dict) -> dict:
         "g": (f"A spectrogram of the mean-field v (window {sp['window_s']:g} s, step {sp['step_s']:g} s, {sp['taper']}) with frequency 0 to {sp['total_band_hz'][1]:g} Hz: bright rising ridges "
               f"start at the onset time; dashed lines at {sp['band_primary_hz'][0]:g} and {sp['band_primary_hz'][1]:g} Hz; the colour bar (magma) gives PSD in dB."),
         "h": ("The same spectrogram for network seed 0, on the same colour range: rising ridges from the onset time on a noisy background."),
-        "i": (f"A colour image (cividis) of spike counts per stored neuron ({d['ras_n_rows']} rows) per {d['ras_count_bin_s']:g} s bin for seed 0; counts rise during the ramp; the top colour is {top:g} spikes and more "
-              f"({n_above} of {n_all} cells); a solid and a dashed orange vertical bar (the frame of a 1 s window, which is thin on a 165 s axis) mark the two windows shown in (j) and (k)."),
+        "i": (f"A colour image (cividis) of spike counts per stored neuron ({d['ras_n_rows']} rows) per {d['ras_count_bin_s']:g} s bin for seed 0; counts rise during the ramp; the top colour starts at {top:g} spikes "
+              f"({n_above} of {n_all} cells have more than {top:g}); a solid and a dashed orange vertical bar (the frame of a 1 s window, which is thin on a 165 s axis) mark the two windows shown in (j) and (k)."),
         "j": (f"Spike marks of the stored neurons in the 1 s window from {d['zoom_windows_s'][0][0]:.3f} s (solid frame in (i))."),
         "k": (f"Spike marks in the 1 s window from {d['zoom_windows_s'][1][0]:.3f} s (dashed frame in (i)), the stored mean-field onset: regular vertical volleys."),
     }
@@ -7107,7 +7107,7 @@ def _f2_alt_text(d: dict) -> dict:
               f"stable limit cycle, which leave the fixed point at the Hopf point (dotted vertical line at eta_bar {d['eta_H']:.3f}, circled cross) and reach about {float(d['a5_up_vmax'].max()):.1f} and {float(d['a5_up_vmin'].min()):.1f} at eta_bar 8. "
               f"Mean-field sweep symbols (filled triangles up, hollow carets down; {d['mf_param'].size // 2} steps each way) lie on the lines; network symbols (open squares up, open diamonds down; {d['net_param'].size // 2} steps each way) lie close to them. "
               "No title is red."),
-        "b": (f"The v amplitude (maximum minus minimum) against eta_bar: about 0 up to the Hopf point and rising to about {float(d['a5_up_amp'].max()):.0f} at eta_bar 8 on the black line; the mean-field symbols lie on it and the up and down sweeps coincide; "
+        "b": (f"The v amplitude (maximum minus minimum) against eta_bar: about 0 up to the Hopf point and rising to about {float(d['a5_up_amp'].max()):.0f} at eta_bar 8 on the black line; the mean-field symbols lie on it and the up and down sweeps coincide from 0.2 above the Hopf point (largest relative difference {CAP.number_text(round(d['mf_updown_max_abs_from_0p2'], 4))}, recorded); "
               f"the network symbols below the Hopf point stand at {d['net_floor_v_ptp_min']:.2f} to {d['net_floor_v_ptp_max']:.2f} (the network does not rest)."),
         "c": (f"The relative difference of the network's v amplitude from the mean field's, drawn above eta_bar {d['eta_H'] + F2_JUDGED_ABOVE:.3f} only: falling from {_f6_pct(d['cmp_rel_v_above_max'])} percent to {_f6_pct(d['cmp_rel_v_above_min'])} percent "
               "with up-sweep squares and down-sweep diamonds; a grey zero line and the shaded band at the Hopf point."),
@@ -7208,11 +7208,22 @@ def _f6_source_rows(d: dict, raw: dict) -> list:
     return rows
 
 
+def _f6_top_label(d: dict, m: int, key: str = "label_primary") -> str:
+    """13t-11 (DL-699 P2): the failure label (a to h) with the largest bar of map m (0 or 1) and its count, read from the recorded counts; the alt text said g for both maps, but map 2 has f (16) above g (13)."""
+    v = np.asarray(d[key][m], float)
+    if key == "label_primary" and not (np.asarray(d["label_any"], float)[:, 3:5] == 0).all():
+        raise DataError("F6: labels d and e are not 0 in both maps (the alt text says they are)")
+    i = int(np.argmax(v))
+    if int((v == v[i]).sum()) != 1:
+        raise DataError(f"F6: the largest bar of map {m + 1} is not unique")
+    return f"{'abcdefgh'[i]} ({int(v[i])})"
+
+
 def _f6_alt_text(d: dict) -> dict:
     lp = d["label_primary"].sum(axis=0)
     return {
-        "a": (f"Bars of the number of non-surge cells with each failure label a to h for map 1 and map 2: primary label (filled grey bars; map 1 darker) and every label that applies (hatched bars); the largest bars are label g "
-              f"(primary {int(d['label_primary'][0][6])} and {int(d['label_primary'][1][6])}, any label {int(d['label_any'][0][6])} and {int(d['label_any'][1][6])}) and labels a and c; labels d and e are 0. "
+        "a": (f"Bars of the number of non-surge cells with each failure label a to h for map 1 and map 2: primary label (filled grey bars; map 1 darker) and every label that applies (hatched bars); the largest primary bar is label "
+              f"{_f6_top_label(d, 0)} in map 1 and label {_f6_top_label(d, 1)} in map 2 (any label, map 1: label {_f6_top_label(d, 0, 'label_any')}); labels d and e are 0 in both maps. "
               f"The {int(d['map_nonsurge'].sum())} non-surge cells all carry a label (primary label counts a {int(lp[0])}, c {int(lp[2])}, f {int(lp[5])}, g {int(lp[6])}, h {int(lp[7])})."),
         "b": ("Five rows of class marks against the ramp duration T_ramp from 1 to 1000 s: negative control 1 as a noise-free mean field (green diamonds, D-none at every T_ramp), with noise (grey left triangles, NS; the text "
               "S-rel 1 or 2 under some marks gives the seeds in another class), negative control 2 with the drive off and on (blue right triangles, D-tr) and negative control 3 (green diamonds, D-none)."),

@@ -17,7 +17,7 @@ from . import jcaption as JC
 from . import journal as J
 from . import plain as PL
 from . import style as S
-from .jf4cap import _NW, _fmt, _levels, a11_counts, f4_consts, f4a_caption, f4a_short, f4b_caption, f4b_short
+from .jf4cap import _NW, _fmt, _levels, a11_counts, classifier_facts, duration_facts, duration_floor_sentence, f4_consts, f4a_caption, f4a_short, f4b_caption, f4b_short
 
 F4_PARTS = ("F4a", "F4b")
 # journal panel -> draft panel (the mapping table of the supplements)
@@ -293,6 +293,21 @@ def draw_F4a(d: dict):
     return fig
 
 
+def _neg(x: float) -> str:
+    """One decimal with a true minus sign (13t-11 R3)."""
+    return f"{x:.1f}".replace("-", MINUS)
+
+
+_F4B_DURATION_LABEL = "Dotted line in (d): {dur_floor:g} s, smallest duration for ramps of {dur_T:g} s or more"        # 13t-11 (DL-699 R2): attempt 1 of the legend text; the values are read, not typed
+
+
+def _floor_facts(FG, d: dict) -> dict:
+    """13t-11 (DL-699 R1, R2): the duration floor of (d) read from the recorded durations (and the window rule of the frozen criteria); the same facts as the caption."""
+    from .. import config as _C
+    crit, _ = FG.F.K.load_frozen_criteria(_C.repo_root())
+    return duration_facts(d, classifier_facts(crit)["T_win"])
+
+
 def draw_F4b(d: dict):
     """F4b: the episode metrics and the noise band (journal (a) to (g) = draft (b), (c), (d), (e), (h), (k), (l)); returns the figure."""
     from matplotlib.lines import Line2D
@@ -311,7 +326,7 @@ def draw_F4b(d: dict):
     labs = [h.get_label() for h in hs[:6]] + [
         "Grey bar: minimum to maximum of the 10 noisy seeds (P2)", "Dark mark: median of the seeds with a value",
         "Octagon: in range, testable", "Diamond: in range, not testable", "Foot mark: no episode (class D-none)",
-        "Dotted line in (d): 1 s, the smallest duration", "Dotted line in (e), (g): zero delay, zero rate", "Shaded foot band: no episode (a to d)"]
+        _F4B_DURATION_LABEL.format(**_floor_facts(FG, d)), "Dotted line in (e), (g): zero delay, zero rate", "Shaded foot band: no episode (a to d)"]
     _key(fig, "F4b", hs, labs)
 
     # (a) to (d): peak power (absolute, relative), peak frequency, duration; the noise bars are P2, mode N
@@ -469,8 +484,8 @@ def alt_text(fid: str, d: dict, c: dict) -> dict:
     n = JC.num
     if fid == "F4a":
         return {
-            "a": (f"Delay of the onset against the ramp rate (logarithmic axis, {n(c['eps_lo'])} to {n(c['eps_hi'])}) for six series (P1, P2, P5, linear and sigmoid): delays from about 0 to about 3 (positive: the onset after the Hopf point), most of them rising "
-                  f"as the ramp slows; octagon rings on the testable runs (their error numbers are not drawn; they are in the source data), diamond rings on {_NW[c['n_untest']]} untestable runs, a red ring on the main example, open squares on {_NW[d['n_hold']]} onsets during the hold, a band at the foot with {_NW[d['n_nocross']]} run without a crossing. "
+            "a": (f"Delay of the onset against the ramp rate (logarithmic axis, {n(c['eps_lo'])} to {n(c['eps_hi'])}) for six series (P1, P2, P5, linear and sigmoid): delays from about {_neg(c['delay_lo'])} to {c['delay_hi']:.1f} (positive: the onset after the Hopf point; negative: before it), most of them rising "
+                  f"with the ramp rate ({c['n_rising_with_rate']} of {c['n_series']} series are higher at the fastest ramp than at the slowest); octagon rings on the testable runs (their error numbers are not drawn; they are in the source data), diamond rings on {_NW[c['n_untest']]} untestable runs, a red ring on the main example, open squares on {_NW[d['n_hold']]} onsets during the hold, a band at the foot with {_NW[d['n_nocross']]} run without a crossing. "
                   f"The title is red: prediction FAIL, solver FAIL; a red note gives {d['n_testable_within_one_step']} of {d['n_testable']} testable runs within one step and the solver difference of {c['head_ms']:.0f} ms."),
             "b": "P5: the up delay, the offset on the way down (triangles, negative at the fast end) and the hysteresis width (dashed, dash-dot for the sigmoid profile) against the ramp rate, linear solid and sigmoid dotted; a dotted zero line.",
             "c": f"P1 linear at three start distances (0.5 dotted, 1.5 solid, 3.0 dashed): the delay against the ramp rate with octagon rings on the testable runs (their errors, {_fmt(min(c['sd5']))} to {_fmt(max(c['sd5']))} steps, are not drawn and are in the source data); a dotted zero line; a band at the foot.",
@@ -481,7 +496,7 @@ def alt_text(fid: str, d: dict, c: dict) -> dict:
         "a": "Peak power (absolute) against the ramp rate for six noise-free series and a grey bar with a dark median mark for the ten noisy seeds of P2 at each of 13 ramp rates; the seed count is written above the panel; rings and foot marks as in F4a.",
         "b": "Peak power (relative) against the ramp rate, same marks as (a).",
         "c": "Peak frequency (Hz) against the ramp rate, same marks as (a); the axis does not start at zero.",
-        "d": "Duration (s, logarithmic axis) against the ramp rate with a dotted line at 1 s (the smallest duration the classifier can give); medians at 1 s are pinned by this floor.",
+        "d": f"Duration (s, logarithmic axis) against the ramp rate with a dotted line at {c['dur_floor']:g} s ({duration_floor_sentence(c)}); medians at {c['dur_floor']:g} s are pinned by this floor.",
         "e": (f"The delay of the ten noisy seeds of P2 at each ramp rate (grey bars from minimum to maximum, dark medians; the medians are negative from T_ramp {n(c['t_neg'])} s on) beside the noise-free P2 line; the title is red (noise robustness FAIL) "
               f"and two red lines give {c['kept']} of {c['kept_n']} seeds ({c['kept_need']} needed) and {c['sub_agree']} of {c['sub_cells']} cells ({c['sub_needed']} needed)."),
         "f": f"The jump offset of the M2 ramp from the fold (logarithmic axis) against the ramp rate: it rises with the ramp rate, from {c['off_slow']:.4f} to {c['off_fast']:.3f} over {c['n_T']} ramp rates.",

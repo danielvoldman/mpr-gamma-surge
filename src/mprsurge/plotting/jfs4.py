@@ -249,7 +249,7 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
             f"and the onset is {n(c['onset_default'])} s everywhere except under Radau; the delays of the noise-floor runs do not depend on the Heun time step at the 1 ms output grid.")
     panels = " ".join([
         f"(a) The onset of the main example for {c['n_rows']} settings (rows): the default, the initial perturbations {_and(c['d0'])}, the relative tolerances {_and(c['rtol'])} and the Radau solver. The class mark is the classifier onset "
-        f"(the first window that the classifier, a rule fixed before the analysis, flags); the small cross is the raw first crossing of its detection threshold (the envelope of v at {c['amin']} times a reference amplitude); the two onsets are equal in every run, so the cross lies on the mark. "
+        f"(the first window that the classifier, a rule fixed before the analysis, flags); the small hollow downward triangle is the raw first crossing of its detection threshold (the envelope of v at {c['amin']} times a reference amplitude); the two onsets are equal in every run, so the triangle lies on the mark. "
         f"The red title and the red note give the solver check: Radau minus default = {ms:g} ms against the {bound:g} ms allowed.",
         f"(b) The class and the onset shift (s) at the ramp durations {_and(c['ms11_T'])} s for the initial perturbations {_and(c['d0'])} and the relative tolerances {_and(c['rtol'])} (the default values are those of (a)): D-tr in all {c['n_ms11']} cells; "
         f"the largest shift is {n(c['shift_max'])} s.",
@@ -316,18 +316,31 @@ def source_rows(d: dict, FG) -> list:
     return rows
 
 
+def _floor_delay_text(d: dict) -> str:
+    """13t-11 (DL-699 P2): what the drawn raw-crossing delays of (c) are, read from the recorded arrays (level 0 holds values of both signs, so 'small and negative' was wrong for the values)."""
+    parts = []
+    for L in range(3):
+        a = np.asarray(d[f"floor_l{L}_cross_delay"], float).ravel()
+        parts.append(f"level {L} from {_m(a.min())} to {_m(a.max())} (median {_m(np.median(a))})")
+    return "the delays are small: " + ", ".join(parts)
+
+
+def _m(x: float) -> str:
+    return f"{x:.2g}".replace("-", MINUS)
+
+
 def alt_text(d: dict, c: dict) -> dict:
     return {
-        "a": f"{c['n_rows']} rows, one per numerical setting, with a class mark and a cross at the onset of the main example between 58.65 and 58.93 s; five rows lie at {c['onset_default']:g} s and the Radau row at {c['onset_radau']:g} s; the title is red "
+        "a": f"{c['n_rows']} rows, one per numerical setting, with a class mark (the classifier onset) and a small hollow downward triangle (the raw first crossing) at the onset of the main example between 58.65 and 58.93 s; five rows lie at {c['onset_default']:g} s and the Radau row at {c['onset_radau']:g} s; the title is red "
              f"('Solver check: FAIL') and a red note gives Radau minus default = {d['head_radau_minus_default_ms']:g} ms against 1 ms allowed.",
         "b": f"Two rows of marks (ramp durations {c['ms11_T'][0]:g} s and {c['ms11_T'][1]:g} s) for four settings, each labelled with its onset shift in s; all marks are the class D-tr.",
-        "c": "Delay of the noise-floor runs under the raw first crossing against the Heun time step (log axis): three levels of ten seeds each at four steps, the points of one level on one another; the delays are small and negative.",
+        "c": "Delay of the noise-floor runs under the raw first crossing against the Heun time step (log axis): three levels of ten seeds each at four steps, the points of one level on one another; " + _floor_delay_text(d) + ".",
         "d": f"The same runs under the classifier onset: the delays are {c['tie']:g} at levels 0 and 1 and higher at level 2; a note says that {c['tie']:g} is the onset at the ramp start.",
         "e": "Median delay at the noise floor for the levels 0, 1 and 2 at two ramp durations (lines with marks); the legend gives the direction word 'not strictly monotone' for both.",
         "f": "Peak frequency of three network seeds against the network time step (log axis, decreasing to the right), with open marks for the spectrum-maximum reading at the first halving; the title is red and reads 'Network peak frequency against step: FAIL (not evidence)'.",
         "g": f"Relative change of the peak frequency per step halving for three seeds against a dashed bound at {FG_BOUND}; {c['n_above']} of the {c['n_changes']} changes lie above the bound (range {c['all_lo']} to {c['all_hi']} percent over the three halvings); the title is red.",
         "h": "A grid of class marks, one row per time step and V_p, one column per seed; information only.",
-        "i": "Peak frequency of each seed at V_p 100 (filled) and 200 (open) for each step and seed; reported only.",
+        "i": f"Peak frequency of each seed at V_p 100 (filled) and 200 (open), for the {len(set(d['vp_dt']))} time steps {_and(sorted(set(d['vp_dt']), reverse=True))} and the {len(set(d['vp_seed']))} seeds (V_p 200 was run at these steps only); reported only.",
     }
 
 

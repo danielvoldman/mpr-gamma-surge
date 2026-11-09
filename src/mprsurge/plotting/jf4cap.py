@@ -85,6 +85,51 @@ def classifier_facts(crit: dict | None) -> dict:
             "amin": JC.num(c["amin_factor"]["value"])}
 
 
+def _delay_facts(d: dict, fam_names) -> dict:
+    """13t-11 (DL-699 R3): the smallest and the largest delay drawn in F4a (a) (raw first crossing and classifier onset of the six series) and the number of series whose delay at the fastest ramp is larger than at the slowest,
+    all read from the recorded arrays; a value that is not the ruled one (minimum -0.092, maximum 2.0) stops the build."""
+    vals = np.concatenate([np.asarray(d[f"{f}_{k}"], float).ravel() for f in fam_names for k in ("delay_eta_cross", "delay_eta")])
+    lo, hi = float(np.nanmin(vals)), float(np.nanmax(vals))
+    if round(lo, 3) != -0.092 or hi != 2.0:
+        raise JC.JCaptionError(f"F4: the smallest and largest drawn delay are {lo!r} and {hi!r}, not -0.092 and 2.0 (13t-11 R3: STOP RULE 12, nothing patched)")
+    rising = 0
+    for f in fam_names:
+        order = np.argsort(np.asarray(d[f"{f}_eps"], float))
+        y = np.asarray(d[f"{f}_delay_eta_cross"], float)[order]
+        y = y[np.isfinite(y)]
+        rising += int(y[-1] > y[0])
+    return {"delay_lo": lo, "delay_hi": hi, "n_rising_with_rate": rising, "n_series": len(fam_names)}
+
+
+def duration_facts(d: dict, t_win: str) -> dict:
+    """13t-11 (DL-699 R1): the duration floor of F4b (d), read from the recorded durations and ramp durations of the six series and the noisy seeds. t_win is the ramp duration (s) of the frozen window rule (T_ramp >= 60 s)
+    in the text of the criteria. STOP if (i) the smallest duration at T_ramp >= t_win is not exactly 1.0 s, (ii) the overall smallest is not 0.30 s, (iii) the counts below 1 s and at 1 s or more under t_win do not add up."""
+    fam_names = ("p1_linear", "p1_sigmoid", "p2_linear", "p2_sigmoid", "p5_linear", "p5_sigmoid")
+    T = np.concatenate([np.asarray(d[f"{f}_T_ramp_s"], float).ravel() for f in fam_names])
+    D = np.concatenate([np.asarray(d[f"{f}_duration_s"], float).ravel() for f in fam_names])
+    Tn = np.asarray(d["noise_T_ramp_s"], float)
+    Dn = np.asarray(d["noise_duration_s"], float)
+    Tn = np.broadcast_to(Tn, Dn.shape) if Tn.shape != Dn.shape else Tn
+    T, D = np.concatenate([T, Tn.ravel()]), np.concatenate([D, Dn.ravel()])
+    ok = np.isfinite(D) & np.isfinite(T)
+    T, D = T[ok], D[ok]
+    tw = float(t_win)
+    long_, short_ = D[T >= tw - 1e-9], D[T < tw - 1e-9]
+    below, reach = int((short_ < 1.0).sum()), int((short_ >= 1.0).sum())
+    if float(long_.min()) != 1.0:
+        raise JC.JCaptionError(f"F4b: the smallest duration at T_ramp >= {tw:g} s is {float(long_.min())!r}, not exactly 1.0 s (13t-11 R1: STOP RULE 12)")
+    if round(float(D.min()), 2) != 0.30:
+        raise JC.JCaptionError(f"F4b: the smallest duration is {float(D.min())!r}, not 0.30 s (13t-11 R1: STOP RULE 12)")
+    if below + reach != len(short_) or len(short_) + len(long_) != len(D):
+        raise JC.JCaptionError(f"F4b: the duration counts do not add up ({below} + {reach} != {len(short_)})")
+    return {"dur_T": tw, "dur_floor": float(long_.min()), "dur_min": float(D.min()), "dur_n": int(len(D)), "dur_n_short": int(len(short_)), "dur_n_short_below": below, "dur_n_short_reach": reach}
+
+
+def duration_floor_sentence(c: dict, n=None) -> str:
+    """The one wording of the duration floor (13t-11 R1), used by the F4b short caption, full caption and alt text."""
+    return (f"durations are {c['dur_floor']:g} s or more for ramp durations of {c['dur_T']:g} s or more; some faster ramps give shorter durations, down to {c['dur_min']:.2f} s")
+
+
 def f4_facts(d: dict) -> dict:
     """The readings that the captions state; a result that differs from the ruled expectation stops the build (JCaptionError)."""
     fam_names = ("p1_linear", "p1_sigmoid", "p2_linear", "p2_sigmoid", "p5_linear", "p5_sigmoid")
@@ -127,7 +172,8 @@ def f4_facts(d: dict) -> dict:
         raise JC.JCaptionError("F4: the M2 jump offset does not rise with the ramp rate at every step (the caption says it does)")
     tie = med_cls[0]
     cls_all = np.asarray(d["floor_delay_cls"], float)
-    return {"m2_eps_lo": float(format(m2lo, ".4g")), "m2_eps_hi": float(format(m2hi, ".4g")), "tie": tie, "n_tie_levels": int(sum(1 for m in med_cls if m == tie)), "tie_levels": [i for i, m in enumerate(med_cls) if m == tie],
+    dl = _delay_facts(d, fam_names)
+    return {**dl, "m2_eps_lo": float(format(m2lo, ".4g")), "m2_eps_hi": float(format(m2hi, ".4g")), "tie": tie, "n_tie_levels": int(sum(1 for m in med_cls if m == tie)), "tie_levels": [i for i, m in enumerate(med_cls) if m == tie],
             "n_tie_drawn": int(np.isclose(cls_all, tie).sum()), "n_drawn_e": int(cls_all.size), "n_series_runs": len(fam_names) * len(d["p1_linear_T_ramp_s"]), "n_seeds": 10,
             "head_delay": float(d["head_delay_eta_cross"]), "steps": steps, "sd5": sd5, "p5": p5, "t_neg": t_neg, "off_hi": float(off.max()), "off_lo": float(off.min()), "off_fast": float(off[order_[-1]]), "off_slow": float(off[order_[0]]), "rate_lo": float(np.min(d["a3_rate"])), "rate_hi": float(np.max(d["a3_rate"])),
             "n_none6": n_none6, "n_untest": int(d["n_in_range"] - d["n_testable"]), "eps_lo": float(np.min(d["p1_linear_eps"])), "eps_hi": float(np.max(d["p1_linear_eps"])),
@@ -138,7 +184,7 @@ def f4_facts(d: dict) -> dict:
 
 def f4_consts(d: dict, rows: list, raw: dict | None = None, a11: list | None = None, crit: dict | None = None) -> dict:
     f = f4_facts(d)
-    return {**f, **raw_facts(raw, f["tie"]), **(a11_counts(a11) if a11 is not None else {}), **classifier_facts(crit), "sigma": JC.pv(rows, "noise.sigma", "S5_noise"), "delta0": JC.pv(rows, "solver.delta0"), "rtol": JC.pv(rows, "solver.rtol"), "type": JC.pv(rows, "model.type"),
+    return {**f, **raw_facts(raw, f["tie"]), **(a11_counts(a11) if a11 is not None else {}), **classifier_facts(crit), **(duration_facts(d, classifier_facts(crit)["T_win"]) if crit is not None else {}), "sigma": JC.pv(rows, "noise.sigma", "S5_noise"), "delta0": JC.pv(rows, "solver.delta0"), "rtol": JC.pv(rows, "solver.rtol"), "type": JC.pv(rows, "model.type"),
             "scheme": JC.pv(rows, "noise.scheme")}
 
 
@@ -270,7 +316,7 @@ def f4b_caption(d: dict, a11: list, crit: dict, rows: list, *, strip_rows: list,
         f"from {n(c['T_lo'])} to {n(c['T_hi'])} s), against {_RAMP}. The 10 noisy seeds of P2 (mode N, sigma = {n(c['sigma'])}, checked and not confirmed) at each ramp rate are a grey bar from the minimum to the maximum of the seeds with a value and a dark median mark; "
         "the number above each panel's top edge is the number of seeds counted at each ramp rate (of 10); a seed with no episode or no crossing is left out of the bar and the median; nothing is smoothed or offset. "
         f"Octagon and diamond rings mark the runs inside the range of the onset check as in F4a (a). Runs with no episode (class D-none) are drawn at the foot of the panel, not dropped ({c['n_none6']} of the {c['n_series_runs']} runs of the six series; the table holds {d['n_none_class']} D-none runs in all). "
-        "The peak frequency f_pk is the classifier's spectral peak. The dotted line at 1 s in (d) is the smallest duration the classifier can give (one window times the step, 1.0 s for ramp durations of 60 s or more); medians at 1.0 s are pinned by this floor, not a result. "
+        "The peak frequency f_pk is the classifier's spectral peak. The dotted line at 1 s in (d) marks the duration of one window times the step: " + duration_floor_sentence(c) + "; medians at 1.0 s are pinned by this floor, not a result. "
         "The y axes of (b) and (c) do not start at zero.",
         f"(e) The delay (as in F4a (a)) of the 10 noisy seeds of P2 with the linear profile, as grey bars and median marks, beside the noise-free P2 line; the dotted line is zero. The red title is the noise-robustness FAIL; "
         f"the red lines state its two results (the main-example class kept in {c['kept']} of {c['kept_n']} seeds, {c['kept_need']} needed; {c['sub_agree']} of {c['sub_cells']} noisy subgrid cells agree, {c['sub_needed']} needed), which are class counts and not drawn as marks. "
@@ -318,7 +364,7 @@ def f4b_short(d: dict, a11: list, strip_rows: list, c: dict, max_words: int, ful
         "against the ramp rate (the change of eta_bar over the ramp divided by the ramp duration, in units of tau, the membrane time constant), "
         f"with the {c['n_seeds']} noisy seeds of P2 as a grey bar (minimum to maximum) and a dark median mark; the number above each panel is the number of seeds counted; "
         "rings: runs where the prediction of F4a (a) can be tested (octagon: testable; diamond: not testable); foot marks: runs with no episode. "
-        "The dotted line at 1 s in (d) is the smallest duration the classifier can give, so medians at 1.0 s are pinned. "
+        f"The dotted line in (d) is {c['dur_floor']:g} s: " + duration_floor_sentence(c) + ". "
         "(e) The delay (as in F4a (a)) of the noisy seeds beside the noise-free P2 line. "
         f"(f) The M2 ramp (M2: the comparison model) through the saddle-node (the fold, where the resting state disappears): the jump offset (eta_bar at the jump minus eta_bar at the fold) rises with the ramp rate, from {n(round(c['off_slow'], 4))} to {n(round(c['off_fast'], 3))}; no scaling law is claimed. "
         f"(g) The fitted rate of the ring (the damped oscillation after the jump) lies between {MINUS}{abs(c['rate_lo']):.1f} and {MINUS}{abs(c['rate_hi']):.1f} per s (negative: damped) at {c['n_nonneg']} of {c['n_T']} ramp durations.",
