@@ -95,7 +95,7 @@ SHORT_LIMITS = {
 }
 # 13t-1g (DL-603 W1): the limits G4-C3 (F5, F5c), G4-C4 (F5) and MS11-C2 (F5c) that 13t-1f (DL-596) had left out only for the word limits are restored (the limits are raised instead); the lists are those of 13t-1e (cf92272)
 SHORT_LIMIT_IDS = {"F1": ("G4-C3", "MS9(e)-1"), "F3": ("MS11-C3", "MS12-C1"), "F5": ("G4-C4", "MS9(e)-2", "G4-C3"), "F5c": ("G4-C3", "MS11-C2", "MS9(e)-1"),
-                   "F2": ("MS12-C1", "G4-C2"), "F6": ("MS12-C1", "MS9(e)-1", "MS9(e)-3", "MS9(e)-5", "G4-C3", "G4-C4"), "FS1": (), "FS2": (), "FS3": (),
+                   "F2": ("MS12-C1", "G4-C2"), "F6": ("MS12-C1", "MS9(e)-1", "MS9(e)-3", "MS9(e)-5", "G4-C3", "G4-C4"), "FS1": (), "FS2": (), "FS3": (), "FS4": (), "FS5": (),
                    "F4a": ("MS12-C1", "MS9(e)-5", "G6-D1", "G6-D2", "G6-D3", "DL-163-D3", "MS11-C6"), "F4b": ("MS12-C1", "MS9(e)-2", "MS9(e)-5", "G4-C4", "MS11-C1", "MS11-C3")}      # 13t-8b (DL-671)
 
 # V7: detectors of the failed rows named in the "Failed checks." paragraph of a FULL caption: key -> regex (a row counts once)
@@ -122,7 +122,7 @@ SHORT_NAMED = {
     "F5c": {("RB6", "network_fpk_halving_dt")},
     "F2": {("RB1", "headline_10s"), ("RB1", "headline_120s"), ("RB1", "cells_30s"), ("RB1", "overall")},      # DL-628 C1: the red title of F2 (c) is the four RB1 rows
     "F6": {("G7", "gate")},
-    "FS1": set(), "FS2": set(), "FS3": set(),                                                                # 13t-4: no failed row concerns FS1
+    "FS1": set(), "FS2": set(), "FS3": set(), "FS4": set(), "FS5": set(),                                                                # 13t-4: no failed row concerns FS1
     "F4a": {("RB3", "a_inrange_runs"), ("RB3", "b_classifier_onset"), ("RB6", "solver_onset_headline")},      # 13t-8b: the three rows the F4a panels draw
     "F4b": {("RB2", "noisy_subgrid_agreement"), ("RB2", "headline_class_kept_1.0_sigma")},
 }

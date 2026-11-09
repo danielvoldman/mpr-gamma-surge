@@ -951,6 +951,10 @@ def journal_figure(fig_id: str, res=None, root=None, close: bool = True):
             from . import jfs2
             d = prepare_FS2(load_FS2(res))
             fig = jfs2.draw(d, sys.modules[__name__])
+        elif fig_id == "FS4":                                # 13t-9 (DL-681 N4)
+            from . import jfs4
+            d = prepare_FS4(load_FS4(res))
+            fig = jfs4.draw(d, sys.modules[__name__])
         elif fig_id in ("F5", "F5c"):
             d = prepare_F5(load_F5(res))
             fig = _draw_F5(d, draft=False, mode="journal" if fig_id == "F5" else "journal_c")
@@ -3542,9 +3546,12 @@ def fs4_caption_notes(d: dict) -> tuple:
 
 
 def make_FS4(res=None, out_dir=None, *, tag_build: bool = False, take_home=FS4_TAKE_HOME, claim_limit_ids=FS4_CLAIM_LIMITS,
-             script="scripts/fig_FS4.py", root=None) -> dict:
-    """Build FS4 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov)."""
+             script="scripts/fig_FS4.py", root=None, mode: str = "draft") -> dict:
+    """Build FS4 from results/. Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. tag_build=True needs a clean tree (figprov). mode="journal": the stand-alone supplement file (13t-9, DL-681)."""
     F.require_buildable("FS4")
+    if mode == "journal":
+        from . import jfs4
+        return jfs4.build(sys.modules[__name__], res, out_dir, root, script, claim_limit_ids, tag_build)
     root = Path(root) if root is not None else repo_root()
     res = Path(res) if res is not None else root / "results"
     out = Path(out_dir) if out_dir is not None else root / "figures" / "FS4"

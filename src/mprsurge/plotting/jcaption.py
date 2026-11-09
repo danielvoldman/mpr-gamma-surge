@@ -49,7 +49,7 @@ def assemble(fig_id: str, *, take_home: str, panels: str, key: str, settings: st
 
 # 13t-8b (DL-668 K4, DL-671 L1): the captions of FS2 and FS3 hold no check, gate or rule code (K, RB, G numbers, D24, stored names with underscores and digits); each code is replaced by its plain wording here, in
 # this order, and the code-to-plain mapping is in the supplement table of the figure (mapping_markdown). The same numbers and the same failures stand; only the name of the check changes. A code that remains stops the build.
-UNCODE_FIGS = ("FS2", "FS3")
+UNCODE_FIGS = ("FS2", "FS3", "FS4", "FS5")
 UNCODE = (
     (r"The check K7 amplitude residual \(", "The amplitude-residual check (", "K7 amplitude residual"),
     (r"The check K10 J dependence \(", "The J-dependence check (", "K10 J dependence"),
@@ -67,6 +67,15 @@ UNCODE = (
     (r"the check of the heterogeneity shape, RB8, is not", "the check of the heterogeneity shape is not", "RB8"),
     (r"the RB6 check of the network peak frequency", "the numerical-convergence check of the network peak frequency", "RB6"),
     (r"RB2 failed:", "The noise-robustness check failed:", "RB2"),
+    # 13t-9 (DL-681 N4): FS4 and FS5
+    (r"The check RB6 solver onset \(", "The solver check (", "RB6 solver_onset_headline"),
+    (r"The check RB6 network f_pk \(", "The network peak-frequency check (", "RB6 network_fpk_halving_dt"),
+    (r"The check RB9\(b\) \(", "The frequency check (", "RB9(b)"),
+    (r"RB6 \(numerical convergence\), agreement of the two solvers on the headline onset", "Numerical-convergence check, agreement of the two solvers on the onset of the main example", "RB6 solver_onset_headline"),
+    (r"RB6 \(numerical convergence\), the network peak frequency f_pk when the step is halved", "Numerical-convergence check, the network peak frequency when the time step is halved", "RB6 network_fpk_halving_dt"),
+    (r"RB9\(b\) \(frequency mapping\), spectral frequency against cycle frequency at the headline", "Frequency check, spectral frequency against cycle frequency at the main example", "RB9(b)"),
+    (r"\(RB9\(b\) failed\)", "(the frequency check failed)", "RB9(b)"),
+    (r"RB9\(b\) failed:", "The frequency check failed:", "RB9(b)"),
 )
 UNCODE_LEFT = re.compile(r"(?<![A-Za-z0-9_])(?:K\d+|RB\d+(?:\([a-d]\))?|G\d+(?:-[CD]\d+)?|D24)(?![A-Za-z0-9_])|[A-Za-z][A-Za-z0-9.]*(?:_[A-Za-z0-9.]+)*_[A-Za-z0-9.]*\d[A-Za-z0-9.]*")
 
@@ -332,6 +341,10 @@ TITLE_MAP = {
     "F4a": (("(a)", "prediction FAIL, solver FAIL", "RB3(a), RB6 solver onset", "the onset must lie within one step of the entry-exit prediction in the testable runs, and the two solvers must agree on the onset at the main example"),
             ("(e)", "Floor, classifier onset: FAIL", "RB3(b)", "the delay under a noise floor must meet the check under the classifier-onset reading")),      # 13t-8b (DL-671)
     "F4b": (("(e)", "noise robustness FAIL", "RB2", "the main-example class must be kept in at least 8 of 10 noisy seeds, and at least 90 percent of the cells of the noisy subgrid must agree with the noise-free class"),),
+    "FS4": (("(a)", "Solver check: FAIL", "RB6 solver onset", "the two solvers must agree on the onset of the main example within 1 ms"),
+            ("(f)", "Network peak frequency against step: FAIL (not evidence)", "RB6 network f_pk", "halving the network time step must change the peak frequency by less than 2 percent"),
+            ("(g)", "Change per step halving: FAIL", "RB6 network f_pk", "halving the network time step must change the peak frequency by less than 2 percent")),      # 13t-9 (DL-681 N4)
+    "FS5": (("(h)", "Frequency check: FAIL", "RB9(b)", "the spectral and the cycle frequency of the main example must differ by at most 0.5 Hz"),),
     "FS1": (),                                                                       # 13t-4: no red title and no failed row (DL-637)
     "F6": (("(c)", "Negative-control check: FAIL", "G7", "the negative-control gate: the network run of the first negative control must not be in a surge class"),),
 }
