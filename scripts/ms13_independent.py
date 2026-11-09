@@ -876,8 +876,8 @@ F4_J = {
     "F4.m2_damped": ((r"so the ring is damped at (\d+) of \d+", 1), ("F4b",), (r"\(negative: damped\) at (\d+) of \d+", 1)),          # 13t-9: the short caption says (negative: damped) at 13 of 13 ramp durations
     "F4.m2_eps_lo": ((r"values from (\d+\.\d+e-\d+) to", 1), ("F4b",), None),          # 13t-9 (DL-680 N1): the M2 ramp-rate range of (f), in the full caption only
     "F4.m2_eps_hi": ((r"values from \d+\.\d+e-\d+ to (\d+\.\d+),", 1), ("F4b",), None),
-    "F4.m2_offset_first": ((r"falls from (\d+\.\d+) to", 1), ("F4b",), (r"rises with the ramp rate, from \d+\.\d+(?: at the slowest)? to (\d+\.\d+)", 1)),      # 13t-10 (DL-690 O2): the journal text gives the direction against the ramp rate; the same two stored numbers (smallest T_ramp = fastest ramp = the larger offset)
-    "F4.m2_offset_last": ((r"falls from \d+\.\d+ to (\d+\.\d+)", 1), ("F4b",), (r"rises with the ramp rate, from (\d+\.\d+)(?: at the slowest)? to", 1)),
+    "F4.m2_offset_first": ((r"rises with the ramp rate, from \d+\.\d+(?: at the slowest)? to (\d+\.\d+)", 1), ("F4b",), (r"rises with the ramp rate, from \d+\.\d+(?: at the slowest)? to (\d+\.\d+)", 1)),      # 13t-10 (DL-690 O2): the journal text gives the direction against the ramp rate; the same two stored numbers (smallest T_ramp = fastest ramp = the larger offset)
+    "F4.m2_offset_last": ((r"rises with the ramp rate, from (\d+\.\d+)(?: at the slowest)? to", 1), ("F4b",), (r"rises with the ramp rate, from (\d+\.\d+)(?: at the slowest)? to", 1)),
 }
 
 
