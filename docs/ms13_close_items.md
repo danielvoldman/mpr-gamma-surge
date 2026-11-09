@@ -81,3 +81,27 @@ LIST ONLY. Collected from the decision log from DL-419 onward and from docs/ms13
 ## J. Added in 13t-8 (DL-668)
 
 48. FOR THE USER (13t-8, DL-668 K3): F5c (d): draft omits control durations although the records hold 9 of 12; the draft says they were not evaluated; reconcile before the paper cites it. (The 12 control records hold duration_s for 9 of 12; the evaluation fields duration_ms are NaN for all controls; the journal figure draws what the draft draws, and its captions say that no control seed is drawn in (d).)
+
+## K. Open for the user at the end of 13t (13t-11, DL-699 to DL-702)
+
+Items 44, 45, 46 and 48 stay open, text as above (repeated here word for word):
+
+44. FOR THE USER (13t-1e, DL-583 U7, DL-586): F1 (d), (f): stored class S-sus, reviewer reading of an ending episode near 143 s, reason not shown by stored fields. The stored classifier output of the three network seeds (results/ms10/eval/ms10_eval.json, rb1_headline 120 s) holds the class (S-sus), the classifier onset (12.0 s), the raw first crossing (50.170, 50.857, 50.924 s) and f_pk; it holds no termination flag or time, no power-test result and no onset reason. The class, the wording 'no claim is made about the visual shape' and the figures are unchanged; the classifier was not recomputed.
+
+45. FOR THE USER (13t-1e, DL-584): the plan (section 8 conventions; MS15 checklist) asks for 'full parameters and spectrogram settings in each caption' and for every caption to state the parameter regime and the take-home message; the SHORT journal caption (DL-582 U3) cannot hold the full parameters and settings, which are in the FULL caption and the supplement. The plan does not require the full claim limits inside the figure caption. Needs a ruling whether the short caption alone meets the plan's caption convention.
+
+46. FOR THE USER (13t-4, DL-636 E1): draft F2 take-home disagrees with its drawn data; journal caption follows the data; the draft stays. The ruled draft constant F2_TAKE_HOME (DL-128, DL-129) says the network sweep 'does not follow the mean-field branch closely'; the recorded relative differences of the v amplitude above eta_bar 3.0 are +13.2 and +12.4 percent at eta_bar 3.296, about 7 percent at 3.696, at most 4.8 percent from 4.096 up and -2.5 percent at 6.496, and (a) and (b) show the network symbols on the mean-field branch. The journal captions (short and full) read 'Above the Hopf point the network amplitude lies close to the mean-field branch in (a) and (b) and differs from it by up to 13.2 percent in (c)'; the draft figure, caption and constant are byte-identical to before.
+
+48. FOR THE USER (13t-8, DL-668 K3): F5c (d): draft omits control durations although the records hold 9 of 12; the draft says they were not evaluated; reconcile before the paper cites it. (The 12 control records hold duration_s for 9 of 12; the evaluation fields duration_ms are NaN for all controls; the journal figure draws what the draft draws, and its captions say that no control seed is drawn in (d).)
+
+New items (one line each):
+
+49. FOR THE USER (13t-10, 13t-11): the triage of the 13t-10 review (docs/ms13_13t10_triage.md table B: wording, clarity, jargon, density, design) is left as triaged; no rebuild was made for it.
+50. FOR THE USER (13t-11 R2): the F4b legend says 'Dotted line in (d): 1 s' only; the scope (1 s or more for ramp durations of 60 s or more; some faster ramps down to 0.30 s) is in the captions and the alt text, because the longer legend ran past the key edge (attempt 2 of 2).
+51. FOR THE USER (13t-11): the alt texts of F5 and F5c write N as 1e3, 3e3, 1e4, 3e4; captions and images use 1000, 3000, 10,000, 30,000 (V4, W3); not changed.
+52. FOR THE USER (13t-11): the F4b short caption has 650 of 650 words; any further clause needs a ruled change of the limit or the removal of other prose.
+53. FOR THE USER (13t-10 triage, FS5 (a)): the caption mentions 'not run' cells but no mark or legend entry for them in (a); whether any cell of the stored table is 'not run' was not established; not changed.
+54. FOR THE USER (13t-5, DL-646): checklist item G2b-fs1-test-point records a read-only check that STOPPED with nothing patched; it was set passing only by the 13t-11 ruling P5 and is not resolved.
+55. FOR THE USER: the EPS extras of F3, F5, F5c and FS1 differed between the 13t-10 and 13t-11 builds although the code of those figures did not change (probably embedded dates; not the main files; PNG, TIFF and PDF are byte-identical across builds).
+56. FOR THE USER (R2): the colour-vision check of the 13 final PNGs is MANUAL (online simulator); the verifier row cvd reads MANUAL.
+57. UNVERIFIED (13t-11): 'durations are 1 s or more for ramp durations of 60 s or more' rests on the frozen window rule T_ramp >= 60 s and the stored durations (minimum exactly 1.0 s there); the plan gives no sentence on the pinned medians; the claim 'some faster ramps down to 0.30 s' is the stored minimum, not a limit of the classifier.

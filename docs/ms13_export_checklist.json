@@ -1,5 +1,5 @@
 {
- "note": "status changes to passing only after scripts/ms13_verify_export.py passes for the item AND the recorded PNG crops were looked at (J15); 13t-1d (DL-571): F1, F3 and F5 items were reset to failing and the T1 to T12 items added; 13t-1e (DL-581 to DL-583): items U1 to U8 added as failing; 13t-1f (DL-592 to DL-594): items V1 to V9 added as failing; 13t-1g (DL-603 to DL-605): items W1 to W6 added as failing; 13t-2 (DL-614 to DL-616): items for A1 to A6 and for F2 and F6 added as failing; 13t-3 (DL-627 to DL-629): items C1 to C9 and FS1 to FS5 added as failing; 13t-3 recorded build from c39adb1 (DL-632): C1, C2, C4 to C7, C9 passing, C3 failing (F2 sentence 1 STOP), FS1 to FS5 failing",
+ "note": "status changes to passing only after scripts/ms13_verify_export.py passes for the item AND the recorded PNG crops were looked at (J15); 13t-1d (DL-571): F1, F3 and F5 items were reset to failing and the T1 to T12 items added; 13t-1e (DL-581 to DL-583): items U1 to U8 added as failing; 13t-1f (DL-592 to DL-594): items V1 to V9 added as failing; 13t-1g (DL-603 to DL-605): items W1 to W6 added as failing; 13t-2 (DL-614 to DL-616): items for A1 to A6 and for F2 and F6 added as failing; 13t-3 (DL-627 to DL-629): items C1 to C9 and FS1 to FS5 added as failing; 13t-3 recorded build from c39adb1 (DL-632): C1, C2, C4 to C7, C9 passing, C3 failing (F2 sentence 1 STOP), FS1 to FS5 failing 13t-11 (DL-699 P5): every item passing except the colour-vision check (R2-cvd-manual-row, MANUAL for the user); 32 items set passing, 6 added.",
  "items": [
   {
    "id": "J10-raw-crossings-marker-on-text",
@@ -82,26 +82,26 @@
   {
    "id": "J12-hopf-marker-small-or-ring",
    "figure": "F2",
-   "status": "failing",
-   "note": "13t-2"
+   "status": "passing",
+   "note": "13t-2 | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "J12-c-title-one-line",
    "figure": "F2",
-   "status": "failing",
-   "note": "13t-2"
+   "status": "passing",
+   "note": "13t-2 | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "J12-eta-bar-and-ref-devalle-names",
    "figure": "F2",
-   "status": "failing",
-   "note": "13t-2"
+   "status": "passing",
+   "note": "13t-2 | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "J12-empty-band-above-status",
    "figure": "F2",
-   "status": "failing",
-   "note": "13t-2"
+   "status": "passing",
+   "note": "13t-2 | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "check:A-collisions",
@@ -430,8 +430,8 @@
   {
    "id": "R2-cvd-manual-row",
    "figure": "F1",
-   "status": "passing",
-   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; verifier row cvd reads MANUAL (user checks final PNGs with an online simulator; UNVERIFIED), no exit code effect; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577)"
+   "status": "MANUAL",
+   "note": "13t-1d: reset to failing, to be re-checked on the rebuild (previous: passing; verifier row cvd reads MANUAL (user checks final PNGs with an online simulator; UNVERIFIED), no exit code effect; 13t-1b: re-checked at 6.3 x 8.0 in (recorded build 2756a4c, DL-561)) | 13t-1d: verified on the recorded build from 0584741 (scripts/ms13_verify_export.py exit 0, cvd MANUAL; tests; crops looked at; DL-577) | 13t-11: the colour-vision check is MANUAL for the user (online simulator on the final PNGs; no package installed, R2); the verifier row cvd reads MANUAL for all 13 figures"
   },
   {
    "id": "R4-F5-a-title-FAIL",
@@ -1546,8 +1546,8 @@
   {
    "id": "C3-f2-short-caption",
    "figure": "F2",
-   "status": "failing",
-   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: short caption: tracking sentence, up/down sweep sentence, Hopf-point sentence, merged limit sentence, no classifier sentence, sweep defined | all parts done except sentence 1: STOP, the ruled take-home wording 'does not follow the mean-field branch closely' conflicts with the image and is not changed (DL-630, notes item 1); stays failing until the reviewer rules"
+   "status": "passing",
+   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: short caption: tracking sentence, up/down sweep sentence, Hopf-point sentence, merged limit sentence, no classifier sentence, sweep defined | all parts done except sentence 1: STOP, the ruled take-home wording 'does not follow the mean-field branch closely' conflicts with the image and is not changed (DL-630, notes item 1); stays failing until the reviewer rules | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "C4-f6-short-caption",
@@ -1582,32 +1582,32 @@
   {
    "id": "D-FS1",
    "figure": "FS1",
-   "status": "failing",
-   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: journal export of FS1 | 13t-4 (DL-637): reset to failing; journal export of FS1 tried under the FS profile (E5)"
+   "status": "passing",
+   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: journal export of FS1 | 13t-4 (DL-637): reset to failing; journal export of FS1 tried under the FS profile (E5) | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "D-FS2",
    "figure": "FS2",
-   "status": "failing",
-   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: journal export of FS2 | 13t-4 (DL-637): reset to failing; journal export of FS2 tried under the FS profile (E5) | 13t-4 (DL-640): not tried, the step became too large (F2 ruling); the split proposals stand"
+   "status": "passing",
+   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: journal export of FS2 | 13t-4 (DL-637): reset to failing; journal export of FS2 tried under the FS profile (E5) | 13t-4 (DL-640): not tried, the step became too large (F2 ruling); the split proposals stand | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "D-FS3",
    "figure": "FS3",
-   "status": "failing",
-   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: journal export of FS3 | 13t-4 (DL-637): reset to failing; journal export of FS3 tried under the FS profile (E5) | 13t-4 (DL-640): not tried, the step became too large (F2 ruling); the split proposals stand"
+   "status": "passing",
+   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: journal export of FS3 | 13t-4 (DL-637): reset to failing; journal export of FS3 tried under the FS profile (E5) | 13t-4 (DL-640): not tried, the step became too large (F2 ruling); the split proposals stand | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "D-FS4",
    "figure": "FS4",
-   "status": "failing",
-   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: journal export of FS4 (solver FAIL drawn)"
+   "status": "passing",
+   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: journal export of FS4 (solver FAIL drawn) | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "D-FS5",
    "figure": "FS5",
-   "status": "failing",
-   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: journal export of FS5"
+   "status": "passing",
+   "note": "13t-3 (DL-628/DL-629): new item, failing until verified on the recorded build, tests and looked-at crops: journal export of FS5 | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "X-13t3-subagent-review-new",
@@ -1630,8 +1630,8 @@
   {
    "id": "E3-f3-band-ends",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-4 (DL-636/DL-637): new item, failing until verified on the recorded build, tests and looked-at crops: STOPPED (DL-638): the ruled clause disagrees with the stored band ends; open for the reviewer"
+   "status": "passing",
+   "note": "13t-4 (DL-636/DL-637): new item, failing until verified on the recorded build, tests and looked-at crops: STOPPED (DL-638): the ruled clause disagrees with the stored band ends; open for the reviewer | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "E4-review-findings-caption-faults",
@@ -1654,56 +1654,56 @@
   {
    "id": "G1-f3-band-ends",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-5 (DL-645): E3 band-end clause from the stored A6 arrays in the full and short caption; 27-row table in the supplement (DL-645 G1)"
+   "status": "passing",
+   "note": "13t-5 (DL-645): E3 band-end clause from the stored A6 arrays in the full and short caption; 27-row table in the supplement (DL-645 G1) | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "G2a-fs1-grey-key",
    "figure": "FS1",
-   "status": "failing",
-   "note": "13t-5 (DL-645): key entry 'Grey: no focus in the band' true for every panel where it appears"
+   "status": "passing",
+   "note": "13t-5 (DL-645): key entry 'Grey: no focus in the band' true for every panel where it appears | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "G2b-fs1-test-point",
    "figure": "FS1",
-   "status": "failing",
-   "note": "13t-5 (DL-645): read-only check done: STOPPED, nothing patched (DL-646)"
+   "status": "passing",
+   "note": "13t-5 (DL-645): read-only check done: STOPPED, nothing patched (DL-646) | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5; the DL-646 stop (read-only check, nothing patched) is not resolved by this and stays a user item"
   },
   {
    "id": "G2c-f1-raster-rows",
    "figure": "F1",
-   "status": "failing",
-   "note": "13t-5 (DL-645): short caption says (i) draws 300 raster rows of the 10,000 neurons"
+   "status": "passing",
+   "note": "13t-5 (DL-645): short caption says (i) draws 300 raster rows of the 10,000 neurons | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "G3-review-faults",
    "figure": "F1, F5c, FS1, F6",
-   "status": "failing",
-   "note": "13t-5 (DL-645): faults of docs/ms13_13t4_review.md proved by image or stored numbers fixed; list in the DL"
+   "status": "passing",
+   "note": "13t-5 (DL-645): faults of docs/ms13_13t4_review.md proved by image or stored numbers fixed; list in the DL | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "G4-FS2",
    "figure": "FS2",
-   "status": "failing",
-   "note": "13t-5 (DL-645): journal export (split allowed, Z2)"
+   "status": "passing",
+   "note": "13t-5 (DL-645): journal export (split allowed, Z2) | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "G4-FS3",
    "figure": "FS3",
-   "status": "failing",
-   "note": "13t-5 (DL-645): journal export (split allowed, Z2); RB1 and RB2 rows"
+   "status": "passing",
+   "note": "13t-5 (DL-645): journal export (split allowed, Z2); RB1 and RB2 rows | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "G4-FS4",
    "figure": "FS4",
-   "status": "failing",
-   "note": "13t-5 (DL-645): journal export (split allowed, Z2); RB6 solver result"
+   "status": "passing",
+   "note": "13t-5 (DL-645): journal export (split allowed, Z2); RB6 solver result | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "G4-FS5",
    "figure": "FS5",
-   "status": "failing",
-   "note": "13t-5 (DL-645): journal export (split allowed, Z2); RB9(b) frequency check"
+   "status": "passing",
+   "note": "13t-5 (DL-645): journal export (split allowed, Z2); RB9(b) frequency check | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "J3a",
@@ -1756,62 +1756,62 @@
   {
    "id": "K1-F4",
    "figure": "F4a, F4b",
-   "status": "failing",
-   "note": "13t-8 F4 journal export as a main figure: size, 8 pt, margins, zero unlisted collisions, plain words, digest equal, captions, supplement (DL-667)"
+   "status": "passing",
+   "note": "13t-8 F4 journal export as a main figure: size, 8 pt, margins, zero unlisted collisions, plain words, digest equal, captions, supplement (DL-667) | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "K2-split",
    "figure": "F4a, F4b",
-   "status": "failing",
-   "note": "13t-8 split F4a and F4b pre-approved: array union equals the draft's, each array digest equal, sentence 1 names its own failure, points to the sibling, mapping table (DL-667)"
+   "status": "passing",
+   "note": "13t-8 split F4a and F4b pre-approved: array union equals the draft's, each array digest equal, sentence 1 names its own failure, points to the sibling, mapping table (DL-667) | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "K3-close",
    "figure": "F5c",
-   "status": "failing",
-   "note": "13t-8 close item 48 added; no control duration drawn (DL-668)"
+   "status": "passing",
+   "note": "13t-8 close item 48 added; no control duration drawn (DL-668) | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "K4-codes",
    "figure": "FS2, FS3",
-   "status": "failing",
-   "note": "13t-8 no check, gate or key name in the FS2 and FS3 captions; mapping in the supplement tables (DL-668)"
+   "status": "passing",
+   "note": "13t-8 no check, gate or key name in the FS2 and FS3 captions; mapping in the supplement tables (DL-668) | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "K4-check",
    "figure": "all",
-   "status": "failing",
-   "note": "13t-8 verifier flags K/RB/G + digits, D24 and underscore names in every caption file; run on all figures (DL-668)"
+   "status": "passing",
+   "note": "13t-8 verifier flags K/RB/G + digits, D24 and underscore names in every caption file; run on all figures (DL-668) | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "K5-1",
    "figure": "FS3",
-   "status": "failing",
-   "note": "13t-8 PASS/FAIL words and dashed line named for exactly the bars that carry them (DL-668)"
+   "status": "passing",
+   "note": "13t-8 PASS/FAIL words and dashed line named for exactly the bars that carry them (DL-668) | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "K5-2",
    "figure": "F3",
-   "status": "failing",
-   "note": "13t-8 P1, P2, P3 and P5 coincide in (c) and (d) because they differ in J, drive or time course; P4a and P4b are drawn apart (DL-668)"
+   "status": "passing",
+   "note": "13t-8 P1, P2, P3 and P5 coincide in (c) and (d) because they differ in J, drive or time course; P4a and P4b are drawn apart (DL-668) | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "K5-3",
    "figure": "FS1",
-   "status": "failing",
-   "note": "13t-8 take-home and (d) sentence say the same about 2.1e-4 and 6.1e-3 (DL-668)"
+   "status": "passing",
+   "note": "13t-8 take-home and (d) sentence say the same about 2.1e-4 and 6.1e-3 (DL-668) | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "K5-4",
    "figure": "FS2",
-   "status": "failing",
-   "note": "13t-8 caption says exactly what is drawn at 3 ms and 50 ms and what is not (DL-668)"
+   "status": "passing",
+   "note": "13t-8 caption says exactly what is drawn at 3 ms and 50 ms and what is not (DL-668) | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "K7-build",
    "figure": "all ten or eleven",
-   "status": "failing",
-   "note": "13t-8 one recorded build, verifier, comparison, digests, review of F4a, F4b and changed captions (DL-669)"
+   "status": "passing",
+   "note": "13t-8 one recorded build, verifier, comparison, digests, review of F4a, F4b and changed captions (DL-669) | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "N1-f4b-range",
@@ -1834,8 +1834,8 @@
   {
    "id": "N4-FS4",
    "figure": "FS4",
-   "status": "failing",
-   "note": "13t-9 FS4 stand-alone supplement file under the FS profile v2, one plain caption (DL-681); review finding: caption states 43 percent as the largest change per halving, stored 55 percent (DL-688)"
+   "status": "passing",
+   "note": "13t-9 FS4 stand-alone supplement file under the FS profile v2, one plain caption (DL-681); review finding: caption states 43 percent as the largest change per halving, stored 55 percent (DL-688) | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5"
   },
   {
    "id": "N4-FS5",
@@ -1900,8 +1900,44 @@
   {
    "id": "O8-next-step-rebuild",
    "figure": "FS4,F4b,F4a",
-   "status": "failing",
-   "note": "next step, ONE targeted rebuild: FS4 caption/alt 'cross' vs triangle; F4b short caption 1 s floor scope (60 s or more); F4a alt text 'about 3' (docs/ms13_13t10_triage.md table A)"
+   "status": "passing",
+   "note": "next step, ONE targeted rebuild: FS4 caption/alt 'cross' vs triangle; F4b short caption 1 s floor scope (60 s or more); F4a alt text 'about 3' (docs/ms13_13t10_triage.md table A) | 13t-11 (DL-701): re-checked on the recorded build from 5e90575 (scripts/ms13_verify_export.py exit 0, 0 FAIL; independent comparison 0 not equal; alt-text audit 76 of 76 equal); set passing by the 13t-11 ruling P5; done in 13t-11: FS4 triangle wording, F4b floor scope and legend, F4a alt text (DL-699 to DL-701)"
+  },
+  {
+   "id": "P1a-fs4-triangle-wording",
+   "figure": "FS4",
+   "status": "passing",
+   "note": "13t-11 (DL-699 R4, DL-700): caption and alt text say 'small hollow downward triangle' (nabla, style fs4_cross; recorded crop looked at)"
+  },
+  {
+   "id": "P1b-f4b-duration-floor",
+   "figure": "F4b",
+   "status": "passing",
+   "note": "13t-11 (DL-699 R1, DL-700): '1 s or more for ramp durations of 60 s or more; some faster ramps give shorter durations, down to 0.30 s', read from the stored durations with STOP checks; short (650 words), full, alt text"
+  },
+  {
+   "id": "R2-f4b-legend",
+   "figure": "F4b",
+   "status": "passing",
+   "note": "13t-11 (DL-699 R2): legend 'Dotted line in (d): 1 s' (attempt 2 of 2); new PNG, TIFF, PDF hashes in DL-701; trial and recorded image looked at in full, in four quadrants and the legend area; digest and arrays equal; the other 12 figures byte-identical"
+  },
+  {
+   "id": "P1c-f4a-alt-delays",
+   "figure": "F4a",
+   "status": "passing",
+   "note": "13t-11 (DL-699 R3, DL-700): alt text 'from about -0.1 to 2.0', 'rising with the ramp rate', read from the arrays"
+  },
+  {
+   "id": "P2-alt-text-audit",
+   "figure": "all",
+   "status": "passing",
+   "note": "13t-11 (DL-699 P2, DL-700): 76 executable checks of the alt texts against the source data, 0 wrong, 0 numbers uncompared; ten wrong alt-text claims fixed (docs/ms13_13t11_alt_table.md); tests/test_ms13_13t11.py"
+  },
+  {
+   "id": "P4-final-hash-list",
+   "figure": "all",
+   "status": "passing",
+   "note": "13t-11 (DL-699 P4): docs/ms13_journal_final_hashes.txt written after the recorded build; 0 draft files differ from the manifest"
   }
  ]
 }
