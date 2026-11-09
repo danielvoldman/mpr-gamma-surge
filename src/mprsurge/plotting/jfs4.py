@@ -200,7 +200,7 @@ def consts(d: dict, rows: list, raw: dict, crit: dict) -> dict:
             "N": int(pv(rows, "network.N", "S13_MS11_network")), "Vp": float(pv(rows, "network.V_peak", "S13_MS11_network")), "d0_default": float(base["delta0"].iloc[0]), "rtol_default": float(base["rtol"].iloc[0]),
             "d0": d0, "rtol": rt, "radau_rtol": float(rad["rtol"].iloc[0]), "n_seeds": int(d["net_f_pk_hz"].shape[0]), "n_floor_seeds": int(d["floor_l0_cross_delay"].shape[1]),
             "rel_lo": int(round(100 * float(ce.min()))), "rel_hi": int(round(100 * float(ce.max()))), "onset_default": float(d["head_onset_cross_s"][0]), "onset_radau": float(d["head_onset_cross_s"][-1]),
-            "shift_max": float(np.max(np.abs(d["ms11_onset_shift_s"]))), "band": [JC.num(v) for v in crit["classifier"]["band_primary_hz"]["value"]], "n_ms11": int(len(d["ms11_class"]) * len(d["ms11_class"][0])), "tie": float(np.min(d["floor_l0_class_delay"])),
+            "shift_max": float(np.max(np.abs(d["ms11_onset_shift_s"]))), "band": [JC.num(v) for v in crit["classifier"]["band_primary_hz"]["value"]], "amin": JC.num(crit["classifier"]["amin_factor"]["value"]), "n_ms11": int(len(d["ms11_class"]) * len(d["ms11_class"][0])), "tie": float(np.min(d["floor_l0_class_delay"])),
             "tie_levels": [L for L in range(3) if np.allclose(d[f"floor_l{L}_class_delay"], np.min(d["floor_l0_class_delay"]))], "ok_rows": int(sum(1 for c in d["head_class"] if c == "D-tr")),
             "n_rows": len(d["head_class"]), "ms11_T": [float(x) for x in d["ms11_T"]]}
 
@@ -220,14 +220,14 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
     if c["tie"] != -1.5 or c["tie_levels"] != [0, 1]:
         raise JC.JCaptionError(f"FS4: the classifier-onset delays at the minimum are {c['tie']} at levels {c['tie_levels']}, not -1.5 at 0 and 1")
     take = (f"The numerical checks of the main example (the run fixed before the analysis as the main case: path P2 (hypoxia-like: mean excitability raised and coupling J ramped to 0 after a waiting time) at the second validation point, ramp duration {n(c['T_main'])} s, no noise) "
-            f"failed in two places: the default solver and the Radau solver (a second solver for the model's differential equations) give the onset {n(c['onset_default'])} s and {n(c['onset_radau'])} s, {ms:.0f} ms apart against {bound:g} ms allowed "
+            f"failed in two places: the default solver and the Radau solver (a second solver for the model's differential equations) give the onset (when the classifier, a rule fixed before the analysis, first flags the gamma rise) {n(c['onset_default'])} s and {n(c['onset_radau'])} s, {ms:.0f} ms apart against {bound:g} ms allowed "
             f"(a failed check, the cause is not known), and the peak frequency (the peak of the power spectrum) of the network (a simulated network of N spiking neurons, N = {c['N']:,}, {c['n_seeds']} seeds, ramp duration {n(c['T_net'])} s) changes by {c['rel_lo']} to {c['rel_hi']} percent when the "
             f"time step is halved, against {fb:g} percent allowed ({d['net_ce_n_pass']} of {c['n_seeds']} seeds pass; the spectrum-maximum reading of the peak frequency passes in {d['net_psd_n_pass']} of {c['n_seeds']} seeds; a failed check). "
             f"Results that rest on the network peak frequency are shown labelled FAIL and are not used as evidence. The class of the main example is D-tr (a rise that ends) under every setting of the initial perturbation, the relative tolerance and the solver, "
             f"and the onset is {n(c['onset_default'])} s everywhere except under Radau; the delays of the noise-floor runs do not depend on the Heun time step at the 1 ms output grid.")
     panels = " ".join([
         f"(a) The onset of the main example for {c['n_rows']} settings (rows): the default, the initial perturbations {_and(c['d0'])}, the relative tolerances {_and(c['rtol'])} and the Radau solver. The class mark is the classifier onset "
-        f"(the first window that the classifier, a rule fixed before the analysis, flags); the small cross is the raw first crossing (the envelope of v at a detection threshold); the two onsets are equal in every run, so the cross lies on the mark. "
+        f"(the first window that the classifier, a rule fixed before the analysis, flags); the small cross is the raw first crossing of its detection threshold (the envelope of v at {c['amin']} times a reference amplitude); the two onsets are equal in every run, so the cross lies on the mark. "
         f"The red title and the red note give the solver check: Radau minus default = {ms:g} ms against the {bound:g} ms allowed.",
         f"(b) The class and the onset shift (s) at the ramp durations {_and(c['ms11_T'])} s for the initial perturbations {_and(c['d0'])} and the relative tolerances {_and(c['rtol'])} (the default values are those of (a)): D-tr in all {c['n_ms11']} cells; "
         f"the largest shift is {n(c['shift_max'])} s.",
@@ -243,7 +243,7 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
         f"are surge classes (a surge is a transient rise of gamma-band power, {c['band'][0]} to {c['band'][1]} Hz); S-sus (a rise that does not end) is not; information only, one seed per cell, not evidence of a ramp-driven surge.",
         f"(i) The peak frequency of each seed at V_p {PM}{n(c['Vp'])} against {PM}200 (reported only).",
     ])
-    settings = JC.settings_line(crit)
+    settings = "No spectrogram (power against time and frequency) is drawn in this figure. " + JC.settings_line(crit)
     params = (f"Recorded values (the complete list with the key names as recorded is in the supplement): model {c['type']} (the mean field, that is the model's equations for the average activity of the population) at the second validation point (eta_bar {n(JC.pv(rows, 'model.eta_bar'))}, "
               f"J {n(JC.pv(rows, 'model.J')).replace('-', MINUS)}, Delta {n(JC.pv(rows, 'model.Delta'))}, tau_d {n(JC.pv(rows, 'model.tau_d_ms'))} ms); default initial perturbation {n(c['d0_default'])} and relative tolerance {n(c['rtol_default'])}; "
               f"initial perturbations {_and(sorted(c['d0'] + [c['d0_default']]))} and relative tolerances {_and(sorted(c['rtol'] + [c['rtol_default']]))} in (a) and (b); the ramp duration is {n(c['T_main'])} s in (a), (c) and (d), "
@@ -253,7 +253,7 @@ def caption(d: dict, rows: list, crit: dict, *, ids, c: dict, FG) -> str:
     failed = (f"Failed checks that concern this figure ({len(lines)}): " + "; ".join(lines) + f". The network row has no value in the stored table; the recorded evaluation gives {d['net_ce_n_pass']} of {c['n_seeds']} seeds passing under the "
               f"classifier-episode reading and {d['net_psd_n_pass']} of {c['n_seeds']} under the spectrum-maximum reading (the check fails if any seed that can be evaluated fails). The solver difference is drawn in (a) and the changes of the network peak "
               "frequency in (f) and (g); results that rest on the network peak frequency are not used as evidence. The project's other failed checks are not about this figure; all of them are listed in the supplement. " + JC.title_sentence(FS4_ID))
-    limits = ("In the limits below, T_ramp is the ramp duration T_ramp (in seconds), and the main example is the run of the first paragraph. " + JC.limits_paragraph(ids))
+    limits = ("In the limits below, T_ramp is the ramp duration T_ramp (in seconds), the main example is the run of the first paragraph, and control (the same network without the ramp) runs are runs of the project that are not drawn in this figure. " + JC.limits_paragraph(ids))
     rest = JC.uncode(" ".join([take, panels, settings, params, failed, limits]), FS4_ID)
     key = " ".join(x for x in [
         JC.key_symbols(rest, "eta", "Delta", "J", "tau_d", "tau", "r", "v", "N", "M3"),
