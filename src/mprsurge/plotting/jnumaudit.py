@@ -307,3 +307,44 @@ def audit_markdown(rows: list) -> str:
         ctx = e["ctx"].replace("|", "/")
         out.append(f"| {f}.py:{e['line']} ({e['func']}) | {tok} | {tok} | {st if st != 'None' else '-'} | {src.replace('|', '/')} | {eq} | {kind} | {e['n']} | {ctx} |")
     return "\n".join(out) + "\n"
+
+
+# ---- 13t-10 (DL-690 O2): constants that sit in a superlative, a range or a bound ----------------------------------------------------------------------------------------------------------
+# A number that a builder writes as a CONSTANT and that stands in a claim of the kind largest, smallest, at most, at least, up to, from-to, falls or rises is a claim about the data. It must be read from an
+# array or a table (a kind S row with an equal stored value, or a value built at run time, which this audit does not see) or it must be reviewed here with a reason. A row that is neither fails the test.
+SUPERLATIVE = re.compile(r"(largest|smallest|highest|lowest|at most|at least|up to|maximum|minimum|falls|rises|no more than|no fewer|\bfrom [-−]?\d[\d.,e−-]* to\b|\b\d[\d.,e]* to [-−]?\d)", re.I)
+# (file regex, function regex, token regex, class, reason). Classes: D drawing constant or axis range; R ruled wording of the plan or the decision log (the rule, not a result); T parameter or grid
+# range of a figure that the text restates (the Parameters paragraph is built from the recorded rows; test W2); C structure label or count word; L label of a stored variant name.
+SUPERLATIVE_REVIEWED = [
+    (r"jcaption", r"take", r"0|8", "D", "range of the plotted eta_bar axis (0 to 8) in the ruled A6 sentence on the 100 Hz contour; the largest cycle frequency itself is read from the data"),
+    (r"jcaption", r"params", r"120|2", "T", "T_ramp and the J0 range of the F5 parameter sentence (grids restated; S rule f5_vals covers the members)"),
+    (r"jcaption", r"panels", r"6|0|9|2", "D", "mark width against pitch of the F5 caption (drawing constants) and the slot labels of the F5c panel (structure labels)"),
+    (r"jcaption", r"panels", r"0", "D", "lower end of a display range of a colour scale (F1 (g), (i)); the upper ends are read from the data"),
+    (r"jcaption", r"key", r"3", "R", "RB1 needs at least 3 of 4 cells: the plan's own criterion"),
+    (r"jshort", r"DEFS", r"0", "R", "the ruled criterion 'differ by at most 0.5 Hz' (1/W of the 2 s window; S rule rb9b_bound)"),
+    (r"jshort", r"f1_short|f3_short|f5_short|f5c_short", r".*", "T", "classifier settings and parameter grids of the short Parameters sentence (compared with the full one, test W2)"),
+    (r"jshort", r"f5_short", r"1|4", "C", "the 4 network cells are numbered 1 to 4 (structure label)"),
+    (r"jshort|jf4cap|jf4|jfs3|jfs2|jf26", r"f5c_short|panels|f4b_short|alt_text|take|names|draw", r"1e3|1", "R", "the duration floor of the classifier (one window times the step, 1.0 s for ramp durations of 60 s or more; ruled wording DURATION_FLOOR_TEXT) and a reference value 1"),
+    (r"jf26", r"take", r"0\.2", "R", "ruled draft wording (DL-129): the up and down mean-field sweeps agree 'from 0.2 above the Hopf point'; the number 1.2e-3 itself is an S row"),
+    (r"jfs2", r"take|alt_text", r"5|1|10|30|2\.5|10\.5|0\.99|1\.01", "R", "ruled tolerance (5 percent), target bands (0.99 to 1.01, 5 to 30 Hz widened by 10 percent) and drawn axis range of FS2; the largest values are read from the data"),
+    (r"jfs3", r"names|draw", r"10|120", "R", "the ruled rule 'at least 8 of 10 seeds' of the noise check (plan table 7.2)"),
+    (r"jfs3", r"take", r"30,000|10,000", "R", "the ruled N rule 'surge classes no fewer at 30,000 than at 10,000' (the counts 5 and 2 are read from the data)"),
+    (r"jfs4", r"names", r"0|2", "C", "noise-floor levels 0 to 2 (a structure label)"),
+    (r"jfs5", r"VAR_LABELS", r".*", "L", "labels of the stored variant names (tests/test_ms13_13t9_fs.py compares them with the stored names)"),
+    (r"jfs5", r"names_t", r"1", "R", "the ruled bound 'at most 1/W'"),
+    (r"jfs5", r"panels", r"0|1", "D", "range of the colour scale of FS5 (c), 0 to 1 (the plotted fraction is a fraction)"),
+    (r"jfs", r"_take", r"0", "R", "ruled draft wording (DL-092): the linearised rate has standard error 0 (an eigenvalue, not a fit)"),
+    (r"jfs", r"panels", r"0", "T", "the step of the input current of FS1 (e), from 0 to its amplitude; restated parameter"),
+]
+
+
+def superlative_review(rows: list) -> list:
+    """[(row, class, reason)] for every literal that stands in a superlative, range or bound and is not a kind S row or a kind R, P or D row of the group rules; reason None = NOT REVIEWED (a FAIL)."""
+    out = []
+    for r in rows:
+        if r["kind"] in ("S", "R", "P", "D") or not SUPERLATIVE.search(r["context"]):
+            continue
+        hit = next(((c, why) for fre, nre, tre, c, why in SUPERLATIVE_REVIEWED
+                    if re.fullmatch(fre, r["file"]) and re.fullmatch(nre, r["func"]) and re.fullmatch(tre, r["token"])), None)
+        out.append((r, hit[0] if hit else None, hit[1] if hit else None))
+    return out

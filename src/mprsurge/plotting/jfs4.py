@@ -186,6 +186,15 @@ def plain_ms11_label(lab: str) -> str:
 
 # ---- text -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+def change_stats(allc, bound: float) -> dict:
+    """13t-10 (DL-690 O1): the range and the largest relative change of the peak frequency over ALL stored halvings (array: seeds x halvings), in rounded percent, with the seed and the halving (1-based)
+    of the largest, the number of changes above `bound` and the range of each halving; read from the stored array at build time, never typed."""
+    allc = np.asarray(allc, float)
+    s_hi, k_hi = (int(i) for i in np.unravel_index(int(np.argmax(allc)), allc.shape))
+    return {"all_lo": int(round(100 * float(allc.min()))), "all_hi": int(round(100 * float(allc.max()))), "hi_seed": s_hi, "hi_halving": k_hi + 1, "n_above": int((allc > bound).sum()), "n_changes": int(allc.size),
+            "per_halving": [(int(round(100 * float(allc[:, k].min()))), int(round(100 * float(allc[:, k].max())))) for k in range(allc.shape[1])]}
+
+
 def consts(d: dict, rows: list, raw: dict, crit: dict, bound: float) -> dict:
     pv = JC.pv
     a7 = raw["a7"]
@@ -196,14 +205,12 @@ def consts(d: dict, rows: list, raw: dict, crit: dict, bound: float) -> dict:
     d0 = sorted(float(x) for x in a7.loc[a7["family"] == "delta0", "delta0"])
     rt = sorted(float(x) for x in a7.loc[a7["family"] == "rtol", "rtol"])
     ce = d["net_rel_change"][:, 0]
-    allc = d["net_rel_change"]                                                                  # 13t-10 (DL-690 O1): the changes over ALL stored halvings, read from the array at build time
-    s_hi, k_hi = (int(i) for i in np.unravel_index(int(np.argmax(allc)), allc.shape))
+    st = change_stats(d["net_rel_change"], bound)
     return {"type": pv(rows, "model.type", "S13_MS8_delta0"), "ref": pv(rows, "model.ref_point", "S13_MS8_delta0"), "T_main": float(base["T_ramp_s"].iloc[0]), "T_net": pv(rows, "path.T_ramp_s", "S13_MS11_network"),
             "N": int(pv(rows, "network.N", "S13_MS11_network")), "Vp": float(pv(rows, "network.V_peak", "S13_MS11_network")), "d0_default": float(base["delta0"].iloc[0]), "rtol_default": float(base["rtol"].iloc[0]),
             "d0": d0, "rtol": rt, "radau_rtol": float(rad["rtol"].iloc[0]), "n_seeds": int(d["net_f_pk_hz"].shape[0]), "n_floor_seeds": int(d["floor_l0_cross_delay"].shape[1]),
             "rel_lo": int(round(100 * float(ce.min()))), "rel_hi": int(round(100 * float(ce.max()))),
-            "all_lo": int(round(100 * float(allc.min()))), "all_hi": int(round(100 * float(allc.max()))), "hi_seed": s_hi, "hi_halving": k_hi + 1, "n_above": int((allc > bound).sum()), "n_changes": int(allc.size),
-            "per_halving": [(int(round(100 * float(allc[:, k].min()))), int(round(100 * float(allc[:, k].max())))) for k in range(allc.shape[1])], "onset_default": float(d["head_onset_cross_s"][0]), "onset_radau": float(d["head_onset_cross_s"][-1]),
+            **st, "onset_default": float(d["head_onset_cross_s"][0]), "onset_radau": float(d["head_onset_cross_s"][-1]),
             "shift_max": float(np.max(np.abs(d["ms11_onset_shift_s"]))), "band": [JC.num(v) for v in crit["classifier"]["band_primary_hz"]["value"]], "amin": JC.num(crit["classifier"]["amin_factor"]["value"]), "n_ms11": int(len(d["ms11_class"]) * len(d["ms11_class"][0])), "tie": float(np.min(d["floor_l0_class_delay"])),
             "tie_levels": [L for L in range(3) if np.allclose(d[f"floor_l{L}_class_delay"], np.min(d["floor_l0_class_delay"]))], "ok_rows": int(sum(1 for c in d["head_class"] if c == "D-tr")),
             "n_rows": len(d["head_class"]), "ms11_T": [float(x) for x in d["ms11_T"]]}
