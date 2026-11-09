@@ -35,7 +35,7 @@ def draw(d: dict, FG):
     edge = T("bar_edge")
     ax_in = FG._ax_in
     # (a)
-    ax = ax_in(fig, 1.7, 0.45, 3.0, 2.15)
+    ax = ax_in(fig, 1.7, 0.45, 3.0, 2.0)
     n = len(d["head_label"])
     for i in range(n):
         st = S.get(d["head_class"][i])
@@ -51,13 +51,16 @@ def draw(d: dict, FG):
             color=T("fail_text"), bbox=dict(boxstyle="square,pad=0.25", fc=S.FS_COLOURS["box_face"], ec=T("fail_text"), lw=0.5))
     ax.legend(loc="upper right", frameon=True, framealpha=0.95)
     # (b)
-    axb = ax_in(fig, 5.6, 0.45, 1.6, 2.15)
+    axb = ax_in(fig, 5.6, 0.45, 1.6, 2.0)
     for j in range(4):
         for i in range(2):
             st = S.get(d["ms11_class"][i][j])
             axb.plot([j], [i], ls="none", marker=st.marker, ms=S.FS_SIZES["fs4_class_b"], color=st.colour, mec=edge, mew=S.POINT_EDGE_WIDTH["class"], zorder=4)
             axb.text(j, i + 0.32, f"{d['ms11_onset_shift_s'][i, j]:g} s", ha="center", va="center")
-    axb.set_xticks(range(4), [plain_ms11_label(x).replace("\n", " ") for x in d["ms11_col_label"]], rotation=45, ha="right")
+    axb.set_xticks(range(4), [plain_ms11_label(x).split("\n")[1] for x in d["ms11_col_label"]])
+    for kind in ("Perturbation", "Tolerance"):
+        xs_ = [j for j, x in enumerate(d["ms11_col_label"]) if plain_ms11_label(x).startswith(kind)]
+        axb.text(float(np.mean(xs_)), 1.0, kind, transform=axb.get_xaxis_transform(), ha="center", va="top", clip_on=False).set_gid("column group")
     axb.set_yticks(range(2), [f"{t:g} s" for t in d["ms11_T"]])
     axb.set_ylabel("Ramp duration")
     axb.set_ylim(1.6, -0.5)
@@ -65,7 +68,7 @@ def draw(d: dict, FG):
     FG._journal_title(axb, "b", "Class, onset shift")
     # (c), (d)
     for col, (q, ttl, letter, left) in enumerate((("cross", "Noise floor, raw first crossing", "c", 0.95), ("class", "Noise floor, classifier onset", "d", 4.45))):
-        axc = ax_in(fig, left, 3.4, 2.7, 2.15)
+        axc = ax_in(fig, left, 3.2, 2.7, 2.0)
         for L in (0, 1, 2):
             mk = S.diagram_mark(f"fs4_l{L}")
             arr = d[f"floor_l{L}_{q}_delay"]
@@ -80,7 +83,7 @@ def draw(d: dict, FG):
             axc.text(0.5, 0.2, f"{MINUS}1.5: onset at the ramp start", transform=axc.transAxes, ha="center", va="bottom").set_gid("d2_note")
         axc.legend(loc="upper center", ncol=3, frameon=True, framealpha=0.95, handletextpad=0.2, columnspacing=0.6, handlelength=1.0)
     # (e)
-    axd = ax_in(fig, 0.95, 6.35, 2.7, 2.15)
+    axd = ax_in(fig, 0.95, 5.95, 2.7, 2.0)
     for i, T_ in enumerate(d["ms11_T"]):
         mk = S.diagram_mark(f"w_{i}")
         axd.plot([0, 1, 2], d["floorT_median"][i], ls="-" if i == 0 else "--", lw=0.8, marker=mk.marker, ms=S.FS_SIZES["fs4_floor_T"], color=mk.colour,
@@ -94,7 +97,7 @@ def draw(d: dict, FG):
     lo_, hi_ = int(d["floorT_raw_noonset_seeds"].min()), int(d["floorT_raw_noonset_seeds"].max())
     axd.text(0.5, 0.97, "Raw crossing: no onset in " + (f"{lo_}" if lo_ == hi_ else f"{lo_} to {hi_}") + " of 10 seeds", transform=axd.transAxes, ha="center", va="top")
     # (f)
-    axe = ax_in(fig, 4.45, 6.35, 2.75, 2.15)
+    axe = ax_in(fig, 4.45, 5.95, 2.75, 2.0)
     psd = S.diagram_mark("fs4_psd")
     for s_ in range(3):
         mk = S.diagram_mark(f"fs4_s{s_}")
@@ -107,8 +110,11 @@ def draw(d: dict, FG):
     FG._journal_title(axe, "f", "Network peak frequency: FAIL", fail="FAIL" in d["net_status"])
     axe.set_ylim(40.0, 135.0)
     axe.legend(loc="upper center", ncol=2, frameon=True, framealpha=0.95, handletextpad=0.3, columnspacing=1.0)
+    lo_f, hi_f = int(round(100 * float(d["net_rel_change"][:, 0].min()))), int(round(100 * float(d["net_rel_change"][:, 0].max())))
+    axe.text(0.5, 0.80, f"First halving: change of {lo_f} to {hi_f} percent\nagainst {100 * FG.FS4_RB6_FPK_BOUND:g} percent allowed (g)", transform=axe.transAxes, ha="center", va="center", color=T("fail_text"),
+             bbox=dict(boxstyle="square,pad=0.2", fc=S.FS_COLOURS["box_face"], ec=T("fail_text"), lw=0.5)).set_gid("panel note")
     # (g)
-    axf = ax_in(fig, 0.95, 9.15, 2.7, 2.15)
+    axf = ax_in(fig, 0.95, 8.7, 2.7, 2.0)
     for s_ in range(3):
         mk = S.diagram_mark(f"fs4_s{s_}")
         axf.plot([0, 1, 2], d["net_rel_change"][s_], ls="none", marker=mk.marker, ms=mk.size, color=mk.colour, mew=mk.width, zorder=3, label=f"Seed {s_}")
@@ -121,7 +127,7 @@ def draw(d: dict, FG):
     FG._journal_title(axf, "g", "Change per step halving: FAIL", fail=bool((d["net_rel_change"] > FG.FS4_RB6_FPK_BOUND).any()))
     axf.legend(loc="upper right", frameon=True, framealpha=0.95, labelspacing=0.5)
     # (h)
-    axg = ax_in(fig, 5.05, 9.15, 2.15, 2.15)
+    axg = ax_in(fig, 5.05, 8.7, 2.15, 2.0)
     for i, row in enumerate(d["netcls_class"]):
         for s_, c in enumerate(row):
             st = S.get(c)
@@ -133,7 +139,7 @@ def draw(d: dict, FG):
     axg.set_ylim(len(d["netcls_row"]) - 0.6, -0.4)
     FG._journal_title(axg, "h", "Class by step and V_p")
     # (i)
-    axh = ax_in(fig, 0.95, 11.95, 3.6, 1.85)
+    axh = ax_in(fig, 0.95, 11.6, 3.6, 1.6)
     v1, v2 = S.diagram_mark("fs4_vp100"), S.diagram_mark("fs4_vp200")
     xx = np.arange(len(d["vp_seed"]), dtype=float)
     axh.plot(xx, d["vp_f100_hz"], ls="none", marker=v1.marker, ms=v1.size, color=v1.colour, zorder=3, label="V_p " + PM + "100")
