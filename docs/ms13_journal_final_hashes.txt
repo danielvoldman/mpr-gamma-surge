@@ -1,0 +1,242 @@
+# MS13 13t journal figures: final hash list for the tags (full SHA-256, working copy; written by scripts/ms13_write_final_hashes.py after the recorded build of 13t-11)
+# Journal files are the MAIN versions; the drafts (figures/<ID>/) are AUDIT COPIES. The user decides the tags; nothing is tagged, pushed or uploaded.
+# F1 source data: the file as written (28 MB); the zipped form for the Zenodo record is made later.
+
+## F1 (journal main version; draft audit copy: F1)
+built from commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a
+drawn-data digest: bfdba12d9fc09fbfdc0514b6c5859a13a21948ea9db7e16ec4b1f845e11b8839
+c01f955866a2c2a47f93fbc5a3dbdf7ec5ff995484cefb87f3da209d03091aeb  png                figures/journal/F1/F1_journal.png
+89525e91e58ff9beabbc63c49603640b2684859fe0c960aa910513cd9d4b2e08  tiff               figures/journal/F1/F1_journal.tiff
+d784c302085fc960398dc87c1fa7835918e19f497ece6d70f44903c29554c752  pdf                figures/journal/F1/F1_journal.pdf
+8ffbb816f42c0611539ab774a1d37ca5fc89d8e8efe372407de3ad15a4e575a0  caption short      figures/journal/F1/F1_journal_caption.txt
+78e215ed6133e0e71cb856b20b9637ed067c4191f4598547b12a108e3cfcc427  caption full       figures/journal/F1/F1_journal_caption_full.txt
+780af815ca1f06a229ee943c2dd079aa2a7f7768e2082e1bb0d62130ff1216eb  alt text           figures/journal/supplement/F1_alt_text.txt
+3c0fe3efc63938f94fb0101c71bf53e31541e553a7d11c5acb445dbc062edfad  supplement         figures/journal/supplement/F1_supplement.md
+67076c7ed61974de74acf58f40c1496552427a9a555a48a22878485fa4031496  source data csv    figures/journal/supplement/F1_source_data.csv
+
+## F2 (journal main version; draft audit copy: F2)
+built from commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a
+drawn-data digest: 3584f8faee5d704a1f172ad4185c133324ddb9f196f32d05d80f3ca5ef28a932
+b6fc7221f1d5dde094ac920ef773fced6d2aa7013f6abdfaebc1c94f32c10feb  png                figures/journal/F2/F2_journal.png
+1c283d9c88a6cd0f58df945b50d392b8c72d3cc871d173c9152184b8bd8177ab  tiff               figures/journal/F2/F2_journal.tiff
+bda15147705f24d65d58818e2ad3ae43d28e37f12caaca337844c82b4facbfb0  pdf                figures/journal/F2/F2_journal.pdf
+0e095ccb1a6230c333fb066abb7721e8869c0801e884cc013c5fd2858bb710a1  caption short      figures/journal/F2/F2_journal_caption.txt
+4d3e14050e3e316da382577f1d2aaf8b849d7308fd94c679ed1022120cba752a  caption full       figures/journal/F2/F2_journal_caption_full.txt
+5eab7c27cdf8d00eeacb0c933636c1d5e80a8d124d9d3bc3d786b6721af8a182  alt text           figures/journal/supplement/F2_alt_text.txt
+76b1a21b4a360c6e6a8fee61a7edd3395bc0d3aed06e511fa2786422f8580e20  supplement         figures/journal/supplement/F2_supplement.md
+c85d3ba96a3881836673303e4c2e005ba1a114bd3ba305eadd56c5561fd4ceda  source data csv    figures/journal/supplement/F2_source_data.csv
+
+## F3 (journal main version; draft audit copy: F3)
+built from commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a
+drawn-data digest: e12a1086fbe84d1f121618b82dfe61afd7e7b951c1d67b541e782e3e74d1bbc6
+658880b296d0212373732b51d3febc6bbf8284cd73f91cdafd001f5bfaef7026  png                figures/journal/F3/F3_journal.png
+e361e04c918d5503d78d7edd50bca8b1db00b29a47881152b66b5102bf548009  tiff               figures/journal/F3/F3_journal.tiff
+ad3491c9067e25f0ebb6ef19786d3fcb4d0fd7588f6b2bc3b4965906475249f6  pdf                figures/journal/F3/F3_journal.pdf
+a4417ff61fa1eefcfbb7119ca465749e469f16b153e0f9dca959ac756522af4c  caption short      figures/journal/F3/F3_journal_caption.txt
+35707c8addfe650921566c354858c1e601123594b812163e348bbefd1efe1cc1  caption full       figures/journal/F3/F3_journal_caption_full.txt
+5f372fc10cd59b8875fc7bf94416e719188c6298dff93cba5212521f1e1bf46f  alt text           figures/journal/supplement/F3_alt_text.txt
+2da270f167d7e07cd268bb3384ec4088e6828352c1e55d24ced0b44e4d693cfc  supplement         figures/journal/supplement/F3_supplement.md
+566e3cce1dc40db8a2f19606b328df15d5e92b5bf01b09a351848c27553376c8  source data csv    figures/journal/supplement/F3_source_data.csv
+
+## F4a (journal main version; draft audit copy: F4)
+built from commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a
+drawn-data digest: fb05eb9226c9f4d6242ec4ba5fb15f4429eff3680468dc89447bcdf7f2343d6a
+04ccdaa6b557706e39b5b7c61501c6b2b982a9dfb642c00021dce033c4a27a5a  png                figures/journal/F4a/F4a_journal.png
+0a851b2c41e33d99d8ace33b16338e06371f01863547eaba43290cb346bc0640  tiff               figures/journal/F4a/F4a_journal.tiff
+b104bc200eb2755ddbf677f3f920545f9ded07fa0424f2164e57fd3b297843bf  pdf                figures/journal/F4a/F4a_journal.pdf
+dae33a6d95948cfc9e13fdf0a1138c32d9034c14879cd1b211a2a22a32f1fd12  caption short      figures/journal/F4a/F4a_journal_caption.txt
+49d9abd3ef2a49a290a83d48026fa1c6f42b5c8297dff8ae106d73a238c74cd0  caption full       figures/journal/F4a/F4a_journal_caption_full.txt
+f9442e9e7179381f277d341fc14f829af9dd6d833ed507c3a696183575e6c38b  alt text           figures/journal/supplement/F4a_alt_text.txt
+8fc2cca964b934190f7e92f03d9249fde7e59f28b8fd7569f467d9d82dbc0c68  supplement         figures/journal/supplement/F4a_supplement.md
+3ed1044723e2d81d8e461d6c5645e56c6a8bc1632061424da58cd30540d2d8e4  source data csv    figures/journal/supplement/F4a_source_data.csv
+
+## F4b (journal main version; draft audit copy: F4)
+built from commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a
+drawn-data digest: fb05eb9226c9f4d6242ec4ba5fb15f4429eff3680468dc89447bcdf7f2343d6a
+7b422e38e0f4f18cae984789b954fe082737467a3ea7c4168d4df061bfa71cd5  png                figures/journal/F4b/F4b_journal.png
+d74c0d3b7b4d4fd1fa1488a781e5d11e6c0c182e92b5fea79560f13b263a1e17  tiff               figures/journal/F4b/F4b_journal.tiff
+386a3cf1dd1156a0a53c9073b4292e01135b72e67189d1f6909eb17f7636d421  pdf                figures/journal/F4b/F4b_journal.pdf
+0f69389498fe0c18bff96d2f00ab674ec5a258651f6178cbbd9eef6b1f17a79b  caption short      figures/journal/F4b/F4b_journal_caption.txt
+f942cb3a553ffb6192af6c42cbcdb77befe58fb1454a3e19ddd97b1d93c9c2b7  caption full       figures/journal/F4b/F4b_journal_caption_full.txt
+f160cc94c120bad2f99bf6f990011a5e7c836d8b3071ebcc2a02549f89512905  alt text           figures/journal/supplement/F4b_alt_text.txt
+e5cada6f03dd577c50d8da97584efa070708486a6893f3b374db8212b7605e61  supplement         figures/journal/supplement/F4b_supplement.md
+b010899b118f38644c38a3728ea42e8358946847fd955397a18b5bdf6175dd58  source data csv    figures/journal/supplement/F4b_source_data.csv
+
+## F5 (journal main version; draft audit copy: F5)
+built from commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a
+drawn-data digest: 4a32b1c3061260eaf9defd322a6a3304ce2b190468459a338cf9f9b5849de2c8
+22cc0dff3980a632738aa08609df5e70eff732a6d2d08a6bcbd58c5820095175  png                figures/journal/F5/F5_journal.png
+61d13b62c6a18134611512f29832b7feb3b99d4918ca41c8ddb17da2bd73ab78  tiff               figures/journal/F5/F5_journal.tiff
+eb1a5cdc3feb19fee0fcf14d56af2d891141c34a749926ad2421223994c584e3  pdf                figures/journal/F5/F5_journal.pdf
+870baeb3459b258befcae0964642f67146cc351f790c83f6aa8579fdb7b7f2cc  caption short      figures/journal/F5/F5_journal_caption.txt
+5c1353b32c1b34949aa66e8d6ee32454ecb4e5f9ff7d4c3ecc08c9983ae20943  caption full       figures/journal/F5/F5_journal_caption_full.txt
+138b6f90510b9d72715f40b92f6a30154de18c11f68945a05f0bba8e4fe6aa1c  alt text           figures/journal/supplement/F5_alt_text.txt
+2fc48f8da3ab7cb5fe4d9f90d2381aa15e32080b28e2a3d0a2b4dadeb696ef40  supplement         figures/journal/supplement/F5_supplement.md
+f9b85fa88df3c14b1e1c577944dcea688f61c081b0df0d2614b295c013d3a40a  source data csv    figures/journal/supplement/F5_source_data.csv
+
+## F5c (journal main version; draft audit copy: F5)
+built from commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a
+drawn-data digest: 4a32b1c3061260eaf9defd322a6a3304ce2b190468459a338cf9f9b5849de2c8
+84713c3349799febac4c0864fa97c65c40c170a534bc9ae5be44e7b17963017d  png                figures/journal/F5c/F5c_journal.png
+16ee475e738bb168f7372b3138c768da2727de632d68a7a4fb2a60a6cdab1168  tiff               figures/journal/F5c/F5c_journal.tiff
+221eab9ccc806bac35d6ecea8a3bff38380ab258e8ec1261fa47cd99cf31abb2  pdf                figures/journal/F5c/F5c_journal.pdf
+1b236dd5e2dd0f120d5c2b2b6f6c9a2ee081cb22462b0497412357a24f956470  caption short      figures/journal/F5c/F5c_journal_caption.txt
+af19a27d0a6d330857e26177fff4b574533d2b9c9f6e5bbceaf9154d90c5ad45  caption full       figures/journal/F5c/F5c_journal_caption_full.txt
+23259e68c54e6835096fcc6dd9018b17c24eef1a434969285edfebc19b31c6af  alt text           figures/journal/supplement/F5c_alt_text.txt
+165e7ee140b43ea75d110c814fd4c31ab7b2ee572ef1be8ff0993300d823e7ca  supplement         figures/journal/supplement/F5c_supplement.md
+08311e6599724eb7ddd34540ace405d6576121024bf27abb8ee9714fe205caee  source data csv    figures/journal/supplement/F5c_source_data.csv
+
+## F6 (journal main version; draft audit copy: F6)
+built from commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a
+drawn-data digest: 4dafe2ab2f5ee3c2b505f82d4f50a3a8b96a9bb1c9cdfb5379b7a3e6f7e2c532
+9b0e21a46a1f57a21324796b232854b192908d5dc5e8a3fc4843ad8c1537f025  png                figures/journal/F6/F6_journal.png
+e82667be656a99c42f4070ccc7b3544a9aa3b4c58e9f7146c9971002472effa7  tiff               figures/journal/F6/F6_journal.tiff
+77f1845ae0b7525e4d48d98e1f4fa5df42b979195e9817748a74f33126ef9e00  pdf                figures/journal/F6/F6_journal.pdf
+a0d3f4aa4e0dbe5d876a08be670b087b366ebabc97f797b2ac83bd9c742a0628  caption short      figures/journal/F6/F6_journal_caption.txt
+3b4354f0fc560114045c764eb951f618ac3fd65a354326f0a0c6fcd899d1974d  caption full       figures/journal/F6/F6_journal_caption_full.txt
+6eaf2af0b52c296518336d57ca7ca4d67b63474b4cc3f4370da4543589e32ebd  alt text           figures/journal/supplement/F6_alt_text.txt
+e314b955dc8d4fd360fad873ad3d00c12386556b5ef7ca24eaa3088a7a8f8d19  supplement         figures/journal/supplement/F6_supplement.md
+a911c78a1dd193601050abb73b08178b9fdeddaca645b7e8bb8982d13b61fdd7  source data csv    figures/journal/supplement/F6_source_data.csv
+
+## FS1 (journal main version; draft audit copy: FS1)
+built from commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a
+drawn-data digest: e19ae701c594421531ac81fa79814d5099451e189a04d378f7117f4df642f9b0
+e10a6825cd5edd6f351d1c2d9b108e55b3e24ada6f917fa7397faa06c034edb1  png                figures/journal/FS1/FS1_journal.png
+c49127bf937be8d630390af003f0216b33a649c72035429acc000c4fb4e0a7f4  tiff               figures/journal/FS1/FS1_journal.tiff
+737637a280a5b87865ba683e4962466940cddf0fa982c24772c5236fd98b9f54  pdf                figures/journal/FS1/FS1_journal.pdf
+35465cf1d2ebb1790e91e1fa92ec96430a803702a397c06bc631dc1be9766e06  caption short      figures/journal/FS1/FS1_journal_caption.txt
+984e64698cbd97aab32c0f60ba2963447bddf1742c3e445ac835ed7dda17f8e6  caption full       figures/journal/FS1/FS1_journal_caption_full.txt
+4ca9f417fc258ad74e44f2c6788a1639cf58466546a5ddbd85c9927045696cb8  alt text           figures/journal/supplement/FS1_alt_text.txt
+03495083e08e43f8b4052035c151db41d3c65f36cfb9a45b8cf2b198072cbfd8  supplement         figures/journal/supplement/FS1_supplement.md
+49a55e21fd36dc6fb3ed0551becd99e198443ce3cf70bdb0e494a6d909613b77  source data csv    figures/journal/supplement/FS1_source_data.csv
+
+## FS2 (journal main version; draft audit copy: FS2)
+built from commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a
+drawn-data digest: 72fc4361202cb4d18a344f1186d7651788771ff7ab53d6c3621d1793f6f262af
+582566520dd2dbd5214162ad6b18945cd98ba09ddeff483eb45eb519e24b18ea  png                figures/journal/FS2/FS2_journal.png
+272c17784c2e960a196e6f721b41a9841b71afd957328756c0005c404da64870  tiff               figures/journal/FS2/FS2_journal.tiff
+deb2dce329bf58689143500b2eb53791cdf0fcc278d9a38c4fbd05e2b00048f2  pdf                figures/journal/FS2/FS2_journal.pdf
+38675e45b334c9a90365204abfc03625a554cedaccfaa4d2d872fbadac98aff0  caption (single)   figures/journal/FS2/FS2_journal_caption.txt
+82eb6c25cb60bd23195a821d639dccb86aecaedac77593a60db05449eb284b85  alt text           figures/journal/supplement/FS2_alt_text.txt
+cd4444c8d7235946930ad16e012bf7c560702ad0ce5bf2c9cfb4f85523579eb2  supplement         figures/journal/supplement/FS2_supplement.md
+246d51e12e6e32916d2dae4f8842b2c7e9d124bc0037b78b747ea7bdf9af453f  source data csv    figures/journal/supplement/FS2_source_data.csv
+
+## FS3 (journal main version; draft audit copy: FS3)
+built from commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a
+drawn-data digest: 93bf2508cc3233ed14a75d7b8b8266e12f895d91725477511fa532bd9b57b258
+01ed53e0912ad4daf34b8db00f5a480ab502c00a100d23863e31056c1d6256d0  png                figures/journal/FS3/FS3_journal.png
+d62c5208111ff8977809f93cd17699501bfb7f021d7115278dfb3e7e460be8c2  tiff               figures/journal/FS3/FS3_journal.tiff
+d0bbab4e41513d489eeda8a852ed5c5cb890fb669db5eb37f2013fd7ba32ec67  pdf                figures/journal/FS3/FS3_journal.pdf
+3252559faebc4d188a84a82326812d117f984476dd1f48ffb1c37276ad279204  caption (single)   figures/journal/FS3/FS3_journal_caption.txt
+4c0fb76afd3623dceb993cc80d27581c126cbe2cb49e11e0e0bc7730a9bca534  alt text           figures/journal/supplement/FS3_alt_text.txt
+fdfeec8903ab98354bbf39f402e085585726d0709dad16abdfd66325c3d71000  supplement         figures/journal/supplement/FS3_supplement.md
+070e6157d6ee86d71cc4c38dea99da2227ac16b960e9c33290fb1f7af97295e1  source data csv    figures/journal/supplement/FS3_source_data.csv
+
+## FS4 (journal main version; draft audit copy: FS4)
+built from commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a
+drawn-data digest: 188b383f47b2cb6a75d8e5565ed7bfac86804f4a745c41fe915ebc70038edd6d
+29407ccba41c5a8af2647440dc2205d4162b8ec3ae1a08c370a1b1d8dfa1aa00  png                figures/journal/FS4/FS4_journal.png
+551ccd81db9cbf975b43e19fcdc9f4925e373c9a1cb364aebe763a7888eae2f6  tiff               figures/journal/FS4/FS4_journal.tiff
+2065eb833c14f1c5f01f29b92ea2955903efbad50e96944dc70022c8a40a491f  pdf                figures/journal/FS4/FS4_journal.pdf
+73278db1e62918342d3ab4101b2ae6448a4cc804d0ca161beb629ce99b1bad12  caption (single)   figures/journal/FS4/FS4_journal_caption.txt
+e94c36c49f6fb8eb07de832ec0d2d7aaf39fd418233f4bd565f26624ebbe7a53  alt text           figures/journal/supplement/FS4_alt_text.txt
+d3d8290675c87525b5c40eaec778d063a2be81ed22e074c8391d1b625e17ef5f  supplement         figures/journal/supplement/FS4_supplement.md
+f168b0c87a92b1d08171ff06c91b8f726de6189af75e5f3aae7e3082ec19c3b4  source data csv    figures/journal/supplement/FS4_source_data.csv
+
+## FS5 (journal main version; draft audit copy: FS5)
+built from commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a
+drawn-data digest: 66238f8b7f480cf98b6ed4d76f9ec52f6f1cb81802622076ef7f733fac8d31a5
+c94e9b2c722ae3cc595679d4eea8458caba16e9b8cd488364084f24cf2281786  png                figures/journal/FS5/FS5_journal.png
+dd4424f54bedd7a750dddf2652da9a08e24dba3d821fac9f73fae2e5ccab5f9f  tiff               figures/journal/FS5/FS5_journal.tiff
+1aa2437af1d64dada969a12fa5bc2186c8c77ffecad012ab75c55a0229425460  pdf                figures/journal/FS5/FS5_journal.pdf
+d7a15e2e64845fa044932180a936946b35fc586cd5457bdf6cd35454e4814ec8  caption (single)   figures/journal/FS5/FS5_journal_caption.txt
+55a35abedfa251de2fd52c9bdeb2609400af32854c8a9a37c89ef56bb38b507b  alt text           figures/journal/supplement/FS5_alt_text.txt
+95e015ae9075c407adfec8c7c526548f8c0fffa87717ba13e34f3c1bb220e6f4  supplement         figures/journal/supplement/FS5_supplement.md
+927f43ba0e6fbd1d2e7518d42a58dccdbfd8934e1a1015ee9b138bfab81cc9b6  source data csv    figures/journal/supplement/FS5_source_data.csv
+
+## Build commits found in the provenance records: 5e9057563c6c24fbac16b99000e547d08ef9a31a
+
+## The eleven draft files (audit copies; byte-identical to the manifest; docs/ms13_figure_manifest.csv)
+b91e37c680e7c959774351befe4042d9d077721876b7d5d88cf01a9959bd65c1  F1   figures/F1/F1.pdf
+47ff902522dc4959cc57e14346d4f3ef061049dbcab04eb136bc0fa7d19436c0  F1   figures/F1/F1.png
+96dffcbbf22f6a2f9931ed9fd9360ee6f449eafb90d5cc940b988cfcc60f5404  F1   figures/F1/F1_caption.txt
+e2fdaa20513ea77a418a865187609908883f044e8284bd6eaad62fd6d63fa14f  F1   figures/F1/F1_drawn_data_sha256.txt
+c1cb5bb7a3deef294010657d8c45a156c1ce463d51767e8bb0e921da550de280  F1   figures/F1/F1_params.csv
+642525d81d6dab67e082a3a1f807d933eb8aeb20a79010a230a31ae3ebd52c5f  F1   figures/F1/F1_provenance.json
+8f1d0a558222416cea2fdd40a76e162518dc28ec5c09cf75b05b951460c9aede  F1   figures/F1/F1_nordlie.md
+6f516e77abcf4b55caec15c5fb7dbb616dbe11c172198422098072b8be05024b  F2   figures/F2/F2.pdf
+15f88cf0f04405cffb94cce008d71931289e4231725bc3a18e01eebb7470d2d6  F2   figures/F2/F2.png
+dee2106261ad49be9b38cc40db466167deeb3c62550d45c7370ac14507eaa881  F2   figures/F2/F2_caption.txt
+dd931068bfe221f1e4cd63c5225c00bd029a21f106755d88bb69559bd9004fd9  F2   figures/F2/F2_drawn_data_sha256.txt
+6fb23b13d67d5b2f009c3d2b20ad05c28182c6e59f47e9eb1d63036b84e16071  F2   figures/F2/F2_params.csv
+bc0fb5b0baca73af86929c81fd9b6426c816cd6994b25091dab2020e9431210e  F2   figures/F2/F2_provenance.json
+1f2e14905366fdf534414da6c335c043cf479517a2bf79bc95e9f26c4cd32f30  F2   figures/F2/F2_nordlie.md
+11e8fe56c1d3e2d98e8903bf497a49b0993fda7a086e2f912d93be92c3c257c8  F3   figures/F3/F3.pdf
+9fadb56d6a964eba595e51078adc1199e3ab76c009a951c8921f8fd781e5210f  F3   figures/F3/F3.png
+d67a94c59afd73f148680c747769845f769508c6037b5dca69e83ed20af026fe  F3   figures/F3/F3_caption.txt
+008d124776e0dc4cf314065e275e9f76751b81d1e0c415d180e50af73eae873e  F3   figures/F3/F3_drawn_data_sha256.txt
+07ce5b3d97fcc82b92c0fb8597307e97db4bf5e8a3e04fcd3c2482f150670071  F3   figures/F3/F3_params.csv
+114fbde70f10fe70e82e0a2725f08b4b7c318f6d81afd121c7444da607d6ffbd  F3   figures/F3/F3_provenance.json
+64ba1263a4cd2316d00159e5b71dac8c06aab43d11de79e23810ab320ddb4d21  F3   figures/F3/F3_nordlie.md
+67cecfe72a086866dbf9d5461d2d8a972982dc3bab1a5ff67ffb446704f1b64c  F4   figures/F4/F4.pdf
+07faa00732abb086ba838bb001c16ac630218f189039e39ec937630ddb0d0a27  F4   figures/F4/F4.png
+d09a71b4c5035366807cb4d794190676c3e596d4d59a572cb0dd8c278e871477  F4   figures/F4/F4_caption.txt
+235a0c700668a9bc3c6dfd6ecf8980b8ac7937372989606f0f1271246c95f119  F4   figures/F4/F4_drawn_data_sha256.txt
+d2714f9af461821ee92b6e33fc09d2ae860fd72cfd74e38c5940410da24e61bf  F4   figures/F4/F4_params.csv
+2726707f7dcef10603a978c2d06a615734eeaee99f62dc44c3e46df3e88ef25f  F4   figures/F4/F4_provenance.json
+bd65e3dab18780d5385bf5a73ccc430d8f281e574cc390930cdcea33b8f7a992  F4   figures/F4/F4_nordlie.md
+eeb218600eb31217c2a71afa30a184d82c4282be8806169b0e0aafae0a985cd6  F5   figures/F5/F5.pdf
+3dc6b3593e8039ca0f4fb814fb79f127081d74ad568838d22971657639ef267d  F5   figures/F5/F5.png
+7bce8ec64117f71f71fe9e6bbbf89e4b88edccf4b8039fcc7d97b3be132eab85  F5   figures/F5/F5_caption.txt
+6906ac2b03a40d018dc10e2f25b4035cf2f3e651b04da3f2780e372775f49844  F5   figures/F5/F5_drawn_data_sha256.txt
+05eb76d9207c4bfe822fd0bf2b345a81c6ffb07fde08590cd9f4f5b0e209acd0  F5   figures/F5/F5_params.csv
+933f9f30dcb030a8fb4d6bad3e0b1592c9266664ab7ce4ed192f8eaca4480887  F5   figures/F5/F5_provenance.json
+9fea24fc13e7dc8b732b8dcd7093f171e5401378abff7e28165b0aa5eb95d547  F5   figures/F5/F5_nordlie.md
+7bf71649ae4a3375e88db6bbaf956ddbaf71a96e24b5b660fd2829b9c393c49b  F6   figures/F6/F6.pdf
+c7d31b9ef76f2ef5610bec59a1c52f375c528775f9304abb08834dc11733e2be  F6   figures/F6/F6.png
+383e0a26b1b96d094173c2b7c6d90241a9573a02cf870e51fe77b54dc8e762d4  F6   figures/F6/F6_caption.txt
+899bd54748ab22c298bce06080cf0e653c6b4f1eb7a32bc9838552204f7b8aff  F6   figures/F6/F6_drawn_data_sha256.txt
+72503d9c900d45d34c1497e2a95921ccdcb819e6cd96880e475fc4626323d7ea  F6   figures/F6/F6_params.csv
+bf091fdb4f15e600ae4886da972a5beb560892c4298f73c07867eeae7e7b704c  F6   figures/F6/F6_provenance.json
+cd8e681b994783c96766b4e1b4403b2d81300628fe28800c0438f295b0f10db8  F6   figures/F6/F6_nordlie.md
+4181af4217a95363b38dc92960f879003a034c0c6f088a660051a4ac8c77cfa3  FS1  figures/FS1/FS1.pdf
+5748b81855a437254de1c6549685f0ba3e573e16a1970003ac96e3b9e8b354f8  FS1  figures/FS1/FS1.png
+d9d2c442c478cad05d25afcd4338c8c70737e8af58bcf0079c2ce75070053132  FS1  figures/FS1/FS1_caption.txt
+5a18863fd2c4aca24c6874b79e534bf9531b482205d5267b285b46064af4d24c  FS1  figures/FS1/FS1_drawn_data_sha256.txt
+45aaade944be4b544d6cc50170062b19220deca110db6a1cf5ad9828cec51101  FS1  figures/FS1/FS1_params.csv
+eb46903d0d4291bbcf779bdbb75dedb0d190ef6788921dc0bf34a3c3bc21cae8  FS1  figures/FS1/FS1_provenance.json
+2febc02cfd7c1619f888e75893d8d59b2bad5e53f1efb0af7f0fd7a58ddbcd42  FS1  figures/FS1/FS1_nordlie.md
+ac1e04c9545447dd2a16ca4903bf095b6f1e13e2966d81a6be46b7d96e637a63  FS2  figures/FS2/FS2.pdf
+e0aa692017ec3a2501ac2781d9e3547880744e4698a16b4ea2707b40f607755a  FS2  figures/FS2/FS2.png
+9187bdad708ab84416073aa95161511a125a60133e99e769a5da045a843eadeb  FS2  figures/FS2/FS2_caption.txt
+fd9fdaa47de498debb3b7518d2389333d7949296cbc8466f2b37337c03a3f36b  FS2  figures/FS2/FS2_drawn_data_sha256.txt
+c2a26474c24c6209bc77021160d5e0288c9ce9760e26bf804c1bddacea85eeca  FS2  figures/FS2/FS2_params.csv
+2763b11c14f602f3c88c2f5ad43bd50683fadb915a1eb50190dc12b1d262b70d  FS2  figures/FS2/FS2_provenance.json
+87fbcaf9d9768b6bf4a0efa628cb049b0d2c9fac339945fdef06bd00d2b9c6b2  FS2  figures/FS2/FS2_nordlie.md
+b95940f6c0d12aa892d9c50bd65142d6e2ce41eb2621a566b9687e5b47bb9b6f  FS3  figures/FS3/FS3.pdf
+bb0d1450e5aeba6bab715e8513aa40cd49a36d35a91c1ab122b7b1f5c2682057  FS3  figures/FS3/FS3.png
+73bd205f5bda4cc2bf9497a410881bf172e103b0f86cba8eb3dff6c3b96264ce  FS3  figures/FS3/FS3_caption.txt
+b22afb515966a28bdcd8f79c568cd82a4248fadab76ac02930b027449ca87160  FS3  figures/FS3/FS3_drawn_data_sha256.txt
+074e5b44d11004ddc5feeea9a9358467c264c227f6b8f83e7dbf7c6da9e65fa3  FS3  figures/FS3/FS3_params.csv
+e09e3968af82fad08f7df86e53d92a4252f300372bf4f8698398c23182f217f7  FS3  figures/FS3/FS3_provenance.json
+3ffbd92856bba8d66eae54d802e32e59d5364f6acd8fc326e3bb9a39173546f5  FS3  figures/FS3/FS3_nordlie.md
+68a53c1151563fd1ae2c1db68da85a92890f58efaf03f92b1d4d0a2cc030593e  FS4  figures/FS4/FS4.pdf
+4c8d9852b970c20bda5ebc0cdfb69b4159cbd5c3e5dd55ee82e29f5152d1a3d0  FS4  figures/FS4/FS4.png
+4e2c6a5174b402c2b17e7058e41590543344e2d403a1d424ce4b7d7063968864  FS4  figures/FS4/FS4_caption.txt
+b228797b1ef42443680ac82dbda6c6c182ce9a296db2e2845acbb120cd5e21d0  FS4  figures/FS4/FS4_drawn_data_sha256.txt
+945c0f6813c27c19b9361421a22c1cc9747b4420671897695b6dfce6744bb47a  FS4  figures/FS4/FS4_params.csv
+773abc1fabf7bda9c0a373e5ce3d29c1f663bcf9916033c3d774d7a226a7fc4d  FS4  figures/FS4/FS4_provenance.json
+756d0bebede587b7dc3efcef09ec3ff20185f3afa4b1208fbd382d5ba367b10b  FS4  figures/FS4/FS4_nordlie.md
+ec37d38463b962e034516638dbf88120910c33a9167e61908e8772882784a39c  FS5  figures/FS5/FS5.pdf
+650b8171a7a85e559d50774a1be0456fa1e9719e7d8f5b14fef2d56cd700b5bd  FS5  figures/FS5/FS5.png
+3de611c4a757613a1f591ad68a3de891cb91481d2fc2fb0b3e9dc5e28a823f20  FS5  figures/FS5/FS5_caption.txt
+9a394e29162eb039b5387fc7d066bab8bc05109102f200092b6d69eb0ac259ce  FS5  figures/FS5/FS5_drawn_data_sha256.txt
+65a00ab74399e72bb2e792327beee85c365099c7368c62dd96cbdf425d4d9de9  FS5  figures/FS5/FS5_params.csv
+d921027a01bbd0f7c9b126ec9157e4cc7ded09bc31c31326853abfb5ee760830  FS5  figures/FS5/FS5_provenance.json
+5d3f554fca3825ad5ef80c0ff57b22679679f46fba4f41c288b15ca9b056f570  FS5  figures/FS5/FS5_nordlie.md
+
+## draft files differing from the manifest: 0
+
+## Figure names as used for the tags and the mapping (the user decides the tags; pattern of the pre-check: fig-<name>-v<n>)
+F1 <- draft F1; F2 <- draft F2; F3 <- draft F3; F4a, F4b <- draft F4 (journal split, K2); F5, F5c <- draft F5 (journal split, T1); F6 <- draft F6;
+FS1, FS2, FS3, FS4, FS5 <- drafts FS1 to FS5. Journal files are the main versions; drafts are audit copies.
