@@ -7316,3 +7316,13 @@ Chosen:          as ruled   Default from: the prompt
 Test:            tests/test_ms13_13t1e.py; tests/test_ms13_13t1f.py
 Status:          done
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-688  MS13 13t-9: fresh-subagent review, triage, end of step    [ID: MS13, 13t-9, F3, F4a, F4b, FS4, FS5, N7]
+Date:            2026-11-08        Author:
+Decision:        FACT. ONE NEW fresh-subagent review (general-purpose, read-only) of F3, F4a, F4b, FS4 and FS5 (brief as in 13t-8); its findings are in docs/ms13_13t9_review.md (a condensed copy of the report, not verbatim: the subagent's text is long; the original stays in the session record) with a triage; no rebuild after it (N7). STOP-class finding, reported, nothing patched: the FS4 caption states that the largest change of the network peak frequency per halving is 43 percent 'at the first halving' (and 5 to 43 percent for 'the halving'); the stored values are 0.4286, 0.3333, 0.5500 (seed 0), 0.20, 0.25, 0.20 (seed 1) and 0.05, 0.0, 0.0526 (seed 2), so the largest change is 55 percent at the third halving; 5 to 43 percent holds for the first halving only (the draft take-home wording). Other open findings are in the triage (FS4 'labelled FAIL' for (h) and (i); FS5 tau read as the membrane time constant in the Key, no column labels in (a), no colour bar in (c); the F3 full-caption legend words and contours not verified by me). Items 6 and 7 of the 13t-8 review were not changed (6: described to the reviewer; 7: accepted under N5). FINAL FAST SUITE (exit code taken from pytest itself): 1512 passed, 2 failed, 24 deselected, 9 xfailed, 3 warnings, 1349.88 s, exit 1 (start of the step: 1490 passed, 24 deselected, 9 xfailed); the 2 failures were expected-set assertions that follow the FS4 and FS5 registrations (DL-687); after the edit these two and tests/test_ms13_review_aids.py pass (17 passed); the full suite was NOT repeated after that edit. Tests added: tests/test_ms13_13t9.py 16, tests/test_ms13_13t9_fs.py 8 (24 new; 1490 + 24 = 1514 = 1512 + 2). Nothing tagged, pushed or uploaded. FAILS SHOWN, none dropped: RB1 FAIL, RB2 FAIL (97 of 225 = 43.1 percent, 203 needed; 7 of 10, 8 needed), RB3(a) 0 of 6, RB3(b), RB6 solver 181 ms, RB6 network f_pk, RB9(b) 4.391 Hz against 0.5 Hz, G7 NOT PASSED, D24 FAILED, the sigma check FAIL.
+Reason:          N7; STOP RULE 12
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            full fast suite; scripts/ms13_check_hashes.py
+Status:          done; one STOP-class caption finding (FS4) open
+Commit/tag:      the commit that adds this entry; no tag
