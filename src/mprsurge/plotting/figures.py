@@ -955,6 +955,10 @@ def journal_figure(fig_id: str, res=None, root=None, close: bool = True):
             from . import jfs4
             d = prepare_FS4(load_FS4(res))
             fig = jfs4.draw(d, sys.modules[__name__])
+        elif fig_id == "FS5":
+            from . import jfs5
+            d = prepare_FS5(load_FS5(res, root))
+            fig = jfs5.draw(d, sys.modules[__name__])
         elif fig_id in ("F5", "F5c"):
             d = prepare_F5(load_F5(res))
             fig = _draw_F5(d, draft=False, mode="journal" if fig_id == "F5" else "journal_c")
@@ -3167,9 +3171,12 @@ def fs5_caption_notes(d: dict) -> tuple:
 
 
 def make_FS5(res=None, out_dir=None, *, tag_build: bool = False, take_home=FS5_TAKE_HOME, claim_limit_ids=FS5_CLAIM_LIMITS,
-             script="scripts/fig_FS5.py", root=None) -> dict:
-    """Build FS5 from results/ (and the two test files, read as text). Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}."""
+             script="scripts/fig_FS5.py", root=None, mode: str = "draft") -> dict:
+    """Build FS5 from results/ (and the two test files, read as text). Returns {'prov', 'paths', 'timing_s', 'drawn_sha256', 'caption'}. mode="journal": the stand-alone supplement file (13t-9, DL-681)."""
     F.require_buildable("FS5")
+    if mode == "journal":
+        from . import jfs5
+        return jfs5.build(sys.modules[__name__], res, out_dir, root, script, claim_limit_ids, tag_build)
     root = Path(root) if root is not None else repo_root()
     res = Path(res) if res is not None else root / "results"
     out = Path(out_dir) if out_dir is not None else root / "figures" / "FS5"
