@@ -173,3 +173,23 @@ OPEN after sub-step 14 (the user has not ruled on them; none is closed by this s
 SETTLED OR CLOSED: 22 (FS6 not produced, DL-716 X3); 54 (FS1 wording, DL-716 X1, applied in 13x); 56 (user report, above); 44, 45, 46, 48 accepted as disclosed limitations (DL-703).
 
 Also open from docs/ms13_close.md section (4), not close items: a backup folder path for figures/ and the repository; a human check by someone who has not seen the project; the zipped F1 source-data CSV for Zenodo; pushing the tags; the MS14 decision above.
+
+## Q. Sub-step 15 (2026-11-10; DL-730; docs/search_log.md written from the user's two reports; nothing in results, frozen criteria, drafts, figures, the plan or any tag changes; sections L to P above are kept as they were and are superseded only where this section says so)
+
+- docs/ms14_user_reports_2026-11-10.md holds the user's two reports word for word; docs/search_log.md holds the log (plan Appendix E columns plus Date and Result; one row per action; a Taher 2022 row "not stated in the user's reports"; "G8 outcome: to be written by the user"). Both are user reports, not independently checked by Claude Code; paper titles, authors and DOIs are UNVERIFIED (DL-730 Z1).
+- 58. OPEN (new; MS14 gaps, DL-730 Z4). MS14 is NOT closed; whether docs/search_log.md meets the plan's "complete" is the user's decision. Gaps: the "About N results" numbers shown by Google Scholar are not recorded; the exact method of items 1 and 2 is user-reported and AI-tidied (the user did not go through the numbers 0, 0, 3, 4 one by one with the notes); the three slow-passage searches have query text only (no tool, date or result); the Taher 2022 full-text reading (plan line 1467, C20) is not stated and not marked done; paper details UNVERIFIED; the handwritten notes are not in the repository (option: the user photographs them and has them added later as docs/ms14_handwritten_notes.jpg; not created); the user's G8 outcome is not written; the query texts of report 1 equal rows of the plan's Table E.1 (RA, October 2026), and whether report 1 is new work of 2026-11-10 or a restatement of that log is not shown by the repository (UNVERIFIED). Settles it: the user rules that the log is complete as it stands (logged as a ruling), or supplies the missing items, or rules that MS14 stays open.
+
+OPEN after sub-step 15 (the user has not ruled on them; none is closed by this step):
+
+49. OPEN. Triage table B of the 13t-10 review left as triaged (as in section L).
+50. OPEN. The F4b legend says "Dotted line in (d): 1 s" only (as in section L).
+51. OPEN. The alt texts of F5 and F5c write N as 1e3, 3e3, 1e4, 3e4 (as in section L).
+52. OPEN. The F4b SHORT caption is at 650 of 650 words (as in section P).
+53. OPEN. The user has still to read the corrected FS5 caption (as in section P).
+55. OPEN. The EPS extras differ between builds (as in section L).
+57. OPEN (UNVERIFIED). The reading of the duration floor (as in section P; recommended: accept).
+58. OPEN (new). The MS14 gaps above.
+
+SETTLED OR CLOSED (unchanged): 22; 54; 56; 44, 45, 46, 48.
+
+Also open from docs/ms13_close.md section (4), not close items: a backup folder path for figures/ and the repository; a human check by someone who has not seen the project; the zipped F1 source-data CSV for Zenodo; pushing the tags; the MS14 decision.
