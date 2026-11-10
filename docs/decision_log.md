@@ -7586,3 +7586,13 @@ Chosen:          as done   Default from: the prompt
 Test:            scripts/ms13_check_hashes.py; tests/test_ms13_13v.py; tests/test_ms13_review_aids.py
 Status:          done; rulings by the owner pending on items 22, 54, 53 and the venue
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-715  MS13 13w: end-of-step checks (no file under src/ or tests/ changed, so the full fast suite was not run)    [ID: MS13, 13w]
+Date:            2026-11-09        Author:
+Decision:        FACT. After the commit 03e09b3: scripts/ms13_check_hashes.py: 104 manifest rows, 0 problems; tests/test_ms13_13v.py and tests/test_ms13_review_aids.py: 25 passed in 115 s, pytest exit 0. The full fast suite was not run (the start state 1556 passed, 24 deselected, 9 xfailed, DL-711, stands: only docs/ and one new script under scripts/ changed in 13w; the new script is not imported by any test). The 177 figure files of docs/ms13_journal_final_hashes.txt were not changed (the FS5 build wrote to the scratchpad only). Failures stay visible and none was dropped: RB1 FAIL, RB2 FAIL, RB3(a), RB3(b), RB6 solver FAIL (181 ms), RB6 network f_pk FAIL, RB9(b) FAIL (4.391 Hz against 0.5 Hz), G7 NOT PASSED, D24 noisy subgrid FAILED (97 of 225 = 43.1 percent, 203 needed), the sigma check FAIL. Nothing tagged, pushed or uploaded; no subagent, no package installed, no simulation, list or sweep, no MS12 run; the plan was not edited. Stray folder C:\Users\Alpha\AppData\Local\Temp\review_crops is known (empty, not deleted); the scratchpad folder fs5_rebuild holds the W1 build (not part of the project).
+Reason:          end-of-step checks (13w prompt)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            as above
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
