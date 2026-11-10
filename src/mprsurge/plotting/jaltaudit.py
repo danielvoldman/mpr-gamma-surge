@@ -143,6 +143,7 @@ def _checks():
     add("FS1", "d", "r from ... towards ...", r"rises from ([\d.]+) to a first peak.*towards ([\d.]+);", lambda r: (Y(sel(r, "FS1", "d", startswith="recorded r(t)"))[0], Y(sel(r, "FS1", "d", startswith="focus value"))[0]))
     add("FS1", "d", "first peak near ...", r"first peak near ([\d.]+)", lambda r: (Y(sel(r, "FS1", "d", startswith="recorded r(t)")).max(),))
     add("FS1", "d", "fit window ... and ... ms", r"\((\d+) and (\d+) ms\)", lambda r: (X(sel(r, "FS1", "d", startswith="fit window")).min(), X(sel(r, "FS1", "d", startswith="fit window")).max()))
+    add("FS1", "b", "grid steps and units from the test point to the nearest node without a focus (13x X2, DL-717)", r"is (\d+) grid steps lower in eta_bar/Delta \(([\d.]+) units\) and (\d+) lower in J/sqrt\(Delta\) \(([\d.]+) units\)", lambda r: _fs1_near(r))
     add("FS1", "a", "cusp", r"cusp \(eta_bar/Delta ([-−]?[\d.]+), J/sqrt\(Delta\) ([\d.]+)\)", lambda r: (X(sel(r, "FS1", "a", startswith="cusp"))[0], Y(sel(r, "FS1", "a", startswith="cusp"))[0]))
     add("FS1", "a", "test point (eta_bar/Delta, J/sqrt(Delta))", r"test point \(([-−]?\d+), (\d+)\)", lambda r: (X(sel(r, "FS1", "a", startswith="test point"))[0], Y(sel(r, "FS1", "a", startswith="test point"))[0]))
     # FS2
@@ -175,6 +176,18 @@ def Y_or_V(d):
 
 def Y_g(r):
     return np.concatenate([Y(sel(r, "FS4", "g", startswith=f"seed {s}")) for s in (0, 1, 2)])
+
+
+def _fs1_near(r):
+    """13x X2: from the recorded source data. The nodes of the grid of panel (a) that panel (b) does not list hold no stable focus; the nearest of them to the test point, in grid steps (eta, J) and in axis units."""
+    ga = sel(r, "FS1", "a", startswith="number of fixed points")
+    xs, ys = np.unique(X(ga)), np.unique(Y(ga))
+    gb = sel(r, "FS1", "b", startswith="frequency of the stable focus")
+    listed = set(zip(np.searchsorted(xs, X(gb)).tolist(), np.searchsorted(ys, Y(gb)).tolist()))
+    tp = sel(r, "FS1", "b", startswith="test point")
+    ti, tj = int(np.searchsorted(xs, X(tp)[0])), int(np.searchsorted(ys, Y(tp)[0]))
+    best = min(((i - ti) ** 2 + (j - tj) ** 2, abs(i - ti), abs(j - tj)) for i in range(len(xs)) for j in range(len(ys)) if (i, j) not in listed)
+    return (float(best[1]), best[1] * float(xs[1] - xs[0]), float(best[2]), best[2] * float(ys[1] - ys[0]))
 
 
 def _f1_ramp(r):

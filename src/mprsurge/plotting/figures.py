@@ -2133,12 +2133,21 @@ def _fs1_source_rows(d: dict) -> list:
     return rows
 
 
-def _fs1_alt_text(d: dict) -> dict:
+def _fs1_b_testpoint_sentence(tp: dict) -> str:
+    """The circled test point lies on the coloured side, where a stable focus exists; how far the nearest node without a focus is (read from the stored map; looked at in the recorded image, DL-717)."""
+    if not tp["block7"] or tp["near_di"] >= 0 or tp["near_dj"] >= 0:
+        raise DataError("FS1 alt text: the stored map no longer has the layout that the sentence describes (13x X2: stop)")
+    return (f"the circled test point lies on the coloured side, in the region where a stable focus exists; the nearest grid node without a focus is {-tp['near_di']} grid steps lower in eta_bar/Delta "
+            f"({tp['near_eta']:.2f} units) and {-tp['near_dj']} lower in J/sqrt(Delta) ({tp['near_J']:.1f} units), so at this scale the circle around the point reaches the grey edge.")
+
+
+def _fs1_alt_text(d: dict, tp: dict) -> dict:
+    """13x X2 (DL-717): the sentence on the test point of (b) is built from the ring-map arrays (`tp` = JFS.fs1_testpoint), not typed."""
     return {
         "a": (f"Map of the number of fixed points of the M2 model against eta_bar/Delta (-10 to 2) and J/sqrt(Delta) (0 to 20): pale blue where there is one, orange between the two black fold lines where there are three; the fold lines meet at "
               f"the circled-plus cusp (eta_bar/Delta {d['cusp_eta']:.3f}, J/sqrt(Delta) {d['cusp_J']:.3f}); a circled dot marks the test point (-5, 15), inside the orange region."),
         "b": (f"Map of the frequency of the stable focus in the same plane, viridis colours from {d['ring_freq_min']:.2f} to {d['ring_freq_max']:.1f} Hz, rising towards the upper right; grey where there is no stable focus (a wedge on the "
-              "left); the test point is on the grey boundary."),
+              "left); " + _fs1_b_testpoint_sentence(tp)),
         "c": (f"Map of the cycles per e-fold in the same plane, cividis colours, drawn only where the focus frequency is between {d['band_hz'][0]:g} and {d['band_hz'][1]:g} Hz; largest value {d['ring_cyc_inG_max']:.2f}; grey elsewhere."),
         "d": (f"Step response of the firing rate r at the test point: it rises from {d['k4_start_r']:.4f} to a first peak near 2.9 and rings with falling amplitude towards {d['k4_end_r']:.4f}; a dashed horizontal line marks the focus value, "
               f"two dash-dot vertical lines the fit window ({d['k4_t_start_ms']:g} and {d['k4_t_end_ms']:g} ms); the axis ends at 600 ms."),
@@ -2178,7 +2187,7 @@ def _make_FS1_journal(res, out_dir, root, script, take_home, claim_limit_ids, ta
     cap = CAP.build_caption("FS1", take_home=take_home, claim_limit_ids=claim_limit_ids, params_rows=crows, spectrogram=None, symbol_keys=(), notes=fs1_caption_notes(d),
                             main_failures=FS1_MAIN_FAILURES, swept={"model.eta_bar": list(d["eta"]), "model.J": list(d["J"])})
     plain_md = PL.pairing_markdown(claim_limit_ids, None, cap.text)
-    c = JFS.fs1_consts(d, rows)
+    c = JFS.fs1_consts(d, rows, a2=raw["a2"])
     jtext = JFS.fs1_caption(d, rows, ids=claim_limit_ids, c=c)
     cap = dataclasses.replace(cap, text=jtext)
     cfg = J.load_config(root)
@@ -2201,7 +2210,7 @@ def _make_FS1_journal(res, out_dir, root, script, take_home, claim_limit_ids, ta
                    modules=["src/mprsurge/plotting/figures.py", "src/mprsurge/plotting/style.py", "src/mprsurge/plotting/captions.py", "src/mprsurge/plotting/jfs.py", "src/mprsurge/plotting/nordlie.py",
                             "src/mprsurge/plotting/figprov.py"],
                    configs=["configs/A1.yaml", "configs/A2.yaml", "configs/S1.yaml"], claim_limits=cap.claim_limits, spectrogram=None, tag_build=tag_build, root=root)
-    return _journal_tail("FS1", out, stem, saved, cap, drawn, d, {**raw, "a11": []}, prov_kw, warnings, strip=[], footer=FS1_FOOTER, timing_t=t, source_rows=_fs1_source_rows(d), alt=_fs1_alt_text(d),
+    return _journal_tail("FS1", out, stem, saved, cap, drawn, d, {**raw, "a11": []}, prov_kw, warnings, strip=[], footer=FS1_FOOTER, timing_t=t, source_rows=_fs1_source_rows(d), alt=_fs1_alt_text(d, c["tp"]),
                          pointers=(), cfg=cfg, status_text="", plain_md=plain_md, extra_sections=_fs1_sections(d, c), strip_rows=[], zip_note=True)
 
 

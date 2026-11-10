@@ -46,7 +46,7 @@ caption:
   short_max_words_F3: 650              # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 330)
   short_max_words_F5: 650              # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 330)
   short_max_words_F5c: 650             # UNVERIFIED (DL-628 C6: 600; was 520, DL-615 A6) (DL-615 A6; DL-608 had 480; DL-603 W1; DL-593 V8 had 330)
-  short_max_words_FS1: 600             # UNVERIFIED (DL-637; as DL-628 C6)
+  short_max_words_FS1: 650             # UNVERIFIED (DL-717, owner ruling X1 of DL-716: 650; was 600, DL-637; as DL-628 C6)
   short_max_words_FS2: 600             # UNVERIFIED (DL-637)
   short_max_words_FS3: 600             # UNVERIFIED (DL-637)
   short_max_words_F4a: 650             # UNVERIFIED (DL-667 K1: 650, as the other main figures): F4a (13t-8)
