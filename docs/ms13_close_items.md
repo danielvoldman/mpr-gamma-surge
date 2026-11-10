@@ -231,3 +231,37 @@ New open items, one line each (the user decisions of B4 (c); "UNVERIFIED" = no p
 OPEN after sub-step 17 (the user has not ruled on them; none is closed by this step): 49, 50, 51, 52, 53, 55, 57, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76.
 
 SETTLED OR CLOSED (unchanged): 22; 54; 56; 44, 45, 46, 48; 58 (replaced by 59); 59.
+
+## T. Sub-step 18 (2026-11-10; DL-736, DL-737; MS15 split into MS15a and MS15b by user ruling of 17:22; release files written; nothing in results, frozen criteria, drafts, figures, the plan or any tag changes; section S above is kept as it was and is superseded only where this section says so)
+
+Items 63 to 76 after the rulings (one line each):
+
+- 63. CLOSED, user ruling 2026-11-10: archive service Zenodo (D37). The account and the deposit are the user's, later (see 78 and 67).
+- 64. CLOSED, user ruling 2026-11-10: code MIT with holder Daniel Voldman (LICENSE, 2026); data, figures and text CC-BY 4.0 (LICENSE-DATA.md). That PCJ requires or accepts CC-BY stays UNVERIFIED (74); the CC-BY legal text is not yet in the file (77).
+- 65. CLOSED IN PART, user ruling 2026-11-10: name, email, affiliation, ORCID, funding and conflict-of-interest lines given and used. STILL OPEN: ethics statement, data and code availability statements and the AI-use disclosure (plan line 1396), which belong to MS15b.
+- 66. OPEN, MOVED TO MS15b by the user's split (manuscript text; no manuscript in the repository).
+- 67. OPEN. Which result families and figure files go into the Zenodo data record (a separate record from the software record of .zenodo.json); 32.6 GB in 32,070 files; any Zenodo limit UNVERIFIED.
+- 68. CLOSED IN PART. The user reports a backup of C:\dev\mpr-gamma-surge (the path of the backup is not given; not checked by Claude Code); a GitHub remote is wanted. STILL OPEN: URL, public or private, where the tags are pushed (see 79).
+- 69. OPEN. The placeholder identity "Your Name <you@example.com>" stays on all earlier commits and on the 17 tags; the user has set the git identity to Daniel Voldman for new commits (checked: this step's commits carry it); whether the old commits and tags are left as they are is the user's call; they become public when pushed.
+- 70. OPEN. Checklist item 6 (DRAFT flag): finding and options A, B, C in docs/ms15_draft_flag_notes.md; part 2 needs the ruling (see 81).
+- 71. CLOSED IN PART. LICENSE, CITATION.cff, README, CHANGELOG, docs/figure_map.md and scripts/make_all.ps1 are written (ruled by the user). STILL OPEN: a `--from-record` option for mprsurge.run (checklist item 5, plan line 1280) and what `-Stage replication` must contain (80).
+- 72. OPEN. The clean Windows machine and who runs checklist 10.8.
+- 73. OPEN. The zipped F1 source-data CSV (28,821,335 bytes as written): when and where.
+- 74. OPEN. The PCJ and PCI requirements (template, code and data policy, AI-use disclosure, figure rules, licences, recommendation process).
+- 75. OPEN. docs/robustness_criteria.md header "NOT YET FROZEN" (leave as in the tag or correct before the archive).
+- 76. OPEN. Permission and time for the full suite including the 24 slow tests before the release tag.
+
+New items:
+
+- 77. OPEN (UNVERIFIED). LICENSE-DATA.md has the CC-BY 4.0 notice and link but NOT the full legal text; it is to be added from https://creativecommons.org/licenses/by/4.0/legalcode before the archive (Claude Code has no internet).
+- 78. OPEN (UNVERIFIED). .zenodo.json: every field (title, upload_type, creators with name, affiliation and orcid, license "mit") is unchecked against Zenodo's current schema; it has no description and no version; CITATION.cff was parsed as YAML only (no CFF validator is installed). The Zenodo account, the GitHub-Zenodo link (if wanted) and the deposit are the user's.
+- 79. OPEN, needed for part 2. The GitHub address and whether the repository is public or private. Everything in the history, including the author details, becomes public when pushed or archived (the user chose this).
+- 80. OPEN (UNVERIFIED). scripts/make_all.ps1 was written and NOT run; its PowerShell parse check was blocked by the safety classifier and is not done (only a character and bracket check was made); the steps of -Stage replication (S1, A1, A2, A4, S3 mean-field, A0) and -Stage figures are partly inferred (the header marks which); not sourced and not written: the other milestones' steps, the network cells of S3, the Julia steps, the recording of the cleared Numba cache in provenance, -Stage all (it stops with an error); whether the stage covers "every G0 row" and whether the exit codes of run_A4.py and run_S3.py encode the K7 to K11 verdicts is UNVERIFIED.
+- 81. OPEN, needed for part 2. The DRAFT-flag decision (item 70): A accept as built, B rebuild the 13 journal figures from one clean release commit (code change in scripts/fig_journal.py, new v2 tags), C B with the 11 drafts declared audit copies; and what "release commit" means (docs/ms15_draft_flag_notes.md sections 4 and 5).
+- 82. OPEN. The README does not restate the initial conditions and the full gamma-power computation that the plan (line 1147) wants stated; it gives the numerical defaults of configs/base.yaml and points to the code (UNVERIFIED that a short statement is correct without a further read).
+
+Settled by this step: the file line endings (CHANGELOG.md was CRLF in the working copy with a byte-order mark; it is now LF without a BOM; README.md was already LF).
+
+OPEN after sub-step 18 (not closed by this step): 49, 50, 51, 52, 53, 55, 57, 60, 61, 62, 65 (in part), 66 (MS15b), 67, 68 (in part), 69, 70, 71 (in part), 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82.
+
+SETTLED OR CLOSED: 22; 54; 56; 44, 45, 46, 48; 58 (replaced by 59); 59; 63; 64.
