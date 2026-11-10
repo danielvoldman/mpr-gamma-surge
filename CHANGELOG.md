@@ -11,6 +11,8 @@ The plan (docs/plan.md, line 1023) asks for one entry per release tag. No releas
 - MS14: `docs/search_log.md` with the plan's Table E.1 and items 1 to 7 recorded as "Not done natively on Nov 10; general web-search pre-check only". MS14 was closed by user ruling as a departure from the plan; its limits are in `docs/ms13_close.md` section (7).
 - MS15a, part 1 (the release files; user rulings of 2026-11-10 in `docs/ms15_scope_notes.md`): `LICENSE` (MIT), `LICENSE-DATA.md` (CC-BY 4.0 notice; the legal text is still to be added), `CITATION.cff`, `.zenodo.json`, `scripts/make_all.ps1` (written and not run), `docs/figure_map.md`, `scripts/ms15a_write_figure_map.py`, `docs/ms15_draft_flag_notes.md`, `tests/test_ms15a_release.py`, a full `README.md`.
 
+- MS15a, part 2a (user ruling of 2026-11-10, 18:21, option B of `docs/ms15_draft_flag_notes.md`; `docs/decision_log.md` DL-738 to DL-743): `scripts/fig_journal.py --release` (alias `--tag`: clean-tree check first, provenance `draft = false` on a clean tree), the supplement text follows the draft flag, and the 13 journal figures were rebuilt once from the clean commit 90b177acc694de0b9756542f236977d782f185e1 (every provenance record: `draft = false`, `dirty = false`, that commit). PNG, TIFF and PDF are byte-identical to the first build; supplements and provenance records are new. `tests/test_ms15a_draft_flag.py`. The `fig-<ID>-v2` tags and `release-v1.0` are planned and not created.
+
 ### Changed
 
 - `README.md`: the MS0 skeleton is replaced by the setup block of the plan plus the claim limits, the failures shown in the figures, the environment, the numerical defaults, the figure rebuild, the tags, the licences, how to cite and the author lines.
@@ -18,7 +20,7 @@ The plan (docs/plan.md, line 1023) asks for one entry per release tag. No releas
 
 ### Known gaps
 
-- No `release-v1.0` tag; nothing archived; no version, DOI or remote assigned.
-- The 13 journal provenance records say `draft = true` (plan section 10.8 item 6); see `docs/ms15_draft_flag_notes.md`.
+- No `release-v1.0` tag and no `fig-<ID>-v2` tag; nothing archived; no version, DOI or remote assigned.
+- The 13 journal provenance records say `draft = false` since the rebuild of MS15a 19; the eleven drafts stay `draft = true` (audit copies, by ruling); the meaning of "release commit" in plan section 10.8 item 6 is UNVERIFIED (`docs/ms15_draft_flag_notes.md`).
 - Checklist 10.8 has not been run on a clean machine; the 24 slow tests are not recorded as run at the current commit; `mprsurge.run` has no `--from-record` option.
 - Manuscript and submission (MS15b) are outside the repository and not done.

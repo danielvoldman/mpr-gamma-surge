@@ -265,3 +265,21 @@ Settled by this step: the file line endings (CHANGELOG.md was CRLF in the workin
 OPEN after sub-step 18 (not closed by this step): 49, 50, 51, 52, 53, 55, 57, 60, 61, 62, 65 (in part), 66 (MS15b), 67, 68 (in part), 69, 70, 71 (in part), 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82.
 
 SETTLED OR CLOSED: 22; 54; 56; 44, 45, 46, 48; 58 (replaced by 59); 59; 63; 64.
+
+## U. Sub-step 19 (2026-11-10; DL-738 to DL-743; MS15a part 2a: the user's defaults of 18:21 and the DRAFT-flag rebuild; nothing in results, frozen criteria, drafts, the plan or any tag changes; section T above is kept as it was and is superseded only where this section says so)
+
+Items settled or changed by this step (one line each):
+
+- 70. CLOSED BY USER RULING AND REBUILD (option B, DL-738 D1; build DL-741, results DL-742). The 13 journal figures were rebuilt once from the clean commit R = 90b177acc694de0b9756542f236977d782f185e1; all 13 provenance records say draft false, dirty false, git.commit R, tags []. PNG, TIFF and PDF are byte-identical to v1; captions, alt texts and source data are byte-equal; supplements and provenance records are new. UNVERIFIED: that the plan's "release commit" (line 1284) means R (the plan does not define it); the eleven drafts stay draft = true as audit copies (ruled). Not changed, for the user: `journal.draft_footer_text` and the "Footer of the draft" section of each supplement still quote the draft figure's footer.
+- 81. CLOSED BY USER RULING (option B). The prompt of step 19 names "items 70 and 80"; item 80 is the make_all.ps1 item and is NOT touched; 81 is the DRAFT-flag decision for part 2, so 70 and 81 are updated (reported).
+- 79. CLOSED IN PART by the user's information of 2026-11-10 (DL-738 D1): the GitHub address is https://github.com/danielvoldman/mpr-gamma-surge, private, empty (not checked by Claude Code; no internet). STILL OPEN: adding the remote and the push (step 20).
+- 69. CLOSED BY USER RULING (DL-738 D1): the 686 older commits and the 17 tags keep the placeholder identity "Your Name <you@example.com>" and are left alone; they become visible when pushed (the v2 tags will carry the configured identity).
+- 67. CLOSED IN PART by user ruling (DL-738 D1): Zenodo gets a software record from the GitHub release and ONE data record (figure files, source data, the hash list), not the 32.6 GB of results/ (Zenodo limits UNVERIFIED). STILL OPEN: the packaging of the data record and its metadata (item 73).
+- 72. CLOSED IN PART by user ruling: the clean-machine run (checklist 10.8) is a fresh clone with a fresh environment on this PC, a stand-in to be labelled as such. NOT run.
+- 76. CLOSED IN PART by user ruling: the 24 slow tests are run once. NOT yet run (step 20).
+- 68. The backup of the v1 journal figure folder now exists outside the repository: C:\dev\_journal_v1_backup (145 files, 102,738,717 bytes, listing with full SHA-256 in listing_sha256.txt there; hashes equal the originals). It is a known non-project folder, not in git, not to be deleted. It is the only copy of the v1 supplement files, provenance records and EPS extras, which are in no git tree; the v1 PNG, TIFF and PDF are byte-identical to the rebuild. The v1 tags and these v1 files are superseded by step 20.
+- 80, 66, 65 (in part), 71 (in part), 73, 74, 75, 77, 78, 82: not touched by this step.
+
+OPEN after sub-step 19 (not closed by this step): 49, 50, 51, 52, 53, 55, 57, 60, 61, 62, 65 (in part), 66 (MS15b), 67 (in part), 68 (in part), 71 (in part), 72 (in part), 73, 74, 75, 76 (in part), 77, 78, 79 (in part), 80, 82.
+
+SETTLED OR CLOSED: 22; 54; 56; 44, 45, 46, 48; 58 (replaced by 59); 59; 63; 64; 69; 70; 81.

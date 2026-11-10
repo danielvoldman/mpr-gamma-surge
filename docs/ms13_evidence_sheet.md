@@ -2,7 +2,7 @@
 
 Written for: the owner and reviewer who close MS13, and the author of the paper. Written by scripts/ms13_evidence_sheet.py from stored files: the hashes are copied from docs/ms13_journal_final_hashes.txt (tests/test_ms13_13v.py compares them again with the files on disk); counts come from the output of scripts/ms13_verify_export.py and scripts/ms13_independent_compare.py run on the committed build in 13v (read only, no rebuild); the captions' failed-check and limit paragraphs are copied word for word. A value that no file gives is written UNVERIFIED. Nothing is pushed or uploaded; the local tags of 13u are described in the section Tags.
 
-Build commit of every journal figure except FS1: 5e9057563c6c24fbac16b99000e547d08ef9a31a (FS1 was rebuilt once in 13x from commit f5d3f0d8858c5c523f53985bba36dbb3fca77fe7, see the FS1 section; its PNG, TIFF and PDF are unchanged). Later commits are documentation, the audit module, and in 13v the wording fix of the FS5 caption (DL-705, DL-706; FS5 caption and supplement only; the PNG, TIFF and PDF are unchanged).
+Build commit of every journal figure (13 of 13): 90b177acc694de0b9756542f236977d782f185e1 (MS15a 19, DL-741 and DL-742: one rebuild of the 13 journal figures from that clean commit with `scripts/fig_journal.py --release`; every provenance record says draft false, dirty false, tags []). The v1 build commits were 5e9057563c6c24fbac16b99000e547d08ef9a31a (all figures but FS1) and f5d3f0d8858c5c523f53985bba36dbb3fca77fe7 (FS1); they are superseded. The PNG, TIFF and PDF of all 13 figures are byte-identical to v1; the short and full captions, alt texts and source-data files are byte-equal to v1; the supplements and the provenance records are new (they name 90b177acc694de0b9756542f236977d782f185e1, draft false, and carry a new provenance-file hash); the hashes in this sheet are those of the files of the 19 build. Later commits are documents and two helper scripts (the hash-list and figure-map writers).
 
 ## User rulings of 2026-11-09 applied in 13x (DL-716 to DL-720)
 
@@ -23,10 +23,10 @@ Draft audit copy: F1 (figures/F1/); the journal files are the main versions.
 | caption short | figures/journal/F1/F1_journal_caption.txt | 8ffbb816f42c0611539ab774a1d37ca5fc89d8e8efe372407de3ad15a4e575a0 |
 | caption full | figures/journal/F1/F1_journal_caption_full.txt | 78e215ed6133e0e71cb856b20b9637ed067c4191f4598547b12a108e3cfcc427 |
 | alt text | figures/journal/supplement/F1_alt_text.txt | 780af815ca1f06a229ee943c2dd079aa2a7f7768e2082e1bb0d62130ff1216eb |
-| supplement | figures/journal/supplement/F1_supplement.md | 3c0fe3efc63938f94fb0101c71bf53e31541e553a7d11c5acb445dbc062edfad |
+| supplement | figures/journal/supplement/F1_supplement.md | 637b74d0d64d6e288b1349012a9e1037e5969074fea1b9529961edccc3c9b8d0 |
 | source data csv | figures/journal/supplement/F1_source_data.csv | 67076c7ed61974de74acf58f40c1496552427a9a555a48a22878485fa4031496 |
 
-- Build commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a.
+- Build commit: 90b177acc694de0b9756542f236977d782f185e1 (MS15a 19; draft false, dirty false; the v1 build commit was 5e9057563c6c24fbac16b99000e547d08ef9a31a).
 - Drawn-data digest of the journal figure: bfdba12d9fc09fbfdc0514b6c5859a13a21948ea9db7e16ec4b1f845e11b8839; draft F1: bfdba12d9fc09fbfdc0514b6c5859a13a21948ea9db7e16ec4b1f845e11b8839; equal: yes. Verifier: PASS - bfdba12d9fc0... export bfdba12d9fc0 draft bfdba12d9fc0; PASS - 88 of the 88 arrays of the draft data, per-array digests equal.
 - Independent comparison (this run): journal caption (21, 21, 0, 0) and short caption (8, 8, 0, 0) as (quantities, equal, not equal, unresolved); draft rows of F1 (shared by the parts of a split figure): equal 51, other 15 (rows without a comparison are not counted as equal).
 - Verifier rows for F1 (this run): 44 PASS, 0 FAIL, 1 MANUAL (the MANUAL row is the colour-vision check of the user).
@@ -56,10 +56,10 @@ Draft audit copy: F2 (figures/F2/); the journal files are the main versions.
 | caption short | figures/journal/F2/F2_journal_caption.txt | 0e095ccb1a6230c333fb066abb7721e8869c0801e884cc013c5fd2858bb710a1 |
 | caption full | figures/journal/F2/F2_journal_caption_full.txt | 4d3e14050e3e316da382577f1d2aaf8b849d7308fd94c679ed1022120cba752a |
 | alt text | figures/journal/supplement/F2_alt_text.txt | 5eab7c27cdf8d00eeacb0c933636c1d5e80a8d124d9d3bc3d786b6721af8a182 |
-| supplement | figures/journal/supplement/F2_supplement.md | 76b1a21b4a360c6e6a8fee61a7edd3395bc0d3aed06e511fa2786422f8580e20 |
+| supplement | figures/journal/supplement/F2_supplement.md | 5180f4706cda36a99722e35782bf76b399d3f5647f916e9f8dd621fe35828041 |
 | source data csv | figures/journal/supplement/F2_source_data.csv | c85d3ba96a3881836673303e4c2e005ba1a114bd3ba305eadd56c5561fd4ceda |
 
-- Build commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a.
+- Build commit: 90b177acc694de0b9756542f236977d782f185e1 (MS15a 19; draft false, dirty false; the v1 build commit was 5e9057563c6c24fbac16b99000e547d08ef9a31a).
 - Drawn-data digest of the journal figure: 3584f8faee5d704a1f172ad4185c133324ddb9f196f32d05d80f3ca5ef28a932; draft F2: 3584f8faee5d704a1f172ad4185c133324ddb9f196f32d05d80f3ca5ef28a932; equal: yes. Verifier: PASS - 3584f8faee5d... export 3584f8faee5d draft 3584f8faee5d; PASS - 50 of the 50 arrays of the draft data, per-array digests equal.
 - Independent comparison (this run): journal caption (8, 8, 0, 0) and short caption (7, 7, 0, 0) as (quantities, equal, not equal, unresolved); draft rows of F2 (shared by the parts of a split figure): equal 18, other 1 (rows without a comparison are not counted as equal).
 - Verifier rows for F2 (this run): 44 PASS, 0 FAIL, 1 MANUAL (the MANUAL row is the colour-vision check of the user).
@@ -89,10 +89,10 @@ Draft audit copy: F3 (figures/F3/); the journal files are the main versions.
 | caption short | figures/journal/F3/F3_journal_caption.txt | a4417ff61fa1eefcfbb7119ca465749e469f16b153e0f9dca959ac756522af4c |
 | caption full | figures/journal/F3/F3_journal_caption_full.txt | 35707c8addfe650921566c354858c1e601123594b812163e348bbefd1efe1cc1 |
 | alt text | figures/journal/supplement/F3_alt_text.txt | 5f372fc10cd59b8875fc7bf94416e719188c6298dff93cba5212521f1e1bf46f |
-| supplement | figures/journal/supplement/F3_supplement.md | 2da270f167d7e07cd268bb3384ec4088e6828352c1e55d24ced0b44e4d693cfc |
+| supplement | figures/journal/supplement/F3_supplement.md | a086d83bc4c4b357180bf8b24744d894b81884891170fd0d20e9cb1406999bf5 |
 | source data csv | figures/journal/supplement/F3_source_data.csv | 566e3cce1dc40db8a2f19606b328df15d5e92b5bf01b09a351848c27553376c8 |
 
-- Build commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a.
+- Build commit: 90b177acc694de0b9756542f236977d782f185e1 (MS15a 19; draft false, dirty false; the v1 build commit was 5e9057563c6c24fbac16b99000e547d08ef9a31a).
 - Drawn-data digest of the journal figure: e12a1086fbe84d1f121618b82dfe61afd7e7b951c1d67b541e782e3e74d1bbc6; draft F3: e12a1086fbe84d1f121618b82dfe61afd7e7b951c1d67b541e782e3e74d1bbc6; equal: yes. Verifier: PASS - e12a1086fbe8... export e12a1086fbe8 draft e12a1086fbe8; PASS - 102 of the 102 arrays of the draft data, per-array digests equal.
 - Independent comparison (this run): journal caption (12, 12, 0, 0) and short caption (7, 7, 0, 0) as (quantities, equal, not equal, unresolved); draft rows of F3 (shared by the parts of a split figure): equal 46, other 11 (rows without a comparison are not counted as equal).
 - Verifier rows for F3 (this run): 44 PASS, 0 FAIL, 1 MANUAL (the MANUAL row is the colour-vision check of the user).
@@ -122,10 +122,10 @@ Draft audit copy: F4 (figures/F4/); the journal files are the main versions.
 | caption short | figures/journal/F4a/F4a_journal_caption.txt | dae33a6d95948cfc9e13fdf0a1138c32d9034c14879cd1b211a2a22a32f1fd12 |
 | caption full | figures/journal/F4a/F4a_journal_caption_full.txt | 49d9abd3ef2a49a290a83d48026fa1c6f42b5c8297dff8ae106d73a238c74cd0 |
 | alt text | figures/journal/supplement/F4a_alt_text.txt | f9442e9e7179381f277d341fc14f829af9dd6d833ed507c3a696183575e6c38b |
-| supplement | figures/journal/supplement/F4a_supplement.md | 8fc2cca964b934190f7e92f03d9249fde7e59f28b8fd7569f467d9d82dbc0c68 |
+| supplement | figures/journal/supplement/F4a_supplement.md | c8c0c7c52e4b68e94de5805cb842e1f4bd3fc13b2036a853b57a88ec79aa4b2c |
 | source data csv | figures/journal/supplement/F4a_source_data.csv | 3ed1044723e2d81d8e461d6c5645e56c6a8bc1632061424da58cd30540d2d8e4 |
 
-- Build commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a.
+- Build commit: 90b177acc694de0b9756542f236977d782f185e1 (MS15a 19; draft false, dirty false; the v1 build commit was 5e9057563c6c24fbac16b99000e547d08ef9a31a).
 - Drawn-data digest of the journal figure: fb05eb9226c9f4d6242ec4ba5fb15f4429eff3680468dc89447bcdf7f2343d6a; draft F4: fb05eb9226c9f4d6242ec4ba5fb15f4429eff3680468dc89447bcdf7f2343d6a; equal: yes. Verifier: PASS - fb05eb9226c9... export fb05eb9226c9 draft fb05eb9226c9; PASS - 106 of the 162 arrays of the draft data, per-array digests equal.
 - Independent comparison (this run): journal caption (19, 19, 0, 0) and short caption (12, 12, 0, 0) as (quantities, equal, not equal, unresolved); draft rows of F4 (shared by the parts of a split figure): equal 58, other 21 (rows without a comparison are not counted as equal).
 - Verifier rows for F4a (this run): 44 PASS, 0 FAIL, 1 MANUAL (the MANUAL row is the colour-vision check of the user).
@@ -155,10 +155,10 @@ Draft audit copy: F4 (figures/F4/); the journal files are the main versions.
 | caption short | figures/journal/F4b/F4b_journal_caption.txt | 0f69389498fe0c18bff96d2f00ab674ec5a258651f6178cbbd9eef6b1f17a79b |
 | caption full | figures/journal/F4b/F4b_journal_caption_full.txt | f942cb3a553ffb6192af6c42cbcdb77befe58fb1454a3e19ddd97b1d93c9c2b7 |
 | alt text | figures/journal/supplement/F4b_alt_text.txt | f160cc94c120bad2f99bf6f990011a5e7c836d8b3071ebcc2a02549f89512905 |
-| supplement | figures/journal/supplement/F4b_supplement.md | e5cada6f03dd577c50d8da97584efa070708486a6893f3b374db8212b7605e61 |
+| supplement | figures/journal/supplement/F4b_supplement.md | 2c87260ed01e4071d4ab263ab6aed2b5b4b1c09694ab2104e572552619e865c8 |
 | source data csv | figures/journal/supplement/F4b_source_data.csv | b010899b118f38644c38a3728ea42e8358946847fd955397a18b5bdf6175dd58 |
 
-- Build commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a.
+- Build commit: 90b177acc694de0b9756542f236977d782f185e1 (MS15a 19; draft false, dirty false; the v1 build commit was 5e9057563c6c24fbac16b99000e547d08ef9a31a).
 - Drawn-data digest of the journal figure: fb05eb9226c9f4d6242ec4ba5fb15f4429eff3680468dc89447bcdf7f2343d6a; draft F4: fb05eb9226c9f4d6242ec4ba5fb15f4429eff3680468dc89447bcdf7f2343d6a; equal: yes. Verifier: PASS - fb05eb9226c9... export fb05eb9226c9 draft fb05eb9226c9; PASS - 86 of the 162 arrays of the draft data, per-array digests equal.
 - Independent comparison (this run): journal caption (8, 8, 0, 0) and short caption (5, 5, 0, 0) as (quantities, equal, not equal, unresolved); draft rows of F4 (shared by the parts of a split figure): equal 58, other 21 (rows without a comparison are not counted as equal).
 - Verifier rows for F4b (this run): 44 PASS, 0 FAIL, 1 MANUAL (the MANUAL row is the colour-vision check of the user).
@@ -188,10 +188,10 @@ Draft audit copy: F5 (figures/F5/); the journal files are the main versions.
 | caption short | figures/journal/F5/F5_journal_caption.txt | 870baeb3459b258befcae0964642f67146cc351f790c83f6aa8579fdb7b7f2cc |
 | caption full | figures/journal/F5/F5_journal_caption_full.txt | 5c1353b32c1b34949aa66e8d6ee32454ecb4e5f9ff7d4c3ecc08c9983ae20943 |
 | alt text | figures/journal/supplement/F5_alt_text.txt | 138b6f90510b9d72715f40b92f6a30154de18c11f68945a05f0bba8e4fe6aa1c |
-| supplement | figures/journal/supplement/F5_supplement.md | 2fc48f8da3ab7cb5fe4d9f90d2381aa15e32080b28e2a3d0a2b4dadeb696ef40 |
+| supplement | figures/journal/supplement/F5_supplement.md | 5337ba3255a32ea5d650d45866ac9e644b3609420a0af5e4b0ca982aaa7eb95d |
 | source data csv | figures/journal/supplement/F5_source_data.csv | f9b85fa88df3c14b1e1c577944dcea688f61c081b0df0d2614b295c013d3a40a |
 
-- Build commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a.
+- Build commit: 90b177acc694de0b9756542f236977d782f185e1 (MS15a 19; draft false, dirty false; the v1 build commit was 5e9057563c6c24fbac16b99000e547d08ef9a31a).
 - Drawn-data digest of the journal figure: 4a32b1c3061260eaf9defd322a6a3304ce2b190468459a338cf9f9b5849de2c8; draft F5: 4a32b1c3061260eaf9defd322a6a3304ce2b190468459a338cf9f9b5849de2c8; equal: yes. Verifier: PASS - 4a32b1c30612... export 4a32b1c30612 draft 4a32b1c30612; PASS - 44 of the 62 arrays of the draft data, per-array digests equal.
 - Independent comparison (this run): journal caption (34, 34, 0, 0) and short caption (5, 5, 0, 0) as (quantities, equal, not equal, unresolved); draft rows of F5 (shared by the parts of a split figure): equal 143, other 22 (rows without a comparison are not counted as equal).
 - Verifier rows for F5 (this run): 44 PASS, 0 FAIL, 1 MANUAL (the MANUAL row is the colour-vision check of the user).
@@ -221,10 +221,10 @@ Draft audit copy: F5 (figures/F5/); the journal files are the main versions.
 | caption short | figures/journal/F5c/F5c_journal_caption.txt | 1b236dd5e2dd0f120d5c2b2b6f6c9a2ee081cb22462b0497412357a24f956470 |
 | caption full | figures/journal/F5c/F5c_journal_caption_full.txt | af19a27d0a6d330857e26177fff4b574533d2b9c9f6e5bbceaf9154d90c5ad45 |
 | alt text | figures/journal/supplement/F5c_alt_text.txt | 23259e68c54e6835096fcc6dd9018b17c24eef1a434969285edfebc19b31c6af |
-| supplement | figures/journal/supplement/F5c_supplement.md | 165e7ee140b43ea75d110c814fd4c31ab7b2ee572ef1be8ff0993300d823e7ca |
+| supplement | figures/journal/supplement/F5c_supplement.md | e1e71ef254972ab2acd21f501ad882fe89306b9dbde0a2183953bee54c958b85 |
 | source data csv | figures/journal/supplement/F5c_source_data.csv | 08311e6599724eb7ddd34540ace405d6576121024bf27abb8ee9714fe205caee |
 
-- Build commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a.
+- Build commit: 90b177acc694de0b9756542f236977d782f185e1 (MS15a 19; draft false, dirty false; the v1 build commit was 5e9057563c6c24fbac16b99000e547d08ef9a31a).
 - Drawn-data digest of the journal figure: 4a32b1c3061260eaf9defd322a6a3304ce2b190468459a338cf9f9b5849de2c8; draft F5: 4a32b1c3061260eaf9defd322a6a3304ce2b190468459a338cf9f9b5849de2c8; equal: yes. Verifier: PASS - 4a32b1c30612... export 4a32b1c30612 draft 4a32b1c30612; PASS - 22 of the 62 arrays of the draft data, per-array digests equal.
 - Independent comparison (this run): journal caption (16, 16, 0, 0) and short caption (8, 8, 0, 0) as (quantities, equal, not equal, unresolved); draft rows of F5 (shared by the parts of a split figure): equal 143, other 22 (rows without a comparison are not counted as equal).
 - Verifier rows for F5c (this run): 44 PASS, 0 FAIL, 1 MANUAL (the MANUAL row is the colour-vision check of the user).
@@ -254,10 +254,10 @@ Draft audit copy: F6 (figures/F6/); the journal files are the main versions.
 | caption short | figures/journal/F6/F6_journal_caption.txt | a0d3f4aa4e0dbe5d876a08be670b087b366ebabc97f797b2ac83bd9c742a0628 |
 | caption full | figures/journal/F6/F6_journal_caption_full.txt | 3b4354f0fc560114045c764eb951f618ac3fd65a354326f0a0c6fcd899d1974d |
 | alt text | figures/journal/supplement/F6_alt_text.txt | 6eaf2af0b52c296518336d57ca7ca4d67b63474b4cc3f4370da4543589e32ebd |
-| supplement | figures/journal/supplement/F6_supplement.md | e314b955dc8d4fd360fad873ad3d00c12386556b5ef7ca24eaa3088a7a8f8d19 |
+| supplement | figures/journal/supplement/F6_supplement.md | dda2d91f11d416169ca51240ecfac116e8b4544ba5bffe19d02b7a658bb16a67 |
 | source data csv | figures/journal/supplement/F6_source_data.csv | a911c78a1dd193601050abb73b08178b9fdeddaca645b7e8bb8982d13b61fdd7 |
 
-- Build commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a.
+- Build commit: 90b177acc694de0b9756542f236977d782f185e1 (MS15a 19; draft false, dirty false; the v1 build commit was 5e9057563c6c24fbac16b99000e547d08ef9a31a).
 - Drawn-data digest of the journal figure: 4dafe2ab2f5ee3c2b505f82d4f50a3a8b96a9bb1c9cdfb5379b7a3e6f7e2c532; draft F6: 4dafe2ab2f5ee3c2b505f82d4f50a3a8b96a9bb1c9cdfb5379b7a3e6f7e2c532; equal: yes. Verifier: PASS - 4dafe2ab2f5e... export 4dafe2ab2f5e draft 4dafe2ab2f5e; PASS - 28 of the 28 arrays of the draft data, per-array digests equal.
 - Independent comparison (this run): journal caption (19, 19, 0, 0) and short caption (5, 5, 0, 0) as (quantities, equal, not equal, unresolved); draft rows of F6 (shared by the parts of a split figure): equal 23, other 7 (rows without a comparison are not counted as equal).
 - Verifier rows for F6 (this run): 44 PASS, 0 FAIL, 1 MANUAL (the MANUAL row is the colour-vision check of the user).
@@ -287,10 +287,10 @@ Draft audit copy: FS1 (figures/FS1/); the journal files are the main versions.
 | caption short | figures/journal/FS1/FS1_journal_caption.txt | 3a5cedd2157555a5bb93d252bd4bb30da58b2f598f98052669e8aa114067b0ec |
 | caption full | figures/journal/FS1/FS1_journal_caption_full.txt | e9e97fe15a532c191d4654a73772da370a182053cb8d490d1d93d36ebc886a73 |
 | alt text | figures/journal/supplement/FS1_alt_text.txt | 74bab08bee4407ccdff7eb49eaeb02cdbdf2f0f1801de536a886f1fd45a4f2d0 |
-| supplement | figures/journal/supplement/FS1_supplement.md | 39c6ad94e45c64a4e04ccf905f0a47a9a5bedb02da4567e613557101abcbf11d |
+| supplement | figures/journal/supplement/FS1_supplement.md | bd222b621f092a064d66a472e8f064d9d07476c45c5933b3d4c9085203f59907 |
 | source data csv | figures/journal/supplement/FS1_source_data.csv | 49a55e21fd36dc6fb3ed0551becd99e198443ce3cf70bdb0e494a6d909613b77 |
 
-- Build commit: f5d3f0d8858c5c523f53985bba36dbb3fca77fe7 (13x, DL-716 to DL-721; the other figures: 5e9057563c6c24fbac16b99000e547d08ef9a31a; provenance dirty = false). The FS1 caption (short and full), alt text and supplement were rewritten for the rulings X1 and X2 (old hashes: short 35465cf1d2ebb1790e91e1fa92ec96430a803702a397c06bc631dc1be9766e06, full 984e64698cbd97aab32c0f60ba2963447bddf1742c3e445ac835ed7dda17f8e6, alt text 4ca9f417fc258ad74e44f2c6788a1639cf58466546a5ddbd85c9927045696cb8, supplement 03495083e08e43f8b4052035c151db41d3c65f36cfb9a45b8cf2b198072cbfd8); PNG, TIFF, PDF and source data are byte-identical to the 13t-11 build; the supplement also differs in its build-commit line and its provenance-file hash.
+- Build commit: 90b177acc694de0b9756542f236977d782f185e1 (MS15a 19, rebuilt from R like the other twelve figures; draft false, dirty false). The v1 build commit of FS1 was f5d3f0d8858c5c523f53985bba36dbb3fca77fe7 (13x, DL-716 to DL-721; the other v1 figures: 5e9057563c6c24fbac16b99000e547d08ef9a31a; provenance dirty = false). What follows describes the 13x rewrite and stays as written; its supplement hash below is the supplement of the 19 build, not the 13x supplement. The FS1 caption (short and full), alt text and supplement were rewritten for the rulings X1 and X2 (old hashes: short 35465cf1d2ebb1790e91e1fa92ec96430a803702a397c06bc631dc1be9766e06, full 984e64698cbd97aab32c0f60ba2963447bddf1742c3e445ac835ed7dda17f8e6, alt text 4ca9f417fc258ad74e44f2c6788a1639cf58466546a5ddbd85c9927045696cb8, supplement 03495083e08e43f8b4052035c151db41d3c65f36cfb9a45b8cf2b198072cbfd8); PNG, TIFF, PDF and source data are byte-identical to the 13t-11 build; the supplement also differs in its build-commit line and its provenance-file hash.
 - Drawn-data digest of the journal figure: e19ae701c594421531ac81fa79814d5099451e189a04d378f7117f4df642f9b0; draft FS1: e19ae701c594421531ac81fa79814d5099451e189a04d378f7117f4df642f9b0; equal: yes. Verifier: PASS - e19ae701c594... export e19ae701c594 draft e19ae701c594; PASS - 60 of the 60 arrays of the draft data, per-array digests equal.
 - Independent comparison (this run): journal caption (8, 8, 0, 0) and short caption (8, 8, 0, 0) as (quantities, equal, not equal, unresolved); draft rows of FS1 (shared by the parts of a split figure): equal 21, other 0 (rows without a comparison are not counted as equal).
 - Verifier rows for FS1 (this run): 44 PASS, 0 FAIL, 1 MANUAL (the MANUAL row is the colour-vision check of the user).
@@ -319,10 +319,10 @@ Draft audit copy: FS2 (figures/FS2/); the journal files are the main versions.
 | pdf | figures/journal/FS2/FS2_journal.pdf | deb2dce329bf58689143500b2eb53791cdf0fcc278d9a38c4fbd05e2b00048f2 |
 | caption (single) | figures/journal/FS2/FS2_journal_caption.txt | 38675e45b334c9a90365204abfc03625a554cedaccfaa4d2d872fbadac98aff0 |
 | alt text | figures/journal/supplement/FS2_alt_text.txt | 82eb6c25cb60bd23195a821d639dccb86aecaedac77593a60db05449eb284b85 |
-| supplement | figures/journal/supplement/FS2_supplement.md | cd4444c8d7235946930ad16e012bf7c560702ad0ce5bf2c9cfb4f85523579eb2 |
+| supplement | figures/journal/supplement/FS2_supplement.md | b3be92cfaf15332c3610b753cf89390cb96ed7bfb22bcf9071d2cc20932db691 |
 | source data csv | figures/journal/supplement/FS2_source_data.csv | 246d51e12e6e32916d2dae4f8842b2c7e9d124bc0037b78b747ea7bdf9af453f |
 
-- Build commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a.
+- Build commit: 90b177acc694de0b9756542f236977d782f185e1 (MS15a 19; draft false, dirty false; the v1 build commit was 5e9057563c6c24fbac16b99000e547d08ef9a31a).
 - Drawn-data digest of the journal figure: 72fc4361202cb4d18a344f1186d7651788771ff7ab53d6c3621d1793f6f262af; draft FS2: 72fc4361202cb4d18a344f1186d7651788771ff7ab53d6c3621d1793f6f262af; equal: yes. Verifier: PASS - 72fc4361202c... export 72fc4361202c draft 72fc4361202c; PASS - 97 of the 97 arrays of the draft data, per-array digests equal.
 - Independent comparison (this run): journal caption (10, 10, 0, 0) and short caption (0, 0, 0, 0) as (quantities, equal, not equal, unresolved); draft rows of FS2 (shared by the parts of a split figure): equal 15, other 0 (rows without a comparison are not counted as equal).
 - Verifier rows for FS2 (this run): 44 PASS, 0 FAIL, 1 MANUAL (the MANUAL row is the colour-vision check of the user).
@@ -351,10 +351,10 @@ Draft audit copy: FS3 (figures/FS3/); the journal files are the main versions.
 | pdf | figures/journal/FS3/FS3_journal.pdf | d0bbab4e41513d489eeda8a852ed5c5cb890fb669db5eb37f2013fd7ba32ec67 |
 | caption (single) | figures/journal/FS3/FS3_journal_caption.txt | 3252559faebc4d188a84a82326812d117f984476dd1f48ffb1c37276ad279204 |
 | alt text | figures/journal/supplement/FS3_alt_text.txt | 4c0fb76afd3623dceb993cc80d27581c126cbe2cb49e11e0e0bc7730a9bca534 |
-| supplement | figures/journal/supplement/FS3_supplement.md | fdfeec8903ab98354bbf39f402e085585726d0709dad16abdfd66325c3d71000 |
+| supplement | figures/journal/supplement/FS3_supplement.md | 738b3278a13e1dd070f33f3de0ac018785fb3352d3c8ce265fff956fefa4d634 |
 | source data csv | figures/journal/supplement/FS3_source_data.csv | 070e6157d6ee86d71cc4c38dea99da2227ac16b960e9c33290fb1f7af97295e1 |
 
-- Build commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a.
+- Build commit: 90b177acc694de0b9756542f236977d782f185e1 (MS15a 19; draft false, dirty false; the v1 build commit was 5e9057563c6c24fbac16b99000e547d08ef9a31a).
 - Drawn-data digest of the journal figure: 93bf2508cc3233ed14a75d7b8b8266e12f895d91725477511fa532bd9b57b258; draft FS3: 93bf2508cc3233ed14a75d7b8b8266e12f895d91725477511fa532bd9b57b258; equal: yes. Verifier: PASS - 93bf2508cc32... export 93bf2508cc32 draft 93bf2508cc32; PASS - 40 of the 40 arrays of the draft data, per-array digests equal.
 - Independent comparison (this run): journal caption (18, 18, 0, 0) and short caption (0, 0, 0, 0) as (quantities, equal, not equal, unresolved); draft rows of FS3 (shared by the parts of a split figure): equal 49, other 3 (rows without a comparison are not counted as equal).
 - Verifier rows for FS3 (this run): 44 PASS, 0 FAIL, 1 MANUAL (the MANUAL row is the colour-vision check of the user).
@@ -383,10 +383,10 @@ Draft audit copy: FS4 (figures/FS4/); the journal files are the main versions.
 | pdf | figures/journal/FS4/FS4_journal.pdf | 2065eb833c14f1c5f01f29b92ea2955903efbad50e96944dc70022c8a40a491f |
 | caption (single) | figures/journal/FS4/FS4_journal_caption.txt | 73278db1e62918342d3ab4101b2ae6448a4cc804d0ca161beb629ce99b1bad12 |
 | alt text | figures/journal/supplement/FS4_alt_text.txt | e94c36c49f6fb8eb07de832ec0d2d7aaf39fd418233f4bd565f26624ebbe7a53 |
-| supplement | figures/journal/supplement/FS4_supplement.md | d3d8290675c87525b5c40eaec778d063a2be81ed22e074c8391d1b625e17ef5f |
+| supplement | figures/journal/supplement/FS4_supplement.md | 1d0bddce824b893d86bc0a11af018cb3eeba2c3333824f97b7d8ba7ef9333503 |
 | source data csv | figures/journal/supplement/FS4_source_data.csv | f168b0c87a92b1d08171ff06c91b8f726de6189af75e5f3aae7e3082ec19c3b4 |
 
-- Build commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a.
+- Build commit: 90b177acc694de0b9756542f236977d782f185e1 (MS15a 19; draft false, dirty false; the v1 build commit was 5e9057563c6c24fbac16b99000e547d08ef9a31a).
 - Drawn-data digest of the journal figure: 188b383f47b2cb6a75d8e5565ed7bfac86804f4a745c41fe915ebc70038edd6d; draft FS4: 188b383f47b2cb6a75d8e5565ed7bfac86804f4a745c41fe915ebc70038edd6d; equal: yes. Verifier: PASS - 188b383f47b2... export 188b383f47b2 draft 188b383f47b2; PASS - 36 of the 36 arrays of the draft data, per-array digests equal.
 - Independent comparison (this run): journal caption (18, 18, 0, 0) and short caption (0, 0, 0, 0) as (quantities, equal, not equal, unresolved); draft rows of FS4 (shared by the parts of a split figure): equal 10, other 18 (rows without a comparison are not counted as equal).
 - Verifier rows for FS4 (this run): 44 PASS, 0 FAIL, 1 MANUAL (the MANUAL row is the colour-vision check of the user).
@@ -415,10 +415,10 @@ Draft audit copy: FS5 (figures/FS5/); the journal files are the main versions.
 | pdf | figures/journal/FS5/FS5_journal.pdf | 1aa2437af1d64dada969a12fa5bc2186c8c77ffecad012ab75c55a0229425460 |
 | caption (single) | figures/journal/FS5/FS5_journal_caption.txt | b5adab6a2005fd99b1c855616fc6d6c6fc09bf3de58a2b66bd242fdee02b8b8f |
 | alt text | figures/journal/supplement/FS5_alt_text.txt | 55a35abedfa251de2fd52c9bdeb2609400af32854c8a9a37c89ef56bb38b507b |
-| supplement | figures/journal/supplement/FS5_supplement.md | fd983284aafeedb0e012bc946a11471cd909ed3567d6afa80b5b1e57d2d9f895 |
+| supplement | figures/journal/supplement/FS5_supplement.md | ce4771ee310c2a254c531427519779fc36091ffca25c4c829fd6d3e41a02c534 |
 | source data csv | figures/journal/supplement/FS5_source_data.csv | 927f43ba0e6fbd1d2e7518d42a58dccdbfd8934e1a1015ee9b138bfab81cc9b6 |
 
-- Build commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a.
+- Build commit: 90b177acc694de0b9756542f236977d782f185e1 (MS15a 19; draft false, dirty false; the v1 build commit was 5e9057563c6c24fbac16b99000e547d08ef9a31a).
 - Drawn-data digest of the journal figure: 66238f8b7f480cf98b6ed4d76f9ec52f6f1cb81802622076ef7f733fac8d31a5; draft FS5: 66238f8b7f480cf98b6ed4d76f9ec52f6f1cb81802622076ef7f733fac8d31a5; equal: yes. Verifier: PASS - 66238f8b7f48... export 66238f8b7f48 draft 66238f8b7f48; PASS - 52 of the 52 arrays of the draft data, per-array digests equal.
 - Independent comparison (this run): journal caption (15, 15, 0, 0) and short caption (0, 0, 0, 0) as (quantities, equal, not equal, unresolved); draft rows of FS5 (shared by the parts of a split figure): equal 28, other 1 (rows without a comparison are not counted as equal).
 - Verifier rows for FS5 (this run): 44 PASS, 0 FAIL, 1 MANUAL (the MANUAL row is the colour-vision check of the user).
@@ -442,6 +442,8 @@ Open close items that touch it (docs/ms13_close_items.md, section L): 45 (accept
 13u (user said "tag", DL-723) makes 13 annotated local tags with scripts/ms13_make_tags.py: fig-F1-v1, fig-F2-v1, fig-F3-v1, fig-F4a-v1, fig-F4b-v1, fig-F5-v1, fig-F5c-v1, fig-F6-v1, fig-FS1-v1, fig-FS2-v1, fig-FS3-v1, fig-FS4-v1, fig-FS5-v1 (the plan's pattern fig-<ID>-v<k>, plan section 10.7, with k = 1). All 13 point at the one final commit of 13u; the tags name it (git rev-parse fig-F1-v1^{commit}). This sheet was committed BEFORE the tags were created: whether they exist is shown by `git tag -l 'fig-*'` and by `python scripts/ms13_make_tags.py --verify`, not by this sentence. Each tag message carries the figure id, the venue (Peer Community Journal), the build commit, the drawn-data digest, the criteria tag and criteria SHA-256, the decision-log range DL-698 to the last entry, and the file/hash lines of this figure copied from docs/ms13_journal_final_hashes.txt (PNG, TIFF, PDF, short and full caption or the single caption, alt text, supplement, source-data CSV). The figure files are git-ignored outputs (figures/) and are NOT in a tagged tree; the hash list is. Journal files are the main versions; the drafts are audit copies and are not tagged. Nothing is pushed, uploaded or signed. Tags that existed before: criteria-frozen, env-v1, replication-pass, tolerances-frozen (none of them is a figure tag; not touched). Close items open at tag time: 49 to 53 and 55 to 57 (docs/ms13_close.md section 6); a later fix gets a new version (v2) and the v1 tag stays.
 
 Result (added by hand in sub-step 14, DL-727, read from git on 2026-11-10; scripts/ms13_evidence_sheet.py is unchanged, so a regeneration of this sheet would not carry this paragraph): the 13 tags exist, all annotated and local only; each points at e6666cb2e8120a1619527c5ee7fce01e1beedb55 (the 13u commit that added DL-726; the commits of sub-step 14 come after it and are documents only); docs/ms13_journal_final_hashes.txt read from each tag's tree has SHA-256 a4877868016eed42f0551f00e7b182c81b49624db4006116e81c15fa627ae77f, equal to the working copy and to the list this sheet copies; `git ls-tree` shows 0 paths under figures/ in each tag's tree (the figure files are NOT in a tagged tree, as stated above); the 100 file/hash lines of the 13 tag messages equal the list (scripts/ms13_make_tags.py --verify, 13 of 13; once HEAD has moved on, run it with --target e6666cb2e8120a1619527c5ee7fce01e1beedb55, because its default target is HEAD); the four older tags are unchanged. The figure files exist only on this machine until backed up and until the Zenodo record (MS15). Since tag time, two statements of the user of 2026-11-10 (statements only, no file): the manual colour-vision check on the pilot sheet was done and is fine (close item 56 closed as user-reported; which figures and which tool were used is not stored, and coverage of the 13 final PNGs is UNVERIFIED); the F2 journal figure was looked at at full size and is fine (a claim of an outside AI that its right margin is clipped or double-rendered is not supported by that look or by the verifier's margin and collision rows; closed non-finding). Open close items now: 49, 50, 51, 52, 53, 55 and 57.
+
+Update of sub-step 19 (MS15a part 2a; added by hand, DL-743; scripts/ms13_evidence_sheet.py is unchanged): the user ruled option B of docs/ms15_draft_flag_notes.md (rebuild the 13 journal figures from one clean commit, DL-738). The 13 figures were rebuilt once from R = 90b177acc694de0b9756542f236977d782f185e1 (DL-741, DL-742): draft false, dirty false, git.tags [] in all 13 provenance records; the PNG, TIFF and PDF of every figure, the short and full captions (single caption for FS2 to FS5), the alt texts and the source-data CSVs are byte-identical to v1; the supplements and provenance records changed (build commit, draft flag, provenance-file hash). The 13 tags fig-<ID>-v1 are NOT moved or changed (they point at e6666cb2e8120a1619527c5ee7fce01e1beedb55); their messages hold the v1 supplement hashes, so for the supplements they describe the v1 files and are superseded. The tags fig-<ID>-v2 and release-v1.0 are PLANNED for step 20 and do NOT exist when this paragraph is written (`git tag -l 'fig-*-v2' 'release-*'` prints nothing). The v1 files of the figure folders are kept outside the repository in C:\dev\_journal_v1_backup (145 files, 102,738,717 bytes; listing with full SHA-256 in listing_sha256.txt there).
 
 ## Drafts
 

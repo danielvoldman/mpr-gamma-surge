@@ -3236,5 +3236,21 @@
     "proof": "scripts/ms13_check_hashes.py (this run): 104 manifest rows, 0 problems; the PNG, TIFF and PDF of the 13 figures equal docs/ms13_journal_final_hashes.txt"
    }
   }
- ]
+ ],
+ "ms15a_19_checklist_10_8_item_6": {
+  "plan_wording": "Every provenance file names the release commit and none is marked DRAFT. (plan docs/plan.md line 1284, section 10.8, item 6)",
+  "note": "MS15a 19 (DL-738 D6, DL-743 S-5): this file has no item for plan checklist 10.8 item 6, so none is added or changed (the 13v re-check file would have to be regenerated and the status counts would change); the evidence is recorded here instead. Status: MET for the 13 journal provenance records under the user-ruled option B (rebuild from one clean commit); NOT claimed for the eleven drafts, which are audit copies and stay draft = true; the meaning of 'release commit' is UNVERIFIED (the plan does not define it): here it is read as the clean build commit R, with release-v1.0 and the v2 tags to be placed on R plus later commits (step 20 shows what differs).",
+  "build_commit_R": "90b177acc694de0b9756542f236977d782f185e1",
+  "evidence": {
+   "records": "figures/journal/<ID>/<ID>_journal_provenance.json for F1, F2, F3, F4a, F4b, F5, F5c, F6, FS1, FS2, FS3, FS4, FS5 (git-ignored; read: draft false, git.dirty false, git.commit R, git.tags [], status ok for all 13; figprov.verify_figure_provenance 0 problems for all 13)",
+   "decision_log": "docs/decision_log.md DL-741 (R recorded before the build), DL-742 (results, hashes old and new)",
+   "hash_list": "docs/ms13_journal_final_hashes.txt ('built from commit' lines name R for all 13)",
+   "code": "scripts/fig_journal.py --release; src/mprsurge/plotting/journal.py build_kind and write_supplement(draft=); src/mprsurge/plotting/figures.py _journal_tail; tests/test_ms15a_draft_flag.py"
+  },
+  "not_shown": [
+   "that release-v1.0 or the v2 tags exist (they do not; step 20)",
+   "that the plan's 'release commit' means R (UNVERIFIED)",
+   "journal.draft_footer_text in each record and the 'Footer of the draft' section of each supplement still quote the footer of the DRAFT figure (audit copies); not changed"
+  ]
+ }
 }

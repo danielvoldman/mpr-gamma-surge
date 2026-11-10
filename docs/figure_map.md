@@ -2,25 +2,25 @@
 
 Written for: readers of the release who want to know which file is which figure. Every hash is copied by script from docs/ms13_journal_final_hashes.txt (journal figures and drafts) and checked against docs/ms13_figure_manifest.csv (drafts); none is typed or recomputed here. The figure files themselves are git-ignored (figures/) and are not in any tagged tree; their SHA-256 hashes are here, in docs/ms13_journal_final_hashes.txt and in the tag messages.
 
-The journal files are the MAIN versions; the draft files (figures/<ID>/) are audit copies. F5 and F5c are two journal files of the draft F5; F4a and F4b are two journal files of the draft F4 (a departure from the plan's single figures, rulings T1 and K2 in docs/ms13_figure_rules.md). FS6 is not produced (user ruling of 2026-11-09, docs/ms13_close.md). The 'result families' column lists the folders under results/ read by the figure, from the git-ignored provenance record figures/journal/<ID>/<ID>_journal_provenance.json (empty if that record is not on this machine). Tags: fig-<ID>-v1 for every journal figure (see README.md).
+The journal files are the MAIN versions; the draft files (figures/<ID>/) are audit copies. F5 and F5c are two journal files of the draft F5; F4a and F4b are two journal files of the draft F4 (a departure from the plan's single figures, rulings T1 and K2 in docs/ms13_figure_rules.md). FS6 is not produced (user ruling of 2026-11-09, docs/ms13_close.md). The 'result families' column lists the folders under results/ read by the figure, from the git-ignored provenance record figures/journal/<ID>/<ID>_journal_provenance.json (empty if that record is not on this machine). Tags: fig-<ID>-v1 exists for every journal figure and describes the v1 files (superseded); fig-<ID>-v2 is planned for the files listed here and is not created (see README.md).
 
 ## 1. The 13 journal figures
 
 | Journal figure (short name) | Draft counterpart | Main files | Result families read | Build commit | Tag |
 | --- | --- | --- | --- | --- | --- |
-| F1 | F1 | `figures/journal/F1/F1_journal.png`<br>`figures/journal/F1/F1_journal.tiff` | A11, A8, S5, S8, ms10 | `5e9057563c6c24fbac16b99000e547d08ef9a31a` | fig-F1-v1 |
-| F2 | F2 | `figures/journal/F2/F2_journal.png`<br>`figures/journal/F2/F2_journal.tiff` | A11, A5, S4 | `5e9057563c6c24fbac16b99000e547d08ef9a31a` | fig-F2-v1 |
-| F3 | F3 | `figures/journal/F3/F3_journal.png`<br>`figures/journal/F3/F3_journal.tiff` | A11, A4, A6, S5, S6 | `5e9057563c6c24fbac16b99000e547d08ef9a31a` | fig-F3-v1 |
-| F4a | F4 | `figures/journal/F4a/F4a_journal.png`<br>`figures/journal/F4a/F4a_journal.tiff` | A11, A3, A4, A7, S13, S5 | `5e9057563c6c24fbac16b99000e547d08ef9a31a` | fig-F4a-v1 |
-| F4b | F4 | `figures/journal/F4b/F4b_journal.png`<br>`figures/journal/F4b/F4b_journal.tiff` | A11, A3, A4, A7, S13, S5 | `5e9057563c6c24fbac16b99000e547d08ef9a31a` | fig-F4b-v1 |
-| F5 | F5 | `figures/journal/F5/F5_journal.png`<br>`figures/journal/F5/F5_journal.tiff` | A11, A9, S5, S8, S9, ms10 | `5e9057563c6c24fbac16b99000e547d08ef9a31a` | fig-F5-v1 |
-| F5c | F5 | `figures/journal/F5c/F5c_journal.png`<br>`figures/journal/F5c/F5c_journal.tiff` | A11, A9, S5, S8, S9, ms10 | `5e9057563c6c24fbac16b99000e547d08ef9a31a` | fig-F5c-v1 |
-| F6 | F6 | `figures/journal/F6/F6_journal.png`<br>`figures/journal/F6/F6_journal.tiff` | A10, A11, A7, A9, S12, S6 | `5e9057563c6c24fbac16b99000e547d08ef9a31a` | fig-F6-v1 |
-| FS1 | FS1 | `figures/journal/FS1/FS1_journal.png`<br>`figures/journal/FS1/FS1_journal.tiff` | A0, A1, A2, S1 | `f5d3f0d8858c5c523f53985bba36dbb3fca77fe7` | fig-FS1-v1 |
-| FS2 | FS2 | `figures/journal/FS2/FS2_journal.png`<br>`figures/journal/FS2/FS2_journal.tiff` | A4, A5, A6, S3 | `5e9057563c6c24fbac16b99000e547d08ef9a31a` | fig-FS2-v1 |
-| FS3 | FS3 | `figures/journal/FS3/FS3_journal.png`<br>`figures/journal/FS3/FS3_journal.tiff` | A11, S10, S11, S9, ms10 | `5e9057563c6c24fbac16b99000e547d08ef9a31a` | fig-FS3-v1 |
-| FS4 | FS4 | `figures/journal/FS4/FS4_journal.png`<br>`figures/journal/FS4/FS4_journal.tiff` | A11, A7, S13 | `5e9057563c6c24fbac16b99000e547d08ef9a31a` | fig-FS4-v1 |
-| FS5 | FS5 | `figures/journal/FS5/FS5_journal.png`<br>`figures/journal/FS5/FS5_journal.tiff` | A11, A6, A8 | `5e9057563c6c24fbac16b99000e547d08ef9a31a` | fig-FS5-v1 |
+| F1 | F1 | `figures/journal/F1/F1_journal.png`<br>`figures/journal/F1/F1_journal.tiff` | A11, A8, S5, S8, ms10 | `90b177acc694de0b9756542f236977d782f185e1` | fig-F1-v1 (v2 planned: fig-F1-v2, not created) |
+| F2 | F2 | `figures/journal/F2/F2_journal.png`<br>`figures/journal/F2/F2_journal.tiff` | A11, A5, S4 | `90b177acc694de0b9756542f236977d782f185e1` | fig-F2-v1 (v2 planned: fig-F2-v2, not created) |
+| F3 | F3 | `figures/journal/F3/F3_journal.png`<br>`figures/journal/F3/F3_journal.tiff` | A11, A4, A6, S5, S6 | `90b177acc694de0b9756542f236977d782f185e1` | fig-F3-v1 (v2 planned: fig-F3-v2, not created) |
+| F4a | F4 | `figures/journal/F4a/F4a_journal.png`<br>`figures/journal/F4a/F4a_journal.tiff` | A11, A3, A4, A7, S13, S5 | `90b177acc694de0b9756542f236977d782f185e1` | fig-F4a-v1 (v2 planned: fig-F4a-v2, not created) |
+| F4b | F4 | `figures/journal/F4b/F4b_journal.png`<br>`figures/journal/F4b/F4b_journal.tiff` | A11, A3, A4, A7, S13, S5 | `90b177acc694de0b9756542f236977d782f185e1` | fig-F4b-v1 (v2 planned: fig-F4b-v2, not created) |
+| F5 | F5 | `figures/journal/F5/F5_journal.png`<br>`figures/journal/F5/F5_journal.tiff` | A11, A9, S5, S8, S9, ms10 | `90b177acc694de0b9756542f236977d782f185e1` | fig-F5-v1 (v2 planned: fig-F5-v2, not created) |
+| F5c | F5 | `figures/journal/F5c/F5c_journal.png`<br>`figures/journal/F5c/F5c_journal.tiff` | A11, A9, S5, S8, S9, ms10 | `90b177acc694de0b9756542f236977d782f185e1` | fig-F5c-v1 (v2 planned: fig-F5c-v2, not created) |
+| F6 | F6 | `figures/journal/F6/F6_journal.png`<br>`figures/journal/F6/F6_journal.tiff` | A10, A11, A7, A9, S12, S6 | `90b177acc694de0b9756542f236977d782f185e1` | fig-F6-v1 (v2 planned: fig-F6-v2, not created) |
+| FS1 | FS1 | `figures/journal/FS1/FS1_journal.png`<br>`figures/journal/FS1/FS1_journal.tiff` | A0, A1, A2, S1 | `90b177acc694de0b9756542f236977d782f185e1` | fig-FS1-v1 (v2 planned: fig-FS1-v2, not created) |
+| FS2 | FS2 | `figures/journal/FS2/FS2_journal.png`<br>`figures/journal/FS2/FS2_journal.tiff` | A4, A5, A6, S3 | `90b177acc694de0b9756542f236977d782f185e1` | fig-FS2-v1 (v2 planned: fig-FS2-v2, not created) |
+| FS3 | FS3 | `figures/journal/FS3/FS3_journal.png`<br>`figures/journal/FS3/FS3_journal.tiff` | A11, S10, S11, S9, ms10 | `90b177acc694de0b9756542f236977d782f185e1` | fig-FS3-v1 (v2 planned: fig-FS3-v2, not created) |
+| FS4 | FS4 | `figures/journal/FS4/FS4_journal.png`<br>`figures/journal/FS4/FS4_journal.tiff` | A11, A7, S13 | `90b177acc694de0b9756542f236977d782f185e1` | fig-FS4-v1 (v2 planned: fig-FS4-v2, not created) |
+| FS5 | FS5 | `figures/journal/FS5/FS5_journal.png`<br>`figures/journal/FS5/FS5_journal.tiff` | A11, A6, A8 | `90b177acc694de0b9756542f236977d782f185e1` | fig-FS5-v1 (v2 planned: fig-FS5-v2, not created) |
 
 ## 2. Journal files with full SHA-256
 
@@ -32,7 +32,7 @@ The journal files are the MAIN versions; the draft files (figures/<ID>/) are aud
 | F1 | caption short | `figures/journal/F1/F1_journal_caption.txt` | `8ffbb816f42c0611539ab774a1d37ca5fc89d8e8efe372407de3ad15a4e575a0` |
 | F1 | caption full | `figures/journal/F1/F1_journal_caption_full.txt` | `78e215ed6133e0e71cb856b20b9637ed067c4191f4598547b12a108e3cfcc427` |
 | F1 | alt text | `figures/journal/supplement/F1_alt_text.txt` | `780af815ca1f06a229ee943c2dd079aa2a7f7768e2082e1bb0d62130ff1216eb` |
-| F1 | supplement | `figures/journal/supplement/F1_supplement.md` | `3c0fe3efc63938f94fb0101c71bf53e31541e553a7d11c5acb445dbc062edfad` |
+| F1 | supplement | `figures/journal/supplement/F1_supplement.md` | `637b74d0d64d6e288b1349012a9e1037e5969074fea1b9529961edccc3c9b8d0` |
 | F1 | source data csv | `figures/journal/supplement/F1_source_data.csv` | `67076c7ed61974de74acf58f40c1496552427a9a555a48a22878485fa4031496` |
 | F2 | png | `figures/journal/F2/F2_journal.png` | `b6fc7221f1d5dde094ac920ef773fced6d2aa7013f6abdfaebc1c94f32c10feb` |
 | F2 | tiff | `figures/journal/F2/F2_journal.tiff` | `1c283d9c88a6cd0f58df945b50d392b8c72d3cc871d173c9152184b8bd8177ab` |
@@ -40,7 +40,7 @@ The journal files are the MAIN versions; the draft files (figures/<ID>/) are aud
 | F2 | caption short | `figures/journal/F2/F2_journal_caption.txt` | `0e095ccb1a6230c333fb066abb7721e8869c0801e884cc013c5fd2858bb710a1` |
 | F2 | caption full | `figures/journal/F2/F2_journal_caption_full.txt` | `4d3e14050e3e316da382577f1d2aaf8b849d7308fd94c679ed1022120cba752a` |
 | F2 | alt text | `figures/journal/supplement/F2_alt_text.txt` | `5eab7c27cdf8d00eeacb0c933636c1d5e80a8d124d9d3bc3d786b6721af8a182` |
-| F2 | supplement | `figures/journal/supplement/F2_supplement.md` | `76b1a21b4a360c6e6a8fee61a7edd3395bc0d3aed06e511fa2786422f8580e20` |
+| F2 | supplement | `figures/journal/supplement/F2_supplement.md` | `5180f4706cda36a99722e35782bf76b399d3f5647f916e9f8dd621fe35828041` |
 | F2 | source data csv | `figures/journal/supplement/F2_source_data.csv` | `c85d3ba96a3881836673303e4c2e005ba1a114bd3ba305eadd56c5561fd4ceda` |
 | F3 | png | `figures/journal/F3/F3_journal.png` | `658880b296d0212373732b51d3febc6bbf8284cd73f91cdafd001f5bfaef7026` |
 | F3 | tiff | `figures/journal/F3/F3_journal.tiff` | `e361e04c918d5503d78d7edd50bca8b1db00b29a47881152b66b5102bf548009` |
@@ -48,7 +48,7 @@ The journal files are the MAIN versions; the draft files (figures/<ID>/) are aud
 | F3 | caption short | `figures/journal/F3/F3_journal_caption.txt` | `a4417ff61fa1eefcfbb7119ca465749e469f16b153e0f9dca959ac756522af4c` |
 | F3 | caption full | `figures/journal/F3/F3_journal_caption_full.txt` | `35707c8addfe650921566c354858c1e601123594b812163e348bbefd1efe1cc1` |
 | F3 | alt text | `figures/journal/supplement/F3_alt_text.txt` | `5f372fc10cd59b8875fc7bf94416e719188c6298dff93cba5212521f1e1bf46f` |
-| F3 | supplement | `figures/journal/supplement/F3_supplement.md` | `2da270f167d7e07cd268bb3384ec4088e6828352c1e55d24ced0b44e4d693cfc` |
+| F3 | supplement | `figures/journal/supplement/F3_supplement.md` | `a086d83bc4c4b357180bf8b24744d894b81884891170fd0d20e9cb1406999bf5` |
 | F3 | source data csv | `figures/journal/supplement/F3_source_data.csv` | `566e3cce1dc40db8a2f19606b328df15d5e92b5bf01b09a351848c27553376c8` |
 | F4a | png | `figures/journal/F4a/F4a_journal.png` | `04ccdaa6b557706e39b5b7c61501c6b2b982a9dfb642c00021dce033c4a27a5a` |
 | F4a | tiff | `figures/journal/F4a/F4a_journal.tiff` | `0a851b2c41e33d99d8ace33b16338e06371f01863547eaba43290cb346bc0640` |
@@ -56,7 +56,7 @@ The journal files are the MAIN versions; the draft files (figures/<ID>/) are aud
 | F4a | caption short | `figures/journal/F4a/F4a_journal_caption.txt` | `dae33a6d95948cfc9e13fdf0a1138c32d9034c14879cd1b211a2a22a32f1fd12` |
 | F4a | caption full | `figures/journal/F4a/F4a_journal_caption_full.txt` | `49d9abd3ef2a49a290a83d48026fa1c6f42b5c8297dff8ae106d73a238c74cd0` |
 | F4a | alt text | `figures/journal/supplement/F4a_alt_text.txt` | `f9442e9e7179381f277d341fc14f829af9dd6d833ed507c3a696183575e6c38b` |
-| F4a | supplement | `figures/journal/supplement/F4a_supplement.md` | `8fc2cca964b934190f7e92f03d9249fde7e59f28b8fd7569f467d9d82dbc0c68` |
+| F4a | supplement | `figures/journal/supplement/F4a_supplement.md` | `c8c0c7c52e4b68e94de5805cb842e1f4bd3fc13b2036a853b57a88ec79aa4b2c` |
 | F4a | source data csv | `figures/journal/supplement/F4a_source_data.csv` | `3ed1044723e2d81d8e461d6c5645e56c6a8bc1632061424da58cd30540d2d8e4` |
 | F4b | png | `figures/journal/F4b/F4b_journal.png` | `7b422e38e0f4f18cae984789b954fe082737467a3ea7c4168d4df061bfa71cd5` |
 | F4b | tiff | `figures/journal/F4b/F4b_journal.tiff` | `d74c0d3b7b4d4fd1fa1488a781e5d11e6c0c182e92b5fea79560f13b263a1e17` |
@@ -64,7 +64,7 @@ The journal files are the MAIN versions; the draft files (figures/<ID>/) are aud
 | F4b | caption short | `figures/journal/F4b/F4b_journal_caption.txt` | `0f69389498fe0c18bff96d2f00ab674ec5a258651f6178cbbd9eef6b1f17a79b` |
 | F4b | caption full | `figures/journal/F4b/F4b_journal_caption_full.txt` | `f942cb3a553ffb6192af6c42cbcdb77befe58fb1454a3e19ddd97b1d93c9c2b7` |
 | F4b | alt text | `figures/journal/supplement/F4b_alt_text.txt` | `f160cc94c120bad2f99bf6f990011a5e7c836d8b3071ebcc2a02549f89512905` |
-| F4b | supplement | `figures/journal/supplement/F4b_supplement.md` | `e5cada6f03dd577c50d8da97584efa070708486a6893f3b374db8212b7605e61` |
+| F4b | supplement | `figures/journal/supplement/F4b_supplement.md` | `2c87260ed01e4071d4ab263ab6aed2b5b4b1c09694ab2104e572552619e865c8` |
 | F4b | source data csv | `figures/journal/supplement/F4b_source_data.csv` | `b010899b118f38644c38a3728ea42e8358946847fd955397a18b5bdf6175dd58` |
 | F5 | png | `figures/journal/F5/F5_journal.png` | `22cc0dff3980a632738aa08609df5e70eff732a6d2d08a6bcbd58c5820095175` |
 | F5 | tiff | `figures/journal/F5/F5_journal.tiff` | `61d13b62c6a18134611512f29832b7feb3b99d4918ca41c8ddb17da2bd73ab78` |
@@ -72,7 +72,7 @@ The journal files are the MAIN versions; the draft files (figures/<ID>/) are aud
 | F5 | caption short | `figures/journal/F5/F5_journal_caption.txt` | `870baeb3459b258befcae0964642f67146cc351f790c83f6aa8579fdb7b7f2cc` |
 | F5 | caption full | `figures/journal/F5/F5_journal_caption_full.txt` | `5c1353b32c1b34949aa66e8d6ee32454ecb4e5f9ff7d4c3ecc08c9983ae20943` |
 | F5 | alt text | `figures/journal/supplement/F5_alt_text.txt` | `138b6f90510b9d72715f40b92f6a30154de18c11f68945a05f0bba8e4fe6aa1c` |
-| F5 | supplement | `figures/journal/supplement/F5_supplement.md` | `2fc48f8da3ab7cb5fe4d9f90d2381aa15e32080b28e2a3d0a2b4dadeb696ef40` |
+| F5 | supplement | `figures/journal/supplement/F5_supplement.md` | `5337ba3255a32ea5d650d45866ac9e644b3609420a0af5e4b0ca982aaa7eb95d` |
 | F5 | source data csv | `figures/journal/supplement/F5_source_data.csv` | `f9b85fa88df3c14b1e1c577944dcea688f61c081b0df0d2614b295c013d3a40a` |
 | F5c | png | `figures/journal/F5c/F5c_journal.png` | `84713c3349799febac4c0864fa97c65c40c170a534bc9ae5be44e7b17963017d` |
 | F5c | tiff | `figures/journal/F5c/F5c_journal.tiff` | `16ee475e738bb168f7372b3138c768da2727de632d68a7a4fb2a60a6cdab1168` |
@@ -80,7 +80,7 @@ The journal files are the MAIN versions; the draft files (figures/<ID>/) are aud
 | F5c | caption short | `figures/journal/F5c/F5c_journal_caption.txt` | `1b236dd5e2dd0f120d5c2b2b6f6c9a2ee081cb22462b0497412357a24f956470` |
 | F5c | caption full | `figures/journal/F5c/F5c_journal_caption_full.txt` | `af19a27d0a6d330857e26177fff4b574533d2b9c9f6e5bbceaf9154d90c5ad45` |
 | F5c | alt text | `figures/journal/supplement/F5c_alt_text.txt` | `23259e68c54e6835096fcc6dd9018b17c24eef1a434969285edfebc19b31c6af` |
-| F5c | supplement | `figures/journal/supplement/F5c_supplement.md` | `165e7ee140b43ea75d110c814fd4c31ab7b2ee572ef1be8ff0993300d823e7ca` |
+| F5c | supplement | `figures/journal/supplement/F5c_supplement.md` | `e1e71ef254972ab2acd21f501ad882fe89306b9dbde0a2183953bee54c958b85` |
 | F5c | source data csv | `figures/journal/supplement/F5c_source_data.csv` | `08311e6599724eb7ddd34540ace405d6576121024bf27abb8ee9714fe205caee` |
 | F6 | png | `figures/journal/F6/F6_journal.png` | `9b0e21a46a1f57a21324796b232854b192908d5dc5e8a3fc4843ad8c1537f025` |
 | F6 | tiff | `figures/journal/F6/F6_journal.tiff` | `e82667be656a99c42f4070ccc7b3544a9aa3b4c58e9f7146c9971002472effa7` |
@@ -88,7 +88,7 @@ The journal files are the MAIN versions; the draft files (figures/<ID>/) are aud
 | F6 | caption short | `figures/journal/F6/F6_journal_caption.txt` | `a0d3f4aa4e0dbe5d876a08be670b087b366ebabc97f797b2ac83bd9c742a0628` |
 | F6 | caption full | `figures/journal/F6/F6_journal_caption_full.txt` | `3b4354f0fc560114045c764eb951f618ac3fd65a354326f0a0c6fcd899d1974d` |
 | F6 | alt text | `figures/journal/supplement/F6_alt_text.txt` | `6eaf2af0b52c296518336d57ca7ca4d67b63474b4cc3f4370da4543589e32ebd` |
-| F6 | supplement | `figures/journal/supplement/F6_supplement.md` | `e314b955dc8d4fd360fad873ad3d00c12386556b5ef7ca24eaa3088a7a8f8d19` |
+| F6 | supplement | `figures/journal/supplement/F6_supplement.md` | `dda2d91f11d416169ca51240ecfac116e8b4544ba5bffe19d02b7a658bb16a67` |
 | F6 | source data csv | `figures/journal/supplement/F6_source_data.csv` | `a911c78a1dd193601050abb73b08178b9fdeddaca645b7e8bb8982d13b61fdd7` |
 | FS1 | png | `figures/journal/FS1/FS1_journal.png` | `e10a6825cd5edd6f351d1c2d9b108e55b3e24ada6f917fa7397faa06c034edb1` |
 | FS1 | tiff | `figures/journal/FS1/FS1_journal.tiff` | `c49127bf937be8d630390af003f0216b33a649c72035429acc000c4fb4e0a7f4` |
@@ -96,35 +96,35 @@ The journal files are the MAIN versions; the draft files (figures/<ID>/) are aud
 | FS1 | caption short | `figures/journal/FS1/FS1_journal_caption.txt` | `3a5cedd2157555a5bb93d252bd4bb30da58b2f598f98052669e8aa114067b0ec` |
 | FS1 | caption full | `figures/journal/FS1/FS1_journal_caption_full.txt` | `e9e97fe15a532c191d4654a73772da370a182053cb8d490d1d93d36ebc886a73` |
 | FS1 | alt text | `figures/journal/supplement/FS1_alt_text.txt` | `74bab08bee4407ccdff7eb49eaeb02cdbdf2f0f1801de536a886f1fd45a4f2d0` |
-| FS1 | supplement | `figures/journal/supplement/FS1_supplement.md` | `39c6ad94e45c64a4e04ccf905f0a47a9a5bedb02da4567e613557101abcbf11d` |
+| FS1 | supplement | `figures/journal/supplement/FS1_supplement.md` | `bd222b621f092a064d66a472e8f064d9d07476c45c5933b3d4c9085203f59907` |
 | FS1 | source data csv | `figures/journal/supplement/FS1_source_data.csv` | `49a55e21fd36dc6fb3ed0551becd99e198443ce3cf70bdb0e494a6d909613b77` |
 | FS2 | png | `figures/journal/FS2/FS2_journal.png` | `582566520dd2dbd5214162ad6b18945cd98ba09ddeff483eb45eb519e24b18ea` |
 | FS2 | tiff | `figures/journal/FS2/FS2_journal.tiff` | `272c17784c2e960a196e6f721b41a9841b71afd957328756c0005c404da64870` |
 | FS2 | pdf | `figures/journal/FS2/FS2_journal.pdf` | `deb2dce329bf58689143500b2eb53791cdf0fcc278d9a38c4fbd05e2b00048f2` |
 | FS2 | caption (single) | `figures/journal/FS2/FS2_journal_caption.txt` | `38675e45b334c9a90365204abfc03625a554cedaccfaa4d2d872fbadac98aff0` |
 | FS2 | alt text | `figures/journal/supplement/FS2_alt_text.txt` | `82eb6c25cb60bd23195a821d639dccb86aecaedac77593a60db05449eb284b85` |
-| FS2 | supplement | `figures/journal/supplement/FS2_supplement.md` | `cd4444c8d7235946930ad16e012bf7c560702ad0ce5bf2c9cfb4f85523579eb2` |
+| FS2 | supplement | `figures/journal/supplement/FS2_supplement.md` | `b3be92cfaf15332c3610b753cf89390cb96ed7bfb22bcf9071d2cc20932db691` |
 | FS2 | source data csv | `figures/journal/supplement/FS2_source_data.csv` | `246d51e12e6e32916d2dae4f8842b2c7e9d124bc0037b78b747ea7bdf9af453f` |
 | FS3 | png | `figures/journal/FS3/FS3_journal.png` | `01ed53e0912ad4daf34b8db00f5a480ab502c00a100d23863e31056c1d6256d0` |
 | FS3 | tiff | `figures/journal/FS3/FS3_journal.tiff` | `d62c5208111ff8977809f93cd17699501bfb7f021d7115278dfb3e7e460be8c2` |
 | FS3 | pdf | `figures/journal/FS3/FS3_journal.pdf` | `d0bbab4e41513d489eeda8a852ed5c5cb890fb669db5eb37f2013fd7ba32ec67` |
 | FS3 | caption (single) | `figures/journal/FS3/FS3_journal_caption.txt` | `3252559faebc4d188a84a82326812d117f984476dd1f48ffb1c37276ad279204` |
 | FS3 | alt text | `figures/journal/supplement/FS3_alt_text.txt` | `4c0fb76afd3623dceb993cc80d27581c126cbe2cb49e11e0e0bc7730a9bca534` |
-| FS3 | supplement | `figures/journal/supplement/FS3_supplement.md` | `fdfeec8903ab98354bbf39f402e085585726d0709dad16abdfd66325c3d71000` |
+| FS3 | supplement | `figures/journal/supplement/FS3_supplement.md` | `738b3278a13e1dd070f33f3de0ac018785fb3352d3c8ce265fff956fefa4d634` |
 | FS3 | source data csv | `figures/journal/supplement/FS3_source_data.csv` | `070e6157d6ee86d71cc4c38dea99da2227ac16b960e9c33290fb1f7af97295e1` |
 | FS4 | png | `figures/journal/FS4/FS4_journal.png` | `29407ccba41c5a8af2647440dc2205d4162b8ec3ae1a08c370a1b1d8dfa1aa00` |
 | FS4 | tiff | `figures/journal/FS4/FS4_journal.tiff` | `551ccd81db9cbf975b43e19fcdc9f4925e373c9a1cb364aebe763a7888eae2f6` |
 | FS4 | pdf | `figures/journal/FS4/FS4_journal.pdf` | `2065eb833c14f1c5f01f29b92ea2955903efbad50e96944dc70022c8a40a491f` |
 | FS4 | caption (single) | `figures/journal/FS4/FS4_journal_caption.txt` | `73278db1e62918342d3ab4101b2ae6448a4cc804d0ca161beb629ce99b1bad12` |
 | FS4 | alt text | `figures/journal/supplement/FS4_alt_text.txt` | `e94c36c49f6fb8eb07de832ec0d2d7aaf39fd418233f4bd565f26624ebbe7a53` |
-| FS4 | supplement | `figures/journal/supplement/FS4_supplement.md` | `d3d8290675c87525b5c40eaec778d063a2be81ed22e074c8391d1b625e17ef5f` |
+| FS4 | supplement | `figures/journal/supplement/FS4_supplement.md` | `1d0bddce824b893d86bc0a11af018cb3eeba2c3333824f97b7d8ba7ef9333503` |
 | FS4 | source data csv | `figures/journal/supplement/FS4_source_data.csv` | `f168b0c87a92b1d08171ff06c91b8f726de6189af75e5f3aae7e3082ec19c3b4` |
 | FS5 | png | `figures/journal/FS5/FS5_journal.png` | `c94e9b2c722ae3cc595679d4eea8458caba16e9b8cd488364084f24cf2281786` |
 | FS5 | tiff | `figures/journal/FS5/FS5_journal.tiff` | `dd4424f54bedd7a750dddf2652da9a08e24dba3d821fac9f73fae2e5ccab5f9f` |
 | FS5 | pdf | `figures/journal/FS5/FS5_journal.pdf` | `1aa2437af1d64dada969a12fa5bc2186c8c77ffecad012ab75c55a0229425460` |
 | FS5 | caption (single) | `figures/journal/FS5/FS5_journal_caption.txt` | `b5adab6a2005fd99b1c855616fc6d6c6fc09bf3de58a2b66bd242fdee02b8b8f` |
 | FS5 | alt text | `figures/journal/supplement/FS5_alt_text.txt` | `55a35abedfa251de2fd52c9bdeb2609400af32854c8a9a37c89ef56bb38b507b` |
-| FS5 | supplement | `figures/journal/supplement/FS5_supplement.md` | `fd983284aafeedb0e012bc946a11471cd909ed3567d6afa80b5b1e57d2d9f895` |
+| FS5 | supplement | `figures/journal/supplement/FS5_supplement.md` | `ce4771ee310c2a254c531427519779fc36091ffca25c4c829fd6d3e41a02c534` |
 | FS5 | source data csv | `figures/journal/supplement/FS5_source_data.csv` | `927f43ba0e6fbd1d2e7518d42a58dccdbfd8934e1a1015ee9b138bfab81cc9b6` |
 
 ## 3. Drawn-data digests
