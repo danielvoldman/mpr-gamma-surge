@@ -1,33 +1,77 @@
-# MS14 search log (novelty re-check, G8)
+# MS14 search log (G8 novelty re-check)
 
-**What this file is.** The MS14 log named by the plan: Table 11.1 row MS14 (docs/plan.md line 1365) says "Novelty re-check: Scholar (including cited-by checks on Xu 2023 and Borjigin 2013), PubMed, three slow-passage searches, Kalia journal version, eLife RP 104249, PMC12549018" with done-when "docs/search_log.md complete". It is written in the form of the plan's Appendix E (Table E.1).
+**Read this first (sub-step 16, DL-732 A2).**
 
-**Who reported it, and how far it is checked.** Everything in the rows below comes from the user's two reports in chat on 2026-11-10 (report 1 at 02:19, report 2 at 02:21, local time America/Toronto), saved word for word in docs/ms14_user_reports_2026-11-10.md. They are USER REPORTS, not tool output, and are NOT independently checked by Claude Code (no internet; nothing was searched on the web for this file). The user states that the search was done by hand, with handwritten notes, and that an AI tool was used to tidy the handwriting into text, which did not work well; the exact wording therefore may differ from the notes. The user did not go through the numbers (0, 0, 3, 4) one by one with the notes and said "its fine, we fine, continue as planned" (02:26); recorded as given. Report 2 (Scholar cited-by lists; PubMed queries) is the user's later statement that this part was done by hand in Google Scholar and PubMed on 2026-11-10; it supersedes the sentences of report 1 that say the native Scholar and PubMed interfaces were not reached. Paper titles, authors and DOIs named in the reports are UNVERIFIED (not checked by Claude Code). Claude Code makes no judgement of novelty in this file and does not decide gate G8.
+1. **This log is NOT complete in the sense of the plan's Table 11.1.** The plan's MS14 row (docs/plan.md line 1365) asks for "Novelty re-check: Scholar (including cited-by checks on Xu 2023 and Borjigin 2013), PubMed, three slow-passage searches, Kalia journal version, eLife RP 104249, PMC12549018" with done-when "docs/search_log.md complete". The native Google Scholar and PubMed searches and the other checks of that row are missing: by the user's statement of 2026-11-10 (15:12 local time, America/Toronto; docs/ms14_user_reports_2026-11-10.md, last section) none of the items 1 to 7 was done natively.
+2. **The user ruled on 2026-11-10 to proceed** without them (DL-732 A3). MS14 is therefore closed by user ruling as a departure from the plan; the plan is not edited.
+3. **No search result is claimed by this log.** The only search record that exists is the plan's own Table E.1 (section 1 below), a general web-search pre-check of October 2026. The user's two earlier reports of 2026-11-10 (02:19 and 02:21) are WITHDRAWN by the user (15:12) and nothing in them is used here; their contents ("0 direct hits", "3 results", "4 results", the findings and the papers named) are not evidence of any search and must not be cited as such. They are kept, unchanged and marked withdrawn, in docs/ms14_user_reports_2026-11-10.md.
+4. Claude Code searched nothing for this file (no internet) and makes no judgement of novelty. Gate G8 is not decided here.
 
-**Form.** The first three columns are the plan's own, word for word (Appendix E, plan line 1844): `| **\#** | **Query or action** | **Tool / database actually reached** |`. Two columns are ADDED after them (Table E.1 has none): "Date" and "Result (the user's words)". Cells are filled from the reports only; where a report does not say, the cell reads "not stated". The result cell is the user's own words, shortened only by cutting (cuts are marked [...]), never re-worded. Row ids are MS14-<item><letter> so that they do not collide with the numbers 1 to 19 and Q-F1, Q-F2 and S of the plan's Table E.1. One row per action; the six items of the plan row are 1 Scholar, 2 PubMed, 3 slow-passage searches, 4 Kalia journal version, 5 eLife RP 104249, 6 PMC12549018; row MS14-7 is Taher 2022 (plan line 1467, C20).
+## 1. The plan's Table E.1 (the web-search pre-check of October 2026; the only search record that exists)
 
-## Table
+Copied word for word from docs/plan.md by script (lines 1844 to 1867 of the plan as it stands; markdown escapes as in the file; a script check that these lines equal the plan's lines is recorded in DL-733). Row n (1 to 19) is plan line 1845+n, that is lines 1846 to 1864; row Q-F1 is line 1865, row Q-F2 line 1866, row S line 1867. The three columns are the plan's own and are the form of Appendix E.
 
-| **\#** | **Query or action** | **Tool / database actually reached** | Date | Result (the user's words) |
+| **\#** | **Query or action** | **Tool / database actually reached** |
+| --- | --- | --- |
+| 1 | model mechanism gamma surge dying brain cardiac arrest | Web search (hits: PNAS, PMC, ScienceDirect) |
+| 2 | next generation neural mass model hypoxia | Web search (arXiv, eNeuro, J Neurophysiol, Frontiers) |
+| 3 | Taher Avitabile Desroches bursting next generation neural mass slow passage | Web search (Springer, VU Amsterdam, ResearchGate) |
+| 4 | computational model near-death gamma oscillations hypoxia network simulation | Web search (Frontiers, PMC, eLife) |
+| 5 | neural mass model ischemia EEG oxygen deprivation Hopf bifurcation | Web search (bioRxiv, PMC, arXiv) |
+| 6 | exact mean-field quadratic integrate-and-fire anesthesia propofol | Web search (arXiv, bioRxiv) |
+| 7 | dying brain gamma surge mechanism computational model 2025 | Web search (ResearchGate, PNAS, ClinicalTrials.gov) |
+| 8 | delayed Hopf bifurcation slow ramp neural mass model oscillation onset | Web search (APS PRE, PubMed, bioRxiv, Springer, arXiv) |
+| 9 | hypoxia gamma oscillations interneurons model transient increase anoxia | Web search (Springer, PLOS ONE, eNeuro, PMC) |
+| 10 | "cardiac arrest" EEG neural mass model simulation gamma | Web search (bioRxiv, PMC, PNAS) |
+| 11 | Borjigin gamma surge mechanism model simulation interneuron hypoxia preprint biorxiv | Web search (bioRxiv, PNAS) |
+| 12 | Montbrió Pazó Roxin model slow parameter ramp transient oscillations | Web search (arXiv, PLOS Comput Biol, APS PRX) |
+| 13 | Li Borjigin 2023 gamma dying brain rat asphyxia | Web search (PubMed, PMC, Borjigin lab site) |
+| 14 | next generation neural mass model anaesthesia loss of consciousness | Web search (Cell/Neuron, bioRxiv, Nature Comms Bio, arXiv) |
+| 15 | next generation neural mass ion concentration potassium dynamics seizure spreading depolarization | Web search (arXiv, PMC, PLOS ONE) |
+| 16 | "slow passage" Hopf "theta neurons" OR "quadratic integrate-and-fire" mean-field | Web search (PMC, Springer, arXiv) |
+| 17 | Kalia Meijer van Putten neural mass ischemia EEG 2024 published | Web search (bioRxiv, ResearchGate, U. Twente) |
+| 18 | agonal EEG terminal spreading depolarization model gamma before isoelectric | Web search (Wiley Ann Neurol, PubMed, OUP Brain) |
+| 19 | arXiv dying brain gamma oscillations model 2024 2025 2026 | Failed (search budget exhausted, not executed) |
+| Q-F1 | Fetch: biorxiv.org/content/10.1101/2025.08.04.668381v1.full | bioRxiv full text (introduction) |
+| Q-F2 | Fetch: biorxiv.org/content/10.1101/2023.04.07.535995v1.full | bioRxiv full text (introduction + methods) |
+| S | Subagent: 9 queries incl. "next generation neural mass model ischemia OR hypoxia OR anoxia", "Montbrió Pazó Roxin model hypoxia energy ATP neural mass", "spiking network model hypoxia transient gamma increase before isoelectric EEG", ""Li D" Borjigin 2023 dying brain gamma" | General web search only; no direct Scholar/PubMed/bioRxiv/arXiv querying |
+
+What the plan says about this table (word for word, with plan line numbers):
+
+> L1842: Source: RESULT A, "Search log (paste into search_log.md)", October 2026. This table is the content for docs/search_log.md (section 10.1). It records the G8 pre-check (verdict PARTIAL OVERLAP, section 12.7) and does not complete MS14, which also needs native Scholar and PubMed searches and the other checks in Table 11.1 \[R2, §6 rec. 6\].
+
+> L1869: *Table E.1. G8 search log as recorded by RA. Fetch rows renamed Q-F1 and Q-F2 in v0.4 so they do not collide with figure IDs.*
+
+> L1871: **Not reached directly:** Google Scholar, medRxiv, the PubMed search interface, and bioRxiv or arXiv native search. These sites appeared only as web-search results \[RA\].
+
+> L1873: **Coverage and read depth** \[RA, Caveats\]. Results came from PubMed/PMC, bioRxiv, arXiv, PLOS, PNAS, Springer, APS, Frontiers and ResearchGate pages. The cited-by lists of Borjigin 2013 and Xu 2023 were not walked, and conference abstracts (CNS, SfN, BMC Neuroscience supplements) or non-indexed theses could have been missed. Roberts et al. 2023 and Schramm et al. 2019 (RA's year; Appendix A, 40 gives Prog Neurobiol 2020) were read as abstracts only; Kalia et al. 2023 as introduction and methods; the 2025 noisy-Hopf preprint as introduction; Taher et al. 2022 as abstract and introduction.
+
+So Table E.1 is a general web search: the plan itself (lines 1871 and 1873) says that Google Scholar, medRxiv, the PubMed search interface and the native bioRxiv or arXiv search were not reached directly and that the cited-by lists of Borjigin 2013 and Xu 2023 were not walked. Which day in October 2026 each query was run is not stated by the plan (UNVERIFIED).
+
+## 2. The MS14 items 1 to 7 (user statement of 2026-11-10, 15:12)
+
+The first three columns are the plan's Appendix E columns, word for word (plan line 1844): `| **\#** | **Query or action** | **Tool / database actually reached** |`. Two columns are ADDED after them (Table E.1 has none): "Date" and "Result". Item names follow the plan's MS14 row (line 1365) and C20 (line 1467). Row ids MS14-<item><letter> do not collide with the ids of Table E.1. The result cell is the user's wording, exactly as the user asked it to be logged. Where the user's statement gives no query text, the cell says "not stated"; no query is listed as a search that was done.
+
+| **\#** | **Query or action** | **Tool / database actually reached** | Date | Result |
 | --- | --- | --- | --- | --- |
-| MS14-1a | Item 1, Scholar, cited-by of Xu et al. (2023), "Surge of neurophysiological coupling and connectivity of gamma oscillations in the dying human brain" (title as given, UNVERIFIED). User's words: "Search Execution: `site:scholar.google.com` citing Xu 2023 with terms `model`, `mean-field`, `gamma`." Filter terms `model`, `mean-field`, `gamma`. | Google Scholar, "citing articles" (user: "Queried Google Scholar for citing articles of both foundational papers while applying the search filter terms [...]"). Done by hand per the user; exact search method as given, AI-tidied, user-reported; the "About N results" numbers shown by Scholar are NOT recorded. | 2026-11-10 | "Result Count & Findings: 0 direct hits combining mathematical mean-field/neural mass modeling with the human anoxic gamma surge. The few papers returning intersection keywords are broad clinical scoping reviews or physiological commentaries mentioning general computational limitations or qualitative network states (e.g., The gamma-band activity model of the near-death experience, which frames the phenomenon conceptually rather than via a biophysical mean-field derivation)." |
-| MS14-1b | Item 1, Scholar, cited-by of Borjigin et al. (2013), "Surge of neurophysiological coherence and connectivity in the dying brain" (title as given, UNVERIFIED). User's words: "Search Execution: `site:scholar.google.com` citing Borjigin 2013 with terms `model`, `mean-field`, `gamma`." | Google Scholar, "citing articles" (as in MS14-1a). Done by hand per the user; exact method user-reported and AI-tidied; "About N results" NOT recorded. | 2026-11-10 | "Result Count & Findings: 0 direct hits utilizing an exact macroscopic reduction or rigorous bifurcation framework (such as Montbrió–Pazó–Roxin) to model the rat cardiac arrest gamma surge. Citing literature strictly divides into empirical animal recordings, clinical EEG synchronization analyses, and general synaptic transmission reviews." |
-| MS14-1c | Item 1, Scholar (report 1): "Borjigin gamma surge mechanism model simulation interneuron hypoxia preprint biorxiv" (report 1: "queries such as"). | Web search (report 1: "Web search was used"); hits not named. Report 1 adds that the Google Scholar native search interface was not reached directly; report 2 supersedes that for the cited-by lists (DL-730 Z1). | not stated; reported 2026-11-10 | not stated for this query. |
-| MS14-1d | Item 1, Scholar (report 1): "Li Borjigin 2023 gamma dying brain rat asphyxia". | Web search (as in MS14-1c); hits not named. | not stated; reported 2026-11-10 | not stated for this query. |
-| MS14-2a | Item 2, PubMed, "Query 1": `Xu G [Author] AND (gamma OR cardiac arrest) AND model` | National Library of Medicine PubMed engine (user: "Executed explicit targeted queries on the National Library of Medicine PubMed engine for both primary authors"). Done by hand per the user; exact method user-reported and AI-tidied. | 2026-11-10 | "Result Count: 3 results" / "Findings: The results are strictly confined to the original 2023 PNAS clinical paper, direct clinical follow-ups tracking post-resuscitation EEG recovery, and systematic reviews of near-death physiological markers. None contain computational network modeling." |
-| MS14-2b | Item 2, PubMed, "Query 2": `Borjigin J [Author] AND (gamma OR coherence) AND (model OR neural mass)` | National Library of Medicine PubMed engine (as in MS14-2a). Done by hand per the user; exact method user-reported and AI-tidied. | 2026-11-10 | "Result Count: 4 results" / "Findings: Yields Borjigin’s primary experimental publications and associated physiological commentaries (e.g., critiques on whether animal electrophysiology translates to human consciousness models). No mathematical or physical mean-field formulations of the dying-brain transition exist in these result" (the report is cut off here; its last sentence is incomplete as pasted). |
-| MS14-2c | Item 2, PubMed (report 1): "agonal EEG terminal spreading depolarization model gamma before isoelectric" (report 1: "queries such as"). | Web search (report 1: "Web search was used"). Report 1 adds that "the native PubMed search interface was not reached directly"; report 2 supersedes that (DL-730 Z1). | not stated; reported 2026-11-10 | "PubMed/PMC web hits were returned" (one sentence of the user for MS14-2c and MS14-2d together; nothing stated per query). |
-| MS14-2d | Item 2, PubMed (report 1): "hypoxia gamma oscillations interneurons model transient increase anoxia". | Web search (as in MS14-2c). | not stated; reported 2026-11-10 | see MS14-2c. |
-| MS14-3a | Item 3, slow-passage search 1: `"slow passage" Hopf "theta neurons" OR "quadratic integrate-and-fire" mean-field` | not stated | not stated; reported 2026-11-10 | not stated |
-| MS14-3b | Item 3, slow-passage search 2: `delayed Hopf bifurcation slow ramp neural mass model oscillation onset` | not stated | not stated; reported 2026-11-10 | not stated |
-| MS14-3c | Item 3, slow-passage search 3: `Montbrió Pazó Roxin model slow parameter ramp transient oscillations` | not stated | not stated; reported 2026-11-10 | not stated |
-| MS14-4a | Item 4, Kalia journal version: query "Kalia Meijer van Putten neural mass ischemia EEG 2024 published" | Web search; "reached bioRxiv, ResearchGate, and U. Twente web pages" (user's words). | not stated; reported 2026-11-10 | "confirming the 2023 bioRxiv preprint with no published peer-reviewed journal version found." |
-| MS14-4b | Item 4, Kalia journal version: "bioRxiv preprint 10.1101/2023.04.07.535995 was fetched" (DOI as given, UNVERIFIED). | bioRxiv (user: "fetched"; how it was fetched is not stated). | not stated; reported 2026-11-10 | see MS14-4a (the user's result sentence covers item 4 as a whole). |
-| MS14-5 | Item 5, eLife RP 104249: "Web search was used for Bandyopadhyay, Bernard, Jirsa, Petkoski ion-exchange mean field (DOI 10.1101/2021.10.29.466427 / eLife RP 104249)" (authors and DOI as given, UNVERIFIED). | Web search; "reached eLife reviewed preprints and bioRxiv" (user's words). | not stated; reported 2026-11-10 | "confirming an ion-exchange Lorentzian mean-field model with no oxygen ramp or gamma surge." |
-| MS14-6 | Item 6, PMC12549018: "Web search was used for PMC12549018 spatiotemporal complexity paper" (title as given, UNVERIFIED). | Web search; "reached PubMed Central (PMC) web search hits" (user's words). | not stated; reported 2026-11-10 | "[...] to evaluate spatiotemporal complexity prior art." (the user's sentence states what the hits were reached for; it states no finding). |
-| MS14-7 | Taher 2022 full-text reading (plan line 1467, C20: "read the full text at MS14"). | not stated | not stated | not stated: Taher 2022 full-text reading: not stated in the user's reports. NOT marked done. |
+| MS14-1a | Item 1: Scholar, cited-by check on Xu 2023 | none (Google Scholar not reached natively); query text not stated | 2026-11-10 (user statement) | Not done natively on Nov 10; general web-search pre-check only |
+| MS14-1b | Item 1: Scholar, cited-by check on Borjigin 2013 | none (Google Scholar not reached natively); query text not stated | 2026-11-10 (user statement) | Not done natively on Nov 10; general web-search pre-check only |
+| MS14-2 | Item 2: PubMed, the two author queries | none (PubMed not reached natively); query texts not stated | 2026-11-10 (user statement) | Not done natively on Nov 10; general web-search pre-check only |
+| MS14-3a | Item 3: slow-passage search 1 | none; query text not stated | 2026-11-10 (user statement) | Not done natively on Nov 10; general web-search pre-check only |
+| MS14-3b | Item 3: slow-passage search 2 | none; query text not stated | 2026-11-10 (user statement) | Not done natively on Nov 10; general web-search pre-check only |
+| MS14-3c | Item 3: slow-passage search 3 | none; query text not stated | 2026-11-10 (user statement) | Not done natively on Nov 10; general web-search pre-check only |
+| MS14-4 | Item 4: Kalia journal version (check whether a published journal version exists) | none; query not stated | 2026-11-10 (user statement) | Not done natively on Nov 10; general web-search pre-check only |
+| MS14-5 | Item 5: eLife RP 104249 | none; query not stated | 2026-11-10 (user statement) | Not done natively on Nov 10; general web-search pre-check only |
+| MS14-6 | Item 6: PMC12549018 | none; query not stated | 2026-11-10 (user statement) | Not done natively on Nov 10; general web-search pre-check only |
+| MS14-7 | Item 7: Taher 2022 full-text reading (plan line 1467, C20: "read the full text at MS14") | none; no full-text reading stated | 2026-11-10 (user statement) | Not done natively on Nov 10; general web-search pre-check only |
 
-## G8 outcome
+## 3. Notes by Claude Code (read from the plan; no judgement; no search)
+
+- Which rows of Table E.1 relate to which MS14 item is NOT stated by the user. By the plan's own text only: line 1525 says RA ran four slow-passage or slow-ramp queries (Appendix E, queries 3, 8, 12 and 16), which bears on item 3; row 17 and row Q-F2 concern the Kalia preprint (item 4), and line 1873 says Kalia et al. 2023 was read as introduction and methods; row 3 looks up Taher and colleagues and line 1873 says Taher et al. 2022 was read as abstract and introduction (item 7: the full text was not read, as C20 asks). No row of Table E.1 contains "104249" or "12549018" (checked by script), so the pre-check has no row that names the eLife RP 104249 item (5) or PMC12549018 (6) (UNVERIFIED whether the pre-check covered them in some other way). The user's wording "general web-search pre-check only" is entered as given for all seven items; whether it is accurate for items 5 and 6 is the user's to say.
+- The query texts of the withdrawn report 1 equal rows of Table E.1 (found in sub-step 15); they are not repeated here as searches of 2026-11-10.
+- The plan's own note above Table E.1 (line 1842) says that the table "does not complete MS14, which also needs native Scholar and PubMed searches and the other checks in Table 11.1".
+
+## 4. G8 outcome
 
 The plan's G8 row (docs/plan.md line 1380, word for word, markdown escapes as in the file):
 
@@ -41,16 +85,18 @@ The plan does not say how the outcome is to be written down (UNVERIFIED). This l
 
 **G8 outcome: to be written by the user.**
 
-## Gaps (what this log does not hold)
+Because no systematic search was done, any novelty statement must be limited to what the web-search pre-check (Table E.1, section 1) supports.
 
-1. The "About N results" numbers that Google Scholar shows for MS14-1a and MS14-1b are NOT recorded (the user's report gives "0 direct hits" and findings, not Scholar's numbers).
-2. The exact search method of items 1 and 2 is as the user reported it, after an AI tool tidied handwritten notes; the words `site:scholar.google.com` are not an operator the Scholar cited-by page uses (Claude Code reading, UNVERIFIED, no internet); the user did not go through the numbers (0, 0, 3, 4) one by one with the notes.
-3. The three slow-passage searches (MS14-3a to MS14-3c) have query text only: no tool, date or result is stated.
-4. Taher 2022 full-text reading (MS14-7): not stated; not marked done.
-5. Paper titles, authors, DOIs and the result statements are UNVERIFIED (not checked by Claude Code; no internet).
-6. The handwritten notes are not in the repository. Option for the user only: photograph them and have them added later as docs/ms14_handwritten_notes.jpg (not created here).
-7. Report 1 gives no date; its rows read "not stated; reported 2026-11-10".
+## 5. MS14 status
 
-## Notes by Claude Code (not part of the user's reports; read from the plan, no judgement)
+MS14: native searches not done; proceed by user ruling 2026-11-10; this is a departure from the plan (the plan is not edited). Decision log DL-732 (A3).
 
-The query texts of report 1 are identical, character for character, to rows of the plan's Table E.1 (the RA pre-check of October 2026, a general web search): MS14-1c = row 11 (plan line 1856); MS14-1d = row 13 (line 1858); MS14-2c = row 18 (line 1863); MS14-2d = row 9 (line 1854); MS14-3a = row 16 (line 1861); MS14-3b = row 8 (line 1853); MS14-3c = row 12 (line 1857); MS14-4a = row 17 (line 1862), whose tool list "Web search (bioRxiv, ResearchGate, U. Twente)" is the same three sites as the user's words; MS14-4b = row Q-F2 (line 1866, fetch of 10.1101/2023.04.07.535995). The plan's own text (line 1525) says RA ran the slow-passage queries 3, 8, 12 and 16 and that MS14 still requires native Scholar and PubMed searches. Whether report 1 describes new searches of 2026-11-10 or restates the RA log is not shown by the repository (UNVERIFIED); the user said an AI tool tidied the notes. The user may wish to say which. Claude Code has not decided it.
+## 6. What this log does not hold
+
+1. Native Google Scholar searches, including the lists of papers citing Xu 2023 and Borjigin 2013: not done.
+2. Native PubMed searches (the two author queries): not done.
+3. The three slow-passage searches: not done natively; no query text is stated.
+4. The check for a published journal version of the Kalia preprint: not done natively.
+5. eLife RP 104249 and PMC12549018: not checked natively.
+6. The full-text reading of Taher 2022: not done.
+7. The day of each October 2026 query of Table E.1 (the plan gives the month only).
