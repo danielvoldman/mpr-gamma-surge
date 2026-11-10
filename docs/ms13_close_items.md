@@ -177,7 +177,7 @@ Also open from docs/ms13_close.md section (4), not close items: a backup folder 
 ## Q. Sub-step 15 (2026-11-10; DL-730; docs/search_log.md written from the user's two reports; nothing in results, frozen criteria, drafts, figures, the plan or any tag changes; sections L to P above are kept as they were and are superseded only where this section says so)
 
 - docs/ms14_user_reports_2026-11-10.md holds the user's two reports word for word; docs/search_log.md holds the log (plan Appendix E columns plus Date and Result; one row per action; a Taher 2022 row "not stated in the user's reports"; "G8 outcome: to be written by the user"). Both are user reports, not independently checked by Claude Code; paper titles, authors and DOIs are UNVERIFIED (DL-730 Z1).
-- 58. OPEN (new; MS14 gaps, DL-730 Z4). MS14 is NOT closed; whether docs/search_log.md meets the plan's "complete" is the user's decision. Gaps: the "About N results" numbers shown by Google Scholar are not recorded; the exact method of items 1 and 2 is user-reported and AI-tidied (the user did not go through the numbers 0, 0, 3, 4 one by one with the notes); the three slow-passage searches have query text only (no tool, date or result); the Taher 2022 full-text reading (plan line 1467, C20) is not stated and not marked done; paper details UNVERIFIED; the handwritten notes are not in the repository (option: the user photographs them and has them added later as docs/ms14_handwritten_notes.jpg; not created); the user's G8 outcome is not written; the query texts of report 1 equal rows of the plan's Table E.1 (RA, October 2026), and whether report 1 is new work of 2026-11-10 or a restatement of that log is not shown by the repository (UNVERIFIED). Settles it: the user rules that the log is complete as it stands (logged as a ruling), or supplies the missing items, or rules that MS14 stays open.
+- 58. [REPLACED in sub-step 16 by the user's ruling of 2026-11-10, DL-732 A3, see section R; text kept as written in sub-step 15] OPEN (new; MS14 gaps, DL-730 Z4). MS14 is NOT closed; whether docs/search_log.md meets the plan's "complete" is the user's decision. Gaps: the "About N results" numbers shown by Google Scholar are not recorded; the exact method of items 1 and 2 is user-reported and AI-tidied (the user did not go through the numbers 0, 0, 3, 4 one by one with the notes); the three slow-passage searches have query text only (no tool, date or result); the Taher 2022 full-text reading (plan line 1467, C20) is not stated and not marked done; paper details UNVERIFIED; the handwritten notes are not in the repository (option: the user photographs them and has them added later as docs/ms14_handwritten_notes.jpg; not created); the user's G8 outcome is not written; the query texts of report 1 equal rows of the plan's Table E.1 (RA, October 2026), and whether report 1 is new work of 2026-11-10 or a restatement of that log is not shown by the repository (UNVERIFIED). Settles it: the user rules that the log is complete as it stands (logged as a ruling), or supplies the missing items, or rules that MS14 stays open.
 
 OPEN after sub-step 15 (the user has not ruled on them; none is closed by this step):
 
@@ -188,8 +188,23 @@ OPEN after sub-step 15 (the user has not ruled on them; none is closed by this s
 53. OPEN. The user has still to read the corrected FS5 caption (as in section P).
 55. OPEN. The EPS extras differ between builds (as in section L).
 57. OPEN (UNVERIFIED). The reading of the duration floor (as in section P; recommended: accept).
-58. OPEN (new). The MS14 gaps above.
+58. [REPLACED in sub-step 16, see section R] OPEN (new). The MS14 gaps above.
 
 SETTLED OR CLOSED (unchanged): 22; 54; 56; 44, 45, 46, 48.
 
 Also open from docs/ms13_close.md section (4), not close items: a backup folder path for figures/ and the repository; a human check by someone who has not seen the project; the zipped F1 source-data CSV for Zenodo; pushing the tags; the MS14 decision.
+
+## R. Sub-step 16 (2026-11-10; DL-732; the user's statement of 15:12: MS14 items 1 to 7 not done natively; nothing in results, frozen criteria, drafts, figures, the plan or any tag changes; section Q above is kept as it was and is superseded only where this section says so)
+
+- The user's two reports of 02:19 and 02:21 are WITHDRAWN (A1); docs/ms14_user_reports_2026-11-10.md keeps them with a note at the top and holds the statement at the end; docs/search_log.md is rewritten (A2): the plan's Table E.1 (the October 2026 general web-search pre-check; copied by script) and items 1 to 7 as "Not done natively on Nov 10; general web-search pre-check only". Nothing in the withdrawn reports is evidence of any search.
+- 58. REPLACED by the user's ruling of 2026-11-10 (A3, DL-732); its text above (section Q) is kept as written in sub-step 15 and no longer lists open gaps: the gaps it named (Scholar numbers, method of items 1 and 2, slow-passage tool and result, Taher 2022 reading) rest on the withdrawn reports or are now stated as "not done".
+- 59. SETTLED BY USER RULING (A3, DL-732). MS14: native searches not done; proceed by user ruling 2026-11-10; this is a departure from the plan (the plan is not edited). The plan's MS14 done-when ("docs/search_log.md complete", plan line 1365) and Table 11.1 (native Scholar and PubMed searches) are not met; the user rules to proceed.
+- 60. OPEN (A3). The G8 outcome (plan lines 1380 and 1382) is to be written by the user; Claude Code does not write it and does not judge novelty. Because no systematic search was done, any novelty statement must be limited to what the web-search pre-check supports.
+- 61. OPEN (A4; UNVERIFIED wording). The draft limitations paragraph docs/manuscript_limitations_novelty.md is for the user to edit; no manuscript file exists in the repository; it belongs in the "assumptions and limitations" section (plan line 1388); the date "October 2026" follows the plan's line 1842 (month only; UNVERIFIED).
+- 62. OPEN (UNVERIFIED). The wording "general web-search pre-check only" is entered for all seven items as the user gave it; no row of the plan's Table E.1 names eLife RP 104249 or PMC12549018, so whether it is accurate for items 5 and 6 is for the user to say.
+
+OPEN after sub-step 16 (the user has not ruled on them; none is closed by this step): 49, 50, 51, 52, 53, 55, 57, 60, 61, 62.
+
+SETTLED OR CLOSED: 22; 54; 56; 44, 45, 46, 48; 58 (replaced by 59); 59.
+
+Also open from docs/ms13_close.md section (4), not close items: a backup folder path for figures/ and the repository; a human check by someone who has not seen the project; the zipped F1 source-data CSV for Zenodo; pushing the tags.
