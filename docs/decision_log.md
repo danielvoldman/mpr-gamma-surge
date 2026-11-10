@@ -7566,3 +7566,13 @@ Chosen:          as ruled   Default from: the prompt
 Test:            scripts/ms13_check_hashes.py; tests/test_ms13_13v.py; tests/test_ms13_review_aids.py
 Status:          ruled; pre-checks passed
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-713  MS13 13w W1: the FS5 reproducibility script (code committed before it is run)    [ID: MS13, 13w, W1, FS5]
+Date:            2026-11-09        Author:
+Decision:        ACTION (DL-712 W1). W2, W3 and W4 are written to docs/ms13_13w_notes.md (commit 9f295ea; read-only, nothing run). scripts/ms13_13w_fs5_rebuild.py is added: it calls figures.make_FS5(mode="journal", out_dir=<scratch>/FS5, root=repo) ONCE from the committed code (stored results only; make_FS5 writes the figure files to out_dir and the supplement files to out_dir/../supplement, so nothing is written under figures/ of the repository), then prints the full SHA-256 of the new FS5 PNG, TIFF, PDF, caption, alt text, supplement, source-data CSV and the drawn-data digest next to the values of docs/ms13_journal_final_hashes.txt (section FS5), and a unified diff of caption and supplement if they differ. It patches nothing and refuses an output directory under figures/. The scratch directory is C:\Users\Alpha\AppData\Local\Temp\claude\cda12b280d989da8\cad15391-486e-421d-9553-c738d4c48abd\scratchpad\fs5_rebuild. Exit 0: all equal; 1: only caption, supplement, alt text or source data differ; 2: PNG, TIFF, PDF or digest differ (STOP, report). After the run `git status` is checked; if any tracked file changed it is copied to the scratchpad and restored with git checkout (not expected).
+Reason:          ruling W1 (DL-712)
+Options:         build in place and restore (not needed: make_FS5 accepts out_dir)
+Chosen:          build into the scratchpad   Default from: the prompt
+Test:            the run itself
+Status:          code committed, not yet run
+Commit/tag:      the commit that adds this entry; no tag
