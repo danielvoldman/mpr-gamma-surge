@@ -4,6 +4,13 @@ Written for: the owner and reviewer who close MS13, and the author of the paper.
 
 Build commit of every journal figure: 5e9057563c6c24fbac16b99000e547d08ef9a31a. Later commits are documentation, the audit module, and in 13v the wording fix of the FS5 caption (DL-705, DL-706; FS5 caption and supplement only; the PNG, TIFF and PDF are unchanged).
 
+## User rulings of 2026-11-09 applied in 13x (DL-716 to DL-720)
+
+- FS6 is NOT produced (close item 22, user ruling X3): the plan's FS6 row is conditional ("Only if G2 or G3 triggers", plan Table 8.1) and both gates were ruled not triggered (DL-133, DL-261, DL-271); five supplementary figures (DL-421, DL-435 (iv)). Conditional row not triggered, not a failed milestone. Not chosen: running MS12 later, S14 only as robustness.
+- Venue: Peer Community Journal; MNA is dropped (X4). The decision log supersedes the plan's MNA, arXiv and MNA-account checklist lines (plan lines 1398 to 1402). PCJ template and figure rules, DOI repository, CC-BY, no AI-generated illustrations, Zenodo limits and the AI-use disclosure stay UNVERIFIED until sourced.
+- FS5 supplement (X5): accepted by the owner that it differs from a fresh build only in the build-commit line and the provenance-file hash (DL-714); close item 53 (reading the corrected FS5 caption) stays open.
+- FS1 (X1, X2): captions and alt text rewritten and rebuilt once in 13x; see the FS1 section below for the new hashes and the FS1 build commit (it differs from the commit of the other figures).
+
 ## F1
 
 Draft audit copy: F1 (figures/F1/); the journal files are the main versions.
