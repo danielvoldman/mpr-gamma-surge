@@ -7656,3 +7656,13 @@ Chosen:          as done   Default from: the prompt
 Test:            scripts/ms13_verify_export.py; scripts/ms13_independent_compare.py; tests N2, O2, P2; scripts/ms13_check_hashes.py
 Status:          done; the end-of-step suite follows in the next entry
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-722  MS13 13x: end-of-step fast suite and checks    [ID: MS13, 13x]
+Date:            2026-11-09        Author:
+Decision:        FACT. End-of-step full fast suite on the committed state after the last edit of code, tests and documents (commit 99d5c50; exit code taken from pytest itself, exit 0): 1563 passed, 24 deselected, 9 xfailed, 9 warnings, 1506.26 s (1556 at the start plus the 7 tests of tests/test_ms13_13x.py; no test failed, no data assertion changed). This entry (text only) was added after that run; scripts/ms13_check_hashes.py (104 manifest rows, 0 problems) and tests/test_ms13_review_aids.py and tests/test_ms13_13v.py (the log-reading tests) are run again after it. Commits of 13x: c3efc52 (DL-716), a31c3d3 (DL-717), f118670 (DL-718), 7e15dbe (code), c7d433c (DL-719 and manifest), dd75dd0 (DL-720), f5d3f0d (X3, X4, X5 documents; the FS1 build commit), 99d5c50 (DL-721 and results). Nothing tagged, pushed or uploaded; no subagent, no package, no simulation, no MS12; the plan was not edited. Stray: C:\Users\Alpha\AppData\Local\Temp\review_crops (known, not deleted); git-ignored .claude/scheduled_tasks.lock and .claude/settings.local.json are not project files. UNVERIFIED or open: the FS1 cycles per e-fold are printed with 2 decimals (1.71, not the 1.710 of the notes); PCJ template and figure rules, versioned DOI repository, CC-BY, no AI-generated illustrations, Zenodo limits, AI-use disclosure, 'confirm the PCI section'; user tasks: colour-vision check, backup folder path, the tag decision, reading the corrected FS5 caption (item 53), a human check by someone who has not seen the project, the zipped F1 source-data CSV for Zenodo.
+Reason:          end-of-step checks (13x prompt)
+Options:         -
+Chosen:          as done   Default from: the prompt
+Test:            as above
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
