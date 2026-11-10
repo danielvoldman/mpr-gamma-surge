@@ -208,3 +208,26 @@ OPEN after sub-step 16 (the user has not ruled on them; none is closed by this s
 SETTLED OR CLOSED: 22; 54; 56; 44, 45, 46, 48; 58 (replaced by 59); 59.
 
 Also open from docs/ms13_close.md section (4), not close items: a backup folder path for figures/ and the repository; a human check by someone who has not seen the project; the zipped F1 source-data CSV for Zenodo; pushing the tags.
+
+## S. Sub-step 17 (2026-11-10; DL-734, DL-735; read-only scoping of MS15 in docs/ms15_scope_notes.md; nothing in results, frozen criteria, drafts, figures, the plan or any tag changes; section R above is kept as it was)
+
+New open items, one line each (the user decisions of B4 (c); "UNVERIFIED" = no plan or repository source):
+
+- 63. OPEN. Archive service and account for the release (plan D37, line 1780: "service chosen at MS15"); the repository names Zenodo only for the zipped F1 source-data CSV (R10, T12).
+- 64. OPEN. Licences: code MIT by DL-037 (default adopted), copyright-holder name not sourced (UNVERIFIED); data and figures: the plan has CC-BY 4.0 only in the superseded MNA line (line 1398); for PCJ UNVERIFIED.
+- 65. OPEN. Author names, affiliations, ORCID, funding, ethics, data and code availability statements, conflict-of-interest statement and AI-use disclosure text (plan line 1396 names conflicts and AI-use only; the rest has no plan source, UNVERIFIED).
+- 66. OPEN. The manuscript text and who writes it (plan lines 1384 to 1396); no manuscript file exists.
+- 67. OPEN. Which result families and figure files are archived and how (plan line 949; results/ is 32.6 GB in 32,070 files, git-ignored; any per-record file or size limit UNVERIFIED).
+- 68. OPEN. Backup folder for figures/ and the repository; a remote and where the tags are pushed (none configured; branch is master, the plan writes main).
+- 69. OPEN. The tagger and author identity "Your Name <you@example.com>" on all commits and 17 tags: leave it or not (Claude Code does not change tags).
+- 70. OPEN. Checklist 10.8 item 6 (plan line 1284): the 13 journal provenance records are draft = true and name the build commit 5e90575 (FS1 f5d3f0d), not a release commit: accept as built with a note, or rule a rebuild (new hashes, v2 tags).
+- 71. OPEN. Scope of the code and document additions the checklist needs: LICENSE, CITATION.cff, full README, CHANGELOG entry, docs/figure_map.md, scripts/make_all.ps1 with -Stage replication, a --from-record option (src/ or tests/ changes trigger the full fast suite).
+- 72. OPEN. The clean Windows machine for checklist 10.8 (Python 3.11, Julia 1.10.11, Git) and who runs it.
+- 73. OPEN. The zipped F1 source-data CSV (28,821,335 bytes as written; R10, T12): when and where.
+- 74. OPEN. The PCJ and PCI requirements (template, code and data policy, AI-use disclosure, figure rules, licences, recommendation process): the user reads the pages; all UNVERIFIED here.
+- 75. OPEN. docs/robustness_criteria.md still says "NOT YET FROZEN" in its opening lines although criteria-frozen exists; leave it as in the tag or correct it before the archive.
+- 76. OPEN. Permission and time to run the full suite including the 24 slow tests before a release tag (plan lines 1224, 1268; the fast suite took 1405.18 s, DL-726; the slow-suite time is not documented).
+
+OPEN after sub-step 17 (the user has not ruled on them; none is closed by this step): 49, 50, 51, 52, 53, 55, 57, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76.
+
+SETTLED OR CLOSED (unchanged): 22; 54; 56; 44, 45, 46, 48; 58 (replaced by 59); 59.
