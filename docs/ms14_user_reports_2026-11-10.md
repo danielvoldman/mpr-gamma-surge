@@ -1,3 +1,5 @@
+> **WITHDRAWN by the user on 2026-11-10 at 15:12 local time; kept for the record; see the statement at the end of this file and docs/search_log.md** (DL-732 A1). The two reports below are NOT evidence of any search and must not be cited as such, including "0 direct hits", "3 results", "4 results", their findings and the papers they name.
+
 # MS14: the user's two reports of 2026-11-10 (verbatim)
 
 Pasted by the user in chat on 2026-11-10 at 02:19 (report 1) and 02:21 (report 2) local time (America/Toronto). The user states that the search was done by hand, with handwritten notes, and that an AI tool was used to tidy the handwriting into text, which did not work well; the exact wording therefore may differ from the notes. At 02:26 the user states "its fine, we fine, continue as planned".
@@ -53,3 +55,13 @@ Query 2: `Borjigin J [Author] AND (gamma OR coherence) AND (model OR neural mass
 * Result Count: 4 results
 * Findings: Yields Borjigin’s primary experimental publications and associated physiological commentaries (e.g., critiques on whether animal electrophysiology translates to human consciousness models). No mathematical or physical mean-field formulations of the dying-brain transition exist in these result
 <<<END REPORT 2>>>
+
+## Statement of 2026-11-10, 15:09 to 15:12 local time
+
+Statement of the user, in the user's own words, saved word for word (including the capitals and the typo in the first answer).
+
+Context: the user was asked in chat which of items 1 to 7 of MS14 had actually been done in the real Google Scholar or PubMed page. The first answer, at 15:09, was "YES TO EVERYTIHING", followed by a request interruption. The answer at 15:12 below is the user's considered one and replaces it. It also replaces the two reports above (they are withdrawn: DL-732 A1). Local time, America/Toronto. This is a user statement, not tool output; it is not checked by Claude Code (no internet).
+
+<<<BEGIN STATEMENT>>>
+Reply for MS14: 1. Scholar cited-by for Xu 2023, and for Borjigin 2013: No 2. PubMed, the two author queries: No 3. The three slow-passage searches: No 4. Checking whether Kalia has a published journal version: No 5. eLife RP 104249: No 6. PMC12549018: No 7. Reading Taher 2022 in full text: No Please log items 1–7 as "Not done natively on Nov 10; general web-search pre-check only" in docs/search_log.md, note this in the manuscript limitations section, and proceed.
+<<<END STATEMENT>>>
