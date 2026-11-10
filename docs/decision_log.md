@@ -7616,3 +7616,13 @@ Chosen:          2 decimals for both   Default from: the caption's existing form
 Test:            tests/test_ms13_13x.py (new), tests/test_ms13_13t4.py (limit), tests/test_ms13_13t7.py, tests/test_ms13_13t11.py and the alt-text audit tests
 Status:          logged before the edit
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-718  MS13 13x X2: one more test text edit (the alt-text audit before the FS1 rebuild) and the audit check, logged before the edit    [ID: MS13, 13x, X2, FS1]
+Date:            2026-11-09        Author:
+Decision:        CHANGE (planned). The alt-text audit (src/mprsurge/plotting/jaltaudit.py) gets the FS1 (b) check of DL-717 (the step counts and axis distances of the nearest node without a focus, recomputed from the recorded source-data CSV). The recorded alt text of FS1 still holds the pre-13x sentence until the one recorded build of 13x, so the row cannot match before that build. tests/test_ms13_13t11.py::test_p2_every_alt_text_claim_equals_the_source_data is edited (test text, no data assertion changed): the single row 'grid steps and units from the test point ...' is left out of the comparison only while the recorded FS1 alt text still contains the old sentence 'on the grey boundary'; after the rebuild the sentence is gone and the row is compared like every other row (the new tests/test_ms13_13x.py asserts that after the build the row exists and is equal). No other check is weakened or removed.
+Reason:          the committed state between the code commit and the build commit must not hold a failing test
+Options:         leave the test failing until the build (rejected: STOP RULE 12 reads a failing test in the committed state as a stop) / skip the row while the old sentence is recorded (chosen)
+Chosen:          skip the row while the old sentence is recorded   Default from: STOP RULE 12
+Test:            tests/test_ms13_13t11.py, tests/test_ms13_13x.py
+Status:          logged before the edit
+Commit/tag:      the commit that adds this entry; no tag
