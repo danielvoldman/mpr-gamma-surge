@@ -151,3 +151,25 @@ NOT ACCEPTED, STILL OPEN (one line each; "settles it" = what would close the ite
 - OPEN AT TAG TIME (a later fix gets a new tag version v2; the v1 tag stays): 49 (triage table B left as triaged); 50 (F4b legend scope); 51 (alt texts of F5 and F5c write N as 1e3, 3e3, 1e4, 3e4); 52 (F4b short caption at 650 of 650 words); 53 (the user still reads the corrected FS5 caption and accepts the DL-714 reading); 55 (EPS extras differ between builds); 56 (colour-vision check, MANUAL); 57 (duration-floor reading, UNVERIFIED). None of their texts says it must be fixed before tagging.
 - Settled: 22 (FS6 not produced, DL-716 X3), 54 (FS1 wording, DL-716 X1, applied in 13x); 44, 45, 46, 48 accepted as disclosed limitations (DL-703).
 - Checklist item G2b-fs1-test-point: status "not re-verified" unchanged; key recheck_13x points to the 13x evidence (DL-723 T5).
+
+## P. Sub-step 14 (2026-11-10; DL-727; results in the entry after it; user reports and one read-only search; nothing in results, frozen criteria, drafts, figures, the plan or any tag changes; sections L, N and O above are kept as they were and are superseded only where this section says so)
+
+- Y1 (tag result of 13u, DL-727): the 13 annotated local tags fig-<ID>-v1 exist, all at e6666cb2e8120a1619527c5ee7fce01e1beedb55; re-checked from git (tag type, target, hash list read from each tag's tree, no path under figures/ in any tagged tree, `--verify` 13 of 13); details in docs/ms13_close.md section (6). The figure files are not in the tagged trees; they exist only on the user's machine until backed up and until the Zenodo record (MS15).
+- 56. CLOSED BY USER REPORT (Y2, DL-727; 2026-11-10, chat message). The manual colour-vision check on the pilot sheet was done by the user and is fine. Evidence: the user's statement only, no file. UNVERIFIED: which figures and which tool were used; whether the check covered all 13 final PNGs (item 56 names the 13 final PNGs, the statement names the pilot sheet). The verifier row cvd still reads MANUAL; docs/ms13_export_checklist.json keeps the status MANUAL on R2-cvd-manual-row and carries the note key user_report_14.
+- F2 right margin (Y3, DL-727): CLOSED NON-FINDING. An outside AI claimed that the right margin of the F2 journal figure is clipped or double-rendered. The user looked at F2 at full size on 2026-11-10 and found it fine; the verifier (margins at least 0.10 in, no unlisted collisions; scripts/ms13_verify_export.py exit 0, DL-726) does not support the claim. F2 is not changed.
+- MS14 novelty check (Y4, DL-727): user report only (2026-11-10, chat message): the check was done by the user outside Claude Code and the novelty claims are fine. What was searched, where, when and what was found are NOT stored (UNVERIFIED). The plan passages on MS14 are quoted word for word, with a reading of whether such a report meets the plan's "done when" ("docs/search_log.md complete"), in docs/ms13_close.md section (7). MS14 is not closed; that is the user's decision.
+- Word search "delineate" (Y6, DL-727): NO HIT for "delineate", "delineated", "non-delineate" or "non-delineated" (searched before this step's own documents were written) in any tracked file, any text file of figures/ or results/, the plan or the decision log; the F6 panel (a) title on the image reads "Failure labels of the 169 non-surge cells". So docs/ms13_v2_wording_list.md is not written and nothing is proposed for a v2 tag. Details in the entry after DL-727.
+
+OPEN after sub-step 14 (the user has not ruled on them; none is closed by this step):
+
+49. OPEN. Triage table B of the 13t-10 review left as triaged (as in section L).
+50. OPEN. The F4b legend says "Dotted line in (d): 1 s" only; the scope is in the captions and the alt text (as in section L).
+51. OPEN. The alt texts of F5 and F5c write N as 1e3, 3e3, 1e4, 3e4 (as in section L).
+52. OPEN. The F4b SHORT caption is at 650 of 650 words (limit short_max_words_F4b: 650 in configs/journal_export.yaml; the file figures/journal/F4b/F4b_journal_caption.txt has 650 words by `wc -w`). Any further clause needs a ruled higher limit or the removal of other prose.
+53. OPEN. The user has still to read the corrected FS5 caption (DL-705, DL-706, DL-714).
+55. OPEN. The EPS extras differ between builds (probably embedded dates; not the main files).
+57. OPEN (UNVERIFIED). For the user, plain: the part "1 s or more for ramps of 60 s or more" is sourced (the frozen window rule T_ramp >= 60 s and the stored durations, as the item says; not re-derived in sub-step 14); only the side comment on the pinned medians has no plan source; recommended: accept.
+
+SETTLED OR CLOSED: 22 (FS6 not produced, DL-716 X3); 54 (FS1 wording, DL-716 X1, applied in 13x); 56 (user report, above); 44, 45, 46, 48 accepted as disclosed limitations (DL-703).
+
+Also open from docs/ms13_close.md section (4), not close items: a backup folder path for figures/ and the repository; a human check by someone who has not seen the project; the zipped F1 source-data CSV for Zenodo; pushing the tags; the MS14 decision above.
