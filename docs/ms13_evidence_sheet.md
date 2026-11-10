@@ -415,6 +415,7 @@ Draft audit copy: FS5 (figures/FS5/); the journal files are the main versions.
 - Drawn-data digest of the journal figure: 66238f8b7f480cf98b6ed4d76f9ec52f6f1cb81802622076ef7f733fac8d31a5; draft FS5: 66238f8b7f480cf98b6ed4d76f9ec52f6f1cb81802622076ef7f733fac8d31a5; equal: yes. Verifier: PASS - 66238f8b7f48... export 66238f8b7f48 draft 66238f8b7f48; PASS - 52 of the 52 arrays of the draft data, per-array digests equal.
 - Independent comparison (this run): journal caption (15, 15, 0, 0) and short caption (0, 0, 0, 0) as (quantities, equal, not equal, unresolved); draft rows of FS5 (shared by the parts of a split figure): equal 28, other 1 (rows without a comparison are not counted as equal).
 - Verifier rows for FS5 (this run): 44 PASS, 0 FAIL, 1 MANUAL (the MANUAL row is the colour-vision check of the user).
+- Reproducibility of the corrected FS5 text (13w W1, DL-714): one build from the committed code (commit af5193d, scratchpad, nothing written under figures/) gave the same PNG, TIFF, PDF, caption, alt text, source-data CSV and drawn-data digest as listed above; the supplement differed only in the build-commit hash and the provenance-file hash (full values in DL-714).
 
 Failed checks shown and claim limits kept (word for word from figures/journal/FS5/FS5_journal_caption.txt):
 

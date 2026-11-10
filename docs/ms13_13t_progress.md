@@ -121,3 +121,10 @@ Journal split (DL-667 K2): F4a = draft (a), (f), (g), (i), (j) (the delay panels
 - Checklist after the re-check: 323 items; 243 passing (115 re-verified by a verifier row, comparison row or hash check; 128 through name-matched tests only); 79 not re-verified (reasons in docs/ms13_13v_checklist_recheck.md); 1 MANUAL (colour vision). G2b-fs1-test-point stays not re-verified (the STOP of DL-646 is not settled; item 54).
 - Open for the user: the colour-vision check; a backup folder path for figures/ and the repo; the tag decision (13u); a human check by someone who has not seen the project; the zipped F1 source data for Zenodo; the venue (the plan's checklist names MNA, the figure ruling R1 names Peer Community Journal); rulings on items 49 to 57; whether a fresh FS5 build gives the corrected caption bytes before the tag (not run, UNVERIFIED).
 - Next: 13u tags (only when the user says "tag"); MS14 novelty re-check; MS15 reproducibility release and manuscript checklist (see docs/ms13_close.md section 5).
+
+## State at the end of 13w (DL-712 to DL-715)
+
+- Pre-checks passed at HEAD ebd3839 (criteria hash, four document hashes, 104 manifest rows, 177 figure files, MS11 digest over 724 files). Nothing tagged, pushed or uploaded; no figure file in figures/ changed.
+- W1: one FS5 build from the committed code (scratchpad, not figures/): PNG, TIFF, PDF, caption, alt text, source data and drawn-data digest equal the final hash list; the supplement differs only in the build-commit hash and the provenance-file hash (DL-714). Not yet ruled: whether that reading is accepted.
+- W2, W3, W4 written to docs/ms13_13w_notes.md: FS1 test point (outcome b, wording proposed, not applied), MS12 and FS6 facts with three options, venue quotes (conflict MNA/arXiv against Peer Community Journal).
+- Open for the owner: rulings on close items 22, 54, 53 (read the corrected FS5 caption), the venue, the FS1 alt-text wording of (b), plus the earlier list in docs/ms13_close.md section 4; the tag decision (13u) stays with the owner.
