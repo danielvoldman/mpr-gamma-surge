@@ -22,8 +22,8 @@ def sha(p: Path) -> str:
 
 
 def main() -> int:
-    out = ["# MS13 13t journal figures: final hash list for the tags (full SHA-256, working copy; written by scripts/ms13_write_final_hashes.py after the recorded build of 13t-11)",
-           "# Journal files are the MAIN versions; the drafts (figures/<ID>/) are AUDIT COPIES. The user decides the tags; nothing is tagged, pushed or uploaded.",
+    out = ["# MS13 13t journal figures: final hash list for the tags (full SHA-256, working copy; written by scripts/ms13_write_final_hashes.py after the one recorded build of MS15a 19 from the commit named in each 'built from commit' line; the v1 list of 13t-11 is this file at commit e6666cb2e8120a1619527c5ee7fce01e1beedb55)",
+           "# Journal files are the MAIN versions; the drafts (figures/<ID>/) are AUDIT COPIES. Writing this file tags, pushes and uploads nothing; the v1 tags exist (annotated, local) and the v2 tags are planned (see the end of this file).",
            "# F1 source data: the file as written (28 MB); the zipped form for the Zenodo record is made later."]
     commits = set()
     for fid in IDS:
@@ -57,7 +57,11 @@ def main() -> int:
     out += ["", f"## draft files differing from the manifest: {bad}", "",
             "## Figure names as used for the tags and the mapping (the user decides the tags; pattern of the pre-check: fig-<name>-v<n>)",
             "F1 <- draft F1; F2 <- draft F2; F3 <- draft F3; F4a, F4b <- draft F4 (journal split, K2); F5, F5c <- draft F5 (journal split, T1); F6 <- draft F6;",
-            "FS1, FS2, FS3, FS4, FS5 <- drafts FS1 to FS5. Journal files are the main versions; drafts are audit copies."]
+            "FS1, FS2, FS3, FS4, FS5 <- drafts FS1 to FS5. Journal files are the main versions; drafts are audit copies.",
+            "", "## Tag names: v1 exists and is superseded; v2 is PLANNED and NOT CREATED (MS15a 19; step 20 creates the v2 tags on the commit that holds this list)",
+            "v1: annotated, local, at e6666cb2e8120a1619527c5ee7fce01e1beedb55; each describes the v1 files (the v1 supplement hashes), not the files of this list.",
+            "v2: planned for the files of this list (built from the commit named above); no v2 tag and no release-v1.0 tag exists when this file is written."]
+    out += [f"{fid}: fig-{fid}-v1 (exists) | fig-{fid}-v2 (PLANNED, not created)" for fid in IDS]
     (ROOT / "docs/ms13_journal_final_hashes.txt").write_text("\n".join(out) + "\n", encoding="utf-8", newline="\n")
     print("wrote docs/ms13_journal_final_hashes.txt; draft files differing:", bad)
     return 1 if bad else 0

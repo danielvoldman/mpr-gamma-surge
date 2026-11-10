@@ -78,8 +78,8 @@ def build() -> str:
            "The journal files are the MAIN versions; the draft files (figures/<ID>/) are audit copies. F5 and F5c are two journal files of the draft F5; F4a and F4b are two "
            "journal files of the draft F4 (a departure from the plan's single figures, rulings T1 and K2 in docs/ms13_figure_rules.md). FS6 is not produced "
            "(user ruling of 2026-11-09, docs/ms13_close.md). The 'result families' column lists the folders under results/ read by the figure, from the git-ignored "
-           "provenance record figures/journal/<ID>/<ID>_journal_provenance.json (empty if that record is not on this machine). Tags: fig-<ID>-v1 for every journal figure "
-           "(see README.md).", "",
+           "provenance record figures/journal/<ID>/<ID>_journal_provenance.json (empty if that record is not on this machine). Tags: fig-<ID>-v1 exists for every journal figure "
+           "and describes the v1 files (superseded); fig-<ID>-v2 is planned for the files listed here and is not created (see README.md).", "",
            "## 1. The 13 journal figures", "",
            "| Journal figure (short name) | Draft counterpart | Main files | Result families read | Build commit | Tag |",
            "| --- | --- | --- | --- | --- | --- |"]
@@ -88,7 +88,7 @@ def build() -> str:
         main = [p for k, p, _ in d["files"] if k in ("png", "tiff")]
         fams = families(fid)
         fam_txt = ", ".join(fams) if fams else "(provenance record not on this machine)"
-        out.append(f"| {fid} | {d['draft']} | {'<br>'.join('`' + p + '`' for p in main)} | {fam_txt} | `{d['commit']}` | fig-{fid}-v1 |")
+        out.append(f"| {fid} | {d['draft']} | {'<br>'.join('`' + p + '`' for p in main)} | {fam_txt} | `{d['commit']}` | fig-{fid}-v1 (v2 planned: fig-{fid}-v2, not created) |")
     out += ["", "## 2. Journal files with full SHA-256", "",
             "| Figure | Kind | Path | SHA-256 |", "| --- | --- | --- | --- |"]
     for fid in order:
