@@ -143,3 +143,11 @@ NOT ACCEPTED, STILL OPEN (one line each; "settles it" = what would close the ite
 - Venue. RULED (X4, DL-716, DL-720): Peer Community Journal; MNA is dropped. The decision log supersedes the plan's checklist lines about MNA, an arXiv identifier and an MNA account (plan lines 1398 to 1402; ruling R1, DL-554 stands). UNVERIFIED until sourced: the PCJ template and figure rules, a versioned DOI repository, CC-BY, no AI-generated illustrations, the Zenodo limits (100 files and 50 GB per record), the AI-use disclosure, "confirm the PCI section".
 - 53. STILL OPEN (X5, DL-716): the owner accepts the reading that the FS5 supplement differs from a fresh build only in the build-commit line and the provenance-file hash (DL-714); the owner still has to read the corrected FS5 caption.
 - 49, 50, 51, 52, 55, 56, 57 stay open as in section L.
+
+## O. Tag-time state (13u, DL-723 to DL-725; nothing here is a ruling about an item, nothing is closed)
+
+- The user said "tag" (2026-11-09, DL-723 T1): 13 annotated local tags fig-<ID>-v1, one per journal figure (F1, F2, F3, F4a, F4b, F5, F5c, F6, FS1 to FS5), all at the one final commit of 13u; drafts are audit copies and are not tagged; venue Peer Community Journal. This file was committed before the tags were created (`git tag -l 'fig-*'` and `python scripts/ms13_make_tags.py --verify` show the result).
+- Finding (DL-723): figures/ is git-ignored, so the figure files are not in a tagged tree; the tag message and docs/ms13_journal_final_hashes.txt carry their SHA-256. The figure files exist only on this machine until the user backs them up.
+- OPEN AT TAG TIME (a later fix gets a new tag version v2; the v1 tag stays): 49 (triage table B left as triaged); 50 (F4b legend scope); 51 (alt texts of F5 and F5c write N as 1e3, 3e3, 1e4, 3e4); 52 (F4b short caption at 650 of 650 words); 53 (the user still reads the corrected FS5 caption and accepts the DL-714 reading); 55 (EPS extras differ between builds); 56 (colour-vision check, MANUAL); 57 (duration-floor reading, UNVERIFIED). None of their texts says it must be fixed before tagging.
+- Settled: 22 (FS6 not produced, DL-716 X3), 54 (FS1 wording, DL-716 X1, applied in 13x); 44, 45, 46, 48 accepted as disclosed limitations (DL-703).
+- Checklist item G2b-fs1-test-point: status "not re-verified" unchanged; key recheck_13x points to the 13x evidence (DL-723 T5).

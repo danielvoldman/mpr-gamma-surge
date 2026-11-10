@@ -79,7 +79,12 @@ def test_the_evidence_sheet_hashes_equal_the_final_list_and_the_files_on_disk():
 @pytest.mark.skipif(not SHEET.is_file(), reason="evidence sheet absent")
 def test_the_evidence_sheet_says_that_no_figure_tag_exists_and_lists_eleven_drafts():
     txt = SHEET.read_text(encoding="utf-8")
-    assert "none made; 13u makes them when the user says tag" in txt
+    # 13u (DL-725): the sheet is committed before the 13 tags are made; it names them, says what a tag holds, and does not claim more than that
+    tags_sec = txt.split("## Tags", 1)[1].split("## Drafts", 1)[0]
+    for i in "F1 F2 F3 F4a F4b F5 F5c F6 FS1 FS2 FS3 FS4 FS5".split():
+        assert f"fig-{i}-v1" in tags_sec, i
+    assert "committed BEFORE the tags were created" in tags_sec and "NOT in a tagged tree" in tags_sec and "Peer Community Journal" in tags_sec
+    assert "the drafts are audit copies and are not tagged" in tags_sec
     drafts = re.findall(r"^\| [0-9a-f]{40,64} \| (F\d|FS\d) \| (figures/\S+) \|$", txt, re.M)
     assert len({d for d, _ in drafts}) == 11
     for _, p in drafts:
