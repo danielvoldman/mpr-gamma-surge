@@ -7816,3 +7816,4 @@ Chosen:          as done   Default from: the prompt
 Test:            as above; after the commit of this entry scripts/ms13_check_hashes.py, the tag check with --target and the full fast suite are run (results in the last line below)
 Status:          done
 Commit/tag:      the commit that adds this entry; no tag
+Suite (DL-737, run after the commit cd0978e that added DL-737, on the committed tree): `.venv\Scripts\python.exe -m pytest -m "not slow"`: 1582 passed, 24 deselected, 9 xfailed, 9 warnings in 1322.39 s, exit code 0 read from pytest itself (1572 before plus the 10 new tests of tests/test_ms15a_release.py; no existing test changed or failing). scripts/ms13_check_hashes.py: 104 manifest rows, 0 problems. `ms13_make_tags.py --verify --target e6666cb2e8120a1619527c5ee7fce01e1beedb55`: 13 of 13 yes, exit 0; 17 tags, none created, moved or deleted; `git remote -v` empty.
