@@ -1,0 +1,23 @@
+# CITATION.cff for the software of this repository (D37, plan line 1025).
+# Written in sub-step 18 (MS15a). Schema validity against the CFF 1.2.0 schema is UNVERIFIED:
+# no CFF validator is installed here and Claude Code has no internet; the file was parsed as YAML only.
+# Keys left out on purpose, because their values do not exist yet (not invented):
+#   version        not yet assigned (no release tag exists)
+#   date-released  not yet assigned
+#   doi            not yet assigned (a persistent identifier exists only after the Zenodo deposit)
+#   repository-code  left out until the GitHub remote exists (URL not yet given)
+# The title is the title of README.md (the plan gives its own title only to the plan document).
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata in this file."
+type: software
+title: "mpr-gamma-surge"
+authors:
+  - family-names: "Voldman"
+    given-names: "Daniel"
+    email: "daniel.voldman@proton.me"
+    affiliation: "Independent Researcher"
+    orcid: "https://orcid.org/0009-0005-3409-8944"
+license: MIT
+keywords:
+  - "MPR neural mass model"
+  - "dying-brain gamma surge"
