@@ -90,8 +90,7 @@ def test_make_all_exists_and_has_no_absolute_path():
     assert p.is_file()
     t = p.read_text(encoding="ascii")
     assert not re.search(r"(?<![A-Za-z])[A-Za-z]:[\\/]", t), "a drive-letter path"
-    assert "\\\\" not in t.replace("\\\\.", "")  or True       # (UNC check below is the strict one)
-    assert not re.search(r"(?m)^[^#\n]*\\\\[A-Za-z0-9_.$-]+\\", t), "a UNC path"
+    assert "\\\\" not in t, "a UNC path (two backslashes)"
     assert "/Users/" not in t and "\\Users\\" not in t
     assert "$PSScriptRoot" in t                # the repository folder comes from the script's own folder
 
@@ -116,7 +115,9 @@ def test_figure_map_lists_exactly_the_13_figures_with_hashes_of_the_hash_list():
              if r.startswith("| ") and not r.startswith("| ---") and not r.startswith("| Figure")]
     expected = [[fid, kind, path, sha] for fid in order for kind, path, sha in info[fid]["files"]]
     assert rows2 == expected                   # every hash equals the hash list; none is retyped
-    assert len({r[3] for r in rows2}) == len(rows2) or True
+    assert len(rows2) == 100 and len(drafts) == 77      # 100 journal files (FS2 to FS5 have one caption) and 77 draft files: 177 in all
+    raw = _text("docs/ms13_journal_final_hashes.txt")
+    assert all(f"{r[3]}  " in raw and r[2] in raw for r in rows2)       # an independent look: each hash and path is in the hash list text
     sec3 = t.split("## 3. Drawn-data digests", 1)[1].split("## 4.", 1)[0]
     digests = re.findall(r"^\| (\S+) \| `([0-9a-f]{64})` \|$", sec3, re.M)
     assert digests == [(fid, info[fid]["digest"]) for fid in order]
@@ -125,10 +126,14 @@ def test_figure_map_lists_exactly_the_13_figures_with_hashes_of_the_hash_list():
     assert rows4 == [(fig, path, sha) for fig, path, sha in drafts]
 
 
-def test_figure_map_equals_its_generator_output_without_reading_figures():
+def test_draft_hashes_of_the_hash_list_equal_the_manifest():
     m = _load_figure_map_script()
-    order, info, drafts = m.parse_hash_list(_text("docs/ms13_journal_final_hashes.txt"))
-    assert len(order) == 13 and len(drafts) == 77 or len(drafts) > 0
+    _, _, drafts = m.parse_hash_list(_text("docs/ms13_journal_final_hashes.txt"))
+    manifest = {}
+    for line in _text("docs/ms13_figure_manifest.csv").splitlines()[1:]:
+        fig, path, sha, _dl = line.split(",")
+        manifest[path] = sha
+    assert drafts and all(manifest.get(path) == sha for _, path, sha in drafts)
 
 
 def test_this_module_created_no_tag():
