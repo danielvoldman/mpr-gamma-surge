@@ -2,7 +2,7 @@
 
 Written for: the owner and reviewer who close MS13, and the author of the paper. Written by scripts/ms13_evidence_sheet.py from stored files: the hashes are copied from docs/ms13_journal_final_hashes.txt (tests/test_ms13_13v.py compares them again with the files on disk); counts come from the output of scripts/ms13_verify_export.py and scripts/ms13_independent_compare.py run on the committed build in 13v (read only, no rebuild); the captions' failed-check and limit paragraphs are copied word for word. A value that no file gives is written UNVERIFIED. Nothing is tagged, pushed or uploaded.
 
-Build commit of every journal figure: 5e9057563c6c24fbac16b99000e547d08ef9a31a. Later commits are documentation, the audit module, and in 13v the wording fix of the FS5 caption (DL-705, DL-706; FS5 caption and supplement only; the PNG, TIFF and PDF are unchanged).
+Build commit of every journal figure except FS1: 5e9057563c6c24fbac16b99000e547d08ef9a31a (FS1 was rebuilt once in 13x from commit f5d3f0d8858c5c523f53985bba36dbb3fca77fe7, see the FS1 section; its PNG, TIFF and PDF are unchanged). Later commits are documentation, the audit module, and in 13v the wording fix of the FS5 caption (DL-705, DL-706; FS5 caption and supplement only; the PNG, TIFF and PDF are unchanged).
 
 ## User rulings of 2026-11-09 applied in 13x (DL-716 to DL-720)
 
@@ -284,13 +284,13 @@ Draft audit copy: FS1 (figures/FS1/); the journal files are the main versions.
 | png | figures/journal/FS1/FS1_journal.png | e10a6825cd5edd6f351d1c2d9b108e55b3e24ada6f917fa7397faa06c034edb1 |
 | tiff | figures/journal/FS1/FS1_journal.tiff | c49127bf937be8d630390af003f0216b33a649c72035429acc000c4fb4e0a7f4 |
 | pdf | figures/journal/FS1/FS1_journal.pdf | 737637a280a5b87865ba683e4962466940cddf0fa982c24772c5236fd98b9f54 |
-| caption short | figures/journal/FS1/FS1_journal_caption.txt | 35465cf1d2ebb1790e91e1fa92ec96430a803702a397c06bc631dc1be9766e06 |
-| caption full | figures/journal/FS1/FS1_journal_caption_full.txt | 984e64698cbd97aab32c0f60ba2963447bddf1742c3e445ac835ed7dda17f8e6 |
-| alt text | figures/journal/supplement/FS1_alt_text.txt | 4ca9f417fc258ad74e44f2c6788a1639cf58466546a5ddbd85c9927045696cb8 |
-| supplement | figures/journal/supplement/FS1_supplement.md | 03495083e08e43f8b4052035c151db41d3c65f36cfb9a45b8cf2b198072cbfd8 |
+| caption short | figures/journal/FS1/FS1_journal_caption.txt | 3a5cedd2157555a5bb93d252bd4bb30da58b2f598f98052669e8aa114067b0ec |
+| caption full | figures/journal/FS1/FS1_journal_caption_full.txt | e9e97fe15a532c191d4654a73772da370a182053cb8d490d1d93d36ebc886a73 |
+| alt text | figures/journal/supplement/FS1_alt_text.txt | 74bab08bee4407ccdff7eb49eaeb02cdbdf2f0f1801de536a886f1fd45a4f2d0 |
+| supplement | figures/journal/supplement/FS1_supplement.md | 39c6ad94e45c64a4e04ccf905f0a47a9a5bedb02da4567e613557101abcbf11d |
 | source data csv | figures/journal/supplement/FS1_source_data.csv | 49a55e21fd36dc6fb3ed0551becd99e198443ce3cf70bdb0e494a6d909613b77 |
 
-- Build commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a.
+- Build commit: f5d3f0d8858c5c523f53985bba36dbb3fca77fe7 (13x, DL-716 to DL-721; the other figures: 5e9057563c6c24fbac16b99000e547d08ef9a31a; provenance dirty = false). The FS1 caption (short and full), alt text and supplement were rewritten for the rulings X1 and X2 (old hashes: short 35465cf1d2ebb1790e91e1fa92ec96430a803702a397c06bc631dc1be9766e06, full 984e64698cbd97aab32c0f60ba2963447bddf1742c3e445ac835ed7dda17f8e6, alt text 4ca9f417fc258ad74e44f2c6788a1639cf58466546a5ddbd85c9927045696cb8, supplement 03495083e08e43f8b4052035c151db41d3c65f36cfb9a45b8cf2b198072cbfd8); PNG, TIFF, PDF and source data are byte-identical to the 13t-11 build; the supplement also differs in its build-commit line and its provenance-file hash.
 - Drawn-data digest of the journal figure: e19ae701c594421531ac81fa79814d5099451e189a04d378f7117f4df642f9b0; draft FS1: e19ae701c594421531ac81fa79814d5099451e189a04d378f7117f4df642f9b0; equal: yes. Verifier: PASS - e19ae701c594... export e19ae701c594 draft e19ae701c594; PASS - 60 of the 60 arrays of the draft data, per-array digests equal.
 - Independent comparison (this run): journal caption (8, 8, 0, 0) and short caption (8, 8, 0, 0) as (quantities, equal, not equal, unresolved); draft rows of FS1 (shared by the parts of a split figure): equal 21, other 0 (rows without a comparison are not counted as equal).
 - Verifier rows for FS1 (this run): 44 PASS, 0 FAIL, 1 MANUAL (the MANUAL row is the colour-vision check of the user).
@@ -303,10 +303,10 @@ Failed checks shown and claim limits kept (word for word from figures/journal/FS
 Audits that cover it:
 - N2 numbers typed into the builders (docs/ms13_13t9_n2_audit.md; by file, not by figure): test test_n2_every_typed_number_has_a_rule_and_every_stored_number_equals_the_stored_value passed in this run.
 - O2 superlatives and ranges (docs/ms13_13t10_o2_table.md): 1 stored-value claims listed for FS1, 1 equal; test test_o2_every_constant_in_a_superlative_range_or_bound_is_stored_ruled_or_reviewed_with_* ['passed'] in this run.
-- P2 alt text (docs/ms13_13t11_alt_table.md): 7 executable checks for FS1, 7 equal; test test_p2_every_alt_text_claim_equals_the_source_data passed in this run.
+- P2 alt text (docs/ms13_13t11_alt_table.md): 8 executable checks for FS1 (one added in 13x for the new (b) sentence, DL-718), 8 equal; test test_p2_every_alt_text_claim_equals_the_source_data passed in this run.
 - Verifier rows: see the count above; the full table is printed by scripts/ms13_verify_export.py.
 
-Open close items that touch it (docs/ms13_close_items.md, section L): 45 (accepted by the user: the full captions carry what the short captions leave out); 49; 54 (the STOP of DL-646, not resolved); 55; 56.
+Open close items that touch it (docs/ms13_close_items.md, section L): 45 (accepted by the user: the full captions carry what the short captions leave out); 49; 54 (ruled and applied in 13x: panel (c) is the focus at input 0, panel (d) the focus after the step to 3; DL-716 X1); 55; 56.
 
 ## FS2
 

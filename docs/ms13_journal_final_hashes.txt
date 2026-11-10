@@ -99,15 +99,15 @@ e314b955dc8d4fd360fad873ad3d00c12386556b5ef7ca24eaa3088a7a8f8d19  supplement    
 a911c78a1dd193601050abb73b08178b9fdeddaca645b7e8bb8982d13b61fdd7  source data csv    figures/journal/supplement/F6_source_data.csv
 
 ## FS1 (journal main version; draft audit copy: FS1)
-built from commit: 5e9057563c6c24fbac16b99000e547d08ef9a31a
+built from commit: f5d3f0d8858c5c523f53985bba36dbb3fca77fe7
 drawn-data digest: e19ae701c594421531ac81fa79814d5099451e189a04d378f7117f4df642f9b0
 e10a6825cd5edd6f351d1c2d9b108e55b3e24ada6f917fa7397faa06c034edb1  png                figures/journal/FS1/FS1_journal.png
 c49127bf937be8d630390af003f0216b33a649c72035429acc000c4fb4e0a7f4  tiff               figures/journal/FS1/FS1_journal.tiff
 737637a280a5b87865ba683e4962466940cddf0fa982c24772c5236fd98b9f54  pdf                figures/journal/FS1/FS1_journal.pdf
-35465cf1d2ebb1790e91e1fa92ec96430a803702a397c06bc631dc1be9766e06  caption short      figures/journal/FS1/FS1_journal_caption.txt
-984e64698cbd97aab32c0f60ba2963447bddf1742c3e445ac835ed7dda17f8e6  caption full       figures/journal/FS1/FS1_journal_caption_full.txt
-4ca9f417fc258ad74e44f2c6788a1639cf58466546a5ddbd85c9927045696cb8  alt text           figures/journal/supplement/FS1_alt_text.txt
-03495083e08e43f8b4052035c151db41d3c65f36cfb9a45b8cf2b198072cbfd8  supplement         figures/journal/supplement/FS1_supplement.md
+3a5cedd2157555a5bb93d252bd4bb30da58b2f598f98052669e8aa114067b0ec  caption short      figures/journal/FS1/FS1_journal_caption.txt
+e9e97fe15a532c191d4654a73772da370a182053cb8d490d1d93d36ebc886a73  caption full       figures/journal/FS1/FS1_journal_caption_full.txt
+74bab08bee4407ccdff7eb49eaeb02cdbdf2f0f1801de536a886f1fd45a4f2d0  alt text           figures/journal/supplement/FS1_alt_text.txt
+39c6ad94e45c64a4e04ccf905f0a47a9a5bedb02da4567e613557101abcbf11d  supplement         figures/journal/supplement/FS1_supplement.md
 49a55e21fd36dc6fb3ed0551becd99e198443ce3cf70bdb0e494a6d909613b77  source data csv    figures/journal/supplement/FS1_source_data.csv
 
 ## FS2 (journal main version; draft audit copy: FS2)
@@ -154,7 +154,7 @@ b5adab6a2005fd99b1c855616fc6d6c6fc09bf3de58a2b66bd242fdee02b8b8f  caption (singl
 fd983284aafeedb0e012bc946a11471cd909ed3567d6afa80b5b1e57d2d9f895  supplement         figures/journal/supplement/FS5_supplement.md
 927f43ba0e6fbd1d2e7518d42a58dccdbfd8934e1a1015ee9b138bfab81cc9b6  source data csv    figures/journal/supplement/FS5_source_data.csv
 
-## Build commits found in the provenance records: 5e9057563c6c24fbac16b99000e547d08ef9a31a
+## Build commits found in the provenance records: 5e9057563c6c24fbac16b99000e547d08ef9a31a, f5d3f0d8858c5c523f53985bba36dbb3fca77fe7
 
 ## The eleven draft files (audit copies; byte-identical to the manifest; docs/ms13_figure_manifest.csv)
 b91e37c680e7c959774351befe4042d9d077721876b7d5d88cf01a9959bd65c1  F1   figures/F1/F1.pdf
