@@ -87,7 +87,7 @@ def test_provenance_draft_is_false_only_for_a_clean_tagged_build(tmp_path, monke
     scr.write_text("# stand-in\n", encoding="utf-8")
     out = tmp_path / "figures" / "F3"
     prov = F.write_figure_provenance("F3", script=scr, inputs=[rec], params_rows=[], out_dir=out, root=ROOT, tag_build=tag_build)
-    assert prov["draft"] is draft and prov["git"]["dirty"] is dirty
+    assert prov["draft"] is draft                                                    # git.dirty is read by provenance.git_info (its own git call), not by the replaced dirty_lines
     assert json.loads((out / "F3_provenance.json").read_text(encoding="utf-8"))["draft"] is draft
 
 
