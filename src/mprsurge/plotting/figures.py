@@ -851,7 +851,7 @@ def _journal_tail(fig_id: str, out: Path, stem: str, saved: dict, cap, drawn: st
     nord.unlink()
     rows = _strip_rows_for_supplement(d, raw["a11"], note_map, strip_rows=strip_rows)
     git = prov["git"]
-    prov_text = (f"Journal export of {fig_id} (draft = {str(prov['draft']).lower()}, untagged), commit {git.get('commit')}, git dirty = {str(git.get('dirty')).lower()}. Provenance file: "
+    prov_text = (f"Journal export of {fig_id} (draft = {str(prov['draft']).lower()}, {J.build_kind(prov['draft'])}), commit {git.get('commit')}, git dirty = {str(git.get('dirty')).lower()}. Provenance file: "
                  f"{stem}_provenance.json (every input record and config hashed; seeds listed there). Drawn-data SHA-256 {drawn}. Journal settings: {J.CONFIG} (SHA-256 {cfg['_sha256']}; all UNVERIFIED). "
                  f"Font {fam}{' (fallback: the preferred fonts are not installed)' if fallback else ''}.")
     J.write_csv(sup / f"{fig_id}_source_data.csv", J.SOURCE_COLUMNS, source_rows)
@@ -865,7 +865,7 @@ def _journal_tail(fig_id: str, out: Path, stem: str, saved: dict, cap, drawn: st
         mb = (sup / f"{fig_id}_source_data.csv").stat().st_size / 1e6
         extra += (("Source data size", f"{fig_id}_source_data.csv is {mb:.0f} MB; it is to be zipped for the Zenodo record (DL-554 R10)."),)
     J.write_supplement(sup / f"{fig_id}_supplement.md", fig_id, strip_rows=rows, strip_heading=strip_heading(pid), footer=footer, provenance_text=prov_text, pointers=pointers,
-                       parameter_table=nord_text, extra=extra)
+                       parameter_table=nord_text, extra=extra, draft=prov["draft"])
     (sup / f"{fig_id}_alt_text.txt").write_text("\n\n".join(f"Panel ({k}): {v}" for k, v in alt.items()) + "\n", encoding="utf-8", newline="")
     t = timing_t
     t["end"] = time.perf_counter()

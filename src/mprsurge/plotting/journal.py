@@ -316,9 +316,15 @@ def num(x) -> str:
     return repr(xf) if not float(xf).is_integer() or abs(xf) >= 1e15 else str(int(xf))
 
 
-def write_supplement(path, fig_id: str, *, strip_rows, strip_heading: str, footer: str, provenance_text: str, pointers, parameter_table: str, extra=()) -> None:
-    """<ID>_supplement.md: the status-strip rows (value, threshold, status, DL numbers), the footer and the provenance text of the draft, the G10 pointers, the parameter table (J5)."""
-    lines = [f"# {fig_id} supplement sheet (journal export; draft = true)", "",
+def build_kind(draft: bool) -> str:
+    """The words for the kind of build in the supplement's provenance text: 'untagged' for a draft build (the old text), the release wording otherwise (MS15a 19, DL-739 C-2)."""
+    return "untagged" if draft else "release build, tags placed after the build"
+
+
+def write_supplement(path, fig_id: str, *, strip_rows, strip_heading: str, footer: str, provenance_text: str, pointers, parameter_table: str, extra=(), draft: bool = True) -> None:
+    """<ID>_supplement.md: the status-strip rows (value, threshold, status, DL numbers), the footer and the provenance text of the draft, the G10 pointers, the parameter table (J5).
+    draft: the draft flag of the provenance record; the default True writes the text of the earlier builds byte for byte (DL-739 C-2)."""
+    lines = [f"# {fig_id} supplement sheet (journal export; draft = {str(draft).lower()})", "",
              "This sheet holds what the journal figure does not draw: the status strip, the footer and provenance text of the draft, the claim-limit pointers and the parameter table. "
              "Nothing here is a new result.", "", "## Status strip", "", strip_heading, "",
              "| check | value | threshold | status | decision-log entries |", "|---|---|---|---|---|"]
