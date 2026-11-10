@@ -7636,3 +7636,13 @@ Chosen:          as done   Default from: DL-541, DL-551, DL-706
 Test:            scripts/ms13_check_hashes.py
 Status:          done
 Commit/tag:      the commit that adds this entry and the manifest; no tag
+
+## DL-720  MS13 13x X3, X4, X5: the rulings recorded in the close documents (documents edited after this entry; the plan is not edited)    [ID: MS13, 13x, X3, X4, X5]
+Date:            2026-11-09        Author:
+Decision:        CHANGE (documents only; logged before the edit). X3 (close item 22, FS6): recorded in docs/ms13_close_items.md (new section N: item 22 closed by user ruling), docs/ms13_close.md (the 'F1 to FS6' bullet and the status sentence: the FS6 part reads 'conditional row not triggered, user-ruled'; tags remain not done until 13u) and docs/ms13_evidence_sheet.md (a 13x block). Reading: plan Table 8.1, row FS6 'Only if G2 or G3 triggers' (docs/plan.md line 913); Table 11.1 row MS12 'Extensions S14, S15 (only via G2 or G3)' (line 1363); G2 not fired (DL-133), G3 not triggered (DL-261, DL-271); DL-421 and DL-435 (iv) rule MS12, S14, S15 and FS6 not produced and five supplementary figures. Options not chosen: 1 (run MS12 later) and 3 (S14 only as robustness). X4 (venue): recorded in the same three documents. Peer Community Journal is the venue and MNA is dropped; this decision log supersedes plan lines 1398 to 1402 (MNA site, arXiv identifier, CC-BY 4.0, ORCID, MNA account, MNA LaTeX template after acceptance) and the MNA mentions of plan lines 443, 781, 859, 1017, 1523, 1546, 1663 to 1665 as they bear on the venue (DL-554 R1 stands); MS15 follows the PCJ template and figure rules. Still UNVERIFIED until sourced: the PCJ template, a versioned DOI repository, CC-BY, no AI-generated illustrations, the Zenodo limits (100 files and 50 GB per record), the AI-use disclosure, and 'confirm the PCI section'. X5: recorded in the same documents: the owner accepts that the FS5 supplement differs from a fresh build only in the build-commit line and the provenance-file hash (DL-714); close item 53 (reading the corrected FS5 caption) stays open. docs/plan.md is read-only and is not edited.
+Reason:          X3, X4, X5 (DL-716)
+Options:         -
+Chosen:          as ruled   Default from: the owner
+Test:            tests/test_ms13_13v.py and tests/test_ms13_review_aids.py after the edit
+Status:          logged before the edit
+Commit/tag:      the commit that adds this entry; no tag
