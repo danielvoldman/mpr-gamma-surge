@@ -2779,6 +2779,10 @@
    "recheck_13v": {
     "result": "not re-verified",
     "proof": "the read-only check of DL-646 STOPPED (the values of (c) and (d) differ: 52.82 Hz and 1.710 cycles per e-fold against 91.77 Hz and 3.96); no later entry settles it; no evidence is available to set it passing"
+   },
+   "recheck_13x": {
+    "result": "not re-verified (status unchanged)",
+    "pointer": "docs/ms13_13v_checklist_recheck.md, section '13x update for FS1' (DL-723 T5): the FS1 captions now state that panel (c) is the stable focus at input 0 (52.82 Hz, 1.71 cycles per e-fold) and panel (d) the focus after the step to 3 (91.77 Hz, 3.96), user ruling X1 (DL-716); evidence named there: tests/test_ms13_13x.py, the FS1 verifier rows and the independent comparison of the 13x build (FS1 build commit f5d3f0d8858c5c523f53985bba36dbb3fca77fe7); that section does not say 're-verified', so the status is not changed"
    }
   },
   {
