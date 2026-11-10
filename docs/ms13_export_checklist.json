@@ -719,7 +719,8 @@
    "recheck_13v": {
     "result": "MANUAL",
     "proof": "verifier row cvd reads MANUAL for all 13 figures (the user checks the final PNGs with an online simulator)"
-   }
+   },
+   "user_report_14": "2026-11-10 (sub-step 14, DL-727 Y2): the user reports in chat that the manual colour-vision check on the pilot sheet was done and is fine (close item 56 closed as user-reported). Evidence: the user's statement only, no file. UNVERIFIED: which figures and which tool were used, and whether the 13 final PNGs were all covered. The status stays MANUAL (the verifier row cvd reads MANUAL); no status value of this file was changed."
   },
   {
    "id": "R4-F5-a-title-FAIL",
