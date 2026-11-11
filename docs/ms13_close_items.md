@@ -298,3 +298,25 @@ Items settled or changed by this step (one line each):
 OPEN after sub-step 20 (not closed by this step): 49, 50, 51, 52, 53, 55, 57, 60, 61, 62, 65 (in part), 66 (MS15b), 67 (in part), 68 (in part), 71 (in part), 72 (in part), 73, 74, 75, 76 (in part), 77, 78, 80, 82.
 
 SETTLED OR CLOSED: 22; 54; 56; 44, 45, 46, 48; 58 (replaced by 59); 59; 63; 64; 69; 70; 79 (when the push is verified; see the report); 81.
+
+## W. Sub-step 21 (2026-11-10; DL-747, DL-748; MS15a part 3: the user's push record, the slow tests once, checklist 10.8 notes, the Zenodo data package; nothing in results, frozen criteria, drafts, figures, src, configs, the plan or any tag changes; section V above is kept as it was and is superseded only where this section says so)
+
+Items settled or changed by this step (one line each):
+
+- 79 and 68 (in part). CLOSED on the user's output: the push of `master` and the 18 named tags is in docs/ms15a_push_record.md and equals the local tag objects by script (38 of 38 rows, no network; scripts/ms15a_check_push_record.py). The 13 v1 tags are not on the remote.
+- 76. CLOSED (the slow tests): the 24 slow tests were run once, 24 passed, exit 0, 588.86 s (DL-748), one documentation commit after T.
+- 72 (in part). The clean-machine run is a stand-in on this PC; what it can and cannot satisfy is in docs/ms15a_clean_machine_notes.md (see 84). Not run.
+- 67 and 73 (in part). The data package is built outside the repository (106 files, 78,891,312 bytes, DL-748 and the results entry); the F1 CSV is not zipped (DL-748). Not uploaded.
+
+New items (one line each):
+
+- 83. OPEN, FOR THE USER. Confirm on GitHub that https://github.com/danielvoldman/mpr-gamma-surge is private (the user said they would check; not confirmed in the chat; Claude Code ran no network command; UNVERIFIED).
+- 84. OPEN, FOR THE USER (stand-in limits). The stand-in cannot show that the project runs on another machine; items 4, 5 and 8 of checklist 10.8 are not met (4: no archive of the results exists by ruling and no metrics-within-RB6 comparison is named; 5: `mprsurge.run` has no `--from-record`; 8: no deposit or identifier), items 2, 6 and 7 only in part; the README must say so if the stand-in is run (proposed text in docs/ms15a_clean_machine_notes.md section 4). The plan's "passes on a clean machine" (L1264, L1366) is not met until a clean machine is used.
+- 85. OPEN, FOR THE USER (Zenodo and GitHub steps only the user can do; all mechanics UNVERIFIED because they are not in the repository): make a Zenodo account; enable the repository on Zenodo; make the repository public before the GitHub release; create the GitHub release from `release-v1.0`; upload the data package; then add the DOI to CITATION.cff and README in a later commit (the identifier exists only after the deposit).
+- 86. OPEN (UNVERIFIED limit). The data package has 106 files; the Zenodo limit of 100 files per record is UNVERIFIED but, if right, it is exceeded. Not repaired. Options for a ruling: one zip per figure folder (13 zips; each member equals its listed hash), or two records, or check the real limit. The F1 CSV is not zipped (DL-748): the user may overrule.
+- 87. OPEN, FOR THE USER. `docs/ms13_journal_final_hashes.txt` and `docs/figure_map.md` still say that the v2 tags are "PLANNED, not created"; they are hashed (the hash list's SHA-256 is named in `release-v1.0`) and are given unchanged in the package; DATA_README.md states the correction. Changing them would change the hash named in the tag.
+- 88. OPEN (finding, not changed). `scripts/make_all.ps1 -Stage figures` calls `scripts\fig_journal.py` without `--release`, so it would write provenance records with `draft = true` (its own comment says so); checklist item 6 (L1284) would then fail after a stage run. `make_all.ps1` has still never been run (item 80).
+
+OPEN after sub-step 21 (not closed by this step): 49, 50, 51, 52, 53, 55, 57, 60, 61, 62, 65 (in part), 66 (MS15b), 67 (in part), 68 (in part), 71 (in part), 72 (in part), 73 (in part), 74, 75, 77, 78, 80, 82, 83, 84, 85, 86, 87, 88.
+
+SETTLED OR CLOSED: 22; 54; 56; 44, 45, 46, 48; 58 (replaced by 59); 59; 63; 64; 69; 70; 76; 79; 81.

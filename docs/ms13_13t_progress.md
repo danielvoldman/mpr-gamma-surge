@@ -167,3 +167,12 @@ Journal split (DL-667 K2): F4a = draft (a), (f), (g), (i), (j) (the delay panels
 
 - Rulings E1 to E7 logged (DL-744); scan of the tracked files and identities, no STOP (DL-745); scripts/ms13_make_tags.py `--version v2` and `--release` with tests/test_ms15a_tags.py (11 items; the 9 v1 tests unchanged); documents (README, CHANGELOG, evidence sheet Tags, close and close items, this file) written as 'tags are created at commit T'. T is the final commit of the step; the 13 tags fig-<ID>-v2 and release-v1.0 are created at T, then the remote is added and pushed by name (18 tags, never `--tags`). R = 90b177acc694de0b9756542f236977d782f185e1. The figure provenance names R; release-v1.0 differs from R only in documents, the figure map, the hash list and helper scripts for tagging and hash lists. The v1 tags stay local and are not pushed.
 - Next (step 21): the 24 slow tests once; the clean-machine stand-in run of checklist 10.8 (fresh clone, fresh environment, labelled as a stand-in); the Zenodo data record package; the log line that records the tag and push result.
+
+## State after 21 (sub-step 21, 2026-11-10; DL-747, DL-748; MS15a part 3)
+
+- The user pushed master and the 18 named tags; docs/ms15a_push_record.md holds the output word for word; scripts/ms15a_check_push_record.py finds it equal to the local tag objects (38 of 38 rows, no network). Visibility (private) NOT verified by Claude Code. Local master is ahead of origin/master by the commits of this step; the user pushes them later.
+- The 24 slow tests, once: 24 passed, exit 0, 588.86 s.
+- docs/ms15a_clean_machine_notes.md: checklist 10.8 read-only; the stand-in can satisfy items 1 (mechanical part) and 3, items 2, 6, 7 in part, not items 4, 5, 8.
+- The Zenodo data package C:\dev\_zenodo_data_package (outside the repository; 106 files, 78,891,312 bytes; not uploaded; MANIFEST.sha256 SHA-256 01ad6d842eb516c33c3ab80d359761fb04744be3efd9e630bb3a48b58b38ad72); built and verified by scripts/ms15a_make_data_package.py.
+- tests/test_ms15a_release_state.py: 11 items. New close items 83 to 88 (docs/ms13_close_items.md section W).
+- Next (step 22): the stand-in run (fresh clone, fresh environment, this PC; needs the user's internet and credentials) if the user wants it; the user's Zenodo and GitHub steps (item 85); a ruling on the 106-file package (item 86).
