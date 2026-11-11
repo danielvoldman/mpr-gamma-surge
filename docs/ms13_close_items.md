@@ -283,3 +283,18 @@ Items settled or changed by this step (one line each):
 OPEN after sub-step 19 (not closed by this step): 49, 50, 51, 52, 53, 55, 57, 60, 61, 62, 65 (in part), 66 (MS15b), 67 (in part), 68 (in part), 71 (in part), 72 (in part), 73, 74, 75, 76 (in part), 77, 78, 79 (in part), 80, 82.
 
 SETTLED OR CLOSED: 22; 54; 56; 44, 45, 46, 48; 58 (replaced by 59); 59; 63; 64; 69; 70; 81.
+
+## V. Sub-step 20 (2026-11-10; DL-744, DL-745; MS15a part 2b: the v2 tags, release-v1.0 and the remote; nothing in results, frozen criteria, drafts, figures, src, configs or the plan changes; section U above is kept as it was and is superseded only where this section says so)
+
+Items settled or changed by this step (one line each):
+
+- 69. The v2 tags and release-v1.0 carry the configured identity Daniel Voldman <daniel.voldman@proton.me> (created at commit T). The older commits (689 on `master` before this step; the user's ruling says 686, a difference of 3 not explained, UNVERIFIED) and the 16 older annotated tags keep the placeholder identity "Your Name <you@example.com>"; history is not rewritten.
+- 70 and 81. The 13 `fig-<ID>-v1` tags are SUPERSEDED by `fig-<ID>-v2` (the v1 messages hold the v1 supplement hashes). They stay local, are not moved or deleted, and are NOT pushed.
+- 79 and 68 (in part). The remote https://github.com/danielvoldman/mpr-gamma-surge (private) is added and pushed as the last action of sub-step 20, by name (18 tags, never `--tags`); the result is in the report of the step and in `git ls-remote`, not in this file. Tags are created at commit T; The figure provenance names R; release-v1.0 differs from R only in documents, the figure map, the hash list and helper scripts for tagging and hash lists.
+- NEW, UNVERIFIED. 'Release commit' (plan L1284) is read as R for the provenance and T for the tags; the replication-pass tag is lightweight (plan L1236 says all annotated); the plan's push line (L1258) uses `--tags` and `main`, this step does not (branch `master`).
+- NEW (for the user). 6 tracked files contain the Windows user folder of this account (docs/decision_log.md 44 lines, docs/ms13_13t10_review.md, docs/ms13_13t3_review.md, docs/ms13_13t7_review.md, docs/ms13_export_checklist.json, environment/python-version.txt); not edited. The account e-mail address is in no tracked file.
+- 76 (in part). The 24 slow tests, the clean-machine stand-in run and the Zenodo data record are step 21; not run here.
+
+OPEN after sub-step 20 (not closed by this step): 49, 50, 51, 52, 53, 55, 57, 60, 61, 62, 65 (in part), 66 (MS15b), 67 (in part), 68 (in part), 71 (in part), 72 (in part), 73, 74, 75, 76 (in part), 77, 78, 80, 82.
+
+SETTLED OR CLOSED: 22; 54; 56; 44, 45, 46, 48; 58 (replaced by 59); 59; 63; 64; 69; 70; 79 (when the push is verified; see the report); 81.

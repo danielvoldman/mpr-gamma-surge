@@ -1,6 +1,6 @@
 # Changelog
 
-The plan (docs/plan.md, line 1023) asks for one entry per release tag. No release tag exists yet, so everything below is "Unreleased". No date and no version is given for it because none exists.
+The plan (docs/plan.md, line 1023) asks for one entry per release tag. The tag `release-v1.0` is created at commit T, the final commit of MS15a sub-step 20 (the commit that holds this text), so everything below is "Unreleased" until the tag exists in the repository (`git tag -l`). No date is given and no version beyond the tag name; no DOI is assigned.
 
 ## Unreleased
 
@@ -11,7 +11,9 @@ The plan (docs/plan.md, line 1023) asks for one entry per release tag. No releas
 - MS14: `docs/search_log.md` with the plan's Table E.1 and items 1 to 7 recorded as "Not done natively on Nov 10; general web-search pre-check only". MS14 was closed by user ruling as a departure from the plan; its limits are in `docs/ms13_close.md` section (7).
 - MS15a, part 1 (the release files; user rulings of 2026-11-10 in `docs/ms15_scope_notes.md`): `LICENSE` (MIT), `LICENSE-DATA.md` (CC-BY 4.0 notice; the legal text is still to be added), `CITATION.cff`, `.zenodo.json`, `scripts/make_all.ps1` (written and not run), `docs/figure_map.md`, `scripts/ms15a_write_figure_map.py`, `docs/ms15_draft_flag_notes.md`, `tests/test_ms15a_release.py`, a full `README.md`.
 
-- MS15a, part 2a (user ruling of 2026-11-10, 18:21, option B of `docs/ms15_draft_flag_notes.md`; `docs/decision_log.md` DL-738 to DL-743): `scripts/fig_journal.py --release` (alias `--tag`: clean-tree check first, provenance `draft = false` on a clean tree), the supplement text follows the draft flag, and the 13 journal figures were rebuilt once from the clean commit 90b177acc694de0b9756542f236977d782f185e1 (every provenance record: `draft = false`, `dirty = false`, that commit). PNG, TIFF and PDF are byte-identical to the first build; supplements and provenance records are new. `tests/test_ms15a_draft_flag.py`. The `fig-<ID>-v2` tags and `release-v1.0` are planned and not created.
+- MS15a, part 2a (user ruling of 2026-11-10, 18:21, option B of `docs/ms15_draft_flag_notes.md`; `docs/decision_log.md` DL-738 to DL-743): `scripts/fig_journal.py --release` (alias `--tag`: clean-tree check first, provenance `draft = false` on a clean tree), the supplement text follows the draft flag, and the 13 journal figures were rebuilt once from the clean commit 90b177acc694de0b9756542f236977d782f185e1 (every provenance record: `draft = false`, `dirty = false`, that commit). PNG, TIFF and PDF are byte-identical to the first build; supplements and provenance records are new. `tests/test_ms15a_draft_flag.py`. The `fig-<ID>-v2` tags and `release-v1.0` follow in sub-step 20 (next entry).
+
+- MS15a, part 2b (sub-step 20; user ruling of 2026-11-10, 18:21, "defaults"; `docs/decision_log.md` DL-744 and DL-745): `scripts/ms13_make_tags.py --version v2 --release` and `tests/test_ms15a_tags.py`; created at commit T: 13 annotated local tags `fig-<ID>-v2` (the files of the rebuild from R = 90b177acc694de0b9756542f236977d782f185e1; each message holds the full SHA-256 of every file, "supersedes fig-<ID>-v1 (local only, not published)" and "provenance: draft false, built from R") and the annotated tag `release-v1.0`, all at T. The figure provenance names R; release-v1.0 differs from R only in documents, the figure map, the hash list and helper scripts for tagging and hash lists. The `fig-<ID>-v1` tags are superseded, stay local and are not pushed. The remote https://github.com/danielvoldman/mpr-gamma-surge (private) receives `master`, the 13 v2 tags, `release-v1.0`, `criteria-frozen`, `env-v1`, `replication-pass` and `tolerances-frozen`, by name and never with `--tags`.
 
 ### Changed
 
@@ -20,7 +22,7 @@ The plan (docs/plan.md, line 1023) asks for one entry per release tag. No releas
 
 ### Known gaps
 
-- No `release-v1.0` tag and no `fig-<ID>-v2` tag; nothing archived; no version, DOI or remote assigned.
+- Nothing archived; no version beyond the tag name and no DOI assigned. The older commits (689 on `master` before sub-step 20; the ruling of 2026-11-10 says 686, a difference of 3 not explained, UNVERIFIED) and the 16 older annotated tags keep the placeholder identity "Your Name <you@example.com>"; they become visible when pushed.
 - The 13 journal provenance records say `draft = false` since the rebuild of MS15a 19; the eleven drafts stay `draft = true` (audit copies, by ruling); the meaning of "release commit" in plan section 10.8 item 6 is UNVERIFIED (`docs/ms15_draft_flag_notes.md`).
 - Checklist 10.8 has not been run on a clean machine; the 24 slow tests are not recorded as run at the current commit; `mprsurge.run` has no `--from-record` option.
 - Manuscript and submission (MS15b) are outside the repository and not done.
