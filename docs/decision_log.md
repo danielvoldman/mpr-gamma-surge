@@ -7982,3 +7982,13 @@ Chosen:          as above   Default from: the prompt
 Test:            tests/test_ms15a_release.py 11 passed; tests/test_ms15a_zip_package.py 12 passed; the full fast suite follows
 Status:          done except the final suite
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-754  MS15a 22: final checks and the full fast suite on the committed tree (4d9366c)    [ID: MS15, MS15a, 22, G1, G2]
+Date:            2026-11-10        Author:
+Decision:        FACT. `scripts/ms13_check_hashes.py`: 104 manifest rows, 0 problems. FULL FAST SUITE on the committed tree 4d9366c (tree clean before): `.venv\Scripts\python.exe -m pytest -m "not slow" -p no:cacheprovider -q`: 1628 passed, 24 deselected, 9 xfailed, 9 warnings in 1278.69 s (0:21:18), exit code 0 read from the shell exit of pytest (1615 at the start plus 13 new items: 1 in tests/test_ms15a_release.py, 12 in tests/test_ms15a_zip_package.py; no existing test changed or failing); output C:\Users\Alpha\AppData\Local\Temp\fast_suite_22.txt (outside the repository; a stray, not deleted). Tags: 31, unchanged (13 fig-<ID>-v1 peel to e6666cb2e8120a1619527c5ee7fce01e1beedb55; 13 fig-<ID>-v2 and release-v1.0 peel to 33b7575721184b90571c2bbaffc4a9a0b1607a77; criteria-frozen, env-v1, replication-pass, tolerances-frozen as before; tag object IDs spot-checked); none created, moved or deleted in this step. No network command, no remote command, no push in this step. Local master is ahead of origin/master by the commits made in this step (5 before this entry's commit, 6 after it, read from the local ref; it was 0 at the start because the user had pushed 4ea12aa).
+Reason:          last log line of the sub-step 22 prompt
+Options:         -
+Chosen:          as above   Default from: the prompt
+Test:            as above
+Status:          done
+Commit/tag:      the commit that adds this entry; no tag
