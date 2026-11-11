@@ -7898,3 +7898,13 @@ Chosen:          as above   Default from: the prompt
 Test:            tests/test_ms15a_tags.py (new), tests/test_ms13_13u.py (unchanged), then the full fast suite once after the last edit
 Status:          planned; E5 scan done
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-746  MS15a 20: results before the tags: tag tool and tests, documents, full fast suite, hash check; this commit is T, the commit the 13 fig-<ID>-v2 tags and release-v1.0 point to    [ID: MS15, MS15a, 20, E2, E3, E4, E7]
+Date:            2026-11-10        Author:
+Decision:        FACT. COMMITS of this step (all authored by Daniel Voldman <daniel.voldman@proton.me>): be7b21d (DL-744), 6d69974 (DL-745), 9546727 (scripts/ms13_make_tags.py with `--version v2` and `--release`, tests/test_ms15a_tags.py, committed before they were run), a1a297e (documents E4: README, CHANGELOG, docs/ms13_evidence_sheet.md Tags, docs/ms13_close.md section 11, docs/ms13_close_items.md section V, docs/ms13_13t_progress.md; written as "tags are created at commit T"), and the commit that adds this entry = T. TESTS: tests/test_ms15a_tags.py 11 items and tests/test_ms13_13u.py 9 items (unchanged): 20 passed in 28.92 s (run after the commit 9546727). FULL FAST SUITE on the committed tree a1a297e (tree clean before and after): `.venv\Scripts\python.exe -m pytest -m "not slow"`: 1604 passed, 24 deselected, 9 xfailed, 9 warnings in 1268.14 s (0:21:08), exit code 0 read from pytest itself (1593 at the start of the step plus the 11 new items; no existing test changed or failing). `scripts/ms13_check_hashes.py`: 104 manifest rows, 0 problems. The only change after the suite is this entry (docs/decision_log.md, text only). T = the commit that adds this entry; no commit follows the tags. The tags are created in one scripted run: `.venv\Scripts\python.exe scripts\ms13_make_tags.py --version v2 --release --create` after a dry run of the same command; the v1 tags, the four older tags and every existing tag are not touched. R = 90b177acc694de0b9756542f236977d782f185e1; `git diff --stat R..T` is read before the tags (E2); the result of the tags, their verification and the push are in the report of the step and in the log line of step 21 (this entry cannot hold them: T is this commit).
+Reason:          E2, E3, E4, E7 of the sub-step 20 prompt (the suite result goes into the same final commit, before T is chosen)
+Options:         -
+Chosen:          as above   Default from: the prompt
+Test:            as above
+Status:          done (before the tags)
+Commit/tag:      the commit that adds this entry is T; the tags follow
