@@ -80,9 +80,9 @@ try {
     }
     elseif ($Stage -eq 'figures') {
         # MS13 (Table 11.1: "Figures F1-FS6 with provenance"); the journal export of the 13 figures, from results\ only (no simulation)
-        # NOTE: scripts\fig_journal.py builds an untagged DRAFT (provenance draft = true); see docs\ms15_draft_flag_notes.md.
+        # NOTE: --release is a release build (provenance draft = false): the figures stage must be run on a clean tree; see docs\ms15_draft_flag_notes.md.
         Invoke-Step 'journal figures (scripts\fig_journal.py, 13 IDs)' 'step name: plan (MS13); stage value and command: inferred' {
-            & $Py 'scripts\fig_journal.py' 'F1' 'F2' 'F3' 'F4a' 'F4b' 'F5' 'F5c' 'F6' 'FS1' 'FS2' 'FS3' 'FS4' 'FS5'
+            & $Py 'scripts\fig_journal.py' '--release' 'F1' 'F2' 'F3' 'F4a' 'F4b' 'F5' 'F5c' 'F6' 'FS1' 'FS2' 'FS3' 'FS4' 'FS5'
         }
     }
     Write-Host ("== stage {0} finished: {1} steps, no error" -f $Stage, $script:StepNo)

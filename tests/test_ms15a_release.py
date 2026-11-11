@@ -95,6 +95,17 @@ def test_make_all_exists_and_has_no_absolute_path():
     assert "$PSScriptRoot" in t                # the repository folder comes from the script's own folder
 
 
+def test_make_all_figures_stage_passes_release_and_stays_ascii_without_absolute_path():
+    """MS15a 22 (DL-751 G1, close item 88): the figures stage calls scripts\\fig_journal.py with --release (a release build, draft = false)."""
+    t = (REPO / "scripts" / "make_all.ps1").read_text(encoding="ascii")
+    calls = [ln for ln in t.splitlines() if "scripts\\fig_journal.py" in ln and "& $Py" in ln]
+    assert len(calls) == 1, calls
+    assert "'--release'" in calls[0]
+    assert calls[0].index("'--release'") < calls[0].index("'F1'")      # an option before the figure IDs
+    assert not re.search(r"(?<![A-Za-z])[A-Za-z]:[\\/]", t)
+    assert t.count("{") == t.count("}") and t.count("(") == t.count(")")
+
+
 def _load_figure_map_script():
     spec = importlib.util.spec_from_file_location("ms15a_write_figure_map", REPO / "scripts" / "ms15a_write_figure_map.py")
     m = importlib.util.module_from_spec(spec)
