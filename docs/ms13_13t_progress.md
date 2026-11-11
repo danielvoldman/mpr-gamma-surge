@@ -176,3 +176,10 @@ Journal split (DL-667 K2): F4a = draft (a), (f), (g), (i), (j) (the delay panels
 - The Zenodo data package C:\dev\_zenodo_data_package (outside the repository; 106 files, 78,891,312 bytes; not uploaded; MANIFEST.sha256 SHA-256 01ad6d842eb516c33c3ab80d359761fb04744be3efd9e630bb3a48b58b38ad72); built and verified by scripts/ms15a_make_data_package.py.
 - tests/test_ms15a_release_state.py: 11 items. New close items 83 to 88 (docs/ms13_close_items.md section W).
 - Next (step 22): the stand-in run (fresh clone, fresh environment, this PC; needs the user's internet and credentials) if the user wants it; the user's Zenodo and GitHub steps (item 85); a ruling on the 106-file package (item 86).
+
+## State after 22 (sub-step 22, 2026-11-10; DL-751 to DL-753; MS15a part 4)
+
+- G1 (close item 88): scripts/make_all.ps1 -Stage figures passes `--release` to scripts/fig_journal.py (one line and its comment); one new test; the script is still unrun; the PowerShell parse check is the user's (command in docs/ms13_close_items.md section X).
+- G2 (close item 86): the data package as one zip per figure, C:\dev\_zenodo_data_package_zips (outside the repository; 20 files: 13 zips and 7 unzipped files; 35,355,300 bytes; deterministic zips, two builds byte-identical; MANIFEST.sha256 92ba00b5672a513d367b9797cb640f332c631b2ee6cf2280b31183040d97d209; MANIFEST_inner.sha256 9a6531be0eb064c0186c35dde55511c88a425d053fc8d84ce075aab8ebdfc52b, equal to the hash list for the 100 figure files). The old folder C:\dev\_zenodo_data_package is superseded. Not uploaded.
+- The user pushed master (to the DL-750 commit) after step 21: local master was 0 commits ahead of origin/master at the start of this step (local ref).
+- Next: the user's parse of make_all.ps1; the user's Zenodo and GitHub steps (item 85) with the zips package; the stand-in run of checklist 10.8 if the user wants it (item 72); the open items 83, 84, 87.
