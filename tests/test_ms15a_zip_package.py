@@ -85,7 +85,8 @@ def test_zip_entries_are_sorted_with_the_fixed_date_deflate_and_no_extra(builds)
             for zi in infos:
                 assert zi.date_time == (1980, 1, 1, 0, 0, 0), (zp.name, zi.filename)
                 assert zi.compress_type == zipfile.ZIP_DEFLATED
-                assert zi.extra == b"" and zi.comment == b"" and zi.external_attr == 0 and zi.create_system == 0
+                assert zi.extra == b"" and zi.comment == b""
+                assert zi.external_attr == 0o100644 << 16 and zi.create_system == 3      # one fixed value on every entry (zipfile replaces 0 by 0o600 << 16)
                 assert not zi.filename.endswith("/") and "\\" not in zi.filename and zi.filename.startswith("figures/journal/")
 
 

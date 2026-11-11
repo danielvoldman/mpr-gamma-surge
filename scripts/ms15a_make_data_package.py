@@ -22,7 +22,8 @@ MS15a step 22 (DL-751 G2, close item 86): the --zips mode writes a SECOND packag
     verify:  .venv\\Scripts\\python.exe scripts\\ms15a_make_data_package.py --zips --verify [--dest ...]
 
 Zips are deterministic: entries sorted by path, date 1980-01-01 00:00:00 on every entry, deflate level 6, no extra field, no comment,
-external attributes 0, create_system 0, no directory entries, forward slashes. A deflate stream depends on the zlib version: equal bytes
+the same fixed external attributes on every entry (regular file rw-r--r--, create_system 3; the zipfile module replaces 0 by 0o600 << 16, so
+0 cannot be written), no directory entries, forward slashes. A deflate stream depends on the zlib version: equal bytes
 are shown for two builds on one machine, not claimed for another (UNVERIFIED). Each entry has the path the hash list gives the file.
 """
 import argparse
@@ -180,6 +181,8 @@ ZIP_DEST = Path(r"C:\dev\_zenodo_data_package_zips")
 ZIP_SCRATCH = (Path(r"C:\dev\_zenodo_zips_scratch_a"), Path(r"C:\dev\_zenodo_zips_scratch_b"))
 ZIP_DATE = (1980, 1, 1, 0, 0, 0)        # the ZIP minimum
 ZIP_LEVEL = 6                           # deflate
+ZIP_SYSTEM = 3                          # Unix
+ZIP_ATTR = 0o100644 << 16               # regular file, rw-r--r--, the same on every entry
 INNER = "MANIFEST_inner.sha256"
 ZIP_TOP = DOC_FILES + ["DATA_README.md", "MANIFEST.sha256", INNER]      # the unzipped top-level files (7)
 
@@ -210,8 +213,8 @@ def write_zip(path, members):
         for name, data in members:
             zi = zipfile.ZipInfo(name, ZIP_DATE)
             zi.compress_type = zipfile.ZIP_DEFLATED
-            zi.create_system = 0
-            zi.external_attr = 0
+            zi.create_system = ZIP_SYSTEM
+            zi.external_attr = ZIP_ATTR         # zipfile replaces a value of 0 by 0o600 << 16, so a fixed explicit value is set
             zi.extra = b""
             zi.comment = b""
             zf.writestr(zi, data, compress_type=zipfile.ZIP_DEFLATED, compresslevel=ZIP_LEVEL)
@@ -362,7 +365,7 @@ def verify_zips(dest):
                 bad.append(f"{zp.name}: has a comment")
             for zi in infos:
                 if (zi.date_time != ZIP_DATE or zi.compress_type != zipfile.ZIP_DEFLATED or zi.extra != b"" or zi.comment != b""
-                        or zi.external_attr != 0 or zi.create_system != 0 or zi.filename.endswith("/") or "\\" in zi.filename):
+                        or zi.external_attr != ZIP_ATTR or zi.create_system != ZIP_SYSTEM or zi.filename.endswith("/") or "\\" in zi.filename):
                     bad.append(f"{zp.name}: entry {zi.filename} has other properties than the fixed ones")
         for (n, h), e in zip(zip_members_hashes(zp), grp):
             inner.add((h, e[2]))

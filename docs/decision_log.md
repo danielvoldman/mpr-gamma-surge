@@ -7962,3 +7962,13 @@ Chosen:          as above   Default from: the prompt
 Test:            tests/test_ms15a_release.py (one new item, G1); tests/test_ms15a_zip_package.py (G2); the full fast suite once at the end
 Status:          rulings logged; nothing else edited yet
 Commit/tag:      the commit that adds this entry; no tag
+
+## DL-752  MS15a 22: finding in the first test run of the zips mode, and the fix (fixed external attributes instead of 0); logged before the rerun    [ID: MS15, MS15a, 22, G2]
+Date:            2026-11-10        Author:
+Decision:        FACT. The first run of tests/test_ms15a_zip_package.py and tests/test_ms15a_release_state.py on the committed tree 27c2afd: 19 passed, 2 skipped, 2 failed (the entry-property test and the verify test, 100 problem lines: the entries had external_attr 25165824 = 0o600 << 16, not the 0 that DL-751 G2 wrote). Cause (read from the behaviour of Python 3.11 zipfile, UNVERIFIED in its source): ZipFile.writestr and ZipFile.open(..., "w") replace an external_attr of 0 by 0o600 << 16. The date, deflate, empty extra, empty comment and sorted entries were as ruled. The two builds had not yet been written to the real folders: no package folder was written by this run (the tests write to pytest temporary folders only). FIX (a change of the DL-751 wording "external attributes 0, create_system 0"): every entry gets the same fixed explicit value, external_attr = 0o100644 << 16 (regular file, rw-r--r--) and create_system 3; this is as deterministic as 0 (identical on every entry and every build) and is the nearest value the module lets us set. The script docstring, the verify check and the test say so. Nothing else changes. The script and the test are committed before they are run again.
+Reason:          a failing new test found a difference between the ruling text and what the module can write; shown, not dropped
+Options:         zero attributes (not possible with zipfile); write the zip structure by hand (not done: more code, no gain); fixed explicit value (chosen)
+Chosen:          fixed explicit value   Default from: the prompt (deterministic zips, "no extra attributes" read as no varying attributes)
+Test:            tests/test_ms15a_zip_package.py
+Status:          fix committed with this entry, not yet run
+Commit/tag:      the commit that adds this entry; no tag
