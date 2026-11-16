@@ -183,3 +183,9 @@ Journal split (DL-667 K2): F4a = draft (a), (f), (g), (i), (j) (the delay panels
 - G2 (close item 86): the data package as one zip per figure, C:\dev\_zenodo_data_package_zips (outside the repository; 20 files: 13 zips and 7 unzipped files; 35,355,300 bytes; deterministic zips, two builds byte-identical; MANIFEST.sha256 92ba00b5672a513d367b9797cb640f332c631b2ee6cf2280b31183040d97d209; MANIFEST_inner.sha256 9a6531be0eb064c0186c35dde55511c88a425d053fc8d84ce075aab8ebdfc52b, equal to the hash list for the 100 figure files). The old folder C:\dev\_zenodo_data_package is superseded. Not uploaded.
 - The user pushed master (to the DL-750 commit) after step 21: local master was 0 commits ahead of origin/master at the start of this step (local ref).
 - Next: the user's parse of make_all.ps1; the user's Zenodo and GitHub steps (item 85) with the zips package; the stand-in run of checklist 10.8 if the user wants it (item 72); the open items 83, 84, 87.
+
+## State after 25 (sub-step 25, 2026-11-16; DL-755 and DL-756)
+
+- The user's ruling H1 (2026-11-16): no DOI is added to the repository (CITATION.cff and README.md); the "DOI commit" is dropped; CITATION.cff stays without doi, version and date-released. Close item 85 keeps the user's Zenodo, public-switch, GitHub-release and upload steps, without the DOI step.
+- README.md and CHANGELOG.md: the stale lines of followups.md section E rows 1 to 9 are corrected; CHANGELOG.md has a section "release-v1.0" and a section "Unreleased". The hashed files, CITATION.cff, src/, tests/, scripts/ and the tags are not changed.
+- Still open and not ruled: the CC-BY legal text (77), G0, RB7, the F4a source-data CSV flag column, the stale lines of the hashed files (87), 83, 84, 85 (without the DOI step).
